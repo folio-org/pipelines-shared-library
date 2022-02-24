@@ -1,0 +1,103 @@
+plugins {
+    id("com.mkobit.jenkins.pipelines.shared-library") version "0.10.1"
+}
+
+// add jenkinsResources as resources folder as it contains idea.gdsl
+def jenkinsResourcesFolder = "jenkinsResources"
+sourceSets {
+    integrationTest {
+        java {
+            srcDir(jenkinsResourcesFolder)
+        }
+    }
+}
+
+if (project.hasProperty("jenkinsUrl") && project.hasProperty("jenkinsUser") && project.hasProperty("jenkinsApiToken")) {
+    jenkinsIntegration {
+        baseUrl.set(uri(project.property("jenkinsUrl")).toURL())
+        authentication.set(providers.provider { new com.mkobit.jenkins.pipelines.http.ApiTokenAuthentication(project.property("jenkinsUser"), project.property("jenkinsApiToken")) })
+        downloadDirectory.set(layout.projectDirectory.dir(jenkinsResourcesFolder))
+    }
+}
+
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+def coreVersionFile = project.file("${jenkinsResourcesFolder}/core-version.txt")
+if (coreVersionFile.exists()) {
+    def jenkinsVersion = coreVersionFile.text.trim()
+    sharedLibrary {
+        coreVersion = jenkinsVersion
+    }
+}
+
+def dependenciesFile = file("${jenkinsResourcesFolder}/dependecies.json")
+if (dependenciesFile.exists()) {
+    def contents = new groovy.json.JsonSlurper().parse(dependenciesFile)
+    contents.dependencies.each { dep ->
+        sharedLibrary {
+            pluginDependencies {
+                dependency(dep.group, dep.name, dep.version)
+            }
+        }
+    }
+}
+
+task syncJenkinsConfig() {}
+task collectPluginDependencies() {
+    doLast {
+        //def exludes = ["jobConfigHistory", "metrics", "ec2"] as Set
+        def exludes = [] as Set
+
+        def pluginsFile = file("${jenkinsResourcesFolder}/plugins.json")
+        def dependencies = []
+        if (pluginsFile.exists()) {
+            def contents = new groovy.json.JsonSlurper().parse(pluginsFile)
+            contents.plugins.each { plugin ->
+                if (exludes.contains(plugin.shortName)) {
+                    println "Plugin '${plugin.shortName}' is skipped"
+                } else if (plugin.active && plugin.enabled) {
+                    List<String> groups = ["org.jenkins-ci.plugins", "org.jenkinsci.plugins"]
+                    for (String group : groups) {
+                        def dependency = "${group}:${plugin.shortName}:${plugin.version}"
+                        try {
+                            Configuration testConfig = project.configurations.create("testConfig-${UUID.randomUUID().toString()}")
+                            testConfig.setCanBeResolved(true)
+                            project.dependencies."${testConfig.name}" dependency
+                            testConfig.resolve()
+
+                            dependencies.add(["group": group, "name": plugin.shortName, "version": plugin.version])
+                            println "Dependency '${dependency}' found"
+                            break
+                        } catch (e) {
+                            println "Dependency '${dependency}' not found"
+                        }
+                    }
+                } else {
+                    println "Plugin '${plugin.shortName}' is disabled"
+                }
+            }
+
+            def output = file("${jenkinsResourcesFolder}/dependecies.json")
+            if (output.exists()) {
+                output.delete()
+            }
+            output.createNewFile()
+            output << groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(["dependencies": dependencies]))
+        }
+    }
+}
+
+syncJenkinsConfig.dependsOn retrieveJenkinsVersion
+syncJenkinsConfig.dependsOn retrieveJenkinsPluginData
+syncJenkinsConfig.dependsOn retrieveJenkinsGdsl
+retrieveJenkinsPluginData.finalizedBy collectPluginDependencies
+

@@ -1,0 +1,42 @@
+# Build\Cache
+.terraform/
+.gradle/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.git/
+.hg/
+
+# Terraform temp files
+*.tfstate.backup
+
+######################
+# Project
+######################
+# Gradle
+.gradle/
+
+# Logs
+logs/
+*.log
+
+# Java
+build/
+out/
