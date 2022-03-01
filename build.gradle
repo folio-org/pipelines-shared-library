@@ -4,7 +4,13 @@ plugins {
 
 // add jenkinsResources as resources folder as it contains idea.gdsl
 def jenkinsResourcesFolder = "jenkinsResources"
+def pipelinesFolder = "pipelines"
 sourceSets {
+    main {
+        java {
+            srcDir(pipelinesFolder)
+        }
+    }
     integrationTest {
         java {
             srcDir(jenkinsResourcesFolder)
