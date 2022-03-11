@@ -73,7 +73,7 @@ node {
                             yarn add @interactors/html --dev
                             yarn add @interactors/html @interactors/with-cypress --dev
                             npx cypress run --headless ${params.run_param} || true
-                            chown -R ${currentUID}:${currentGID} *
+                            chown -R ${currentUID.trim()}:${currentGID.trim()} *
                         """
                     }
                 }
