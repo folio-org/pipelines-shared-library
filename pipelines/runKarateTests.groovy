@@ -16,7 +16,7 @@ pipeline {
         stage("Checkout") {
             steps {
                 script {
-                    withCredentials(sshagent(credentials: ['11657186-f4d4-4099-ab72-2a32e023cced'])) {
+                    sshagent(credentials: ['11657186-f4d4-4099-ab72-2a32e023cced']) {
                         checkout([
                             $class           : 'GitSCM',
                             branches         : [[name: "*/${params.branch}"]],
