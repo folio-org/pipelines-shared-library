@@ -4,15 +4,13 @@ def karateEnvironment = "jenkins"
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    properties([
-        parameters([
-            string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout'),
-            string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL'),
-            string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution'),
-            string(name: 'adminUserName', defaultValue: 'folio', description: 'Admin user name'),
-            string(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password'),
-        ])
-    ])
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
+        string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
+        string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
+        string(name: 'adminUserName', defaultValue: 'folio', description: 'Admin user name')
+        password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
+    }
 
     stages {
         stage("Checkout") {
