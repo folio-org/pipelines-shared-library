@@ -25,9 +25,7 @@ pipeline {
                                                                   parentCredentials  : false,
                                                                   recursiveSubmodules: true,
                                                                   reference          : '',
-                                                                  trackingSubmodules : false],
-                                                                 [$class           : 'RelativeTargetDirectory',
-                                                                  relativeTargetDir: 'folio-integration-tests']],
+                                                                  trackingSubmodules : false]],
                             userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-integration-tests.git']]
                         ])
                     }
