@@ -1,6 +1,5 @@
-import org.folio.version.ProjectVersion
-
 def karateConfigFolder = "karate-config"
+def karateEnvironment = "jenkins"
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -42,9 +41,9 @@ pipeline {
             steps {
                 script {
                     dir(karateConfigFolder) {
-                        writeFile file: 'karate-config-jenkins.js', text: getKarateConfig()
+                        writeFile file: "karate-config-${karateEnvironment}.js", text: getKarateConfig()
 
-                        sh 'cat karate-config-jenkins.js'
+                        sh "cat karate-config-${karateEnvironment}.js"
                     }
                 }
             }
@@ -71,6 +70,16 @@ pipeline {
 //      mvn test -Dkarate.env=${okapiDns} -DfailIfNoTests=false -Dtestrail_url=${TestRailUrl} -Dtestrail_userId=${testrail_user} -Dtestrail_pwd=${testrail_password} -Dtestrail_projectId=${TestRailProjectId} -DkbEbscoCredentialsApiKey=${ebsco_key} -DkbEbscoCredentialsUrl=${ebsco_url} -DkbEbscoCredentialsCustomerId=${ebsco_id} -DusageConsolidationCredentialsId=${ebsco_usage_id} -DusageConsolidationCredentialsSecret=${ebsco_usage_secret} -DusageConsolidationCustomerKey=${ebsco_usage_key}
 //      """
                     }
+                }
+            }
+        }
+
+        stage('Publish tests report') {
+            steps {
+                script {
+                    cucumber buildStatus: "UNSTABLE",
+                        fileIncludePattern: "*.json",
+                        jsonReportDirectory: "/target/karate-reports"
                 }
             }
         }
