@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     dir(karateConfigFolder) {
-                        writeFile file: "karate-config-${karateEnvironment}.js", text: getLibraryResource("/karate/karate-config.js")
+                        writeFile file: "karate-config-${karateEnvironment}.js", text:  utils.getLibraryResource("/karate/karate-config.js")
 
                         echo "${WORKSPACE}/${karateConfigFolder}/karate-config-${karateEnvironment}.js"
                         sh "ls -lah"
