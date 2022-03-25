@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     dir(karateConfigFolder) {
-                        writeFile file: "karate-config-${karateEnvironment}.js", text: getKarateConfig()
+                        writeFile file: "karate-config-${karateEnvironment}.js", text: getLibraryResource("/karate/karate-config.js")
 
                         echo "${WORKSPACE}/${karateConfigFolder}/karate-config-${karateEnvironment}.js"
                         sh "ls -lah"
@@ -178,13 +178,6 @@ pipeline {
 //}
 
 
-String getKarateConfig() {
-    def configTemplate = libraryResource "/karate/karate-config.js"
-
-    def engine = new GStringTemplateEngine()
-    def template = engine.createTemplate(configTemplate).make(params)
-    return template.toString()
-}
 
 
 
