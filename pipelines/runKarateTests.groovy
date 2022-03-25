@@ -181,7 +181,7 @@ String getKarateConfig() {
     def configTemplate = libraryResource "karate/karate-config.js"
 
     def engine = new GStringTemplateEngine()
-    def template = engine.createTemplate(params).make(bindings)
+    def template = engine.createTemplate(configTemplate).make(params)
     return template.toString()
 }
 
