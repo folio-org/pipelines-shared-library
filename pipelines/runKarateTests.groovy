@@ -1,4 +1,5 @@
-import groovy.text.GStringTemplateEngine
+import org.jenkinsci.plugins.workflow.libs.Library
+@Library('pipelines-shared-library@RANCHER-239') _
 
 def karateConfigFolder = "karate-config"
 def karateEnvironment = "jenkins"
