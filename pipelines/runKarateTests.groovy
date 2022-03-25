@@ -11,7 +11,8 @@ pipeline {
         string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
         string(name: 'adminUserName', defaultValue: 'folio', description: 'Admin user name')
-        password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
+        string(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
+        //password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
     }
 
     stages {
@@ -178,7 +179,7 @@ pipeline {
 
 
 String getKarateConfig() {
-    def configTemplate = libraryResource "karate/karate-config.js"
+    def configTemplate = libraryResource "/karate/karate-config.js"
 
     def engine = new GStringTemplateEngine()
     def template = engine.createTemplate(configTemplate).make(params)
