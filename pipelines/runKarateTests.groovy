@@ -46,8 +46,8 @@ pipeline {
                     echo """${files[0].name} ${files[0].path} ${files[0].directory} ${files[0].length} ${files[0].lastModified}"""
 
                     files.each { file ->
-                        String path = file.path
-                        def folderPath = path.substing(0, path.lastIndexOf(File.separator))
+                        String path = file.path.replaceAll("\\\\", "/")
+                        def folderPath = path.substing(0, path.lastIndexOf("/"))
                         echo folderPath
 
                         writeFile file: "${folderPath}/karate-config-${karateEnvironment}.js", text: jenkinsKarateConfigContents
