@@ -42,14 +42,12 @@ pipeline {
                 script {
                     def jenkinsKarateConfigContents = getKarateConfig()
                     def files = findFiles(glob: '**/karate-config.js')
-                    echo "first file ______________________________________________________"
-                    echo """${files[0].name} ${files[0].path} ${files[0].directory} ${files[0].length} ${files[0].lastModified}"""
 
                     files.each { file ->
                         String path = file.path.replaceAll("\\\\", "/")
-                        def folderPath = path.substing(0, path.lastIndexOf("/"))
-                        echo folderPath
+                        def folderPath = path.substring(0, path.lastIndexOf("/"))
 
+                        echo "Creating file ${folderPath}/karate-config-${karateEnvironment}.js"
                         writeFile file: "${folderPath}/karate-config-${karateEnvironment}.js", text: jenkinsKarateConfigContents
                     }
                 }
@@ -64,7 +62,7 @@ pipeline {
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
-                        //sh "mvn test -DfailIfNoTests=false -Dkarate.config.dir='${WORKSPACE}/${karateConfigFolder}' -Dkarate.env=jenkins"
+                        sh "mvn test -DfailIfNoTests=false -DargLine=-Dkarate.env=bla"
 
 //                        withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'testrail_password', usernameVariable: 'testrail_user'), string(credentialsId: 'mod-kb-ebsco-key', variable: 'ebsco_key'), string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'), string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'), string(credentialsId: 'mod-kb-ebsco-usageId', variable: 'ebsco_usage_id'), string(credentialsId: 'mod-kb-ebsco-usageSecret', variable: 'ebsco_usage_secret'), string(credentialsId: 'mod-kb-ebsco-usageKey', variable: 'ebsco_usage_key')]) {
 //                            sh """
