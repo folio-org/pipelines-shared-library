@@ -1,4 +1,5 @@
 import org.jenkinsci.plugins.workflow.libs.Library
+
 @Library('pipelines-shared-library@RANCHER-239') _
 
 def karateEnvironment = "jenkins"
@@ -39,15 +40,17 @@ pipeline {
         stage("Build karate config") {
             steps {
                 script {
-                    def kenkinsKarateConfigContents = getKarateConfig()
+                    def jenkinsKarateConfigContents = getKarateConfig()
                     def files = findFiles(glob: '**/karate-config.js')
                     echo "first file ______________________________________________________"
                     echo """${files[0].name} ${files[0].path} ${files[0].directory} ${files[0].length} ${files[0].lastModified}"""
 
                     files.each { file ->
-                        echo file.parent.path
+                        String path = file.path
+                        def folderPath = path.substing(0, path.lastIndexOf(File.separator))
+                        echo folderPath
 
-                        writeFile file: "${file.parent.path}/karate-config-${karateEnvironment}.js", text: kenkinsKarateConfigContents
+                        writeFile file: "${folderPath}/karate-config-${karateEnvironment}.js", text: jenkinsKarateConfigContents
                     }
                 }
             }
@@ -89,8 +92,8 @@ pipeline {
     }
 }
 
-def getKarateConfig(){
-"""
+def getKarateConfig() {
+    """
 function fn() {
     var config = {
         baseUrl: '${params.okapiUrl}',
