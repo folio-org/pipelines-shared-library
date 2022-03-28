@@ -76,7 +76,7 @@ pipeline {
             steps {
                 script {
                     cucumber buildStatus: "UNSTABLE",
-                        fileIncludePattern: "**/target/karate-reports/*.json",
+                        fileIncludePattern: "**/target/karate-reports/*.json"
                 }
             }
         }
