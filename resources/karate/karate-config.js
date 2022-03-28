@@ -1,9 +1,9 @@
 function fn() {
     var config = {
-        baseUrl: "${okapiUrl}",
+        baseUrl: "${params.okapiUrl}",
         admin: {
-            tenant: "${tenant}",
-            name: ${adminUserName},
+            tenant: "${params.tenant}",
+            name: ${params.adminUserName},
             password: "${adminPassword}"
         }
     }
