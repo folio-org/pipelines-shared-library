@@ -176,6 +176,7 @@ pipeline {
 
 def getKarateConfig(){
 """
+function fn() {
     var config = {
         baseUrl: "${params.okapiUrl}",
         admin: {
@@ -186,6 +187,7 @@ def getKarateConfig(){
     }
 
     return config;
+}
 """
 }
 
