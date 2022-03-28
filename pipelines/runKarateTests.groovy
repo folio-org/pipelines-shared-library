@@ -45,9 +45,9 @@ pipeline {
                     echo """${files[0].name} ${files[0].path} ${files[0].directory} ${files[0].length} ${files[0].lastModified}"""
 
                     files.each { file ->
-                        echo file.path
+                        echo file.parent.path
 
-                        writeFile file: "${file.path}/karate-config-${karateEnvironment}.js", text: kenkinsKarateConfigContents
+                        writeFile file: "${file.parent.path}/karate-config-${karateEnvironment}.js", text: kenkinsKarateConfigContents
                     }
                 }
             }
