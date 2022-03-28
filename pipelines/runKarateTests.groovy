@@ -178,11 +178,11 @@ def getKarateConfig(){
 """
 function fn() {
     var config = {
-        baseUrl: "${params.okapiUrl}",
+        baseUrl: '${params.okapiUrl}',
         admin: {
-            tenant: "${params.tenant}",
-            name: ${params.adminUserName},
-            password: "${adminPassword}"
+            tenant: '${params.tenant}',
+            name: '${params.adminUserName}',
+            password: '${adminPassword}'
         }
     }
 
