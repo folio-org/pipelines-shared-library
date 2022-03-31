@@ -84,6 +84,8 @@ pipeline {
                 script {
                     cucumber buildStatus: "UNSTABLE",
                         fileIncludePattern: "**/target/karate-reports*/*.json"
+
+                    junit testResults: '**/target/karate-reports*/*.xml'
                 }
             }
         }
