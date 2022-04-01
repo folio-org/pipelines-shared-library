@@ -9,11 +9,11 @@ pipeline {
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
+        string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
         string(name: 'adminUserName', defaultValue: 'folio', description: 'Admin user name')
-        string(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
-        //password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
+        password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
     }
 
     stages {
@@ -62,7 +62,7 @@ pipeline {
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
-                        sh "mvn test -T 4 -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
 }
 
 def getKarateConfig() {
-"""
+    """
 function fn() {
     var config = {
         baseUrl: '${params.okapiUrl}',
