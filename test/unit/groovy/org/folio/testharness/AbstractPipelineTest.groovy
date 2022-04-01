@@ -8,6 +8,8 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
 
     static String LOCAL_LIBRARY = "local"
 
+    static String GROOVY_EXTENSION = ".groovy"
+
     Map<String, Map<CredentialsValue, String>> credentials = [:]
 
     @BeforeEach
@@ -15,6 +17,7 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
         super.setUp()
 
         registerLocalLibrary()
+        registerLocalVars()
         registerError()
 
 //        registerHttpRequest()
@@ -39,7 +42,7 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
     void registerLocalLibrary() {
         def library = LibraryConfiguration.library()
             .name(LOCAL_LIBRARY)
-            .retriever(new LocalVarsSourceRetriever())
+            .retriever(new LocalLibrarySourceRetriever())
             .targetPath("dummy")
             .defaultVersion("dummy")
             .allowOverride(true)
@@ -48,16 +51,20 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
 
         helper.registerSharedLibrary(library)
 
-// add ability to use scripts from vars
-//        def scripts = new LocalVarsSourceRetriever().retrieve(null, null, null)
-//        scripts.each {url ->
-//            def name = new File(url.file).getName()
-//            def scriptName = name.substring(0, name.length() - LocalVarsSourceRetriever.GROOVY_EXTENSION.length())
-//            helper.loadScript(scriptName)
-//            helper.registerAllowedMethod(scriptName, [Object[]], { parameters ->
-//                helper.loadScript(scriptName)
-//            })
-//        }
+    }
+
+    // add ability to use scripts from vars directly
+    private void registerLocalVars() {
+        def scripts = new LocalLibrarySourceRetriever().retrieve(null, null, null)
+        scripts.each { url ->
+            def varsFolder = new File(url.file, "vars")
+            varsFolder.listFiles().each { file ->
+                def fileName = file.getName()
+                if (fileName.endsWith(GROOVY_EXTENSION)) {
+                    helper.loadScript(file.toURI().toString())
+                }
+            }
+        }
     }
 
     private void registerError() {
