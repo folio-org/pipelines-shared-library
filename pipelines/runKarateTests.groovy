@@ -1,7 +1,7 @@
-import org.folio.karate.KarateTestsResult
-import org.jenkinsci.plugins.workflow.libs.Library
-
 @Library('pipelines-shared-library') _
+
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.karate.KarateTestsResult
 
 def karateEnvironment = "jenkins"
 KarateTestsResult karateTestsResult = new KarateTestsResult()
