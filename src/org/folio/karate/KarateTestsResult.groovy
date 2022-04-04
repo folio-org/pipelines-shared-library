@@ -5,7 +5,9 @@ class KarateTestsResult {
     Map<String, KarateModuleTestResult> modules = [:];
 
     void addModuleResult(String moduleName, int errorCount) {
-        modules.computeIfAbsent(moduleName, new KarateModuleTestResult(moduleName))
+        if (!moduleName.contains(moduleName)) {
+            modules.put(moduleName, new KarateModuleTestResult(moduleName))
+        }
 
         if (errorCount > 0) {
             modules[moduleName].addErrors(errorCount)
