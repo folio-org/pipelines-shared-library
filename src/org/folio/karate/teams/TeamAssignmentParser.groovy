@@ -4,7 +4,7 @@ class TeamAssignmentParser {
 
     List<KarateTeam> teams = []
 
-    TeamAssignmentParser(String jsonContents) {
+    TeamAssignmentParser(def jsonContents) {
         jsonContents.each { entry ->
             KarateTeam team = new KarateTeam(name: entry.team, slackChannel: entry.slackChannel)
             team.getModules().addAll(entry.modulesTestResult)
