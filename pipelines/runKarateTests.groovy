@@ -125,14 +125,13 @@ pipeline {
 
                     def buildStatus = currentBuild.result
                     teamResults.each { entry ->
-                        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+                        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
                         entry.value.each { moduleTestResult ->
                             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFailedCount()} failures of ${moduleTestResult.getTotalCount()}.\n"
                             }
                         }
 
-                        println "We are about to send notif to slack:\n $message"
                         println "Channel: ${entry.key.slackChannel}"
                         slackSend(color: getColor(buildStatus), message: message, channel: "#jenkins-test")
                     }
