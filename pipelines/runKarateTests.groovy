@@ -85,8 +85,8 @@ pipeline {
             steps {
                 script {
                     def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
-                    karateReports.each { String karateReport ->
-                        def contents = readJSON file: karateReport
+                    karateReports.each { karateReport ->
+                        def contents = readJSON file: karateReport.path
                         String[] split = karateReport.path.split("/")
                         String moduleName = split[split.size() - 4]
 
