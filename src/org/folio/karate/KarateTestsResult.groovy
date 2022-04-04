@@ -2,7 +2,7 @@ package org.folio.karate
 
 class KarateTestsResult {
 
-    Map<String, KarateModuleTestResult> modules;
+    Map<String, KarateModuleTestResult> modules = [:];
 
     void addModuleResult(String moduleName, int errorCount) {
         modules.computeIfAbsent(moduleName, new KarateModuleTestResult(moduleName))
