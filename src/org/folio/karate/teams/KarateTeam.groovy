@@ -8,8 +8,6 @@ class KarateTeam {
 
     String slackChannel
 
-
-
     boolean equals(o) {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
