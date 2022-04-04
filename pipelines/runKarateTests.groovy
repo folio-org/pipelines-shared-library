@@ -1,15 +1,12 @@
 @Library('pipelines-shared-library@RANCHER-251') _
 
 
-import org.folio.karate.results.KarateExecutionResult
-import org.folio.karate.results.KarateModuleTestResult
 import org.folio.karate.results.KarateTestsResult
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignmentParser
+import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def karateEnvironment = "jenkins"
-KarateTestsResult karateTestsResult = new KarateTestsResult()
+KarateTestsResult karateTestsResult
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -89,15 +86,7 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    def karateSummaries = findFiles(glob: '**/target/karate-reports*/karate-summary-json.txt')
-                    karateSummaries.each { karateSummary ->
-                        echo "Collecting tests execution result from '${karateSummary.path}' file"
-                        String[] split = karateSummary.path.split("/")
-                        String moduleName = split[split.size() - 4]
-
-                        def contents = readJSON file: karateSummary.path
-                        karateTestsResult.addModuleResult(moduleName, contents.featuresPassed, contents.featuresFailed, contents.featuresSkipped)
-                    }
+                    karateTestsResult = karateTestUtils.collectTestsResults()
                 }
             }
         }
@@ -106,50 +95,12 @@ pipeline {
             steps {
                 script {
                     def jsonContents = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
-                    def parser = new TeamAssignmentParser(jsonContents)
+                    def teamAssignment = new TeamAssignment(jsonContents)
 
-                    Map<KarateTeam, List<KarateModuleTestResult>> teamResults = [:]
-                    def teamByModule = parser.getTeamsByModules()
-                    karateTestsResult.getModulesTestResult().values().each { moduleTestResult ->
-                        if (teamByModule.containsKey(moduleTestResult.getName())) {
-                            def team = teamByModule.get(moduleTestResult.getName())
-                            if (!teamResults.containsKey(team)) {
-                                teamResults[team] = []
-                            }
-                            teamResults[team].add(moduleTestResult)
-                            println "Module '${moduleTestResult.name}' is assignned to '${team.name}'"
-                        } else {
-                            println "Module '${moduleTestResult.name}' is not assignned to any team"
-                        }
-                    }
-
-                    def buildStatus = currentBuild.result
-                    teamResults.each { entry ->
-                        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-                        entry.value.each { moduleTestResult ->
-                            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
-                                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFailedCount()} failures of ${moduleTestResult.getTotalCount()}.\n"
-                            }
-                        }
-
-                        println "Channel: ${entry.key.slackChannel}"
-                        slackSend(color: getColor(buildStatus), message: message, channel: "#jenkins-test")
-                    }
+                    karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)
                 }
             }
         }
-    }
-}
-
-def getColor(buildStatus) {
-    if (buildStatus == 'STARTED') {
-        '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-        '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-        '#FFFE89'
-    } else {
-        '#FF9FA1'
     }
 }
 

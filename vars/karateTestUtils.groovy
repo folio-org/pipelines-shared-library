@@ -1,3 +1,64 @@
+import org.folio.karate.results.KarateExecutionResult
+import org.folio.karate.results.KarateModuleTestResult
+import org.folio.karate.results.KarateTestsResult
+import org.folio.karate.teams.KarateTeam
+import org.folio.karate.teams.TeamAssignment
 
-class karateTestUtils {
+KarateTestsResult collectTestsResults() {
+    def retVal = new KarateTestsResult()
+    def karateSummaries = findFiles(glob: '**/target/karate-reports*/karate-summary-json.txt')
+    karateSummaries.each { karateSummary ->
+        echo "Collecting tests execution result from '${karateSummary.path}' file"
+        String[] split = karateSummary.path.split("/")
+        String moduleName = split[split.size() - 4]
+
+        def contents = readJSON file: karateSummary.path
+        retVal.addModuleResult(moduleName, contents.featuresPassed, contents.featuresFailed, contents.featuresSkipped)
+    }
+
+    retVal
+}
+
+def sendSlackNotification(KarateTestsResult karateTestsResult, TeamAssignment teamAssignment) {
+    // collect modules tests execution results by team
+    Map<KarateTeam, List<KarateModuleTestResult>> teamResults = [:]
+    def teamByModule = teamAssignment.getTeamsByModules()
+    karateTestsResult.getModulesTestResult().values().each { moduleTestResult ->
+        if (teamByModule.containsKey(moduleTestResult.getName())) {
+            def team = teamByModule.get(moduleTestResult.getName())
+            if (!teamResults.containsKey(team)) {
+                teamResults[team] = []
+            }
+            teamResults[team].add(moduleTestResult)
+            println "Module '${moduleTestResult.name}' is assignned to '${team.name}'"
+        } else {
+            println "Module '${moduleTestResult.name}' is not assignned to any team"
+        }
+    }
+
+    // iterate over teams and send slack notifications
+    def buildStatus = currentBuild.result
+    teamResults.each { entry ->
+        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+        entry.value.each { moduleTestResult ->
+            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
+                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFailedCount()} failures of ${moduleTestResult.getTotalCount()} total tests.\n"
+            }
+        }
+
+        println "Channel: ${entry.key.slackChannel}"
+        slackSend(color: getSlackColor(buildStatus), message: message, channel: "#jenkins-test")
+    }
+}
+
+def getSlackColor(def buildStatus) {
+    if (buildStatus == 'STARTED') {
+        '#D4DADF'
+    } else if (buildStatus == 'SUCCESS') {
+        '#BDFFC3'
+    } else if (buildStatus == 'UNSTABLE') {
+        '#FFFE89'
+    } else {
+        '#FF9FA1'
+    }
 }

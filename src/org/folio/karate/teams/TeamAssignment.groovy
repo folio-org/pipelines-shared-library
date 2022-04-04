@@ -1,10 +1,10 @@
 package org.folio.karate.teams
 
-class TeamAssignmentParser {
+class TeamAssignment {
 
     List<KarateTeam> teams = []
 
-    TeamAssignmentParser(def jsonContents) {
+    TeamAssignment(def jsonContents) {
         jsonContents.each { entry ->
             KarateTeam team = new KarateTeam(name: entry.team, slackChannel: entry.slackChannel)
             team.getModules().addAll(entry.modules)
