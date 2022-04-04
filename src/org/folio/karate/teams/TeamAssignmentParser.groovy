@@ -2,15 +2,10 @@ package org.folio.karate.teams
 
 class TeamAssignmentParser {
 
-    def pipeline
-
     List<KarateTeam> teams = []
 
-    TeamAssignmentParser(def pipeline, String path) {
-        this.pipeline = pipeline
-        def contents = pipeline.readJSON file: path
-
-        contents.each { entry ->
+    TeamAssignmentParser(String jsonContents) {
+        jsonContents.each { entry ->
             KarateTeam team = new KarateTeam(name: entry.team, slackChannel: entry.slackChannel)
             team.getModules().addAll(entry.modulesTestResult)
             teams.add(team)
