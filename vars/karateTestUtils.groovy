@@ -46,7 +46,7 @@ def sendSlackNotification(KarateTestsResult karateTestsResult, TeamAssignment te
             }
         }
 
-        println "Channel: ${entry.key.slackChannel}"
+        message += "Target channel: ${entry.key.slackChannel}"
         slackSend(color: getSlackColor(buildStatus), message: message, channel: "#jenkins-test")
     }
 }
