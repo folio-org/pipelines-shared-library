@@ -90,7 +90,7 @@ pipeline {
                         String[] split = karateReport.path.split("/")
                         String moduleName = split[split.size() - 4]
 
-                        karateTestsResult.addModuleResult(moduleName, Integer.parseInt(contents.failedCount))
+                        karateTestsResult.addModuleResult(moduleName, contents.failedCount)
                     }
 
                     echo karateTestsResult
