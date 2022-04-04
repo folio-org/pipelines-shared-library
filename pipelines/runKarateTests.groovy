@@ -1,14 +1,16 @@
+import org.folio.karate.KarateTestsResult
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
 def karateEnvironment = "jenkins"
+KarateTestsResult karateTestsResult = new KarateTestsResult()
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'RANCHER-239', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
@@ -62,7 +64,7 @@ pipeline {
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
-                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -pl common,testrail-integration,mod-search,mod-quick-marc"
                     }
                 }
             }
@@ -77,6 +79,25 @@ pipeline {
                     junit testResults: '**/target/karate-reports*/*.xml'
                 }
             }
+        }
+
+        stage("Collect execution results") {
+            def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
+            karateReports.each { String karateReport ->
+                def contents = readJSON file: karateReport
+                String[] split = karateReport.path.split("/")
+                String moduleName = split[split.size() - 4]
+
+                karateTestsResult.addModuleResult(moduleName, Integer.parseInt(contents.failedCount))
+            }
+
+            echo karateTestsResult
+        }
+
+        stage("Send slack notifications") {
+            def testsMapping = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
+
+            echo testsMapping
         }
     }
 }
