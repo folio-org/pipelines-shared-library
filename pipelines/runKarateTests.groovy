@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-251') _
 
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.karate.KarateTestsResult
