@@ -123,8 +123,9 @@ pipeline {
                         }
                     }
 
+                    def jobBuildStatus = BUILD_STATUS ?: 'SUCCESS'
                     teamResults.each { entry ->
-                        def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+                        def msg = "${jobBuildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
                         entry.value.each { moduleTestResult ->
                             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFailedCount()} failures of ${moduleTestResult.getTotalCount()}.\n"
