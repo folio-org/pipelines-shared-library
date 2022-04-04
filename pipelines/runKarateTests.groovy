@@ -107,7 +107,7 @@ pipeline {
         stage("Send slack notifications") {
             steps {
                 script {
-                    def jsonContents = pipeline.readJSON file: "${env.WORKSPACE}/teams-assignment.json"
+                    def jsonContents = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
                     def parser = new TeamAssignmentParser(this, jsonContents)
 
                     Map<KarateTeam, List<KarateModuleTestResult>> teamResults = [:]
