@@ -6,15 +6,24 @@ class KarateModuleTestResult {
 
     KarateExecutionResult executionResult = KarateExecutionResult.SUCCESS
 
-    int errorCount = 0
+    int successCount = 0
+
+    int failedCount = 0
+
+    int skippedCount = 0
 
     KarateModuleTestResult(String name) {
         this.name = name
     }
 
-    void addErrors(int count) {
-        errorCount += count
-        executionResult = KarateExecutionResult.FAIL
+    void addStatistics(int success, int failed, int skipped) {
+        successCount += success
+        failedCount += failed
+        skippedCount += skipped
+
+        if (failedCount > 0) {
+            executionResult = KarateExecutionResult.FAIL
+        }
     }
 
     @Override
@@ -22,7 +31,9 @@ class KarateModuleTestResult {
         return "KarateModuleTestResult{" +
             "name='" + name + '\'' +
             ", executionResult=" + executionResult +
-            ", errorCount=" + errorCount +
+            ", successCount=" + successCount +
+            ", failedCount=" + failedCount +
+            ", skippedCount=" + skippedCount +
             '}';
     }
 }

@@ -84,16 +84,14 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
-                    karateReports.each { karateReport ->
-                        String[] split = karateReport.path.split("/")
+                    def karateSummaries = findFiles(glob: '**/target/karate-reports*/karate-summary-json.txt')
+                    karateSummaries.each { karateSummary ->
+                        String[] split = karateSummary.path.split("/")
                         String moduleName = split[split.size() - 4]
                         println "Collecting tests execution result for '${moduleName}' module"
 
-                        def contents = readJSON file: karateReport.path
-                        println "Contents: " + contents
-                        println contents.failedCount
-                        karateTestsResult.addModuleResult(moduleName, contents.failedCount)
+                        def contents = readJSON file: karateSummary.path
+                        karateTestsResult.addModuleResult(moduleName, contents.featuresPassed, contents.featuresFailed, contents.featuresSkipped)
                     }
 
                     echo karateTestsResult

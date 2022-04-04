@@ -4,14 +4,12 @@ class KarateTestsResult {
 
     Map<String, KarateModuleTestResult> modules = [:];
 
-    void addModuleResult(String moduleName, int errorCount) {
+    void addModuleResult(String moduleName, int success, int failed, int skipped) {
         if (!modules.containsKey(moduleName)) {
             modules.put(moduleName, new KarateModuleTestResult(moduleName))
         }
 
-        if (errorCount > 0) {
-            modules[moduleName].addErrors(errorCount)
-        }
+        modules[moduleName].addStatistics(success, failed, skipped)
     }
 
     KarateModuleTestResult getKarateModuleTestResult(String name) {
