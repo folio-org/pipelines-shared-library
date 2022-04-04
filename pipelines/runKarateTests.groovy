@@ -82,22 +82,30 @@ pipeline {
         }
 
         stage("Collect execution results") {
-            def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
-            karateReports.each { String karateReport ->
-                def contents = readJSON file: karateReport
-                String[] split = karateReport.path.split("/")
-                String moduleName = split[split.size() - 4]
+            steps {
+                script {
+                    def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
+                    karateReports.each { String karateReport ->
+                        def contents = readJSON file: karateReport
+                        String[] split = karateReport.path.split("/")
+                        String moduleName = split[split.size() - 4]
 
-                karateTestsResult.addModuleResult(moduleName, Integer.parseInt(contents.failedCount))
+                        karateTestsResult.addModuleResult(moduleName, Integer.parseInt(contents.failedCount))
+                    }
+
+                    echo karateTestsResult
+                }
             }
-
-            echo karateTestsResult
         }
 
         stage("Send slack notifications") {
-            def testsMapping = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
+            steps {
+                script {
+                    def testsMapping = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
 
-            echo testsMapping
+                    echo testsMapping
+                }
+            }
         }
     }
 }
