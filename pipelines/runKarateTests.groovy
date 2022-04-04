@@ -86,15 +86,15 @@ pipeline {
                 script {
                     def karateSummaries = findFiles(glob: '**/target/karate-reports*/karate-summary-json.txt')
                     karateSummaries.each { karateSummary ->
+                        println "Collecting tests execution result from '${karateSummary.path}' file"
                         String[] split = karateSummary.path.split("/")
                         String moduleName = split[split.size() - 4]
-                        println "Collecting tests execution result for '${moduleName}' module"
 
                         def contents = readJSON file: karateSummary.path
                         karateTestsResult.addModuleResult(moduleName, contents.featuresPassed, contents.featuresFailed, contents.featuresSkipped)
                     }
 
-                    echo karateTestsResult
+                    println karateTestsResult
                 }
             }
         }
@@ -104,7 +104,7 @@ pipeline {
                 script {
                     def testsMapping = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
 
-                    echo testsMapping
+                    println testsMapping
                 }
             }
         }
