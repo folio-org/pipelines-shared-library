@@ -1,4 +1,4 @@
-package org.folio.karate
+package org.folio.karate.results
 
 enum KarateExecutionResult {
 

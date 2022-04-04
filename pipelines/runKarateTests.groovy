@@ -1,7 +1,12 @@
 @Library('pipelines-shared-library@RANCHER-251') _
 
+
+import org.folio.karate.results.KarateExecutionResult
+import org.folio.karate.results.KarateModuleTestResult
+import org.folio.karate.results.KarateTestsResult
+import org.folio.karate.teams.KarateTeam
+import org.folio.karate.teams.TeamAssignmentParser
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.karate.KarateTestsResult
 
 def karateEnvironment = "jenkins"
 KarateTestsResult karateTestsResult = new KarateTestsResult()
@@ -102,12 +107,50 @@ pipeline {
         stage("Send slack notifications") {
             steps {
                 script {
-                    def testsMapping = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
+                    def parser = new TeamAssignmentParser(this, "${env.WORKSPACE}/teams-assignment.json")
 
-                    println testsMapping
+                    Map<KarateTeam, List<KarateModuleTestResult>> teamResults = [:]
+                    def teamByModule = parser.getTeamsByModules()
+                    karateTestsResult.getModulesTestResult().values().each { moduleTestResult ->
+                        if (teamByModule.containsKey(moduleTestResult.getName())) {
+                            def team = teamByModule.get(moduleTestResult.getName())
+                            if (!teamResults.containsKey(team)) {
+                                teamResults[team] = []
+                            }
+                            teamResults[team].add(moduleTestResult)
+                            println "Module '${moduleTestResult.name}' is assignned to '${team.name}'"
+                        } else {
+                            println "Module '${moduleTestResult.name}' is not assignned to any team"
+                        }
+                    }
+
+                    teamResults.each { entry ->
+                        def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+                        entry.value.each { moduleTestResult ->
+                            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
+                                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFailedCount()} failures of ${moduleTestResult.getTotalCount()}.\n"
+                            }
+                        }
+
+                        println "We are about to send notif to slack:\n $message"
+                        println "Channel: ${entry.key.slackChannel}
+                        slackSend(color: getColor(buildStatus), message: message, channel: "#jenkins-test")
+                    }
                 }
             }
         }
+    }
+}
+
+def getColor(buildStatus) {
+    if (buildStatus == 'STARTED') {
+        '#D4DADF'
+    } else if (buildStatus == 'SUCCESS') {
+        '#BDFFC3'
+    } else if (buildStatus == 'UNSTABLE') {
+        '#FFFE89'
+    } else {
+        '#FF9FA1'
     }
 }
 

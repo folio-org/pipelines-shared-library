@@ -1,4 +1,4 @@
-package org.folio.karate
+package org.folio.karate.results
 
 class KarateModuleTestResult {
 
@@ -24,6 +24,10 @@ class KarateModuleTestResult {
         if (failedCount > 0) {
             executionResult = KarateExecutionResult.FAIL
         }
+    }
+
+    int getTotalCount() {
+        successCount + failedCount + skippedCount
     }
 
     @Override
