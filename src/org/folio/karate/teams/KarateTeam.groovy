@@ -1,5 +1,7 @@
 package org.folio.karate.teams
 
+import com.cloudbees.groovy.cps.NonCPS
+
 class KarateTeam {
 
     String name
@@ -8,6 +10,7 @@ class KarateTeam {
 
     String slackChannel
 
+    @NonCPS
     boolean equals(o) {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
@@ -21,6 +24,7 @@ class KarateTeam {
         return true
     }
 
+    @NonCPS
     int hashCode() {
         int result
         result = (name != null ? name.hashCode() : 0)
