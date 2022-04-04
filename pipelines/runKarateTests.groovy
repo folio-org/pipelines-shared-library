@@ -118,7 +118,7 @@ function fn() {
         admin: {
             tenant: '${params.tenant}',
             name: '${params.adminUserName}',
-            password: '${adminPassword}'
+            password: '${params.adminPassword}'
         }
     }
 
