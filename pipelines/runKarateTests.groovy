@@ -66,7 +66,7 @@ pipeline {
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
-                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -pl common,testrail-integration,mod-search,mod-quick-marc"
+                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
                 }
             }
