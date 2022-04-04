@@ -86,13 +86,13 @@ pipeline {
                 script {
                     def karateReports = findFiles(glob: '**/target/karate-reports*/*.txt')
                     karateReports.each { karateReport ->
-                        echo karateReport
-                        echo"Reading file ${karateReport.path}"
+                        println karateReport
+                        println"Reading file ${karateReport.path}"
                         def contents = readJSON file: karateReport.path
                         String[] split = karateReport.path.split("/")
-                        echo split
+                        println split
                         String moduleName = split[split.size() - 4]
-                        echo moduleName
+                        println moduleName
 
                         karateTestsResult.addModuleResult(moduleName, contents.failedCount)
                     }
