@@ -133,7 +133,7 @@ pipeline {
                         }
 
                         println "We are about to send notif to slack:\n $message"
-                        println "Channel: ${entry.key.slackChannel}
+                        println "Channel: ${entry.key.slackChannel}"
                         slackSend(color: getColor(buildStatus), message: message, channel: "#jenkins-test")
                     }
                 }
