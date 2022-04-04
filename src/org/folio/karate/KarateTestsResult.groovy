@@ -5,7 +5,7 @@ class KarateTestsResult {
     Map<String, KarateModuleTestResult> modules = [:];
 
     void addModuleResult(String moduleName, int errorCount) {
-        if (!moduleName.contains(moduleName)) {
+        if (!modules.containsKey(moduleName)) {
             modules.put(moduleName, new KarateModuleTestResult(moduleName))
         }
 
@@ -17,7 +17,5 @@ class KarateTestsResult {
     KarateModuleTestResult getKarateModuleTestResult(String name) {
         modules[name]
     }
-
-
 
 }
