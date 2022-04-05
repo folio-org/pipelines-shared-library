@@ -81,13 +81,6 @@ pipeline {
 
                     junit testResults: '**/target/karate-reports*/*.xml'
 
-                    // archive artifacts for upstream job
-                    if (currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause)) {
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.json", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.xml", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/karate-reports*/karate-summary-json.txt', fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: 'teams-assignment.json', fingerprint: true, defaultExcludes: false
-                    }
                 }
             }
         }
@@ -96,7 +89,7 @@ pipeline {
             steps {
                 script {
                     // archive artifacts for upstream job
-                    if (currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause)) {
+                    if (currentBuild.getBuildCauses('hudson.model.Cause$UpstreamCause')) {
                         archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.json", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.xml", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/karate-reports*/karate-summary-json.txt', fingerprint: true, defaultExcludes: false
