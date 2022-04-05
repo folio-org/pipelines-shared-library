@@ -1,11 +1,8 @@
-@Library('pipelines-shared-library') _
-
-import org.folio.karate.results.KarateTestsResult
-import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
+@Library('pipelines-shared-library@RANCHER-251') _
+
 def karateEnvironment = "jenkins"
-KarateTestsResult karateTestsResult
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
