@@ -25,6 +25,30 @@ pipeline {
                     user = 'folio'
                     password = 'folio'
 
+//                    call job to setup env (https://issues.folio.org/browse/RANCHER-12)
+//                    def jobParameters = [
+//                        string(name: 'branch', value: params.branch),
+//                        string(name: 'threadsCount', value: "4"),
+//                        string(name: 'okapiUrl', value: okapiUrl),
+//                        string(name: 'tenant', value: tenant),
+//                        string(name: 'adminUserName', value: user),
+//                        string(name: 'adminPassword', value: password)
+//                    ]
+//
+//                    def jobName = "/Testing/Karate tests"
+//                    def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+
+        stage("Run karate tests") {
+            steps {
+                script {
+                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
+                    tenant = 'fs09000000'
+                    user = 'folio'
+                    password = 'folio'
+
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
@@ -37,11 +61,10 @@ pipeline {
                     def jobName = "/Testing/Karate tests"
                     def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
 
-                    //copyArtifacts(projectName: 'downstream', selector: specific("${karateTestsJob.number}"))
+                    copyArtifacts(projectName: jobName, selector: specific(karateTestsJob.number), filter("/teams-assignment.json"))
                 }
             }
         }
-
 
         stage("Collect execution results") {
             steps {
