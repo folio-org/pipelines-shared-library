@@ -95,9 +95,9 @@ pipeline {
 
                         // archive artifacts for upstream job
                     if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-                        zip file: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-                        zip file: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-                        zip file: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+                        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+                        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+                        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
 
                         archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
