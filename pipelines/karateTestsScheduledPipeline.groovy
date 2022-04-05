@@ -50,7 +50,7 @@ pipeline {
                     password = 'folio'
 
                     def jobParameters = [
-                        string(name: 'modules', value: "mod-search"),
+                        string(name: 'modules', value: "mod-search,mod-quick-marc"),
 
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
