@@ -5,6 +5,8 @@ import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def okapiUrl, tenant, user, password
+def karateTestsJobName = "/Testing/Karate tests"
+def karateTestsJob
 KarateTestsResult karateTestsResult
 
 pipeline {
@@ -34,8 +36,7 @@ pipeline {
 //                        string(name: 'adminPassword', value: password)
 //                    ]
 //
-//                    def jobName = "/Testing/Karate tests"
-//                    def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
+//                    def karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -59,10 +60,32 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    def jobName = "/Testing/Karate tests"
-                    def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
+                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
 
-                    copyArtifacts(projectName: jobName, selector: specific("${karateTestsJob.number}"), filter: "teams-assignment.json")
+        stage("Copy downstream job artifacts") {
+            steps {
+                script {
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "cucumber.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "junit.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "karate-summary.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "teams-assignment.json")
+
+                    unzip file: "cucumber.zip", dir: "cucumber"
+                    unzip file: "junit.zip", dir: "junit"
+                    unzip file: "karate-summary.zip", dir: "karate-summary"
+                }
+            }
+        }
+
+        stage('Publish tests report') {
+            steps {
+                script {
+                    cucumber buildStatus: "UNSTABLE", fileIncludePattern: "cucumber/*.json"
+
+                    junit testResults: 'junit/*.xml'
                 }
             }
         }
@@ -70,7 +93,7 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    karateTestsResult = karateTestUtils.collectTestsResults()
+                    karateTestsResult = karateTestUtils.collectTestsResults("karate-summary/*.txt")
                 }
             }
         }
@@ -78,7 +101,7 @@ pipeline {
         stage("Send slack notifications") {
             steps {
                 script {
-                    def jsonContents = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
+                    def jsonContents = readJSON file: "teams-assignment.json"
                     def teamAssignment = new TeamAssignment(jsonContents)
 
                     karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)

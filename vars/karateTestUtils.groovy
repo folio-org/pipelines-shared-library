@@ -4,9 +4,9 @@ import org.folio.karate.results.KarateTestsResult
 import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
 
-KarateTestsResult collectTestsResults() {
+KarateTestsResult collectTestsResults(String karateSummaryFolder) {
     def retVal = new KarateTestsResult()
-    def karateSummaries = findFiles(glob: '**/target/karate-reports*/karate-summary-json.txt')
+    def karateSummaries = findFiles(glob: karateSummaryFolder)
     karateSummaries.each { karateSummary ->
         echo "Collecting tests execution result from '${karateSummary.path}' file"
         String[] split = karateSummary.path.split("/")

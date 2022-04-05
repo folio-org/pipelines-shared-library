@@ -88,12 +88,21 @@ pipeline {
         stage('Archive artifacts') {
             steps {
                 script {
-                    // archive artifacts for upstream job
+                        cucumber buildStatus: "UNSTABLE",
+                            fileIncludePattern: "**/target/karate-reports*/*.json"
+
+                        junit testResults: '**/target/karate-reports*/*.xml'
+
+                        // archive artifacts for upstream job
                     if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.json", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.xml", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/karate-reports*/karate-summary-json.txt', fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: 'teams-assignment.json', fingerprint: true, defaultExcludes: false
+                        zip file: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+                        zip file: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+                        zip file: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
                     }
                 }
             }
