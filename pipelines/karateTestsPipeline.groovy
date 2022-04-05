@@ -22,6 +22,7 @@ pipeline {
             steps {
                 script {
                     println currentBuild.getBuildCauses()
+                    println currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')
                     println currentBuild.getBuildCauses('hudson.model.Cause$UpstreamCause')
 
                     sshagent(credentials: ['11657186-f4d4-4099-ab72-2a32e023cced']) {
