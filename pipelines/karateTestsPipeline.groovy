@@ -9,6 +9,7 @@ pipeline {
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
+        string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
@@ -62,7 +63,11 @@ pipeline {
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
-                        sh "mvn test -T ${threadsCount} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                        def modules = ""
+                        if (params.modules) {
+                            modules = "-pl common,testrail-integration," + params.modules
+                        }
+                        sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
                 }
             }
@@ -75,6 +80,25 @@ pipeline {
                         fileIncludePattern: "**/target/karate-reports*/*.json"
 
                     junit testResults: '**/target/karate-reports*/*.xml'
+
+                }
+            }
+        }
+
+        stage('Archive artifacts') {
+            steps {
+                script {
+                    // archive artifacts for upstream job
+                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
+                        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+                        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+                        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+                    }
                 }
             }
         }
@@ -89,7 +113,7 @@ function fn() {
         admin: {
             tenant: '${params.tenant}',
             name: '${params.adminUserName}',
-            password: '${adminPassword}'
+            password: '${params.adminPassword}'
         }
     }
 
