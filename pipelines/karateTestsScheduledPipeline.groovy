@@ -1,6 +1,5 @@
 @Library('pipelines-shared-library@RANCHER-251') _
 
-
 import org.folio.karate.results.KarateTestsResult
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -63,7 +62,7 @@ pipeline {
                     def jobName = "/Testing/Karate tests"
                     def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
 
-                    copyArtifacts(projectName: jobName, selector: specific(karateTestsJob.number), filter("/teams-assignment.json"))
+                    copyArtifacts(projectName: jobName, selector: specific(karateTestsJob.number), filter: "/teams-assignment.json")
                 }
             }
         }
