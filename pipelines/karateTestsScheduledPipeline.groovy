@@ -34,21 +34,14 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    build job: "/Testing/Karate tests", parameters: jobParameters, wait: true, propagate: false
+                    def jobName = "/Testing/Karate tests"
+                    def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
+
+                    //copyArtifacts(projectName: 'downstream', selector: specific("${karateTestsJob.number}"))
                 }
             }
         }
 
-        stage('Publish tests report') {
-            steps {
-                script {
-                    cucumber buildStatus: "UNSTABLE",
-                        fileIncludePattern: "**/target/karate-reports*/*.json"
-
-                    junit testResults: '**/target/karate-reports*/*.xml'
-                }
-            }
-        }
 
         stage("Collect execution results") {
             steps {
