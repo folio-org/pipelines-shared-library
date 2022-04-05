@@ -1,6 +1,6 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-251') _
+@Library('pipelines-shared-library') _
 
 def karateEnvironment = "jenkins"
 
