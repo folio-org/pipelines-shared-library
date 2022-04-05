@@ -73,9 +73,9 @@ pipeline {
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "karate-summary.zip")
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "teams-assignment.json")
 
-                    unzip file: "cucumber.zip", dir: "cucumber"
-                    unzip file: "junit.zip", dir: "junit"
-                    unzip file: "karate-summary.zip", dir: "karate-summary"
+                    unzip zipFile: "cucumber.zip", dir: "cucumber"
+                    unzip zipFile: "junit.zip", dir: "junit"
+                    unzip zipFile: "karate-summary.zip", dir: "karate-summary"
                 }
             }
         }
@@ -83,9 +83,10 @@ pipeline {
         stage('Publish tests report') {
             steps {
                 script {
-                    cucumber buildStatus: "UNSTABLE", fileIncludePattern: "cucumber/*.json"
+                    cucumber buildStatus: "UNSTABLE",
+                        fileIncludePattern: "cucumber/**/target/karate-reports*/*.json"
 
-                    junit testResults: 'junit/*.xml'
+                    junit testResults: 'junit/**/target/karate-reports*/*.xml'
                 }
             }
         }
@@ -93,7 +94,7 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    karateTestsResult = karateTestUtils.collectTestsResults("karate-summary/*.txt")
+                    karateTestsResult = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
                 }
             }
         }
