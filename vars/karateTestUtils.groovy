@@ -47,6 +47,7 @@ def sendSlackNotification(KarateTestsResult karateTestsResult, TeamAssignment te
         }
 
         message += "Target channel: ${entry.key.slackChannel}"
+        // TODO: change channel to ${entry.key.slackChannel} after real integration in scope of https://issues.folio.org/browse/RANCHER-250
         slackSend(color: getSlackColor(buildStatus), message: message, channel: "#jenkins-test")
     }
 }
