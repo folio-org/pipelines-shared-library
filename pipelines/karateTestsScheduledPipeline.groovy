@@ -24,12 +24,6 @@ pipeline {
                     tenant = 'fs09000000'
                     user = 'folio'
                     password = 'folio'
-                    string(name: 'branch', defaultValue: 'RANCHER-239', description: 'Karate tests repository branch to checkout')
-                    string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
-                    string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
-                    string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
-                    string(name: 'adminUserName', defaultValue: 'folio', description: 'Admin user name')
-                    password(name: 'adminPassword', defaultValue: 'folio', description: 'Admin user password')
 
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
