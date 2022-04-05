@@ -88,12 +88,7 @@ pipeline {
         stage('Archive artifacts') {
             steps {
                 script {
-                        cucumber buildStatus: "UNSTABLE",
-                            fileIncludePattern: "**/target/karate-reports*/*.json"
-
-                        junit testResults: '**/target/karate-reports*/*.xml'
-
-                        // archive artifacts for upstream job
+                    // archive artifacts for upstream job
                     if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
                         zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
                         zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
