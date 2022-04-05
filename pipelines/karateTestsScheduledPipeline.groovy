@@ -34,7 +34,7 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    build job: "/Testing/job/Karate tests", parameters: jobParameters, wait: true, propagate: true
+                    build job: "/Testing/Karate tests", parameters: jobParameters, wait: true, propagate: true
                 }
             }
         }
