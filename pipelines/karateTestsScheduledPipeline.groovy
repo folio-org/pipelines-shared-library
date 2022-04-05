@@ -62,7 +62,7 @@ pipeline {
                     def jobName = "/Testing/Karate tests"
                     def karateTestsJob = build job: jobName, parameters: jobParameters, wait: true, propagate: false
 
-                    copyArtifacts(projectName: jobName, selector: specific(karateTestsJob.number), filter: "/teams-assignment.json")
+                    copyArtifacts(projectName: jobName, selector: specific("${karateTestsJob.number}"), filter: "/teams-assignment.json")
                 }
             }
         }
