@@ -65,7 +65,7 @@ pipeline {
                     ) {
                         def modules = ""
                         if (params.modules) {
-                            modules = "-pl common,testrail-integration," + ${params.modules}
+                            modules = "-pl common,testrail-integration," + params.modules
                         }
                         sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
