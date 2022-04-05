@@ -21,10 +21,6 @@ pipeline {
         stage("Checkout") {
             steps {
                 script {
-                    println currentBuild.getBuildCauses()
-                    println currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')
-                    println currentBuild.getBuildCauses('hudson.model.Cause$UpstreamCause')
-
                     sshagent(credentials: ['11657186-f4d4-4099-ab72-2a32e023cced']) {
                         checkout([
                             $class           : 'GitSCM',
@@ -93,7 +89,7 @@ pipeline {
             steps {
                 script {
                     // archive artifacts for upstream job
-                    if (currentBuild.getBuildCauses('hudson.model.Cause$UpstreamCause')) {
+                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
                         archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.json", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: "**/target/karate-reports*/*.xml", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/karate-reports*/karate-summary-json.txt', fingerprint: true, defaultExcludes: false
