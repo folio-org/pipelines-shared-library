@@ -27,7 +27,7 @@ pipeline {
 
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
-                        string(name: 'threadsCount', value: 4),
+                        string(name: 'threadsCount', value: "4"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
                         string(name: 'adminUserName', value: user),
