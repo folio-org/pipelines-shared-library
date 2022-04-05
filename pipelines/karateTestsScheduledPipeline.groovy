@@ -50,10 +50,9 @@ pipeline {
                     password = 'folio'
 
                     def jobParameters = [
-                        string(name: 'modules', value: "mod-search,mod-quick-marc"),
-
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
+                        string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
                         string(name: 'adminUserName', value: user),
