@@ -32,7 +32,7 @@ def sendSlackNotification(KarateTestsResult karateTestsResult, TeamAssignment te
             teamResults[team].add(moduleTestResult)
             println "Module '${moduleTestResult.name}' is assignned to '${team.name}'"
         } else {
-            println "Module '${moduleTestResult.name}' is not assignned to any team"
+            println "Module '${moduleTestResult.name}' is not assigned to any team"
         }
     }
 

@@ -1,5 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-251') _
-
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsResult
 import org.folio.karate.teams.TeamAssignment
@@ -12,7 +11,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'RANCHER-239', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://ptf-perf-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'fs09000000', description: 'Tenant name for tests execution')
@@ -79,25 +78,6 @@ pipeline {
                         fileIncludePattern: "**/target/karate-reports*/*.json"
 
                     junit testResults: '**/target/karate-reports*/*.xml'
-                }
-            }
-        }
-
-        stage("Collect execution results") {
-            steps {
-                script {
-                    karateTestsResult = karateTestUtils.collectTestsResults()
-                }
-            }
-        }
-
-        stage("Send slack notifications") {
-            steps {
-                script {
-                    def jsonContents = readJSON file: "${env.WORKSPACE}/teams-assignment.json"
-                    def teamAssignment = new TeamAssignment(jsonContents)
-
-                    karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)
                 }
             }
         }
