@@ -87,7 +87,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                     def teamName = null
                     if (teamByModule[moduleSummary.name]) {
                         teamName = teamByModule[moduleSummary.name].name
-                    } else
+                    } else {
                         echo "Module ${moduleSummary.name} is not assigned to any team."
                     }
 
