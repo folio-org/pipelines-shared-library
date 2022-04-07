@@ -1,5 +1,4 @@
-@Library('pipelines-shared-library') _
-
+@Library('pipelines-shared-library@RANCHER-248') _
 
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
