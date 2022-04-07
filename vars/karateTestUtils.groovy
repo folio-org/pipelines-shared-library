@@ -75,6 +75,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
             moduleSummary.features
                 .findAll() { it.failed }
                 .each { featureSummary ->
+                    echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}'"
                     def summary = "${moduleSummary.name} '${featureSummary.name}' karate test fail"
                     def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for ${featureSummary.name} feature.\n" +
                         "Feature name: ${featureSummary.name}\n" +
@@ -83,13 +84,18 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                         "Jenkins job : ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${env.BUILD_URL}\n" +
                         "Cucumber report: ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
 
-                    def team = teamByModule[moduleSummary.name].name
+                    def teamName = null
+                    if (teamByModule[moduleSummary.name]) {
+                        teamName = teamByModule[moduleSummary.name].name
+                    } else
+                        echo "Module ${moduleSummary.name} is not assigned to any team."
+                    }
 
                     echo "Summary: ${summary}"
                     echo "Description: ${description}"
-                    echo "Team: ${team}"
+                    echo "Team: ${teamName}"
 
-                    //createFailedFeatureJiraTicket(summary, description, team)
+                    //createFailedFeatureJiraTicket(summary, description, teamName)
                 }
         }
 
