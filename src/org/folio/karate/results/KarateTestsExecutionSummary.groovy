@@ -10,9 +10,9 @@ class KarateTestsExecutionSummary {
         }
 
         def moduleSummary = modulesExecutionSummary[moduleName]
-        moduleSummary.addFeaturesExecutionStatistics(featureSummaryJson.featuresPassed,
-            featureSummaryJson.featuresFailed,
-            featureSummaryJson.featuresSkipped)
+        moduleSummary.addFeaturesExecutionStatistics(summaryJson.featuresPassed,
+            summaryJson.featuresFailed,
+            summaryJson.featuresSkipped)
 
         summaryJson.featureSummary.each { featureSummaryJson ->
             moduleSummary.addFeatureSummary(featureSummaryJson)
