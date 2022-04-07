@@ -33,6 +33,7 @@ class KarateModuleExecutionSummary {
             name: summaryJson.name,
             description: summaryJson.description,
             packageQualifiedName: summaryJson.packageQualifiedName,
+            relativePath: summaryJson.relativePath,
             passedCount: summaryJson.passedCount,
             failedCount: summaryJson.failedCount,
             scenarioCount: summaryJson.scenarioCount,

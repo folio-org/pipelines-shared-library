@@ -8,6 +8,8 @@ class KarateFeatureExecutionSummary {
 
     String packageQualifiedName
 
+    String relativePath
+
     int passedCount = 0
 
     int failedCount = 0
