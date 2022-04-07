@@ -1,0 +1,26 @@
+{
+  "featureSummary": [
+    {
+      "failedCount": 2,
+      "packageQualifiedName": "common.destroy-data",
+      "relativePath": "common\/destroy-data.feature",
+      "scenarioCount": 2,
+      "name": "destroy data for tenant",
+      "description": "",
+      "durationMillis": 8247.671,
+      "passedCount": 0,
+      "failed": true
+    }
+  ],
+  "efficiency": 0.9921809214483339,
+  "featuresPassed": 0,
+  "featuresFailed": 1,
+  "totalTime": 8248.0,
+  "threads": 1,
+  "featuresSkipped": 0,
+  "resultDate": "2022-04-04 03:03:54 PM",
+  "scenariosPassed": 0,
+  "version": "1.0.1",
+  "scenariosfailed": 2,
+  "elapsedTime": 8313.0
+}

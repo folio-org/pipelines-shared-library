@@ -1,5 +1,8 @@
 @Library('pipelines-shared-library') _
 
+
+import org.folio.Constants
+import org.folio.client.jira.JiraClient
 import org.folio.karate.results.KarateTestsResult
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -21,10 +24,15 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-                    tenant = 'fs09000000'
-                    user = 'folio'
-                    password = 'folio'
+                    okapiUrl = 'https://folio-snapshot-okapi.dev.folio.org:443'
+                    tenant = 'supertenant'
+                    user = 'testing_admin'
+                    password = 'admin'
+
+//                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
+//                    tenant = 'fs09000000'
+//                    user = 'folio'
+//                    password = 'folio'
 
 //                    call job to setup env (https://issues.folio.org/browse/RANCHER-12)
 //                    def jobParameters = [
@@ -44,11 +52,6 @@ pipeline {
         stage("Run karate tests") {
             steps {
                 script {
-                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-                    tenant = 'fs09000000'
-                    user = 'folio'
-                    password = 'folio'
-
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
@@ -105,6 +108,26 @@ pipeline {
                     def teamAssignment = new TeamAssignment(jsonContents)
 
                     karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)
+                }
+            }
+        }
+
+        stage("Create jira tickets") {
+            steps {
+                script {
+//                    withCredentials([
+//                        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
+//                    ]) {
+//                        JiraClient jiraClient = new JiraClient(Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
+//
+//                        jiraClient.createJiraTicket "KRD",
+//                            "Bug",
+//                            "Failed test ",
+//                            [Description       : "Description long",
+//                             Priority          : "P1",
+//                             //Labels            : ["reviewed"],
+//                             "Development Team": "Team"]
+//                    }
                 }
             }
         }
