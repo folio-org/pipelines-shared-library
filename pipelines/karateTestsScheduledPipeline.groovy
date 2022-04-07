@@ -114,6 +114,7 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
+                    println "create jira"
 //                    withCredentials([
 //                        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
 //                    ]) {
