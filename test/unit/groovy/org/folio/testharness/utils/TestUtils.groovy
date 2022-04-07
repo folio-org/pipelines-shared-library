@@ -1,4 +1,4 @@
-package com.altair.knowledgeworks.jenkinslibs.utils
+package org.folio.testharness.utils
 
 class TestUtils {
     static String temporaryResource(Class<?> clazz, String resourcesName) {
