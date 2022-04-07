@@ -1,26 +1,26 @@
 {
   "featureSummary": [
     {
-      "failedCount": 2,
-      "packageQualifiedName": "common.destroy-data",
-      "relativePath": "common\/destroy-data.feature",
-      "scenarioCount": 2,
-      "name": "destroy data for tenant",
+      "failedCount": 0,
+      "packageQualifiedName": "thunderjet.cross-modules.features.check-encumbrances-after-order-is-reopened-2",
+      "relativePath": "thunderjet\/cross-modules\/features\/check-encumbrances-after-order-is-reopened-2.feature",
+      "scenarioCount": 3,
+      "name": "Check encumbrances after order is reopened - 2",
       "description": "",
-      "durationMillis": 8247.671,
-      "passedCount": 0,
-      "failed": true
+      "durationMillis": 9504.773633,
+      "passedCount": 3,
+      "failed": false
     }
   ],
-  "efficiency": 0.9921809214483339,
-  "featuresPassed": 0,
-  "featuresFailed": 1,
-  "totalTime": 8248.0,
+  "efficiency": 0.8797667530544243,
+  "featuresPassed": 1,
+  "featuresFailed": 0,
+  "totalTime": 9505.0,
   "threads": 1,
   "featuresSkipped": 0,
-  "resultDate": "2022-04-04 03:03:54 PM",
-  "scenariosPassed": 0,
+  "resultDate": "2022-04-07 09:28:37 AM",
+  "scenariosPassed": 3,
   "version": "1.0.1",
-  "scenariosfailed": 2,
-  "elapsedTime": 8313.0
+  "scenariosfailed": 0,
+  "elapsedTime": 10804.0
 }

@@ -1,15 +1,15 @@
 @Library('pipelines-shared-library@RANCHER-248') _
 
-import org.folio.Constants
-import org.folio.client.jira.JiraClient
-import org.folio.karate.results.KarateTestsResult
+
+import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def okapiUrl, tenant, user, password
 def karateTestsJobName = "/Testing/Karate tests"
 def karateTestsJob
-KarateTestsResult karateTestsResult
+KarateTestsExecutionSummary karateTestsExecutionSummary
+def teamAssignment
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -61,7 +61,7 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    //karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -69,10 +69,11 @@ pipeline {
         stage("Copy downstream job artifacts") {
             steps {
                 script {
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "cucumber.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "junit.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "karate-summary.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "teams-assignment.json")
+                    def jobNumber = 66 // karateTestsJob.number
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${ jobNumber}"), filter: "cucumber.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
 
                     unzip zipFile: "cucumber.zip", dir: "cucumber"
                     unzip zipFile: "junit.zip", dir: "junit"
@@ -95,18 +96,25 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    karateTestsResult = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
                 }
             }
         }
 
-        stage("Send slack notifications") {
+        stage("Parse teams assignment") {
             steps {
                 script {
                     def jsonContents = readJSON file: "teams-assignment.json"
-                    def teamAssignment = new TeamAssignment(jsonContents)
+                    teamAssignment = new TeamAssignment(jsonContents)
+                }
+            }
+        }
 
-                    karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)
+
+        stage("Send slack notifications") {
+            steps {
+                script {
+                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
@@ -114,20 +122,7 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    println "create jira"
-//                    withCredentials([
-//                        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-//                    ]) {
-//                        JiraClient jiraClient = new JiraClient(Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-//
-//                        jiraClient.createJiraTicket "KRD",
-//                            "Bug",
-//                            "Failed test ",
-//                            [Description       : "Description long",
-//                             Priority          : "P1",
-//                             //Labels            : ["reviewed"],
-//                             "Development Team": "Team"]
-//                    }
+                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
