@@ -77,12 +77,12 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                 .each { featureSummary ->
                     echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}'"
                     def summary = "${moduleSummary.name} '${featureSummary.name}' karate test fail"
-                    def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for ${featureSummary.name} feature.\n" +
-                        "Feature name: ${featureSummary.name}\n" +
-                        "Feature package name: ${featureSummary.packageQualifiedName}\n" +
-                        "Feature path: ${featureSummary.relativePath}\n" +
-                        "Jenkins job : ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${env.BUILD_URL}\n" +
-                        "Cucumber report: ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
+                    def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
+                        "*Feature name:* ${featureSummary.name}\n" +
+                        "*Feature package name:* ${featureSummary.packageQualifiedName}\n" +
+                        "*Feature path:* ${featureSummary.relativePath}\n" +
+                        "*Jenkins job* : ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${env.BUILD_URL}\n" +
+                        "*Cucumber report:* ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
 
                     def teamName = null
                     if (teamByModule[moduleSummary.name]) {
@@ -95,7 +95,11 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                     echo "Description: ${description}"
                     echo "Team: ${teamName}"
 
-                    createFailedFeatureJiraTicket(summary, description, teamName)
+                    try {
+                        createFailedFeatureJiraTicket(summary, description, teamName)
+                    } catch (e) {
+                        echo("Unable to create Jira ticket. " + e.getMessage())
+                    }
                 }
         }
 
