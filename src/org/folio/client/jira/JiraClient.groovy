@@ -1,7 +1,8 @@
 package org.folio.client.jira
 
-import com.cloudbees.groovy.cps.NonCPS
+
 import groovy.json.JsonOutput
+import hudson.AbortException
 import org.apache.http.HttpHeaders
 import org.folio.client.jira.model.JiraPriority
 import org.folio.client.jira.model.JiraProject
@@ -84,11 +85,11 @@ class JiraClient {
 """
 
         def response = postRequest(JiraResources.ISSUE, content)
-        if (response.status > 300) {
-            log.info("Unable to create jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
-        } else {
+        if (response.status < 300) {
             def body = pipeline.readJSON text: response.content
             body.id
+        } else {
+            throw new AbortException("Unable to create jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
         }
     }
 
@@ -141,7 +142,7 @@ class JiraClient {
             def body = pipeline.readJSON text: response.content
             return successClosure(response, body)
         } else {
-            log.info("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
+            throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
         }
     }
 
@@ -149,7 +150,8 @@ class JiraClient {
     private getRequest(String endpoint) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             contentType: "APPLICATION_JSON",
-            customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]]
+            customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
+            validResponseCodes: "100:599"
     }
 
     private postRequest(String endpoint, String contents) {
@@ -157,7 +159,8 @@ class JiraClient {
             httpMode: "POST",
             contentType: "APPLICATION_JSON",
             customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
-            requestBody: contents
+            requestBody: contents,
+            validResponseCodes: "100:599"
     }
 
 }

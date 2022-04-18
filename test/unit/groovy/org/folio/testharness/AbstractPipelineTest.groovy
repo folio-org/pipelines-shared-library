@@ -103,12 +103,16 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
             if (parameters["requestBody"]) {
                 request.setRequestBody(parameters["requestBody"])
             }
+            if (parameters["validResponseCodes"]) {
+                request.setValidResponseCodes(parameters["validResponseCodes"])
+            }
 
             def context = Mockito.mock(DefaultStepContext)
             def execution = Mockito.spy(new HttpRequestStep.Execution(context, request))
             Mockito.doReturn(Mockito.mock(Item)).when(execution).getProject()
 
             HttpRequestExecution exec = HttpRequestExecution.from(request, TaskListener.NULL, execution)
+
             return exec.call()
         })
     }
