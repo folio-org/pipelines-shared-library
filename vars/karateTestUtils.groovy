@@ -81,7 +81,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                         "*Feature name:* ${featureSummary.name}\n" +
                         "*Feature package name:* ${featureSummary.packageQualifiedName}\n" +
                         "*Feature path:* ${featureSummary.relativePath}\n" +
-                        "*Jenkins job* : ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${env.BUILD_URL}\n" +
+                        "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
                         "*Cucumber report:* ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
 
                     def teamName = null
