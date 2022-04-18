@@ -67,6 +67,7 @@ def getSlackColor(def buildStatus) {
 }
 
 def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+    echo karateTestsExecutionSummary
     def teamByModule = teamAssignment.getTeamsByModules()
 
     karateTestsExecutionSummary.modulesExecutionSummary.values()
