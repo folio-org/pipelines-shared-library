@@ -1,6 +1,6 @@
 package org.folio.client.jira
 
-
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import org.apache.http.HttpHeaders
 import org.folio.client.jira.model.JiraPriority
@@ -145,12 +145,14 @@ class JiraClient {
         }
     }
 
+    @NonCPS
     private getRequest(String endpoint) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             contentType: "APPLICATION_JSON",
             customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]]
     }
 
+    @NonCPS
     private postRequest(String endpoint, String contents) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             httpMode: "POST",
