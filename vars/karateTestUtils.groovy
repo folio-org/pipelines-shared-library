@@ -95,7 +95,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                     echo "Description: ${description}"
                     echo "Team: ${teamName}"
 
-                    //createFailedFeatureJiraTicket(summary, description, teamName)
+                    createFailedFeatureJiraTicket(summary, description, teamName)
                 }
         }
 
