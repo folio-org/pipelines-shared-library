@@ -26,17 +26,6 @@ class JiraClient {
 
     Map<String, String> jiraFields
 
-    def withResponse = { endpoint, successClosure, errorMessage ->
-        def response = getRequest(endpoint)
-
-        if (response.status < 300) {
-            def body = pipeline.readJSON text: response.content
-            return successClosure(response, body)
-        } else {
-            log.info("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
-        }
-    }
-
     JiraClient(def pipeline, String url, String user, String password) {
         this.pipeline = pipeline
         this.url = url
@@ -145,14 +134,24 @@ class JiraClient {
         }
     }
 
-    @NonCPS
+    private withResponse(endpoint, successClosure, errorMessage) {
+        def response = getRequest(endpoint)
+
+        if (response.status < 300) {
+            def body = pipeline.readJSON text: response.content
+            return successClosure(response, body)
+        } else {
+            log.info("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
+        }
+    }
+
+
     private getRequest(String endpoint) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             contentType: "APPLICATION_JSON",
             customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]]
     }
 
-    @NonCPS
     private postRequest(String endpoint, String contents) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             httpMode: "POST",
