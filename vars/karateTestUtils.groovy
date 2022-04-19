@@ -111,8 +111,8 @@ def createFailedFeatureJiraTicket(String summary, String description, String tea
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-
-        def fields = [Description: description, Priority: "P1"]
+        
+        def fields = [Summary: summary, Description: description, Priority: "P1"]
         if (team) {
             fields["Development Team"] = team
         }
