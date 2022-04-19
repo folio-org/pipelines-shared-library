@@ -22,7 +22,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 }
 
 def attachCucumberReports(KarateTestsExecutionSummary summary, String cucumberReportsFolder) {
-    findFiles(glob: "report-feature*").each { file ->
+    findFiles(glob: "**/report-feature*").each { file ->
         echo file.path + " | " + file.name
     }
 
