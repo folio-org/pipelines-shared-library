@@ -1,6 +1,7 @@
 package org.folio.client.jira
 
 import org.folio.client.jira.model.JiraField
+import org.folio.client.jira.model.JiraIssueCreateMeta
 import org.folio.client.jira.model.JiraIssueType
 import org.folio.client.jira.model.JiraPriority
 import org.folio.client.jira.model.JiraProject
@@ -34,4 +35,21 @@ class JiraParser {
         new JiraField(id: json.id, name: json.name)
     }
 
+    JiraIssueCreateMeta parseIssueCreateMeta(def json) {
+        def fields = json.projects[0].issuetypes[0].fields.collect { key, fieldJson ->
+            def allowedValues = [:]
+            fieldJson.allowedValues.each { value ->
+                if (value.name) {
+                    allowedValues[value.name] = value.id
+                } else {
+                    allowedValues[value.value] = value.id
+                }
+            }
+            new JiraField(id: fieldJson.fieldId, name: fieldJson.name, allowedValues: allowedValues)
+        }
+
+        new JiraIssueCreateMeta(projectId: json.projects[0].id, projectKey: json.projects[0].key,
+            issueTypeId: json.projects[0].issuetypes[0].id, issueTypeName: json.projects[0].issuetypes[0].name,
+            fields: fields)
+    }
 }

@@ -1,13 +1,9 @@
 package org.folio.client.jira
 
-
 import groovy.json.JsonOutput
 import hudson.AbortException
 import org.apache.http.HttpHeaders
-import org.folio.client.jira.model.JiraPriority
-import org.folio.client.jira.model.JiraProject
-import org.folio.client.jira.model.JiraResources
-import org.folio.client.jira.model.JiraStatus
+import org.folio.client.jira.model.*
 
 import java.util.logging.Logger
 
@@ -23,9 +19,7 @@ class JiraClient {
 
     JiraParser parser = new JiraParser()
 
-    def createIgnoreFields = ["Priority"]
-
-    Map<String, String> jiraFields
+    def createIgnoreFields = ["issuetype"]
 
     JiraClient(def pipeline, String url, String user, String password) {
         this.pipeline = pipeline
@@ -33,18 +27,9 @@ class JiraClient {
         this.authToken = Base64.getEncoder().encodeToString("${user}:${password}".getBytes())
     }
 
-    String createJiraTicket(String projectKey, String issueTypeName, String summary, Map fields) {
-        readFields()
-
-        def project = getJiraProject(projectKey)
-        if (!project) {
-            pipeline.error("Jira project '${projectKey} not found')")
-        }
-
-        def issueType = project.issueTypes.find { it.name == issueTypeName }
-        if (!issueType) {
-            pipeline.error("Jira issue type '${issueTypeName} not found')")
-        }
+    String createJiraTicket(String projectKey, String issueTypeName, Map fields) {
+        def issueCreateMeta = getJiraIssueCreateMeta(projectKey, issueTypeName)
+        def jiraFields = issueCreateMeta.getFieldsByName()
 
         def preparedFields = [:]
         fields.each { name, value ->
@@ -52,27 +37,25 @@ class JiraClient {
                 if (!jiraFields[name]) {
                     log.info("Field ${name} not found in defined jira fields list")
                 } else {
-                    preparedFields[jiraFields[name]] = value
+                    def jiraField = jiraFields[name]
+                    if (!jiraField.allowedValues) {
+                        preparedFields[jiraField.id] = value
+                    } else {
+                        preparedFields[jiraField.id] = ["id": jiraField.allowedValues[value]]
+                    }
                 }
             }
         }
+
 
         def content = """
         {
           "fields": {
             "project": {
-              "id": "${project.id}"
+              "id": "${issueCreateMeta.projectId}"
             },
-            "summary": "${summary}",
-            ${
-            if (fields.Priority) {
-                """"priority": {
-                    "id": "${getJiraPriority(fields.Priority).id}"
-                },"""
-            }
-        }
             "issuetype": {
-              "id": "${issueType.id}"
+              "id": "${issueCreateMeta.issueTypeId}"
             }
             ${
             if (fields) {
@@ -91,6 +74,15 @@ class JiraClient {
         } else {
             throw new AbortException("Unable to create jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
         }
+    }
+
+    JiraIssueCreateMeta getJiraIssueCreateMeta(String projectKey, String issueTypeName) {
+        withResponse("${JiraResources.ISSUE_CREATE_META}?projectKeys=${projectKey}&issuetypeNames=${issueTypeName}&expand=projects.issuetypes.fields",
+            { response, body ->
+                parser.parseIssueCreateMeta(body)
+            },
+            "Unable to get issue meta for project '${projectKey}' and issue type '${issueTypeName}'"
+        )
     }
 
     JiraProject getJiraProject(String key) {
@@ -121,20 +113,6 @@ class JiraClient {
         )
     }
 
-    def readFields() {
-        if (!jiraFields) {
-            withResponse("${JiraResources.FIELD}",
-                { response, body ->
-                    jiraFields = [:]
-                    body.each { field ->
-                        jiraFields[field.name] = field.id
-                    }
-                },
-                "Unable to get jira fields"
-            )
-        }
-    }
-
     private withResponse(endpoint, successClosure, errorMessage) {
         def response = getRequest(endpoint)
 
@@ -145,7 +123,6 @@ class JiraClient {
             throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
         }
     }
-
 
     private getRequest(String endpoint) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",

@@ -6,4 +6,6 @@ class JiraField {
 
     String name
 
+    Map<String, String> allowedValues
+
 }

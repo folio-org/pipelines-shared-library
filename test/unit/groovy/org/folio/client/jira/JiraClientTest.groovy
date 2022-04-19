@@ -11,12 +11,8 @@ class JiraClientTest extends AbstractScriptTest {
     void testCreateTicket() {
         helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
             def content
-            if (parameters["url"].contains("field")) {
-                content = getResourceContent("testCreateTicket_field.json")
-            } else if (parameters["url"].contains("project")) {
-                content = getResourceContent("testCreateTicket_project.json")
-            } else if (parameters["url"].contains("priority")) {
-                content = getResourceContent("testCreateTicket_priority.json")
+            if (parameters["url"].contains("issue/createmeta")) {
+                content = getResourceContent("testCreateTicket_issuemeta.json")
             } else {
                 content = getResourceContent("testCreateTicket_response.json")
             }
