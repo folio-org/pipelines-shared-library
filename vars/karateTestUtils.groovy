@@ -117,7 +117,7 @@ def createFailedFeatureJiraTicket(String summary, String description, String tea
             fields["Development Team"] = team
         }
 
-        jiraClient.createJiraTicket "KRD", "Bug", summary, fields
+        jiraClient.createJiraTicket "KRD", "Task", summary, fields
     }
 }
 
