@@ -21,6 +21,13 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     retVal
 }
 
+def attachCucumberReports(KarateTestsExecutionSummary summary, String cucumberReportsFolder) {
+    findFiles(glob: "${cucumberReportsFolder}/*").each { file ->
+        echo file.path + " | " + file.name
+    }
+
+}
+
 def sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
@@ -111,13 +118,13 @@ def createFailedFeatureJiraTicket(String summary, String description, String tea
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-        
+
         def fields = [Summary: summary, Description: description, Priority: "P1"]
         if (team) {
             fields["Development Team"] = team
         }
 
-        jiraClient.createJiraTicket "KRD", "Task", fields
+        //jiraClient.createJiraTicket "KRD", "Task", fields
     }
 }
 

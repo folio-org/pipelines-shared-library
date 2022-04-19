@@ -97,6 +97,7 @@ pipeline {
             steps {
                 script {
                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary, "cucumber-html-reports")
                 }
             }
         }
@@ -114,7 +115,7 @@ pipeline {
         stage("Send slack notifications") {
             steps {
                 script {
-                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                    //karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
@@ -122,7 +123,7 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
+                    //karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
