@@ -99,9 +99,15 @@ pipeline {
                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
 
                     node("master") {
-                        echo JENKINS_HOME
-                        echo JOB_NAME
-                        sh "ls '/var/lib/jenkins/jobs/Testing/jobs/Scheduled Karate Tests DRAFT/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
+                        def jobFolder = ""
+                        env.JOB_NAME.split["/"].each { entry ->
+                            jobFolder += "/jobs/${entry}"
+                        }
+                        echo jobFolder
+
+                        def zipFileName = "cucumber-html-reports.zip"
+                        zip zipFile: zipFileName, glob: "${JENKINS_HOME}/jobs/Testing/jobs/Scheduled Karate Tests DRAFT/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*"
+                        archiveArtifacts allowEmptyArchive: true, artifacts: zipFileName, fingerprint: true, defaultExcludes: false
                     }
 
 
