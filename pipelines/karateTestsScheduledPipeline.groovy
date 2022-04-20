@@ -97,6 +97,14 @@ pipeline {
             steps {
                 script {
                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+
+                    node("master") {
+                        echo JENKINS_HOME
+                        echo JOB_NAME
+                        sh "ls '/var/lib/jenkins/jobs/Testing/jobs/Scheduled Karate Tests DRAFT/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
+                    }
+
+
                     karateTestUtils.attachCucumberReports(karateTestsExecutionSummary, "cucumber-html-reports")
                 }
             }
