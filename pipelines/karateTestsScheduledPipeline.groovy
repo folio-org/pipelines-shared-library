@@ -106,7 +106,7 @@ pipeline {
                         echo jobFolder
 
                         def zipFileName = "cucumber-html-reports.zip"
-                        sh "ls ${JENKINS_HOME}/${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports"
+                        sh "ls '${JENKINS_HOME}/${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
                         zip zipFile: zipFileName, glob: "${JENKINS_HOME}/${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*"
                         archiveArtifacts allowEmptyArchive: true, artifacts: zipFileName, fingerprint: true, defaultExcludes: false
                     }
