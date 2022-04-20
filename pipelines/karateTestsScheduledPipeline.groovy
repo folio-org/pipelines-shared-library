@@ -100,7 +100,7 @@ pipeline {
 
                     node("master") {
                         def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}"
-                        sh "mkdir - '${targetFolder}'"
+                        sh "mkdir -p '${targetFolder}'"
 
                         def jobFolder = ""
                         env.JOB_NAME.split("/").each { entry ->
