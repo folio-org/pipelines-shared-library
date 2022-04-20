@@ -110,7 +110,8 @@ pipeline {
                             sh "cp -r cucumber-html-reports '${targetFolder}'"
                         }
                         sh "ls -lah '${targetFolder}/cucumber-html-reports'"
-                        stash name: "cucumber-reports", includes: "${targetFolder}/cucumber-html-reports/*"
+                        sh "pwd"
+                        stash name: "cucumber-reports", includes: "${targetFolder}/cucumber-html-reports/**/*.*"
 //
 //                        def zipFileName = "cucumber-html-reports2.zip"
 //                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
