@@ -122,7 +122,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                         "*Feature path:* ${featureSummary.relativePath}\n" +
                         "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
                         "*Cucumber overview report:* ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
-                        "*Cucumber feature report:* ${env.BUILD_URL}/cucumber-html-reports/${featureSummary.cucumberReportFile}"
+                    "*Cucumber feature report:* ${env.BUILD_URL}/cucumber-html-reports/${featureSummary.cucumberReportFile}"
 
                     def teamName = null
                     if (teamByModule[moduleSummary.name]) {
@@ -156,7 +156,7 @@ def createFailedFeatureJiraTicket(String summary, String description, String tea
             fields["Development Team"] = team
         }
 
-        //jiraClient.createJiraTicket "KRD", "Task", fields
+        jiraClient.createJiraTicket "KRD", "Task", fields
     }
 }
 
