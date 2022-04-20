@@ -104,7 +104,7 @@ pipeline {
                             jobFolder += "/jobs/${entry}"
                         }
                         dir ("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports") {
-                            sh "cp -r cucumber-html-reports ${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports"
+                            sh "cp -r cucumber-html-reports '${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports'"
                         }
                         stash name: "cucumber-reports", includes: "${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports/*"
 //
