@@ -100,7 +100,7 @@ pipeline {
 
                     node("master") {
                         def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports"
-                        sh "mkdir '${targetFolder}'"
+                        sh "mkdir -R '${targetFolder}'"
 
                         def jobFolder = ""
                         env.JOB_NAME.split("/").each { entry ->
