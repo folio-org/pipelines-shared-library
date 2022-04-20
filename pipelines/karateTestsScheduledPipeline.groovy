@@ -103,7 +103,10 @@ pipeline {
                         env.JOB_NAME.split("/").each { entry ->
                             jobFolder += "/jobs/${entry}"
                         }
-                        stash name: "cucumber-reports", includes: "${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*.*"
+                        dir ("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports") {
+                            sh "cp -r cucumber-html-reports ${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports"
+                        }
+                        stash name: "cucumber-reports", includes: "${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports/*"
 //
 //                        def zipFileName = "cucumber-html-reports2.zip"
 //                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
