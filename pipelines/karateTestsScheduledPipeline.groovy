@@ -98,35 +98,7 @@ pipeline {
                 script {
                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
 
-                    node("master") {
-                        def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}"
-                        sh "mkdir -p '${targetFolder}'"
-
-                        def jobFolder = ""
-                        env.JOB_NAME.split("/").each { entry ->
-                            jobFolder += "/jobs/${entry}"
-                        }
-                        dir ("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}") {
-                            sh "cp -r cucumber-html-reports '${targetFolder}'"
-                        }
-                        sh "ls -lah '${targetFolder}/cucumber-html-reports'"
-                        sh "pwd"
-                        stash name: "cucumber-reports", includes: "${env.BUILD_NUMBER}/cucumber-html-reports/**/*.*"
-//
-//                        def zipFileName = "cucumber-html-reports2.zip"
-//                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
-//                        zip zipFile: zipFileName, glob: "${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*.*"
-//                        archiveArtifacts allowEmptyArchive: true, artifacts: zipFileName, fingerprint: true, defaultExcludes: false
-                    }
-
-                    dir("cucumber-html-reports") {
-                        unstash name: "cucumber-reports"
-
-                        sh "ls -lah"
-                    }
-
-
-                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary, "cucumber-html-reports")
+                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                 }
             }
         }

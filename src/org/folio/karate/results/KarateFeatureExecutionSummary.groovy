@@ -16,6 +16,8 @@ class KarateFeatureExecutionSummary {
 
     int scenarioCount = 0
 
+    String cucumberReportFile
+
     boolean failed
 
     @Override

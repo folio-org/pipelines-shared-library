@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
 import org.folio.karate.results.KarateExecutionResult
+import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.KarateTeam
@@ -21,11 +22,41 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     retVal
 }
 
-def attachCucumberReports(KarateTestsExecutionSummary summary, String cucumberReportsFolder) {
-    findFiles(glob: "**/report-feature*").each { file ->
-        echo file.path + " | " + file.name
-    }
+def attachCucumberReports(KarateTestsExecutionSummary summary) {
+    copyCucumberReports()
 
+    List<KarateFeatureExecutionSummary> features = summary.modulesExecutionSummary.collect { name, moduleSummary ->
+        moduleSummary.features
+    }.flatten()
+
+    findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
+        def contents = readFile(file.path)
+        def feature = features.find { feature ->
+            contents.contains(feature.relativePath)
+        }
+        if (feature) {
+            println("Cucmber report for ${feature.name} is ${file.name}")
+            feature.cucumberReportFile = file.name
+        }
+    }
+}
+
+def copyCucumberReports() {
+    def stashName = "cucumber-reports"
+    node("master") {
+        def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}"
+        sh "mkdir -p '${targetFolder}'"
+
+        def jobFolder = ""
+        env.JOB_NAME.split("/").each { entry ->
+            jobFolder += "/jobs/${entry}"
+        }
+        dir("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}") {
+            sh "cp -r cucumber-html-reports '${targetFolder}'"
+        }
+        stash name: stashName, includes: "${env.BUILD_NUMBER}/cucumber-html-reports/**/*.*"
+    }
+    unstash name: stashName
 }
 
 def sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
