@@ -100,7 +100,7 @@ pipeline {
 
                     node("master") {
                         def jobFolder = ""
-                        env.JOB_NAME.split["/"].each { entry ->
+                        env.JOB_NAME.split("/").each { entry ->
                             jobFolder += "/jobs/${entry}"
                         }
                         echo jobFolder
