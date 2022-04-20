@@ -35,7 +35,7 @@ def attachCucumberReports(KarateTestsExecutionSummary summary) {
             contents.contains(feature.relativePath)
         }
         if (feature) {
-            println("Cucmber report for ${feature.name} is ${file.name}")
+            println "Cucumber report for '${feature.name}' feature is '${file.name}'"
             feature.cucumberReportFile = file.name
         }
     }
@@ -121,7 +121,8 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                         "*Feature package name:* ${featureSummary.packageQualifiedName}\n" +
                         "*Feature path:* ${featureSummary.relativePath}\n" +
                         "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
-                        "*Cucumber report:* ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
+                        "*Cucumber overview report:* ${env.BUILD_URL}/cucumber-html-reports/overview-features.html"
+                        "*Cucumber feature report:* ${env.BUILD_URL}/cucumber-html-reports/${featureSummary.cucumberReportFile}"
 
                     def teamName = null
                     if (teamByModule[moduleSummary.name]) {

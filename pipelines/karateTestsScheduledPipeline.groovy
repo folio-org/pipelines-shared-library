@@ -116,8 +116,7 @@ pipeline {
         stage("Send slack notifications") {
             steps {
                 script {
-                    echo "bla"
-                    //karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
@@ -125,8 +124,7 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    echo "bla"
-                    //karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
+                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
