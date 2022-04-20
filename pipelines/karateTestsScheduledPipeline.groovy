@@ -103,12 +103,18 @@ pipeline {
                         env.JOB_NAME.split("/").each { entry ->
                             jobFolder += "/jobs/${entry}"
                         }
-                        echo jobFolder
+                        stash name: "cucumber-reports", includes: "${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*.*"
+//
+//                        def zipFileName = "cucumber-html-reports2.zip"
+//                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
+//                        zip zipFile: zipFileName, glob: "${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*.*"
+//                        archiveArtifacts allowEmptyArchive: true, artifacts: zipFileName, fingerprint: true, defaultExcludes: false
+                    }
 
-                        def zipFileName = "cucumber-html-reports2.zip"
-                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
-                        zip zipFile: zipFileName, glob: "${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports/*.*"
-                        archiveArtifacts allowEmptyArchive: true, artifacts: zipFileName, fingerprint: true, defaultExcludes: false
+                    dir("cucumber-html-reports") {
+                        unstash name: "cucumber-reports"
+
+                        sh "ls -lah"
                     }
 
 
