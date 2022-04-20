@@ -99,14 +99,17 @@ pipeline {
                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
 
                     node("master") {
+                        def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports"
+                        sh "mkdir '${targetFolder}'"
+
                         def jobFolder = ""
                         env.JOB_NAME.split("/").each { entry ->
                             jobFolder += "/jobs/${entry}"
                         }
-                        dir ("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports") {
-                            sh "cp -r cucumber-html-reports '${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports'"
+                        dir ("${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}") {
+                            sh "cp -r cucumber-html-reports '${targetFolder}'"
                         }
-                        stash name: "cucumber-reports", includes: "${WORKSPACE}/${env.BUILD_NUMBER}/cucumber-html-reports/*"
+                        stash name: "cucumber-reports", includes: "${targetFolder}/*"
 //
 //                        def zipFileName = "cucumber-html-reports2.zip"
 //                        sh "ls '${JENKINS_HOME}${jobFolder}/builds/${env.BUILD_NUMBER}/cucumber-html-reports'"
