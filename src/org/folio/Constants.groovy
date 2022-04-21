@@ -8,5 +8,7 @@ class Constants {
     static String GITHUB_CREDENTIALS_ID = "11657186-f4d4-4099-ab72-2a32e023cced"
     static String JIRA_CREDENTIALS_ID = "jenkins-jira"
 
+    static String JENKINS_MASTER_NODE = "master"
+
 
 }

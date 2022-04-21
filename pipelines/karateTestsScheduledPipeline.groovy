@@ -1,6 +1,5 @@
 @Library('pipelines-shared-library@RANCHER-248') _
 
-
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -15,7 +14,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'RANCHER-239', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
 
@@ -61,7 +60,7 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    //karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -69,7 +68,7 @@ pipeline {
         stage("Copy downstream job artifacts") {
             steps {
                 script {
-                    def jobNumber = 68 // karateTestsJob.number
+                    def jobNumber = karateTestsJob.number
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")

@@ -7,6 +7,12 @@ import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
 
+/**
+ * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
+ *
+ * @param karateSummaryFolder karate summary folder (ant-style)
+ * @return collected statistics
+ */
 KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     def retVal = new KarateTestsExecutionSummary()
     def karateSummaries = findFiles(glob: karateSummaryFolder)
@@ -22,7 +28,11 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     retVal
 }
 
-def attachCucumberReports(KarateTestsExecutionSummary summary) {
+/**
+ * Add cucumber reports feature report urls to karate tests execution statistics
+ * @param summary karate tests execution statistics
+ */
+void attachCucumberReports(KarateTestsExecutionSummary summary) {
     copyCucumberReports()
 
     List<KarateFeatureExecutionSummary> features = summary.modulesExecutionSummary.collect { name, moduleSummary ->
@@ -41,9 +51,12 @@ def attachCucumberReports(KarateTestsExecutionSummary summary) {
     }
 }
 
-def copyCucumberReports() {
+/**
+ * Copy cucumber report plugin results from master node to slave workspace
+ */
+void copyCucumberReports() {
     def stashName = "cucumber-reports"
-    node("master") {
+    node(Constants.JENKINS_MASTER_NODE) {
         def targetFolder = "${WORKSPACE}/${env.BUILD_NUMBER}"
         sh "mkdir -p '${targetFolder}'"
 
@@ -59,7 +72,12 @@ def copyCucumberReports() {
     unstash name: stashName
 }
 
-def sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+/**
+ * Send slack notifications regarding karate tests execution results
+ * @param karateTestsExecutionSummary karate tests execution statistics
+ * @param teamAssignment teams assignment to modules
+ */
+void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
@@ -92,6 +110,11 @@ def sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummar
     }
 }
 
+/**
+ * Get slack color by build status
+ * @param buildStatus jenkins build status
+ * @return color code
+ */
 def getSlackColor(def buildStatus) {
     if (buildStatus == 'STARTED') {
         '#D4DADF'
@@ -104,7 +127,12 @@ def getSlackColor(def buildStatus) {
     }
 }
 
-def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+/**
+ * Create jira tickets for failed karate tests
+ * @param karateTestsExecutionSummary karate tests execution statistics
+ * @param teamAssignment teams assignment to modules
+ */
+void createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     echo karateTestsExecutionSummary
     def teamByModule = teamAssignment.getTeamsByModules()
 
@@ -114,7 +142,6 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
             moduleSummary.features
                 .findAll() { it.failed }
                 .each { featureSummary ->
-                    echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}'"
                     def summary = "${moduleSummary.name} '${featureSummary.name}' karate test fail"
                     def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
                         "*Feature name:* ${featureSummary.name}\n" +
@@ -131,9 +158,7 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                         echo "Module ${moduleSummary.name} is not assigned to any team."
                     }
 
-                    echo "Summary: ${summary}"
-                    echo "Description: ${description}"
-                    echo "Team: ${teamName}"
+                    echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
 
                     try {
                         createFailedFeatureJiraTicket(summary, description, teamName)
@@ -142,13 +167,21 @@ def createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, T
                     }
                 }
         }
-
 }
 
-def createFailedFeatureJiraTicket(String summary, String description, String team) {
+/**
+ * Create jira ticket using JiraClient
+ * @param summary ticket summary
+ * @param description ticket description
+ * @param team team name
+ */
+void createFailedFeatureJiraTicket(String summary, String description, String team) {
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
+        def projectKey = "KRD"
+        def issueType = "Task"
+
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
 
         def fields = [Summary: summary, Description: description, Priority: "P1"]
@@ -156,7 +189,7 @@ def createFailedFeatureJiraTicket(String summary, String description, String tea
             fields["Development Team"] = team
         }
 
-        jiraClient.createJiraTicket "KRD", "Task", fields
+        jiraClient.createJiraTicket projectKey, issueType, fields
     }
 }
 
