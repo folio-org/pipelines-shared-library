@@ -29,24 +29,34 @@ class JiraClient {
 
     String createJiraTicket(String projectKey, String issueTypeName, Map fields) {
         def issueCreateMeta = getJiraIssueCreateMeta(projectKey, issueTypeName)
-        def jiraFields = issueCreateMeta.getFieldsByName()
 
-        def preparedFields = [:]
+        def (issueId, updateFieldsCandidates) = createJiraTicketInternal(projectKey, issueTypeName, fields, issueCreateMeta)
+
+        if (updateFieldsCandidates) {
+            updateJiraTicket(issueId, updateFieldsCandidates)
+        }
+
+        issueId
+    }
+
+    def createJiraTicketInternal(String projectKey, String issueTypeName, Map fields, JiraIssueCreateMeta issueCreateMeta) {
+        def jiraFields = issueCreateMeta.getFieldsByName()
+        def updateFieldsCandidates = [:]
+        def createFields = [:]
         fields.each { name, value ->
             if (!createIgnoreFields.contains(name)) {
                 if (!jiraFields[name]) {
-                    log.info("Field ${name} not found in defined jira fields list")
+                    updateFieldsCandidates[name] = value
                 } else {
                     def jiraField = jiraFields[name]
                     if (!jiraField.allowedValues) {
-                        preparedFields[jiraField.id] = value
+                        createFields[jiraField.id] = value
                     } else {
-                        preparedFields[jiraField.id] = ["id": jiraField.allowedValues[value]]
+                        createFields[jiraField.id] = ["id": jiraField.allowedValues[value]]
                     }
                 }
             }
         }
-
 
         def content = """
         {
@@ -59,7 +69,7 @@ class JiraClient {
             }
             ${
             if (fields) {
-                def json = JsonOutput.toJson(preparedFields)
+                def json = JsonOutput.toJson(createFields)
                 ",\n" + json.substring(1, json.length() - 1)
             }
         }
@@ -70,9 +80,41 @@ class JiraClient {
         def response = postRequest(JiraResources.ISSUE, content)
         if (response.status < 300) {
             def body = pipeline.readJSON text: response.content
-            body.id
+            [body.id, updateFieldsCandidates]
         } else {
             throw new AbortException("Unable to create jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+        }
+    }
+
+    def updateJiraTicket(String issueId, Map fields) {
+        def issueUpdateMeta = getJiraIssueUpdateMeta(issueId)
+        def jiraFields = issueUpdateMeta.getFieldsByName()
+
+        def preparedFields = [:]
+        fields.each { name, value ->
+            if (!jiraFields[name]) {
+                log.info "Jira field for '${name}' was not found. This value will be ignored."
+            } else {
+                def jiraField = jiraFields[name]
+                if (!jiraField.allowedValues) {
+                    preparedFields[jiraField.id] = value
+                } else {
+                    preparedFields[jiraField.id] = ["id": jiraField.allowedValues[value]]
+                }
+            }
+        }
+
+        if (preparedFields) {
+            def content = """
+        {
+          "fields": ${JsonOutput.toJson(preparedFields)}
+        }
+"""
+
+            def response = putRequest("${JiraResources.ISSUE}/${issueId}", content)
+            if (response.status > 300) {
+                throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+            }
         }
     }
 
@@ -81,7 +123,16 @@ class JiraClient {
             { response, body ->
                 parser.parseIssueCreateMeta(body)
             },
-            "Unable to get issue meta for project '${projectKey}' and issue type '${issueTypeName}'"
+            "Unable to get issue create meta for project '${projectKey}' and issue type '${issueTypeName}'"
+        )
+    }
+
+    JiraIssueUpdateMeta getJiraIssueUpdateMeta(String issueId) {
+        withResponse("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_EDIT_META}",
+            { response, body ->
+                parser.parseIssueUpdateMeta(body)
+            },
+            "Unable to get issue update meta for issue '${issueId}'"
         )
     }
 
@@ -134,6 +185,15 @@ class JiraClient {
     private postRequest(String endpoint, String contents) {
         pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
             httpMode: "POST",
+            contentType: "APPLICATION_JSON",
+            customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
+            requestBody: contents,
+            validResponseCodes: "100:599"
+    }
+
+    private putRequest(String endpoint, String contents) {
+        pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
+            httpMode: "PUT",
             contentType: "APPLICATION_JSON",
             customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
             requestBody: contents,

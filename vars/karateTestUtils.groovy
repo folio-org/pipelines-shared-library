@@ -142,28 +142,29 @@ void createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, 
             moduleSummary.features
                 .findAll() { it.failed }
                 .each { featureSummary ->
-                    def summary = "${moduleSummary.name} '${featureSummary.name}' karate test fail"
-                    def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
-                        "*Feature name:* ${featureSummary.name}\n" +
-                        "*Feature package name:* ${featureSummary.packageQualifiedName}\n" +
-                        "*Feature path:* ${featureSummary.relativePath}\n" +
-                        "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
-                        "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
-                        "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
+                    // ignore features which has no report set
+                    if (featureSummary.cucumberReportFile) {
+                        def summary = "Karate test fail: ${featureSummary.relativePath}"
+                        def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
+                            "*Feature path:* ${featureSummary.relativePath}\n" +
+                            "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
+                            "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
+                            "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
 
-                    def teamName = null
-                    if (teamByModule[moduleSummary.name]) {
-                        teamName = teamByModule[moduleSummary.name].name
-                    } else {
-                        echo "Module ${moduleSummary.name} is not assigned to any team."
-                    }
+                        def teamName = null
+                        if (teamByModule[moduleSummary.name]) {
+                            teamName = teamByModule[moduleSummary.name].name
+                        } else {
+                            echo "Module ${moduleSummary.name} is not assigned to any team."
+                        }
 
-                    echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+                        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
 
-                    try {
-                        createFailedFeatureJiraTicket(summary, description, teamName)
-                    } catch (e) {
-                        echo("Unable to create Jira ticket. " + e.getMessage())
+                        try {
+                            createFailedFeatureJiraTicket(summary, description, teamName)
+                        } catch (e) {
+                            echo("Unable to create Jira ticket. " + e.getMessage())
+                        }
                     }
                 }
         }
@@ -180,7 +181,7 @@ void createFailedFeatureJiraTicket(String summary, String description, String te
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
         def projectKey = "KRD"
-        def issueType = "Task"
+        def issueType = "Bug"
 
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
 

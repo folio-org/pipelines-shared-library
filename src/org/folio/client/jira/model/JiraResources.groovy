@@ -8,6 +8,8 @@ class JiraResources {
 
     static final String ISSUE_CREATE_META = "issue/createmeta"
 
+    static final String ISSUE_EDIT_META = "editmeta"
+
     static final String FIELD = "field"
 
     static final String STATUS = "status"

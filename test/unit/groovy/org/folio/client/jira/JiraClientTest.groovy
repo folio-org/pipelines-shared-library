@@ -12,7 +12,9 @@ class JiraClientTest extends AbstractScriptTest {
         helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
             def content
             if (parameters["url"].contains("issue/createmeta")) {
-                content = getResourceContent("testCreateTicket_issuemeta.json")
+                content = getResourceContent("testCreateTicket_issuecreatemeta.json")
+            } else if (parameters["url"].contains("editmeta")) {
+                content = getResourceContent("testCreateTicket_issuecreatemeta.json")
             } else {
                 content = getResourceContent("testCreateTicket_response.json")
             }
