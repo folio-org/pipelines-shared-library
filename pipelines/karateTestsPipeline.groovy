@@ -1,3 +1,4 @@
+import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -21,7 +22,7 @@ pipeline {
         stage("Checkout") {
             steps {
                 script {
-                    sshagent(credentials: ['11657186-f4d4-4099-ab72-2a32e023cced']) {
+                    sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                         checkout([
                             $class           : 'GitSCM',
                             branches         : [[name: "*/${params.branch}"]],
@@ -31,7 +32,7 @@ pipeline {
                                                                   recursiveSubmodules: true,
                                                                   reference          : '',
                                                                   trackingSubmodules : false]],
-                            userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-integration-tests.git']]
+                            userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/folio-integration-tests.git"]]
                         ])
                     }
                 }

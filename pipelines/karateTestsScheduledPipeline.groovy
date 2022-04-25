@@ -1,19 +1,20 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-248') _
 
-import org.folio.karate.results.KarateTestsResult
+import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def okapiUrl, tenant, user, password
 def karateTestsJobName = "/Testing/Karate tests"
 def karateTestsJob
-KarateTestsResult karateTestsResult
+KarateTestsExecutionSummary karateTestsExecutionSummary
+def teamAssignment
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'RANCHER-239', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
 
@@ -21,10 +22,15 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-                    tenant = 'fs09000000'
-                    user = 'folio'
-                    password = 'folio'
+                    okapiUrl = 'https://folio-snapshot-okapi.dev.folio.org:443'
+                    tenant = 'supertenant'
+                    user = 'testing_admin'
+                    password = 'admin'
+
+//                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
+//                    tenant = 'fs09000000'
+//                    user = 'folio'
+//                    password = 'folio'
 
 //                    call job to setup env (https://issues.folio.org/browse/RANCHER-12)
 //                    def jobParameters = [
@@ -44,11 +50,6 @@ pipeline {
         stage("Run karate tests") {
             steps {
                 script {
-                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-                    tenant = 'fs09000000'
-                    user = 'folio'
-                    password = 'folio'
-
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
@@ -67,10 +68,11 @@ pipeline {
         stage("Copy downstream job artifacts") {
             steps {
                 script {
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "cucumber.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "junit.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "karate-summary.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${karateTestsJob.number}"), filter: "teams-assignment.json")
+                    def jobNumber = karateTestsJob.number
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
+                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
 
                     unzip zipFile: "cucumber.zip", dir: "cucumber"
                     unzip zipFile: "junit.zip", dir: "junit"
@@ -93,18 +95,35 @@ pipeline {
         stage("Collect execution results") {
             steps {
                 script {
-                    karateTestsResult = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+
+                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                 }
             }
         }
 
-        stage("Send slack notifications") {
+        stage("Parse teams assignment") {
             steps {
                 script {
                     def jsonContents = readJSON file: "teams-assignment.json"
-                    def teamAssignment = new TeamAssignment(jsonContents)
+                    teamAssignment = new TeamAssignment(jsonContents)
+                }
+            }
+        }
 
-                    karateTestUtils.sendSlackNotification(karateTestsResult, teamAssignment)
+
+        stage("Send slack notifications") {
+            steps {
+                script {
+                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                }
+            }
+        }
+
+        stage("Create jira tickets") {
+            steps {
+                script {
+                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }

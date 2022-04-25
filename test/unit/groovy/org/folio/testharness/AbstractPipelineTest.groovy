@@ -2,7 +2,22 @@ package org.folio.testharness
 
 import com.lesfurets.jenkins.unit.BasePipelineTest
 import com.lesfurets.jenkins.unit.global.lib.LibraryConfiguration
+import hudson.model.Item
+import hudson.model.Run
+import hudson.model.TaskListener
+import jenkins.plugins.http_request.HttpMode
+import jenkins.plugins.http_request.HttpRequestExecution
+import jenkins.plugins.http_request.HttpRequestStep
+import jenkins.plugins.http_request.util.HttpRequestNameValuePair
+import net.sf.json.JSONSerializer
+import org.jenkinsci.plugins.workflow.support.DefaultStepContext
 import org.junit.jupiter.api.BeforeEach
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.SafeConstructor
 
 abstract class AbstractPipelineTest extends BasePipelineTest {
 
@@ -20,15 +35,11 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
         registerLocalVars()
         registerError()
 
-//        registerHttpRequest()
-//        registerReadJSON()
-//        registerReadYaml()
-//        registerWithCredentials()
-//        registerUsernamePassword()
-//
-//        registerInput()
-//        registerSeparator()
-//        registerChoice()
+        registerHttpRequest()
+        registerReadJSON()
+        registerReadYaml()
+        registerWithCredentials()
+        registerUsernamePassword()
     }
 
     void setCredentials(String credentials, String username, String password) {
@@ -73,140 +84,107 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
         })
     }
 
-//    private void registerHttpRequest() {
-//        helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
-//            HttpRequestStep request = new HttpRequestStep((String) parameters["url"])
-//            if (parameters["customHeaders"]) {
-//                def headers = []
-//                parameters["customHeaders"].each { map ->
-//                    headers.add(new HttpRequestNameValuePair((String) map["name"], (String) map["value"]))
-//                }
-//                request.setCustomHeaders(headers)
-//            }
-//
-//            def execution = new HttpRequestStep.Execution()
-//
-//            def stepField = HttpRequestStep.Execution.getDeclaredField("step")
-//            stepField.setAccessible(true)
-//            stepField.set(execution, request)
-//
-//            def run = Mockito.mock(Run)
-//            def runField = HttpRequestStep.Execution.getDeclaredField("run")
-//            runField.setAccessible(true)
-//            runField.set(execution, run)
-//
-//            HttpRequestExecution exec = HttpRequestExecution.from(request, TaskListener.NULL, execution)
-//            return exec.call()
-//        })
-//    }
-//
-//    private void registerReadYaml() {
-//        helper.registerAllowedMethod("readYaml", [Map], { parameters ->
-//            if (parameters["file"]) {
-//                Iterable<Object> yaml = new Yaml(new SafeConstructor()).loadAll(new File((String) parameters["file"]).text)
-//
-//                List<Object> result = new LinkedList<Object>()
-//                for (Object data : yaml) {
-//                    result.add(data)
-//                }
-//
-//                if (result.size() == 1) {
-//                    return result.get(0)
-//                } else {
-//                    return result
-//                }
-//            } else {
-//                throw new IllegalArgumentException("Not implemented")
-//            }
-//        })
-//    }
-//
-//    private void registerReadJSON() {
-//        helper.registerAllowedMethod("readJSON", [Map], { parameters ->
-//            if (parameters["text"]) {
-//                return JSONSerializer.toJSON(parameters["text"])
-//            } else {
-//                throw new IllegalArgumentException("Not implemented")
-//            }
-//        })
-//    }
-//
-//    private void registerWithCredentials() {
-//        helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], { list, closure ->
-//            list.forEach { entry ->
-//                if (entry instanceof Map) {
-//                    entry.each { variable, value ->
-//                        binding.setVariable(variable, value)
-//                    }
-//                } else {
-//                    binding.setVariable(entry, "$entry")
-//                }
-//            }
-//            def res = closure.call()
-//            list.forEach { entry ->
-//                if (entry instanceof Map) {
-//                    entry.each { variable, value ->
-//                        binding.setVariable(variable, null)
-//                    }
-//                } else {
-//                    binding.setVariable(entry, null)
-//                }
-//            }
-//            return res
-//        })
-//    }
-//
-//    private void registerUsernamePassword() {
-//        helper.registerAllowedMethod("usernamePassword", [Map], { parameters ->
-//            def credentialsId = parameters["credentialsId"]
-//            if (credentials[credentialsId]) {
-//                def retVal = [:]
-//                retVal[parameters["usernameVariable"]] = credentials[credentialsId].get(CredentialsValue.Username)
-//                retVal[parameters["passwordVariable"]] = credentials[credentialsId].get(CredentialsValue.Password)
-//                return retVal
-//            } else {
-//                throw new IllegalArgumentException("  Not credentials with id '${credentialsId}' found")
-//            }
-//        })
-//    }
-//
-//    private void registerInput() {
-//        helper.registerAllowedMethod("input", [Map], { parameters ->
-//            Map<String, String> retVal = [:]
-//            List<ParameterDefinition> uiParams = (List<ParameterDefinition>) parameters["parameters"]
-//
-//            uiParams.each { uiParam ->
-//                if (uiParam instanceof ParameterSeparatorDefinition) {
-//                    // skip
-//                } else if (uiParam instanceof ChoiceParameterDefinition) {
-//                    def value = ((ChoiceParameterDefinition) uiParam).choices[0]
-//                        .replace("[", "")
-//                        .replace("]", "")
-//                        .split(",")[0]
-//                    retVal[uiParam.getName()] = value
-//                } else {
-//                    throw new IllegalArgumentException("Not implemented")
-//                }
-//            }
-//            retVal
-//        })
-//    }
-//
-//    private void registerSeparator() {
-//        helper.registerAllowedMethod("separator", [Map], { parameters ->
-//            new ParameterSeparatorDefinition(parameters["name"].toString(), parameters["sectionHeader"].toString(), parameters["separatorStyle"].toString(), parameters["sectionHeaderStyle"].toString())
-//        })
-//    }
-//
-//    private void registerChoice() {
-//        helper.registerAllowedMethod("choice", [Map], { parameters ->
-//            if (parameters["defaultValue"]) {
-//                def choices = Arrays.asList(parameters["choices"].toString().split(ChoiceParameterDefinition.CHOICES_DELIMITER))
-//                new ChoiceParameterDefinition(parameters["name"].toString(), choices, parameters["defaultValue"].toString(), parameters["description"].toString())
-//            } else {
-//                new ChoiceParameterDefinition(parameters["name"].toString(), parameters["choices"].toString(), parameters["description"].toString())
-//            }
-//        })
-//    }
+    private void registerHttpRequest() {
+        helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
+            HttpRequestStep request = new HttpRequestStep((String) parameters["url"])
+            def headers = []
+            if (parameters["httpMode"]) {
+                request.setHttpMode(HttpMode.valueOf(parameters["httpMode"]))
+            }
+            if (parameters["contentType"]) {
+                headers.add(new HttpRequestNameValuePair("Content-Type", ((String) parameters["contentType"]).toLowerCase().replaceAll("_", "/")))
+            }
+            if (parameters["customHeaders"]) {
+                parameters["customHeaders"].each { map ->
+                    headers.add(new HttpRequestNameValuePair((String) map["name"], (String) map["value"]))
+                }
+            }
+            request.setCustomHeaders(headers)
+            if (parameters["requestBody"]) {
+                request.setRequestBody(parameters["requestBody"])
+            }
+            if (parameters["validResponseCodes"]) {
+                request.setValidResponseCodes(parameters["validResponseCodes"])
+            }
+
+            def context = Mockito.mock(DefaultStepContext)
+            def execution = Mockito.spy(new HttpRequestStep.Execution(context, request))
+            Mockito.doReturn(Mockito.mock(Item)).when(execution).getProject()
+
+            HttpRequestExecution exec = HttpRequestExecution.from(request, TaskListener.NULL, execution)
+
+            return exec.call()
+        })
+    }
+
+    private void registerReadYaml() {
+        helper.registerAllowedMethod("readYaml", [Map], { parameters ->
+            if (parameters["file"]) {
+                Iterable<Object> yaml = new Yaml(new SafeConstructor()).loadAll(new File((String) parameters["file"]).text)
+
+                List<Object> result = new LinkedList<Object>()
+                for (Object data : yaml) {
+                    result.add(data)
+                }
+
+                if (result.size() == 1) {
+                    return result.get(0)
+                } else {
+                    return result
+                }
+            } else {
+                throw new IllegalArgumentException("Not implemented")
+            }
+        })
+    }
+
+    private void registerReadJSON() {
+        helper.registerAllowedMethod("readJSON", [Map], { parameters ->
+            if (parameters["text"]) {
+                return JSONSerializer.toJSON(parameters["text"])
+            } else {
+                throw new IllegalArgumentException("Not implemented")
+            }
+        })
+    }
+
+    private void registerWithCredentials() {
+        helper.registerAllowedMethod("withCredentials", [List.class, Closure.class], { list, closure ->
+            list.forEach { entry ->
+                if (entry instanceof Map) {
+                    entry.each { variable, value ->
+                        binding.setVariable(variable, value)
+                    }
+                } else {
+                    binding.setVariable(entry, "$entry")
+                }
+            }
+            def res = closure.call()
+            list.forEach { entry ->
+                if (entry instanceof Map) {
+                    entry.each { variable, value ->
+                        binding.setVariable(variable, null)
+                    }
+                } else {
+                    binding.setVariable(entry, null)
+                }
+            }
+            return res
+        })
+    }
+
+    private void registerUsernamePassword() {
+        helper.registerAllowedMethod("usernamePassword", [Map], { parameters ->
+            def credentialsId = parameters["credentialsId"]
+            if (credentials[credentialsId]) {
+                def retVal = [:]
+                retVal[parameters["usernameVariable"]] = credentials[credentialsId].get(CredentialsValue.Username)
+                retVal[parameters["passwordVariable"]] = credentials[credentialsId].get(CredentialsValue.Password)
+                return retVal
+            } else {
+                throw new IllegalArgumentException("  Not credentials with id '${credentialsId}' found")
+            }
+        })
+    }
 
 }
