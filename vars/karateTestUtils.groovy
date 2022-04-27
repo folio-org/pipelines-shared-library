@@ -161,11 +161,11 @@ void createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, 
 
                         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
 
-                        try {
+                        //try {
                             createFailedFeatureJiraTicket(summary, description, teamName)
-                        } catch (e) {
-                            echo("Unable to create Jira ticket. " + e.getMessage())
-                        }
+//                        } catch (e) {
+//                            echo("Unable to create Jira ticket. " + e.getMessage())
+//                        }
                     }
                 }
         }
