@@ -2,6 +2,7 @@ package org.folio.client.jira
 
 import groovy.json.JsonOutput
 import hudson.AbortException
+import hudson.plugins.jira.model.JiraIssue
 import org.apache.http.HttpHeaders
 import org.folio.client.jira.model.*
 
@@ -118,6 +119,64 @@ class JiraClient {
         }
     }
 
+    void issueTransition(String issueId, String status) {
+        def transitions = getJiraIssueTransitions(issueId)
+        def transition = transitions.find { transition ->
+            transition.name == status
+        }
+
+        if (transition) {
+            def content = """
+            {
+                "transition": "${transition.id}"
+            }"""
+
+            def response = postRequest("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_TRANSITIONS}", content)
+            if (response.status > 300) {
+                throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+            }
+        } else {
+            throw new AbortException("Transition to '${status}' is not available to issue '${issueId}'")
+        }
+    }
+
+    String addIssueComment(String issueId, String comment) {
+        def content = """
+            {
+                "body": "${comment.replaceAll("\n", "\\\\\\n")}"
+            }
+        }"""
+
+        def response = postRequest("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_COMMENT}", content)
+        if (response.status < 300) {
+            def body = pipeline.readJSON text: response.content
+            body.id
+        } else {
+            throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+        }
+    }
+
+
+    List<JiraIssue> searchIssues(String jql, List<String> fields) {
+        String endpoint = "${JiraResources.SEARCH}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
+        if (fields) {
+            endpoint += "&fields=${fields.join(',')}"
+        }
+
+        def retVal = []
+        withPagedResponse(endpoint,
+            { response, body ->
+                body.issues.each { issue ->
+                    retVal.add(parser.parseIssue(issue))
+                }
+
+            },
+            "Unable to get execute search for jql '${jql}' and fields '${fields}'"
+        )
+
+        retVal
+    }
+
     JiraIssueCreateMeta getJiraIssueCreateMeta(String projectKey, String issueTypeName) {
         withResponse("${JiraResources.ISSUE_CREATE_META}?projectKeys=${projectKey}&issuetypeNames=${issueTypeName}&expand=projects.issuetypes.fields",
             { response, body ->
@@ -145,11 +204,24 @@ class JiraClient {
         )
     }
 
+    List<JiraIssueTransition> getJiraIssueTransitions(String issueId) {
+        def retVal = []
+        withResponse("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_TRANSITIONS}",
+            { response, body ->
+                body.transitions.each { transition ->
+                    retVal.add(parser.parseIssueTransition(transition))
+                }
+            },
+            "Unable to get issue transitions issue '${issueId}'"
+        )
+        retVal
+    }
+
     JiraPriority getJiraPriority(String name) {
         withResponse("${JiraResources.PRIORITY}",
             { response, body ->
                 def priority = body.find { priority -> priority.name == name }
-                parser.parseJiraPriority(priority)
+                parser.parsePriority(priority)
             },
             "Unable to get jira priority with '${name}' name"
         )
@@ -158,11 +230,32 @@ class JiraClient {
     JiraStatus getJiraStatus(String name) {
         withResponse("${JiraResources.STATUS}/${name}",
             { response, body ->
-                parser.parseJiraStatus(body)
+                parser.parseStatus(body)
             },
             "Unable to get jira priority with '${name}' name"
         )
     }
+
+    private withPagedResponse(endpoint, successClosure, errorMessage, int pageSize = 100) {
+        int startAt = 0
+
+        while (startAt != -1) {
+            def response = getRequest("${endpoint}&startAt=${startAt}&maxResults=${pageSize}")
+
+            if (response.status < 300) {
+                def body = pipeline.readJSON text: response.content
+                successClosure(response, body)
+                if (body.startAt + body.maxResults < body.total) {
+                    startAt += body.maxResults
+                } else {
+                    startAt = -1
+                }
+            } else {
+                throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
+            }
+        }
+    }
+
 
     private withResponse(endpoint, successClosure, errorMessage) {
         def response = getRequest(endpoint)

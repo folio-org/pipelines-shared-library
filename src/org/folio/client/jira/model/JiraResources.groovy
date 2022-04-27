@@ -10,6 +10,12 @@ class JiraResources {
 
     static final String ISSUE_EDIT_META = "editmeta"
 
+    static final String ISSUE_TRANSITIONS = "transitions"
+
+    static final String ISSUE_COMMENT = "comment"
+
+    static final String SEARCH = "search"
+
     static final String FIELD = "field"
 
     static final String STATUS = "status"
