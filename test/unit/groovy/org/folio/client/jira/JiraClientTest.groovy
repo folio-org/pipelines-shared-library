@@ -14,7 +14,7 @@ class JiraClientTest extends AbstractScriptTest {
             if (parameters["url"].contains("issue/createmeta")) {
                 content = getResourceContent("testCreateTicket_issuecreatemeta.json")
             } else if (parameters["url"].contains("editmeta")) {
-                content = getResourceContent("testCreateTicket_issuecreatemeta.json")
+                content = getResourceContent("testCreateTicket_issueeditmeta.json")
             } else {
                 content = getResourceContent("testCreateTicket_response.json")
             }

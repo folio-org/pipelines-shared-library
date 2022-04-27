@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
+import org.folio.karate.KarateConstants
 import org.folio.karate.results.KarateExecutionResult
 import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
@@ -180,17 +181,14 @@ void createFailedFeatureJiraTicket(String summary, String description, String te
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
-        def projectKey = "KRD"
-        def issueType = "Bug"
-
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
 
-        def fields = [Summary: summary, Description: description, Priority: "P1"]
+        def fields = [Summary: summary, Description: description, Priority: "P1", Labels: ["reviewed"]]
         if (team) {
-            fields["Development Team"] = team
+//            fields["Development Team"] = team
         }
 
-        jiraClient.createJiraTicket projectKey, issueType, fields
+        jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
     }
 }
 
