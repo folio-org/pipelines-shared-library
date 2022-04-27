@@ -162,7 +162,7 @@ void createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, 
                         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
 
                         //try {
-                            createFailedFeatureJiraTicket(summary, description, teamName)
+                        createFailedFeatureJiraTicket(summary, description, teamName)
 //                        } catch (e) {
 //                            echo("Unable to create Jira ticket. " + e.getMessage())
 //                        }
@@ -183,7 +183,12 @@ void createFailedFeatureJiraTicket(String summary, String description, String te
     ]) {
         JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
 
-        def fields = [Summary: summary, Description: description, Priority: "P1", Labels: ["reviewed"]]
+        def fields = [
+            Summary    : summary,
+            Description: description,
+            Priority   : KarateConstants.JIRA_ISSUE_PRIORITY,
+            Labels     : [KarateConstants.ISSUE_LABEL]
+        ]
         if (team) {
 //            fields["Development Team"] = team
         }
