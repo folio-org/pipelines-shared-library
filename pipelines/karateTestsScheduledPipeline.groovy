@@ -60,7 +60,7 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    //karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
