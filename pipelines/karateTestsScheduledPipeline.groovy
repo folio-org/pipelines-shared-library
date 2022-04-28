@@ -123,7 +123,9 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
+                    writeJSON(file: 'message1.json', json: karateTestsExecutionSummary)
+                    sh "cat message1.json"
+//                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
