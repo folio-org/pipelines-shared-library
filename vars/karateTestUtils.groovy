@@ -45,7 +45,10 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
+
             String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.relativePath + KarateConstants.CUCUMBER_REPORT_PATTERN_END
+            echo pattern
+            println(contents ==~ pattern)
             contents ==~ pattern
         }
         if (feature) {
