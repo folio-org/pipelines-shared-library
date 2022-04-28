@@ -47,9 +47,7 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         def feature = features.find { feature ->
 
             String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.relativePath + KarateConstants.CUCUMBER_REPORT_PATTERN_END
-            echo pattern
-            println(contents ==~ pattern)
-            contents ==~ pattern
+            contents =~ pattern
         }
         if (feature) {
             println "Cucumber report for '${feature.name}' feature is '${file.name}'"
