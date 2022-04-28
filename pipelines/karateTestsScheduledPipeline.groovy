@@ -1,5 +1,7 @@
 @Library('pipelines-shared-library@RANCHER-270') _
 
+
+import groovy.json.JsonOutput
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -123,8 +125,8 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    writeJSON(file: 'message1.json', json: karateTestsExecutionSummary)
-                    sh "cat message1.json"
+                    echo JsonOutput.toJson(karateTestsExecutionSummary)
+
 //                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
             }
