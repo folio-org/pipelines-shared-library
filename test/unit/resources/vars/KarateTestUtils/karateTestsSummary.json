@@ -1,0 +1,3514 @@
+{
+  "modulesExecutionSummary": {
+    "acquisitions": {
+      "featuresFailed": 9,
+      "executionResult": "FAIL",
+      "featuresSkipped": 1,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_175_4165791836.html",
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-finance.finance-junit",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/mod-finance/finance-junit.feature",
+          "description": "",
+          "name": "mod-finance integration tests",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "thunderjet.mod-organizations.features.create-test-data",
+          "scenarioCount": 7,
+          "failed": true,
+          "cucumberReportFile": "report-feature_45715897.html",
+          "relativePath": "thunderjet/mod-organizations/features/create-test-data.feature",
+          "description": "",
+          "name": "create test data",
+          "failedCount": 7
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-invoice.invoice-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/mod-invoice/invoice-junit.feature",
+          "description": "",
+          "name": "mod-invoice integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.voucher-numbers",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_1_1550494727.html",
+          "relativePath": "thunderjet/mod-invoice/features/voucher-numbers.feature",
+          "description": "",
+          "name": "Voucher numbers",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-vendor-address-included-with-batch-voucher",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_2_3759085662.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-vendor-address-included-with-batch-voucher.feature",
+          "description": "",
+          "name": "Check vendor address included with batch voucher",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-error-respose-with-fundcode-upon-invoice-approval",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_3_3185736856.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-error-respose-with-fundcode-upon-invoice-approval.feature",
+          "description": "",
+          "name": "Check error response with fundcode upon invoice approval",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-approve-and-pay-invoice-with-zero-dollar-amount",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_4_2719750311.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-approve-and-pay-invoice-with-zero-dollar-amount.feature",
+          "description": "",
+          "name": "Check approve and pay invoice with 0$ amount",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.cancel-invoice",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_5_2932224876.html",
+          "relativePath": "thunderjet/mod-invoice/features/cancel-invoice.feature",
+          "description": "",
+          "name": "Cancel an invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-changing-protected-fields-forbidden-for-approved-invoice",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_6_2073065473.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-changing-protected-fields-forbidden-for-approved-invoice.feature",
+          "description": "",
+          "name": "Checking that it is impossible to pay for the invoice if no voucher for invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.create-voucher-lines-honor-expense-classes",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_7_2620440866.html",
+          "relativePath": "thunderjet/mod-invoice/features/create-voucher-lines-honor-expense-classes.feature",
+          "description": "",
+          "name": "Create voucher lines for each unique : externalAccountNumber-extensionNumber",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.prorated-adjustments-special-cases",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_8_2317179908.html",
+          "relativePath": "thunderjet/mod-invoice/features/prorated-adjustments-special-cases.feature",
+          "description": "",
+          "name": "Verify that request will be rejected if provided adjustments no valid",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-not-possible-pay-for-invoice-if-no-voucher",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_9_430622436.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-not-possible-pay-for-invoice-if-no-voucher.feature",
+          "description": "",
+          "name": "Checking that it is impossible to pay for the invoice if no voucher for invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-not-possible-add-invoice-line-to-approved-invoice",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_10_1709477263.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-not-possible-add-invoice-line-to-approved-invoice.feature",
+          "description": "",
+          "name": "Checking that it is impossible to add a invoice line to already approved invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-can-not-approve-invoice-if-organization-is-not-vendor",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_11_1079840085.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-can-not-approve-invoice-if-organization-is-not-vendor.feature",
+          "description": "",
+          "name": "Check that can not approve invoice if organization is not vendor",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-lock-totals-and-calculated-totals-in-invoice-approve-time",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_12_4130910731.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-lock-totals-and-calculated-totals-in-invoice-approve-time.feature",
+          "description": "",
+          "name": "Check invoice approve flow if lockTotal is specified",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-approve-and-pay-invoice-with-odd-pennies-number",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_13_4251343381.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-approve-and-pay-invoice-with-odd-pennies-number.feature",
+          "description": "",
+          "name": "Check approve and pay invoice with odd number of pennies in total",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-not-possible-pay-for-invoice-without-approved",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_14_3221497016.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-not-possible-pay-for-invoice-without-approved.feature",
+          "description": "",
+          "name": "Check that it is not impossible to pay for the invoice without approved status",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-invoice-and-invoice-lines-deletion-restrictions",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_15_1029494937.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-invoice-and-invoice-lines-deletion-restrictions.feature",
+          "description": "",
+          "name": "Check invoice and invoice lines deletion restrictions",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-that-voucher-exist-with-parameters",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_16_2830800301.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-that-voucher-exist-with-parameters.feature",
+          "description": "",
+          "name": "Check voucher from invoice with lines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-invoice-lines-and-documents-are-deleted-with-invoice",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_17_2375344963.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-invoice-lines-and-documents-are-deleted-with-invoice.feature",
+          "description": "",
+          "name": "Check invoice lines and documents are deleted with invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-remaining-amount-upon-invoice-approval",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_18_2466260495.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-remaining-amount-upon-invoice-approval.feature",
+          "description": "",
+          "name": "Check remaining amount upon invoice approval",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.edit-subscription-dates-after-invoice-paid",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_19_703466820.html",
+          "relativePath": "thunderjet/mod-invoice/features/edit-subscription-dates-after-invoice-paid.feature",
+          "description": "",
+          "name": "Edit subscription dates after invoice is paid",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.should_populate_vendor_address_on_get_voucher_by_id",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_20_431934.html",
+          "relativePath": "thunderjet/mod-invoice/features/should_populate_vendor_address_on_get_voucher_by_id.feature",
+          "description": "",
+          "name": "Should populate vendor address when retrieve voucher by id",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 20,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.batch-voucher-export-with-many-lines",
+          "scenarioCount": 20,
+          "failed": false,
+          "cucumberReportFile": "report-feature_21_2760175523.html",
+          "relativePath": "thunderjet/mod-invoice/features/batch-voucher-export-with-many-lines.feature",
+          "description": "",
+          "name": "Batch voucher export with many lines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 13,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.check-invoice-full-flow-where-subTotal-is-negative",
+          "scenarioCount": 13,
+          "failed": false,
+          "cucumberReportFile": "report-feature_22_176783693.html",
+          "relativePath": "thunderjet/mod-invoice/features/check-invoice-full-flow-where-subTotal-is-negative.feature",
+          "description": "",
+          "name": "Check invoice full flow where sub total is negative",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.voucher-with-lines-using-same-external-account",
+          "scenarioCount": 1,
+          "failed": true,
+          "cucumberReportFile": "report-feature_23_2845898405.html",
+          "relativePath": "thunderjet/mod-invoice/features/voucher-with-lines-using-same-external-account.feature",
+          "description": "",
+          "name": "Check voucher from invoice with lines using the same external account",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.exchange-rate-update-after-invoice-approval",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_24_2098330705.html",
+          "relativePath": "thunderjet/mod-invoice/features/exchange-rate-update-after-invoice-approval.feature",
+          "description": "",
+          "name": "Check remaining amount upon invoice approval",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 18,
+          "packageQualifiedName": "thunderjet.mod-invoice.features.invoice-with-lock-totals-calculated-totals",
+          "scenarioCount": 18,
+          "failed": false,
+          "cucumberReportFile": "report-feature_25_3902064461.html",
+          "relativePath": "thunderjet/mod-invoice/features/invoice-with-lock-totals-calculated-totals.feature",
+          "description": "",
+          "name": "Check invoice and invoice lines total amount calculation, when adjustment exists and lockTotal set",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-ebsconet.ebsconet-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/mod-ebsconet/ebsconet-junit.feature",
+          "description": "",
+          "name": "mod-ebsconet integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-ebsconet.features.update-ebsconet-order-line",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": "report-feature_26_2917024171.html",
+          "relativePath": "thunderjet/mod-ebsconet/features/update-ebsconet-order-line.feature",
+          "description": "",
+          "name": "Update Ebsconet Order Line",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-ebsconet.features.get-ebsconet-order-line",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": "report-feature_27_1398187154.html",
+          "relativePath": "thunderjet/mod-ebsconet/features/get-ebsconet-order-line.feature",
+          "description": "",
+          "name": "Get Ebsconet Order Line",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-ebsconet.features.update-mixed-order-line",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_28_4077713165.html",
+          "relativePath": "thunderjet/mod-ebsconet/features/update-mixed-order-line.feature",
+          "description": "",
+          "name": "Update Ebsconet Order Line",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.edge-orders.edge-orders-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/edge-orders/edge-orders-junit.feature",
+          "description": "",
+          "name": "edge-orders integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.edge-orders.features.gobi",
+          "scenarioCount": 6,
+          "failed": true,
+          "cucumberReportFile": "report-feature_29_4116097492.html",
+          "relativePath": "thunderjet/edge-orders/features/gobi.feature",
+          "description": "",
+          "name": "Edge Orders GOBI",
+          "failedCount": 5
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.edge-orders.features.ebsconet",
+          "scenarioCount": 4,
+          "failed": true,
+          "cucumberReportFile": "report-feature_30_3456632736.html",
+          "relativePath": "thunderjet/edge-orders/features/ebsconet.feature",
+          "description": "",
+          "name": "Edge Orders Ebsconet",
+          "failedCount": 3
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.edge-orders.edge-orders-destroy-data",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/edge-orders/edge-orders-destroy-data.feature",
+          "description": "",
+          "name": "destroy data for edge tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.cross-modules.cross-modules-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/cross-modules/cross-modules-junit.feature",
+          "description": "",
+          "name": "cross-module integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "thunderjet.cross-modules.features.check-encumbrances-after-order-is-reopened-2",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_31_3919658264.html",
+          "relativePath": "thunderjet/cross-modules/features/check-encumbrances-after-order-is-reopened-2.feature",
+          "description": "",
+          "name": "Check encumbrances after order is reopened - 2",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 14,
+          "packageQualifiedName": "thunderjet.cross-modules.features.approve-invoice-using-different-fiscal-years",
+          "scenarioCount": 24,
+          "failed": true,
+          "cucumberReportFile": "report-feature_32_1817382414.html",
+          "relativePath": "thunderjet/cross-modules/features/approve-invoice-using-different-fiscal-years.feature",
+          "description": "",
+          "name": "Approve an invoice using different fiscal years",
+          "failedCount": 10
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.cross-modules.features.order-invoice-relation-can-be-deleted",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_33_429112706.html",
+          "relativePath": "thunderjet/cross-modules/features/order-invoice-relation-can-be-deleted.feature",
+          "description": "",
+          "name": "Test order invoice relation can be deleted",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 57,
+          "packageQualifiedName": "thunderjet.cross-modules.features.create-order-and-invoice-with-odd-penny",
+          "scenarioCount": 57,
+          "failed": false,
+          "cucumberReportFile": "report-feature_34_3704490985.html",
+          "relativePath": "thunderjet/cross-modules/features/create-order-and-invoice-with-odd-penny.feature",
+          "description": "",
+          "name": "Create orders and invoices with odd penny",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "thunderjet.cross-modules.features.approve-invoice-with-negative-line",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_35_2270814991.html",
+          "relativePath": "thunderjet/cross-modules/features/approve-invoice-with-negative-line.feature",
+          "description": "",
+          "name": "Approve an invoice with a negative line",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 22,
+          "packageQualifiedName": "thunderjet.cross-modules.features.check-encumbrances-after-order-is-reopened",
+          "scenarioCount": 22,
+          "failed": false,
+          "cucumberReportFile": "report-feature_36_2987136883.html",
+          "relativePath": "thunderjet/cross-modules/features/check-encumbrances-after-order-is-reopened.feature",
+          "description": "",
+          "name": "Check encumbrances after order is reopened",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "thunderjet.cross-modules.features.unopen-order-and-add-addition-pol-and-check-encumbrances",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_37_4020138157.html",
+          "relativePath": "thunderjet/cross-modules/features/unopen-order-and-add-addition-pol-and-check-encumbrances.feature",
+          "description": "",
+          "name": "UnOpen order and add addition POL and 1 Fund. Also verify encumbrances",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "thunderjet.cross-modules.features.MODFISTO-270-delete-planned-budget-without-transactions",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_38_4127276513.html",
+          "relativePath": "thunderjet/cross-modules/features/MODFISTO-270-delete-planned-budget-without-transactions.feature",
+          "description": "",
+          "name": "Planned budgets without transactions should be deleted",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 14,
+          "packageQualifiedName": "thunderjet.cross-modules.features.create-order-and-approve-invoice-were-pol-without-fund-distributions",
+          "scenarioCount": 14,
+          "failed": false,
+          "cucumberReportFile": "report-feature_39_1155547548.html",
+          "relativePath": "thunderjet/cross-modules/features/create-order-and-approve-invoice-were-pol-without-fund-distributions.feature",
+          "description": "",
+          "name": "Create order and approve invoice were pol without fund distributions",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "thunderjet.cross-modules.features.delete-encumbrance",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_40_2378354713.html",
+          "relativePath": "thunderjet/cross-modules/features/delete-encumbrance.feature",
+          "description": "",
+          "name": "Test deleting an encumbrance",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "thunderjet.cross-modules.features.cancel-invoice-linked-to-order",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_41_3923457895.html",
+          "relativePath": "thunderjet/cross-modules/features/cancel-invoice-linked-to-order.feature",
+          "description": "",
+          "name": "Cancel an invoice linked to an order",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.cross-modules.features.check-po-numbers-updates",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_42_3056803912.html",
+          "relativePath": "thunderjet/cross-modules/features/check-po-numbers-updates.feature",
+          "description": "",
+          "name": "Check poNumbers updates when invoice lines are created and updated",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.cross-modules.features.chek-po-numbers-updates-when-invoice-line-deleted",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_43_3401466501.html",
+          "relativePath": "thunderjet/cross-modules/features/chek-po-numbers-updates-when-invoice-line-deleted.feature",
+          "description": "",
+          "name": "Invoice poNumbers needs to be updated when an invoice line is deleted",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.cross-modules.features.pay-invoice-with-new-expense-class",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_44_830209694.html",
+          "relativePath": "thunderjet/cross-modules/features/pay-invoice-with-new-expense-class.feature",
+          "description": "",
+          "name": "Pay invoice with new expense class",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.cross-modules.features.change-poline-fd-and-pay-invoice",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_45_291905706.html",
+          "relativePath": "thunderjet/cross-modules/features/change-poline-fd-and-pay-invoice.feature",
+          "description": "",
+          "name": "Change poline fund distribution and pay invoice",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 18,
+          "packageQualifiedName": "thunderjet.cross-modules.features.order-invoice-relation",
+          "scenarioCount": 18,
+          "failed": false,
+          "cucumberReportFile": "report-feature_46_2100124645.html",
+          "relativePath": "thunderjet/cross-modules/features/order-invoice-relation.feature",
+          "description": "",
+          "name": "Test order invoice relation logic",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "thunderjet.cross-modules.features.unopen-order-simple-case",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_47_3740324460.html",
+          "relativePath": "thunderjet/cross-modules/features/unopen-order-simple-case.feature",
+          "description": "",
+          "name": "Unpopen order with one line and check encumbrance",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "thunderjet.cross-modules.features.order-invoice-relation-must-be-deleted-if-invoice-deleted",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_48_17152089.html",
+          "relativePath": "thunderjet/cross-modules/features/order-invoice-relation-must-be-deleted-if-invoice-deleted.feature",
+          "description": "",
+          "name": "When invoice is deleted, then order vs invoice relation must be deleted and POL can be deleted",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 37,
+          "packageQualifiedName": "thunderjet.cross-modules.features.check-approve-and-pay-invoice-with-invoice-references-same-po-line",
+          "scenarioCount": 37,
+          "failed": false,
+          "cucumberReportFile": "report-feature_49_4279985731.html",
+          "relativePath": "thunderjet/cross-modules/features/check-approve-and-pay-invoice-with-invoice-references-same-po-line.feature",
+          "description": "",
+          "name": "Check approve and pay invoice with more than 15 invoice lines, several of which reference to same POL",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 22,
+          "packageQualifiedName": "thunderjet.cross-modules.features.create-order-with-invoice-that-has-enough-money",
+          "scenarioCount": 22,
+          "failed": false,
+          "cucumberReportFile": "report-feature_50_2138652105.html",
+          "relativePath": "thunderjet/cross-modules/features/create-order-with-invoice-that-has-enough-money.feature",
+          "description": "",
+          "name": "Create order with invoice that has enough money",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.cross-modules.features.order-invoice-relation-can-be-changed",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_51_3679593757.html",
+          "relativePath": "thunderjet/cross-modules/features/order-invoice-relation-can-be-changed.feature",
+          "description": "",
+          "name": "Test order invoice relation can be changed",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.cross-modules.features.link-invoice-line-to-po-line",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_52_152592160.html",
+          "relativePath": "thunderjet/cross-modules/features/link-invoice-line-to-po-line.feature",
+          "description": "",
+          "name": "Link an invoice line to a po line",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-gobi.gobi-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/mod-gobi/gobi-junit.feature",
+          "description": "",
+          "name": "mod-gobi integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-orders.orders-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thunderjet/mod-orders/orders-junit.feature",
+          "description": "",
+          "name": "mod-orders integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.mod-orders.features.should-decrease-quantity-when-delete-piece-with-no-location",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_53_2517187951.html",
+          "relativePath": "thunderjet/mod-orders/features/should-decrease-quantity-when-delete-piece-with-no-location.feature",
+          "description": "",
+          "name": "Should decrease quantity when delete piece with no location",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-orders.features.receive-piece-against-non-package-pol",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_54_3574050347.html",
+          "relativePath": "thunderjet/mod-orders/features/receive-piece-against-non-package-pol.feature",
+          "description": "",
+          "name": "Receive piece against non-package POL",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-with-different-po-line-currency",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_55_929265385.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-with-different-po-line-currency.feature",
+          "description": "",
+          "name": "Open order with different po line currency",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-orders.features.delete-opened-order-and-lines",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_56_1555754242.html",
+          "relativePath": "thunderjet/mod-orders/features/delete-opened-order-and-lines.feature",
+          "description": "",
+          "name": "Delete opened order and lines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "thunderjet.mod-orders.features.close-order-when-fully-paid-and-received",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_57_3780648362.html",
+          "relativePath": "thunderjet/mod-orders/features/close-order-when-fully-paid-and-received.feature",
+          "description": "",
+          "name": "Verify once poline fully paid and received order should be closed",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-orders.features.close-order-and-release-encumbrances",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_58_3743897670.html",
+          "relativePath": "thunderjet/mod-orders/features/close-order-and-release-encumbrances.feature",
+          "description": "",
+          "name": "Close order and release encumbrances",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-orders.features.increase-poline-quantity-for-open-order",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_59_1762812188.html",
+          "relativePath": "thunderjet/mod-orders/features/increase-poline-quantity-for-open-order.feature",
+          "description": "",
+          "name": "Verify updating poLine location restricted after open order",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "thunderjet.mod-orders.features.three-fund-distributions",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_60_717060586.html",
+          "relativePath": "thunderjet/mod-orders/features/three-fund-distributions.feature",
+          "description": "",
+          "name": "Three fund distributions",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-ongoing-order",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_61_3592114925.html",
+          "relativePath": "thunderjet/mod-orders/features/open-ongoing-order.feature",
+          "description": "",
+          "name": "Open ongoing order",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.mod-orders.features.create-order-that-has-not-enough-money",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_62_3598361786.html",
+          "relativePath": "thunderjet/mod-orders/features/create-order-that-has-not-enough-money.feature",
+          "description": "",
+          "name": "Create order that has not enough money",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-ongoing-order-should-fail-if-interval-or-renewaldate-notset",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_63_1959237331.html",
+          "relativePath": "thunderjet/mod-orders/features/open-ongoing-order-should-fail-if-interval-or-renewaldate-notset.feature",
+          "description": "",
+          "name": "Should fail Open ongoing order if interval or renewal date is not set",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "thunderjet.mod-orders.features.fund-codes-in-open-order-error",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_64_2059949939.html",
+          "relativePath": "thunderjet/mod-orders/features/fund-codes-in-open-order-error.feature",
+          "description": "",
+          "name": "Fund codes in open order error",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 15,
+          "packageQualifiedName": "thunderjet.mod-orders.features.MODORDERS-538-piece-against-non-package-mixed-pol-manual-piece-creation-is-false",
+          "scenarioCount": 15,
+          "failed": false,
+          "cucumberReportFile": "report-feature_65_941064601.html",
+          "relativePath": "thunderjet/mod-orders/features/MODORDERS-538-piece-against-non-package-mixed-pol-manual-piece-creation-is-false.feature",
+          "description": "",
+          "name": "Should create and delete pieces for non package mixed POL with quantity POL updates when manual is false",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 16,
+          "packageQualifiedName": "thunderjet.mod-orders.features.expense-class-handling-for-order-and-lines",
+          "scenarioCount": 16,
+          "failed": false,
+          "cucumberReportFile": "report-feature_66_1505311836.html",
+          "relativePath": "thunderjet/mod-orders/features/expense-class-handling-for-order-and-lines.feature",
+          "description": "",
+          "name": "Handling of expense classes for order and order lines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 17,
+          "packageQualifiedName": "thunderjet.mod-orders.features.delete-fund-distribution",
+          "scenarioCount": 17,
+          "failed": false,
+          "cucumberReportFile": "report-feature_67_2699508958.html",
+          "relativePath": "thunderjet/mod-orders/features/delete-fund-distribution.feature",
+          "description": "",
+          "name": "Delete fund distribution and check encumbrances are removed",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-orders.features.check-new-tags-in-central-tag-repository",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_68_3425372495.html",
+          "relativePath": "thunderjet/mod-orders/features/check-new-tags-in-central-tag-repository.feature",
+          "description": "",
+          "name": "Check new tags created in central tag repository",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "thunderjet.mod-orders.features.change-location-when-receiving-piece",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_69_1315741789.html",
+          "relativePath": "thunderjet/mod-orders/features/change-location-when-receiving-piece.feature",
+          "description": "",
+          "name": "Change location when receiving a piece",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 12,
+          "packageQualifiedName": "thunderjet.mod-orders.features.MODORDERS-538-piece-against-non-package-mixed-pol-manual-piece-creation-is-true",
+          "scenarioCount": 12,
+          "failed": false,
+          "cucumberReportFile": "report-feature_70_4057897030.html",
+          "relativePath": "thunderjet/mod-orders/features/MODORDERS-538-piece-against-non-package-mixed-pol-manual-piece-creation-is-true.feature",
+          "description": "",
+          "name": "Should create and delete pieces for non package mixed POL with quantity POL updates when manual is true",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 19,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-without-holdings",
+          "scenarioCount": 19,
+          "failed": false,
+          "cucumberReportFile": "report-feature_71_868896497.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-without-holdings.feature",
+          "description": "",
+          "name": "Open order without creating holdings",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 16,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-instance-link",
+          "scenarioCount": 16,
+          "failed": false,
+          "cucumberReportFile": "report-feature_72_232883172.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-instance-link.feature",
+          "description": "",
+          "name": "Check opening an order links to the right instance based on the identifier type and value but only if instance matching is not disabled",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-orders.features.MODORDERS-583-add-piece-without-item-then-open-to-update-and-set-create-item",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_73_892926187.html",
+          "relativePath": "thunderjet/mod-orders/features/MODORDERS-583-add-piece-without-item-then-open-to-update-and-set-create-item.feature",
+          "description": "",
+          "name": "If I don't choose to create an item when creating the piece. If I edit that piece and select create item the item must created",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "thunderjet.mod-orders.features.MODORDERS-579-update-piece-against-non-package-mixed-pol-manual-piece-creation-is-false",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_74_53652622.html",
+          "relativePath": "thunderjet/mod-orders/features/MODORDERS-579-update-piece-against-non-package-mixed-pol-manual-piece-creation-is-false.feature",
+          "description": "",
+          "name": "Should create and update pieces for non package mixed POL with quantity POL updates when manual is false",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-with-the-same-fund-distributions",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_75_3894840775.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-with-the-same-fund-distributions.feature",
+          "description": "",
+          "name": "Should open order with polines having the same fund distributions",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-orders.features.encumbrance-tags-inheritance",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_76_1461226438.html",
+          "relativePath": "thunderjet/mod-orders/features/encumbrance-tags-inheritance.feature",
+          "description": "",
+          "name": "Verify once order is opened or poline is updated, encumbrance inherit poline's tags",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "thunderjet.mod-orders.features.check-re-encumber-property",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_77_4028131460.html",
+          "relativePath": "thunderjet/mod-orders/features/check-re-encumber-property.feature",
+          "description": "",
+          "name": "Check needReEncumber flag populated correctly",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thunderjet.mod-orders.features.MODORDERS-580-update-piece-POL-location-not-updated-when-piece-location-edited-against-non-package",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_78_3389017847.html",
+          "relativePath": "thunderjet/mod-orders/features/MODORDERS-580-update-piece-POL-location-not-updated-when-piece-location-edited-against-non-package.feature",
+          "description": "",
+          "name": "Should update location in the POL if change Location to a different holding on that instance for piece",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-failure-side-effects",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_79_1239605995.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-failure-side-effects.feature",
+          "description": "",
+          "name": "Open order failure side effects",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "thunderjet.mod-orders.features.unopen-and-change-fund-distribution",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_80_3646094089.html",
+          "relativePath": "thunderjet/mod-orders/features/unopen-and-change-fund-distribution.feature",
+          "description": "",
+          "name": "Unopen and change fund distribution",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "thunderjet.mod-orders.features.open-order-with-manual-exchange-rate",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_81_2019877980.html",
+          "relativePath": "thunderjet/mod-orders/features/open-order-with-manual-exchange-rate.feature",
+          "description": "",
+          "name": "Open order with manual exchange rate",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 90,
+          "packageQualifiedName": "thunderjet.mod-orders.features.check-order-re-encumber-work-correctly",
+          "scenarioCount": 90,
+          "failed": false,
+          "cucumberReportFile": "report-feature_82_844351433.html",
+          "relativePath": "thunderjet/mod-orders/features/check-order-re-encumber-work-correctly.feature",
+          "description": "",
+          "name": "Check re-encumber works correctly",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 13,
+          "packageQualifiedName": "thunderjet.mod-orders.features.receive-piece-against-package-pol",
+          "scenarioCount": 13,
+          "failed": false,
+          "cucumberReportFile": "report-feature_83_4091436075.html",
+          "relativePath": "thunderjet/mod-orders/features/receive-piece-against-package-pol.feature",
+          "description": "",
+          "name": "Receive piece against package POL",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 90,
+      "name": "acquisitions"
+    },
+    "data-import": {
+      "featuresFailed": 2,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "folijet.data-import.data-import-junit",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "folijet/data-import/data-import-junit.feature",
+          "description": "",
+          "name": "mod-data-import integration tests",
+          "failedCount": 2
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "data-import"
+    },
+    "edge-caiasoft": {
+      "featuresFailed": 8,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.accession-when-item-without-location-get-permanent-location-from-holding",
+          "scenarioCount": 13,
+          "failed": true,
+          "cucumberReportFile": "report-feature_84_670409977.html",
+          "relativePath": "firebird/edge-caiasoft/features/accession-when-item-without-location-get-permanent-location-from-holding.feature",
+          "description": "",
+          "name": "test Caiasoft accession request if holding has items with remote permanent location",
+          "failedCount": 4
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.accession-when-item-within-holding-with-remote-location",
+          "scenarioCount": 8,
+          "failed": true,
+          "cucumberReportFile": "report-feature_85_284012325.html",
+          "relativePath": "firebird/edge-caiasoft/features/accession-when-item-within-holding-with-remote-location.feature",
+          "description": "",
+          "name": "test Caiasoft accession request if item within holding with remote permanent location",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.accession-when-items-have-remote-location-within-holding",
+          "scenarioCount": 10,
+          "failed": true,
+          "cucumberReportFile": "report-feature_86_2597163450.html",
+          "relativePath": "firebird/edge-caiasoft/features/accession-when-items-have-remote-location-within-holding.feature",
+          "description": "",
+          "name": "test Caiasoft accession request if holding has items with remote permanent location",
+          "failedCount": 3
+        },
+        {
+          "passedCount": 13,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.return-should-change-item-status-to-available-when-no-hold-request-exists",
+          "scenarioCount": 14,
+          "failed": true,
+          "cucumberReportFile": "report-feature_87_3477487790.html",
+          "relativePath": "firebird/edge-caiasoft/features/return-should-change-item-status-to-available-when-no-hold-request-exists.feature",
+          "description": "",
+          "name": "test CaiaSoft return: should check in item when no hold request exists",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.accession-with-holding-dublication",
+          "scenarioCount": 8,
+          "failed": true,
+          "cucumberReportFile": "report-feature_88_4158861746.html",
+          "relativePath": "firebird/edge-caiasoft/features/accession-with-holding-dublication.feature",
+          "description": "",
+          "name": "test Caiasoft accession request while creation of dublicated holding",
+          "failedCount": 4
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.check-in-by-request-id-and-remote-configuration-id",
+          "scenarioCount": 11,
+          "failed": true,
+          "cucumberReportFile": "report-feature_89_2407088668.html",
+          "relativePath": "firebird/edge-caiasoft/features/check-in-by-request-id-and-remote-configuration-id.feature",
+          "description": "",
+          "name": "test Caiasoft check in by request id and remote storage id",
+          "failedCount": 1
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.accession-while-moving-item-to-exist-holding",
+          "scenarioCount": 10,
+          "failed": true,
+          "cucumberReportFile": "report-feature_90_1959005333.html",
+          "relativePath": "firebird/edge-caiasoft/features/accession-while-moving-item-to-exist-holding.feature",
+          "description": "",
+          "name": "test Caiasoft accession request while moving item to holding with remote location",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 17,
+          "packageQualifiedName": "firebird.edge-caiasoft.features.return-should-create-retrieval-queue-record-when-hold-request-exists",
+          "scenarioCount": 18,
+          "failed": true,
+          "cucumberReportFile": "report-feature_91_3534440194.html",
+          "relativePath": "firebird/edge-caiasoft/features/return-should-create-retrieval-queue-record-when-hold-request-exists.feature",
+          "description": "",
+          "name": "test CaiaSoft return: should create retrieval queue record if hold request exists",
+          "failedCount": 1
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "edge-caiasoft"
+    },
+    "edge-dematic": {
+      "featuresFailed": 4,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "firebird.edge-dematic.features.update-asr-item-status-available",
+          "scenarioCount": 10,
+          "failed": true,
+          "cucumberReportFile": "report-feature_92_1899452490.html",
+          "relativePath": "firebird/edge-dematic/features/update-asr-item-status-available.feature",
+          "description": "",
+          "name": "test asrService/asr/updateASRItemStatusAvailable request",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "firebird.edge-dematic.features.lookup-asr-requests",
+          "scenarioCount": 12,
+          "failed": true,
+          "cucumberReportFile": "report-feature_93_2574926783.html",
+          "relativePath": "firebird/edge-dematic/features/lookup-asr-requests.feature",
+          "description": "",
+          "name": "test asrService/asr/lookupAsrRequests request",
+          "failedCount": 3
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "firebird.edge-dematic.features.update-asr-item-being-retrieved",
+          "scenarioCount": 7,
+          "failed": true,
+          "cucumberReportFile": "report-feature_94_1201475052.html",
+          "relativePath": "firebird/edge-dematic/features/update-asr-item-being-retrieved.feature",
+          "description": "",
+          "name": "test asrService/asr/updateASRItemStatusBeingRetrieved request",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "firebird.edge-dematic.features.lookup-new-asr-items",
+          "scenarioCount": 6,
+          "failed": true,
+          "cucumberReportFile": "report-feature_95_666248934.html",
+          "relativePath": "firebird/edge-dematic/features/lookup-new-asr-items.feature",
+          "description": "",
+          "name": "test asrService/asr/lookupNewAsrItems request",
+          "failedCount": 3
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "edge-dematic"
+    },
+    "edge-patron": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "prokopovych.edge-patron.features.patrons",
+          "scenarioCount": 6,
+          "failed": true,
+          "cucumberReportFile": "report-feature_96_2205747042.html",
+          "relativePath": "prokopovych/edge-patron/features/patrons.feature",
+          "description": "",
+          "name": "patron tests",
+          "failedCount": 6
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "prokopovych.edge-patron.patron-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "prokopovych/edge-patron/patron-junit.feature",
+          "description": "",
+          "name": "edge-patron integration tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 1,
+      "name": "edge-patron"
+    },
+    "edge-rtac": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "prokopovych.edge-rtac.features.rtac",
+          "scenarioCount": 5,
+          "failed": true,
+          "cucumberReportFile": "report-feature_97_703375499.html",
+          "relativePath": "prokopovych/edge-rtac/features/rtac.feature",
+          "description": "",
+          "name": "rtac tests",
+          "failedCount": 5
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "prokopovych.edge-rtac.rtac-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "prokopovych/edge-rtac/rtac-junit.feature",
+          "description": "",
+          "name": "edge-rtac integration tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 1,
+      "name": "edge-rtac"
+    },
+    "mod-audit": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "firebird.mod-audit.mod-audit-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/mod-audit/mod-audit-junit.feature",
+          "description": "",
+          "name": "mod-audit integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "firebird.mod-audit.features.requestEvent",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_98_247683397.html",
+          "relativePath": "firebird/mod-audit/features/requestEvent.feature",
+          "description": "",
+          "name": "mod audit data REQUEST event",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "firebird.mod-audit.features.checkInCheckOutEvent",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_99_889857729.html",
+          "relativePath": "firebird/mod-audit/features/checkInCheckOutEvent.feature",
+          "description": "",
+          "name": "mod audit data CHECK_IN_CHECK_OUT event",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "firebird.mod-audit.features.loanEvent",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_100_3916855678.html",
+          "relativePath": "firebird/mod-audit/features/loanEvent.feature",
+          "description": "",
+          "name": "mod audit data LOAN event",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 5,
+      "name": "mod-audit"
+    },
+    "mod-bulk-edit": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.bulk-edit.diku-bulk-edit-junit",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/bulk-edit/diku-bulk-edit-junit.feature",
+          "description": "",
+          "name": "bulk-edit integration tests",
+          "failedCount": 2
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "mod-bulk-edit"
+    },
+    "mod-calendar": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-calendar.calendar-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-calendar/calendar-junit.feature",
+          "description": "",
+          "name": "mod-calendar integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 26,
+          "packageQualifiedName": "vega.mod-calendar.features.calendarPeriods",
+          "scenarioCount": 26,
+          "failed": false,
+          "cucumberReportFile": "report-feature_101_155837641.html",
+          "relativePath": "vega/mod-calendar/features/calendarPeriods.feature",
+          "description": "",
+          "name": "Calendar periods",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-calendar"
+    },
+    "mod-circulation": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-circulation.circulation-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-circulation/circulation-junit.feature",
+          "description": "",
+          "name": "mod-circulation integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "vega.mod-circulation.features.root",
+          "scenarioCount": 1,
+          "failed": true,
+          "cucumberReportFile": "report-feature_102_1307850338.html",
+          "relativePath": "vega/mod-circulation/features/root.feature",
+          "description": "",
+          "name": "Root feature that runs all other mod-circulation features",
+          "failedCount": 1
+        }
+      ],
+      "featuresPassed": 2,
+      "name": "mod-circulation"
+    },
+    "mod-codex-ekb": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.codexekb.basic-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/codexekb/basic-junit.feature",
+          "description": "",
+          "name": "mod-codex-ekb integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "spitfire.codexekb.features.codex-packages",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_103_1736038715.html",
+          "relativePath": "spitfire/codexekb/features/codex-packages.feature",
+          "description": "",
+          "name": "Test codex packages",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "spitfire.codexekb.features.codex-instances",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_104_2113060382.html",
+          "relativePath": "spitfire/codexekb/features/codex-instances.feature",
+          "description": "",
+          "name": "Test codex instances",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-codex-ekb"
+    },
+    "mod-data-export": {
+      "featuresFailed": 2,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.dataexport.data-export-basic-junit",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/dataexport/data-export-basic-junit.feature",
+          "description": "",
+          "name": "mod-orders integration tests",
+          "failedCount": 2
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "mod-data-export"
+    },
+    "mod-data-import-converter-storage": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "folijet.mod-data-import-converter-storage.data-import-converter-storage-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "folijet/mod-data-import-converter-storage/data-import-converter-storage-junit.feature",
+          "description": "",
+          "name": "mod-data-import-converter-storage integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "folijet.mod-data-import-converter-storage.features.jobProfiles",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_105_2599930057.html",
+          "relativePath": "folijet/mod-data-import-converter-storage/features/jobProfiles.feature",
+          "description": "",
+          "name": "Job Profiles",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "folijet.mod-data-import-converter-storage.features.create-profiles-and-remove-them",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_106_3123193631.html",
+          "relativePath": "folijet/mod-data-import-converter-storage/features/create-profiles-and-remove-them.feature",
+          "description": "",
+          "name": "Create job profile for CREATE",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-data-import-converter-storage"
+    },
+    "mod-email": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-email.email-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-email/email-junit.feature",
+          "description": "",
+          "name": "mod-email integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "vega.mod-email.features.delayedTasks",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_107_1411366945.html",
+          "relativePath": "vega/mod-email/features/delayedTasks.feature",
+          "description": "",
+          "name": "Delayed tasks",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-email.features.email",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_108_23604373.html",
+          "relativePath": "vega/mod-email/features/email.feature",
+          "description": "",
+          "name": "Email",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-email"
+    },
+    "mod-event-config": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-event-config.event-config-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-event-config/event-config-junit.feature",
+          "description": "",
+          "name": "mod-event-config integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "vega.mod-event-config.features.eventConfig",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_109_735594970.html",
+          "relativePath": "vega/mod-event-config/features/eventConfig.feature",
+          "description": "",
+          "name": "Event config",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-event-config"
+    },
+    "mod-feesfines": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-feesfines.feesfines-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-feesfines/feesfines-junit.feature",
+          "description": "",
+          "name": "mod-feesfines integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-feesfines.features.feeFineActions",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_110_1328264226.html",
+          "relativePath": "vega/mod-feesfines/features/feeFineActions.feature",
+          "description": "",
+          "name": "Fee/fine actions tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-feesfines.features.manualBlocks",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_111_983672593.html",
+          "relativePath": "vega/mod-feesfines/features/manualBlocks.feature",
+          "description": "",
+          "name": "Manual blocks tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "vega.mod-feesfines.features.feeFineTypes",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_112_3417454366.html",
+          "relativePath": "vega/mod-feesfines/features/feeFineTypes.feature",
+          "description": "",
+          "name": "Fee/fine type tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "vega.mod-feesfines.features.lostItemFeePolicies",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_113_1800346952.html",
+          "relativePath": "vega/mod-feesfines/features/lostItemFeePolicies.feature",
+          "description": "",
+          "name": "Lost item fee policies tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-feesfines.features.owners",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_114_230068421.html",
+          "relativePath": "vega/mod-feesfines/features/owners.feature",
+          "description": "",
+          "name": "Fee/fine owners",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-feesfines.features.automateFeeFines",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_115_3736074124.html",
+          "relativePath": "vega/mod-feesfines/features/automateFeeFines.feature",
+          "description": "",
+          "name": "automate fee/fines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-feesfines.features.feeFineReports",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_116_4143831780.html",
+          "relativePath": "vega/mod-feesfines/features/feeFineReports.feature",
+          "description": "",
+          "name": "Fee/fine reports tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 54,
+          "packageQualifiedName": "vega.mod-feesfines.features.accounts",
+          "scenarioCount": 54,
+          "failed": false,
+          "cucumberReportFile": "report-feature_117_3664171787.html",
+          "relativePath": "vega/mod-feesfines/features/accounts.feature",
+          "description": "",
+          "name": "Fee/fine accounts tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "vega.mod-feesfines.features.manualFeeFines",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_118_4201477534.html",
+          "relativePath": "vega/mod-feesfines/features/manualFeeFines.feature",
+          "description": "",
+          "name": "manual fee/fines",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-feesfines.features.manualBlockTemplates",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_119_852491447.html",
+          "relativePath": "vega/mod-feesfines/features/manualBlockTemplates.feature",
+          "description": "",
+          "name": "Manual block templates tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "vega.mod-feesfines.features.overdueFinePolicies",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_120_152161811.html",
+          "relativePath": "vega/mod-feesfines/features/overdueFinePolicies.feature",
+          "description": "",
+          "name": "Overdue fine policies tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 13,
+      "name": "mod-feesfines"
+    },
+    "mod-inn-reach": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "volaris.mod-inn-reach-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "volaris/mod-inn-reach-junit.feature",
+          "description": "",
+          "name": "mod-inn-reach integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.item-contribution-options-configuration",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_121_186925754.html",
+          "relativePath": "volaris/features/item-contribution-options-configuration.feature",
+          "description": "",
+          "name": "Item contribution options configuration",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "volaris.features.inn-reach-proxy",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_122_610782822.html",
+          "relativePath": "volaris/features/inn-reach-proxy.feature",
+          "description": "",
+          "name": "Inn reach proxy",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "volaris.features.marc-transformation-options-settings",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_123_3837092966.html",
+          "relativePath": "volaris/features/marc-transformation-options-settings.feature",
+          "description": "",
+          "name": "MARC transformation options settings",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.central-patron-type-mapping",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_124_1100568120.html",
+          "relativePath": "volaris/features/central-patron-type-mapping.feature",
+          "description": "",
+          "name": "Central patron type mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "volaris.features.material-type-mapping",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_125_3081972887.html",
+          "relativePath": "volaris/features/material-type-mapping.feature",
+          "description": "",
+          "name": "Material type mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.location-mapping",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_126_1616017390.html",
+          "relativePath": "volaris/features/location-mapping.feature",
+          "description": "",
+          "name": "Location mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.central-server-configuration",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_127_1550154492.html",
+          "relativePath": "volaris/features/central-server-configuration.feature",
+          "description": "",
+          "name": "Central server configuration",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "volaris.features.inn-reach-location",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_128_949595435.html",
+          "relativePath": "volaris/features/inn-reach-location.feature",
+          "description": "",
+          "name": "Inn reach location",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.inn-reach-recall-user",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_129_1489582911.html",
+          "relativePath": "volaris/features/inn-reach-recall-user.feature",
+          "description": "",
+          "name": "Inn reach recall user",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.item-type-mapping",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_130_2927153579.html",
+          "relativePath": "volaris/features/item-type-mapping.feature",
+          "description": "",
+          "name": "Item type mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "volaris.features.authentication",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_131_1387706864.html",
+          "relativePath": "volaris/features/authentication.feature",
+          "description": "",
+          "name": "Authentication",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.agency-mappings",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_132_1525839331.html",
+          "relativePath": "volaris/features/agency-mappings.feature",
+          "description": "",
+          "name": "Agency mappings",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.bib-info",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_133_4290176632.html",
+          "relativePath": "volaris/features/bib-info.feature",
+          "description": "",
+          "name": "Bib info",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "volaris.features.contribution-criteria",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_134_698853874.html",
+          "relativePath": "volaris/features/contribution-criteria.feature",
+          "description": "",
+          "name": "Contribution criteria",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "volaris.features.central-server",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_135_2978386707.html",
+          "relativePath": "volaris/features/central-server.feature",
+          "description": "",
+          "name": "Central server",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "volaris.features.marc-record-transformation",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_136_1059957749.html",
+          "relativePath": "volaris/features/marc-record-transformation.feature",
+          "description": "",
+          "name": "MARC record transformation",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "volaris.features.inn-reach-transaction",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_137_870493718.html",
+          "relativePath": "volaris/features/inn-reach-transaction.feature",
+          "description": "",
+          "name": "Inn reach transaction",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.contribution",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_138_3302738888.html",
+          "relativePath": "volaris/features/contribution.feature",
+          "description": "",
+          "name": "Contribution",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.library-mapping",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_139_2784726642.html",
+          "relativePath": "volaris/features/library-mapping.feature",
+          "description": "",
+          "name": "library mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "volaris.features.user-custom-field-mapping",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_140_1229296471.html",
+          "relativePath": "volaris/features/user-custom-field-mapping.feature",
+          "description": "",
+          "name": "User custom field mapping",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 15,
+          "packageQualifiedName": "volaris.features.inn-reach-circulation",
+          "scenarioCount": 15,
+          "failed": false,
+          "cucumberReportFile": "report-feature_141_3618431999.html",
+          "relativePath": "volaris/features/inn-reach-circulation.feature",
+          "description": "",
+          "name": "Inn reach circulation",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "volaris.features.patron-info",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_142_2069007363.html",
+          "relativePath": "volaris/features/patron-info.feature",
+          "description": "",
+          "name": "Patron info",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "volaris.features.patron-type-mapping",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_143_3423587728.html",
+          "relativePath": "volaris/features/patron-type-mapping.feature",
+          "description": "",
+          "name": "Patron type mapping",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 25,
+      "name": "mod-inn-reach"
+    },
+    "mod-inventory": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "prokopovych.mod-inventory.inventory-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "prokopovych/mod-inventory/inventory-junit.feature",
+          "description": "",
+          "name": "mod-inventory integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "prokopovych.mod-inventory.features.inventoryFeatureTest",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_144_57532016.html",
+          "relativePath": "prokopovych/mod-inventory/features/inventoryFeatureTest.feature",
+          "description": "",
+          "name": "inventory",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-inventory"
+    },
+    "mod-kb-ebsco-java": {
+      "featuresFailed": 10,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.kb-ebsco-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/kb-ebsco-junit.feature",
+          "description": "",
+          "name": "mod-kb-ebsco-java integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 12,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.kb-credentials",
+          "scenarioCount": 33,
+          "failed": true,
+          "cucumberReportFile": "report-feature_145_3262576791.html",
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/kb-credentials.feature",
+          "description": "",
+          "name": "KB Credentials",
+          "failedCount": 21
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.tags",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_146_3613759146.html",
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/tags.feature",
+          "description": "",
+          "name": "Tags",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.setup",
+          "scenarioCount": 2,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup kb-ebsco-java",
+          "failedCount": 2
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-kb-ebsco-java.features.setup.destroy",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-kb-ebsco-java/features/setup/destroy.feature",
+          "description": "",
+          "name": "Destroy test data for kb-ebsco-java",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 12,
+      "name": "mod-kb-ebsco-java"
+    },
+    "mod-ldp": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "thor.mod-ldp.mod-ldp-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "thor/mod-ldp/mod-ldp-junit.feature",
+          "description": "",
+          "name": "mod-ldp integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "thor.mod-ldp.features.databaseConnection",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_147_620836536.html",
+          "relativePath": "thor/mod-ldp/features/databaseConnection.feature",
+          "description": "",
+          "name": "Database Connections",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-ldp"
+    },
+    "mod-login-saml": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "core_platform.mod-login-saml.login-saml-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_148_1495629616.html",
+          "relativePath": "core_platform/mod-login-saml/login-saml-junit.feature",
+          "description": "",
+          "name": "mod-login-saml integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "core_platform.mod-login-saml.features.orchestrate",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_149_3819009866.html",
+          "relativePath": "core_platform/mod-login-saml/features/orchestrate.feature",
+          "description": "",
+          "name": "Orchestrate the SAML tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-login-saml"
+    },
+    "mod-notes": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.mod-notes.notes-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-notes/notes-junit.feature",
+          "description": "",
+          "name": "mod-notes integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "spitfire.mod-notes.features.note-links",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_150_1538216205.html",
+          "relativePath": "spitfire/mod-notes/features/note-links.feature",
+          "description": "",
+          "name": "Note links",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 23,
+          "packageQualifiedName": "spitfire.mod-notes.features.note-types",
+          "scenarioCount": 23,
+          "failed": false,
+          "cucumberReportFile": "report-feature_151_3136461261.html",
+          "relativePath": "spitfire/mod-notes/features/note-types.feature",
+          "description": "",
+          "name": "Note types",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 17,
+          "packageQualifiedName": "spitfire.mod-notes.features.notes",
+          "scenarioCount": 17,
+          "failed": false,
+          "cucumberReportFile": "report-feature_152_1739557344.html",
+          "relativePath": "spitfire/mod-notes/features/notes.feature",
+          "description": "",
+          "name": "Notes",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 5,
+      "name": "mod-notes"
+    },
+    "mod-notify": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-notify.notify-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-notify/notify-junit.feature",
+          "description": "",
+          "name": "mod-notify integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "vega.mod-notify.features.notify",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_153_2520523981.html",
+          "relativePath": "vega/mod-notify/features/notify.feature",
+          "description": "",
+          "name": "Notify",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-notify.features.patronNotice",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_154_3979059594.html",
+          "relativePath": "vega/mod-notify/features/patronNotice.feature",
+          "description": "",
+          "name": "Patron notice",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-notify"
+    },
+    "mod-oai-pmh": {
+      "featuresFailed": 4,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.oaipmh.oaipmh-enhancement",
+          "scenarioCount": 22,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/oaipmh/oaipmh-enhancement.feature",
+          "description": "",
+          "name": "Test enhancements to oai-pmh",
+          "failedCount": 22
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.oaipmh.oaipmh-basic",
+          "scenarioCount": 3,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/oaipmh/oaipmh-basic.feature",
+          "description": "",
+          "name": "oai-pmh basic tests",
+          "failedCount": 3
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.mod-configuration.load-default-pmh-configuration",
+          "scenarioCount": 3,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/mod-configuration/load-default-pmh-configuration.feature",
+          "description": "",
+          "name": "Test integration with mod-configuration during Posting the mod-oai-pmh module for tenant",
+          "failedCount": 3
+        },
+        {
+          "passedCount": 0,
+          "packageQualifiedName": "firebird.oaipmh.sets",
+          "scenarioCount": 1,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "firebird/oaipmh/sets.feature",
+          "description": "",
+          "name": "Test integration with inventory-storage into /oai-pmh/filtering-conditions endpoint logic",
+          "failedCount": 1
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "mod-oai-pmh"
+    },
+    "mod-password-validator": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.passwordvalidator.basic-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/passwordvalidator/basic-junit.feature",
+          "description": "",
+          "name": "mod-password-validator integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "spitfire.passwordvalidator.features.rules",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_159_3452104981.html",
+          "relativePath": "spitfire/passwordvalidator/features/rules.feature",
+          "description": "",
+          "name": "Test job profiles",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 13,
+          "packageQualifiedName": "spitfire.passwordvalidator.features.validate",
+          "scenarioCount": 13,
+          "failed": false,
+          "cucumberReportFile": "report-feature_160_3410501286.html",
+          "relativePath": "spitfire/passwordvalidator/features/validate.feature",
+          "description": "",
+          "name": "Test POST password validate",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-password-validator"
+    },
+    "mod-patron-blocks": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-patron-blocks.patron-blocks-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-patron-blocks/patron-blocks-junit.feature",
+          "description": "",
+          "name": "mod-patron-blocks integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.limits",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_161_2482616246.html",
+          "relativePath": "vega/mod-patron-blocks/features/limits.feature",
+          "description": "",
+          "name": "Patron blocks limits",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 18,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.automatedPatronBlocks",
+          "scenarioCount": 18,
+          "failed": false,
+          "cucumberReportFile": "report-feature_162_3438294228.html",
+          "relativePath": "vega/mod-patron-blocks/features/automatedPatronBlocks.feature",
+          "description": "",
+          "name": "Automated patron blocks",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.conditions",
+          "scenarioCount": 8,
+          "failed": false,
+          "cucumberReportFile": "report-feature_163_3482779350.html",
+          "relativePath": "vega/mod-patron-blocks/features/conditions.feature",
+          "description": "",
+          "name": "Patron block conditions",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.userSummary",
+          "scenarioCount": 3,
+          "failed": false,
+          "cucumberReportFile": "report-feature_164_1825158955.html",
+          "relativePath": "vega/mod-patron-blocks/features/userSummary.feature",
+          "description": "",
+          "name": "User summary",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 14,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.synchronization",
+          "scenarioCount": 14,
+          "failed": false,
+          "cucumberReportFile": "report-feature_165_1361723056.html",
+          "relativePath": "vega/mod-patron-blocks/features/synchronization.feature",
+          "description": "",
+          "name": "Synchronization",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.moduleTenantApi",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_166_2212740180.html",
+          "relativePath": "vega/mod-patron-blocks/features/moduleTenantApi.feature",
+          "description": "",
+          "name": "Tenant API tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 16,
+          "packageQualifiedName": "vega.mod-patron-blocks.features.eventHandlers",
+          "scenarioCount": 16,
+          "failed": false,
+          "cucumberReportFile": "report-feature_167_2852636339.html",
+          "relativePath": "vega/mod-patron-blocks/features/eventHandlers.feature",
+          "description": "",
+          "name": "Event handlers",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 9,
+      "name": "mod-patron-blocks"
+    },
+    "mod-permissions": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "core_platform.mod-permissions.permissions-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_168_2439904794.html",
+          "relativePath": "core_platform/mod-permissions/permissions-junit.feature",
+          "description": "",
+          "name": "mod-permissions integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "core_platform.mod-permissions.features.permissions",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_169_3952604747.html",
+          "relativePath": "core_platform/mod-permissions/features/permissions.feature",
+          "description": "",
+          "name": "Permissions tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-permissions"
+    },
+    "mod-quick-marc": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.mod-quick-marc.quick-marc-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-quick-marc/quick-marc-junit.feature",
+          "description": "",
+          "name": "mod-quick-marc integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "spitfire.mod-quick-marc.features.setup.setup",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_170_445639918.html",
+          "relativePath": "spitfire/mod-quick-marc/features/setup/setup.feature",
+          "description": "",
+          "name": "Setup quickMARC",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "spitfire.mod-quick-marc.features.quick-marc-authority-records",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_171_1398780571.html",
+          "relativePath": "spitfire/mod-quick-marc/features/quick-marc-authority-records.feature",
+          "description": "",
+          "name": "Test quickMARC authority records",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 12,
+          "packageQualifiedName": "spitfire.mod-quick-marc.features.quick-marc-holdings-records",
+          "scenarioCount": 12,
+          "failed": false,
+          "cucumberReportFile": "report-feature_172_3300332592.html",
+          "relativePath": "spitfire/mod-quick-marc/features/quick-marc-holdings-records.feature",
+          "description": "",
+          "name": "Test quickMARC holdings records",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 4,
+          "packageQualifiedName": "spitfire.mod-quick-marc.features.quick-marc-record-status",
+          "scenarioCount": 4,
+          "failed": false,
+          "cucumberReportFile": "report-feature_173_52876753.html",
+          "relativePath": "spitfire/mod-quick-marc/features/quick-marc-record-status.feature",
+          "description": "",
+          "name": "Test quickMARC for record status",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "spitfire.mod-quick-marc.features.quick-marc-bib-records",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_174_310267219.html",
+          "relativePath": "spitfire/mod-quick-marc/features/quick-marc-bib-records.feature",
+          "description": "",
+          "name": "Test quickMARC",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 7,
+      "name": "mod-quick-marc"
+    },
+    "mod-search": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.mod-search.set-up.tenant-destroy",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/mod-search/set-up/tenant-destroy.feature",
+          "description": "",
+          "name": "Destroy test tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "spitfire.mod-search.set-up.tenant-init",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": "report-feature_176_3581228700.html",
+          "relativePath": "spitfire/mod-search/set-up/tenant-init.feature",
+          "description": "",
+          "name": "Tenant initialization for tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 52,
+          "packageQualifiedName": "spitfire.mod-search.search.authority-single-property-search",
+          "scenarioCount": 52,
+          "failed": false,
+          "cucumberReportFile": "report-feature_177_3526036584.html",
+          "relativePath": "spitfire/mod-search/search/authority-single-property-search.feature",
+          "description": "",
+          "name": "Tests that authority searches by a single property",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 35,
+          "packageQualifiedName": "spitfire.mod-search.search.single-property-search",
+          "scenarioCount": 35,
+          "failed": false,
+          "cucumberReportFile": "report-feature_178_1655763870.html",
+          "relativePath": "spitfire/mod-search/search/single-property-search.feature",
+          "description": "",
+          "name": "Tests that searches by a single property",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "spitfire.mod-search.search.boolean-search",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_179_1424263024.html",
+          "relativePath": "spitfire/mod-search/search/boolean-search.feature",
+          "description": "",
+          "name": "Tests for boolean operators: AND, OR, NOT",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "spitfire.mod-search.filters.sort-by-option-search",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_180_1429303169.html",
+          "relativePath": "spitfire/mod-search/filters/sort-by-option-search.feature",
+          "description": "",
+          "name": "Tests that sorted by fields",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 31,
+          "packageQualifiedName": "spitfire.mod-search.filters.facet-search",
+          "scenarioCount": 31,
+          "failed": false,
+          "cucumberReportFile": "report-feature_181_1189197892.html",
+          "relativePath": "spitfire/mod-search/filters/facet-search.feature",
+          "description": "",
+          "name": "Tests that searches by facet",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 6,
+          "packageQualifiedName": "spitfire.mod-search.filters.filter-search",
+          "scenarioCount": 6,
+          "failed": false,
+          "cucumberReportFile": "report-feature_182_2962269893.html",
+          "relativePath": "spitfire/mod-search/filters/filter-search.feature",
+          "description": "",
+          "name": "Tests for filter terms",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 10,
+          "packageQualifiedName": "spitfire.mod-search.browse.authority-browse",
+          "scenarioCount": 10,
+          "failed": false,
+          "cucumberReportFile": "report-feature_183_3194463285.html",
+          "relativePath": "spitfire/mod-search/browse/authority-browse.feature",
+          "description": "",
+          "name": "Tests that browse by call-numbers",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "spitfire.mod-search.browse.call-number-browse",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_184_205308608.html",
+          "relativePath": "spitfire/mod-search/browse/call-number-browse.feature",
+          "description": "",
+          "name": "Tests that browse by call-numbers",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 9,
+          "packageQualifiedName": "spitfire.mod-search.browse.subject-browse",
+          "scenarioCount": 9,
+          "failed": false,
+          "cucumberReportFile": "report-feature_185_191894956.html",
+          "relativePath": "spitfire/mod-search/browse/subject-browse.feature",
+          "description": "",
+          "name": "Tests that browse by subjects",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 11,
+      "name": "mod-search"
+    },
+    "mod-sender": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-sender.sender-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-sender/sender-junit.feature",
+          "description": "",
+          "name": "mod-sender integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-sender.features.messageDelivery",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_186_3157038297.html",
+          "relativePath": "vega/mod-sender/features/messageDelivery.feature",
+          "description": "",
+          "name": "Sender - message delivery",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-sender"
+    },
+    "mod-source-record-manager": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "folijet.mod-source-record-manager.source-record-manager",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "folijet/mod-source-record-manager/source-record-manager.feature",
+          "description": "",
+          "name": "mod-source-record-storage integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 8,
+          "packageQualifiedName": "folijet.mod-source-record-manager.features.mapping-rules",
+          "scenarioCount": 10,
+          "failed": true,
+          "cucumberReportFile": "report-feature_187_978751232.html",
+          "relativePath": "folijet/mod-source-record-manager/features/mapping-rules.feature",
+          "description": "",
+          "name": "Source-Record-Storage",
+          "failedCount": 2
+        }
+      ],
+      "featuresPassed": 2,
+      "name": "mod-source-record-manager"
+    },
+    "mod-source-record-storage": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "folijet.mod-source-record-storage.source-record-storage",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "folijet/mod-source-record-storage/source-record-storage.feature",
+          "description": "",
+          "name": "mod-source-record-storage integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 12,
+          "packageQualifiedName": "folijet.mod-source-record-storage.features.get-source-storage-records",
+          "scenarioCount": 12,
+          "failed": false,
+          "cucumberReportFile": "report-feature_188_2328965193.html",
+          "relativePath": "folijet/mod-source-record-storage/features/get-source-storage-records.feature",
+          "description": "",
+          "name": "Source-Record-Storage",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-source-record-storage"
+    },
+    "mod-tags": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "spitfire.tags.basic-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "spitfire/tags/basic-junit.feature",
+          "description": "",
+          "name": "mod-tags integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 15,
+          "packageQualifiedName": "spitfire.tags.features.tags",
+          "scenarioCount": 15,
+          "failed": false,
+          "cucumberReportFile": "report-feature_189_1311754093.html",
+          "relativePath": "spitfire/tags/features/tags.feature",
+          "description": "",
+          "name": "Mod-tags integration tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-tags"
+    },
+    "mod-template-engine": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "vega.mod-template-engine.template-engine-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "vega/mod-template-engine/template-engine-junit.feature",
+          "description": "",
+          "name": "mod-template-engine integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "vega.mod-template-engine.features.templates",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_190_916321785.html",
+          "relativePath": "vega/mod-template-engine/features/templates.feature",
+          "description": "",
+          "name": "Templates tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 5,
+          "packageQualifiedName": "vega.mod-template-engine.features.templateRequest",
+          "scenarioCount": 5,
+          "failed": false,
+          "cucumberReportFile": "report-feature_191_3531827381.html",
+          "relativePath": "vega/mod-template-engine/features/templateRequest.feature",
+          "description": "",
+          "name": "Template processing requests tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 4,
+      "name": "mod-template-engine"
+    },
+    "mod-user-import": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "core_platform.mod-user-import.user-import-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": "report-feature_192_2722297312.html",
+          "relativePath": "core_platform/mod-user-import/user-import-junit.feature",
+          "description": "",
+          "name": "mod-user-import integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 7,
+          "packageQualifiedName": "core_platform.mod-user-import.features.userImport",
+          "scenarioCount": 7,
+          "failed": false,
+          "cucumberReportFile": "report-feature_193_1533526138.html",
+          "relativePath": "core_platform/mod-user-import/features/userImport.feature",
+          "description": "",
+          "name": "User import",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-user-import"
+    },
+    "mod-users-bl": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "prokopovych.mod-users-bl.users-bl-junit",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "prokopovych/mod-users-bl/users-bl-junit.feature",
+          "description": "",
+          "name": "mod-login integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "prokopovych.mod-users-bl.features.users-bl",
+          "scenarioCount": 8,
+          "failed": true,
+          "cucumberReportFile": "report-feature_194_323607946.html",
+          "relativePath": "prokopovych/mod-users-bl/features/users-bl.feature",
+          "description": "",
+          "name": "Test user business logic",
+          "failedCount": 7
+        }
+      ],
+      "featuresPassed": 2,
+      "name": "mod-users-bl"
+    },
+    "mod-users": {
+      "featuresFailed": 0,
+      "executionResult": "SUCCESS",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 2,
+          "packageQualifiedName": "common.destroy-data",
+          "scenarioCount": 2,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "common/destroy-data.feature",
+          "description": "",
+          "name": "destroy data for tenant",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 1,
+          "packageQualifiedName": "prokopovych.mod-users.users-junit",
+          "scenarioCount": 1,
+          "failed": false,
+          "cucumberReportFile": null,
+          "relativePath": "prokopovych/mod-users/users-junit.feature",
+          "description": "",
+          "name": "mod-users integration tests",
+          "failedCount": 0
+        },
+        {
+          "passedCount": 11,
+          "packageQualifiedName": "prokopovych.mod-users.features.users",
+          "scenarioCount": 11,
+          "failed": false,
+          "cucumberReportFile": "report-feature_195_1861074886.html",
+          "relativePath": "prokopovych/mod-users/features/users.feature",
+          "description": "",
+          "name": "Users tests",
+          "failedCount": 0
+        }
+      ],
+      "featuresPassed": 3,
+      "name": "mod-users"
+    },
+    "poc": {
+      "featuresFailed": 1,
+      "executionResult": "FAIL",
+      "featuresSkipped": 0,
+      "features": [
+        {
+          "passedCount": 3,
+          "packageQualifiedName": "domain.mod-orders.orders",
+          "scenarioCount": 4,
+          "failed": true,
+          "cucumberReportFile": null,
+          "relativePath": "domain/mod-orders/orders.feature",
+          "description": "",
+          "name": "mod-orders tests",
+          "failedCount": 1
+        }
+      ],
+      "featuresPassed": 0,
+      "name": "poc"
+    }
+  }
+}
