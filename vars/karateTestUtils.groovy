@@ -213,7 +213,14 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 }
 
 private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
-    def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
+    def title
+    if (featureSummary.failed) {
+        title = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature."
+    } else {
+        title = "No tests fails of ${featureSummary.scenarioCount} scenarios for '_${featureSummary.name}_' feature."
+    }
+
+    def description = "${title}\n" +
         "*Feature path:* ${featureSummary.relativePath}\n" +
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
         "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +

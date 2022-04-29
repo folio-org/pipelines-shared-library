@@ -1,6 +1,6 @@
 package vars
 
-import com.amazonaws.services.globalaccelerator.model.CreateAcceleratorRequest
+
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
 import org.folio.Constants
@@ -76,21 +76,28 @@ class KarateTestsUtils extends AbstractScriptTest {
 
         Assertions.assertEquals(25, issuesModification.size())
 
-        Assertions.assertEquals(1, issuesModification["58932"].size())
-        Assertions.assertTrue(issuesModification["58932"][0] instanceof AddCommentAction)
 
-        Assertions.assertEquals(2, issuesModification["58931"].size())
-        Assertions.assertTrue(issuesModification["58931"][0] instanceof AddCommentAction)
-        Assertions.assertTrue(issuesModification["58931"][1] instanceof TransitionAction)
-        Assertions.assertTrue(((TransitionAction)issuesModification["58931"][1]).body.contains("81")) // Open
+        def openFailedIssue = issuesModification["58932"]
+        Assertions.assertEquals(1, openFailedIssue.size())
+        Assertions.assertTrue(openFailedIssue[0] instanceof AddCommentAction)
 
-        Assertions.assertEquals(2, issuesModification["58929"].size())
-        Assertions.assertTrue(issuesModification["58929"][0] instanceof AddCommentAction)
-        Assertions.assertTrue(issuesModification["58929"][1] instanceof TransitionAction)
-        Assertions.assertTrue(((TransitionAction)issuesModification["58929"][1]).body.contains("61")) // Closed
+        def inReviewFailedIssue = issuesModification["58931"]
+        Assertions.assertEquals(2, inReviewFailedIssue.size())
+        Assertions.assertTrue(inReviewFailedIssue[0] instanceof AddCommentAction)
+        Assertions.assertTrue(((AddCommentAction) inReviewFailedIssue[0]).body.contains("scenarios have failed for"))
+        Assertions.assertTrue(inReviewFailedIssue[1] instanceof TransitionAction)
+        Assertions.assertTrue(((TransitionAction) inReviewFailedIssue[1]).body.contains("81")) // Open
 
-        Assertions.assertEquals(1, issuesModification["100001"].size())
-        Assertions.assertTrue(issuesModification["100001"][0] instanceof CreateAction)
+        def inReviewFixedIssue = issuesModification["58929"]
+        Assertions.assertEquals(2, inReviewFixedIssue.size())
+        Assertions.assertTrue(inReviewFixedIssue[0] instanceof AddCommentAction)
+        Assertions.assertTrue(((AddCommentAction) inReviewFixedIssue[0]).body.contains("No tests fails of"))
+        Assertions.assertTrue(inReviewFixedIssue[1] instanceof TransitionAction)
+        Assertions.assertTrue(((TransitionAction) inReviewFixedIssue[1]).body.contains("61")) // Closed
+
+        def createIssue = issuesModification["100001"]
+        Assertions.assertEquals(1, createIssue.size())
+        Assertions.assertTrue(createIssue[0] instanceof CreateAction)
     }
 
     private void addAction(Map<String, List<Object>> issuesModification, String issueId, Action action) {
