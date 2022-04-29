@@ -39,22 +39,22 @@ class KarateTestsUtils extends AbstractScriptTest {
         helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
             def content
             if (parameters.url.contains("/search")) {
-                content = getResourceContent("KarateTestUtils/searchIssuesResponse.json")
+                content = getResourceContent("karateTestUtils/searchIssuesResponse.json")
             } else if (parameters.url.contains("/comment")) {
                 def issueId = parameters.url.split("/")[7]
                 addAction(issuesModification, issueId, new AddCommentAction(body: parameters.requestBody))
                 content = """{"id":"${issueId}"}"""
             } else if (parameters["url"].contains("/transitions")) {
                 if (!parameters.httpMode) {
-                    content = getResourceContent("KarateTestUtils/transitions.json")
+                    content = getResourceContent("karateTestUtils/transitions.json")
                 } else {
                     def issueId = parameters.url.split("/")[7]
                     addAction(issuesModification, issueId, new TransitionAction(body: parameters.requestBody))
                 }
             } else if (parameters["url"].contains("issue/createmeta")) {
-                content = getResourceContent("KarateTestUtils/issueCreateMeta.json")
+                content = getResourceContent("karateTestUtils/issueCreateMeta.json")
             } else if (parameters["url"].contains("editmeta")) {
-                content = getResourceContent("KarateTestUtils/issueEditMeta.json")
+                content = getResourceContent("karateTestUtils/issueEditMeta.json")
             } else {
                 createIssueId++
                 content = """{
@@ -69,7 +69,7 @@ class KarateTestsUtils extends AbstractScriptTest {
 
         Object summary = getKarateTestsExecutionSummary()
 
-        def assignment = getEmptyScript().readJSON(text: getResourceContent("KarateTestUtils/teamAssignment.json"))
+        def assignment = getEmptyScript().readJSON(text: getResourceContent("karateTestUtils/teamAssignment.json"))
         TeamAssignment teamAssignment = new TeamAssignment(assignment)
 
         getClassScript().execute(summary, teamAssignment)
@@ -115,7 +115,7 @@ class KarateTestsUtils extends AbstractScriptTest {
     }
 
     private Object getKarateTestsExecutionSummary() {
-        def testsSummary = getResourceContent("KarateTestUtils/karateTestsSummary.json")
+        def testsSummary = getResourceContent("karateTestUtils/karateTestsSummary.json")
         def summary = new JsonSlurper().parseText(testsSummary)
 
         KarateTestsExecutionSummary retVal = new KarateTestsExecutionSummary()
