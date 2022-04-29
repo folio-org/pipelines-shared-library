@@ -215,9 +215,9 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
     def title
     if (featureSummary.failed) {
-        title = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature."
+        title = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '*_${featureSummary.name}_*' feature."
     } else {
-        title = "No tests fails of ${featureSummary.scenarioCount} scenarios for '_${featureSummary.name}_' feature."
+        title = "No failures of ${featureSummary.scenarioCount} scenarios for '*_${featureSummary.name}_*' feature."
     }
 
     def description = "${title}\n" +
