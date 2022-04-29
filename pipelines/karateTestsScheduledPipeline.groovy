@@ -62,7 +62,7 @@ pipeline {
                         string(name: 'adminPassword', value: password)
                     ]
 
-                    //karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -70,7 +70,7 @@ pipeline {
         stage("Copy downstream job artifacts") {
             steps {
                 script {
-                    def jobNumber = 76 // karateTestsJob.number
+                    def jobNumber = karateTestsJob.number
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
