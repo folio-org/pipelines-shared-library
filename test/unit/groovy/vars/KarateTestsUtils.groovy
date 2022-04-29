@@ -95,6 +95,13 @@ class KarateTestsUtils extends AbstractScriptTest {
         Assertions.assertTrue(inReviewFixedIssue[1] instanceof TransitionAction)
         Assertions.assertTrue(((TransitionAction) inReviewFixedIssue[1]).body.contains("61")) // Closed
 
+        def openFixedIssue = issuesModification["58909"]
+        Assertions.assertEquals(2, openFixedIssue.size())
+        Assertions.assertTrue(openFixedIssue[0] instanceof AddCommentAction)
+        Assertions.assertTrue(((AddCommentAction) openFixedIssue[0]).body.contains("No failures"))
+        Assertions.assertTrue(openFixedIssue[1] instanceof TransitionAction)
+        Assertions.assertTrue(((TransitionAction) openFixedIssue[1]).body.contains("61")) // Closed
+
         def createIssue = issuesModification["100001"]
         Assertions.assertEquals(1, createIssue.size())
         Assertions.assertTrue(createIssue[0] instanceof CreateAction)

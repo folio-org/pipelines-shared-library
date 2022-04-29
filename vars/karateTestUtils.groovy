@@ -163,8 +163,12 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
                     JiraIssue issue = issuesMap[featureSummary.relativePath]
                     jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
 
-                    // Issue is in "In Review" status
-                    if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+
+                    // Issue fixed and no any activity have been started on the issue
+                    if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                        // Issue is in "In Review" status
+                    } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
                         // Feature us still failing
                         if (featureSummary.failed) {
                             jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)

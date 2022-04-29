@@ -122,7 +122,7 @@ pipeline {
             }
         }
 
-        stage("Create jira tickets") {
+        stage("Sync jira tickets") {
             steps {
                 script {
                     karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)

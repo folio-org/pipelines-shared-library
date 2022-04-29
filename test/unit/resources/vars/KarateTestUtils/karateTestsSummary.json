@@ -39,15 +39,15 @@
           "failedCount": 0
         },
         {
-          "passedCount": 0,
+          "passedCount": 7,
           "packageQualifiedName": "thunderjet.mod-organizations.features.create-test-data",
           "scenarioCount": 7,
-          "failed": true,
+          "failed": false,
           "cucumberReportFile": "report-feature_45715897.html",
           "relativePath": "thunderjet/mod-organizations/features/create-test-data.feature",
           "description": "",
           "name": "create test data",
-          "failedCount": 7
+          "failedCount": 0
         },
         {
           "passedCount": 0,
