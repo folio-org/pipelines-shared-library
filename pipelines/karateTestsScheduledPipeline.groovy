@@ -125,9 +125,7 @@ pipeline {
         stage("Create jira tickets") {
             steps {
                 script {
-                    echo JsonOutput.toJson(karateTestsExecutionSummary)
-
-//                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }
