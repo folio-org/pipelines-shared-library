@@ -198,7 +198,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 
     def teamName = teamByModule[moduleSummary.name]
     if (teamName) {
-        fields["Development Team"] = teamName
+        //fields["Development Team"] = teamName
     } else {
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }
