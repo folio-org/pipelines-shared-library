@@ -10,7 +10,7 @@
           "packageQualifiedName": "common.destroy-data",
           "scenarioCount": 2,
           "failed": false,
-          "cucumberReportFile": "report-feature_175_4165791836.html",
+          "cucumberReportFile": "report-feature_158_1538269331.html",
           "relativePath": "common/destroy-data.feature",
           "description": "",
           "name": "destroy data for tenant",
@@ -1316,15 +1316,15 @@
       "featuresSkipped": 0,
       "features": [
         {
-          "passedCount": 0,
+          "passedCount": 5,
           "packageQualifiedName": "prokopovych.edge-rtac.features.rtac",
           "scenarioCount": 5,
-          "failed": true,
+          "failed": false,
           "cucumberReportFile": "report-feature_97_703375499.html",
           "relativePath": "prokopovych/edge-rtac/features/rtac.feature",
           "description": "",
           "name": "rtac tests",
-          "failedCount": 5
+          "failedCount": 0
         },
         {
           "passedCount": 1,
@@ -3023,7 +3023,7 @@
           "packageQualifiedName": "spitfire.mod-search.set-up.tenant-destroy",
           "scenarioCount": 1,
           "failed": false,
-          "cucumberReportFile": null,
+          "cucumberReportFile": "report-feature_175_4165791836.html",
           "relativePath": "spitfire/mod-search/set-up/tenant-destroy.feature",
           "description": "",
           "name": "Destroy test tenant",

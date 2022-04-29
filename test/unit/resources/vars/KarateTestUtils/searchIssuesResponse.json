@@ -61,7 +61,7 @@
           "self": "https://issues.folio.org/rest/api/2/status/1",
           "description": "",
           "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
-          "name": "Open",
+          "name": "In Review",
           "id": "1",
           "statusCategory": {
             "self": "https://issues.folio.org/rest/api/2/statuscategory/2",

@@ -151,14 +151,13 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     }
 
     def teamByModule = teamAssignment.getTeamsByModules()
-
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // ignore features which has no report generated
             if (featureSummary.cucumberReportFile) {
                 // No jira issue and feature failed
                 if (!issuesMap.containsKey(featureSummary.relativePath) && featureSummary.failed) {
-                    createFailedFeatureJiraIssue(featureSummary, jiraClient)
+                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                     // Jira issue exists
                 } else if (issuesMap.containsKey(featureSummary.relativePath)) {
                     JiraIssue issue = issuesMap[featureSummary.relativePath]
@@ -185,7 +184,8 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
  * @param featureSummary KarateFeatureExecutionSummary object
  * @param jiraClient jira client
  */
-void createFailedFeatureJiraIssue(KarateFeatureExecutionSummary featureSummary, JiraClient jiraClient) {
+void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
+                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.relativePath}"
     String description = getIssueDescription(featureSummary)
 
@@ -196,8 +196,9 @@ void createFailedFeatureJiraIssue(KarateFeatureExecutionSummary featureSummary, 
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
-    if (teamByModule[moduleSummary.name]) {
-        fields["Development Team"] = teamByModule[moduleSummary.name].name
+    def teamName = teamByModule[moduleSummary.name]
+    if (teamName) {
+        fields["Development Team"] = teamName
     } else {
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }
@@ -211,7 +212,7 @@ void createFailedFeatureJiraIssue(KarateFeatureExecutionSummary featureSummary, 
     }
 }
 
-private GString getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
+private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
     def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
         "*Feature path:* ${featureSummary.relativePath}\n" +
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +

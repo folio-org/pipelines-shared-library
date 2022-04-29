@@ -1,5 +1,6 @@
 package vars
 
+import com.amazonaws.services.globalaccelerator.model.CreateAcceleratorRequest
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
 import org.folio.Constants
@@ -8,20 +9,60 @@ import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.folio.testharness.AbstractScriptTest
-import org.folio.testharness.utils.TestUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class KarateTestsUtils extends AbstractScriptTest {
 
+    class Action {
+        String body
+    }
+
+    class CreateAction extends Action {}
+
+    class AddCommentAction extends Action {}
+
+    class TransitionAction extends Action {}
+
     @Test
     void testSyncJiraIssues() {
+
+        binding.setVariable("env",
+            [JOB_NAME    : "Job name",
+             BUILD_NUMBER: "7",
+             BUILD_URL   : "https://job.url/"]
+        )
         setCredentials(Constants.JIRA_CREDENTIALS_ID, "user", "password")
 
+        int createIssueId = 100000
+        Map<String, List<Object>> issuesModification = [:]
         helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
             def content
             if (parameters.url.contains("/search")) {
                 content = getResourceContent("KarateTestUtils/searchIssuesResponse.json")
+            } else if (parameters.url.contains("/comment")) {
+                def issueId = parameters.url.split("/")[7]
+                addAction(issuesModification, issueId, new AddCommentAction(body: parameters.requestBody))
+                content = """{"id":"${issueId}"}"""
+            } else if (parameters["url"].contains("/transitions")) {
+                if (!parameters.httpMode) {
+                    content = getResourceContent("KarateTestUtils/transitions.json")
+                } else {
+                    def issueId = parameters.url.split("/")[7]
+                    addAction(issuesModification, issueId, new TransitionAction(body: parameters.requestBody))
+                }
+            } else if (parameters["url"].contains("issue/createmeta")) {
+                content = getResourceContent("KarateTestUtils/issueCreateMeta.json")
+            } else if (parameters["url"].contains("editmeta")) {
+                content = getResourceContent("KarateTestUtils/issueEditMeta.json")
+            } else {
+                createIssueId++
+                content = """{
+                  "id": "${createIssueId}",
+                  "key": "KRD-${createIssueId}",
+                  "self": "https://issues.folio.org/rest/api/2/issue/${createIssueId}"
+                }"""
+                addAction(issuesModification, String.valueOf(createIssueId), new CreateAction(body: parameters.requestBody))
             }
             return new ResponseContentSupplier(content, 200)
         })
@@ -33,8 +74,30 @@ class KarateTestsUtils extends AbstractScriptTest {
 
         getClassScript().execute(summary, teamAssignment)
 
-        Assertions.assertEquals("1.0.0", result.getProjectVersion())
-        Assertions.assertEquals("1.0.0", result.getJarProjectVersion())
+        Assertions.assertEquals(25, issuesModification.size())
+
+        Assertions.assertEquals(1, issuesModification["58932"].size())
+        Assertions.assertTrue(issuesModification["58932"][0] instanceof AddCommentAction)
+
+        Assertions.assertEquals(2, issuesModification["58931"].size())
+        Assertions.assertTrue(issuesModification["58931"][0] instanceof AddCommentAction)
+        Assertions.assertTrue(issuesModification["58931"][1] instanceof TransitionAction)
+        Assertions.assertTrue(((TransitionAction)issuesModification["58931"][1]).body.contains("81")) // Open
+
+        Assertions.assertEquals(2, issuesModification["58929"].size())
+        Assertions.assertTrue(issuesModification["58929"][0] instanceof AddCommentAction)
+        Assertions.assertTrue(issuesModification["58929"][1] instanceof TransitionAction)
+        Assertions.assertTrue(((TransitionAction)issuesModification["58929"][1]).body.contains("61")) // Closed
+
+        Assertions.assertEquals(1, issuesModification["100001"].size())
+        Assertions.assertTrue(issuesModification["100001"][0] instanceof CreateAction)
+    }
+
+    private void addAction(Map<String, List<Object>> issuesModification, String issueId, Action action) {
+        if (!issuesModification.containsKey(issueId)) {
+            issuesModification[issueId] = []
+        }
+        issuesModification[issueId].add(action)
     }
 
     private Object getKarateTestsExecutionSummary() {
