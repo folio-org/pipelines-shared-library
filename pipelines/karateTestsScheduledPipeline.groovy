@@ -1,7 +1,5 @@
-@Library('pipelines-shared-library@RANCHER-270') _
+@Library('pipelines-shared-library') _
 
-
-import groovy.json.JsonOutput
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
