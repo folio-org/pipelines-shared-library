@@ -1,12 +1,6 @@
 package org.folio.client.jira
 
-import org.folio.client.jira.model.JiraField
-import org.folio.client.jira.model.JiraIssueCreateMeta
-import org.folio.client.jira.model.JiraIssueType
-import org.folio.client.jira.model.JiraIssueUpdateMeta
-import org.folio.client.jira.model.JiraPriority
-import org.folio.client.jira.model.JiraProject
-import org.folio.client.jira.model.JiraStatus
+import org.folio.client.jira.model.*
 
 class JiraParser {
 
@@ -20,19 +14,31 @@ class JiraParser {
         retVal
     }
 
+    JiraIssue parseIssue(def json) {
+        new JiraIssue(id: json.id,
+            key: json.key,
+            summary: json.fields.summary,
+            description: json.fields.description,
+            status: json.fields.status?.name)
+    }
+
     JiraIssueType parseIssueType(def json) {
         new JiraIssueType(id: json.id, name: json.name, description: json.description, subtask: json.subtask)
     }
 
-    JiraStatus parseJiraStatus(def json) {
+    JiraIssueTransition parseIssueTransition(def json) {
+        new JiraIssueTransition(id: json.id, name: json.name, statusId: json.to.id, statusName: json.to.name)
+    }
+
+    JiraStatus parseStatus(def json) {
         new JiraStatus(id: json.id, name: json.name, description: json.description)
     }
 
-    JiraPriority parseJiraPriority(def json) {
+    JiraPriority parsePriority(def json) {
         new JiraPriority(id: json.id, name: json.name, description: json.description)
     }
 
-    JiraField parseJiraField(def json) {
+    JiraField parseField(def json) {
         new JiraField(id: json.id, name: json.name)
     }
 

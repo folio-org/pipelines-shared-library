@@ -120,10 +120,10 @@ pipeline {
             }
         }
 
-        stage("Create jira tickets") {
+        stage("Sync jira tickets") {
             steps {
                 script {
-                    karateTestUtils.createJiraTickets(karateTestsExecutionSummary, teamAssignment)
+                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
             }
         }

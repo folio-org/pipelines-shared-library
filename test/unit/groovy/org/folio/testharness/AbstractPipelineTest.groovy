@@ -27,12 +27,15 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
 
     Map<String, Map<CredentialsValue, String>> credentials = [:]
 
+    AbstractPipelineTest() {
+        helper = new CustomPipelineTestHelper()
+    }
+
     @BeforeEach
     void setUp() {
         super.setUp()
 
         registerLocalLibrary()
-        registerLocalVars()
         registerError()
 
         registerHttpRequest()
@@ -61,21 +64,6 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
             .build()
 
         helper.registerSharedLibrary(library)
-
-    }
-
-    // add ability to use scripts from vars directly
-    private void registerLocalVars() {
-        def scripts = new LocalLibrarySourceRetriever().retrieve(null, null, null)
-        scripts.each { url ->
-            def varsFolder = new File(url.file, "vars")
-            varsFolder.listFiles().each { file ->
-                def fileName = file.getName()
-                if (fileName.endsWith(GROOVY_EXTENSION)) {
-                    helper.loadScript(file.toURI().toString())
-                }
-            }
-        }
     }
 
     private void registerError() {
@@ -174,7 +162,7 @@ abstract class AbstractPipelineTest extends BasePipelineTest {
     }
 
     private void registerUsernamePassword() {
-        helper.registerAllowedMethod("usernamePassword", [Map], { parameters ->
+        helper.registerAllowedMethod("usernamePassword", [Map.class], { parameters ->
             def credentialsId = parameters["credentialsId"]
             if (credentials[credentialsId]) {
                 def retVal = [:]

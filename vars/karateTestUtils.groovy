@@ -1,5 +1,7 @@
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
+import org.folio.client.jira.model.JiraIssue
+import org.folio.karate.KarateConstants
 import org.folio.karate.results.KarateExecutionResult
 import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
@@ -39,10 +41,16 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         moduleSummary.features
     }.flatten()
 
+
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
-            contents.contains(feature.relativePath)
+            if (contents.contains(feature.relativePath)) {
+                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.relativePath + KarateConstants.CUCUMBER_REPORT_PATTERN_END
+                contents =~ pattern
+            } else {
+                false
+            }
         }
         if (feature) {
             println "Cucumber report for '${feature.name}' feature is '${file.name}'"
@@ -128,69 +136,107 @@ def getSlackColor(def buildStatus) {
 }
 
 /**
- * Create jira tickets for failed karate tests
+ * Sync jira tickets for failed karate tests
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
-void createJiraTickets(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    echo karateTestsExecutionSummary
+void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+    JiraClient jiraClient = getJiraClient()
+
+    // find existing karate issues
+    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+        def summary = issue.summary
+        [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+    }
+
     def teamByModule = teamAssignment.getTeamsByModules()
+    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
+        moduleSummary.features.each { featureSummary ->
+            // ignore features which has no report generated
+            if (featureSummary.cucumberReportFile) {
+                // No jira issue and feature failed
+                if (!issuesMap.containsKey(featureSummary.relativePath) && featureSummary.failed) {
+                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                    // Jira issue exists
+                } else if (issuesMap.containsKey(featureSummary.relativePath)) {
+                    JiraIssue issue = issuesMap[featureSummary.relativePath]
+                    jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
 
-    karateTestsExecutionSummary.modulesExecutionSummary.values()
-        .findAll() { it.executionResult == KarateExecutionResult.FAIL }
-        .each { moduleSummary ->
-            moduleSummary.features
-                .findAll() { it.failed }
-                .each { featureSummary ->
-                    // ignore features which has no report set
-                    if (featureSummary.cucumberReportFile) {
-                        def summary = "Karate test fail: ${featureSummary.relativePath}"
-                        def description = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '_${featureSummary.name}_' feature.\n" +
-                            "*Feature path:* ${featureSummary.relativePath}\n" +
-                            "*Jenkins job*: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
-                            "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
-                            "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
 
-                        def teamName = null
-                        if (teamByModule[moduleSummary.name]) {
-                            teamName = teamByModule[moduleSummary.name].name
+                    // Issue fixed and no any activity have been started on the issue
+                    if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                        // Issue is in "In Review" status
+                    } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+                        // Feature us still failing
+                        if (featureSummary.failed) {
+                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
+                            // Feature has been fixed
                         } else {
-                            echo "Module ${moduleSummary.name} is not assigned to any team."
-                        }
-
-                        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-
-                        try {
-                            createFailedFeatureJiraTicket(summary, description, teamName)
-                        } catch (e) {
-                            echo("Unable to create Jira ticket. " + e.getMessage())
+                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
                         }
                     }
                 }
+            }
         }
+    }
 }
 
 /**
  * Create jira ticket using JiraClient
- * @param summary ticket summary
- * @param description ticket description
- * @param team team name
+ * @param featureSummary KarateFeatureExecutionSummary object
+ * @param jiraClient jira client
  */
-void createFailedFeatureJiraTicket(String summary, String description, String team) {
+void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
+                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
+    def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.relativePath}"
+    String description = getIssueDescription(featureSummary)
+
+    def fields = [
+        Summary    : summary,
+        Description: description,
+        Priority   : KarateConstants.JIRA_ISSUE_PRIORITY,
+        Labels     : [KarateConstants.ISSUE_LABEL]
+    ]
+
+    def teamName = teamByModule[moduleSummary.name]
+    if (teamName) {
+        fields["Development Team"] = teamName.name
+    } else {
+        echo "Module ${moduleSummary.name} is not assigned to any team."
+    }
+
+    try {
+        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+        jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
+    } catch (e) {
+        echo("Unable to create Jira ticket. " + e.getMessage())
+        e.printStackTrace()
+    }
+}
+
+private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
+    def title
+    if (featureSummary.failed) {
+        title = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '*_${featureSummary.name}_*' feature."
+    } else {
+        title = "No failures of ${featureSummary.scenarioCount} scenarios for '*_${featureSummary.name}_*' feature."
+    }
+
+    def description = "${title}\n" +
+        "*Feature path:* ${featureSummary.relativePath}\n" +
+        "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
+        "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
+        "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
+    description
+}
+
+private JiraClient getJiraClient() {
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
-        def projectKey = "KRD"
-        def issueType = "Bug"
-
-        JiraClient jiraClient = new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-
-        def fields = [Summary: summary, Description: description, Priority: "P1"]
-        if (team) {
-            fields["Development Team"] = team
-        }
-
-        jiraClient.createJiraTicket projectKey, issueType, fields
+        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
     }
 }
 
