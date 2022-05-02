@@ -103,6 +103,17 @@ static String getProjectNames() {
     """
 }
 
+static String getOkapiVersion() {
+    return '''import groovy.json.JsonSlurperClassic
+def get = new URL('https://api.github.com/repos/folio-org/okapi/tags').openConnection();
+def responseCode = get.getResponseCode();
+if (responseCode.equals(200)) {
+    def versionsList = new JsonSlurperClassic().parseText(get.getInputStream().getText())
+    return versionsList*.name.collect{it -> return it - 'v'}
+}
+'''
+}
+
 private def _paramChoice(String name, ArrayList options, String description) {
     return choice(name: name, choices: options, description: description)
 }
@@ -194,4 +205,8 @@ def folioBranch() {
 
 def stripesImageTag() {
     return _paramExtended('stripes_image_tag', 'project_name', getDockerImagesList(), '(Required) Choose image tag for UI')
+}
+
+def okapiVersion() {
+    return _paramExtended('okapi_version', '', getOkapiVersion(), '(Required) Choose Okapi version')
 }

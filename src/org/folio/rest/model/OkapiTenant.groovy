@@ -1,4 +1,4 @@
-package org.folio.rest
+package org.folio.rest.model
 
 class OkapiTenant implements Serializable {
     String id

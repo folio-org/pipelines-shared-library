@@ -1,5 +1,7 @@
 package org.folio.rest
 
+import org.folio.rest.model.OkapiTenant
+import org.folio.rest.model.OkapiUser
 import org.folio.utilities.Logger
 
 class Deployment implements Serializable {

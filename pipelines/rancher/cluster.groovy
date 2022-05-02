@@ -1,46 +1,22 @@
 #!groovy
 @Library('pipelines-shared-library@RANCHER-12') _ //TODO change to actual version before merge
 
+import org.folio.Constants
+
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-        booleanParam(name: 'refreshParameters',
-            defaultValue: false,
-            description: 'Do a dry run and refresh pipeline configuration'),
-        choice(
-            name: 'action',
-            choices: ['apply', 'destroy'],
-            description: 'Choose what should be done with cluster'),
+        booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
+        string(name: 'branch', defaultValue: 'master', description: 'Terraform scripts branch checkout'),
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose what should be done with cluster'),
         jobsParameters.rancherClusters(),
-        choice(
-            name: 'eks_nodes_type',
-            choices: ['SPOT', 'ON_DEMAND'],
-            description: 'Select capacity associated with the EKS Node Group'),
-        string(
-            name: 'asg_instance_types',
-            defaultValue: '"m5.xlarge", "m5a.xlarge", "m5d.xlarge", "m5ad.xlarge"',
-            description: 'List of EC2 shapes to be used in cluster provisioning',
-            trim: true),
-        string(
-            name: 'eks_min_size',
-            defaultValue: '3',
-            description: 'Minimum size of node group for eks cluster',
-            trim: true),
-        string(
-            name: 'eks_max_size',
-            defaultValue: '6',
-            description: 'Maximum size of node group for eks cluster',
-            trim: true),
-        booleanParam(
-            name: 'vpc_create',
-            defaultValue: true,
-            description: 'True if VPC should be created with cluster'),
-        string(
-            name: 'vpc_id',
-            defaultValue: '',
-            description: 'Should be specified if vpc_create=false',
-            trim: true)
+        choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),
+        string(name: 'asg_instance_types', defaultValue: '"m5.xlarge", "m5a.xlarge", "m5d.xlarge", "m5ad.xlarge"', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
+        string(name: 'eks_min_size', defaultValue: '3', description: 'Minimum size of node group for eks cluster', trim: true),
+        string(name: 'eks_max_size', defaultValue: '6', description: 'Maximum size of node group for eks cluster', trim: true),
+        booleanParam(name: 'vpc_create', defaultValue: true, description: 'True if VPC should be created with cluster'),
+        string(name: 'vpc_id', defaultValue: '', description: 'Should be specified if vpc_create=false', trim: true)
     ])
 ])
 
@@ -82,7 +58,7 @@ ansiColor('xterm') {
             stage('Checkout') {
                 checkout scm: [
                     $class           : 'GitSCM',
-                    branches         : [[name: '*/RANCHER-12']], //TODO change to actual version before merge
+                    branches         : [[name: params.branch]],
                     extensions       : [
                         [$class: 'CleanBeforeCheckout'],
                         [$class             : 'SubmoduleOption',
@@ -94,19 +70,19 @@ ansiColor('xterm') {
                         [$class             : 'SparseCheckoutPaths',
                          sparseCheckoutPaths: [[path: tfWorkDir]]]],
                     userRemoteConfigs: [
-                        [credentialsId: 'id-jenkins-github-personal-token-with-username',
-                         url          : 'https://github.com/folio-org-priv/folio-infrastructure.git']]],
+                        [credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                         url          : Constants.FOLIO_GITHUB_URL + '/folio-infrastructure.git']]],
                     changelog: false,
                     poll: false
             }
             withCredentials([
                 [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : "stanislav_test",
+                 credentialsId    : Constants.AWS_CREDENTIALS_ID,
                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
-                string(credentialsId: 'rancher_token', variable: 'TF_VAR_rancher_token_key')
+                string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')
             ]) {
-                docker.image('hashicorp/terraform:0.15.0').inside("-u 0:0 --entrypoint=") {
+                docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     terraform.tfInit(tfWorkDir, '')
                     terraform.tfWorkspaceSelect(tfWorkDir, params.rancher_cluster_name)
                     terraform.tfStatePull(tfWorkDir)

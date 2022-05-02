@@ -2,6 +2,8 @@ package org.folio.rest
 
 import groovy.json.JsonOutput
 import org.folio.http.HttpClient
+import org.folio.rest.model.OkapiTenant
+import org.folio.rest.model.OkapiUser
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 
