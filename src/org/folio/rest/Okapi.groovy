@@ -55,7 +55,7 @@ class Okapi extends GeneralParameters {
         String url = okapiUrl + "/_/proxy/tenants/" + tenantId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return true
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -150,7 +150,7 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         String body = JsonOutput.toJson(modulesList)
         logger.info("Install operation for tenant ${tenant.id} started")
-        def res = http.postRequest(url, body, headers, false, timeout)
+        def res = http.postRequest(url, body, headers, true, timeout)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
             return tools.jsonParse(res.content)
@@ -169,7 +169,7 @@ class Okapi extends GeneralParameters {
         String url = okapiUrl + "/_/discovery/modules/" + serviceId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return true
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -195,7 +195,7 @@ class Okapi extends GeneralParameters {
                 if (!isServiceExists(it['srvcId'])) {
                     logger.info("${it['srvcId']} not registered. Registering...")
                     String body = JsonOutput.toJson(it)
-                    def res = http.postRequest(url, body, headers, true)
+                    def res = http.postRequest(url, body, headers)
                     if (res.status == HttpURLConnection.HTTP_CREATED) {
                         logger.info("${it['srvcId']} registered successfully")
                     } else {

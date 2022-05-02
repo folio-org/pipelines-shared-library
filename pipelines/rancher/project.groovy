@@ -1,8 +1,9 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-12') _ //TODO change to actual version before merge
+@Library('pipelines-shared-library@RANCHER-223') _ //TODO change to actual version before merge
 
 import org.folio.Constants
 import org.folio.rest.Deployment
+import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 
@@ -26,9 +27,7 @@ properties([
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
-        jobsParameters.pgAdminPassword()
-    ])
-])
+        jobsParameters.pgAdminPassword()])])
 
 String okapiUrl = ''
 String stripesUrl = ''
@@ -44,10 +43,7 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" +
-                    "repository: ${params.folio_repository}\n" +
-                    "branch: ${params.folio_branch}\n" +
-                    "tenant: ${params.tenant_id}"
+                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}"
             }
             stage('Checkout') {
                 checkout scm: [
@@ -81,21 +77,19 @@ ansiColor('xterm') {
                     tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)
                 }
             }
-            withCredentials([
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                 accessKeyVariable: 'TF_VAR_s3_access_key',
-                 secretKeyVariable: 'TF_VAR_s3_secret_key'],
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_S3_DATA_EXPORT_ID,
-                 accessKeyVariable: 'TF_VAR_s3_data_export_access_key',
-                 secretKeyVariable: 'TF_VAR_s3_data_export_secret_key'],
-                string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')
-            ]) {
+            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_secret_key'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_DATA_EXPORT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_data_export_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_data_export_secret_key'],
+                             string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')]) {
                 docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     terraform.tfInit(tfWorkDir, '')
                     terraform.tfWorkspaceSelect(tfWorkDir, params.project_name)
@@ -108,7 +102,7 @@ ansiColor('xterm') {
                         /**Wait for dns */
                         def health = okapiUrl + '/_/version'
                         timeout(30) {
-                            waitUntil(quiet: true) {
+                            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
                                 try {
                                     httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
                                     return true
@@ -126,6 +120,7 @@ ansiColor('xterm') {
             if (params.enable_modules && (params.action == 'apply' || params.action == 'nothing')) {
                 OkapiUser admin_user = new OkapiUser()
                 OkapiTenant tenant = new OkapiTenant()
+                Email email = new Email()
                 stage('Tenant configuration') {
                     tenant.setId(params.tenant_id)
                     tenant.setName(params.tenant_name)
@@ -142,9 +137,30 @@ ansiColor('xterm') {
                     admin_user.setGroupName('staff')
                     admin_user.setPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
                 }
+                stage('Email configuration') {
+                    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                      accessKeyVariable: 'EMAIL_USERNAME',
+                                      secretKeyVariable: 'EMAIL_PASSWORD']]) {
+                        email.setSmtpHost(Constants.EMAIL_SMTP_SERVER)
+                        email.setSmtpPort(Constants.EMAIL_SMTP_PORT)
+                        email.setFrom(Constants.EMAIL_FROM)
+                        email.setUsername(EMAIL_USERNAME)
+                        email.setPassword(EMAIL_PASSWORD)
+                    }
+                }
                 stage('Okapi deployment') {
-                    Deployment deployment = new Deployment(this, okapiUrl, "platform-${params.folio_repository}", params.folio_branch, tenant, admin_user)
-                    deployment.main()
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        Deployment deployment = new Deployment(this,
+                            okapiUrl,
+                            stripesUrl,
+                            "platform-${params.folio_repository}",
+                            params.folio_branch,
+                            tenant,
+                            admin_user,
+                            cypress_api_key_apidvcorp)
+                        deployment.main()
+                    }
                 }
             }
         } catch (exception) {

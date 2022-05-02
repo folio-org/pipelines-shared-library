@@ -41,7 +41,7 @@ class Users extends GeneralParameters {
         String url = okapiUrl + "/users?query=username%3d%3d" + user.username
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
         } else {
@@ -117,7 +117,7 @@ class Users extends GeneralParameters {
         String url = okapiUrl + "/groups"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).usergroups.findResult { if (it.group == user.groupName) return it.id }
         } else {

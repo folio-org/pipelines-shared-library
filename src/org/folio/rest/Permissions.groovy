@@ -123,7 +123,7 @@ class Permissions extends GeneralParameters {
             permissions.each {
                 if (!user.permissions.contains(it)) {
                     String body = JsonOutput.toJson([permissionName: it])
-                    def res = http.postRequest(url, body, headers, true)
+                    def res = http.postRequest(url, body, headers)
                     if (res.status == HttpURLConnection.HTTP_OK) {
                         logger.info(body)
                         count++

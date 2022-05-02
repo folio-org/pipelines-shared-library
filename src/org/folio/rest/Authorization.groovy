@@ -107,7 +107,7 @@ class Authorization extends GeneralParameters {
         ]
         String body = JsonOutput.toJson([username: user.username,
                                          password: user.password])
-        def res = http.postRequest(url, body, headers, true)
+        def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_CREATED) {
             user.setToken(tools.jsonParse(res.content).okapiToken)
         } else if(HttpURLConnection.HTTP_BAD_REQUEST || res.status == HttpURLConnection.HTTP_NOT_FOUND || res.status == 422){
@@ -115,5 +115,10 @@ class Authorization extends GeneralParameters {
         }else{
             throw new AbortException("Unable to get token for user: " + user.username + http.buildHttpErrorMessage(res))
         }
+    }
+
+    void adminUserLogin(OkapiTenant tenant, OkapiUser admin_user){
+        admin_user.setToken(getOkapiToken(tenant, admin_user))
+        tenant.setAdmin_user(admin_user)
     }
 }

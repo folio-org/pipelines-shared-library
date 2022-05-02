@@ -26,7 +26,7 @@ class ServicePoints extends GeneralParameters {
         String url = okapiUrl + "/service-points"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).servicepoints*.id
         } else {
@@ -46,7 +46,7 @@ class ServicePoints extends GeneralParameters {
         String url = okapiUrl + "/service-points-users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
-        def res = http.getRequest(url, headers, true)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
         } else {
@@ -70,7 +70,7 @@ class ServicePoints extends GeneralParameters {
             String body = JsonOutput.toJson([userId               : user.uuid,
                                              servicePointsIds     : servicePointsIds,
                                              defaultServicePointId: servicePointsIds.first()])
-            def res = http.postRequest(url, body, headers, true)
+            def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
                 logger.info("Service points ${servicePointsIds.join(", ")} successfully assigned to user ${user.username}")
             } else if (res.status == 422) {
