@@ -1,59 +1,47 @@
 package org.folio.rest
 
+
+import hudson.AbortException
 import groovy.json.JsonOutput
-import org.folio.http.HttpClient
+import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.Logger
-import org.folio.utilities.Tools
 
-class Okapi implements Serializable {
-    def steps
-    OkapiUser superuser = new OkapiUser()
-    OkapiTenant supertenant = new OkapiTenant(id: 'supertenant')
-    private LinkedHashMap headers = ['Content-Type': 'application/json']
+class Okapi extends GeneralParameters {
 
-    private String okapiUrl = 'localhost:9130'
+    private OkapiUser superuser = new OkapiUser()
+
+    private OkapiTenant supertenant = new OkapiTenant(id: 'supertenant')
+
     private Users users = new Users(steps, okapiUrl)
-    private Permissions permissions = new Permissions(steps, okapiUrl)
+
     private Authorization auth = new Authorization(steps, okapiUrl)
 
-    private Tools tools = new Tools()
-    private HttpClient http = new HttpClient()
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
+    private Permissions permissions = new Permissions(steps, okapiUrl)
 
-    Okapi(steps, okapiUrl) {
-        this.steps = steps
-        this.okapiUrl = okapiUrl
-    }
-
-    void superuserLogin() {
-        if (superuser.username && superuser.password) {
-            superuser.setToken(auth.getOkapiToken(supertenant, superuser))
-        }
-    }
-
-    void setSuperuser(superuser) {
+    Okapi(Object steps, String okapiUrl, OkapiUser superuser) {
+        super(steps, okapiUrl)
         this.superuser = superuser
-        superuserLogin()
-        supertenant.setAdmin_user(superuser)
+        this.supertenant.setAdmin_user(superuser)
     }
 
     /**
      * Bulk fetch modules descriptors from registry
      * @param registries
      */
-    void pull(List registries = ['http://folio-registry.aws.indexdata.com']) {
-        String uri = '/_/proxy/pull/modules'
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        logger.info('Pulling modules descriptors from ' + registries.join(", ") + ' to Okapi')
-        String json = JsonOutput.toJson([urls: registries])
-        def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-        if (res['status_code'].toInteger() == 200) {
-            logger.info('Modules descriptors pulled from ' + registries.join(", ") + ' to Okapi successfully')
+    void pull(List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/proxy/pull/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        logger.info("Pulling modules descriptors from ${registries.join(", ")} to Okapi")
+        String body = JsonOutput.toJson([urls: registries])
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Modules descriptors successfully pulled from ${registries.join(", ")} to Okapi")
         } else {
-            throw new Exception('Error during modules descriptors pull from ' + registries.join(", ") + ' to Okapi. Status code: ' + res['status_code'])
+            throw new AbortException("Error during modules descriptors pull from ${registries.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -63,16 +51,17 @@ class Okapi implements Serializable {
      * @return
      */
     Boolean isTenantExists(String tenantId) {
-        String uri = '/_/proxy/tenants/' + tenantId
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/proxy/tenants/" + tenantId
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
             return true
-        } else if (res['status_code'].toInteger() == 404) {
+        } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
             return false
         } else {
-            throw new Exception('Can not able to check tenant ' + tenantId + ' existence. Status code: ' + res['status_code'])
+            throw new AbortException("Can not able to check tenant ${tenantId} existence." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -81,23 +70,25 @@ class Okapi implements Serializable {
      * @param tenant
      */
     void createTenant(OkapiTenant tenant) {
-        String uri = '/_/proxy/tenants'
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/proxy/tenants"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         if (!isTenantExists(tenant.id)) {
-            logger.info('Tenant ' + tenant.id + ' does not exists. Creating...')
-            String json = JsonOutput.toJson([id         : tenant.id,
+            logger.info("Tenant ${tenant.id} does not exists. Creating...")
+            String body = JsonOutput.toJson([id         : tenant.id,
                                              name       : tenant.name,
                                              description: tenant.description])
-            def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-            if (res['status_code'].toInteger() == 201) {
-                logger.info('Tenant ' + tenant.id + ' successfully created')
+            def res = http.postRequest(url, body, headers)
+            if (res.status == HttpURLConnection.HTTP_CREATED) {
+                logger.info("Tenant ${tenant.id} successfully created")
                 enableModuleForTenant(tenant, 'okapi')
             } else {
-                throw new Exception('Tenant ' + tenant.id + ' does not created. Status code: ' + res['status_code'])
+                throw new AbortException("Tenant ${tenant.id} does not created." + http.buildHttpErrorMessage(res))
             }
         } else {
-            logger.info('Tenant ' + tenant.id + ' already exists')
+            logger.info("Tenant ${tenant.id} already exists")
         }
     }
 
@@ -107,18 +98,20 @@ class Okapi implements Serializable {
      * @param moduleName
      */
     void enableModuleForTenant(OkapiTenant tenant, String moduleName) {
-        String uri = '/_/proxy/tenants/' + tenant.id + '/modules'
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        logger.info('Enabling module: ' + moduleName + ' for tenant: ' + tenant.id)
-        String json = JsonOutput.toJson([id: moduleName])
-        def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-        if (res['status_code'].toInteger() == 201) {
-            logger.info('Module: ' + moduleName + ' successfully enabled for tenant: ' + tenant.id)
-        } else if (res['status_code'].toInteger() == 400) {
-            logger.info('Module: ' + moduleName + ' already enabled for tenant: ' + tenant.id)
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        logger.info("Enabling module: ${moduleName} for tenant: ${tenant.id}")
+        String body = JsonOutput.toJson([id: moduleName])
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            logger.info("Module: ${moduleName} successfully enabled for tenant: ${tenant.id}")
+        } else if (res.status == HttpURLConnection.HTTP_BAD_REQUEST) {
+            logger.info("Module: ${moduleName} already enabled for tenant: ${tenant.id}")
         } else {
-            throw new Exception('Unable to enable module ' + moduleName + ' for tenant ' + tenant.id + '. Status code: ' + res['status_code'])
+            throw new AbortException("Unable to enable module ${moduleName} for tenant ${tenant.id}." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -149,18 +142,20 @@ class Okapi implements Serializable {
      * @return
      */
     def enableDisableUpgradeModulesForTenant(OkapiTenant tenant, ArrayList modulesList, Integer timeout = 0) {
+        auth.getOkapiToken(supertenant, superuser)
         String queryParameters = buildTenantQueryParameters(tenant.parameters)
-        String uri = '/_/proxy/tenants/' + tenant.id + '/install' + queryParameters
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        String json = JsonOutput.toJson(modulesList)
-        logger.info('Install operation for tenant ' + tenant.id + ' started')
-        def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json, timeout: timeout)
-        if (res['status_code'].toInteger() == 200) {
-            logger.info('Install operation for tenant ' + tenant.id + ' finished successfully\n' + JsonOutput.prettyPrint(res['response']))
-            return tools.jsonParse(res['response'])
+        String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/install" + queryParameters
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        String body = JsonOutput.toJson(modulesList)
+        logger.info("Install operation for tenant ${tenant.id} started")
+        def res = http.postRequest(url, body, headers, false, timeout)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Install operation failed. Status code:' + res['status_code'])
+            throw new AbortException("Install operation failed." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -170,16 +165,17 @@ class Okapi implements Serializable {
      * @return
      */
     Boolean isServiceExists(String serviceId) {
-        String uri = '/_/discovery/modules/' + serviceId
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/discovery/modules/" + serviceId
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
             return true
-        } else if (res['status_code'].toInteger() == 404) {
+        } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
             return false
         } else {
-            throw new Exception('Can not able to check service ' + serviceId + ' existence. Status code: ' + res['status_code'])
+            throw new AbortException("Can not able to check service ${serviceId} existence." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -188,29 +184,31 @@ class Okapi implements Serializable {
      * @param discoveryList
      */
     void registerServices(ArrayList discoveryList) {
-        String uri = '/_/discovery/modules'
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        logger.info('Modules registration in Okapi. Starting...')
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/discovery/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        logger.info("Modules registration in Okapi. Starting...")
         discoveryList.each {
             if (it['url'] && it['srvcId'] && it['instId']) {
                 if (!isServiceExists(it['srvcId'])) {
-                    logger.info(it['srvcId'] + ' not registered. Registering...')
-                    String json = JsonOutput.toJson(it)
-                    def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-                    if (res['status_code'].toInteger() == 201) {
-                        logger.info(it['srvcId'] + ' registered successfully')
+                    logger.info("${it['srvcId']} not registered. Registering...")
+                    String body = JsonOutput.toJson(it)
+                    def res = http.postRequest(url, body, headers, true)
+                    if (res.status == HttpURLConnection.HTTP_CREATED) {
+                        logger.info("${it['srvcId']} registered successfully")
                     } else {
-                        throw new Exception(it['srvcId'] + ' does not registered. Status code: ' + res['status_code'])
+                        throw new AbortException("${it['srvcId']} does not registered." + http.buildHttpErrorMessage(res))
                     }
                 } else {
-                    logger.info(it['srvcId'] + ' already exists')
+                    logger.info("${it['srvcId']} already exists")
                 }
             } else {
-                throw new Exception(it + ': One of required field (srvcId, instId or url) are missing')
+                throw new AbortException("${it}: One of required field (srvcId, instId or url) are missing")
             }
         }
-        logger.info('Modules registration in Okapi finished successfully')
+        logger.info("Modules registration in Okapi finished successfully")
     }
 
     /**
@@ -218,14 +216,15 @@ class Okapi implements Serializable {
      * @return
      */
     def getEnabledSerivces() {
-        String uri = '/_/discovery/modules'
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response'])
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/discovery/modules"
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Unable to retrieve enabled services list. Status code:' + res['status_code'])
+            throw new AbortException("Unable to retrieve enabled services list." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -236,32 +235,32 @@ class Okapi implements Serializable {
      * @return
      */
     def getModuleId(OkapiTenant tenant, String moduleName) {
-        String uri = '/_/proxy/tenants/' + tenant.id + '/interfaces/' + moduleName
-        this.headers['X-Okapi-Tenant'] = supertenant.getId()
-        this.headers['X-Okapi-Token'] = superuser.getToken() ? superuser.getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response']).id[0]
+        auth.getOkapiToken(supertenant, superuser)
+        String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/interfaces/" + moduleName
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id[0]
         } else {
             return ''
         }
     }
 
     void secure(OkapiUser user) {
-        def requiredModules = [
-            'mod-users',
-            'mod-permissions',
-            'mod-login',
-            'mod-authtoken'
-        ]
+        auth.getOkapiToken(supertenant, superuser)
+        def requiredModules = ['mod-users',
+                               'mod-permissions',
+                               'mod-login',
+                               'mod-authtoken']
         requiredModules.each {
             if (!getEnabledSerivces()*.instId.any { module -> module ==~ /${it}-.*/ }) {
-                throw new Exception('Missing required module: ' + it)
+                throw new AbortException('Missing required module: ' + it)
             }
         }
         enableModuleForTenant(supertenant, 'mod-users')
         enableModuleForTenant(supertenant, 'mod-permissions')
-        user.setUuid(users.createUser(supertenant, user))
+        users.createUser(supertenant, user)
         enableModuleForTenant(supertenant, 'mod-login')
         user.setPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all", "okapi.all", "okapi.proxy.pull.modules.post", "login.all", "users.all"])
         permissions.createUserPermissions(supertenant, user)

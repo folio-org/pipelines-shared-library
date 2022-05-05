@@ -3,6 +3,12 @@ package org.folio.utilities
 import groovy.json.JsonSlurperClassic
 
 class Tools {
+    Object steps
+
+    Tools(Object steps){
+        this.steps = steps
+    }
+
     /**
      * Parse json object to groovy map
      * @param json

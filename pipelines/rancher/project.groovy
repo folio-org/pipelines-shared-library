@@ -110,7 +110,7 @@ ansiColor('xterm') {
                         timeout(30) {
                             waitUntil(quiet: true) {
                                 try {
-                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200'
+                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
                                     return true
                                 } catch (exception) {
                                     println(exception.getMessage())

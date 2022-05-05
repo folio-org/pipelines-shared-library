@@ -1,26 +1,19 @@
 package org.folio.rest
 
+import hudson.AbortException
 import groovy.json.JsonOutput
-import org.folio.http.HttpClient
+import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.Logger
-import org.folio.utilities.Tools
 
-class ServicePoints implements Serializable {
-    def steps
-    private String okapiUrl = 'localhost:9130'
-    private LinkedHashMap headers = ['Content-Type': 'application/json']
+class ServicePoints extends GeneralParameters {
 
     private Users users = new Users(steps, okapiUrl)
 
-    private Tools tools = new Tools()
-    private HttpClient http = new HttpClient()
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
+    private Authorization auth = new Authorization(steps, okapiUrl)
 
-    ServicePoints(steps, okapiUrl) {
-        this.steps = steps
-        this.okapiUrl = okapiUrl
+    ServicePoints(Object steps, String okapiUrl) {
+        super(steps, okapiUrl)
     }
 
     /**
@@ -28,13 +21,14 @@ class ServicePoints implements Serializable {
      * @param tenant
      * @return
      */
-    def getServicePointsIds(OkapiTenant tenant) {
-        String uri = '/service-points'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response']).servicepoints*.id
+    def getServicePointsIds(OkapiTenant tenant, OkapiUser user) {
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/service-points"
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).servicepoints*.id
         } else {
             return []
         }
@@ -48,14 +42,15 @@ class ServicePoints implements Serializable {
      */
     def getServicePointsUsersRecords(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
-        String uri = '/service-points-users?query=userId%3d%3d' + user.uuid
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response'])
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/service-points-users?query=userId%3d%3d" + user.uuid
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Can not get user credentials. Status code:' + res['status_code'])
+            throw new AbortException("Can not get user credentials." + http.buildHttpErrorMessage(res))
         }
     }
     /**
@@ -65,25 +60,26 @@ class ServicePoints implements Serializable {
      */
     void createServicePointsUsersRecord(OkapiTenant tenant, OkapiUser user, ArrayList servicePointsIds) {
         users.validateUser(user)
-        String uri = '/service-points-users'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/service-points-users"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         if (servicePointsIds) {
-            logger.info('Assign service points ' + servicePointsIds.join(", ") + ' to user ' + user.username)
-            String json = JsonOutput.toJson([userId               : user.uuid,
+            logger.info("Assign service points ${servicePointsIds.join(", ")} to user ${user.username}")
+            String body = JsonOutput.toJson([userId               : user.uuid,
                                              servicePointsIds     : servicePointsIds,
                                              defaultServicePointId: servicePointsIds.first()])
-            def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-            if (res['status_code'].toInteger() == 201) {
-                logger.info('Service points ' + servicePointsIds.join(", ") + ' successfully assigned to user ' + user.username)
-            } else if (res['status_code'].toInteger() == 422) {
-                logger.warning('Unable to proceed request. Status code:' + res['status_code'])
+            def res = http.postRequest(url, body, headers, true)
+            if (res.status == HttpURLConnection.HTTP_CREATED) {
+                logger.info("Service points ${servicePointsIds.join(", ")} successfully assigned to user ${user.username}")
+            } else if (res.status == 422) {
+                logger.warning("Unable to proceed request." + http.buildHttpErrorMessage(res))
             } else {
-                throw new Exception('Can not set credentials for user ' + user.username + '. Status code:' + res['status_code'])
+                throw new AbortException("Can not set credentials for user ${user.username}." + http.buildHttpErrorMessage(res))
             }
         } else {
-            throw new Exception('Service points ids list is empty')
+            throw new AbortException("Service points ids list is empty")
         }
-
     }
 }

@@ -1,19 +1,20 @@
 package org.folio.rest
 
-import org.folio.http.HttpClient
 import org.folio.utilities.Logger
+import org.folio.utilities.HttpClient
 import org.folio.utilities.Tools
 
 class GitHubUtility implements Serializable {
-    def steps
-    static private String githubUrl = 'https://raw.githubusercontent.com/folio-org'
-    private LinkedHashMap headers = ['Content-Type': 'application/json']
 
-    private Tools tools = new Tools()
-    private HttpClient http = new HttpClient()
+    private Object steps
+
+    private Tools tools = new Tools(steps)
+
+    private HttpClient http = new HttpClient(steps)
+
     private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
 
-    GitHubUtility(steps) {
+    GitHubUtility(Object steps) {
         this.steps = steps
     }
 
@@ -21,14 +22,13 @@ class GitHubUtility implements Serializable {
      * Get json object of modules from github
      * @param fileName
      */
-    @NonCPS
     def getJsonModulesList(String repository, String branch, String fileName) {
-        String uri = '/' + repository + '/' + branch + '/' + fileName
-        def res = http.request(method: 'GET', url: githubUrl, uri: uri)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response'])
+        String url = OkapiConstants.RAW_GITHUB_URL + '/' + repository + '/' + branch + '/' + fileName
+        def res = http.getRequest(url,[],true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Can not get modules list from: ' + githubUrl + uri)
+            throw new Exception("Can not get modules list from: ${url}")
         }
     }
 
@@ -38,7 +38,6 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    @NonCPS
     ArrayList buildDiscoveryList(String repository, String branch) {
         ArrayList discoveryList = []
         getJsonModulesList(repository, branch, 'okapi-install.json').each {
@@ -57,7 +56,6 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    @NonCPS
     ArrayList buildEnableList(String repository, String branch) {
         ArrayList enableList = []
         enableList.addAll(getJsonModulesList(repository, branch, 'okapi-install.json'))

@@ -1,24 +1,19 @@
 package org.folio.rest
 
+
+import hudson.AbortException
 import groovy.json.JsonOutput
-import org.folio.http.HttpClient
+import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.Logger
-import org.folio.utilities.Tools
 
-class Users implements Serializable {
-    def steps
-    private String okapiUrl = 'localhost:9130'
-    private LinkedHashMap headers = ['Content-Type': 'application/json']
 
-    private Tools tools = new Tools()
-    private HttpClient http = new HttpClient()
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
+class Users extends GeneralParameters {
 
-    Users(steps,okapiUrl) {
-        this.steps = steps
-        this.okapiUrl = okapiUrl
+    private Authorization auth = new Authorization(steps, okapiUrl)
+
+    Users(Object steps, String okapiUrl) {
+        super(steps, okapiUrl)
     }
 
     /**
@@ -42,14 +37,15 @@ class Users implements Serializable {
      * @return
      */
     def getUser(OkapiTenant tenant, OkapiUser user) {
-        String uri = '/users?query=username%3d%3d' + user.username
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response'])
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/users?query=username%3d%3d" + user.username
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Can not get user details. Status code:' + res['status_code'])
+            throw new AbortException("Can not get user details." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -59,30 +55,32 @@ class Users implements Serializable {
      * @param user
      * @return
      */
-    def createUser(OkapiTenant tenant, OkapiUser user) {
-        String uri = '/users'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
+    void createUser(OkapiTenant tenant, OkapiUser user) {
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/users"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def checkUser = getUser(tenant, user)
         if (checkUser.totalRecords.toInteger() == 0) {
-            logger.info('User ' + user.username + ' does not exists. Creating...')
+            logger.info("User ${user.username} does not exists. Creating...")
             String uuid = UUID.randomUUID().toString()
-            String json = JsonOutput.toJson([id      : uuid,
+            String body = JsonOutput.toJson([id      : uuid,
                                              username: user.username,
                                              active  : true,
                                              personal: [lastName : user.lastName,
                                                         firstName: user.firstName,
                                                         email    : user.email]])
-            def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-            if (res['status_code'].toInteger() == 201) {
-                logger.info('User ' + user.username + ' successfully created')
-                return uuid
+            def res = http.postRequest(url, body, headers)
+            if (res.status == HttpURLConnection.HTTP_CREATED) {
+                logger.info("User ${user.username} successfully created")
+                user.setUuid(uuid)
             } else {
-                throw new Exception('Can not create user ' + user.username + '. Status code:' + +res['status_code'])
+                throw new AbortException("Can not create user ${user.username}." + http.buildHttpErrorMessage(res))
             }
         } else if (checkUser.totalRecords.toInteger() > 0) {
-            logger.info('User ' + user.username + ' already exists. UUID: ' + checkUser.users[0].id)
-            return checkUser.users[0].id
+            logger.info("User ${user.username} already exists. UUID: ${checkUser.users[0].id}")
+            user.setUuid(checkUser.users[0].id)
         }
     }
 
@@ -94,15 +92,18 @@ class Users implements Serializable {
      */
     //TODO Configure to edit user
     void setPatronGroup(OkapiTenant tenant, OkapiUser user, String patronGroupId) {
-        String uri = '/users/' + user.uuid
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        String json = JsonOutput.toJson(getUser(tenant, user).users[0] << [patronGroup: patronGroupId])
-        def res = http.request(method: 'PUT', url: okapiUrl, uri: uri, headers: headers, body: json)
-        if (res['status_code'].toInteger() == 204) {
-            logger.info('Patron group ' + user.groupName + ' with id ' + patronGroupId + ' assigned for user ' + user.username)
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/users/" + user.uuid
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+        logger.info("Assign patron group ${user.groupName} with id ${patronGroupId} for user ${user.username}")
+        String body = JsonOutput.toJson(getUser(tenant, user).users[0] << [patronGroup: patronGroupId])
+        def res = http.putRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
+            logger.info("Patron group ${user.groupName} with id ${patronGroupId} assigned for user ${user.username}")
         } else {
-            throw new Exception('Can not assign patron group ' + user.groupName + ' for user ' + user.username + '. Status code:' + +res['status_code'])
+            throw new AbortException("Can not assign patron group ${user.groupName} for user ${user.username}" + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -112,14 +113,15 @@ class Users implements Serializable {
      * @param user
      */
     def getPatronGroupId(OkapiTenant tenant, OkapiUser user) {
-        String uri = '/groups'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response']).usergroups.findResult { if (it.group == user.groupName) return it.id }
+        auth.getOkapiToken(tenant, user)
+        String url = okapiUrl + "/groups"
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers, true)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).usergroups.findResult { if (it.group == user.groupName) return it.id }
         } else {
-            throw new Exception('Can not get patron groups. Status code:' + res['status_code'])
+            throw new AbortException("Can not get patron groups." + http.buildHttpErrorMessage(res))
         }
     }
 }

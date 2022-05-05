@@ -1,26 +1,15 @@
 package org.folio.rest
 
+import hudson.AbortException
 import groovy.json.JsonOutput
-import org.folio.http.HttpClient
+import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.Logger
-import org.folio.utilities.Tools
 
-class Authorization implements Serializable {
-    def steps
-    private String okapiUrl = 'localhost:9130'
-    private LinkedHashMap headers = ['Content-Type': 'application/json']
+class Authorization extends GeneralParameters {
 
-    private Users users = new Users(steps, okapiUrl)
-
-    private Tools tools = new Tools()
-    private HttpClient http = new HttpClient()
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
-
-    Authorization(steps, okapiUrl) {
-        this.steps = steps
-        this.okapiUrl = okapiUrl
+    Authorization(Object steps, String okapiUrl) {
+        super(steps, okapiUrl)
     }
 
     /**
@@ -30,18 +19,20 @@ class Authorization implements Serializable {
      * @return
      */
     def getUserCredentials(OkapiTenant tenant, OkapiUser user) {
-        users.validateUser(user)
         if (!user.uuid) {
-            throw new Exception(user.username + ' uuid does not specified')
+            throw new AbortException("${user.username} uuid does not specified")
         }
-        String uri = '/authn/credentials-existence?userId=' + user.uuid
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
-        def res = http.request(method: 'GET', url: okapiUrl, uri: uri, headers: headers)
-        if (res['status_code'].toInteger() == 200) {
-            return tools.jsonParse(res['response'])
+        getOkapiToken(tenant, user)
+        String url = okapiUrl + "/authn/credentials-existence?userId=" + user.uuid
+        ArrayList headers = [
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
         } else {
-            throw new Exception('Can not get user credentials. Status code:' + res['status_code'])
+            throw new AbortException("Can not get user credentials." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -51,22 +42,28 @@ class Authorization implements Serializable {
      * @param user
      */
     void createUserCredentials(OkapiTenant tenant, OkapiUser user) {
-        users.validateUser(user)
-        String uri = '/authn/credentials'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        this.headers['X-Okapi-Token'] = tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : ''
+        if (!user.uuid) {
+            throw new AbortException("${user.username} uuid does not specified")
+        }
+        getOkapiToken(tenant, user)
+        String url = okapiUrl + "/authn/credentials"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
         if (!getUserCredentials(tenant, user).credentialsExist) {
-            logger.info(user.username + ' does not have credentials. Creating...')
-            String json = JsonOutput.toJson([userId  : user.uuid,
+            logger.info("${user.username} does not have credentials. Creating...")
+            String body = JsonOutput.toJson([userId  : user.uuid,
                                              password: user.password])
-            def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-            if (res['status_code'].toInteger() == 201) {
-                logger.info(user.username + ' credentials successfully set')
+            def res = http.postRequest(url, body, headers)
+            if (res.status == HttpURLConnection.HTTP_CREATED) {
+                logger.info("${user.username} credentials successfully set")
             } else {
-                throw new Exception('Can not set credentials for ' + user.username + '. Status code:' + res['status_code'])
+                throw new AbortException("Can not set credentials for ${user.username}." + http.buildHttpErrorMessage(res))
             }
         } else {
-            logger.info(user.username + ' credentials already set')
+            logger.info("${user.username} credentials already set")
         }
     }
 
@@ -76,22 +73,23 @@ class Authorization implements Serializable {
      * @param user
      * @return
      */
-    def login(OkapiTenant tenant, OkapiUser user) {
-        def login = [:]
-        String uri = '/bl-users/login'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        logger.info('Login as: ' + user.username)
-        String json = JsonOutput.toJson([username: user.username,
+    void login(OkapiTenant tenant, OkapiUser user) {
+        String url = okapiUrl + "/bl-users/login"
+        ArrayList headers = [
+            [name: "Content-type", value: "application/json"],
+            [name: "X-Okapi-Tenant", value: tenant.getId()],
+        ]
+        logger.info('Login as user: ' + user.username)
+        String body = JsonOutput.toJson([username: user.username,
                                          password: user.password])
-        def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-        if (res['status_code'].toInteger() == 201) {
-            login['token'] = res['headers']['x-okapi-token'][0]
-            login['uuid'] = tools.jsonParse(res['response']).user.id
-            login['permissions'] = tools.jsonParse(res['response']).permissions.permissions
-            login['permissionsId'] = tools.jsonParse(res['response']).permissions.id
-            return login
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            user.setToken(res.headers['x-okapi-token'])
+            user.setUuid(tools.jsonParse(res.content).user.id)
+            user.setPermissions(tools.jsonParse(res.content).permissions.permissions)
+            user.setPermissionsId(tools.jsonParse(res.content).permissions.id)
         } else {
-            throw new Exception('Unable to login as: ' + user.username + '. Status code: ' + res['status_code'])
+            throw new AbortException("Unable to login as user:  ${user.username}" + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -101,16 +99,21 @@ class Authorization implements Serializable {
      * @param user
      * @return
      */
-    def getOkapiToken(OkapiTenant tenant, OkapiUser user) {
-        String uri = '/authn/login'
-        this.headers['X-Okapi-Tenant'] = tenant.getId()
-        String json = JsonOutput.toJson([username: user.username,
+    void getOkapiToken(OkapiTenant tenant, OkapiUser user) {
+        String url = okapiUrl + "/authn/login"
+        ArrayList headers = [
+            [name: "Content-type", value: "application/json"],
+            [name: "X-Okapi-Tenant", value: tenant.getId()],
+        ]
+        String body = JsonOutput.toJson([username: user.username,
                                          password: user.password])
-        def res = http.request(method: 'POST', url: okapiUrl, uri: uri, headers: headers, body: json)
-        if (res['status_code'].toInteger() == 201) {
-            return tools.jsonParse(res['response']).okapiToken
-        } else {
-            throw new Exception('Unable to get token for: ' + user.username + '. Status code: ' + res['status_code'])
+        def res = http.postRequest(url, body, headers, true)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            user.setToken(tools.jsonParse(res.content).okapiToken)
+        } else if(HttpURLConnection.HTTP_BAD_REQUEST || res.status == HttpURLConnection.HTTP_NOT_FOUND || res.status == 422){
+            user.setToken('')
+        }else{
+            throw new AbortException("Unable to get token for user: " + user.username + http.buildHttpErrorMessage(res))
         }
     }
 }
