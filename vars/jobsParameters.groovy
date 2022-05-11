@@ -67,11 +67,17 @@ static ArrayList perfEnvironmentsList() {
 }
 
 @NonCPS
+static ArrayList testEnvironmentsList() {
+    return ["test"]
+}
+
+@NonCPS
 static String generateProjectNamesMap() {
     return JsonOutput.toJson([
         'folio-testing': testingEnvironmentsList(),
         'folio-scratch': scratchEnvironmentsList(),
-        'folio-perf'   : perfEnvironmentsList()
+        'folio-perf'   : perfEnvironmentsList(),
+        'folio-test'   : testEnvironmentsList()
     ])
 }
 

@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-12') _ //TODO change to actual version before merge
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 
