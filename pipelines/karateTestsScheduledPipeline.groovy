@@ -24,6 +24,7 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
+                    println                   Eval.me(jobsParameters.getOkapiVersion())
                     println "OKAPI: ${jobsParameters.okapiVersion().getParameters()}"
                     println "Images: ${jobsParameters.getDockerImagesList()}"
 
