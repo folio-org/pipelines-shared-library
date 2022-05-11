@@ -31,7 +31,7 @@ pipeline {
                     def okapiVersions = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))
                     println "OKAPI: ${okapiVersions}"
 
-                    List<String> images = Eval.me(jobsParameters.getDockerImagesList())
+                    List<String> images = Eval.me("project_name", "karate", jobsParameters.getDockerImagesList())
 
                     println "Images: ${images}"
 
