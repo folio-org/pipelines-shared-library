@@ -26,7 +26,8 @@ static ArrayList repositoriesList() {
 static ArrayList rancherClustersList() {
     return ['folio-testing',
             'folio-scratch',
-            'folio-perf']
+            'folio-perf',
+            'folio-test']
 }
 
 @NonCPS
