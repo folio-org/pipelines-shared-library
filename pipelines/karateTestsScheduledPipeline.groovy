@@ -17,8 +17,8 @@ KarateTestsExecutionSummary karateTestsExecutionSummary
 def teamAssignment
 
 List<String> versions = Eval.me(jobsParameters.getOkapiVersion())
-def okapiVersions = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))
-List<String> uiImages = Eval.me("project_name", "karate", jobsParameters.getDockerImagesList())
+String okapiVersion = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
+String uiImageVersion = Eval.me("project_name", "karate", jobsParameters.getDockerImagesList())[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -32,9 +32,9 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersions, uiImages)
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion)
 
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: true
                 }
             }
         }
@@ -60,7 +60,7 @@ pipeline {
         stage("Parallel") {
             parallel {
                 stage("Destroy environment") {
-                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersions, uiImages)
+                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion)
 
                     tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
@@ -135,15 +135,15 @@ pipeline {
     }
 }
 
-private List getEnvironmentJobParameters(String action, List<String> okapiVersions, List<String> images) {
+private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion) {
     [
         string(name: 'action', value: action),
-        string(name: 'okapi_version', value: okapiVersions[0]),
+        string(name: 'okapi_version', value: okapiVersion),
         string(name: 'rancher_cluster_name', value: "folio-testing"),
         string(name: 'project_name', value: "test"),
         string(name: 'folio_repository', value: "complete"),
         string(name: 'folio_branch', " value:master"),
-        string(name: 'stripes_image_tag', value: images[0]),
+        string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: "master"),
         string(name: 'tenant_name', value: "Master karate tenant"),
         string(name: 'tenant_description', value: "Karate tests main tenant"),
