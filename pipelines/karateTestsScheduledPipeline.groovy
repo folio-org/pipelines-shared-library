@@ -28,27 +28,23 @@ pipeline {
             steps {
                 script {
                     List<String> versions = Eval.me(jobsParameters.getOkapiVersion())
-                    def okapiVersions = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))
-                    println "OKAPI: ${okapiVersions}"
 
+                    def okapiVersions = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))
                     List<String> images = Eval.me("project_name", "karate", jobsParameters.getDockerImagesList())
 
-                    println "Images: ${images}"
-
-                    error( "Interrupt")
                     def jobParameters = [
                         string(name: 'action', value: 'apply'),
-                        string(name: 'okapi_version', value: ""),
-                        string(name: 'rancher_cluster_name',  value: "folio-testing"),
+                        string(name: 'okapi_version', value: okapiVersions[0]),
+                        string(name: 'rancher_cluster_name', value: "folio-testing"),
                         string(name: 'project_name', value: "test"),
-                        string(name: 'folio_repository',  value:"complete"),
+                        string(name: 'folio_repository', value: "complete"),
                         string(name: 'folio_branch', " value:master"),
-                        string(name: 'stripes_image_tag',  value:""),
-                        string(name: 'tenant_id',  value:"master"),
-                        string(name: 'tenant_name',  value:"Master karate tenant"),
-                        string(name: 'tenant_description',  value:"Karate tests main tenant"),
-                        booleanParam('load_reference',  value: true),
-                        booleanParam('load_sample',  value:false),
+                        string(name: 'stripes_image_tag', value: images[0]),
+                        string(name: 'tenant_id', value: "master"),
+                        string(name: 'tenant_name', value: "Master karate tenant"),
+                        string(name: 'tenant_description', value: "Karate tests main tenant"),
+                        booleanParam('load_reference', value: true),
+                        booleanParam('load_sample', value: false),
                         string(name: 'folio_repository', "complete")
                     ]
 
