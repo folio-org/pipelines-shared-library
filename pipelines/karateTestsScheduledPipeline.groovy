@@ -24,8 +24,8 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    println "OKAPI: ${jobsParameters.getOkapiVersion()}"
-                    println "OKAPI: ${jobsParameters.getDockerImagesList()}"
+                    println "OKAPI: ${jobsParameters.okapiVersion().getParameters()}"
+                    println "Images: ${jobsParameters.getDockerImagesList()}"
 
                     error( "Interrupt")
                     def jobParameters = [
