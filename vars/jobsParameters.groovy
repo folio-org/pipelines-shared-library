@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 
 void call() {}
@@ -32,7 +33,8 @@ static ArrayList rancherClustersList() {
 @NonCPS
 static ArrayList testingEnvironmentsList() {
     return ['karate',
-            'cypress']
+            'cypress',
+            'test']
 }
 
 @NonCPS

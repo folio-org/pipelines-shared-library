@@ -5,6 +5,8 @@ import org.folio.karate.teams.TeamAssignment
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def okapiUrl, tenant, user, password
+def spinUpEnvironmentJobName = "/Rancher/Project"
+def spinUpEnvironmentJob
 def karateTestsJobName = "/Testing/Karate tests"
 def karateTestsJob
 KarateTestsExecutionSummary karateTestsExecutionSummary
@@ -22,27 +24,27 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    okapiUrl = 'https://folio-snapshot-okapi.dev.folio.org:443'
-                    tenant = 'supertenant'
-                    user = 'testing_admin'
-                    password = 'admin'
+                    println "OKAPI: ${jobsParameters.getOkapiVersion()}"
+                    println "OKAPI: ${jobsParameters.getDockerImagesList()}"
 
-//                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-//                    tenant = 'fs09000000'
-//                    user = 'folio'
-//                    password = 'folio'
+                    error( "Interrupt")
+                    def jobParameters = [
+                        string(name: 'action', value: 'apply'),
+                        string(name: 'okapi_version', value: ""),
+                        string(name: 'rancher_cluster_name',  value: "folio-testing"),
+                        string(name: 'project_name', value: "test"),
+                        string(name: 'folio_repository',  value:"complete"),
+                        string(name: 'folio_branch', " value:master"),
+                        string(name: 'stripes_image_tag',  value:""),
+                        string(name: 'tenant_id',  value:"master"),
+                        string(name: 'tenant_name',  value:"Master karate tenant"),
+                        string(name: 'tenant_description',  value:"Karate tests main tenant"),
+                        booleanParam('load_reference',  value: true),
+                        booleanParam('load_sample',  value:false),
+                        string(name: 'folio_repository', "complete")
+                    ]
 
-//                    call job to setup env (https://issues.folio.org/browse/RANCHER-12)
-//                    def jobParameters = [
-//                        string(name: 'branch', value: params.branch),
-//                        string(name: 'threadsCount', value: "4"),
-//                        string(name: 'okapiUrl', value: okapiUrl),
-//                        string(name: 'tenant', value: tenant),
-//                        string(name: 'adminUserName', value: user),
-//                        string(name: 'adminPassword', value: password)
-//                    ]
-//
-//                    def karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
