@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-252') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
