@@ -1,5 +1,7 @@
 package org.folio.utilities
 
+import com.cloudbees.groovy.cps.NonCPS
+
 class Logger implements Serializable {
 
     Object steps

@@ -2,6 +2,9 @@
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
+import org.folio.version.VersionConstants
+import org.folio.version.semantic.Order
+import org.folio.version.semantic.SemanticVersionComparator
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def okapiUrl, tenant, user, password
@@ -24,9 +27,13 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    println                   Eval.me(jobsParameters.getOkapiVersion())
-                    println "OKAPI: ${jobsParameters.okapiVersion().getParameters()}"
-                    println "Images: ${jobsParameters.getDockerImagesList()}"
+                    List<String> versions = Eval.me(jobsParameters.getOkapiVersion())
+                    def okapiVersions = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))
+                    println "OKAPI: ${okapiVersions}"
+
+                    List<String> images = Eval.me(jobsParameters.getDockerImagesList())
+
+                    println "Images: ${images}"
 
                     error( "Interrupt")
                     def jobParameters = [
