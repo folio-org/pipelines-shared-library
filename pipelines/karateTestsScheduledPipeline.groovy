@@ -60,17 +60,25 @@ pipeline {
         stage("Parallel") {
             parallel {
                 stage("Destroy environment") {
-                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion)
+                    steps {
+                        script {
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion)
 
-                    tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
                 }
                 stage("Collect test results") {
                     stages {
                         stage("Test parallel 1") {
-                            echo "bla 1"
+                            steps {
+                                echo "bla 1"
+                            }
                         }
                         stage("Test parallel 2") {
-                            echo "bla 2"
+                            steps {
+                                echo "bla 2"
+                            }
                         }
 
 //                        stage("Copy downstream job artifacts") {
