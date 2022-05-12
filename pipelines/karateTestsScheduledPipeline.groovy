@@ -157,13 +157,13 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
         string(name: 'rancher_cluster_name', value: "folio-test"),
         string(name: 'project_name', value: "test"),
         string(name: 'folio_repository', value: "complete"),
-        string(name: 'folio_branch', " value:master"),
+        string(name: 'folio_branch', value: "master"),
         string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: "master"),
         string(name: 'tenant_name', value: "Master karate tenant"),
         string(name: 'tenant_description', value: "Karate tests main tenant"),
-        booleanParam('load_reference', value: true),
-        booleanParam('load_sample', value: false),
+        booleanParam(name: 'load_reference', value: true),
+        booleanParam(name: 'load_sample', value: false),
         string(name: 'folio_repository', "complete")
     ]
 }
