@@ -83,7 +83,6 @@ class Okapi extends GeneralParameters {
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
                 logger.info("Tenant ${tenant.id} successfully created")
-//                enableDisableUpgradeModulesForTenant(supertenant, buildInstallJsonByModuleName('okapi'))
             } else {
                 throw new AbortException("Tenant ${tenant.id} does not created." + http.buildHttpErrorMessage(res))
             }

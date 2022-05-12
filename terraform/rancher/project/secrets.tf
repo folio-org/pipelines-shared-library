@@ -64,10 +64,26 @@ resource "rancher2_secret" "s3-credentials-data-export" {
     AWS_URL               = base64encode("https://s3.amazonaws.com")
     AWS_REGION            = base64encode(var.aws_region)
     AWS_BUCKET            = base64encode("folio-${rancher2_project.project.name}")
-    AWS_ACCESS_KEY_ID     = base64encode(var.s3_data_export_access_key)
-    AWS_SECRET_ACCESS_KEY = base64encode(var.s3_data_export_secret_key)
+    AWS_ACCESS_KEY_ID     = base64encode(var.s3_access_key)
+    AWS_SECRET_ACCESS_KEY = base64encode(var.s3_secret_key)
   }
 }
+
+
+# TODO think how proper handle buckets (issue S3 limitz)
+#resource "rancher2_secret" "s3-credentials-data-export" {
+#  depends_on   = [rancher2_namespace.project-namespace]
+#  name         = "s3-credentials-data-export"
+#  project_id   = rancher2_project.project.id
+#  namespace_id = rancher2_namespace.project-namespace.name
+#  data = {
+#    AWS_URL               = base64encode("https://s3.amazonaws.com")
+#    AWS_REGION            = base64encode(var.aws_region)
+#    AWS_BUCKET            = base64encode("folio-${rancher2_project.project.name}-export")
+#    AWS_ACCESS_KEY_ID     = base64encode(var.s3_data_export_access_key)
+#    AWS_SECRET_ACCESS_KEY = base64encode(var.s3_data_export_secret_key)
+#  }
+#}
 
 # For edge* modules
 resource "rancher2_secret" "ephemeral-properties" {

@@ -25,7 +25,7 @@ static ArrayList repositoriesList() {
 
 static ArrayList rancherClustersList() {
     return ['folio-testing',
-            'folio-scratch',
+            'folio-dev',
             'folio-perf',
             'folio-test']
 }
@@ -33,7 +33,8 @@ static ArrayList rancherClustersList() {
 @NonCPS
 static ArrayList testingEnvironmentsList() {
     return ['karate',
-            'cypress']
+            'cypress',
+            'sprint']
 }
 
 @NonCPS
@@ -51,6 +52,7 @@ static ArrayList scratchEnvironmentsList() {
             'scout',
             'spanish',
             'spitfire',
+            'sprint-testing', //TODO remove after env destroy
             'stripes-force',
             'template',
             'thor',
@@ -75,7 +77,7 @@ static ArrayList testEnvironmentsList() {
 static String generateProjectNamesMap() {
     return JsonOutput.toJson([
         'folio-testing': testingEnvironmentsList(),
-        'folio-scratch': scratchEnvironmentsList(),
+        'folio-dev': scratchEnvironmentsList(),
         'folio-perf'   : perfEnvironmentsList(),
         'folio-test'   : testEnvironmentsList()
     ])
