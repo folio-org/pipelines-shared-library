@@ -39,23 +39,23 @@ pipeline {
             }
         }
 
-        stage("Run karate tests") {
-            steps {
-                script {
-                    def jobParameters = [
-                        string(name: 'branch', value: params.branch),
-                        string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: ""),
-                        string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
-                        string(name: 'adminUserName', value: user),
-                        string(name: 'adminPassword', value: password)
-                    ]
-
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
+//        stage("Run karate tests") {
+//            steps {
+//                script {
+//                    def jobParameters = [
+//                        string(name: 'branch', value: params.branch),
+//                        string(name: 'threadsCount', value: "4"),
+//                        string(name: 'modules', value: ""),
+//                        string(name: 'okapiUrl', value: okapiUrl),
+//                        string(name: 'tenant', value: tenant),
+//                        string(name: 'adminUserName', value: user),
+//                        string(name: 'adminPassword', value: password)
+//                    ]
+//
+//                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//            }
+//        }
 
         stage("Parallel") {
             parallel {
@@ -66,68 +66,75 @@ pipeline {
                 }
                 stage("Collect test results") {
                     stages {
-                        stage("Copy downstream job artifacts") {
-                            steps {
-                                script {
-                                    def jobNumber = karateTestsJob.number
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
-
-                                    unzip zipFile: "cucumber.zip", dir: "cucumber"
-                                    unzip zipFile: "junit.zip", dir: "junit"
-                                    unzip zipFile: "karate-summary.zip", dir: "karate-summary"
-                                }
-                            }
+                        stage("Test parallel 1") {
+                            echo "bla 1"
+                        }
+                        stage("Test parallel 2") {
+                            echo "bla 2"
                         }
 
-                        stage('Publish tests report') {
-                            steps {
-                                script {
-                                    cucumber buildStatus: "UNSTABLE",
-                                        fileIncludePattern: "cucumber/**/target/karate-reports*/*.json"
-
-                                    junit testResults: 'junit/**/target/karate-reports*/*.xml'
-                                }
-                            }
-                        }
-
-                        stage("Collect execution results") {
-                            steps {
-                                script {
-                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
-
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                                }
-                            }
-                        }
-
-                        stage("Parse teams assignment") {
-                            steps {
-                                script {
-                                    def jsonContents = readJSON file: "teams-assignment.json"
-                                    teamAssignment = new TeamAssignment(jsonContents)
-                                }
-                            }
-                        }
-
-
-                        stage("Send slack notifications") {
-                            steps {
-                                script {
-                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
-
-                        stage("Sync jira tickets") {
-                            steps {
-                                script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
+//                        stage("Copy downstream job artifacts") {
+//                            steps {
+//                                script {
+//                                    def jobNumber = karateTestsJob.number
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
+//
+//                                    unzip zipFile: "cucumber.zip", dir: "cucumber"
+//                                    unzip zipFile: "junit.zip", dir: "junit"
+//                                    unzip zipFile: "karate-summary.zip", dir: "karate-summary"
+//                                }
+//                            }
+//                        }
+//
+//                        stage('Publish tests report') {
+//                            steps {
+//                                script {
+//                                    cucumber buildStatus: "UNSTABLE",
+//                                        fileIncludePattern: "cucumber/**/target/karate-reports*/*.json"
+//
+//                                    junit testResults: 'junit/**/target/karate-reports*/*.xml'
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Collect execution results") {
+//                            steps {
+//                                script {
+//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
+//
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Parse teams assignment") {
+//                            steps {
+//                                script {
+//                                    def jsonContents = readJSON file: "teams-assignment.json"
+//                                    teamAssignment = new TeamAssignment(jsonContents)
+//                                }
+//                            }
+//                        }
+//
+//
+//                        stage("Send slack notifications") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Sync jira tickets") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
@@ -139,7 +146,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
     [
         string(name: 'action', value: action),
         string(name: 'okapi_version', value: okapiVersion),
-        string(name: 'rancher_cluster_name', value: "folio-testing"),
+        string(name: 'rancher_cluster_name', value: "folio-test"),
         string(name: 'project_name', value: "test"),
         string(name: 'folio_repository', value: "complete"),
         string(name: 'folio_branch', " value:master"),
