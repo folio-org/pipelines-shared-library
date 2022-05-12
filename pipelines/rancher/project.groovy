@@ -11,7 +11,6 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
-        string(name: 'branch', defaultValue: 'master', description: 'Terraform scripts branch checkout'),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
@@ -32,7 +31,7 @@ properties([
 
 String okapiUrl = ''
 String stripesUrl = ''
-String tfWorkDir = 'rancher/terraform/rancher_project'
+String tfWorkDir = 'terraform/rancher/project'
 String tfVars = ''
 
 ansiColor('xterm') {
@@ -50,22 +49,7 @@ ansiColor('xterm') {
                     "tenant: ${params.tenant_id}"
             }
             stage('Checkout') {
-                checkout scm: [
-                    $class           : 'GitSCM',
-                    branches         : [[name: params.branch]],
-                    extensions       : [
-                        [$class: 'CleanBeforeCheckout'],
-                        [$class             : 'SubmoduleOption',
-                         disableSubmodules  : false,
-                         parentCredentials  : false,
-                         recursiveSubmodules: true,
-                         reference          : '',
-                         trackingSubmodules : true]],
-                    userRemoteConfigs: [
-                        [credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                         url          : Constants.FOLIO_GITHUB_URL + '/folio-infrastructure.git']]],
-                    changelog: false,
-                    poll: false
+                checkout scm
             }
             stage('TF vars') {
                 tfVars += terraform.generateTfVar('okapi_version', params.okapi_version)
@@ -148,6 +132,7 @@ ansiColor('xterm') {
                 }
             }
         } catch (exception) {
+            println(exception)
             error(exception.getMessage())
         } finally {
             stage('Cleanup') {

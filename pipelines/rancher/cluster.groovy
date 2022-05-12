@@ -8,7 +8,6 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
-        string(name: 'branch', defaultValue: 'master', description: 'Terraform scripts branch checkout'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose what should be done with cluster'),
         jobsParameters.rancherClusters(),
         choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),
@@ -20,7 +19,7 @@ properties([
     ])
 ])
 
-def tfWorkDir = 'rancher/terraform/rancher_cluster'
+def tfWorkDir = 'terraform/rancher/cluster'
 def tfVars = ''
 
 ansiColor('xterm') {
@@ -56,24 +55,7 @@ ansiColor('xterm') {
                 }
             }
             stage('Checkout') {
-                checkout scm: [
-                    $class           : 'GitSCM',
-                    branches         : [[name: params.branch]],
-                    extensions       : [
-                        [$class: 'CleanBeforeCheckout'],
-                        [$class             : 'SubmoduleOption',
-                         disableSubmodules  : false,
-                         parentCredentials  : false,
-                         recursiveSubmodules: true,
-                         reference          : '',
-                         trackingSubmodules : true],
-                        [$class             : 'SparseCheckoutPaths',
-                         sparseCheckoutPaths: [[path: tfWorkDir]]]],
-                    userRemoteConfigs: [
-                        [credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                         url          : Constants.FOLIO_GITHUB_URL + '/folio-infrastructure.git']]],
-                    changelog: false,
-                    poll: false
+                checkout scm
             }
             withCredentials([
                 [$class           : 'AmazonWebServicesCredentialsBinding',
@@ -96,6 +78,7 @@ ansiColor('xterm') {
                 }
             }
         } catch (exception) {
+            println(exception)
             error(exception.getMessage())
         } finally {
             stage('Cleanup') {
