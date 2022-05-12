@@ -152,6 +152,7 @@ pipeline {
 
 private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion) {
     [
+        string(name: 'branch', value: 'RANCHER-12'),
         string(name: 'action', value: action),
         string(name: 'okapi_version', value: okapiVersion),
         string(name: 'rancher_cluster_name', value: "folio-test"),
