@@ -163,7 +163,6 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
         string(name: 'tenant_name', value: "Master karate tenant"),
         string(name: 'tenant_description', value: "Karate tests main tenant"),
         booleanParam(name: 'load_reference', value: true),
-        booleanParam(name: 'load_sample', value: false),
-        string(name: 'folio_repository', "complete")
+        booleanParam(name: 'load_sample', value: false)
     ]
 }
