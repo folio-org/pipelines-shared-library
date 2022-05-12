@@ -27,7 +27,8 @@ static ArrayList repositoriesList() {
 static ArrayList rancherClustersList() {
     return ['folio-testing',
             'folio-scratch',
-            'folio-perf']
+            'folio-perf',
+            'folio-test']
 }
 
 @NonCPS
@@ -68,11 +69,17 @@ static ArrayList perfEnvironmentsList() {
 }
 
 @NonCPS
+static ArrayList testEnvironmentsList() {
+    return ["test"]
+}
+
+@NonCPS
 static String generateProjectNamesMap() {
     return JsonOutput.toJson([
         'folio-testing': testingEnvironmentsList(),
         'folio-scratch': scratchEnvironmentsList(),
-        'folio-perf'   : perfEnvironmentsList()
+        'folio-perf'   : perfEnvironmentsList(),
+        'folio-test'   : testEnvironmentsList()
     ])
 }
 

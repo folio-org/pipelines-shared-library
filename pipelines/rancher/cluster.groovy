@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-12') _ //TODO change to actual version before merge
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -39,8 +39,8 @@ ansiColor('xterm') {
                     "vpc_id: ${params.vpc_id}"
             }
             stage('TF vars') {
+                tfVars += terraform.generateTfVar('vpc_create', params.vpc_create.toString())
                 if (!params.vpc_create && !params.vpc_id.isEmpty()) {
-                    tfVars += terraform.generateTfVar('vpc_create', params.vpc_create.toString())
                     tfVars += terraform.generateTfVar('vpc_id', params.vpc_id)
                 } else if (!params.vpc_create && params.vpc_id.isEmpty()) {
                     error('VPC Id not specified!!!')
