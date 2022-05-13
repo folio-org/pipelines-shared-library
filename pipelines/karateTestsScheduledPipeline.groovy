@@ -158,7 +158,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
         string(name: 'rancher_cluster_name', value: "folio-test"),
         string(name: 'project_name', value: "test"),
         string(name: 'folio_repository', value: "complete"),
-        string(name: 'folio_branch', value: "snapshot"),
+        string(name: 'folio_branch', value: "R1-2022"),
         string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: "master"),
         string(name: 'tenant_name', value: "Master karate tenant"),
