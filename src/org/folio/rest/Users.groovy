@@ -37,7 +37,7 @@ class Users extends GeneralParameters {
      * @return
      */
     def getUser(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/users?query=username%3d%3d" + user.username
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -56,7 +56,7 @@ class Users extends GeneralParameters {
      * @return
      */
     void createUser(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -92,7 +92,7 @@ class Users extends GeneralParameters {
      */
     //TODO Configure to edit user
     void setPatronGroup(OkapiTenant tenant, OkapiUser user, String patronGroupId) {
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/users/" + user.uuid
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -113,7 +113,7 @@ class Users extends GeneralParameters {
      * @param user
      */
     def getPatronGroupId(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/groups"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]

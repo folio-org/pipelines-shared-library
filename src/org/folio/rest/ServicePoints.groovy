@@ -21,8 +21,8 @@ class ServicePoints extends GeneralParameters {
      * @param tenant
      * @return
      */
-    def getServicePointsIds(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, user)
+    def getServicePointsIds(OkapiTenant tenant) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/service-points"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -42,7 +42,7 @@ class ServicePoints extends GeneralParameters {
      */
     def getServicePointsUsersRecords(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/service-points-users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -60,7 +60,7 @@ class ServicePoints extends GeneralParameters {
      */
     void createServicePointsUsersRecord(OkapiTenant tenant, OkapiUser user, ArrayList servicePointsIds) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, user)
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/service-points-users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -79,7 +79,7 @@ class ServicePoints extends GeneralParameters {
                 throw new AbortException("Can not set credentials for user ${user.username}." + http.buildHttpErrorMessage(res))
             }
         } else {
-            throw new AbortException("Service points ids list is empty")
+            logger.warning("Service points ids list is empty")
         }
     }
 }

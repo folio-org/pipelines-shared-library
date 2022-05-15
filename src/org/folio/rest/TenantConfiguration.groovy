@@ -16,8 +16,8 @@ class TenantConfiguration extends GeneralParameters {
         super(steps, okapiUrl)
     }
 
-    void modInventoryMods(OkapiTenant tenant, OkapiUser user, Boolean large = false) {
-        auth.getOkapiToken(tenant, user)
+    void modInventoryMods(OkapiTenant tenant, Boolean large = false) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String filePath
         String statusUrl
         String url = okapiUrl + "/inventory/ingest/mods"
@@ -54,8 +54,8 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void ebscoRmapiConfig(OkapiTenant tenant, OkapiUser user, String apiKey) {
-        auth.getOkapiToken(tenant, user)
+    void ebscoRmapiConfig(OkapiTenant tenant, String apiKey) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/eholdings/kb-credentials/80898dee-449f-44dd-9c8e-37d5eb469b1d"
         ArrayList headers = [
             [name: 'Content-type', value: "application/vnd.api+json"],
@@ -83,8 +83,8 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void worldcat(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, user)
+    void worldcat(OkapiTenant tenant) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
@@ -100,8 +100,8 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void configurations(OkapiTenant tenant, OkapiUser user, Email email, String stripesUrl) {
-        auth.getOkapiToken(tenant, user)
+    void configurations(OkapiTenant tenant, Email email, String stripesUrl) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/configurations/entries"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],

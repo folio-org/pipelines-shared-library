@@ -77,6 +77,28 @@ resource "rancher2_secret" "ephemeral-properties" {
   project_id   = rancher2_project.project.id
   namespace_id = rancher2_namespace.project-namespace.name
   data = {
-    "ephemeral.properties" = base64encode(templatefile("${path.module}/resources/ephemeral.properties", { tenant = var.tenant_id, admin_user_username = var.admin_user.username, admin_user_password = var.admin_user.password }))
+    "ephemeral.properties" = base64encode(
+      templatefile("${path.module}/resources/ephemeral.properties.tftpl",
+        {
+          tenant              = var.tenant_id,
+          edge_tenants        = join(",", setsubtract(distinct(flatten([for i in local.edge-ephemeral-properties : keys(i)])), [var.tenant_id])),
+          admin_user_username = var.admin_user.username,
+          admin_user_password = var.admin_user.password,
+          edge_properties     = local.edge-ephemeral-properties
+        }
+      )
+    )
+  }
+}
+
+# For edge* modules
+resource "rancher2_secret" "edge-api-config" {
+  depends_on   = [rancher2_namespace.project-namespace]
+  name         = "apiconfiguration"
+  description  = "For edge-orders module"
+  project_id   = rancher2_project.project.id
+  namespace_id = rancher2_namespace.project-namespace.name
+  data = {
+    "api_config" = filebase64("${path.module}/resources/api_configuration.json")
   }
 }
