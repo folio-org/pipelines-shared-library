@@ -25,7 +25,7 @@ class Permissions extends GeneralParameters {
     def getAllPermissions(OkapiTenant tenant, OkapiUser user) {
         auth.getOkapiToken(tenant, user)
         ArrayList permissions = []
-        String url = okapiUrl + '/perms/permissions?query=cql.allRecords%3D1%20not%20permissionName%3D%3Dokapi.%2A%20not%20permissionName%3D%3Dperms.users.assign.okapi%20not%20permissionName%3D%3Dmodperms.%2A%20not%20permissionName%3D%3DSYS%23%2A&length=5000'
+        String url = okapiUrl + "/perms/permissions?query=cql.allRecords%3D1%20not%20permissionName%3D%3Dokapi.%2A%20not%20permissionName%3D%3Dperms.users.assign.okapi%20not%20permissionName%3D%3Dmodperms.%2A%20not%20permissionName%3D%3DSYS%23%2A&length=5000"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         logger.info("Get all permissions list. Except okapi.*, modperms.* and SYS#*")
@@ -123,7 +123,7 @@ class Permissions extends GeneralParameters {
             permissions.each {
                 if (!user.permissions.contains(it)) {
                     String body = JsonOutput.toJson([permissionName: it])
-                    def res = http.postRequest(url, body, headers, true)
+                    def res = http.postRequest(url, body, headers)
                     if (res.status == HttpURLConnection.HTTP_OK) {
                         logger.info(body)
                         count++

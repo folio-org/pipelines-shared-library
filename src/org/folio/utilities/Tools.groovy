@@ -9,6 +9,15 @@ class Tools {
         this.steps = steps
     }
 
+    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
+
+    String copyResourceFileToWorkspace(String srcPath) {
+        String destPath = steps.env.WORKSPACE + File.separator + new File(srcPath).getName()
+        steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
+        logger.info( "Copied ${srcPath} to ${steps.env.WORKSPACE}")
+        return destPath
+    }
+
     /**
      * Parse json object to groovy map
      * @param json
