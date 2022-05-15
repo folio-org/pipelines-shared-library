@@ -1,11 +1,16 @@
 secureStore.type=Ephemeral
 # a comma separated list of tenants
-tenants=${tenant},test_oaipmh
+tenants=${tenant},${edge_tenants}
+# a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
+tenantsMappings=fli01:${tenant}
 #######################################################
 # For each tenant, the institutional user password...
 #
 # Note: this is intended for development purposes only
 #######################################################
 ${tenant}=${admin_user_username},${admin_user_password}
-diku=stagingDirector,diku
-test_oaipmh=test-user,test
+%{ for tenant in edge_properties ~}
+%{ for edge_tenant_name, edge_user_data in tenant ~}
+${edge_tenant_name}=${edge_user_data}
+%{ endfor ~}
+%{ endfor ~}

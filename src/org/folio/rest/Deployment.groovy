@@ -44,6 +44,8 @@ class Deployment extends GeneralParameters {
 
     private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
 
+    private Edge edge = new Edge(steps, okapiUrl)
+
     Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
@@ -72,21 +74,22 @@ class Deployment extends GeneralParameters {
             String servicePointsUsersModId = okapi.getModuleId(tenant, 'service-points-users')
             if (servicePointsUsersModId) {
                 if (servicePoints.getServicePointsUsersRecords(tenant, admin_user).totalRecords == 0) {
-                    servicePoints.createServicePointsUsersRecord(tenant, admin_user, servicePoints.getServicePointsIds(tenant, admin_user))
+                    servicePoints.createServicePointsUsersRecord(tenant, admin_user, servicePoints.getServicePointsIds(tenant))
                 }
             } else {
                 logger.warning("Module service-points-users does not installed")
             }
             okapi.enableDisableUpgradeModulesForTenant(tenant, authtokenDisableDependenciesList.reverse().collect { [id: it.id, action: "enable"] })
             auth.login(tenant, admin_user)
-            permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant, admin_user))
+            permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
             users.setPatronGroup(tenant, admin_user, users.getPatronGroupId(tenant, admin_user))
             okapi.secure(super_admin)
             okapi.secure(testing_admin)
-            tenantConfiguration.modInventoryMods(tenant, admin_user)
-            tenantConfiguration.ebscoRmapiConfig(tenant, admin_user, kb_api_key)
-            tenantConfiguration.worldcat(tenant, admin_user)
-            tenantConfiguration.configurations(tenant, admin_user, email, stripesUrl)
+            edge.createEdgeUsers(tenant, enableList)
+            tenantConfiguration.modInventoryMods(tenant)
+            tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
+            tenantConfiguration.worldcat(tenant)
+            tenantConfiguration.configurations(tenant, email, stripesUrl)
         } else {
             throw new AbortException('Tenant or admin user not set')
         }
