@@ -78,12 +78,12 @@ pipeline {
                     }
                 }
                 stage("Collect test results") {
-                    stages {
-                        when {
-                            expression {
-                                spinUpEnvironmentJob.result == 'SUCCESS'
-                            }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
                         }
+                    }
+                    stages {
                         stage("Test parallel 1") {
                             steps {
                                 echo "bla 1"
@@ -169,7 +169,9 @@ pipeline {
                 }
             }
             steps {
-                currentBuild.result = 'FAILURE'
+                script {
+                    currentBuild.result = 'FAILURE'
+                }
             }
         }
     }
