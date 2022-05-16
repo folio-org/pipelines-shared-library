@@ -79,8 +79,10 @@ pipeline {
                 }
                 stage("Collect test results") {
                     stages {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        when {
+                            expression {
+                                spinUpEnvironmentJob.result == 'SUCCESS'
+                            }
                         }
                         stage("Test parallel 1") {
                             steps {
@@ -165,9 +167,9 @@ pipeline {
                 expression {
                     spinUpEnvironmentJob.result != 'SUCCESS'
                 }
-                steps {
-                    currentBuild.result = 'FAILURE'
-                }
+            }
+            steps {
+                currentBuild.result = 'FAILURE'
             }
         }
     }
