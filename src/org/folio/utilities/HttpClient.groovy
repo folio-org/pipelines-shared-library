@@ -7,7 +7,7 @@ class HttpClient {
         this.steps = steps
     }
 
-    void getRequest(String url, ArrayList headers = [], Boolean quiet = false) {
+    void getRequest(String url, ArrayList headers = [], Boolean quiet = true) {
         steps.httpRequest url: url,
             quiet: quiet,
             httpMode: "GET",
@@ -15,7 +15,7 @@ class HttpClient {
             validResponseCodes: "100:599"
     }
 
-    void postRequest(String url, String body, ArrayList headers = [], Boolean quiet = false, Integer timeout = 0) {
+    void postRequest(String url, String body, ArrayList headers = [], Boolean quiet = true, Integer timeout = 0) {
         steps.httpRequest url: url,
             quiet: quiet,
             httpMode: "POST",

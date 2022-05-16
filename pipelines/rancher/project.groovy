@@ -3,6 +3,7 @@
 
 import org.folio.Constants
 import org.folio.rest.Deployment
+import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -12,7 +13,6 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
-        string(name: 'branch', defaultValue: 'master', description: 'Terraform scripts branch checkout'),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
@@ -27,13 +27,11 @@ properties([
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
-        jobsParameters.pgAdminPassword()
-    ])
-])
+        jobsParameters.pgAdminPassword()])])
 
 String okapiUrl = ''
 String stripesUrl = ''
-String tfWorkDir = 'rancher/terraform/rancher_project'
+String tfWorkDir = 'terraform/rancher/project'
 String tfVars = ''
 
 ansiColor('xterm') {
@@ -45,28 +43,10 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" +
-                    "repository: ${params.folio_repository}\n" +
-                    "branch: ${params.folio_branch}\n" +
-                    "tenant: ${params.tenant_id}"
+                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}"
             }
             stage('Checkout') {
-                checkout scm: [
-                    $class           : 'GitSCM',
-                    branches         : [[name: params.branch]],
-                    extensions       : [
-                        [$class: 'CleanBeforeCheckout'],
-                        [$class             : 'SubmoduleOption',
-                         disableSubmodules  : false,
-                         parentCredentials  : false,
-                         recursiveSubmodules: true,
-                         reference          : '',
-                         trackingSubmodules : true]],
-                    userRemoteConfigs: [
-                        [credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                         url          : Constants.FOLIO_GITHUB_URL + '/folio-infrastructure.git']]],
-                    changelog: false,
-                    poll: false
+                checkout scm
             }
             stage('TF vars') {
                 tfVars += terraform.generateTfVar('okapi_version', params.okapi_version)
@@ -82,21 +62,19 @@ ansiColor('xterm') {
                     tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)
                 }
             }
-            withCredentials([
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                 accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                 accessKeyVariable: 'TF_VAR_s3_access_key',
-                 secretKeyVariable: 'TF_VAR_s3_secret_key'],
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_S3_DATA_EXPORT_ID,
-                 accessKeyVariable: 'TF_VAR_s3_data_export_access_key',
-                 secretKeyVariable: 'TF_VAR_s3_data_export_secret_key'],
-                string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')
-            ]) {
+            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_secret_key'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_DATA_EXPORT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_data_export_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_data_export_secret_key'],
+                             string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')]) {
                 docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     terraform.tfInit(tfWorkDir, '')
                     terraform.tfWorkspaceSelect(tfWorkDir, params.project_name)
@@ -109,7 +87,7 @@ ansiColor('xterm') {
                         /**Wait for dns */
                         def health = okapiUrl + '/_/version'
                         timeout(30) {
-                            waitUntil(quiet: true) {
+                            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
                                 try {
                                     httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
                                     return true
@@ -125,30 +103,34 @@ ansiColor('xterm') {
                 }
             }
             if (params.enable_modules && (params.action == 'apply' || params.action == 'nothing')) {
-                OkapiUser admin_user = new OkapiUser()
-                OkapiTenant tenant = new OkapiTenant()
-                stage('Tenant configuration') {
-                    tenant.setId(params.tenant_id)
-                    tenant.setName(params.tenant_name)
-                    tenant.setDescription(params.tenant_description)
-                    tenant.setParameters([loadReference: params.load_reference, loadSample: params.load_sample])
-                }
-                stage('Admin user configuration') {
-                    //TODO Think about how it could be handled without additional parameters spawning
-                    admin_user.setUsername('diku_admin')
-                    admin_user.setPassword('admin')
-                    admin_user.setFirstName('DIKU')
-                    admin_user.setLastName('ADMINISTRATOR')
-                    admin_user.setEmail('admin@diku.example.org')
-                    admin_user.setGroupName('staff')
-                    admin_user.setPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
-                }
                 stage('Okapi deployment') {
-                    Deployment deployment = new Deployment(this, okapiUrl, "platform-${params.folio_repository}", params.folio_branch, tenant, admin_user)
-                    deployment.main()
+                    OkapiTenant tenant = okapiSettings.tenant(
+                        tenantId: params.tenant_id,
+                        tenantName: params.tenant_name,
+                        tenantDescription: params.tenant_description,
+                        loadReference: params.load_reference,
+                        loadSample: params.load_sample
+                    )
+                    OkapiUser admin_user = okapiSettings.adminUser()
+                    Email email = okapiSettings.email()
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        Deployment deployment = new Deployment(
+                            this,
+                            okapiUrl,
+                            stripesUrl,
+                            "platform-${params.folio_repository}",
+                            params.folio_branch,
+                            tenant,
+                            admin_user,
+                            email,
+                            cypress_api_key_apidvcorp
+                        )
+                        deployment.main()
+                    }
                 }
             }
         } catch (exception) {
+            println(exception)
             error(exception.getMessage())
         } finally {
             stage('Cleanup') {

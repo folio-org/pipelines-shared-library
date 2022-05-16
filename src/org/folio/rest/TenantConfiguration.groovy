@@ -87,23 +87,11 @@ class TenantConfiguration extends GeneralParameters {
         auth.getOkapiToken(tenant, user)
         String url = okapiUrl + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
         ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        String body = JsonOutput.toJson([
-            name                  : "OCLC WorldCat",
-            url                   : "zcat.oclc.org/OLUCWorldCat",
-            externalIdQueryMap    : "@attr 1=1211 \$identifier",
-            internalIdEmbedPath   : "999ff\$i",
-            createJobProfileId    : "d0ebb7b0-2f0f-11eb-adc1-0242ac120002",
-            updateJobProfileId    : "91f9b8d6-d80e-4727-9783-73fb53e3c786",
-            targetOptions         : [
-                charset: "utf-8"
-            ],
-            externalIdentifierType: "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef",
-            enabled               : true,
-            authentication        : "100473910/PAOLF"
-        ])
+        String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
             logger.info("Worldcat successfully set")
@@ -113,12 +101,12 @@ class TenantConfiguration extends GeneralParameters {
     }
 
     void configurations(OkapiTenant tenant, OkapiUser user, Email email, String stripesUrl) {
-        auth.adminUserLogin(tenant, user)
+        auth.getOkapiToken(tenant, user)
         String url = okapiUrl + "/configurations/entries"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '']
         ]
         def binding = [
             email_smtp_host: email.smtpHost,

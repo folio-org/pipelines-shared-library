@@ -1,5 +1,7 @@
 package org.folio
 
+import org.folio.rest.model.OkapiUser
+
 class Constants {
 
     static String FOLIO_GITHUB_URL = "https://github.com/folio-org"
@@ -24,6 +26,5 @@ class Constants {
     static String JENKINS_MASTER_NODE = "master"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
-
 
 }

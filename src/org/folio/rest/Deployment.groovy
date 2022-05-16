@@ -44,13 +44,14 @@ class Deployment extends GeneralParameters {
 
     private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
 
-    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, String kb_api_key) {
+    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
         this.repository = repository
         this.branch = branch
         this.tenant = tenant
         this.admin_user = admin_user
+        this.email = email
         this.kb_api_key = kb_api_key
         this.tenant.setAdmin_user(admin_user)
     }
