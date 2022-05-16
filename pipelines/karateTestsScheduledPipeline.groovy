@@ -44,8 +44,8 @@ pipeline {
         }
 
         stage("Run karate tests") {
-            when {
-                equals actual: spinUpEnvironmentJob.result, expected: 'SUCCESS'
+            expression {
+                spinUpEnvironmentJob.result == 'SUCCESS'
             }
             steps {
                 script {
@@ -77,8 +77,8 @@ pipeline {
                 }
                 stage("Collect test results") {
                     stages {
-                        when {
-                            equals actual: spinUpEnvironmentJob.result, expected: 'SUCCESS'
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
                         }
                         stage("Test parallel 1") {
                             steps {
@@ -154,6 +154,17 @@ pipeline {
 //                            }
 //                        }
                     }
+                }
+            }
+        }
+
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+                steps {
+                    currentBuild.result = 'FAILURE'
                 }
             }
         }
