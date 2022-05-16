@@ -9,9 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
-def tenant = "karate"
-def user = "admin"
-def password = "q3fui4ht3490fg"
+def tenant = "diku"
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
