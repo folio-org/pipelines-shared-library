@@ -82,7 +82,6 @@ pipeline {
                         sortingMethod: "ALPHABETICAL"
 
                     junit testResults: '**/target/karate-reports*/*.xml'
-
                 }
             }
         }
