@@ -78,7 +78,8 @@ pipeline {
             steps {
                 script {
                     cucumber buildStatus: "UNSTABLE",
-                        fileIncludePattern: "**/target/karate-reports*/*.json"
+                        fileIncludePattern: "**/target/karate-reports*/*.json",
+                        sortingMethod: "ALPHABETICAL"
 
                     junit testResults: '**/target/karate-reports*/*.xml'
 
