@@ -47,7 +47,6 @@ class KarateModuleExecutionSummary {
         featuresPassed + featuresFailed + featuresSkipped
     }
 
-
     @Override
     public String toString() {
         return "KarateModuleExecutionSummary{" +

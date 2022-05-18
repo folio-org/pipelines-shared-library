@@ -26,11 +26,14 @@ class KarateFeatureExecutionSummary {
     public String toString() {
         return "KarateFeatureExecutionSummary{" +
             "name='" + name + '\'' +
+            ", displayName='" + displayName + '\'' +
             ", description='" + description + '\'' +
             ", packageQualifiedName='" + packageQualifiedName + '\'' +
+            ", relativePath='" + relativePath + '\'' +
             ", passedCount=" + passedCount +
             ", failedCount=" + failedCount +
             ", scenarioCount=" + scenarioCount +
+            ", cucumberReportFile='" + cucumberReportFile + '\'' +
             ", failed=" + failed +
             '}';
     }

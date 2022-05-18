@@ -44,6 +44,8 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
+    println(karateSummaries)
+
     retVal
 }
 
