@@ -31,57 +31,57 @@ pipeline {
     }
 
     stages {
-//        stage("Create environment") {
-//            steps {
-//                script {
-//                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, tenant)
-//
-//                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
-//
-//        stage("Run karate tests") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
-//                }
-//            }
-//            steps {
-//                script {
-//                    def jobParameters = [
-//                        string(name: 'branch', value: params.branch),
-//                        string(name: 'threadsCount', value: "4"),
-//                        string(name: 'modules', value: ""),
-//                        string(name: 'okapiUrl', value: okapiUrl),
-//                        string(name: 'tenant', value: tenant),
-//                        string(name: 'adminUserName', value: okapiSettings.adminUser().username),
-//                        string(name: 'adminPassword', value: okapiSettings.adminUser().password)
-//                    ]
-//
-//                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
+        stage("Create environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, tenant)
+
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+
+        stage("Run karate tests") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    def jobParameters = [
+                        string(name: 'branch', value: params.branch),
+                        string(name: 'threadsCount', value: "4"),
+                        string(name: 'modules', value: ""),
+                        string(name: 'okapiUrl', value: okapiUrl),
+                        string(name: 'tenant', value: tenant),
+                        string(name: 'adminUserName', value: okapiSettings.adminUser().username),
+                        string(name: 'adminPassword', value: okapiSettings.adminUser().password)
+                    ]
+
+                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
 
         stage("Parallel") {
             parallel {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            println("bla")
-//                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, tenant)
-//
-//                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                            input "Destroy?"
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, tenant)
+
+                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
                 stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
-//                        }
-//                    }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
@@ -111,41 +111,41 @@ pipeline {
                             }
                         }
 
-                        stage("Collect execution results") {
-                            steps {
-                                script {
-                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
-
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                                }
-                            }
-                        }
-
-                        stage("Parse teams assignment") {
-                            steps {
-                                script {
-                                    def jsonContents = readJSON file: "teams-assignment.json"
-                                    teamAssignment = new TeamAssignment(jsonContents)
-                                }
-                            }
-                        }
-
-
-                        stage("Send slack notifications") {
-                            steps {
-                                script {
-                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
-
-                        stage("Sync jira tickets") {
-                            steps {
-                                script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
+//                        stage("Collect execution results") {
+//                            steps {
+//                                script {
+//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
+//
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Parse teams assignment") {
+//                            steps {
+//                                script {
+//                                    def jsonContents = readJSON file: "teams-assignment.json"
+//                                    teamAssignment = new TeamAssignment(jsonContents)
+//                                }
+//                            }
+//                        }
+//
+//
+//                        stage("Send slack notifications") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Sync jira tickets") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
