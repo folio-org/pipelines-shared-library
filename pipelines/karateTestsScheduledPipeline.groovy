@@ -55,8 +55,9 @@ pipeline {
                         string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
-                        string(name: 'adminUserName', value: 'testing_admin'),
-                        password(name: 'adminPassword', value: 'admin')
+                        string(name: 'adminUserName', value: 'super_admin'),
+                        password(name: 'adminPassword', value: 'admin'),
+                        string(name: 'prototypeTenant', value: 'diku')
                     ]
 
                     karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
