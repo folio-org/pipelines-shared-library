@@ -22,7 +22,7 @@ class Authorization extends GeneralParameters {
         if (!user.uuid) {
             throw new AbortException("${user.username} uuid does not specified")
         }
-        getOkapiToken(tenant, user)
+        getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/authn/credentials-existence?userId=" + user.uuid
         ArrayList headers = [
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -45,7 +45,7 @@ class Authorization extends GeneralParameters {
         if (!user.uuid) {
             throw new AbortException("${user.username} uuid does not specified")
         }
-        getOkapiToken(tenant, user)
+        getOkapiToken(tenant, tenant.admin_user)
         String url = okapiUrl + "/authn/credentials"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
@@ -110,9 +110,9 @@ class Authorization extends GeneralParameters {
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_CREATED) {
             user.setToken(tools.jsonParse(res.content).okapiToken)
-        } else if(HttpURLConnection.HTTP_BAD_REQUEST || res.status == HttpURLConnection.HTTP_NOT_FOUND || res.status == 422){
+        } else if (HttpURLConnection.HTTP_BAD_REQUEST || res.status == HttpURLConnection.HTTP_NOT_FOUND || res.status == 422) {
             user.setToken('')
-        }else{
+        } else {
             throw new AbortException("Unable to get token for user: " + user.username + http.buildHttpErrorMessage(res))
         }
     }

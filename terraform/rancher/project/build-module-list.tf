@@ -16,7 +16,11 @@ locals {
   edge-sip2-map = {
     for k, v in local.full-modules-map : k => v if contains([k], "edge-sip2")
   }
+  edge-ephemeral-properties = [
+    for k, v in local.edge_ephemeral_config : v if contains(keys(local.full-modules-map), k)
+  ]
 }
+
 
 data "http" "install" {
   url = local.installUrl

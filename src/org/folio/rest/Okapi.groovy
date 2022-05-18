@@ -30,7 +30,7 @@ class Okapi extends GeneralParameters {
      * @param registries
      */
     void pull(List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/pull/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -51,7 +51,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     Boolean isTenantExists(String tenantId) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenantId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -70,7 +70,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      */
     void createTenant(OkapiTenant tenant) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -119,7 +119,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def enableDisableUpgradeModulesForTenant(OkapiTenant tenant, ArrayList modulesList, Integer timeout = 0) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String queryParameters = buildTenantQueryParameters(tenant.parameters)
         String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/install" + queryParameters
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
@@ -142,7 +142,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     Boolean isServiceExists(String serviceId) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules/" + serviceId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -161,7 +161,7 @@ class Okapi extends GeneralParameters {
      * @param discoveryList
      */
     void registerServices(ArrayList discoveryList) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -193,7 +193,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def getEnabledModules() {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -212,7 +212,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def getModuleId(OkapiTenant tenant, String moduleName) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/interfaces/" + moduleName
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -235,7 +235,7 @@ class Okapi extends GeneralParameters {
     }
 
     void secure(OkapiUser user) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         def requiredModules = ['mod-users'      : buildInstallJsonByModuleName('mod-users'),
                                'mod-permissions': buildInstallJsonByModuleName('mod-permissions'),
                                'mod-login'      : buildInstallJsonByModuleName('mod-login'),

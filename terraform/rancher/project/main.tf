@@ -94,30 +94,6 @@ resource "rancher2_app" "folio-okapi" {
   }
 }
 
-resource "rancher2_app" "folio-backend" {
-  for_each         = local.backend-map
-  project_id       = rancher2_project.project.id
-  target_namespace = rancher2_namespace.project-namespace.name
-  depends_on = [
-    rancher2_secret.db-connect-modules, rancher2_catalog.folio-charts, rancher2_registry.folio-docker,
-    rancher2_app.kafka, rancher2_app.elasticsearch, time_sleep.wait_for_db, module.rds, rancher2_app.folio-okapi
-  ]
-  catalog_name  = join(":", [element(split(":", rancher2_project.project.id), 1), rancher2_catalog.folio-charts.name])
-  name          = each.key
-  description   = join(" ", ["Folio app", each.key])
-  force_upgrade = "true"
-  template_name = each.key
-  answers = {
-    "postJob.enabled"  = "false"
-    "image.repository" = join("/", [replace(each.value, "SNAPSHOT", "") == each.value ? "folioorg" : "folioci", each.key])
-    "image.tag"        = each.value
-    #    "javaOptions"               = "${local.module_configs["${each.key}"].javaOptions}"
-    "replicaCount"              = "${local.module_configs["${each.key}"].replicaCount}"
-    "resources.requests.memory" = "${local.module_configs["${each.key}"].resources.requests.memory}"
-    "resources.limits.memory"   = "${local.module_configs["${each.key}"].resources.limits.memory}"
-  }
-}
-
 # Create a new rancher2 Stripes App in a default Project namespace
 resource "rancher2_app" "folio-frontend" {
   project_id       = rancher2_project.project.id
@@ -143,10 +119,34 @@ resource "rancher2_app" "folio-frontend" {
   }
 }
 
-resource "rancher2_app" "folio-edge" {
+resource "rancher2_app" "folio-backend" {
+  for_each         = local.backend-map
   project_id       = rancher2_project.project.id
   target_namespace = rancher2_namespace.project-namespace.name
+  depends_on = [
+    rancher2_secret.db-connect-modules, rancher2_catalog.folio-charts, rancher2_registry.folio-docker,
+    rancher2_app.kafka, rancher2_app.elasticsearch, time_sleep.wait_for_db, module.rds, rancher2_app.folio-okapi
+  ]
+  catalog_name  = join(":", [element(split(":", rancher2_project.project.id), 1), rancher2_catalog.folio-charts.name])
+  name          = each.key
+  description   = join(" ", ["Folio app", each.key])
+  force_upgrade = "true"
+  template_name = each.key
+  answers = {
+    "postJob.enabled"  = "false"
+    "image.repository" = join("/", [length(regexall(".*SNAPSHOT.*", each.value)) > 0 ? "folioci" : "folioorg", each.key])
+    "image.tag"        = each.value
+    #        "javaOptions"               = local.module_configs[(each.key)].javaOptions
+    "replicaCount"              = local.module_configs[(each.key)].replicaCount
+    "resources.requests.memory" = local.module_configs[(each.key)].resources.requests.memory
+    "resources.limits.memory"   = local.module_configs[(each.key)].resources.limits.memory
+  }
+}
+
+resource "rancher2_app" "folio-edge" {
   for_each         = local.edge-map
+  project_id       = rancher2_project.project.id
+  target_namespace = rancher2_namespace.project-namespace.name
   depends_on = [
     rancher2_secret.db-connect-modules, rancher2_catalog.folio-charts, rancher2_app.kafka, time_sleep.wait_for_db,
     module.rds, rancher2_app.folio-okapi
@@ -157,7 +157,7 @@ resource "rancher2_app" "folio-edge" {
   force_upgrade = "true"
   template_name = each.key
   answers = {
-    "image.repository"                                                     = join("/", [replace(each.value, "SNAPSHOT", "") == each.value ? "folioorg" : "folioci", each.key])
+    "image.repository"                                                     = join("/", [length(regexall(".*SNAPSHOT.*", each.value)) > 0 ? "folioci" : "folioorg", each.key])
     "image.tag"                                                            = each.value
     "service.type"                                                         = "NodePort"
     "ingress.enabled"                                                      = "true"
@@ -169,15 +169,19 @@ resource "rancher2_app" "folio-edge" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/healthcheck-path" = "/_/version"
     "ingress.hosts[0].paths[0]"                                            = "/${each.key}/*"
     "ingress.hosts[0].host"                                                = join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])
+    "javaOptions"                                                          = local.module_configs[(each.key)].javaOptions
+    "replicaCount"                                                         = local.module_configs[(each.key)].replicaCount
+    "resources.requests.memory"                                            = local.module_configs[(each.key)].resources.requests.memory
+    "resources.limits.memory"                                              = local.module_configs[(each.key)].resources.limits.memory
   }
 }
 
 # TODO !!! Not tested !!!
 # Create a new rancher2 Folio Edge-Sip2 App in a default Project namespace
 resource "rancher2_app" "folio-edge-sip2" {
+  for_each         = local.edge-sip2-map
   project_id       = rancher2_project.project.id
   target_namespace = rancher2_namespace.project-namespace.name
-  for_each         = local.edge-sip2-map
   depends_on = [
     rancher2_secret.db-connect-modules, rancher2_catalog.folio-charts, rancher2_app.kafka, time_sleep.wait_for_db,
     module.rds, rancher2_app.folio-okapi
@@ -188,13 +192,15 @@ resource "rancher2_app" "folio-edge-sip2" {
   force_upgrade = "true"
   template_name = each.key
   answers = {
-    "image.repository"                                  = join("/", [replace(each.value, "SNAPSHOT", "") == each.value ? "folioorg" : "folioci", each.key])
-    "image.tag"                                         = each.value
-    "service.type"                                      = "LoadBalancer"
-    "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb"
-    "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname" = join(".", [
-      join("-", [rancher2_project.project.name, "sip2"]), var.root_domain
-    ])
+    "image.repository"                                                    = join("/", [length(regexall(".*SNAPSHOT.*", each.value)) > 0 ? "folioci" : "folioorg", each.key])
+    "image.tag"                                                           = each.value
+    "service.type"                                                        = "LoadBalancer"
+    "service.beta.kubernetes.io/aws-load-balancer-type"                   = "nlb"
+    "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname" = join(".", [join("-", [rancher2_project.project.name, "sip2"]), var.root_domain])
+    "javaOptions"                                                         = local.module_configs["edge-sip2"].javaOptions
+    "replicaCount"                                                        = local.module_configs["edge-sip2"].replicaCount
+    "resources.requests.memory"                                           = local.module_configs["edge-sip2"].resources.requests.memory
+    "resources.limits.memory"                                             = local.module_configs["edge-sip2"].resources.limits.memory
   }
 }
 
