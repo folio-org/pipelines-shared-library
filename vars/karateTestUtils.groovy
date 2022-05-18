@@ -61,8 +61,10 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
+            println feature.displayName
             if (contents.contains(feature.displayName)) {
-                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.displayName + KarateConstants.CUCUMBER_REPORT_PATTERN_END
+                def displayNamePattern = feature.displayName.replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]")
+                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
                 false
