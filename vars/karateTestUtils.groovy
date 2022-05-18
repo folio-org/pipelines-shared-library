@@ -33,9 +33,10 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         findFiles(glob: "${folder}/*.json").each { report ->
             def reportContents = readJSON file: report.path
 
-            String displayName = reportContents["name"]
+            String displayName = reportContents.name
             String nameSplit = displayName.split(" ")
 
+            println nameSplit
             println "Feature name: ${nameSplit[nameSplit.size() - 1]}"
             println "Feature display name: ${displayName}"
             displayNames[nameSplit[nameSplit.size() - 1]] = displayName
