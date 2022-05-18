@@ -77,11 +77,11 @@ pipeline {
                     }
                 }
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+//                    when {
+//                        expression {
+//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//                        }
+//                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
@@ -151,18 +151,18 @@ pipeline {
             }
         }
 
-        stage("Set job execution result") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result != 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
-        }
+//        stage("Set job execution result") {
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result != 'SUCCESS'
+//                }
+//            }
+//            steps {
+//                script {
+//                    currentBuild.result = 'FAILURE'
+//                }
+//            }
+//        }
     }
 }
 
