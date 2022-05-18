@@ -19,12 +19,29 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     def retVal = new KarateTestsExecutionSummary()
     def karateSummaries = findFiles(glob: karateSummaryFolder)
     karateSummaries.each { karateSummary ->
-        echo "Collecting tests execution result from '${karateSummary.path}' file"
-        String[] split = karateSummary.path.split("/")
+        String path = karateSummary.path
+        echo "Collecting tests execution result from '${path}' file"
+        String[] split = path.split("/")
         String moduleName = split[split.size() - 4]
 
-        def contents = readJSON file: karateSummary.path
-        retVal.addModuleResult(moduleName, contents)
+        def contents = readJSON file: path
+
+        // find corresponding cucumber reports
+        Map<String, String> displayNames = [:]
+        def folder = path.substring(0, path.lastIndexIf("/"))
+        println "Folder: ${folder}"
+        findFiles(glob: "${folder}/*.json").each { report ->
+            def reportContents = readJSON file: report.path
+
+            String displayName = reportContents["name"]
+            String nameSplit = displayName.split(" ")
+
+            println "Feature name: ${nameSplit[nameSplit.size() - 1]}"
+            println "Feature display name: ${displayName}"
+            displayNames[nameSplit[nameSplit.size() - 1]] = displayName
+        }
+
+        retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
     retVal

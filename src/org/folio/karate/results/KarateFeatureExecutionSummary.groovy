@@ -4,6 +4,8 @@ class KarateFeatureExecutionSummary {
 
     String name
 
+    String displayName
+
     String description
 
     String packageQualifiedName
