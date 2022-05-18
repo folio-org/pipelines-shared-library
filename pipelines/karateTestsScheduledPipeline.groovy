@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
-def tenant = "diku"
+def tenant = "supertenant"
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
@@ -55,8 +55,8 @@ pipeline {
                         string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
-                        string(name: 'adminUserName', value: okapiSettings.adminUser().username),
-                        string(name: 'adminPassword', value: okapiSettings.adminUser().password)
+                        string(name: 'adminUserName', value: 'testing_admin'),
+                        string(name: 'adminPassword', value: 'admin')
                     ]
 
                     karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
