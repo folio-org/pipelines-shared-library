@@ -28,7 +28,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 
         // find corresponding cucumber reports
         Map<String, String> displayNames = [:]
-        def folder = path.substring(0, path.lastIndexIf("/"))
+        def folder = path.substring(0, path.lastIndexOf("/"))
         println "Folder: ${folder}"
         findFiles(glob: "${folder}/*.json").each { report ->
             def reportContents = readJSON file: report.path
