@@ -63,7 +63,6 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         def feature = features.find { feature ->
             println feature.displayName
             if (contents.contains(feature.displayName)) {
-                def displayNamePattern = feature.displayName.replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]")
                 String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
@@ -71,7 +70,7 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
             }
         }
         if (feature) {
-            println "Cucumber report for '${feature.name}' feature is '${file.name}'"
+            println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
             feature.cucumberReportFile = file.name
         }
     }
