@@ -36,7 +36,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
             String displayName = reportContents.name
             String nameSplit = displayName.split(" ")
 
-            println nameSplit
+            nameSplit.each { println(it)}
             println "Feature name: ${nameSplit[nameSplit.size() - 1]}"
             println "Feature display name: ${displayName}"
             displayNames[nameSplit[nameSplit.size() - 1]] = displayName
