@@ -74,7 +74,7 @@ resource "rancher2_app" "folio-okapi" {
   force_upgrade = "true"
   template_name = "okapi"
   answers = {
-    "image.repository"                                                             = "folioorg/okapi"
+    "image.repository"                                                             = join("/", [length(regexall(".*SNAPSHOT.*", var.okapi_version)) > 0 ? "folioci" : "folioorg", "okapi"])
     "image.tag"                                                                    = var.okapi_version
     "service.type"                                                                 = "NodePort"
     "ingress.enabled"                                                              = "true"

@@ -83,40 +83,43 @@ static String generateProjectNamesMap() {
 
 static String getRepositoryBranches() {
     return '''import groovy.json.JsonSlurperClassic
-def get = new URL('https://api.github.com/repos/folio-org/platform-' + folio_repository + '/branches?per_page=100').openConnection();
-def responseCode = get.getResponseCode();
-if (responseCode.equals(200)) {
-    def branchesList = new JsonSlurperClassic().parseText(get.getInputStream().getText())
-    return branchesList.name
+def get = new URL('https://api.github.com/repos/folio-org/platform-' + folio_repository + '/branches?per_page=100').openConnection()
+if (get.getResponseCode().equals(200)) {
+    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
 '''
 }
 
-static String getDockerImagesList() {
+static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
-def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection();
-def responseCode = get.getResponseCode();
-if (responseCode.equals(200)) {
-    def imagesTagsList = new JsonSlurperClassic().parseText(get.getInputStream().getText())
-    return imagesTagsList.tags.sort().reverse().findAll {it ==~ project_name + '.*'}
+def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
+if (get.getResponseCode().equals(200)) {
+    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it ==~ project_name + '.*'}
 }
 '''
 }
 
 static String getProjectNames() {
     return """import groovy.json.JsonSlurperClassic
-    def projectNamesList = new JsonSlurperClassic().parseText('${generateProjectNamesMap()}')
-    return projectNamesList[rancher_cluster_name]
-    """
+def projectNamesList = new JsonSlurperClassic().parseText('${generateProjectNamesMap()}')
+return projectNamesList[rancher_cluster_name]
+"""
 }
 
-static String getOkapiVersion() {
+static String getOkapiVersions() {
     return '''import groovy.json.JsonSlurperClassic
-def get = new URL('https://api.github.com/repos/folio-org/okapi/tags').openConnection();
-def responseCode = get.getResponseCode();
-if (responseCode.equals(200)) {
-    def versionsList = new JsonSlurperClassic().parseText(get.getInputStream().getText())
-    return versionsList*.name.collect{it -> return it - 'v'}
+def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
+if (installJson.getResponseCode().equals(200)) {
+    String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
+    if(okapi){
+        return [okapi - 'okapi-']
+    }else {
+        String repository = folio_branch.contains("snapshot") ? "folioci" : "folioorg"
+        def dockerHub = new URL('https://hub.docker.com/v2/repositories/' + repository + '/okapi/tags?page_size=100&ordering=last_updated').openConnection()
+        if (dockerHub.getResponseCode().equals(200)) {
+            return new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name
+        }
+    }
 }
 '''
 }
@@ -211,9 +214,9 @@ def folioBranch() {
 }
 
 def stripesImageTag() {
-    return _paramExtended('stripes_image_tag', 'project_name', getDockerImagesList(), '(Required) Choose image tag for UI')
+    return _paramExtended('stripes_image_tag', 'project_name', getUIImagesList(), '(Required) Choose image tag for UI')
 }
 
 def okapiVersion() {
-    return _paramExtended('okapi_version', '', getOkapiVersion(), '(Required) Choose Okapi version')
+    return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), '(Required) Choose Okapi version')
 }
