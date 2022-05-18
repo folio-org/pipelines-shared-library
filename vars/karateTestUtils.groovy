@@ -26,25 +26,22 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 
         def contents = readJSON file: path
 
-        // find corresponding cucumber reports
+        // find corresponding cucumber reports to get feature display name
         Map<String, String> displayNames = [:]
         def folder = path.substring(0, path.lastIndexOf("/"))
-        println "Folder: ${folder}"
         findFiles(glob: "${folder}/*.json").each { report ->
             def reportContents = readJSON file: report.path
 
             String displayName = reportContents[0].name
             String[] nameSplit = displayName.split(" ")
 
-            println "Feature name: ${nameSplit[nameSplit.size() - 1]}"
-            println "Feature display name: ${displayName}"
             displayNames[nameSplit[nameSplit.size() - 1]] = displayName
         }
 
         retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
-    println(karateSummaries)
+    println(retVal)
 
     retVal
 }
@@ -64,8 +61,8 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
-            if (contents.contains(feature.relativePath)) {
-                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.relativePath + KarateConstants.CUCUMBER_REPORT_PATTERN_END
+            if (contents.contains(feature.displayName)) {
+                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.displayName + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
                 false
@@ -209,7 +206,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
                                   Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
-    def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.relativePath}"
+    def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
     def fields = [
@@ -244,6 +241,7 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
     }
 
     def description = "${title}\n" +
+        "*Name:* ${featureSummary.displayName}\n" +
         "*Feature path:* ${featureSummary.relativePath}\n" +
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
         "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +

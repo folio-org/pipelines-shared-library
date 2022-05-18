@@ -29,9 +29,14 @@ class KarateModuleExecutionSummary {
     }
 
     void addFeatureSummary(def summaryJson, Map<String, String> displayNames) {
+        String displayName = displayNames[summaryJson.relativePath]
+        if (!displayName) {
+            displayName = summaryJson.relativePath
+        }
+
         KarateFeatureExecutionSummary feature = new KarateFeatureExecutionSummary(
             name: summaryJson.name,
-            displayName: displayNames[summaryJson.name],
+            displayName: displayName,
             description: summaryJson.description,
             packageQualifiedName: summaryJson.packageQualifiedName,
             relativePath: summaryJson.relativePath,
