@@ -33,7 +33,7 @@ resource "rancher2_secret" "project-config" {
   project_id   = rancher2_project.project.id
   namespace_id = rancher2_namespace.project-namespace.name
   data = {
-    OKAPI_URL    = base64encode(join("", ["https://", join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])]))
+    OKAPI_URL    = base64encode(join("", ["https://", join(".", [join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "okapi"]), var.root_domain])]))
     TENANT_ID    = base64encode(var.tenant_id)
     PROJECT_NAME = base64encode(rancher2_project.project.name)
     PROJECT_ID   = base64encode(element(split(":", rancher2_project.project.id), 1))

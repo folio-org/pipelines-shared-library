@@ -143,7 +143,7 @@ resource "rancher2_app" "pgadmin4" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
     "ingress.hosts[0].paths[0]"                                         = "/*"
     "ingress.hosts[0].host" = join(".", [
-      join("-", [rancher2_project.project.name, "pgadmin"]), var.root_domain
+      join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "pgadmin"]), var.root_domain
     ])
   }
 }
