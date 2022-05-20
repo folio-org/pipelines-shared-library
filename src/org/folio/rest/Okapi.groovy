@@ -80,7 +80,7 @@ class Okapi extends GeneralParameters {
         def descriptorsRequest = ["items": []]
         def items = descriptorsRequest["items"]
         modules.each { module ->
-            println(module)
+            logger.info(module)
             logger.info("Pull module descriptor for '${module.id}' module from registry")
             // search module descriptor for in repositories
             def descriptor = registries.find { registry ->
