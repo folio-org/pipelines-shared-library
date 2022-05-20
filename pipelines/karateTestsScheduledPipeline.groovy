@@ -10,7 +10,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
-def tenant = "supertenant"
+def tenant = "diku"
 def spinUpEnvironmentJobName = "/Rancher/Project_300"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
@@ -58,7 +58,7 @@ pipeline {
                         string(name: 'threadsCount', value: "4"),
                         string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
+                        string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
                         password(name: 'adminPassword', value: 'admin'),
                         string(name: 'prototypeTenant', value: 'diku')
