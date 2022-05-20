@@ -87,7 +87,7 @@ resource "rancher2_app" "folio-okapi" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/healthcheck-path"         = "/_/version"
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/load-balancer-attributes" = "idle_timeout.timeout_seconds=4000"
     "ingress.hosts[0].paths[0]"                                                    = "/*"
-    "ingress.hosts[0].host"                                                        = join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])
+    "ingress.hosts[0].host"                                                        = join(".", [join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "okapi"]), var.root_domain])
     #"javaOptions"               = local.module_configs["okapi"].javaOptions
     "replicaCount"              = local.module_configs["okapi"].replicaCount
     "resources.requests.memory" = local.module_configs["okapi"].resources.requests.memory
@@ -116,7 +116,7 @@ resource "rancher2_app" "folio-frontend" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
     "ingress.hosts[0].paths[0]"                                         = "/*"
-    "ingress.hosts[0].host"                                             = join(".", [terraform.workspace, var.root_domain])
+    "ingress.hosts[0].host"                                             = join(".", [join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name]), var.root_domain])
   }
 }
 
@@ -169,7 +169,7 @@ resource "rancher2_app" "folio-edge" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes"    = "200-399"
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/healthcheck-path" = "/_/version"
     "ingress.hosts[0].paths[0]"                                            = "/${each.key}/*"
-    "ingress.hosts[0].host"                                                = join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])
+    "ingress.hosts[0].host"                                                = join(".", [join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "okapi"]), var.root_domain])
     "javaOptions"                                                          = local.module_configs[(each.key)].javaOptions
     "replicaCount"                                                         = local.module_configs[(each.key)].replicaCount
     "resources.requests.memory"                                            = local.module_configs[(each.key)].resources.requests.memory
@@ -197,7 +197,7 @@ resource "rancher2_app" "folio-edge-sip2" {
     "image.tag"                                                           = each.value
     "service.type"                                                        = "LoadBalancer"
     "service.beta.kubernetes.io/aws-load-balancer-type"                   = "nlb"
-    "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname" = join(".", [join("-", [rancher2_project.project.name, "sip2"]), var.root_domain])
+    "service.annotations.external-dns\\.alpha\\.kubernetes\\.io/hostname" = join(".", [join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "sip2"]), var.root_domain])
     "javaOptions"                                                         = local.module_configs["edge-sip2"].javaOptions
     "replicaCount"                                                        = local.module_configs["edge-sip2"].replicaCount
     "resources.requests.memory"                                           = local.module_configs["edge-sip2"].resources.requests.memory
