@@ -79,11 +79,10 @@ class Okapi extends GeneralParameters {
         def descriptorsRequest = ["items": []]
         def items = descriptorsRequest["items"]
         modules.each { module ->
-            logger.info(module)
             logger.info("Pull module descriptor for '${module.id}' module from registry")
             // search module descriptor for in repositories
             def descriptor = getModuleDescriptor(registries, module)
-            logger.info(descriptor)
+            logger.info("Descriptor: ${descriptor}")
             if (descriptor) {
                 items.add(descriptor)
             } else {
@@ -116,7 +115,6 @@ class Okapi extends GeneralParameters {
      */
     private getModuleDescriptor(List registries, module) {
         registries.each { registry ->
-            logger.info("${registry}/_/proxy/modules/${module.id}")
             def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
             if (response == HttpURLConnection.HTTP_OK) {
                 return tools.jsonParse(response.content)
