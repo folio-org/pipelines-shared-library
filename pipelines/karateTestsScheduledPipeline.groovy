@@ -10,7 +10,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
 def tenant = "supertenant"
-def spinUpEnvironmentJobName = "/Rancher/Project"
+def spinUpEnvironmentJobName = "/Rancher/Project_300"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 def karateTestsJobName = "/Testing/Karate tests"
@@ -26,7 +26,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'RANCHER-252', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
 
