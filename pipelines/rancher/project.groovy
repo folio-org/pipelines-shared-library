@@ -14,11 +14,11 @@ properties([
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
+        jobsParameters.repository(),
+        jobsParameters.folioBranch(),
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
-        jobsParameters.repository(),
-        jobsParameters.folioBranch(),
         jobsParameters.stripesImageTag(),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),

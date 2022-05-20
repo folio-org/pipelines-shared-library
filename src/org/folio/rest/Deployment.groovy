@@ -14,17 +14,17 @@ class Deployment extends GeneralParameters {
 
     private String repository
 
-    private ArrayList enableList
+    private List enableList
 
-    private ArrayList discoveryList
+    private List discoveryList
 
     private String kb_api_key
+
+    private Email email = new Email()
 
     private OkapiTenant tenant = new OkapiTenant()
 
     private OkapiUser admin_user = new OkapiUser()
-
-    private Email email = new Email()
 
     private OkapiUser super_admin = new OkapiUser(username: 'super_admin', password: 'admin')
 
@@ -44,6 +44,8 @@ class Deployment extends GeneralParameters {
 
     private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
 
+    private Edge edge = new Edge(steps, okapiUrl)
+
     Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
@@ -62,31 +64,33 @@ class Deployment extends GeneralParameters {
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
             okapi.pull()
             okapi.createTenant(tenant)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"],"enable"))
             okapi.registerServices(discoveryList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
             String authtokenModId = okapi.getModuleId(tenant, 'authtoken')
-            ArrayList authtokenDisableDependenciesList = okapi.enableDisableUpgradeModulesForTenant(tenant, [[id: authtokenModId, action: "disable"]])
+            List authtokenDisableDependenciesList = okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList([authtokenModId], "disable"))
             users.createUser(tenant, admin_user)
             auth.createUserCredentials(tenant, admin_user)
             permissions.createUserPermissions(tenant, admin_user)
             String servicePointsUsersModId = okapi.getModuleId(tenant, 'service-points-users')
             if (servicePointsUsersModId) {
                 if (servicePoints.getServicePointsUsersRecords(tenant, admin_user).totalRecords == 0) {
-                    servicePoints.createServicePointsUsersRecord(tenant, admin_user, servicePoints.getServicePointsIds(tenant, admin_user))
+                    servicePoints.createServicePointsUsersRecord(tenant, admin_user, servicePoints.getServicePointsIds(tenant))
                 }
             } else {
                 logger.warning("Module service-points-users does not installed")
             }
             okapi.enableDisableUpgradeModulesForTenant(tenant, authtokenDisableDependenciesList.reverse().collect { [id: it.id, action: "enable"] })
             auth.login(tenant, admin_user)
-            permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant, admin_user))
+            permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
             users.setPatronGroup(tenant, admin_user, users.getPatronGroupId(tenant, admin_user))
             okapi.secure(super_admin)
             okapi.secure(testing_admin)
-            tenantConfiguration.modInventoryMods(tenant, admin_user)
-            tenantConfiguration.ebscoRmapiConfig(tenant, admin_user, kb_api_key)
-            tenantConfiguration.worldcat(tenant, admin_user)
-            tenantConfiguration.configurations(tenant, admin_user, email, stripesUrl)
+            edge.createEdgeUsers(tenant, enableList)
+            tenantConfiguration.modInventoryMods(tenant)
+            tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
+            tenantConfiguration.worldcat(tenant)
+            tenantConfiguration.configurations(tenant, email, stripesUrl)
         } else {
             throw new AbortException('Tenant or admin user not set')
         }

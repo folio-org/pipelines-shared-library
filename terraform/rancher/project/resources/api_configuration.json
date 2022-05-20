@@ -1,0 +1,17 @@
+{
+    "routing": [
+      {
+        "type": "GOBI",
+        "method": "POST",
+        "pathPattern": "/orders/validate",
+        "proxyPath": "/gobi/validate"
+      },
+      {
+        "type": "GOBI",
+        "method": "GET",
+        "pathPattern": "/orders/validate",
+        "proxyMethod": "POST",
+        "proxyPath": "/gobi/validate"
+      }
+    ]
+}

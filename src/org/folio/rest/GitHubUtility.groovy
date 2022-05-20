@@ -1,6 +1,5 @@
 package org.folio.rest
 
-import org.folio.utilities.Logger
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Tools
 
@@ -12,8 +11,6 @@ class GitHubUtility implements Serializable {
 
     private HttpClient http = new HttpClient(steps)
 
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
-
     GitHubUtility(Object steps) {
         this.steps = steps
     }
@@ -24,7 +21,7 @@ class GitHubUtility implements Serializable {
      */
     def getJsonModulesList(String repository, String branch, String fileName) {
         String url = OkapiConstants.RAW_GITHUB_URL + '/' + repository + '/' + branch + '/' + fileName
-        def res = http.getRequest(url,[],true)
+        def res = http.getRequest(url, [], true)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
         } else {
@@ -38,15 +35,14 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    ArrayList buildDiscoveryList(String repository, String branch) {
-        ArrayList discoveryList = []
+    List buildDiscoveryList(String repository, String branch) {
+        List discoveryList = []
         getJsonModulesList(repository, branch, 'okapi-install.json').each {
             String version = (it['id'] =~ /\d+\.\d+\.\d+-.*\.\d+|\d+\.\d+.\d+$/).findAll()[0]
             discoveryList << [srvcId: it['id'],
                               instId: it['id'],
                               url   : 'http://' + tools.removeLastChar(it['id'] - version)]
         }
-        logger.info('Modules discovery list successfully built from repo: ' + repository + ' branch: ' + branch)
         return discoveryList
     }
 
@@ -56,12 +52,7 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    ArrayList buildEnableList(String repository, String branch) {
-        ArrayList enableList = []
-        enableList.addAll(getJsonModulesList(repository, branch, 'okapi-install.json'))
-        enableList.addAll(getJsonModulesList(repository, branch, 'stripes-install.json'))
-        logger.info('Modules enable list successfully built from repo: ' + repository + ', branch: ' + branch)
-        return enableList
+    List buildEnableList(String repository, String branch) {
+        return getJsonModulesList(repository, branch, 'install.json')
     }
-    //TODO Add Edge modules list build
 }

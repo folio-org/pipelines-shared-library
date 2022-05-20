@@ -44,4 +44,52 @@ class OkapiConstants {
         enabled               : true,
         authentication        : "100473910/PAOLF"
     ]
+
+    public static final Map EDGE_SERVICE_USERS = [
+        "edge-rtac"     : [
+            defaultUser: true,
+            permissions: ["rtac.all"]
+        ],
+        "edge-oai-pmh"  : [
+            defaultUser: true,
+            permissions: ["oai-pmh.all"]
+        ],
+        "edge-patron"   : [
+            defaultUser: true,
+            permissions: ["patron.all", "users.collection.get"]
+        ],
+        "edge-orders"   : [
+            defaultUser: true,
+            permissions: ["gobi.all", "ebsconet.all"]
+        ],
+        "edge-ncip"     : [
+            defaultUser: true,
+            permissions: ["ncip.all"]
+        ],
+        "edge-dematic"  : [
+            defaultUser: false,
+            username   : "stagingDirector",
+            firstName  : "stagingDirector",
+            lastName   : "SYSTEM",
+            permissions: ["remote-storage.all"]
+        ],
+        "edge-caiasoft" : [
+            defaultUser: false,
+            username   : "caiaSoftClient",
+            firstName  : "caiaSoftClient",
+            lastName   : "SYSTEM",
+            permissions: ["remote-storage.all"]
+        ],
+        "edge-inn-reach": [
+            defaultUser: false,
+            username   : "innreachClient",
+            firstName  : "innreachClient",
+            lastName   : "SYSTEM",
+            permissions: ["inn-reach.all"]
+        ],
+        "edge-connexion": [
+            defaultUser: true,
+            permissions: ["copycat.all"]
+        ]
+    ]
 }

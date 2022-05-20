@@ -25,12 +25,37 @@ class Okapi extends GeneralParameters {
         this.supertenant.setAdmin_user(superuser)
     }
 
+    static String getModuleIdFromInstallJson(List install, String moduleName){
+        return install*.id.find { it ==~ /${moduleName}-.*/ }
+    }
+
+    static List buildInstallList(List modulesIds, String action){
+        List modulesList = []
+        modulesIds.each {
+            modulesList << [
+                id: it,
+                action: action
+            ]
+        }
+        return modulesList
+    }
+
+    def buildInstallJsonByModuleName(String moduleName) {
+        String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
+        if (moduleId) {
+            return [[id    : moduleId,
+                     action: "enable"]]
+        } else {
+            throw new AbortException("Missing required module: ${moduleName}")
+        }
+    }
+
     /**
      * Bulk fetch modules descriptors from registry
      * @param registries
      */
     void pull(List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/pull/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -51,7 +76,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     Boolean isTenantExists(String tenantId) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenantId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -70,7 +95,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      */
     void createTenant(OkapiTenant tenant) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -83,7 +108,6 @@ class Okapi extends GeneralParameters {
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
                 logger.info("Tenant ${tenant.id} successfully created")
-//                enableDisableUpgradeModulesForTenant(supertenant, buildInstallJsonByModuleName('okapi'))
             } else {
                 throw new AbortException("Tenant ${tenant.id} does not created." + http.buildHttpErrorMessage(res))
             }
@@ -119,7 +143,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def enableDisableUpgradeModulesForTenant(OkapiTenant tenant, ArrayList modulesList, Integer timeout = 0) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String queryParameters = buildTenantQueryParameters(tenant.parameters)
         String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/install" + queryParameters
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
@@ -132,7 +156,7 @@ class Okapi extends GeneralParameters {
             logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
             return tools.jsonParse(res.content)
         } else {
-            throw new AbortException("Install operation failed." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Install operation failed. ${url}" + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -142,7 +166,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     Boolean isServiceExists(String serviceId) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules/" + serviceId
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -161,7 +185,7 @@ class Okapi extends GeneralParameters {
      * @param discoveryList
      */
     void registerServices(ArrayList discoveryList) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -193,7 +217,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def getEnabledModules() {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -212,7 +236,7 @@ class Okapi extends GeneralParameters {
      * @return
      */
     def getModuleId(OkapiTenant tenant, String moduleName) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/interfaces/" + moduleName
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -224,18 +248,8 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def buildInstallJsonByModuleName(String moduleName) {
-        String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
-        if (moduleId) {
-            return [[id    : moduleId,
-                     action: "enable"]]
-        } else {
-            throw new AbortException("Missing required module: ${moduleName}")
-        }
-    }
-
     void secure(OkapiUser user) {
-        auth.getOkapiToken(supertenant, superuser)
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
         def requiredModules = ['mod-users'      : buildInstallJsonByModuleName('mod-users'),
                                'mod-permissions': buildInstallJsonByModuleName('mod-permissions'),
                                'mod-login'      : buildInstallJsonByModuleName('mod-login'),
