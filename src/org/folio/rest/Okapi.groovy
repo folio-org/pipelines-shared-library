@@ -92,7 +92,7 @@ class Okapi extends GeneralParameters {
         }
 
         // publish found module descriptors to okapi
-        logger.info("Descriptor for '${module.id}' module found. Publish it to Okapi.")
+        logger.info("Publish found module descriptors to Okapi.")
         String url = okapiUrl + "/_/proxy/modules?check=false"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -118,8 +118,6 @@ class Okapi extends GeneralParameters {
         registries.each { registry ->
             logger.info("${registry}/_/proxy/modules/${module.id}")
             def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
-            logger.info(response.status)
-            logger.info(response.content)
             if (response == HttpURLConnection.HTTP_OK) {
                 return tools.jsonParse(response.content)
             }
