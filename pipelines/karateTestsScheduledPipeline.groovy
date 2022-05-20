@@ -1,7 +1,8 @@
 @Library('pipelines-shared-library@RANCHER-252') _
 
+
 import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+import org.folio.utilities.Tools
 import org.folio.version.VersionConstants
 import org.folio.version.semantic.Order
 import org.folio.version.semantic.SemanticVersionComparator
@@ -17,10 +18,13 @@ def karateTestsJobName = "/Testing/Karate tests"
 def karateTestsJob
 KarateTestsExecutionSummary karateTestsExecutionSummary
 def teamAssignment
+def folio_repository = "complete"
+def folio_branch = "snapshot"
 
-List<String> versions = Eval.me(jobsParameters.getOkapiVersions())
+Tools tools = new Tools(this)
+List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = Eval.me("project_name", "karate", jobsParameters.getUIImagesList())[0]
+String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["project_name": "karate"])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -34,7 +38,7 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, tenant)
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, tenant, folio_repository, folio_branch)
 
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
@@ -71,7 +75,7 @@ pipeline {
                     steps {
                         script {
                             input "Destroy?"
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, tenant)
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, tenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
@@ -167,14 +171,15 @@ pipeline {
     }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, projectName, tenant) {
+private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, projectName, tenant,
+                                         folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
         string(name: 'rancher_cluster_name', value: "folio-test"),
         string(name: 'project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
-        string(name: 'folio_repository', value: "complete"),
-        string(name: 'folio_branch', value: "snapshot"),
+        string(name: 'folio_repository', value: folio_repository),
+        string(name: 'folio_branch', value: folio_branch),
         string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: tenant),
         string(name: 'tenant_name', value: "Karate tenant"),
