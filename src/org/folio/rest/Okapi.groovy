@@ -25,15 +25,15 @@ class Okapi extends GeneralParameters {
         this.supertenant.setAdmin_user(superuser)
     }
 
-    static String getModuleIdFromInstallJson(List install, String moduleName){
+    static String getModuleIdFromInstallJson(List install, String moduleName) {
         return install*.id.find { it ==~ /${moduleName}-.*/ }
     }
 
-    static List buildInstallList(List modulesIds, String action){
+    static List buildInstallList(List modulesIds, String action) {
         List modulesList = []
         modulesIds.each {
             modulesList << [
-                id: it,
+                id    : it,
                 action: action
             ]
         }
@@ -67,6 +67,46 @@ class Okapi extends GeneralParameters {
             logger.info("Modules descriptors successfully pulled from ${registries.join(", ")} to Okapi")
         } else {
             throw new AbortException("Error during modules descriptors pull from ${registries.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    /**
+     * Fetch modules descriptors for specific modules from registry and push them to okapi
+     * @param registries
+     */
+    void pullModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
+        logger.info("Start module descriptors publishing")
+        def descriptorsRequest = ["items": []]
+        def items = descriptorsRequest["items"]
+        modules.each { module ->
+            logger.info("Pull module descriptor for '${module.id}' module from registry")
+            // search module descriptor for in repositories
+            def descriptor = registries.find { registry ->
+                def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
+                response == HttpURLConnection.HTTP_OK ? tools.jsonParse(response.content) : false
+            }
+            if (descriptor) {
+                items.add(descriptor)
+            } else {
+                throw new AbortException("Module descriptor for '${module.id}' module not found.")
+            }
+        }
+
+        // publish found module descriptors to okapi
+        logger.info("Descriptor for '${module.id}' module found. Publish it to Okapi.")
+        String url = okapiUrl + "/_/proxy/modules?check=false"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+
+        def json = JsonOutput.toJson(descriptorsRequest)
+        logger.info(json)
+        def res = http.postRequest(url, json, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Modules descriptors successfully published to Okapi")
+        } else {
+            throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
         }
     }
 

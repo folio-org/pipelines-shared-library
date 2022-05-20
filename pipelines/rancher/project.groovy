@@ -6,6 +6,7 @@ import org.folio.rest.Deployment
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -124,6 +125,7 @@ ansiColor('xterm') {
                             email,
                             cypress_api_key_apidvcorp
                         )
+
                         deployment.main()
                     }
                 }
