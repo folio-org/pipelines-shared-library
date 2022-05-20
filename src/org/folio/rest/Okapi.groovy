@@ -1,8 +1,7 @@
 package org.folio.rest
 
-
-import hudson.AbortException
 import groovy.json.JsonOutput
+import hudson.AbortException
 import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
@@ -83,13 +82,7 @@ class Okapi extends GeneralParameters {
             logger.info(module)
             logger.info("Pull module descriptor for '${module.id}' module from registry")
             // search module descriptor for in repositories
-            def descriptor = registries.find { registry ->
-                logger.info("${registry}/_/proxy/modules/${module.id}")
-                def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
-                logger.info(response.status)
-                logger.info(response.content)
-                response == HttpURLConnection.HTTP_OK ? tools.jsonParse(response.content) : false
-            }
+            def descriptor = getModuleDescriptor(registries, module)
             logger.info(descriptor)
             if (descriptor) {
                 items.add(descriptor)
@@ -112,6 +105,24 @@ class Okapi extends GeneralParameters {
             logger.info("Modules descriptors successfully published to Okapi")
         } else {
             throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    /**
+     * Search for module descriptor in registry
+     * @param registries registries
+     * @param module module
+     * @return module descriptor
+     */
+    private getModuleDescriptor(List registries, module) {
+        registries.each { registry ->
+            logger.info("${registry}/_/proxy/modules/${module.id}")
+            def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
+            logger.info(response.status)
+            logger.info(response.content)
+            if (response == HttpURLConnection.HTTP_OK) {
+                return tools.jsonParse(response.content)
+            }
         }
     }
 
