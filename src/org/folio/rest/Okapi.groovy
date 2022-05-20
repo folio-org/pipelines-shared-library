@@ -74,7 +74,7 @@ class Okapi extends GeneralParameters {
      * Fetch modules descriptors for specific modules from registry and push them to okapi
      * @param registries
      */
-    void pullModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
+    void publishModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         logger.info("Start module descriptors publishing")
         def descriptorsRequest = ["items": []]

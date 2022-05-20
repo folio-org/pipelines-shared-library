@@ -62,7 +62,7 @@ class Deployment extends GeneralParameters {
         if (tenant && admin_user) {
             enableList = gitHubUtility.buildEnableList(repository, branch)
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-            okapi.pullModulesDescriptors(OkapiConstants.DESCRIPTORS_REPOSITORIES, enableList)
+            okapi.publishModuleDescriptors(OkapiConstants.DESCRIPTORS_REPOSITORIES, enableList)
             throw new RuntimeException()
             //okapi.pull()
             okapi.createTenant(tenant)
