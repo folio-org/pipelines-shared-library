@@ -18,9 +18,9 @@ def karateTestsJob
 KarateTestsExecutionSummary karateTestsExecutionSummary
 def teamAssignment
 
-List<String> versions = Eval.me(jobsParameters.getOkapiVersion())
+List<String> versions = Eval.me(jobsParameters.getOkapiVersions())
 String okapiVersion = versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = Eval.me("project_name", "karate", jobsParameters.getDockerImagesList())[0]
+String uiImageVersion = Eval.me("project_name", "karate", jobsParameters.getUIImagesList())[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
