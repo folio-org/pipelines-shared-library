@@ -76,13 +76,11 @@ class Okapi extends GeneralParameters {
     void publishModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         logger.info("Start module descriptors publishing")
-        def descriptorsRequest = ["items": []]
-        def items = descriptorsRequest["items"]
+        def items = []
         modules.each { module ->
             logger.info("Pull module descriptor for '${module.id}' module from registry")
             // search module descriptor for in repositories
             def descriptor = getModuleDescriptor(registries, module)
-            logger.info("Descriptor: ${descriptor}")
             if (descriptor) {
                 items.add(descriptor)
             } else {
@@ -97,7 +95,7 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
 
-        def json = JsonOutput.toJson(descriptorsRequest)
+        def json = JsonOutput.toJson(items)
         logger.info(json)
         def res = http.postRequest(url, json, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
