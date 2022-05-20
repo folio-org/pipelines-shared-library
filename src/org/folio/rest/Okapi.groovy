@@ -90,15 +90,14 @@ class Okapi extends GeneralParameters {
 
         // publish found module descriptors to okapi
         logger.info("Publish found module descriptors to Okapi.")
-        String url = okapiUrl + "/_/proxy/modules?check=false"
+        String url = okapiUrl + "/_/proxy/import/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
 
         def json = JsonOutput.toJson(items)
-        logger.info(json)
         def res = http.postRequest(url, json, headers)
-        if (res.status == HttpURLConnection.HTTP_OK) {
+        if (res.status < 300) {
             logger.info("Modules descriptors successfully published to Okapi")
         } else {
             throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
