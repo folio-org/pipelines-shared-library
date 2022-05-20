@@ -63,8 +63,6 @@ class Deployment extends GeneralParameters {
             enableList = gitHubUtility.buildEnableList(repository, branch)
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
             okapi.publishModuleDescriptors(enableList)
-            throw new RuntimeException()
-            //okapi.pull()
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.registerServices(discoveryList)
