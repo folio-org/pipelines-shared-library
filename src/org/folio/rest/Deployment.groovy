@@ -14,17 +14,17 @@ class Deployment extends GeneralParameters {
 
     private String repository
 
-    private ArrayList enableList
+    private List enableList
 
-    private ArrayList discoveryList
+    private List discoveryList
 
     private String kb_api_key
+
+    private Email email = new Email()
 
     private OkapiTenant tenant = new OkapiTenant()
 
     private OkapiUser admin_user = new OkapiUser()
-
-    private Email email = new Email()
 
     private OkapiUser super_admin = new OkapiUser(username: 'super_admin', password: 'admin')
 
@@ -64,10 +64,11 @@ class Deployment extends GeneralParameters {
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
             okapi.pull()
             okapi.createTenant(tenant)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"],"enable"))
             okapi.registerServices(discoveryList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
             String authtokenModId = okapi.getModuleId(tenant, 'authtoken')
-            ArrayList authtokenDisableDependenciesList = okapi.enableDisableUpgradeModulesForTenant(tenant, [[id: authtokenModId, action: "disable"]])
+            List authtokenDisableDependenciesList = okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList([authtokenModId], "disable"))
             users.createUser(tenant, admin_user)
             auth.createUserCredentials(tenant, admin_user)
             permissions.createUserPermissions(tenant, admin_user)

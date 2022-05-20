@@ -25,6 +25,31 @@ class Okapi extends GeneralParameters {
         this.supertenant.setAdmin_user(superuser)
     }
 
+    static String getModuleIdFromInstallJson(List install, String moduleName){
+        return install*.id.find { it ==~ /${moduleName}-.*/ }
+    }
+
+    static List buildInstallList(List modulesIds, String action){
+        List modulesList = []
+        modulesIds.each {
+            modulesList << [
+                id: it,
+                action: action
+            ]
+        }
+        return modulesList
+    }
+
+    def buildInstallJsonByModuleName(String moduleName) {
+        String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
+        if (moduleId) {
+            return [[id    : moduleId,
+                     action: "enable"]]
+        } else {
+            throw new AbortException("Missing required module: ${moduleName}")
+        }
+    }
+
     /**
      * Bulk fetch modules descriptors from registry
      * @param registries
@@ -83,7 +108,6 @@ class Okapi extends GeneralParameters {
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
                 logger.info("Tenant ${tenant.id} successfully created")
-//                enableDisableUpgradeModulesForTenant(supertenant, buildInstallJsonByModuleName('okapi'))
             } else {
                 throw new AbortException("Tenant ${tenant.id} does not created." + http.buildHttpErrorMessage(res))
             }
@@ -132,7 +156,7 @@ class Okapi extends GeneralParameters {
             logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
             return tools.jsonParse(res.content)
         } else {
-            throw new AbortException("Install operation failed." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Install operation failed. ${url}" + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -221,16 +245,6 @@ class Okapi extends GeneralParameters {
             return tools.jsonParse(res.content).id[0]
         } else {
             return ''
-        }
-    }
-
-    def buildInstallJsonByModuleName(String moduleName) {
-        String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
-        if (moduleId) {
-            return [[id    : moduleId,
-                     action: "enable"]]
-        } else {
-            throw new AbortException("Missing required module: ${moduleName}")
         }
     }
 

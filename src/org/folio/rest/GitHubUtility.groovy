@@ -1,6 +1,5 @@
 package org.folio.rest
 
-import org.folio.utilities.Logger
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Tools
 
@@ -11,8 +10,6 @@ class GitHubUtility implements Serializable {
     private Tools tools = new Tools(steps)
 
     private HttpClient http = new HttpClient(steps)
-
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
 
     GitHubUtility(Object steps) {
         this.steps = steps
@@ -46,7 +43,6 @@ class GitHubUtility implements Serializable {
                               instId: it['id'],
                               url   : 'http://' + tools.removeLastChar(it['id'] - version)]
         }
-        logger.info('Modules discovery list successfully built from repo: ' + repository + ' branch: ' + branch)
         return discoveryList
     }
 
