@@ -113,14 +113,13 @@ class Okapi extends GeneralParameters {
      * @param module module
      * @return module descriptor
      */
-    private getModuleDescriptor(List registries, module) {
-        def retVal
-        registries.find { registry ->
+    private Object getModuleDescriptor(List registries, module) {
+        for (String registry : registries) {
             def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
-            response == HttpURLConnection.HTTP_OK ? retVal = tools.jsonParse(response.content) : ''
-            return response.status == HttpURLConnection.HTTP_OK
+            if (response == HttpURLConnection.HTTP_OK) {
+                return tools.jsonParse(response.content)
+            }
         }
-        retVal
     }
 
     /**
