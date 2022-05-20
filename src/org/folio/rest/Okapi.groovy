@@ -117,6 +117,8 @@ class Okapi extends GeneralParameters {
         for (String registry : registries) {
             def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
             if (response == HttpURLConnection.HTTP_OK) {
+                logger.info(response.content)
+                logger.info(tools.jsonParse(response.content))
                 return tools.jsonParse(response.content)
             }
         }
