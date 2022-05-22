@@ -77,21 +77,27 @@ variable "folio_docker_registry_password" {
 }
 
 variable "folio_embedded_db" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Postgresql instance needed"
 }
 
 variable "folio_embedded_es" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Elasticsearch instance needed"
 }
 
 variable "folio_embedded_kafka" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Kafka instance needed"
+}
+
+variable "folio_embedded_s3" {
+  type        = bool
+  default     = true
+  description = "Define if embedded or external S3 instance needed"
 }
 
 variable "kafka_version" {
