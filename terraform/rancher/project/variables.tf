@@ -44,25 +44,13 @@ variable "rancher_cluster_name" {
   description = "Rancher project name"
 }
 
-#variable "rancher_project_name" {
-#  type        = string
-#  description = "Rancher project name"
-#}
-
-#variable "rancher_project_type" {
-#  type        = string
-#  description = "Rancher project type (karate, cypress, scratch, perf)"
-#}
-
 variable "folio_repository" {
   type        = string
-  default     = "core"
   description = "Folio repository for modules. Should be 'core' or 'complete'"
 }
 
 variable "folio_release" {
   type        = string
-  default     = "snapshot"
   description = "Release tag or branch"
 }
 
@@ -77,21 +65,27 @@ variable "folio_docker_registry_password" {
 }
 
 variable "folio_embedded_db" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Postgresql instance needed"
 }
 
 variable "folio_embedded_es" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Elasticsearch instance needed"
 }
 
 variable "folio_embedded_kafka" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Kafka instance needed"
+}
+
+variable "folio_embedded_s3" {
+  type        = bool
+  default     = true
+  description = "Define if embedded or external S3 instance needed"
 }
 
 variable "kafka_version" {
@@ -102,14 +96,8 @@ variable "kafka_version" {
 
 variable "pg_version" {
   type        = string
-  default     = "12"
+  default     = "12.7"
   description = "Postgres version"
-}
-
-variable "pg_subversion" {
-  type        = string
-  default     = "7"
-  description = "Postgres subversion"
 }
 
 variable "pg_username" {
@@ -156,7 +144,6 @@ variable "admin_user" {
 
 variable "okapi_version" {
   type        = string
-  default     = "4.11.1"
   description = "Release tag or branch"
 }
 
