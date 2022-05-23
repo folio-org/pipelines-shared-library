@@ -14,7 +14,7 @@ locals {
           memory = "1440Mi"
         },
         limits = {
-          memory = "3072Mi"
+          memory = "4072Mi"
         }
       },
       replicaCount = 1,
@@ -36,10 +36,10 @@ locals {
     "edge-caiasoft" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          memory = "500Mi"
         },
         limits = {
-          memory = "512Mi"
+          memory = "612Mi"
         }
       },
       replicaCount = 1,
