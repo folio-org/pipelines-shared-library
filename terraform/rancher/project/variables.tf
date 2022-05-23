@@ -165,10 +165,13 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
+
 variable "env_type" {
   type        = string
-  description = "config for development,performance,testing"
+  default     = "development"
+  description = "config file for dev, perf, test env"
 }
+
 
 //TODO Check if needed
 #variable "github_team_ids" {
