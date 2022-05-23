@@ -165,6 +165,11 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
+variable "env_type" {
+  type        = string
+  description = "config for development,performance,testing"
+}
+
 //TODO Check if needed
 #variable "github_team_ids" {
 #  type = map(any)

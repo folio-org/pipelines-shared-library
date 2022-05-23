@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-282') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -19,6 +19,7 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
+        jobsParameters.envType(),
         jobsParameters.stripesImageTag(),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
@@ -54,6 +55,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('folio_repository', params.folio_repository)
                 tfVars += terraform.generateTfVar('folio_release', params.folio_branch)
+                tfVars += terraform.generateTfVar('env_type', params.envType)
                 tfVars += terraform.generateTfVar('stripes_image_tag', params.stripes_image_tag)
                 tfVars += terraform.generateTfVar('pg_password', params.pg_password)
                 tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)

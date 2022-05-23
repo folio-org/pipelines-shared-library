@@ -31,6 +31,13 @@ static ArrayList rancherClustersList() {
 }
 
 @NonCPS
+static ArrayList envTypeList() {
+    return ['development',
+            'performance',
+            'testing']
+}
+
+@NonCPS
 static ArrayList testingEnvironmentsList() {
     return ['karate',
             'cypress']
@@ -166,6 +173,10 @@ private def _paramExtended(String name, String reference, String script, String 
 
 def rancherClusters() {
     return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
+}
+
+def envType() {
+    return _paramChoice('config_env_parameters', envTypeList(), '(Required) Select config file for env')
 }
 
 def projectName() {
