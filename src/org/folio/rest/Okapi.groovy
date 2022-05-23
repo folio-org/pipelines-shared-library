@@ -78,13 +78,16 @@ class Okapi extends GeneralParameters {
         logger.info("Start module descriptors publishing")
         def items = []
         modules.each { module ->
-            logger.info("Pull module descriptor for '${module.id}' module from registry")
-            // search module descriptor for in repositories
-            def descriptor = getModuleDescriptor(registries, module)
-            if (descriptor) {
-                items.add(descriptor)
-            } else {
-                throw new AbortException("Module descriptor for '${module.id}' module not found.")
+            // skip okapi descriptors
+            if (!module.id.startsWith("okapi")) {
+                logger.info("Pull module descriptor for '${module.id}' module from registry")
+                // search module descriptor for in repositories
+                def descriptor = getModuleDescriptor(registries, module)
+                if (descriptor) {
+                    items.add(descriptor)
+                } else {
+                    throw new AbortException("Module descriptor for '${module.id}' module not found.")
+                }
             }
         }
 
