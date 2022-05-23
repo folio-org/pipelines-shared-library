@@ -2,6 +2,7 @@
 
 
 import org.folio.karate.results.KarateTestsExecutionSummary
+import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.folio.version.VersionConstants
 import org.folio.version.semantic.Order
@@ -74,7 +75,6 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            input "Destroy?"
                             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
@@ -91,7 +91,7 @@ pipeline {
                         stage("Copy downstream job artifacts") {
                             steps {
                                 script {
-                                    def jobNumber = 91 //karateTestsJob.number
+                                    def jobNumber = karateTestsJob.number
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
@@ -116,34 +116,33 @@ pipeline {
                             }
                         }
 
-//                        stage("Collect execution results") {
-//                            steps {
-//                                script {
-//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
-//
-//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-//                                }
-//                            }
-//                        }
-//
-//                        stage("Parse teams assignment") {
-//                            steps {
-//                                script {
-//                                    def jsonContents = readJSON file: "teams-assignment.json"
-//                                    teamAssignment = new TeamAssignment(jsonContents)
-//                                }
-//                            }
-//                        }
-//
-//
-//                        stage("Send slack notifications") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
-//
+                        stage("Collect execution results") {
+                            steps {
+                                script {
+                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
+
+                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+                                }
+                            }
+                        }
+
+                        stage("Parse teams assignment") {
+                            steps {
+                                script {
+                                    def jsonContents = readJSON file: "teams-assignment.json"
+                                    teamAssignment = new TeamAssignment(jsonContents)
+                                }
+                            }
+                        }
+
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
+
 //                        stage("Sync jira tickets") {
 //                            steps {
 //                                script {
