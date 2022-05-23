@@ -10,8 +10,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
-def tenant = "diku"
-def spinUpEnvironmentJobName = "/Rancher/Project_300"
+def prototypeTenant = "diku"
+def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 def karateTestsJobName = "/Testing/Karate tests"
@@ -38,7 +38,7 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, tenant, folio_repository, folio_branch)
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
 
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
@@ -61,7 +61,7 @@ pipeline {
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
                         password(name: 'adminPassword', value: 'admin'),
-                        string(name: 'prototypeTenant', value: 'diku')
+                        string(name: 'prototypeTenant', value: prototypeTenant)
                     ]
 
                     karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
@@ -75,7 +75,7 @@ pipeline {
                     steps {
                         script {
                             input "Destroy?"
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, tenant, folio_repository, folio_branch)
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
