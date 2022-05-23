@@ -75,6 +75,7 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
+                            input "Destroy"
                             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
