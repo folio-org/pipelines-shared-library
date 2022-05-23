@@ -8,6 +8,8 @@ import org.folio.rest.model.OkapiUser
 
 class Okapi extends GeneralParameters {
 
+    public static final String OKAPI_NAME = "okapi"
+
     private OkapiUser superuser = new OkapiUser()
 
     private OkapiTenant supertenant = new OkapiTenant(id: 'supertenant')
@@ -79,7 +81,7 @@ class Okapi extends GeneralParameters {
         def items = []
         modules.each { module ->
             // skip okapi descriptors
-            if (!module.id.startsWith("okapi")) {
+            if (!module.id.startsWith(OKAPI_NAME)) {
                 logger.info("Pull module descriptor for '${module.id}' module from registry")
                 // search module descriptor for in repositories
                 def descriptor = getModuleDescriptor(registries, module)
