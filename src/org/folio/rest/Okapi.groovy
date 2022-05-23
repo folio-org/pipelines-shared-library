@@ -8,6 +8,8 @@ import org.folio.rest.model.OkapiUser
 
 class Okapi extends GeneralParameters {
 
+    public static final String OKAPI_NAME = "okapi"
+
     private OkapiUser superuser = new OkapiUser()
 
     private OkapiTenant supertenant = new OkapiTenant(id: 'supertenant')
@@ -78,13 +80,16 @@ class Okapi extends GeneralParameters {
         logger.info("Start module descriptors publishing")
         def items = []
         modules.each { module ->
-            logger.info("Pull module descriptor for '${module.id}' module from registry")
-            // search module descriptor for in repositories
-            def descriptor = getModuleDescriptor(registries, module)
-            if (descriptor) {
-                items.add(descriptor)
-            } else {
-                throw new AbortException("Module descriptor for '${module.id}' module not found.")
+            // skip okapi descriptors
+            if (!module.id.startsWith(OKAPI_NAME)) {
+                logger.info("Pull module descriptor for '${module.id}' module from registry")
+                // search module descriptor for in repositories
+                def descriptor = getModuleDescriptor(registries, module)
+                if (descriptor) {
+                    items.add(descriptor)
+                } else {
+                    throw new AbortException("Module descriptor for '${module.id}' module not found.")
+                }
             }
         }
 
