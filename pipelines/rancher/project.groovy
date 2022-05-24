@@ -44,7 +44,7 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "config_file: ${params.env_type}"
+                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "env_file: ${params.env_type}"
             }
             stage('Checkout') {
                 checkout scm
