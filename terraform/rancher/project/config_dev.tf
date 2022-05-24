@@ -1,3 +1,4 @@
+
 locals{
   dev = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
   perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
@@ -14,7 +15,7 @@ locals {
           memory = "1440Mi"
         },
         limits = {
-          memory = "4072Mi"
+          memory = "2072Mi"
         }
       },
       replicaCount = 1,

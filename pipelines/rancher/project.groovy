@@ -44,7 +44,7 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}"
+                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "config_file: ${params.envType}"
             }
             stage('Checkout') {
                 checkout scm
@@ -83,7 +83,7 @@ ansiColor('xterm') {
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
                         terraform.tfPlan(tfWorkDir, tfVars)
-                        terraform.tfApply(tfWorkDir)
+                        terraform.tfApply(tfWorkDir export TF_VAR_amap='{ foo = "bar", baz = "qux" }')
                         okapiUrl = terraform.tfOutput(tfWorkDir, 'okapi_url')
                         stripesUrl = terraform.tfOutput(tfWorkDir, 'stripes_url')
                         /**Wait for dns */
