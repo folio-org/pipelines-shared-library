@@ -9,6 +9,7 @@ import org.folio.version.semantic.Order
 import org.folio.version.semantic.SemanticVersionComparator
 import org.jenkinsci.plugins.workflow.libs.Library
 
+def clusterName = "folio-testing"
 def projectName = "test"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
 def prototypeTenant = "diku"
@@ -39,7 +40,8 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
+                        projectName, prototypeTenant, folio_repository, folio_branch)
 
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
@@ -76,7 +78,8 @@ pipeline {
                     steps {
                         script {
                             input "Destroy"
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, projectName, prototypeTenant, folio_repository, folio_branch)
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
+                                projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
@@ -171,11 +174,11 @@ pipeline {
     }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, projectName, tenant,
+private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'rancher_cluster_name', value: "folio-test"),
+        string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
         string(name: 'folio_repository', value: folio_repository),
