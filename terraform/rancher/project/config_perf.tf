@@ -905,7 +905,7 @@ locals {
     "mod-data-export" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          memory = "1024Mi"
         },
         limits = {
           memory = "2048Mi"
