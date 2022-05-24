@@ -2,11 +2,12 @@ package org.folio.utilities
 
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurperClassic
+import org.folio.Constants
 
 class Tools {
     Object steps
 
-    Tools(Object steps){
+    Tools(Object steps) {
         this.steps = steps
     }
 
@@ -15,8 +16,29 @@ class Tools {
     String copyResourceFileToWorkspace(String srcPath) {
         String destPath = steps.env.WORKSPACE + File.separator + new File(srcPath).getName()
         steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
-        logger.info( "Copied ${srcPath} to ${steps.env.WORKSPACE}")
+        logger.info("Copied ${srcPath} to ${steps.env.WORKSPACE}")
         return destPath
+    }
+
+    List getGitHubTeamsIds(List teams) {
+        steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
+            String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
+            ArrayList headers = [[ name:"Authorization", value: "Bearer " + steps.token]]
+            def response = new HttpClient(steps).getRequest(url, headers)
+            List ids = []
+            if (response.status == HttpURLConnection.HTTP_OK) {
+                teams.each { team ->
+                    try {
+                        ids.add("github_team://" + jsonParse(response.content).find { it["name"] == team }["id"])
+                    } catch (ignored) {
+                        logger.warning("Unable to get GitHub id for team ${team}")
+                    }
+                }
+            }else{
+                logger.warning(new HttpClient(steps).buildHttpErrorMessage(response))
+            }
+            return ids
+        }
     }
 
     /**
