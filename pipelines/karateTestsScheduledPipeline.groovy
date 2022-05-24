@@ -10,18 +10,20 @@ import org.folio.version.semantic.SemanticVersionComparator
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def clusterName = "folio-testing"
-def projectName = "test"
+def projectName = "karate"
+def folio_repository = "complete"
+def folio_branch = "snapshot"
 def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
 def prototypeTenant = "diku"
+
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 def karateTestsJobName = "/Testing/Karate tests"
 def karateTestsJob
+
 KarateTestsExecutionSummary karateTestsExecutionSummary
 def teamAssignment
-def folio_repository = "complete"
-def folio_branch = "snapshot"
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
