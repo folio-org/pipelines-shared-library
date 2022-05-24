@@ -44,7 +44,7 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "config_file: ${params.envType}"
+                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "config_file: ${params.env_type}"
             }
             stage('Checkout') {
                 checkout scm
@@ -55,7 +55,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('folio_repository', params.folio_repository)
                 tfVars += terraform.generateTfVar('folio_release', params.folio_branch)
-                tfVars += terraform.generateTfVar('env_type', params.envType)
+                tfVars += terraform.generateTfVar('env_type', params.env_type)
                 tfVars += terraform.generateTfVar('stripes_image_tag', params.stripes_image_tag)
                 tfVars += terraform.generateTfVar('pg_password', params.pg_password)
                 tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
