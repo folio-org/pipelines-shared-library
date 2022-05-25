@@ -1,12 +1,8 @@
 @Library('pipelines-shared-library@RANCHER-252') _
 
-
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
-import org.folio.version.VersionConstants
-import org.folio.version.semantic.Order
-import org.folio.version.semantic.SemanticVersionComparator
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def clusterName = "folio-testing"
@@ -161,18 +157,18 @@ pipeline {
             }
         }
 
-//        stage("Set job execution result") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result != 'SUCCESS'
-//                }
-//            }
-//            steps {
-//                script {
-//                    currentBuild.result = 'FAILURE'
-//                }
-//            }
-//        }
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
     }
 }
 
