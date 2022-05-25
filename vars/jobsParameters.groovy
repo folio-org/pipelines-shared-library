@@ -176,7 +176,7 @@ def rancherClusters() {
 }
 
 def envType() {
-    return _paramChoice('env_type', envTypeList(), '(Required) Select cluster')
+    return _paramChoice('env_type', envTypeList(), '(Required) Select config file')
 }
 
 def projectName() {
