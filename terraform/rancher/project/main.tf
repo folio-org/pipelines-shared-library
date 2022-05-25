@@ -90,7 +90,7 @@ resource "rancher2_app" "folio-okapi" {
     #"javaOptions"               = local.module_configs["okapi"].javaOptions
     "replicaCount"              = local.module_configs["okapi"].replicaCount
     "resources.requests.memory" = local.module_configs["okapi"].resources.requests.memory
-    "resources.limits.memory"   = local.module_configs["okapi"].resources.limits.memory  > 0 ? "local.module_configs_perf" : "local.module_configs_test"[("okapi")].resources.limits.memory
+    "resources.limits.memory"   = local.module_configs["okapi"].resources.limits.memory
   }
 }
 
@@ -169,10 +169,10 @@ resource "rancher2_app" "folio-edge" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/healthcheck-path" = "/_/version"
     "ingress.hosts[0].paths[0]"                                            = "/${each.key}/*"
     "ingress.hosts[0].host"                                                = join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])
-    "javaOptions"                                                          = local.module_configs_dev[(each.key)] > 0 ? "local.module_configs_perf" : "local.module_configs_test"[(each.key)].javaOptions
+    "javaOptions"                                                          = local.module_configs_dev[(each.key)].javaOptions
     "replicaCount"                                                         = local.module_configs_dev[(each.key)].replicaCount
     "resources.requests.memory"                                            = local.module_configs_dev[(each.key)].resources.requests.memory
-    "resources.limits.memory"                                              = local.module_configs_dev[(each.key)].resources.limits.memory > 0 ? "local.module_configs_perf" : "local.module_configs_test"[(each.key)].resources.limits.memory
+    "resources.limits.memory"                                              = local.module_configs_dev[(each.key)].resources.limits.memory
   }
 }
 
