@@ -22,17 +22,18 @@ resource "rancher2_namespace" "project-namespace" {
   }
 }
 
-## Create a new rancher2 Project Role Template Binding
-#resource "rancher2_project_role_template_binding" "project-binding" {
-#  name               = rancher2_project.project.name
-#  project_id         = rancher2_project.project.id
-#  role_template_id   = "project-member"
-#  group_principal_id = var.github_team_ids[rancher2_project.project.name]
-#}
+# Create a new rancher2 Project Role Template Binding
+resource "rancher2_project_role_template_binding" "project-binding" {
+  for_each           = toset(var.github_team_ids)
+  name               = rancher2_project.project.name
+  project_id         = rancher2_project.project.id
+  role_template_id   = "project-member"
+  group_principal_id = each.key
+}
 
 # Create a new Rancher2 Project Catalog for Folio charts
 resource "rancher2_catalog" "folio-charts" {
-  name       = "${rancher2_project.project.name}-helmcharts"
+  name       = join("-", [rancher2_project.project.name, "helmcharts"])
   url        = "https://folio-org.github.io/folio-helm"
   scope      = "project"
   version    = "helm_v3"

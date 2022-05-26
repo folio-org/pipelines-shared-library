@@ -33,7 +33,8 @@ static ArrayList rancherClustersList() {
 @NonCPS
 static ArrayList testingEnvironmentsList() {
     return ['karate',
-            'cypress']
+            'cypress',
+            'sprint']
 }
 
 @NonCPS
@@ -46,13 +47,11 @@ static ArrayList scratchEnvironmentsList() {
             'firebird',
             'folijet',
             'metadata',
-            'metadata-spitfire',
             'prokopovych',
             'scout',
             'spanish',
             'spitfire',
             'stripes-force',
-            'template',
             'thor',
             'thunderjet',
             'unam',

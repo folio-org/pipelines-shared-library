@@ -152,28 +152,8 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
-//TODO Check if needed
-#variable "github_team_ids" {
-#  type = map(any)
-#  default = {
-#    "folijet"         = "github_team://2826211"
-#    "vega"            = "github_team://2956598"
-#    "concorde"        = "github_team://3198396"
-#    "ebsco-core"      = "github_team://2733306"
-#    "firebird"        = "github_team://3703817"
-#    "gulfstream"      = "github_team://3711746"
-#    "leipzig"         = "github_team://3177353"
-#    "thunderjet"      = "github_team://2937171"
-#    "spitfire"        = "github_team://2946231"
-#    "stripes"         = "github_team://2108101"
-#    "unam"            = "github_team://2676560"
-#    "erm"             = "github_team://2869610"
-#    "ncip"            = "github_team://3704056"
-#    "core-functional" = "github_team://3936584"
-#    "stripes-force"   = "github_team://4073724"
-#    "ptf"             = "github_team://4195625"
-#    "falcon"          = "github_team://4318841"
-#    "thor"            = "github_team://3970386"
-#    "volaris"         = "github_team://4686360"
-#  }
-#}
+variable "github_team_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of github team IDs for project access"
+}
