@@ -7,4 +7,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-provider "tfvars" {}
+provider "hashicorp/tfvars" {
+  filename = env_type.tfvars
+}
