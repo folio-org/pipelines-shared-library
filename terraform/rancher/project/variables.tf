@@ -166,7 +166,7 @@ variable "stripes_image_tag" {
 }
 
 variable "env_type" {
-  type        = string
+  type        = map
   description = "config file for dev, perf, test env"
 }
 
