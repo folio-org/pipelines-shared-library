@@ -167,17 +167,6 @@ variable "stripes_image_tag" {
 
 variable "env_type" {
   type        = map
-  default     = {
-      "develop" = {
-        "development" = "config_dev.tf"
-      }
-      "perf" = {
-        "performance" = "config_perf.tf"
-      }
-      "test" = {
-        "testing" = "config_test.tf"
-      }
-    }
   description = "config file for dev, perf, test env"
   }
 
