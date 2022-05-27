@@ -1,10 +1,9 @@
 
 locals {
-  dev            = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
-  perf           = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
-  test           = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
- # module_configs = "${([local.module_configs_dev, local.module_configs_perf, local.module_configs_test])}"
-  module_configs = "${setproduct(["development", "performance", "testing"], ["replicaCount", "resources.requests.memory", "resources.limits.memory"])}"
+  dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ()}"
+  perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
+  test = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
+  module_configs = "${coalesce(local.dev,local.perf, local.test)}"
 }
 
 locals {
