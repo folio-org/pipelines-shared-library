@@ -169,13 +169,13 @@ variable "env_type" {
   type        = map
   default     = {
       "develop" = {
-        "development" = "local.module_configs_dev"
+        "development" = "config_dev.tf"
       }
       "perf" = {
-        "performance" = "local.module_configs_perf"
+        "performance" = "config_perf.tf"
       }
       "test" = {
-        "testing" = "local.module_configs_test"
+        "testing" = "config_test.tf"
       }
     }
   description = "config file for dev, perf, test env"
