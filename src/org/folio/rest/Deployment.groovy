@@ -95,4 +95,16 @@ class Deployment extends GeneralParameters {
             throw new AbortException('Tenant or admin user not set')
         }
     }
+    void update() {
+        if (tenant) {
+            enableList = gitHubUtility.buildEnableList(repository, branch)
+            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
+            okapi.publishModuleDescriptors(enableList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.registerServices(discoveryList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+        }  else {
+            throw new AbortException('Tenant not set')
+        }
+    }
 }
