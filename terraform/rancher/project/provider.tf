@@ -8,4 +8,5 @@ provider "aws" {
 }
 
 provider "tfvars" {
+  source =  'https://registry.terraform.io/providers/innovationnorway/tfvars'
 }
