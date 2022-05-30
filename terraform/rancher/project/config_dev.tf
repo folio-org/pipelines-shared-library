@@ -1,6 +1,7 @@
 
 locals {
   env_type = file("${path.module}/env_type.tfvars")
+}
 
 locals {
   module_configs_dev = {
