@@ -9,7 +9,7 @@ def clusterName = "folio-testing"
 def projectName = "karate"
 def folio_repository = "complete"
 def folio_branch = "snapshot"
-def okapiUrl = "https://${projectName}-okapi.ci.folio.org"
+def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def prototypeTenant = "diku"
 
 def spinUpEnvironmentJobName = "/Rancher/Project"
