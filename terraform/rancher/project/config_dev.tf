@@ -1,5 +1,5 @@
 locals{
-  env_type = file("${path.module}/env_type.tfvars")
+  env_type = local.module_configs_dev || local.module_configs_perf || local.module_configs_test
 }
 
 
