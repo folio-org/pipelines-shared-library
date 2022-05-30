@@ -166,7 +166,7 @@ variable "stripes_image_tag" {
 }
 
 variable "env_type" {
-  type = "map"
+  type = map(string)
   default = {
     "module_configs_dev"  = "local.module_configs_dev"
     "module_configs_perf"  = "local.module_configs_perf"
