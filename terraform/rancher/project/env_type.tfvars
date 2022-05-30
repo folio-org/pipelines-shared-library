@@ -1,5 +1,5 @@
 env_type = {
-  "develop" = {
+  "dev" = {
     "development" = "local.module_configs_dev"
   }
   "perf" = {

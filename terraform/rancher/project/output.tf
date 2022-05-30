@@ -5,3 +5,6 @@ output "okapi_url" {
 output "stripes_url" {
   value = join("", ["https://", join(".", [terraform.workspace, var.root_domain])])
 }
+output "env_type_output" {
+  value = var.env_type
+}
