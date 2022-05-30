@@ -82,7 +82,7 @@ ansiColor('xterm') {
                     terraform.tfWorkspaceSelect(tfWorkDir, params.project_name)
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
-                        terraform.tfPlan(tfWorkDir, tfVars, tf_var_file='env_type.tfvars')
+                        terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
                         okapiUrl = terraform.tfOutput(tfWorkDir, 'okapi_url')
                         stripesUrl = terraform.tfOutput(tfWorkDir, 'stripes_url')
