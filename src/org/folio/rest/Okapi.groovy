@@ -135,7 +135,7 @@ class Okapi extends GeneralParameters {
  * @return true or false
  */
     private Boolean checkModuleDescriptor(module) {
-        String url = okapiUrl + "/_/proxy/import/modules?filter=${module.id}"
+        String url = okapiUrl + "/_/proxy/modules?filter=${module.id}"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
