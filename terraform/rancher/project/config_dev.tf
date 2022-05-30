@@ -1,6 +1,6 @@
 
 locals {
-  env_type = file("${path.module}/config_dev.tf")
+  env_type = local.module_configs_perf
 }
 
 locals {
