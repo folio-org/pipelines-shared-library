@@ -59,7 +59,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('stripes_image_tag', params.stripes_image_tag)
                 tfVars += terraform.generateTfVar('pg_password', params.pg_password)
                 tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
-                tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds(Constants.ENVS_MEMBERS_LIST[params.project_name] + params.github_teams).collect { '"' + it + '"' })
+                tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.project_name] + params.github_teams - null).collect { '"' + it + '"' })
                 withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'folio_docker_registry_password', usernameVariable: 'folio_docker_registry_username')]) {
                     tfVars += terraform.generateTfVar('folio_docker_registry_username', folio_docker_registry_username)
                     tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)
