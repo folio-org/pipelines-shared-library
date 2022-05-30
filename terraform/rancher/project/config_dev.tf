@@ -1,15 +1,6 @@
 
 locals {
-  env_type = {
-    development = "local.module_configs_dev"
-    performance = "local.module_configs_perf"
-    testing     = "local.module_configs_test"
-    env_type    =  local.module_configs_dev
-    #module_configs = local.env_type
-  }
-}
-
-
+  env_type = file("${path.module}/env_type.tfvars")
 
 locals {
   module_configs_dev = {
