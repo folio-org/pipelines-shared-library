@@ -1,9 +1,9 @@
 
 locals {
   env_type = {
-    development = "local.module_configs_dev",
-    performance = "local.module_configs_perf",
-    testing     = "local.module_configs_test"
+    development = "config_dev.tf",
+    performance = "config_perf.tf",
+    testing     = "config_test.tf"
   }
   dev  = "${var.env_type == "development" ? "development" : ""}"
   perf = "${var.env_type == "performance" ? "performance" : ""}"
