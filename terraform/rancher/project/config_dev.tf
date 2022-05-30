@@ -3,7 +3,7 @@ locals {
   performance = local.module_configs_perf
   testing     = local.module_configs_test
   development = local.module_configs_dev
-  module_configs = var.env_type == "development" ? "development" : ""
+  module_configs = var.env_type == "development" || "performance" ? local.development : local.performance
 }
 
 locals {
