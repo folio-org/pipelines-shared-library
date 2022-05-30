@@ -166,8 +166,8 @@ variable "stripes_image_tag" {
 }
 
 variable "env_type" {
-  type        = string
-  default     = "development"
+  type        = list(string)
+  default     = ["local.module_configs_dev"]
   description = "config file for dev, perf, test env"
   }
 
