@@ -1,14 +1,14 @@
 
 locals {
   env_type = {
-    development = "local.module_configs_dev",
-    performance = "local.module_configs_perf",
-    testing     = "local.module_configs_test"
+    development = file("${path.module}/config_dev.tf"),
+    #performance = "local.module_configs_perf",
+    #testing     = "local.module_configs_test"
   }
-  dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
+  #dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
   #perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
   #test = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
-  module_configs = file("${path.module}/config_perf.tf")
+  module_configs = local.env_type
   #module_configs = var.env_type
 }
 
