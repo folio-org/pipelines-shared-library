@@ -6,7 +6,7 @@ locals {
           memory = "1440Mi"
         },
         limits = {
-          memory = "3072Mi"
+          memory = "2072Mi"
         }
       },
       replicaCount = 1,
