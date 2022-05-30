@@ -61,7 +61,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dstaging_director_tenants=${CLUSTER}_stagingDirector_tenants"
+      javaOptions  = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
       javaArgs     = "-Dport=$CONTAINER_PORT"
     },
     "edge-ea-data-export" = {
