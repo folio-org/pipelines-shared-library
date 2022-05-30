@@ -8,11 +8,9 @@ resource "rancher2_app" "postgres" {
   template_name    = "postgresql"
   template_version = "11.0.8"
   answers = {
-    "fullnameOverride" = "pg-folio"
-    "image.tag"        = var.pg_version
-    "auth.database"    = var.pg_dbname
-    #    "auth.password"                              = var.pg_password
-    #    "auth.username"                              = var.pg_username
+    "fullnameOverride"                           = "pg-folio"
+    "image.tag"                                  = join(".", [var.pg_version, "0"])
+    "auth.database"                              = var.pg_dbname
     "auth.postgresPassword"                      = var.pg_password
     "primary.persistence.enabled"                = "true"
     "primary.persistence.size"                   = "20Gi"
@@ -66,7 +64,7 @@ resource "aws_security_group" "allow_rds" {
 resource "aws_db_parameter_group" "aurora_db_postgres_parameter_group" {
   count  = var.folio_embedded_db ? 0 : 1
   name   = join("-", ["aurora-db-postgres-parameter-group", data.rancher2_cluster.cluster.name])
-  family = join("", ["aurora-postgresql", var.pg_version])
+  family = join("", ["aurora-postgresql", split(".", var.pg_version)[0]])
 
   tags = {
     Environment = "rancher"
@@ -78,7 +76,7 @@ resource "aws_db_parameter_group" "aurora_db_postgres_parameter_group" {
 resource "aws_rds_cluster_parameter_group" "aurora_cluster_postgres_parameter_group" {
   count  = var.folio_embedded_db ? 0 : 1
   name   = join("-", ["aurora-postgres-cluster-parameter-group", data.rancher2_cluster.cluster.name])
-  family = join("", ["aurora-postgresql", var.pg_version])
+  family = join("", ["aurora-postgresql", split(".", var.pg_version)[0]])
 
   tags = {
     Environment = "rancher"
@@ -94,7 +92,7 @@ module "rds" {
   version                         = "~> 3.0"
   name                            = join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name])
   engine                          = "aurora-postgresql"
-  engine_version                  = join(".", [var.pg_version, var.pg_subversion])
+  engine_version                  = var.pg_version
   vpc_id                          = data.aws_eks_cluster.cluster.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.db_subnet.ids
   replica_count                   = 1
@@ -143,7 +141,7 @@ resource "rancher2_app" "pgadmin4" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
     "ingress.hosts[0].paths[0]"                                         = "/*"
     "ingress.hosts[0].host" = join(".", [
-      join("-", [rancher2_project.project.name, "pgadmin"]), var.root_domain
+      join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "pgadmin"]), var.root_domain
     ])
   }
 }
