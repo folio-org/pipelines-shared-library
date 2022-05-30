@@ -9,7 +9,7 @@ def tfInit(String path, String opts) {
 def tfPlan(String path, String opts) {
     stage('TF plan') {
         dir(path) {
-            sh "terraform plan -var 'env_type=[\"local.development\", \"local.performance\", \"local.testing\"]' -input=false -out tfplan ${opts}"
+            sh "terraform plan -var 'env_type=[\"local.module_configs_dev\", \"local.module_configs_perf\", \"local.module_configs_test\"]' -input=false -out tfplan ${opts}"
         }
     }
 }
