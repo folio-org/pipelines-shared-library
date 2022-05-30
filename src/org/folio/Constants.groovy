@@ -38,7 +38,7 @@ class Constants {
                                     "scout"        : ["scout"],
                                     "spanish"      : ["unam"],
                                     "spitfire"     : ["spitfire"],
-                                    "sprint"       : [],
+                                    "sprint-testing"       : [],
                                     "stripes-force": ["stripes-force"],
                                     "thor"         : ["thor"],
                                     "thunderjet"   : ["thunderjet"],
