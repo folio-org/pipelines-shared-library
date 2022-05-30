@@ -167,15 +167,14 @@ variable "stripes_image_tag" {
 
 
 variable "env_type" {
-  type = string
-  default = ""
+  type        = string
+  default     = "development"
   description = "config file for dev, perf, test env"
-}
 
-variable "module_configs" {
-  type = string
-  default = "development"
-  description = "config file for dev, perf, test env"
+  validation {
+    condition     = var.env_type == "performance" || var.env_type == "testing"
+    error_message = "Must be a valid env type for perf or test env."
+  }
 }
 
 
