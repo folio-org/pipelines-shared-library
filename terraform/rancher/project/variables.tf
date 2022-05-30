@@ -167,7 +167,7 @@ variable "stripes_image_tag" {
 
 variable "env_type" {
   type        = list(string)
-  default     = "development"
+  default     = ["development", "performance", "testing"]
   description = "config file for dev, perf, test env"
   }
 
