@@ -152,15 +152,15 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
-variable "github_team_ids" {
-  type        = list(string)
-  default     = []
-  description = "List of github team IDs for project access"
-}
-
 variable "env_type" {
   type        = string
   default     = "development"
   description = "config file for dev, perf, test env"
 }
 
+
+variable "github_team_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of github team IDs for project access"
+}

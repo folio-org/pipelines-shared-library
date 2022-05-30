@@ -22,6 +22,7 @@ properties([
         jobsParameters.projectName(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.envType(),
+        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.stripesImageTag(),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
