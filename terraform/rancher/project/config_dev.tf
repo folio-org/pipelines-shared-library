@@ -5,10 +5,10 @@ locals {
     performance = "config_perf.tf",
     testing     = "config_test.tf"
   }
-  dev  = "${var.env_type == "development" ? "development" : ""}"
-  perf = "${var.env_type == "performance" ? "performance" : ""}"
-  test = "${var.env_type != "development" && var.env_type != "performance" ? "testing" : ""}"
-  module_configs = tomap([local.dev, local.perf, local.test])
+  dev  = "${var.env_type == "development" ? "config_dev.tf" : ""}"
+  perf = "${var.env_type == "performance" ? "config_perf.tf" : ""}"
+  test = "${var.env_type != "development" && var.env_type != "performance" ? "config_test.tf" : ""}"
+  module_configs = tomap([local.module_configs_dev, local.module_configs_perf, local.module_configs_test])
 }
 
 locals {
