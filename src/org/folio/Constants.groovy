@@ -32,7 +32,7 @@ class Constants {
                                     "falcon"       : ["falcon"],
                                     "firebird"     : ["firebird"],
                                     "folijet"      : ["folijet"],
-                                    "karate"       : ["Bama", "concorde", "core-platform", "ebsco-core", "falcon", "firebird", "folijet", "spitfire", "core-functional", "scout", "unam", "stripes-force", "thor", "thunderjet", "vega", "volaris"],
+                                    "karate"       : [],
                                     "metadata"     : ["spitfire"],
                                     "prokopovych"  : ["core-functional"],
                                     "scout"        : ["scout"],
@@ -48,3 +48,5 @@ class Constants {
                                     "volaris-2nd"  : ["volaris"]]
 
 }
+
+//"karate"       : ["Bama", "concorde", "core-platform", "ebsco-core", "falcon", "firebird", "folijet", "spitfire", "core-functional", "scout", "unam", "stripes-force", "thor", "thunderjet", "vega", "volaris"],
