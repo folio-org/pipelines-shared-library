@@ -1,4 +1,4 @@
-env_type = {
+module_congifs = {
   "dev" = {
     "development" = "local.module_configs_dev"
   }

@@ -1,5 +1,5 @@
 locals{
-  env_type = local.module_configs_dev
+  module_configs = local.module_configs_dev
 }
 
 
