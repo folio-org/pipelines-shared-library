@@ -166,8 +166,12 @@ variable "stripes_image_tag" {
 }
 
 variable "env_type" {
-  type        = list(string)
-  default     = ["local.module_configs_dev"]
+  type = "map"
+  default = {
+    "module_configs_dev"  = "local.module_configs_dev"
+    "module_configs_perf"  = "local.module_configs_perf"
+    "module_configs_test"  = "local.module_configs_test"
+  }
   description = "config file for dev, perf, test env"
   }
 
