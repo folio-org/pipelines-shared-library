@@ -88,9 +88,9 @@ resource "rancher2_app" "folio-okapi" {
     "ingress.hosts[0].paths[0]"                                                    = "/*"
     "ingress.hosts[0].host"                                                        = join(".", [join("-", [rancher2_project.project.name, "okapi"]), var.root_domain])
     #"javaOptions"               = local.module_configs["okapi"].javaOptions
-    "replicaCount"              = local.module_configs["okapi"].replicaCount
-    "resources.requests.memory" = local.module_configs["okapi"].resources.requests.memory
-    "resources.limits.memory"   = local.module_configs["okapi"].resources.limits.memory
+    "replicaCount"              = local.env_type["okapi"].replicaCount
+    "resources.requests.memory" = local.env_type["okapi"].resources.requests.memory
+    "resources.limits.memory"   = local.env_type["okapi"].resources.limits.memory
   }
 }
 
