@@ -170,12 +170,6 @@ variable "env_type" {
   type        = string
   default     = "development"
   description = "config file for dev, perf, test env"
-
-  validation {
-    condition = contains(["development", "performance"], var.env_type)
-    #condition     = var.env_type == "performance" || var.env_type == "testing"
-    error_message = "Must be a valid env type for perf or test env."
-  }
 }
 
 
