@@ -1,12 +1,12 @@
 
 locals {
   env_type = {
-  development  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
-  performance  = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
-  testing      = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
-  env_type     = var.env_type
-}
-
+    development = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
+    performance = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
+    testing     = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
+    env_type    = var.env_type
+   }
+ }
 locals {
   module_configs_dev = {
     "okapi" = {
