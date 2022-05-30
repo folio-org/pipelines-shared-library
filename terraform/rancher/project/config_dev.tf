@@ -5,10 +5,10 @@ locals {
     performance = "local.module_configs_perf",
     testing     = "local.module_configs_test"
   }
-  #dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
+  dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
   #perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
   #test = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
-  module_configs = "${coalesce(local.module_configs_test,local.module_configs_perf, local.module_configs_dev)}"
+  module_configs = "${coalesce(local.dev,local.module_configs_perf, local.module_configs_dev)}"
   #module_configs = var.env_type
 }
 
