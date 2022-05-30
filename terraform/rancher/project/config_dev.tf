@@ -1,6 +1,12 @@
-locals{
-  module_configs = var.env_type
+
+locals {
+  env_type = {
+    development = local.module_configs_dev,
+    performance = local.module_configs_perf,
+    testing = local.module_configs_test
+  }
 }
+   module_configs = ["${local.env_type[var.env_type == "development" ? "local.module_configs_dev" : "local.module_configs_perf"]}"]
 
 
 locals {
