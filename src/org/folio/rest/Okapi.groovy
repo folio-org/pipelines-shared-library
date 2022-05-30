@@ -82,13 +82,18 @@ class Okapi extends GeneralParameters {
         modules.each { module ->
             // skip okapi descriptors
             if (!module.id.startsWith(OKAPI_NAME)) {
-                logger.info("Pull module descriptor for '${module.id}' module from registry")
-                // search module descriptor for in repositories
-                def descriptor = getModuleDescriptor(registries, module)
-                if (descriptor) {
-                    items.add(descriptor)
+                // check whether module descriptor of the module already registered
+                if (!checkModuleDescriptor(module)) {
+                    logger.info("Pull module descriptor for '${module.id}' module from registry")
+                    // search module descriptor for in repositories
+                    def descriptor = getModuleDescriptor(registries, module)
+                    if (descriptor) {
+                        items.add(descriptor)
+                    } else {
+                        throw new AbortException("Module descriptor for '${module.id}' module not found.")
+                    }
                 } else {
-                    throw new AbortException("Module descriptor for '${module.id}' module not found.")
+                    logger.info("Skipping module descriptor '${module.id}' as it already exists in target Okapi")
                 }
             }
         }
@@ -109,12 +114,12 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Search for module descriptor in registry
-     * @param registries registries
-     * @param module module
-     * @return module descriptor
-     */
+/**
+ * Search for module descriptor in registry
+ * @param registries registries
+ * @param module module
+ * @return module descriptor
+ */
     private Object getModuleDescriptor(List registries, module) {
         for (String registry : registries) {
             def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
@@ -124,11 +129,30 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Check if tenant already exists
-     * @param tenantId
-     * @return
-     */
+/**
+ * Check whether module descriptor is already registered in Okapi
+ * @param module module
+ * @return true or false
+ */
+    private Boolean checkModuleDescriptor(module) {
+        String url = okapiUrl + "/_/proxy/import/modules?filter=${module.id}"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+
+        def response = http.getRequest(url, headers)
+        if (response.status == HttpURLConnection.HTTP_OK) {
+            def result = tools.jsonParse(response.content)
+            return result.size() > 0
+        } else {
+            throw new AbortException("Error during modules descriptors existance check" + http.buildHttpErrorMessage(response))
+        }
+    }
+/**
+ * Check if tenant already exists
+ * @param tenantId
+ * @return
+ */
     Boolean isTenantExists(String tenantId) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenantId
@@ -144,10 +168,10 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Create tenant
-     * @param tenant
-     */
+/**
+ * Create tenant
+ * @param tenant
+ */
     void createTenant(OkapiTenant tenant) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants"
@@ -170,11 +194,11 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Build query based on tenant parameters
-     * @param parameters
-     * @return
-     */
+/**
+ * Build query based on tenant parameters
+ * @param parameters
+ * @return
+ */
     static def buildTenantQueryParameters(LinkedHashMap parameters) {
         String tenantParameters = ''
         if (parameters) {
@@ -189,13 +213,13 @@ class Okapi extends GeneralParameters {
         return tenantParameters
     }
 
-    /**
-     * Bulk Enable/Disable/Upgrade modules for tenant
-     * @param tenant
-     * @param list
-     * @param timeout
-     * @return
-     */
+/**
+ * Bulk Enable/Disable/Upgrade modules for tenant
+ * @param tenant
+ * @param list
+ * @param timeout
+ * @return
+ */
     def enableDisableUpgradeModulesForTenant(OkapiTenant tenant, ArrayList modulesList, Integer timeout = 0) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String queryParameters = buildTenantQueryParameters(tenant.parameters)
@@ -214,11 +238,11 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Check if module service and instance Ids already registered
-     * @param serviceId
-     * @return
-     */
+/**
+ * Check if module service and instance Ids already registered
+ * @param serviceId
+ * @return
+ */
     Boolean isServiceExists(String serviceId) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules/" + serviceId
@@ -234,10 +258,10 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Register modules descriptors in Okapi if not registered
-     * @param discoveryList
-     */
+/**
+ * Register modules descriptors in Okapi if not registered
+ * @param discoveryList
+ */
     void registerServices(ArrayList discoveryList) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
@@ -266,10 +290,10 @@ class Okapi extends GeneralParameters {
         logger.info("Modules registration in Okapi finished successfully")
     }
 
-    /**
-     * Get all enabled services
-     * @return
-     */
+/**
+ * Get all enabled services
+ * @return
+ */
     def getEnabledModules() {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
@@ -283,12 +307,12 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    /**
-     * Get particular module id by name
-     * @param tenant
-     * @param moduleName
-     * @return
-     */
+/**
+ * Get particular module id by name
+ * @param tenant
+ * @param moduleName
+ * @return
+ */
     def getModuleId(OkapiTenant tenant, String moduleName) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants/" + tenant.id + "/interfaces/" + moduleName
@@ -317,4 +341,5 @@ class Okapi extends GeneralParameters {
         auth.createUserCredentials(supertenant, user)
         enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
     }
+
 }
