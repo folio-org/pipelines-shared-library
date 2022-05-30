@@ -1,5 +1,5 @@
 locals{
-  env_type = local.module_configs_dev || local.module_configs_perf || local.module_configs_test
+  env_type = local.module_configs_dev
 }
 
 
