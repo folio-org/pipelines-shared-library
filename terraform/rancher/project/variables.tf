@@ -173,6 +173,7 @@ variable "env_type" {
 
   validation {
     condition     = var.env_type == "performance" || var.env_type == "testing"
+    error_message = "Must be a valid env type"
    }
 }
 
