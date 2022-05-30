@@ -17,7 +17,3 @@ data "aws_subnets" "db_subnet" {
     values = ["perf-eks-vpc-bulk-edit-db-us-west-2a", "perf-eks-vpc-bulk-edit-db-us-west-2b", "perf-eks-vpc-bulk-edit-db-us-west-2c", "perf-eks-vpc-bulk-edit-db-us-west-2d"]
   }
 }
-
-data "tfvars_file" "env_type" {
-  filename = "env_type.tfvars"
-}
