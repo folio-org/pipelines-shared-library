@@ -9,7 +9,7 @@ def tfInit(String path, String opts) {
 def tfPlan(String path, String opts) {
     stage('TF plan') {
         dir(path) {
-            sh "terraform plan export TF_VAR_env_type=\"env_type.tfvars\" -input=false -out tfplan ${opts}"
+            sh "terraform plan  -var-file=\"env_type.tfvars\" -input=false -out tfplan ${opts}"
         }
     }
 }
