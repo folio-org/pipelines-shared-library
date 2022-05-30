@@ -1,7 +1,4 @@
 module_congifs = {
-  "dev" = {
-    "development" = "local.module_configs_dev"
-  }
   "perf" = {
     "performance" = "local.module_configs_perf"
   }
