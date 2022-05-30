@@ -1,6 +1,6 @@
 
 locals {
-  module_configs = {
+  env_type = {
     development = "local.module_configs_dev",
     performance = "local.module_configs_perf",
     testing     = "local.module_configs_test"
