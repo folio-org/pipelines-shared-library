@@ -1,4 +1,5 @@
 locals{
+
   module_configs = var.env_type
 }
 

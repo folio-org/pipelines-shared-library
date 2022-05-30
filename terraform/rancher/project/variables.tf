@@ -165,11 +165,20 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
+
 variable "env_type" {
-  type = string
-  default = "development"
+  type        = string
+  default     = "development"
   description = "config file for dev, perf, test env"
+
+  validation {
+    condition     = var.env_type == "performance" || var.env_type == "testing"
+    error_message = "config type should be perf or test"
   }
+  }
+
+
+
 
 
 //TODO Check if needed
