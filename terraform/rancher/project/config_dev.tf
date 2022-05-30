@@ -1,13 +1,13 @@
 
 locals {
   env_type = {
-    development = "local.module_configs_dev",
-    performance = "local.module_configs_perf",
-    testing     = "local.module_configs_test"
+    module_configs_dev  = "local.module_configs_dev",
+    module_configs_perf = "local.module_configs_perf",
+    module_configs_test = "local.module_configs_test"
   }
-  dev  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
-  perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
-  test = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
+  development  = "${var.env_type == "development" ? "local.module_configs_dev" : ""}"
+  performance  = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
+  testing      = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
   #module_configs = coalesce(local.module_configs_test,local.module_configs_perf,local.module_configs_dev)
 
 }

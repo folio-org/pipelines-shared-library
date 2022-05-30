@@ -32,9 +32,9 @@ static ArrayList rancherClustersList() {
 
 @NonCPS
 static ArrayList envTypeList() {
-    return ['development',
-            'performance',
-            'testing']
+    return ['module_configs_dev',
+            'module_configs_perf',
+            'module_configs_test']
 }
 
 @NonCPS
