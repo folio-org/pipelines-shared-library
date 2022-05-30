@@ -1,6 +1,7 @@
 
 locals {
-  env_type = local.module_configs_perf
+  performance = "local.module_configs_perf"
+  env_type = local.performance
 }
 
 locals {
