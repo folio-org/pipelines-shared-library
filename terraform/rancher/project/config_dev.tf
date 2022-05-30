@@ -9,7 +9,7 @@ locals {
   perf = "${var.env_type == "performance" ? "local.module_configs_perf" : ""}"
   test = "${var.env_type != "development" && var.env_type != "performance" ? "local.module_configs_test" : ""}"
   #module_configs = coalesce(local.module_configs_test,local.module_configs_perf,local.module_configs_dev)
-  module_configs = var.env_type
+
 }
 
 locals {
