@@ -173,9 +173,8 @@ variable "env_type" {
 
   validation {
     condition     = var.env_type == "performance" || var.env_type == "testing"
-    error_message = "config type should be perf or test"
-  }
-  }
+   }
+}
 
 
 
