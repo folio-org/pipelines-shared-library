@@ -8,7 +8,7 @@ locals {
   dev  = "${var.env_type == "development" ? "development" : ""}"
   perf = "${var.env_type == "performance" ? "performance" : ""}"
   test = "${var.env_type != "development" && var.env_type != "performance" ? "testing" : ""}"
-  modules = tomap([local.dev, local.perf, local.test])
+  module_configs = tomap([local.dev, local.perf, local.test])
 }
 
 locals {
