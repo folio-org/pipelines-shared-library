@@ -27,25 +27,24 @@ pipeline {
         string(name: 'diku_login', description: 'Choose what you want', defaultValue: "diku_admin")
         password(name: 'diku_password', description: 'Choose what you want', defaultValue: "admin")
         string(name: 'run_param', description: 'Choose what you want', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true")
-        [
-            $class      : 'CascadeChoiceParameter',
-            choiceType  : 'PT_SINGLE_SELECT',
-            description : 'Choose what stripes-testing branch to run from',
-            filterLength: 1,
-            filterable  : false,
-            name        : 'branch',
-            script      : [
-                $class        : 'GroovyScript',
-                fallbackScript: [
-                    classpath: [],
-                    sandbox  : false,
-                    script   : 'return ["error"]'
-                ],
-                script        : [classpath: [],
-                                 sandbox  : false,
-                                 script   : code
-                ]
-            ]
+        [$class      : 'CascadeChoiceParameter',
+         choiceType  : 'PT_SINGLE_SELECT',
+         description : 'Choose what stripes-testing branch to run from',
+         filterLength: 1,
+         filterable  : false,
+         name        : 'branch',
+         script      : [
+             $class        : 'GroovyScript',
+             fallbackScript: [
+                 classpath: [],
+                 sandbox  : false,
+                 script   : 'return ["error"]'
+             ],
+             script        : [classpath: [],
+                              sandbox  : false,
+                              script   : code
+             ]
+         ]
         ]
     }
 
