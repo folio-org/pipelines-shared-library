@@ -153,6 +153,7 @@ pipeline {
                         stage("Sync jira tickets") {
                             steps {
                                 script {
+                                    println "skip"
                                     //karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
