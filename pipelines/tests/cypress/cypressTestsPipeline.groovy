@@ -41,12 +41,12 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', description: 'Folio UI url', defaultValue: "https://folio-testing-karate.ci.folio.org"),
-        string(name: 'okapiUrl', description: 'Okapi url', defaultValue: "https://folio-testing-karate-okapi.ci.folio.org"),
-        string(name: 'tenant', description: 'Tenant name', defaultValue: "diku"),
-        string(name: 'user', description: 'User name', defaultValue: "diku_admin"),
-        password(name: 'password', description: 'User password ', defaultValue: "admin"),
-        string(name: 'cypressParameters', description: 'Cypress execution parameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true"),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-karate.ci.folio.org", description: 'Target environment UI URL'),
+        string(name: 'okapiUrl', defaultValue: "https://folio-testing-karate-okapi.ci.folio.org", description: 'Target environment OKAPI URL'),
+        string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
+        string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
+        password(name: 'password', defaultValue: "admin", description: 'User password'),
+        string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
     ])
 ])
 
@@ -77,11 +77,12 @@ pipeline {
         stage('Run cypress tests') {
             steps {
                 script {
-                    currentUID = sh returnStdout: true, script: 'id -u'
-                    currentGID = sh returnStdout: true, script: 'id -g'
+                    currentUID = sh returnStdout: true, script: 'id -u'.trim()
+                    currentGID = sh returnStdout: true, script: 'id -g'.trim()
 
                     //0:0
-                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside("-u ${currentUID}:${currentGID} --entrypoint=") {
+                    // -u ${currentUID}:${currentGID} 
+                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside("--entrypoint=") {
                         stage('Execute cypress tests') {
                             sh """
                             export CYPRESS_BASE_URL=${params.uiUrl}
