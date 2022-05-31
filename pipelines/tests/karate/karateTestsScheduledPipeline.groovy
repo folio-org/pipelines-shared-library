@@ -1,3 +1,5 @@
+package tests.karate
+
 @Library('pipelines-shared-library@RANCHER-252') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
@@ -30,7 +32,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     parameters {
-        string(name: 'branch', defaultValue: 'RANCHER-252', description: 'Karate tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
 
@@ -145,13 +147,13 @@ pipeline {
                             }
                         }
 
-//                        stage("Sync jira tickets") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }

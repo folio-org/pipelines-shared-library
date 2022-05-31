@@ -1,7 +1,9 @@
+package tests.karate
+
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-252') _
 
 def karateEnvironment = "jenkins"
 
@@ -12,7 +14,7 @@ pipeline {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
-        string(name: 'okapiUrl', defaultValue: 'https://test-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
+        string(name: 'okapiUrl', defaultValue: 'https://folio-testing-test-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'supertenant', description: 'Tenant name for tests execution')
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
         password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
