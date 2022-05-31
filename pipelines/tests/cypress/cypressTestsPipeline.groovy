@@ -19,16 +19,10 @@ def currentGID
 
 properties([
     parameters([
-        string(name: 'baseUrl', description: 'Choose what you want', defaultValue: "https://cypress.ci.folio.org"),
-        string(name: 'OKAPI_HOST', description: 'Choose what you want', defaultValue: "https://cypress-okapi.ci.folio.org"),
-        string(name: 'OKAPI_TENANT', description: 'Choose what you want', defaultValue: "diku"),
-        string(name: 'diku_login', description: 'Choose what you want', defaultValue: "diku_admin"),
-        password(name: 'diku_password', description: 'Choose what you want', defaultValue: "admin"),
-        string(name: 'run_param', description: 'Choose what you want', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true"),
         [
             $class      : 'CascadeChoiceParameter',
             choiceType  : 'PT_SINGLE_SELECT',
-            description : 'Choose what stripes-testing branch to run from',
+            description : 'Cypress tests repository branch',
             filterLength: 1,
             filterable  : false,
             name        : 'branch',
@@ -44,7 +38,13 @@ properties([
                                  script   : code
                 ]
             ]
-        ]
+        ],
+        string(name: 'uiUrl', description: 'Folio UI url', defaultValue: "https://cypress.ci.folio.org"),
+        string(name: 'okapiUrl', description: 'Okapi url', defaultValue: "https://cypress-okapi.ci.folio.org"),
+        string(name: 'tenant', description: 'Tenant to execute tests', defaultValue: "diku"),
+        string(name: 'user', description: 'User for test', defaultValue: "diku_admin"),
+        password(name: 'password', description: 'Password for test', defaultValue: "admin"),
+        string(name: 'cypressParameters', description: 'Cypress execution parameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true"),
     ])
 ])
 
@@ -71,6 +71,7 @@ pipeline {
                 }
             }
         }
+
         stage('Run cypress tests') {
             steps {
                 script {
@@ -80,16 +81,18 @@ pipeline {
                     docker.image("cypress/browsers:${cypressBrowsersVersion}").inside('-u 0:0 --entrypoint=') {
                         stage('Execute cypress tests') {
                             sh """
-                            export CYPRESS_BASE_URL=${params.baseUrl}
-                            export CYPRESS_OKAPI_HOST=${params.OKAPI_HOST}
-                            export CYPRESS_OKAPI_TENANT=${params.OKAPI_TENANT}
-                            export CYPRESS_diku_login=${params.diku_login}
-                            export CYPRESS_diku_password=${params.diku_password}
-                            yarn config set @folio:registry https://repository.folio.org/repository/npm-folioci/
+                            export CYPRESS_BASE_URL=${params.uiUrl}
+                            export CYPRESS_OKAPI_HOST=${params.okapiUrl}
+                            export CYPRESS_OKAPI_TENANT=${params.tenant}
+                            export CYPRESS_diku_login=${params.user}
+                            export CYPRESS_diku_password=${params.password}
+
+                            yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
                             yarn install
                             yarn add @interactors/html --dev
                             yarn add @interactors/html @interactors/with-cypress --dev
-                            npx cypress run --headless ${params.run_param} || true
+
+                            npx cypress run --headless ${params.cypressParameters} || true
                             chown -R ${currentUID.trim()}:${currentGID.trim()} *
                         """
                         }
@@ -108,6 +111,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage('Publish tests report') {
                     steps {
                         allure([
@@ -120,6 +124,7 @@ pipeline {
                         ])
                     }
                 }
+
                 stage('Archive artifacts') {
                     steps {
                         archiveArtifacts artifacts: 'allure-results/*'

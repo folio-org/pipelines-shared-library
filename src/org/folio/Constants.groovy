@@ -22,6 +22,8 @@ class Constants {
 
     static String JENKINS_MASTER_NODE = "master"
 
+    static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
+
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
 
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
@@ -48,5 +50,3 @@ class Constants {
                                     "volaris-2nd"  : ["volaris"]]
 
 }
-
-//"karate"       : ["Bama", "concorde", "core-platform", "ebsco-core", "falcon", "firebird", "folijet", "spitfire", "core-functional", "scout", "unam", "stripes-force", "thor", "thunderjet", "vega", "volaris"],
