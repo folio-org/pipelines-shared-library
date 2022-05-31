@@ -5,8 +5,10 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-291') _
 
+def cypressRepoitoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
+
 def code = """
-def gettags = ("git ls-remote -t -h https://github.com/folio-org/stripes-testing.git").execute()
+def gettags = ("git ls-remote -t -h ${cypressRepoitoryUrl}").execute()
 return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
@@ -65,7 +67,7 @@ pipeline {
                                                                   recursiveSubmodules: true,
                                                                   reference          : '',
                                                                   trackingSubmodules : false]],
-                            userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"]]
+                            userRemoteConfigs: [[url: cypressRepoitoryUrl]]
                         ])
                     }
                 }
