@@ -77,7 +77,6 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            input "Destroy"
                             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
                                 projectName, prototypeTenant, folio_repository, folio_branch)
 
