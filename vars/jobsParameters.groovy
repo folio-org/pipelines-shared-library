@@ -25,9 +25,10 @@ static ArrayList repositoriesList() {
 
 static ArrayList rancherClustersList() {
     return ['folio-testing',
-            'folio-scratch',
+            'folio-dev',
+            'folio-scratch', //Deprecated
             'folio-perf',
-            'folio-test']
+            'folio-tmp']
 }
 
 @NonCPS
@@ -38,7 +39,7 @@ static ArrayList testingEnvironmentsList() {
 }
 
 @NonCPS
-static ArrayList scratchEnvironmentsList() {
+static ArrayList devEnvironmentsList() {
     return ['bama',
             'concorde',
             'core-platform',
@@ -51,6 +52,7 @@ static ArrayList scratchEnvironmentsList() {
             'scout',
             'spanish',
             'spitfire',
+            'sprint-testing', //Deprecated
             'stripes-force',
             'thor',
             'thunderjet',
@@ -74,9 +76,10 @@ static ArrayList testEnvironmentsList() {
 static String generateProjectNamesMap() {
     return JsonOutput.toJson([
         'folio-testing': testingEnvironmentsList(),
-        'folio-scratch': scratchEnvironmentsList(),
+        'folio-dev'    : devEnvironmentsList(),
+        'folio-scratch': devEnvironmentsList(),
         'folio-perf'   : perfEnvironmentsList(),
-        'folio-test'   : testEnvironmentsList()
+        'folio-tmp'   : testEnvironmentsList()
     ])
 }
 

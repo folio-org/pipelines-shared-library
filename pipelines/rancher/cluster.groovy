@@ -11,11 +11,10 @@ properties([
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose what should be done with cluster'),
         jobsParameters.rancherClusters(),
         choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),
-        string(name: 'asg_instance_types', defaultValue: '"m5.xlarge", "m5a.xlarge", "m5d.xlarge", "m5ad.xlarge"', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
-        string(name: 'eks_min_size', defaultValue: '3', description: 'Minimum size of node group for eks cluster', trim: true),
-        string(name: 'eks_max_size', defaultValue: '6', description: 'Maximum size of node group for eks cluster', trim: true),
-        booleanParam(name: 'vpc_create', defaultValue: true, description: 'True if VPC should be created with cluster'),
-        string(name: 'vpc_id', defaultValue: '', description: 'Should be specified if vpc_create=false', trim: true)
+        string(name: 'asg_instance_types', defaultValue: 'm5.xlarge,m5a.xlarge,m5d.xlarge,m5ad.xlarge', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
+        string(name: 'eks_min_size', defaultValue: '4', description: 'Minimum size of node group for eks cluster', trim: true),
+        string(name: 'eks_max_size', defaultValue: '8', description: 'Maximum size of node group for eks cluster', trim: true),
+        string(name: 'vpc_name', defaultValue: 'folio-rancher-vpc', description: 'Name of the target VPC', trim: true)
     ])
 ])
 
@@ -33,23 +32,21 @@ ansiColor('xterm') {
                 buildName params.rancher_cluster_name + '.' + env.BUILD_ID
                 buildDescription "action: ${params.action}\n" +
                     "eks_nodes_type: ${params.eks_nodes_type}\n" +
-                    "vpc_create: ${params.vpc_create}\n" +
-                    "vpc_id: ${params.vpc_id}"
+                    "vpc_name: ${params.vpc_name}"
             }
             stage('TF vars') {
-                tfVars += terraform.generateTfVar('vpc_create', params.vpc_create.toString())
-                if (!params.vpc_create && !params.vpc_id.isEmpty()) {
-                    tfVars += terraform.generateTfVar('vpc_id', params.vpc_id)
-                } else if (!params.vpc_create && params.vpc_id.isEmpty()) {
-                    error('VPC Id not specified!!!')
+                if (!params.vpc_name.isEmpty()) {
+                    tfVars += terraform.generateTfVar('vpc_name', params.vpc_name)
+                } else {
+                    error('VPC name not specified!!!')
                 }
                 if (params.eks_min_size.toInteger() < params.eks_max_size.toInteger()) {
                     tfVars += terraform.generateTfVar('eks_node_group_size', "{ \"min_size\" : ${params.eks_min_size}, \"max_size\" : ${params.eks_max_size}, \"desired_size\" : ${params.eks_min_size} }")
                 } else {
-                    error('eks_max_size: (' + params.eks_max_size + ') is less then eks_min_size: (' + params.eks_min_size + ')')
+                    error('eks_max_size: (' + params.eks_max_size + ') is less or equal then eks_min_size: (' + params.eks_min_size + ')')
                 }
                 if (!params.asg_instance_types.isEmpty()) {
-                    tfVars += terraform.generateTfVar('asg_instance_types', "[${params.asg_instance_types}]")
+                    tfVars += terraform.generateTfVar('asg_instance_types', params.asg_instance_types.replaceAll("\\s","").split(',').collect { '"' + it + '"' })
                 } else {
                     error('At least one asg_instance_type should be specified')
                 }
@@ -73,6 +70,7 @@ ansiColor('xterm') {
                         terraform.tfPlanApprove(tfWorkDir)
                         terraform.tfApply(tfWorkDir)
                     } else if (params.action == 'destroy') {
+                        input message: "Are you shure that you want to destroy ${params.rancher_cluster_name} cluster?"
                         terraform.tfDestroy(tfWorkDir, tfVars)
                     }
                 }
