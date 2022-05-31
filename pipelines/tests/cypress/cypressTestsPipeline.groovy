@@ -1,7 +1,9 @@
-#!groovy
 package tests.cypress
 
 import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-291') _
 
 def code = """
 def gettags = ("git ls-remote -t -h https://github.com/folio-org/stripes-testing.git").execute()
