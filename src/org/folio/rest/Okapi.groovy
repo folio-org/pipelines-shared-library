@@ -219,14 +219,18 @@ class Okapi extends GeneralParameters {
      * @param serviceId
      * @return
      */
-    Boolean isServiceExists(String serviceId) {
+    Boolean isServiceExists(Map service) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
-        String url = okapiUrl + "/_/discovery/modules/" + serviceId
+        String url = okapiUrl + "/_/discovery/modules/" + service['srvcId']
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers, true)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            return true
+            if(tools.jsonParse(res.content)[0].url == service['url']){
+                return true
+            }else{
+                throw new AbortException("Registered module has incorrect url." + http.buildHttpErrorMessage(res))
+            }
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
             return false
         } else {
@@ -247,7 +251,7 @@ class Okapi extends GeneralParameters {
         logger.info("Modules registration in Okapi. Starting...")
         discoveryList.each {
             if (it['url'] && it['srvcId'] && it['instId']) {
-                if (!isServiceExists(it['srvcId'])) {
+                if (!isServiceExists(it)) {
                     logger.info("${it['srvcId']} not registered. Registering...")
                     String body = JsonOutput.toJson(it)
                     def res = http.postRequest(url, body, headers, true)
