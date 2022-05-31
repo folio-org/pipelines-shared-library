@@ -6,6 +6,7 @@ import org.folio.rest.Deployment
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
@@ -19,6 +20,7 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
+        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.stripesImageTag(),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
@@ -57,6 +59,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('stripes_image_tag', params.stripes_image_tag)
                 tfVars += terraform.generateTfVar('pg_password', params.pg_password)
                 tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
+                tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds(Constants.ENVS_MEMBERS_LIST[params.project_name] + params.github_teams).collect { '"' + it + '"' })
                 withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'folio_docker_registry_password', usernameVariable: 'folio_docker_registry_username')]) {
                     tfVars += terraform.generateTfVar('folio_docker_registry_username', folio_docker_registry_username)
                     tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)
@@ -125,6 +128,7 @@ ansiColor('xterm') {
                             email,
                             cypress_api_key_apidvcorp
                         )
+
                         deployment.main()
                     }
                 }

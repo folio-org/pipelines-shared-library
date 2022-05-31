@@ -1,4 +1,3 @@
-import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 
 void call() {}
@@ -35,7 +34,7 @@ static ArrayList rancherClustersList() {
 static ArrayList testingEnvironmentsList() {
     return ['karate',
             'cypress',
-            'test']
+            'sprint']
 }
 
 @NonCPS
@@ -48,13 +47,11 @@ static ArrayList scratchEnvironmentsList() {
             'firebird',
             'folijet',
             'metadata',
-            'metadata-spitfire',
             'prokopovych',
             'scout',
             'spanish',
             'spitfire',
             'stripes-force',
-            'template',
             'thor',
             'thunderjet',
             'unam',

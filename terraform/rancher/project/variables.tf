@@ -44,25 +44,13 @@ variable "rancher_cluster_name" {
   description = "Rancher project name"
 }
 
-#variable "rancher_project_name" {
-#  type        = string
-#  description = "Rancher project name"
-#}
-
-#variable "rancher_project_type" {
-#  type        = string
-#  description = "Rancher project type (karate, cypress, scratch, perf)"
-#}
-
 variable "folio_repository" {
   type        = string
-  default     = "core"
   description = "Folio repository for modules. Should be 'core' or 'complete'"
 }
 
 variable "folio_release" {
   type        = string
-  default     = "snapshot"
   description = "Release tag or branch"
 }
 
@@ -77,21 +65,27 @@ variable "folio_docker_registry_password" {
 }
 
 variable "folio_embedded_db" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Postgresql instance needed"
 }
 
 variable "folio_embedded_es" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Elasticsearch instance needed"
 }
 
 variable "folio_embedded_kafka" {
-  type        = string
+  type        = bool
   default     = true
   description = "Define if embedded or external Kafka instance needed"
+}
+
+variable "folio_embedded_s3" {
+  type        = bool
+  default     = true
+  description = "Define if embedded or external S3 instance needed"
 }
 
 variable "kafka_version" {
@@ -102,14 +96,8 @@ variable "kafka_version" {
 
 variable "pg_version" {
   type        = string
-  default     = "12"
+  default     = "12.7"
   description = "Postgres version"
-}
-
-variable "pg_subversion" {
-  type        = string
-  default     = "7"
-  description = "Postgres subversion"
 }
 
 variable "pg_username" {
@@ -156,7 +144,6 @@ variable "admin_user" {
 
 variable "okapi_version" {
   type        = string
-  default     = "4.11.1"
   description = "Release tag or branch"
 }
 
@@ -165,28 +152,8 @@ variable "stripes_image_tag" {
   description = "Release tag or branch"
 }
 
-//TODO Check if needed
-#variable "github_team_ids" {
-#  type = map(any)
-#  default = {
-#    "folijet"         = "github_team://2826211"
-#    "vega"            = "github_team://2956598"
-#    "concorde"        = "github_team://3198396"
-#    "ebsco-core"      = "github_team://2733306"
-#    "firebird"        = "github_team://3703817"
-#    "gulfstream"      = "github_team://3711746"
-#    "leipzig"         = "github_team://3177353"
-#    "thunderjet"      = "github_team://2937171"
-#    "spitfire"        = "github_team://2946231"
-#    "stripes"         = "github_team://2108101"
-#    "unam"            = "github_team://2676560"
-#    "erm"             = "github_team://2869610"
-#    "ncip"            = "github_team://3704056"
-#    "core-functional" = "github_team://3936584"
-#    "stripes-force"   = "github_team://4073724"
-#    "ptf"             = "github_team://4195625"
-#    "falcon"          = "github_team://4318841"
-#    "thor"            = "github_team://3970386"
-#    "volaris"         = "github_team://4686360"
-#  }
-#}
+variable "github_team_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of github team IDs for project access"
+}

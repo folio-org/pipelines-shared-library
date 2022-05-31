@@ -62,9 +62,9 @@ class Deployment extends GeneralParameters {
         if (tenant && admin_user) {
             enableList = gitHubUtility.buildEnableList(repository, branch)
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-            okapi.pull()
+            okapi.publishModuleDescriptors(enableList)
             okapi.createTenant(tenant)
-            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"],"enable"))
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.registerServices(discoveryList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
             String authtokenModId = okapi.getModuleId(tenant, 'authtoken')

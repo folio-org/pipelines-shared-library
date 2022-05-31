@@ -1,13 +1,14 @@
 package org.folio.rest
 
-
-import hudson.AbortException
 import groovy.json.JsonOutput
+import hudson.AbortException
 import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
 class Okapi extends GeneralParameters {
+
+    public static final String OKAPI_NAME = "okapi"
 
     private OkapiUser superuser = new OkapiUser()
 
@@ -25,15 +26,15 @@ class Okapi extends GeneralParameters {
         this.supertenant.setAdmin_user(superuser)
     }
 
-    static String getModuleIdFromInstallJson(List install, String moduleName){
+    static String getModuleIdFromInstallJson(List install, String moduleName) {
         return install*.id.find { it ==~ /${moduleName}-.*/ }
     }
 
-    static List buildInstallList(List modulesIds, String action){
+    static List buildInstallList(List modulesIds, String action) {
         List modulesList = []
         modulesIds.each {
             modulesList << [
-                id: it,
+                id    : it,
                 action: action
             ]
         }
@@ -67,6 +68,59 @@ class Okapi extends GeneralParameters {
             logger.info("Modules descriptors successfully pulled from ${registries.join(", ")} to Okapi")
         } else {
             throw new AbortException("Error during modules descriptors pull from ${registries.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    /**
+     * Fetch modules descriptors for specific modules from registry and push them to okapi
+     * @param registries
+     */
+    void publishModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
+        logger.info("Start module descriptors publishing")
+        def items = []
+        modules.each { module ->
+            // skip okapi descriptors
+            if (!module.id.startsWith(OKAPI_NAME)) {
+                logger.info("Pull module descriptor for '${module.id}' module from registry")
+                // search module descriptor for in repositories
+                def descriptor = getModuleDescriptor(registries, module)
+                if (descriptor) {
+                    items.add(descriptor)
+                } else {
+                    throw new AbortException("Module descriptor for '${module.id}' module not found.")
+                }
+            }
+        }
+
+        // publish found module descriptors to okapi
+        logger.info("Publish found module descriptors to Okapi.")
+        String url = okapiUrl + "/_/proxy/import/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+
+        def json = JsonOutput.toJson(items)
+        def res = http.postRequest(url, json, headers)
+        if (res.status < 300) {
+            logger.info("Modules descriptors successfully published to Okapi")
+        } else {
+            throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    /**
+     * Search for module descriptor in registry
+     * @param registries registries
+     * @param module module
+     * @return module descriptor
+     */
+    private Object getModuleDescriptor(List registries, module) {
+        for (String registry : registries) {
+            def response = http.getRequest("${registry}/_/proxy/modules/${module.id}")
+            if (response.status == HttpURLConnection.HTTP_OK) {
+                return tools.jsonParse(response.content)
+            }
         }
     }
 
