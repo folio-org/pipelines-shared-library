@@ -129,7 +129,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
         }
 
-        message += "Target channel: ${entry.key.slackChannel}"
         slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
     }
 }
