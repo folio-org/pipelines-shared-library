@@ -22,7 +22,7 @@ properties([
         [
             $class      : 'CascadeChoiceParameter',
             choiceType  : 'PT_SINGLE_SELECT',
-            description : 'Cypress tests repository branch',
+            description : 'Cypress tests repository branch to checkout',
             filterLength: 1,
             filterable  : false,
             name        : 'branch',
@@ -39,11 +39,11 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', description: 'Folio UI url', defaultValue: "https://cypress.ci.folio.org"),
-        string(name: 'okapiUrl', description: 'Okapi url', defaultValue: "https://cypress-okapi.ci.folio.org"),
-        string(name: 'tenant', description: 'Tenant to execute tests', defaultValue: "diku"),
-        string(name: 'user', description: 'User for test', defaultValue: "diku_admin"),
-        password(name: 'password', description: 'Password for test', defaultValue: "admin"),
+        string(name: 'uiUrl', description: 'Folio UI url', defaultValue: "https://folio-testing-karate.ci.folio.org"),
+        string(name: 'okapiUrl', description: 'Okapi url', defaultValue: "https://folio-testing-karate-okapi.ci.folio.org"),
+        string(name: 'tenant', description: 'Tenant name', defaultValue: "diku"),
+        string(name: 'user', description: 'User name', defaultValue: "diku_admin"),
+        password(name: 'password', description: 'User password ', defaultValue: "admin"),
         string(name: 'cypressParameters', description: 'Cypress execution parameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true"),
     ])
 ])
