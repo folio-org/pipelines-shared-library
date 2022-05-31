@@ -17,36 +17,39 @@ def allureVersion = "2.17.2"
 def currentUID
 def currentGID
 
+properties([
+    parameters([
+        string(name: 'baseUrl', description: 'Choose what you want', defaultValue: "https://cypress.ci.folio.org"),
+        string(name: 'OKAPI_HOST', description: 'Choose what you want', defaultValue: "https://cypress-okapi.ci.folio.org"),
+        string(name: 'OKAPI_TENANT', description: 'Choose what you want', defaultValue: "diku"),
+        string(name: 'diku_login', description: 'Choose what you want', defaultValue: "diku_admin"),
+        password(name: 'diku_password', description: 'Choose what you want', defaultValue: "admin"),
+        string(name: 'run_param', description: 'Choose what you want', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true"),
+        [
+            $class      : 'CascadeChoiceParameter',
+            choiceType  : 'PT_SINGLE_SELECT',
+            description : 'Choose what stripes-testing branch to run from',
+            filterLength: 1,
+            filterable  : false,
+            name        : 'branch',
+            script      : [
+                $class        : 'GroovyScript',
+                fallbackScript: [
+                    classpath: [],
+                    sandbox  : false,
+                    script   : 'return ["error"]'
+                ],
+                script        : [classpath: [],
+                                 sandbox  : false,
+                                 script   : code
+                ]
+            ]
+        ]
+    ])
+])
+
 pipeline {
     agent { label 'jenkins-agent-java11' }
-
-    parameters {
-        string(name: 'baseUrl', description: 'Choose what you want', defaultValue: "https://cypress.ci.folio.org")
-        string(name: 'OKAPI_HOST', description: 'Choose what you want', defaultValue: "https://cypress-okapi.ci.folio.org")
-        string(name: 'OKAPI_TENANT', description: 'Choose what you want', defaultValue: "diku")
-        string(name: 'diku_login', description: 'Choose what you want', defaultValue: "diku_admin")
-        password(name: 'diku_password', description: 'Choose what you want', defaultValue: "admin")
-        string(name: 'run_param', description: 'Choose what you want', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true")
-        [$class      : 'CascadeChoiceParameter',
-         choiceType  : 'PT_SINGLE_SELECT',
-         description : 'Choose what stripes-testing branch to run from',
-         filterLength: 1,
-         filterable  : false,
-         name        : 'branch',
-         script      : [
-             $class        : 'GroovyScript',
-             fallbackScript: [
-                 classpath: [],
-                 sandbox  : false,
-                 script   : 'return ["error"]'
-             ],
-             script        : [classpath: [],
-                              sandbox  : false,
-                              script   : code
-             ]
-         ]
-        ]
-    }
 
     stages {
         stage('Checkout') {
@@ -95,7 +98,7 @@ pipeline {
             }
         }
 
-        stage {
+        stage("Reports") {
             stages {
                 stage('Generate tests report') {
                     steps {
