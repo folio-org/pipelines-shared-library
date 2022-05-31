@@ -70,13 +70,14 @@ pipeline {
             }
         }
         stage('Run cypress tests') {
-            script {
-                currentUID = sh returnStdout: true, script: 'id -u'
-                currentGID = sh returnStdout: true, script: 'id -g'
+            steps {
+                script {
+                    currentUID = sh returnStdout: true, script: 'id -u'
+                    currentGID = sh returnStdout: true, script: 'id -g'
 
-                docker.image("cypress/browsers:${cypressBrowsersVersion}").inside('-u 0:0 --entrypoint=') {
-                    stage('Execute cypress tests') {
-                        sh """
+                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside('-u 0:0 --entrypoint=') {
+                        stage('Execute cypress tests') {
+                            sh """
                             export CYPRESS_BASE_URL=${params.baseUrl}
                             export CYPRESS_OKAPI_HOST=${params.OKAPI_HOST}
                             export CYPRESS_OKAPI_TENANT=${params.OKAPI_TENANT}
@@ -89,30 +90,38 @@ pipeline {
                             npx cypress run --headless ${params.run_param} || true
                             chown -R ${currentUID.trim()}:${currentGID.trim()} *
                         """
+                        }
                     }
                 }
-
             }
         }
 
         stage {
             stages {
                 stage('Generate tests report') {
-                    def allure_home = tool name: allureVersion, type: 'allure'
-                    sh "${allure_home}/bin/allure generate --clean"
+                    steps {
+                        script {
+                            def allure_home = tool name: allureVersion, type: 'allure'
+                            sh "${allure_home}/bin/allure generate --clean"
+                        }
+                    }
                 }
                 stage('Publish tests report') {
-                    allure([
-                        includeProperties: false,
-                        jdk              : '',
-                        commandline      : allureVersion,
-                        properties       : [],
-                        reportBuildPolicy: 'ALWAYS',
-                        results          : [[path: 'allure-results']]
-                    ])
+                    steps {
+                        allure([
+                            includeProperties: false,
+                            jdk              : '',
+                            commandline      : allureVersion,
+                            properties       : [],
+                            reportBuildPolicy: 'ALWAYS',
+                            results          : [[path: 'allure-results']]
+                        ])
+                    }
                 }
                 stage('Archive artifacts') {
-                    archiveArtifacts artifacts: 'allure-results/*'
+                    steps {
+                        archiveArtifacts artifacts: 'allure-results/*'
+                    }
                 }
             }
         }
