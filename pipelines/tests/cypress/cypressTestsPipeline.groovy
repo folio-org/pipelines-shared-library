@@ -80,7 +80,8 @@ pipeline {
                     currentUID = sh returnStdout: true, script: 'id -u'
                     currentGID = sh returnStdout: true, script: 'id -g'
 
-                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside('-u 0:0 --entrypoint=') {
+                    //0:0
+                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside("-u ${currentUID}:${currentGID} --entrypoint=") {
                         stage('Execute cypress tests') {
                             sh """
                             export CYPRESS_BASE_URL=${params.uiUrl}
@@ -91,8 +92,6 @@ pipeline {
 
                             yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
                             yarn install
-                            yarn add @interactors/html --dev
-                            yarn add @interactors/html @interactors/with-cypress --dev
 
                             npx cypress run --headless ${params.cypressParameters} || true
                             chown -R ${currentUID.trim()}:${currentGID.trim()} *
@@ -101,38 +100,35 @@ pipeline {
                     }
                 }
             }
-        }
 
-        stage("Reports") {
-            stages {
-                stage('Generate tests report') {
-                    steps {
-                        script {
-                            def allure_home = tool name: allureVersion, type: 'allure'
-                            sh "${allure_home}/bin/allure generate --clean"
-                        }
+            stage('Generate tests report') {
+                steps {
+                    script {
+                        def allure_home = tool name: allureVersion, type: 'allure'
+                        sh "${allure_home}/bin/allure generate --clean"
                     }
                 }
+            }
 
-                stage('Publish tests report') {
-                    steps {
-                        allure([
-                            includeProperties: false,
-                            jdk              : '',
-                            commandline      : allureVersion,
-                            properties       : [],
-                            reportBuildPolicy: 'ALWAYS',
-                            results          : [[path: 'allure-results']]
-                        ])
-                    }
+            stage('Publish tests report') {
+                steps {
+                    allure([
+                        includeProperties: false,
+                        jdk              : '',
+                        commandline      : allureVersion,
+                        properties       : [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results          : [[path: 'allure-results']]
+                    ])
                 }
+            }
 
-                stage('Archive artifacts') {
-                    steps {
-                        archiveArtifacts artifacts: 'allure-results/*'
-                    }
+            stage('Archive artifacts') {
+                steps {
+                    archiveArtifacts artifacts: 'allure-results/*'
                 }
             }
         }
     }
 }
+
