@@ -100,35 +100,36 @@ pipeline {
                     }
                 }
             }
+        }
 
-            stage('Generate tests report') {
-                steps {
-                    script {
-                        def allure_home = tool name: allureVersion, type: 'allure'
-                        sh "${allure_home}/bin/allure generate --clean"
-                    }
+        stage('Generate tests report') {
+            steps {
+                script {
+                    def allure_home = tool name: allureVersion, type: 'allure'
+                    sh "${allure_home}/bin/allure generate --clean"
                 }
             }
+        }
 
-            stage('Publish tests report') {
-                steps {
-                    allure([
-                        includeProperties: false,
-                        jdk              : '',
-                        commandline      : allureVersion,
-                        properties       : [],
-                        reportBuildPolicy: 'ALWAYS',
-                        results          : [[path: 'allure-results']]
-                    ])
-                }
+        stage('Publish tests report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk              : '',
+                    commandline      : allureVersion,
+                    properties       : [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results          : [[path: 'allure-results']]
+                ])
             }
+        }
 
-            stage('Archive artifacts') {
-                steps {
-                    archiveArtifacts artifacts: 'allure-results/*'
-                }
+        stage('Archive artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'allure-results/*'
             }
         }
     }
 }
+
 
