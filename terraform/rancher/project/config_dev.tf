@@ -13,7 +13,7 @@ locals {
           memory = "1440Mi"
         },
         limits = {
-          memory = "2072Mi"
+          memory = "3072Mi"
         }
       },
       replicaCount = 1,
@@ -30,7 +30,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-conf /usr/ms/sip2.conf"
     },
     "edge-caiasoft" = {
@@ -43,7 +43,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
       javaArgs     = "--server.port=$CONTAINER_PORT --log.level=info"
     },
     "edge-connexion" = {
@@ -56,6 +56,7 @@ locals {
         }
       },
       replicaCount = 1,
+      javaOptions  = "-XX:MaxRAMPercentage=85.0
       javaArgs  = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dhttp.port=$INTERNAL_DOCKER_PORT -Dlog.level=debug"
     },
     "edge-dematic" = {
@@ -81,7 +82,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25"
     },
     "edge-inn-reach" = {
@@ -94,7 +95,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=66.0 -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0 -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     },
     "edge-ncip" = {
       resources = {
@@ -106,7 +107,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25"
     },
     "edge-oai-pmh" = {
@@ -132,7 +133,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25"
     },
     "edge-patron" = {
@@ -145,7 +146,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25"
     },
     "edge-rtac" = {
@@ -158,7 +159,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25"
     },
     "edge-sftp" = {
@@ -171,7 +172,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
     },
     "mod-aes" = {
       resources = {
@@ -183,7 +184,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=80.0"
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs     = "$JAVA_ARGS -Dkafka.url=aes-kafka.$CLUSTER.folio-eis.$REGION:9092"
     },
     "mod-data-import-converter-storage" = {
@@ -390,7 +391,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=55.0 -XX=+PrintFlagsFinal"
+      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-licenses" = {
       resources = {
@@ -402,7 +403,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=50.0 -XX=+PrintFlagsFinal"
+      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-courses" = {
       resources = {
@@ -426,7 +427,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=55.0 -XX=+PrintFlagsFinal"
+      javaOptions  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-kb-ebsco-java" = {
       resources = {
@@ -762,7 +763,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=80.0"
+      javaOptions  = "-XX=MaxRAMPercentage=85.0"
     },
     "mod-audit" = {
       resources = {
