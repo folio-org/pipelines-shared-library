@@ -91,11 +91,11 @@ pipeline {
                 }
             }
             environment {
-                CYPRESS_BASE_URL = params.uiUrl
-                CYPRESS_OKAPI_HOST = params.okapiUrl
-                CYPRESS_OKAPI_TENANT = params.tenant
-                CYPRESS_diku_login = params.user
-                CYPRESS_diku_password = params.password
+                CYPRESS_BASE_URL = "${params.uiUrl}"
+                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
+                CYPRESS_OKAPI_TENANT = "${params.tenant}"
+                CYPRESS_diku_login = "${params.user}"
+                CYPRESS_diku_password = "${params.password}"
             }
 
             steps {
