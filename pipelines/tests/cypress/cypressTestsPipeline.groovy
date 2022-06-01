@@ -91,6 +91,9 @@ pipeline {
                 }
             }
             environment {
+                HOME = "${env.$WORKSPACE}/cache"
+                CYPRESS_CACHE_FOLDER = "${env.$WORKSPACE}/cache"
+
                 CYPRESS_BASE_URL = "${params.uiUrl}"
                 CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
