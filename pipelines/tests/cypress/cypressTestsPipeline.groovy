@@ -5,20 +5,18 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-291') _
 
-def cypressRepoitoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
+def cypressRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
 
-def code = """
-def gettags = ("git ls-remote -t -h ${cypressRepoitoryUrl}").execute()
+def testsBranchesScript = """
+def gettags = ("git ls-remote -t -h ${cypressRepositoryUrl}").execute()
 return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
 
-// Variables
 def cypressImageVersion = "9.7.0"
+def allureVersion = "2.18.1"
+
 def browserName = "chrome"
-def allureVersion = "2.17.2"
-def currentUID
-def currentGID
 
 properties([
     parameters([
@@ -38,12 +36,12 @@ properties([
                 ],
                 script        : [classpath: [],
                                  sandbox  : false,
-                                 script   : code
+                                 script   : testsBranchesScript
                 ]
             ]
         ],
-        string(name: 'uiUrl', defaultValue: "https://folio-testing-karate.ci.folio.org", description: 'Target environment UI URL'),
-        string(name: 'okapiUrl', defaultValue: "https://folio-testing-karate-okapi.ci.folio.org", description: 'Target environment OKAPI URL'),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL'),
+        string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL'),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
         password(name: 'password', defaultValue: "admin", description: 'User password'),
@@ -68,7 +66,7 @@ pipeline {
                                                                   recursiveSubmodules: true,
                                                                   reference          : '',
                                                                   trackingSubmodules : false]],
-                            userRemoteConfigs: [[url: cypressRepoitoryUrl]]
+                            userRemoteConfigs: [[url: cypressRepositoryUrl]]
                         ])
                     }
                 }
@@ -104,7 +102,6 @@ pipeline {
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
             }
-
             steps {
                 script {
                     ansiColor('xterm') {
