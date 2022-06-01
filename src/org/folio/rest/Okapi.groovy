@@ -250,11 +250,20 @@ class Okapi extends GeneralParameters {
                 if (!isServiceExists(it['srvcId'])) {
                     logger.info("${it['srvcId']} not registered. Registering...")
                     String body = JsonOutput.toJson(it)
-                    def res = http.postRequest(url, body, headers, true)
-                    if (res.status == HttpURLConnection.HTTP_CREATED) {
-                        logger.info("${it['srvcId']} registered successfully")
-                    } else {
-                        throw new AbortException("${it['srvcId']} does not registered." + http.buildHttpErrorMessage(res))
+                    steps.timeout(15) {
+                        while (true) {
+                            def res = http.postRequest(url, body, headers, true)
+                            if (res.status == HttpURLConnection.HTTP_CREATED) {
+                                logger.info("${it['srvcId']} registered successfully")
+                                break
+                            } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
+                                logger.info("${it['srvcId']} is not registered." + http.buildHttpErrorMessage(res))
+                                logger.info("Repeat ${it['srvcId']} registration in 3 seconds.")
+                                steps.wait(3000)
+                            } else {
+                                throw new AbortException("${it['srvcId']} is not registered." + http.buildHttpErrorMessage(res))
+                            }
+                        }
                     }
                 } else {
                     logger.info("${it['srvcId']} already exists")
