@@ -106,7 +106,7 @@ pipeline {
             steps {
                 script {
                     ansiColor('xterm') {
-                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
                     }
                 }
             }
