@@ -78,6 +78,7 @@ pipeline {
         stage('Build tests') {
             environment {
                 HOME = "${pwd()}/cache"
+                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
             }
             steps {
                 sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
