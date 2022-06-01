@@ -214,7 +214,7 @@ locals {
         }
       },
       "replicaCount" = 1,
-      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=55.0 -XX=+PrintFlagsFinal"
+      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-licenses" = {
       "resources" = {
@@ -226,7 +226,7 @@ locals {
         }
       },
       "replicaCount" = 1,
-      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=50.0 -XX=+PrintFlagsFinal"
+      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-courses" = {
       "resources" = {
@@ -250,7 +250,7 @@ locals {
         }
       },
       "replicaCount" = 1,
-      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=55.0 -XX=+PrintFlagsFinal"
+      "javaOptions"  = "-server -XX=+UseContainerSupport -XX=MaxRAMPercentage=85.0 -XX=+PrintFlagsFinal"
     },
     "mod-kb-ebsco-java" = {
       "resources" = {
@@ -586,7 +586,7 @@ locals {
         }
       },
       "replicaCount" = 1,
-      "javaOptions"  = "-XX=MaxRAMPercentage=80.0"
+      "javaOptions"  = "-XX=MaxRAMPercentage=85.0"
     },
     "mod-audit" = {
       "resources" = {
@@ -934,7 +934,7 @@ locals {
         }
       },
       "replicaCount" = 1,
-      "javaOptions"  = "-XX:MaxRAMPercentage=80.0 -XX:+UseG1GC"
+      "javaOptions"  = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
     }
   }
 }
