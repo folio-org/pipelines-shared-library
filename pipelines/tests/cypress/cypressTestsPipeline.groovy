@@ -78,10 +78,9 @@ pipeline {
         stage('Build tests') {
             environment {
                 HOME = "${pwd()}/cache"
-                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
             }
             steps {
-                sh "yarn config set @folio:registry https://repository.folio.org/repository/npm-folioci/"
+                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
                 sh "yarn install"
             }
         }
@@ -106,7 +105,11 @@ pipeline {
             }
 
             steps {
-                sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                script {
+                    ansiColor('xterm') {
+                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                    }
+                }
             }
         }
 
