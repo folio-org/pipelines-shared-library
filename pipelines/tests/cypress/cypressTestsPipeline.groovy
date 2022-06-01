@@ -14,7 +14,7 @@ return gettags.text.readLines().collect {
 }"""
 
 def cypressImageVersion = "9.7.0"
-def allureVersion = "2.18.1"
+def allureVersion = "2.17.2"
 
 def browserName = "chrome"
 
@@ -115,7 +115,7 @@ pipeline {
         stage('Generate tests report') {
             steps {
                 script {
-                    def allure_home = tool type: 'allure'
+                    def allure_home = tool type: 'allure', name: allureVersion
                     sh "${allure_home}/bin/allure generate --clean"
                 }
             }
