@@ -14,7 +14,8 @@ return gettags.text.readLines().collect {
 }"""
 
 // Variables
-def cypressBrowsersVersion = "node16.14.2-slim-chrome100-ff99-edge"
+def cypressImageVersion = "9.7.0"
+def browserName = "chrome"
 def allureVersion = "2.17.2"
 def currentUID
 def currentGID
@@ -74,63 +75,70 @@ pipeline {
             }
         }
 
-        stage('Run cypress tests') {
+        stage('Cypress tests execution') {
             steps {
                 script {
-                    currentUID = sh returnStdout: true, script: 'id -u'.trim()
-                    currentGID = sh returnStdout: true, script: 'id -g'.trim()
+//                    currentUID = sh returnStdout: true, script: 'id -u'.trim()
+//                    currentGID = sh returnStdout: true, script: 'id -g'.trim()
+//
+//                    //0:0
+//                    // -u ${currentUID}:${currentGID}
+//
+//                    docker run - it - v % cd %: /e2e -w / e2e cypress / included: 9.7 .0 run-- env grepTags = smoke, grepFilterSpecs = true-- browser chrome
 
-                    //0:0
-                    // -u ${currentUID}:${currentGID} 
-                    docker.image("cypress/browsers:${cypressBrowsersVersion}").inside("--entrypoint=") {
-                        stage('Execute cypress tests') {
-                            sh """
-                            export CYPRESS_BASE_URL=${params.uiUrl}
-                            export CYPRESS_OKAPI_HOST=${params.okapiUrl}
-                            export CYPRESS_OKAPI_TENANT=${params.tenant}
-                            export CYPRESS_diku_login=${params.user}
-                            export CYPRESS_diku_password=${params.password}
+                    docker
+                        .image("cypress/included:${cypressImageVersion}")
+                        .inside("--entrypoint=") {
+                            stage('Build tests') {
+                                sh """
+                                    yarn config set @folio:registry https://repository.folio.org/repository/npm-folioci/
+                                    yarn install
+                                """
+                            }
 
-                            yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-                            yarn install
+                            stage('Run cypress tests') {
+                                sh """
+                                    export CYPRESS_BASE_URL=${params.uiUrl}
+                                    export CYPRESS_OKAPI_HOST=${params.okapiUrl}
+                                    export CYPRESS_OKAPI_TENANT=${params.tenant}
+                                    export CYPRESS_diku_login=${params.user}
+                                    export CYPRESS_diku_password=${params.password}
 
-                            npx cypress run --headless ${params.cypressParameters} || true
-                            chown -R ${currentUID.trim()}:${currentGID.trim()} *
-                        """
+                                    cypress run --headless --browser ${browserName} ${params.cypressParameters}
+                                """
+                            }
                         }
+                }
+            }
+
+            stage('Generate tests report') {
+                steps {
+                    script {
+                        def allure_home = tool name: allureVersion, type: 'allure'
+                        sh "${allure_home}/bin/allure generate --clean"
                     }
                 }
             }
-        }
 
-        stage('Generate tests report') {
-            steps {
-                script {
-                    def allure_home = tool name: allureVersion, type: 'allure'
-                    sh "${allure_home}/bin/allure generate --clean"
+            stage('Publish tests report') {
+                steps {
+                    allure([
+                        includeProperties: false,
+                        jdk              : '',
+                        commandline      : allureVersion,
+                        properties       : [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results          : [[path: 'allure-results']]
+                    ])
+                }
+            }
+
+            stage('Archive artifacts') {
+                steps {
+                    archiveArtifacts artifacts: 'allure-results/*'
                 }
             }
         }
-
-        stage('Publish tests report') {
-            steps {
-                allure([
-                    includeProperties: false,
-                    jdk              : '',
-                    commandline      : allureVersion,
-                    properties       : [],
-                    reportBuildPolicy: 'ALWAYS',
-                    results          : [[path: 'allure-results']]
-                ])
-            }
-        }
-
-        stage('Archive artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'allure-results/*'
-            }
-        }
     }
-}
 
 
