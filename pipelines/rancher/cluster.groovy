@@ -35,6 +35,7 @@ ansiColor('xterm') {
                     "vpc_name: ${params.vpc_name}"
             }
             stage('TF vars') {
+                tfVars += terraform.generateTfVar('eks_nodes_type', params.eks_nodes_type)
                 if (!params.vpc_name.isEmpty()) {
                     tfVars += terraform.generateTfVar('vpc_name', params.vpc_name)
                 } else {
