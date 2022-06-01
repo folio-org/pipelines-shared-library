@@ -259,7 +259,7 @@ class Okapi extends GeneralParameters {
                             } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
                                 logger.info("${it['srvcId']} is not registered." + http.buildHttpErrorMessage(res))
                                 logger.info("Repeat ${it['srvcId']} registration in 3 seconds.")
-                                steps.wait(3000)
+                                steps.sleep(3)
                             } else {
                                 throw new AbortException("${it['srvcId']} is not registered." + http.buildHttpErrorMessage(res))
                             }
