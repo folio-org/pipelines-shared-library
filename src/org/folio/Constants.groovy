@@ -4,8 +4,10 @@ import org.folio.rest.model.OkapiUser
 
 class Constants {
 
+    static String FOLIO_ORG = "folio-org"
     static String FOLIO_GITHUB_URL = "https://github.com/folio-org"
     static String FOLIO_JIRA_URL = "https://issues.folio.org"
+    static String CI_ROOT_DOMAIN = "ci.folio.org"
 
     static String GITHUB_CREDENTIALS_ID = "11657186-f4d4-4099-ab72-2a32e023cced"
     static String PRIVATE_GITHUB_CREDENTIALS_ID = "id-jenkins-github-personal-token-with-username"
@@ -19,6 +21,9 @@ class Constants {
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
+
+    static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
+    static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
 
     static String JENKINS_MASTER_NODE = "master"
 

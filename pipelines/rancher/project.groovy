@@ -20,7 +20,6 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
-        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.stripesImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
@@ -30,7 +29,10 @@ properties([
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
-        jobsParameters.pgAdminPassword()])])
+        jobsParameters.pgAdminPassword(),
+        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
+    ])
+])
 
 String okapiUrl = ''
 String stripesUrl = ''
@@ -46,7 +48,11 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}\n" + "env_type: ${params.env_type}"
+                buildDescription "action: ${params.action}\n" +
+                    "repository: ${params.folio_repository}\n" +
+                    "branch: ${params.folio_branch}\n" +
+                    "tenant: ${params.tenant_id}\n" +
+                    "env_type: ${params.env_type}"
             }
             stage('Checkout') {
                 checkout scm
