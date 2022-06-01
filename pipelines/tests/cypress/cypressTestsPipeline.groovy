@@ -75,71 +75,63 @@ pipeline {
             }
         }
 
+        stage('Build tests') {
+            steps {
+                sh "yarn config set @folio:registry https://repository.folio.org/repository/npm-folioci/"
+                sh "yarn install"
+            }
+        }
+
         stage('Cypress tests execution') {
+            agent {
+                docker {
+                    image "cypress/included:${cypressImageVersion}"
+                    args "-v ${env.WORKSPACE}:/e2e"
+                    reuseNode true
+                }
+            }
+            environment {
+                CYPRESS_BASE_URL = params.uiUrl
+                CYPRESS_OKAPI_HOST = params.okapiUrl
+                CYPRESS_OKAPI_TENANT = params.tenant
+                CYPRESS_diku_login = params.user
+                CYPRESS_diku_password = params.password
+            }
+
+            steps {
+                sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+            }
+        }
+
+        stage('Generate tests report') {
             steps {
                 script {
-//                    currentUID = sh returnStdout: true, script: 'id -u'.trim()
-//                    currentGID = sh returnStdout: true, script: 'id -g'.trim()
-//
-//                    //0:0
-//                    // -u ${currentUID}:${currentGID}
-//
-//                    docker run - it - v % cd %: /e2e -w / e2e cypress / included: 9.7 .0 run-- env grepTags = smoke, grepFilterSpecs = true-- browser chrome
-
-                    docker
-                        .image("cypress/included:${cypressImageVersion}")
-                        .inside("--entrypoint=") {
-                            stage('Build tests') {
-                                sh """
-                                    yarn config set @folio:registry https://repository.folio.org/repository/npm-folioci/
-                                    yarn install
-                                """
-                            }
-
-                            stage('Run cypress tests') {
-                                sh """
-                                    export CYPRESS_BASE_URL=${params.uiUrl}
-                                    export CYPRESS_OKAPI_HOST=${params.okapiUrl}
-                                    export CYPRESS_OKAPI_TENANT=${params.tenant}
-                                    export CYPRESS_diku_login=${params.user}
-                                    export CYPRESS_diku_password=${params.password}
-
-                                    cypress run --headless --browser ${browserName} ${params.cypressParameters}
-                                """
-                            }
-                        }
+                    def allure_home = tool name: allureVersion, type: 'allure'
+                    sh "${allure_home}/bin/allure generate --clean"
                 }
             }
+        }
 
-            stage('Generate tests report') {
-                steps {
-                    script {
-                        def allure_home = tool name: allureVersion, type: 'allure'
-                        sh "${allure_home}/bin/allure generate --clean"
-                    }
-                }
+        stage('Publish tests report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk              : '',
+                    commandline      : allureVersion,
+                    properties       : [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results          : [[path: 'allure-results']]
+                ])
             }
+        }
 
-            stage('Publish tests report') {
-                steps {
-                    allure([
-                        includeProperties: false,
-                        jdk              : '',
-                        commandline      : allureVersion,
-                        properties       : [],
-                        reportBuildPolicy: 'ALWAYS',
-                        results          : [[path: 'allure-results']]
-                    ])
-                }
-            }
-
-            stage('Archive artifacts') {
-                steps {
-                    archiveArtifacts artifacts: 'allure-results/*'
-                }
+        stage('Archive artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'allure-results/*'
             }
         }
     }
 }
+
 
 
