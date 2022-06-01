@@ -86,7 +86,6 @@ pipeline {
             agent {
                 docker {
                     image "cypress/included:${cypressImageVersion}"
-                    args "-v ${env.WORKSPACE}:/e2e"
                     reuseNode true
                 }
             }
