@@ -115,7 +115,7 @@ pipeline {
         stage('Generate tests report') {
             steps {
                 script {
-                    def allure_home = tool name: allureVersion, type: 'allure'
+                    def allure_home = tool type: 'allure'
                     sh "${allure_home}/bin/allure generate --clean"
                 }
             }
