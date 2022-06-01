@@ -56,7 +56,7 @@ locals {
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX:MaxRAMPercentage=85.0
+      javaOptions  = "-XX:MaxRAMPercentage=85.0"
       javaArgs  = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dhttp.port=$INTERNAL_DOCKER_PORT -Dlog.level=debug"
     },
     "edge-dematic" = {
