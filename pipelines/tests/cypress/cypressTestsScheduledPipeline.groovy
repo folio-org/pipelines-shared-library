@@ -64,7 +64,7 @@ pipeline {
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'diku_admin'),
-                        string(name: 'password', value: 'admin'),
+                        password(name: 'password', value: 'admin'),
                         string(name: 'cypressParameters', value: "--spec cypress/integration/finance/funds/funds.search.spec.js")
                     ]
 
@@ -98,7 +98,7 @@ pipeline {
                                     def jobNumber = cypressTestsJob.number
                                     copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
 
-                                    unzip zipFile: "allure-results.zip", dir: "allure-results"
+                                    unzip zipFile: "allure-results.zip", dir: "."
                                 }
                             }
                         }
