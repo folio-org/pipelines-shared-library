@@ -22,8 +22,11 @@ class Constants {
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
 
-    static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
+    static String NEXUS_PUBLISH_CREDENTIALS_ID = "jenkins-nexus"
+    static String FOLIO_HELM_REPOSITORY_URL = "https://repository.folio.org/repository/helm-hosted/"
+
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
+    static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
 
     static String JENKINS_MASTER_NODE = "master"
 
