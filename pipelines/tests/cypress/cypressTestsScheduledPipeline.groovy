@@ -1,14 +1,31 @@
-package tests.cypress
+package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-252') _
 
-import org.folio.karate.results.KarateTestsExecutionSummary
+
 import org.folio.karate.teams.TeamAssignment
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-def okapiUrl, tenant, user, password
+def allureVersion = "2.17.2"
+
+def clusterName = "folio-testing"
+def projectName = "cypress"
+def folio_repository = "complete"
+def folio_branch = "snapshot"
+def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
+def tenant = "diku"
+
+def spinUpEnvironmentJobName = "/Rancher/Project"
+def spinUpEnvironmentJob
+def tearDownEnvironmentJob
 def cypressTestsJobName = "/Testing/Cypress tests"
 def cypressTestsJob
+
+Tools tools = new Tools(this)
+List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
+String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
+String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["project_name": "cypress"])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -17,36 +34,28 @@ pipeline {
         string(name: 'branch', defaultValue: 'master', description: 'Cypress tests repository branch to checkout')
     }
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     stages {
         stage("Create environment") {
             steps {
                 script {
-                    okapiUrl = 'https://folio-snapshot-okapi.dev.folio.org:443'
-                    tenant = 'supertenant'
-                    user = 'testing_admin'
-                    password = 'admin'
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
+                        projectName, tenant, folio_repository, folio_branch)
 
-//                    okapiUrl = 'https://ptf-perf-okapi.ci.folio.org'
-//                    tenant = 'fs09000000'
-//                    user = 'folio'
-//                    password = 'folio'
-
-//                    call job to setup env (https://issues.folio.org/browse/RANCHER-12)
-//                    def jobParameters = [
-//                        string(name: 'branch', value: params.branch),
-//                        string(name: 'threadsCount', value: "4"),
-//                        string(name: 'okapiUrl', value: okapiUrl),
-//                        string(name: 'tenant', value: tenant),
-//                        string(name: 'adminUserName', value: user),
-//                        string(name: 'adminPassword', value: password)
-//                    ]
-//
-//                    def karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
 
-        stage("Run karate tests") {
+        stage("Run cypress tests") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     def jobParameters = [
@@ -54,77 +63,97 @@ pipeline {
                         string(name: 'threadsCount', value: "4"),
                         string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
-                        string(name: 'adminUserName', value: user),
-                        string(name: 'adminPassword', value: password)
+                        string(name: 'tenant', value: 'supertenant'),
+                        string(name: 'adminUserName', value: 'super_admin'),
+                        password(name: 'adminPassword', value: 'admin'),
                     ]
 
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
 
-        stage("Copy downstream job artifacts") {
-            steps {
-                script {
-                    def jobNumber = karateTestsJob.number
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
-                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
+        stage("Parallel") {
+            parallel {
+                stage("Destroy environment") {
+                    steps {
+                        script {
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
+                                projectName, tenant, folio_repository, folio_branch)
 
-                    unzip zipFile: "cucumber.zip", dir: "cucumber"
-                    unzip zipFile: "junit.zip", dir: "junit"
-                    unzip zipFile: "karate-summary.zip", dir: "karate-summary"
+                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
+                }
+                stage("Collect test results") {
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
+                    stages {
+                        stage("Copy downstream job artifacts") {
+                            steps {
+                                script {
+                                    def jobNumber = cypressTestsJob.number
+                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
+                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
+                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
+                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
+
+                                    unzip zipFile: "cucumber.zip", dir: "results"
+                                    unzip zipFile: "junit.zip", dir: "results"
+                                    unzip zipFile: "karate-summary.zip", dir: "results"
+                                }
+                            }
+                        }
+
+                        stage('Publish tests report') {
+                            steps {
+                                allure([
+                                    includeProperties: false,
+                                    jdk              : '',
+                                    commandline      : allureVersion,
+                                    properties       : [],
+                                    reportBuildPolicy: 'ALWAYS',
+                                    results          : [[path: 'allure-results']]
+                                ])
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        stage('Publish tests report') {
-            steps {
-                script {
-                    cucumber buildStatus: "UNSTABLE",
-                        fileIncludePattern: "cucumber/**/target/karate-reports*/*.json"
-
-                    junit testResults: 'junit/**/target/karate-reports*/*.xml'
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
                 }
             }
-        }
-
-        stage("Collect execution results") {
             steps {
                 script {
-                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("karate-summary/**/target/karate-reports*/karate-summary-json.txt")
-
-                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-            }
-        }
-
-        stage("Parse teams assignment") {
-            steps {
-                script {
-                    def jsonContents = readJSON file: "teams-assignment.json"
-                    teamAssignment = new TeamAssignment(jsonContents)
-                }
-            }
-        }
-
-
-        stage("Send slack notifications") {
-            steps {
-                script {
-                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                }
-            }
-        }
-
-        stage("Sync jira tickets") {
-            steps {
-                script {
-                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                    currentBuild.result = 'FAILURE'
                 }
             }
         }
     }
+}
+
+private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, clusterName, projectName, tenant,
+                                         folio_repository, folio_branch) {
+    [
+        string(name: 'action', value: action),
+        string(name: 'rancher_cluster_name', value: clusterName),
+        string(name: 'project_name', value: projectName),
+        string(name: 'okapi_version', value: okapiVersion),
+        string(name: 'folio_repository', value: folio_repository),
+        string(name: 'folio_branch', value: folio_branch),
+        string(name: 'stripes_image_tag', value: uiImageVersion),
+        string(name: 'tenant_id', value: tenant),
+        string(name: 'tenant_name', value: "Karate tenant"),
+        string(name: 'tenant_description', value: "Karate tests main tenant"),
+        booleanParam(name: 'load_reference', value: true),
+        booleanParam(name: 'load_sample', value: true)
+    ]
 }
