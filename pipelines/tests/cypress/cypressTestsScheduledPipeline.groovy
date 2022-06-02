@@ -3,18 +3,17 @@ package tests.karate
 @Library('pipelines-shared-library@RANCHER-252') _
 
 
-import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 def allureVersion = "2.17.2"
 
 def clusterName = "folio-testing"
-def projectName = "cypress"
+def projectName = "karate"
 def folio_repository = "complete"
 def folio_branch = "snapshot"
+def uiUrl = "https://${clusterName}-${projectName}.ci.folio.org"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
-def tenant = "diku"
 
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
@@ -45,7 +44,7 @@ pipeline {
                     def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
                         projectName, tenant, folio_repository, folio_branch)
 
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    //spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -60,12 +59,12 @@ pipeline {
                 script {
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
-                        string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: ""),
+                        string(name: 'uiUrl', value: uiUrl),
                         string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: 'supertenant'),
-                        string(name: 'adminUserName', value: 'super_admin'),
-                        password(name: 'adminPassword', value: 'admin'),
+                        string(name: 'tenant', value: 'diku'),
+                        string(name: 'user', value: 'diku_admin'),
+                        string(name: 'password', value: 'admin'),
+                        string(name: 'cypressParameters', value: "--spec cypress/integration/finance/funds/funds.search.spec.js")
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
@@ -81,7 +80,7 @@ pipeline {
                             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
                                 projectName, tenant, folio_repository, folio_branch)
 
-                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                            //tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
@@ -96,14 +95,9 @@ pipeline {
                             steps {
                                 script {
                                     def jobNumber = cypressTestsJob.number
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
+                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
 
-                                    unzip zipFile: "cucumber.zip", dir: "results"
-                                    unzip zipFile: "junit.zip", dir: "results"
-                                    unzip zipFile: "karate-summary.zip", dir: "results"
+                                    unzip zipFile: "allure-results.zip", dir: "allure-results"
                                 }
                             }
                         }
@@ -125,18 +119,18 @@ pipeline {
             }
         }
 
-        stage("Set job execution result") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result != 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
-        }
+//        stage("Set job execution result") {
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result != 'SUCCESS'
+//                }
+//            }
+//            steps {
+//                script {
+//                    currentBuild.result = 'FAILURE'
+//                }
+//            }
+//        }
     }
 }
 
@@ -151,8 +145,8 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
         string(name: 'folio_branch', value: folio_branch),
         string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: tenant),
-        string(name: 'tenant_name', value: "Karate tenant"),
-        string(name: 'tenant_description', value: "Karate tests main tenant"),
+        string(name: 'tenant_name', value: "Cypress tenant"),
+        string(name: 'tenant_description', value: "Cypress tests main tenant"),
         booleanParam(name: 'load_reference', value: true),
         booleanParam(name: 'load_sample', value: true)
     ]
