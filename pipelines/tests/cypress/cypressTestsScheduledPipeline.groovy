@@ -2,7 +2,6 @@ package tests.karate
 
 @Library('pipelines-shared-library@RANCHER-252') _
 
-
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -45,17 +44,17 @@ pipeline {
                     def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
                         projectName, tenant, folio_repository, folio_branch)
 
-                    //spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
 
         stage("Run cypress tests") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
-//                }
-//            }
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     def jobParameters = [
@@ -81,16 +80,16 @@ pipeline {
                             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
                                 projectName, tenant, folio_repository, folio_branch)
 
-                            //tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
                 stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
-//                        }
-//                    }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
@@ -120,18 +119,18 @@ pipeline {
             }
         }
 
-//        stage("Set job execution result") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result != 'SUCCESS'
-//                }
-//            }
-//            steps {
-//                script {
-//                    currentBuild.result = 'FAILURE'
-//                }
-//            }
-//        }
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
     }
 }
 
