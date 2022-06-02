@@ -14,6 +14,7 @@ def folio_repository = "complete"
 def folio_branch = "snapshot"
 def uiUrl = "https://${clusterName}-${projectName}.ci.folio.org"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
+def tenant = "diku"
 
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
@@ -61,7 +62,7 @@ pipeline {
                         string(name: 'branch', value: params.branch),
                         string(name: 'uiUrl', value: uiUrl),
                         string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: 'diku'),
+                        string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'diku_admin'),
                         string(name: 'password', value: 'admin'),
                         string(name: 'cypressParameters', value: "--spec cypress/integration/finance/funds/funds.search.spec.js")
