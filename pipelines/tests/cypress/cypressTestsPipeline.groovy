@@ -137,14 +137,9 @@ pipeline {
         stage('Archive artifacts') {
             steps {
                 script {
-                    archiveArtifacts artifacts: 'allure-results/*'
+                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
 
-                    // archive artifacts for upstream job
-                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-                        zip zipFile: "allure-results.zip", glob: "allure-results/*"
-
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
-                    }
+                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
                 }
             }
         }
