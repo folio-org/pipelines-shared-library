@@ -51,11 +51,11 @@ pipeline {
         }
 
         stage("Run cypress tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [
