@@ -3,7 +3,7 @@ terraform {
     bucket               = "folio-terraform"
     region               = "us-east-1"
     workspace_key_prefix = "rancher/projects"
-    key                  = "terraform.tfstate"
+    key                  = "backend.tfstate"
     dynamodb_table       = "folio-terraform-lock"
   }
 }

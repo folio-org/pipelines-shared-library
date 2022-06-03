@@ -69,3 +69,6 @@ pgadmin_password               = "<PASSWORD>"
 stripes_image_tag              = "<TAG>"
 
 ```
+
+
+terraform plan '-input=false' -out tfplan -var 'okapi_version=latest' -var 'tenant_id=diku' -var 'cluster_name=folio-testing' -var 'project_name=sprint' -var 'folio_repository=complete' -var 'env_type=development' -var 'folio_release=snapshot' -var 'stripes_image_tag=folio-testing-sprint-diku-b17158e' -var 'pg_password=postgres_password_123!' -var 'pgadmin_password=SuperSecret' -var 'github_team_ids=[]' -var 'folio_docker_registry_username=folio-docker-dev' -var 'folio_docker_registry_password=FolioDockerDev5757'

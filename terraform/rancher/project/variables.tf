@@ -39,9 +39,14 @@ variable "rancher_token_key" {
   description = "Rancher token key"
 }
 
-variable "rancher_cluster_name" {
+variable "cluster_name" {
   type        = string
-  description = "Rancher project name"
+  description = "Rancher target cluster name"
+}
+
+variable "project_name" {
+  type        = string
+  description = "Rancher target project name"
 }
 
 variable "folio_repository" {

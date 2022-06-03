@@ -1,5 +1,5 @@
 data "rancher2_cluster" "cluster" {
-  name = var.rancher_cluster_name
+  name = var.cluster_name
 }
 
 data "aws_eks_cluster" "cluster" {
