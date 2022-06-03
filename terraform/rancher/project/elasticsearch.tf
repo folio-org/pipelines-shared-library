@@ -11,7 +11,7 @@ resource "rancher2_app" "elasticsearch" {
   project_id       = rancher2_project.project.id
   template_name    = "elasticsearch"
   target_namespace = rancher2_namespace.project-namespace.name
-  template_version = "14.5.3"
+  template_version = "18.1.6"
   answers = {
     "coordinating.replicas"                  = "1"
     "coordinating.resources.limits.cpu"      = "512m"
