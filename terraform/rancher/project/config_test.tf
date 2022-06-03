@@ -1,4 +1,3 @@
-
 locals {
   module_configs_test = {
     "okapi" = {
@@ -244,16 +243,17 @@ locals {
     "mod-inventory-storage" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          cpu = "256m"
+          memory = "896Mi"
         },
         limits = {
-          memory = "512Mi"
+          cpu =  "512m"
+          memory = "1440Mi"
         }
       },
       replicaCount = 2,
-      javaOptions  = "$JAVA_OPTS_VERTEX_LOGGER $JAVA_OPTS_HEAP_DUMP -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx1440m"
-      javaArgs     = "$JAVA_ARGS --server.port=$INTERNAL_DOCKER_PORT --grails.server.host=$CLUSTER_PVT_LB --okapi.service.host=$CLUSTER_PVT_LB --okapi.service.port=$OKAPI_PORT --dataSource.username=$DB_USERNAME --dataSource.password=$DB_PASSWORD --dataSource.url=jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
-
+      javaOptions = "-XX:MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      dbMaxPoolSize = "5"
     },
     "mod-users" = {
       resources = {
@@ -882,26 +882,32 @@ locals {
     "mod-source-record-storage" = {
       resources = {
         requests = {
-          memory = "512Mi"
+          cpu = "256m"
+          memory = "896Mi"
         },
         limits = {
-          memory = "640Mi"
+          cpu = "512m"
+          memory = "1440Mi"
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties"
+      javaOptions   = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      dbMaxPoolSize = "15"
     },
     "mod-inventory" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          cpu = "256m"
+          memory = "1440Mi"
         },
         limits = {
-          memory = "512Mi"
+          cpu = "512m"
+          memory = "1872Mi"
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Dorg.folio.metadata.inventory.storage.type=okapi"
+      javaOptions = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
+      dbMaxPoolSize = "5"
     },
     "mod-orders" = {
       resources = {
@@ -930,38 +936,48 @@ locals {
     "mod-source-record-manager" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          memory = "896Mi"
+          cpu    = "256m"
         },
         limits = {
-          memory = "512Mi"
+          memory = "1440Mi"
+          cpu    = "512m"
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0  -Djava.util.logging.config.file=vertx-default-jul-logging.properties"
+      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      dbMaxPoolSize = "15"
+      dbReconnectinterval = "1000"
+      dbReconnectattempts =  "3"
     },
     "mod-data-import" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          cpu = "128m"
+          memory = "1024Mi"
         },
         limits = {
-          memory = "512Mi"
+          cpu = "192m"
+          memory = "2048Mi"
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties"
+      javaOptions = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
+      dbMaxPoolSize = "5"
     },
     "mod-invoice" = {
       resources = {
         requests = {
-          memory = "400Mi"
+          cpu = "256m"
+          memory = "890"
         },
         limits = {
-          memory = "512Mi"
+          cpu = "512m"
+          memory = "1440Mi"
         }
       },
       replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0"
+      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
     },
     "mod-quick-marc" = {
       resources = {
