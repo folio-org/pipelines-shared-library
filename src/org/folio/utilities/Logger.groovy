@@ -1,6 +1,6 @@
 package org.folio.utilities
 
-import com.cloudbees.groovy.cps.NonCPS
+import hudson.AbortException
 
 class Logger implements Serializable {
 
@@ -25,6 +25,6 @@ class Logger implements Serializable {
 
     @NonCPS
     def error(def message){
-        steps.error(message)
+        throw new AbortException(message)
     }
 }

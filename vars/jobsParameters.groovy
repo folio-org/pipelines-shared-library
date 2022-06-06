@@ -20,16 +20,25 @@ static HashMap defaultTenant() {
 }
 
 static ArrayList repositoriesList() {
-    return ['core',
-            'complete']
+    return ['complete',
+            'core']
 }
 
 static ArrayList rancherClustersList() {
     return ['folio-testing',
-            'folio-scratch',
+            'folio-dev',
+            'folio-scratch', //Deprecated
             'folio-perf',
-            'folio-test']
+            'folio-tmp']
 }
+
+@NonCPS
+static ArrayList envTypeList() {
+    return ['development',
+            'performance',
+            'testing']
+}
+
 
 @NonCPS
 static ArrayList testingEnvironmentsList() {
@@ -39,7 +48,7 @@ static ArrayList testingEnvironmentsList() {
 }
 
 @NonCPS
-static ArrayList scratchEnvironmentsList() {
+static ArrayList devEnvironmentsList() {
     return ['bama',
             'concorde',
             'core-platform',
@@ -52,6 +61,7 @@ static ArrayList scratchEnvironmentsList() {
             'scout',
             'spanish',
             'spitfire',
+            'sprint-testing', //Deprecated
             'stripes-force',
             'thor',
             'thunderjet',
@@ -73,12 +83,11 @@ static ArrayList testEnvironmentsList() {
 
 @NonCPS
 static String generateProjectNamesMap() {
-    return JsonOutput.toJson([
-        'folio-testing': testingEnvironmentsList(),
-        'folio-scratch': scratchEnvironmentsList(),
-        'folio-perf'   : perfEnvironmentsList(),
-        'folio-test'   : testEnvironmentsList()
-    ])
+    return JsonOutput.toJson(['folio-testing': testingEnvironmentsList(),
+                              'folio-dev'    : devEnvironmentsList(),
+                              'folio-scratch': devEnvironmentsList(),
+                              'folio-perf'   : perfEnvironmentsList(),
+                              'folio-tmp'    : testEnvironmentsList()])
 }
 
 static String getRepositoryBranches() {
@@ -94,7 +103,7 @@ static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
 if (get.getResponseCode().equals(200)) {
-    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it ==~ project_name + '.*'}
+    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + project_name.trim())}
 }
 '''
 }
@@ -141,31 +150,28 @@ private def _paramPassword(String name, String value, String description) {
 }
 
 private def _paramExtended(String name, String reference, String script, String description) {
-    return [
-        $class              : 'CascadeChoiceParameter',
-        choiceType          : 'PT_SINGLE_SELECT',
-        description         : description,
-        filterLength        : 1,
-        filterable          : true,
-        name                : name,
-        referencedParameters: reference,
-        script              : [
-            $class        : 'GroovyScript',
-            fallbackScript: [
-                classpath: [],
-                sandbox  : false,
-                script   : 'return ["error"]'
-            ],
-            script        : [classpath: [],
-                             sandbox  : false,
-                             script   : script
-            ]
-        ]
-    ]
+    return [$class              : 'CascadeChoiceParameter',
+            choiceType          : 'PT_SINGLE_SELECT',
+            description         : description,
+            filterLength        : 1,
+            filterable          : true,
+            name                : name,
+            referencedParameters: reference,
+            script              : [$class        : 'GroovyScript',
+                                   fallbackScript: [classpath: [],
+                                                    sandbox  : false,
+                                                    script   : 'return ["error"]'],
+                                   script        : [classpath: [],
+                                                    sandbox  : false,
+                                                    script   : script]]]
 }
 
 def rancherClusters() {
     return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
+}
+
+def envType() {
+    return _paramChoice('env_type', envTypeList(), '(Required) Select config file')
 }
 
 def projectName() {
@@ -214,7 +220,7 @@ def folioBranch() {
 }
 
 def stripesImageTag() {
-    return _paramExtended('stripes_image_tag', 'project_name', getUIImagesList(), '(Required) Choose image tag for UI')
+    return _paramExtended('stripes_image_tag', 'rancher_cluster_name,project_name', getUIImagesList(), '(Required) Choose image tag for UI')
 }
 
 def okapiVersion() {
