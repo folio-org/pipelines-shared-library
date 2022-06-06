@@ -6,7 +6,7 @@ import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
-class Tenant extends GeneralParameters {
+class TenantService extends GeneralParameters {
 
     private OkapiUser okapiAdmin
 
@@ -24,7 +24,7 @@ class Tenant extends GeneralParameters {
 
     private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
 
-    Tenant(Object steps, String okapiUrl, OkapiUser okapiAdmin) {
+    TenantService(Object steps, String okapiUrl, OkapiUser okapiAdmin) {
         super(steps, okapiUrl)
         this.okapiAdmin = okapiAdmin
     }
