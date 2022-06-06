@@ -50,7 +50,7 @@ locals {
       },
       replicaCount = 1,
       javaOptions  = "-XX:MaxRAMPercentage=85.0"
-      javaArgs  = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dhttp.port=$INTERNAL_DOCKER_PORT -Dlog.level=debug"
+      javaArgs     = "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dhttp.port=$INTERNAL_DOCKER_PORT -Dlog.level=debug"
     },
     "edge-dematic" = {
       resources = {
@@ -243,16 +243,16 @@ locals {
     "mod-inventory-storage" = {
       resources = {
         requests = {
-          cpu = "256m"
+          cpu    = "256m"
           memory = "896Mi"
         },
         limits = {
-          cpu =  "512m"
+          cpu    = "512m"
           memory = "1440Mi"
         }
       },
-      replicaCount = 2,
-      javaOptions = "-XX:MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      replicaCount  = 2,
+      javaOptions   = "-XX:MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
       dbMaxPoolSize = "5"
     },
     "mod-users" = {
@@ -882,31 +882,31 @@ locals {
     "mod-source-record-storage" = {
       resources = {
         requests = {
-          cpu = "256m"
+          cpu    = "256m"
           memory = "896Mi"
         },
         limits = {
-          cpu = "512m"
+          cpu    = "512m"
           memory = "1440Mi"
         }
       },
-      replicaCount = 1,
+      replicaCount  = 1,
       javaOptions   = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
       dbMaxPoolSize = "15"
     },
     "mod-inventory" = {
       resources = {
         requests = {
-          cpu = "256m"
+          cpu    = "256m"
           memory = "1440Mi"
         },
         limits = {
-          cpu = "512m"
+          cpu    = "512m"
           memory = "1872Mi"
         }
       },
-      replicaCount = 1,
-      javaOptions = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
+      replicaCount  = 1,
+      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
       dbMaxPoolSize = "5"
     },
     "mod-orders" = {
@@ -944,35 +944,35 @@ locals {
           cpu    = "512m"
         }
       },
-      replicaCount = 1,
-      javaOptions  = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
-      dbMaxPoolSize = "15"
+      replicaCount        = 1,
+      javaOptions         = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      dbMaxPoolSize       = "15"
       dbReconnectinterval = "1000"
-      dbReconnectattempts =  "3"
+      dbReconnectattempts = "3"
     },
     "mod-data-import" = {
       resources = {
         requests = {
-          cpu = "128m"
+          cpu    = "128m"
           memory = "1024Mi"
         },
         limits = {
-          cpu = "192m"
+          cpu    = "192m"
           memory = "2048Mi"
         }
       },
-      replicaCount = 1,
-      javaOptions = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
+      replicaCount  = 1,
+      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
       dbMaxPoolSize = "5"
     },
     "mod-invoice" = {
       resources = {
         requests = {
-          cpu = "256m"
+          cpu    = "256m"
           memory = "890"
         },
         limits = {
-          cpu = "512m"
+          cpu    = "512m"
           memory = "1440Mi"
         }
       },
