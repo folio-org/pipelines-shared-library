@@ -29,7 +29,8 @@ static ArrayList rancherClustersList() {
             'folio-dev',
             'folio-scratch', //Deprecated
             'folio-perf',
-            'folio-tmp']
+            'folio-tmp',
+            'volodymyr-testing']
 }
 
 @NonCPS
@@ -87,7 +88,8 @@ static String generateProjectNamesMap() {
                               'folio-dev'    : devEnvironmentsList(),
                               'folio-scratch': devEnvironmentsList(),
                               'folio-perf'   : perfEnvironmentsList(),
-                              'folio-tmp'    : testEnvironmentsList()])
+                              'folio-tmp'    : testEnvironmentsList(),
+                              'volodymyr-testing': testingEnvironmentsList()])
 }
 
 static String getRepositoryBranches() {
