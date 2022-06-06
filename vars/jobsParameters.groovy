@@ -82,6 +82,7 @@ static ArrayList testEnvironmentsList() {
     return ["test"]
 }
 
+@NonCPS
 static ArrayList volodymyrtestingEnvironmentsList() {
     return ["volodymyrtesting"]
 }
