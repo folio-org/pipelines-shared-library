@@ -31,6 +31,10 @@ String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["project_n
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
+    triggers {
+        cron('H 4 * * *')
+    }
+
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
