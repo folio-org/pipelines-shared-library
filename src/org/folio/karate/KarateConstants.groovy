@@ -5,7 +5,7 @@ class KarateConstants {
     public static final String CUCUMBER_REPORT_PATTERN_START = "table[\\s\\S]*class=\"stats-table\"[\\s\\S]*Feature[\\s\\S]*"
     public static final String CUCUMBER_REPORT_PATTERN_END = "[\\s\\S]*/table"
 
-    public static final String JIRA_PROJECT = "KRD"
+    public static final String JIRA_PROJECT = "FAT"
 
     public static final String JIRA_ISSUE_TYPE = "Bug"
 

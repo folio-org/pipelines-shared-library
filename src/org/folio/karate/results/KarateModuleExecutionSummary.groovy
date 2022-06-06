@@ -28,9 +28,15 @@ class KarateModuleExecutionSummary {
         }
     }
 
-    void addFeatureSummary(def summaryJson) {
+    void addFeatureSummary(def summaryJson, Map<String, String> displayNames) {
+        String displayName = displayNames[summaryJson.relativePath]
+        if (!displayName) {
+            displayName = summaryJson.relativePath
+        }
+
         KarateFeatureExecutionSummary feature = new KarateFeatureExecutionSummary(
             name: summaryJson.name,
+            displayName: displayName,
             description: summaryJson.description,
             packageQualifiedName: summaryJson.packageQualifiedName,
             relativePath: summaryJson.relativePath,
@@ -45,7 +51,6 @@ class KarateModuleExecutionSummary {
     int getFeaturesTotal() {
         featuresPassed + featuresFailed + featuresSkipped
     }
-
 
     @Override
     public String toString() {

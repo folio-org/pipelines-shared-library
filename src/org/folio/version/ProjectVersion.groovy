@@ -1,21 +1,12 @@
 package org.folio.version
 
 import com.cloudbees.groovy.cps.NonCPS
+import static org.folio.version.VersionConstants.*
 
 /**
  * Project version
  */
 class ProjectVersion implements Serializable {
-
-  public static final String MASTER_BRANCH = "master"
-
-  public static final String DEVELOP_BRANCH = "develop"
-
-  public static final String SNAPSHOT_POSTFIX = "SNAPSHOT"
-
-  public static final String RELEASE_VERSION_REGEXP = "^\\d+\\.\\d+\\.\\d+\$"
-  public static final String SNAPSHOT_VERSION_REGEXP = "^\\d+\\.\\d+\\.\\d+-\\d{14}\$"
-  public static final String BRANCH_VERSION_REGEXP = "^\\d+\\.\\d+\\.\\d+-(?!SNAPSHOT).*-\\d{14}\$"
 
   def pipeline
 
@@ -37,7 +28,7 @@ class ProjectVersion implements Serializable {
 
   def getProjectVersion() {
     def retVal
-    if (branch == MASTER_BRANCH) {
+    if (branch == VersionConstants.MASTER_BRANCH) {
       retVal = version
     } else if (branch == DEVELOP_BRANCH) {
       retVal = "${version.substring(0, version.length() - SNAPSHOT_POSTFIX.length())}${timestamp}"
