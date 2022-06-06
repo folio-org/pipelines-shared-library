@@ -1,5 +1,7 @@
 package org.folio.http
 
+import com.cloudbees.groovy.cps.NonCPS
+
 class HttpClient implements Serializable {
     @NonCPS
     def request(Map args) {
