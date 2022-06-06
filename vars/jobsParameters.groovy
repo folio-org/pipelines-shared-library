@@ -82,6 +82,10 @@ static ArrayList testEnvironmentsList() {
     return ["test"]
 }
 
+static ArrayList volodymyrtestingEnvironmentsList() {
+    return ["volodymyrtesting"]
+}
+
 @NonCPS
 static String generateProjectNamesMap() {
     return JsonOutput.toJson(['folio-testing': testingEnvironmentsList(),
@@ -89,7 +93,7 @@ static String generateProjectNamesMap() {
                               'folio-scratch': devEnvironmentsList(),
                               'folio-perf'   : perfEnvironmentsList(),
                               'folio-tmp'    : testEnvironmentsList(),
-                              'volodymyr-testing': testingEnvironmentsList()])
+                              'volodymyr-testing': volodymyrtestingEnvironmentsList()])
 }
 
 static String getRepositoryBranches() {
