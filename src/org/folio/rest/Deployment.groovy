@@ -66,7 +66,7 @@ class Deployment extends GeneralParameters {
         okapi.secure(super_admin)
         okapi.secure(testing_admin)
 
-        def tenant = new Tenant(steps, okapiUrl)
+        def tenant = new Tenant(steps, okapiUrl, super_admin)
         tenant.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key)
     }
 }

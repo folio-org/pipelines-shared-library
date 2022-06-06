@@ -8,7 +8,9 @@ import org.folio.rest.model.OkapiUser
 
 class Tenant extends GeneralParameters {
 
-    private Okapi okapi = new Okapi(steps, okapiUrl, super_admin)
+    private OkapiUser okapiAdmin
+
+    private Okapi okapi = new Okapi(steps, okapiUrl, okapiAdmin)
 
     private Authorization auth = new Authorization(steps, okapiUrl)
 
@@ -22,8 +24,9 @@ class Tenant extends GeneralParameters {
 
     private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
 
-    Tenant(Object steps, String okapiUrl) {
+    Tenant(Object steps, String okapiUrl, OkapiUser okapiAdmin) {
         super(steps, okapiUrl)
+        this.okapiAdmin = okapiAdmin
     }
 
     void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripesUrl, String kb_api_key) {
