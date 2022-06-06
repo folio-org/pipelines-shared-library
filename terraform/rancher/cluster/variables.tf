@@ -38,7 +38,7 @@ variable "eks_node_group_size" {
     max_size : number,
     desired_size : number
   })
-  default     = { "min_size" : 4, "max_size" : 8, "desired_size" : 4 }
+  default     = { "min_size" : 3, "max_size" : 6, "desired_size" : 3 }
   description = "Minimum, maximum, and desired number of instances/nodes"
 }
 
