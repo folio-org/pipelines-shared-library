@@ -1,3 +1,20 @@
+data "aws_vpc" "this" {
+  filter {
+    name   = "tag:Name"
+    values = [var.vpc_name]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.this.id]
+  }
+  tags = {
+    Type: "private"
+  }
+}
+
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
   version = "18.7.2"
@@ -6,8 +23,8 @@ module "eks_cluster" {
   cluster_version   = "1.21"
   cluster_ip_family = "ipv4"
 
-  vpc_id     = var.vpc_create ? module.vpc[0].vpc_id : var.vpc_id
-  subnet_ids = var.vpc_create ? module.vpc[0].private_subnets : data.aws_subnets.private[0].ids
+  vpc_id     = data.aws_vpc.this.id
+  subnet_ids = data.aws_subnets.private.ids
 
   cluster_addons = {
     coredns    = {}

@@ -60,4 +60,19 @@ class Tools {
     static def removeLastChar(String str) {
         return (str == null || str.length() == 0) ? null : (str.substring(0, str.length() - 1))
     }
+
+    /**
+     * Evaluate groovy expression
+     * @param expression groovy expression
+     * @param parameters parameters
+     * @return result
+     */
+    static def eval(String expression, Map<String, Object> parameters) {
+        Binding b = new Binding();
+        parameters.each { k, v ->
+            b.setVariable(k, v);
+        }
+        GroovyShell sh = new GroovyShell(b);
+        return sh.evaluate(expression);
+    }
 }

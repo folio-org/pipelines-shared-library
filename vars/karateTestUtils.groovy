@@ -19,12 +19,26 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     def retVal = new KarateTestsExecutionSummary()
     def karateSummaries = findFiles(glob: karateSummaryFolder)
     karateSummaries.each { karateSummary ->
-        echo "Collecting tests execution result from '${karateSummary.path}' file"
-        String[] split = karateSummary.path.split("/")
+        String path = karateSummary.path
+        echo "Collecting tests execution result from '${path}' file"
+        String[] split = path.split("/")
         String moduleName = split[split.size() - 4]
 
-        def contents = readJSON file: karateSummary.path
-        retVal.addModuleResult(moduleName, contents)
+        def contents = readJSON file: path
+
+        // find corresponding cucumber reports to get feature display name
+        Map<String, String> displayNames = [:]
+        def folder = path.substring(0, path.lastIndexOf("/"))
+        findFiles(glob: "${folder}/*.json").each { report ->
+            def reportContents = readJSON file: report.path
+
+            String displayName = reportContents[0].name
+            String[] nameSplit = displayName.split(" ")
+
+            displayNames[nameSplit[nameSplit.size() - 1]] = displayName
+        }
+
+        retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
     retVal
@@ -45,15 +59,16 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
-            if (contents.contains(feature.relativePath)) {
-                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + feature.relativePath + KarateConstants.CUCUMBER_REPORT_PATTERN_END
+            if (contents.contains(feature.displayName)) {
+                def displayNamePattern = feature.displayName.replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]")
+                String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
                 false
             }
         }
         if (feature) {
-            println "Cucumber report for '${feature.name}' feature is '${file.name}'"
+            println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
             feature.cucumberReportFile = file.name
         }
     }
@@ -112,9 +127,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
         }
 
-        message += "Target channel: ${entry.key.slackChannel}"
-        // TODO: change channel to ${entry.key.slackChannel} after real integration in scope of https://issues.folio.org/browse/RANCHER-250
-        slackSend(color: getSlackColor(buildStatus), message: message, channel: "#jenkins-test")
+        slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
     }
 }
 
@@ -156,11 +169,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             // ignore features which has no report generated
             if (featureSummary.cucumberReportFile) {
                 // No jira issue and feature failed
-                if (!issuesMap.containsKey(featureSummary.relativePath) && featureSummary.failed) {
-                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
+                    //createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                     // Jira issue exists
-                } else if (issuesMap.containsKey(featureSummary.relativePath)) {
-                    JiraIssue issue = issuesMap[featureSummary.relativePath]
+                } else if (issuesMap.containsKey(featureSummary.displayName)) {
+                    JiraIssue issue = issuesMap[featureSummary.displayName]
                     jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
 
 
@@ -190,7 +203,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
                                   Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
-    def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.relativePath}"
+    def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
     def fields = [
@@ -225,6 +238,7 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
     }
 
     def description = "${title}\n" +
+        "*Name:* ${featureSummary.displayName}\n" +
         "*Feature path:* ${featureSummary.relativePath}\n" +
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
         "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +

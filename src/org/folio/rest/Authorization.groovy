@@ -116,4 +116,9 @@ class Authorization extends GeneralParameters {
             throw new AbortException("Unable to get token for user: " + user.username + http.buildHttpErrorMessage(res))
         }
     }
+
+    void adminUserLogin(OkapiTenant tenant, OkapiUser admin_user){
+        admin_user.setToken(getOkapiToken(tenant, admin_user))
+        tenant.setAdmin_user(admin_user)
+    }
 }
