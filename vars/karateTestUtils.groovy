@@ -170,7 +170,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             if (featureSummary.cucumberReportFile) {
                 // No jira issue and feature failed
                 if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
-                    //createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                     // Jira issue exists
                 } else if (issuesMap.containsKey(featureSummary.displayName)) {
                     JiraIssue issue = issuesMap[featureSummary.displayName]
