@@ -3,7 +3,7 @@ package tests.cypress
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-291') _
+@Library('pipelines-shared-library') _
 
 def cypressRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
 

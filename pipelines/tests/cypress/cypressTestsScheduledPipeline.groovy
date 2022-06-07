@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library@RANCHER-252') _
+@Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
