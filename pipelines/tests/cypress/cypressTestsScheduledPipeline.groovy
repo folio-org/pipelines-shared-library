@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def allureVersion = "2.17.2"
 
 def clusterName = "folio-testing"
-def projectName = "karate"
+def projectName = "cypress"
 def folio_repository = "complete"
 def folio_branch = "snapshot"
 def uiUrl = "https://${clusterName}-${projectName}.ci.folio.org"
@@ -24,17 +24,17 @@ def cypressTestsJob
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["project_name": "cypress"])[0]
+String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["rancher_cluster_name": clusterName, "project_name": projectName])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    parameters {
-        string(name: 'branch', defaultValue: 'master', description: 'Cypress tests repository branch to checkout')
-    }
-
     options {
         disableConcurrentBuilds()
+    }
+
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Cypress tests repository branch to checkout')
     }
 
     stages {
@@ -64,7 +64,7 @@ pipeline {
                         string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'diku_admin'),
                         password(name: 'password', value: 'admin'),
-                        string(name: 'cypressParameters', value: "--spec cypress/integration/finance/funds/funds.search.spec.js")
+                        string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true")
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
@@ -138,6 +138,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
+        string(name: 'env_type', value: "testing"),
         string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),

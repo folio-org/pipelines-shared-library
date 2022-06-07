@@ -35,6 +35,10 @@ pipeline {
         cron('H 4 * * *')
     }
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
