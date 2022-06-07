@@ -41,8 +41,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
-    println(retVal)
-
     retVal
 }
 
@@ -171,8 +169,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             // ignore features which has no report generated
             if (featureSummary.cucumberReportFile) {
                 // No jira issue and feature failed
-                println "Summary: " + featureSummary.displayName
-                println issuesMap.containsKey(featureSummary.displayName)
                 if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
                     //createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                     // Jira issue exists
