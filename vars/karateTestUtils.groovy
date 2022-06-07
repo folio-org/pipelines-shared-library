@@ -171,11 +171,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             // ignore features which has no report generated
             if (featureSummary.cucumberReportFile) {
                 // No jira issue and feature failed
-                if (!issuesMap.containsKey(featureSummary.relativePath) && featureSummary.failed) {
+                if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
                     createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                     // Jira issue exists
-                } else if (issuesMap.containsKey(featureSummary.relativePath)) {
-                    JiraIssue issue = issuesMap[featureSummary.relativePath]
+                } else if (issuesMap.containsKey(featureSummary.displayName)) {
+                    JiraIssue issue = issuesMap[featureSummary.displayName]
                     jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
 
 
