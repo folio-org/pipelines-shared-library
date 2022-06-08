@@ -129,13 +129,13 @@ function fn() {
         },
         prototypeTenant: '${params.prototypeTenant}',
 
-        kbEbscoCredentialsUrl: ${ebsco_url},
-        kbEbscoCredentialsCustomerId: ${ebsco_id},
-        kbEbscoCredentialsApiKey: ${ebsco_key},
+        kbEbscoCredentialsUrl: '${ebsco_url}',
+        kbEbscoCredentialsCustomerId: '${ebsco_id}',
+        kbEbscoCredentialsApiKey: '${ebsco_key}',
 
-        usageConsolidationCredentialsId: ${ebsco_usage_id},
-        usageConsolidationCredentialsSecret: ${ebsco_usage_secret},
-        usageConsolidationCustomerKey: ${ebsco_usage_key}
+        usageConsolidationCredentialsId: '${ebsco_usage_id}',
+        usageConsolidationCredentialsSecret: '${ebsco_usage_secret}',
+        usageConsolidationCustomerKey: '${ebsco_usage_key}'
     }
 
     return config;
