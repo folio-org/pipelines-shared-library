@@ -355,7 +355,6 @@ class Okapi extends GeneralParameters {
         enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
     }
 
-        // ?? like registerServices but delete call
     void cleanupServicesRegistration() {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/discovery/modules"
