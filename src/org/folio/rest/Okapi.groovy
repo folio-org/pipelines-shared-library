@@ -341,7 +341,22 @@ class Okapi extends GeneralParameters {
         auth.createUserCredentials(supertenant, user)
         enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
     }
-    void cleanupServicesRegistration(){
+
         // ?? like registerServices but delete call
+    void cleanupServicesRegistration() {
+        auth.getOkapiToken(supertenant, supertenant.admin_user)
+        String url = okapiUrl + "/_/discovery/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
+        logger.info("Okapi discovery table cleanup. Starting...")
+        String body = JsonOutput.toJson(it)
+        def res = http.deleteRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            logger.info("${it['srvcId']} registered successfully")
+        } else {
+            throw new AbortException("Error during okapi discovery table cleanup: " + http.buildHttpErrorMessage(res))
+        }
+        logger.info("Okapi discovery table cleanup finished successfully")
     }
 }
