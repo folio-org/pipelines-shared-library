@@ -46,6 +46,7 @@ pipeline {
             steps {
                 script {
                     def jenkinsKarateConfigContents = getKarateConfig()
+                    println jenkinsKarateConfigContents
                     def files = findFiles(glob: '**/karate-config.js')
 
                     files.each { file ->
