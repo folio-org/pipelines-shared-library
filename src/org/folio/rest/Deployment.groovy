@@ -69,17 +69,17 @@ class Deployment extends GeneralParameters {
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key)
     }
-    void update() {
-        if (tenant) {
-            enableList = gitHubUtility.buildEnableList(repository, branch)
-            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-            // insert new method for cleanup
-            okapi.publishModuleDescriptors(enableList)
-            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
-            okapi.registerServices(discoveryList)
-            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
-        }  else {
-            throw new AbortException('Tenant not set')
-        }
-    }
+//    void update() {
+//        if (tenant) {
+//            enableList = gitHubUtility.buildEnableList(repository, branch)
+//            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
+//            // insert new method for cleanup
+//            okapi.publishModuleDescriptors(enableList)
+//            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+//            okapi.registerServices(discoveryList)
+//            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+//        }  else {
+//            throw new AbortException('Tenant not set')
+//        }
+//    }
 }
