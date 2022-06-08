@@ -208,7 +208,7 @@ def reIndexElasticsearch() {
 }
 
 def recreateIndexElasticsearch() {
-    return _paramBoolean('reIndexElasticsearch', false, 'True if need to recreate index modules , default value: false')
+    return _paramBoolean('recreateIndexElasticsearch', false, 'True if need to recreate index modules , default value: false')
 }
 
 def loadSample() {
