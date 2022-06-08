@@ -366,10 +366,9 @@ class Okapi extends GeneralParameters {
         String body = JsonOutput.toJson(it)
         def res = http.deleteRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_CREATED) {
-            logger.info("${it['srvcId']} registered successfully")
+            logger.info("Okapi discovery table cleanup finished successfully")
         } else {
             throw new AbortException("Error during okapi discovery table cleanup: " + http.buildHttpErrorMessage(res))
         }
-        logger.info("Okapi discovery table cleanup finished successfully")
     }
 }
