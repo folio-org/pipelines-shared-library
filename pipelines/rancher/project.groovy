@@ -20,8 +20,8 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
-        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.stripesImageTag(),
+        jobsParameters.envType(),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
@@ -29,7 +29,10 @@ properties([
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
-        jobsParameters.pgAdminPassword()])])
+        jobsParameters.pgAdminPassword(),
+        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
+    ])
+])
 
 String okapiUrl = ''
 String stripesUrl = ''
@@ -45,7 +48,11 @@ ansiColor('xterm') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
-                buildDescription "action: ${params.action}\n" + "repository: ${params.folio_repository}\n" + "branch: ${params.folio_branch}\n" + "tenant: ${params.tenant_id}"
+                buildDescription "action: ${params.action}\n" +
+                    "repository: ${params.folio_repository}\n" +
+                    "branch: ${params.folio_branch}\n" +
+                    "tenant: ${params.tenant_id}\n" +
+                    "env_type: ${params.env_type}"
             }
             stage('Checkout') {
                 checkout scm
@@ -55,11 +62,12 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('tenant_id', params.tenant_id)
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('folio_repository', params.folio_repository)
+                tfVars += terraform.generateTfVar('env_type', params.env_type)
                 tfVars += terraform.generateTfVar('folio_release', params.folio_branch)
                 tfVars += terraform.generateTfVar('stripes_image_tag', params.stripes_image_tag)
                 tfVars += terraform.generateTfVar('pg_password', params.pg_password)
                 tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
-                tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds(Constants.ENVS_MEMBERS_LIST[params.project_name] + params.github_teams).collect { '"' + it + '"' })
+                tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.project_name] + params.github_teams - null).collect { '"' + it + '"' })
                 withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'folio_docker_registry_password', usernameVariable: 'folio_docker_registry_username')]) {
                     tfVars += terraform.generateTfVar('folio_docker_registry_username', folio_docker_registry_username)
                     tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)

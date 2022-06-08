@@ -1,5 +1,7 @@
 package org.folio.utilities
 
+import hudson.AbortException
+
 class Logger implements Serializable {
 
     Object steps
@@ -23,6 +25,6 @@ class Logger implements Serializable {
 
     @NonCPS
     def error(def message){
-        steps.error(message)
+        throw new AbortException(message)
     }
 }

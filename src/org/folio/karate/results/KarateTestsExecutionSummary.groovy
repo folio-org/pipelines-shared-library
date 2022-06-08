@@ -4,7 +4,7 @@ class KarateTestsExecutionSummary {
 
     Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:];
 
-    void addModuleResult(String moduleName, def summaryJson) {
+    void addModuleResult(String moduleName, def summaryJson, Map<String, String> displayNames) {
         if (!modulesExecutionSummary.containsKey(moduleName)) {
             modulesExecutionSummary.put(moduleName, new KarateModuleExecutionSummary(moduleName))
         }
@@ -15,7 +15,7 @@ class KarateTestsExecutionSummary {
             summaryJson.featuresSkipped)
 
         summaryJson.featureSummary.each { featureSummaryJson ->
-            moduleSummary.addFeatureSummary(featureSummaryJson)
+            moduleSummary.addFeatureSummary(featureSummaryJson, displayNames)
         }
     }
 

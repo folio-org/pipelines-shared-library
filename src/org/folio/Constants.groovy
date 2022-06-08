@@ -4,8 +4,10 @@ import org.folio.rest.model.OkapiUser
 
 class Constants {
 
+    static String FOLIO_ORG = "folio-org"
     static String FOLIO_GITHUB_URL = "https://github.com/folio-org"
     static String FOLIO_JIRA_URL = "https://issues.folio.org"
+    static String CI_ROOT_DOMAIN = "ci.folio.org"
 
     static String GITHUB_CREDENTIALS_ID = "11657186-f4d4-4099-ab72-2a32e023cced"
     static String PRIVATE_GITHUB_CREDENTIALS_ID = "id-jenkins-github-personal-token-with-username"
@@ -20,6 +22,12 @@ class Constants {
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
 
+    static String NEXUS_PUBLISH_CREDENTIALS_ID = "jenkins-nexus"
+    static String FOLIO_HELM_REPOSITORY_URL = "https://repository.folio.org/repository/helm-hosted/"
+
+    static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
+    static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
+
     static String JENKINS_MASTER_NODE = "master"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
@@ -32,13 +40,13 @@ class Constants {
                                     "falcon"       : ["falcon"],
                                     "firebird"     : ["firebird"],
                                     "folijet"      : ["folijet"],
-                                    "karate"       : ["Bama", "concorde", "core-platform", "ebsco-core", "falcon", "firebird", "folijet", "spitfire", "core-functional", "scout", "unam", "stripes-force", "thor", "thunderjet", "vega", "volaris"],
+                                    "karate"       : [],
                                     "metadata"     : ["spitfire"],
                                     "prokopovych"  : ["core-functional"],
                                     "scout"        : ["scout"],
                                     "spanish"      : ["unam"],
                                     "spitfire"     : ["spitfire"],
-                                    "sprint"       : [],
+                                    "sprint-testing"       : [],
                                     "stripes-force": ["stripes-force"],
                                     "thor"         : ["thor"],
                                     "thunderjet"   : ["thunderjet"],
@@ -48,3 +56,5 @@ class Constants {
                                     "volaris-2nd"  : ["volaris"]]
 
 }
+
+//"karate"       : ["Bama", "concorde", "core-platform", "ebsco-core", "falcon", "firebird", "folijet", "spitfire", "core-functional", "scout", "unam", "stripes-force", "thor", "thunderjet", "vega", "volaris"],

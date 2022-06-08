@@ -20,45 +20,11 @@ variable "root_domain" {
   default = "ci.folio.org"
 }
 
-variable "vpc_create" {
-  type        = bool
-  default     = true
-  description = "True if VPC should be created, false if use existing VPC. !!!Be careful subnets of existing VPC should have specific tags!!!"
-}
-
-variable "vpc_id" {
+variable "vpc_name" {
   type        = string
-  default     = null
-  description = "ID of existing vpc"
+  default     = "folio-rancher-vpc"
+  description = "VPC name"
 }
-
-variable "vpc_cidr_block" {
-  type        = string
-  default     = "10.21.0.0/16"
-  description = "Rancher cluster name (testing, scratch, performance)"
-}
-
-variable "subnet_prefix_extension" {
-  type        = number
-  default     = 4
-  description = "CIDR block bits extension to calculate CIDR blocks of each subnetwork."
-}
-
-variable "zone_offset" {
-  type        = number
-  default     = 8
-  description = "CIDR block bits extension offset to calculate Public subnets, avoiding collisions with Private subnets."
-}
-
-#variable "developer_users" {
-#  type        = list(string)
-#  description = "List of Kubernetes developers."
-#}
-#
-#variable "admin_users" {
-#  type        = list(string)
-#  description = "List of Kubernetes admins."
-#}
 
 variable "eks_nodes_type" {
   type        = string
@@ -72,7 +38,7 @@ variable "eks_node_group_size" {
     max_size : number,
     desired_size : number
   })
-  default     = { "min_size" : 3, "max_size" : 6, "desired_size" : 3 }
+  default     = { "min_size" : 4, "max_size" : 8, "desired_size" : 4 }
   description = "Minimum, maximum, and desired number of instances/nodes"
 }
 
@@ -88,7 +54,6 @@ variable "tags" {
     Terraform = "true"
     Project   = "folio"
     Team      = "kitfox"
-    Tool      = "rancher"
   }
   description = "Default tags"
 }
