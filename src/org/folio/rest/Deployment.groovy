@@ -1,6 +1,7 @@
 package org.folio.rest
 
 
+import hudson.AbortException
 import org.folio.rest.model.Email
 import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
@@ -62,24 +63,23 @@ class Deployment extends GeneralParameters {
         enableList = gitHubUtility.buildEnableList(repository, branch)
         discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
         okapi.publishModuleDescriptors(enableList)
-        okapi.cleanupServicesRegistration()
         okapi.registerServices(discoveryList)
         okapi.secure(super_admin)
         okapi.secure(testing_admin)
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key)
     }
-//    void update() {
-//        if (tenant) {
-//            enableList = gitHubUtility.buildEnableList(repository, branch)
-//            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-//            // insert new method for cleanup
-//            okapi.publishModuleDescriptors(enableList)
-//            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
-//            okapi.registerServices(discoveryList)
-//            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
-//        }  else {
-//            throw new AbortException('Tenant not set')
-//        }
-//    }
+    void update() {
+        if (tenant) {
+            enableList = gitHubUtility.buildEnableList(repository, branch)
+            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
+            okapi.cleanupServicesRegistration()
+            okapi.publishModuleDescriptors(enableList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.registerServices(discoveryList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+        }  else {
+            throw new AbortException('Tenant not set')
+        }
+    }
 }
