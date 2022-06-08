@@ -341,5 +341,7 @@ class Okapi extends GeneralParameters {
         auth.createUserCredentials(supertenant, user)
         enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
     }
-
+    void cleanupServicesRegistration(){
+        // ?? like registerServices but delete call
+    }
 }

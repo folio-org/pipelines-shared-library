@@ -99,6 +99,7 @@ class Deployment extends GeneralParameters {
         if (tenant) {
             enableList = gitHubUtility.buildEnableList(repository, branch)
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
+            // insert new method for cleanup
             okapi.publishModuleDescriptors(enableList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.registerServices(discoveryList)
