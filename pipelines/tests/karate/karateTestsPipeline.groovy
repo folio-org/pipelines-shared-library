@@ -110,19 +110,35 @@ pipeline {
 }
 
 def getKarateConfig() {
-    """
+    withCredentials([string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
+                     string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),
+                     string(credentialsId: 'mod-kb-ebsco-key', variable: 'ebsco_key'),
+                     string(credentialsId: 'mod-kb-ebsco-usageId', variable: 'ebsco_usage_id'),
+                     string(credentialsId: 'mod-kb-ebsco-usageSecret', variable: 'ebsco_usage_secret'),
+                     string(credentialsId: 'mod-kb-ebsco-usageKey', variable: 'ebsco_usage_key')]) {
+        return """
 function fn() {
     var config = {
-        baseUrl: '${params.okapiUrl}',
-        admin: {
-            tenant: '${params.tenant}',
-            name: '${params.adminUserName}',
+        baseUrl: '${params.okapiUrl}' ,
+        admin:
+        {
+            tenant: '${params.tenant}' ,
+            name: '${params.adminUserName}' ,
             password: '${params.adminPassword}'
         },
-        prototypeTenant: '${params.prototypeTenant}'
+        prototypeTenant: '${params.prototypeTenant}',
+
+        kbEbscoCredentialsUrl=${ebsco_url},
+        kbEbscoCredentialsCustomerId=${ebsco_id},
+        kbEbscoCredentialsApiKey=${ebsco_key},
+
+        usageConsolidationCredentialsId=${ebsco_usage_id},
+        usageConsolidationCredentialsSecret=${ebsco_usage_secret},
+        usageConsolidationCustomerKey=${ebsco_usage_key}
     }
 
     return config;
 }
 """
+    }
 }
