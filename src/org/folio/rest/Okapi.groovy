@@ -363,7 +363,7 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         logger.info("Okapi discovery table cleanup. Starting...")
-        String body = JsonOutput.toJson(it)
+        String body = JsonOutput.toJson("")
         def res = http.deleteRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_CREATED) {
             logger.info("Okapi discovery table cleanup finished successfully")
