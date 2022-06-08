@@ -144,6 +144,38 @@ class Okapi extends GeneralParameters {
         }
     }
 
+
+    /**
+     * reindex Elasticsearch to modules for tenant
+     * @param tenant
+     * @param okapiUrl
+     */
+    def reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch ) {
+        auth.getOkapiToken(tenant, admin_user)
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
+
+        def requestBody = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
+        def reindexResponse = httpRequest httpMode: 'POST', url: "${okapiUrl}/search/index/inventory/reindex", requestBody: requestBody, customHeaders: headers, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
+        println(reindexResponse)
+        /*
+            /*
+            /*
+             * this block is commented out due to lack of rigts folio user
+             * Access requires permission: inventory-storage.instance.reindex.item.get
+            def jobId = readJSON(text: reindexResponse.content)['id']
+            timeout(10) {
+                waitUntil {
+                    def resp = httpRequest httpMode: 'GET', url: "${okapiUrl}/instance-storage/reindex/${jobId}", customHeaders: header, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
+                    return (readJSON(text: resp.content)['jobStatus'] == 'Ids published')
+                }
+            }
+            */
+    }
+
     /**
      * Create tenant
      * @param tenant

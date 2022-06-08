@@ -26,6 +26,8 @@ properties([
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
+        jobsParameters.reIndexElasticsearch(),
+        jobsParameters.recreateIndexElasticsearch(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
@@ -134,7 +136,9 @@ ansiColor('xterm') {
                             tenant,
                             admin_user,
                             email,
-                            cypress_api_key_apidvcorp
+                            cypress_api_key_apidvcorp,
+                            params.reIndexElasticsearch,
+                            params.recreateIndexElasticsearch
                         )
 
                         deployment.main()
