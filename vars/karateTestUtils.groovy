@@ -164,7 +164,8 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        def summary = issue.summary
+        def summary = toSearchableSummary(issue.summary)
+        println(summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
@@ -172,11 +173,12 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
-            if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
+            def name = toSearchableSummary(featureSummary.displayName)
+            if (!issuesMap.containsKey(name) && featureSummary.failed) {
                 createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
-            } else if (issuesMap.containsKey(featureSummary.displayName)) {
-                JiraIssue issue = issuesMap[featureSummary.displayName]
+            } else if (issuesMap.containsKey(name)) {
+                JiraIssue issue = issuesMap[name]
                 jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
                 echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
 
@@ -198,6 +200,15 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
                 }
             }
         }
+    }
+}
+
+String toSearchableSummary(String summary) {
+    if (summary.contains("{") && summary.contains("}")) {
+        return summary.split("\\{")[0] + " " + summary.split("\\}")[1]
+    } else {
+        println("Unexpected summary format '{' and '}' are missing: ${summary}")
+        return  summary
     }
 }
 
