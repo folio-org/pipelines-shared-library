@@ -159,8 +159,8 @@ class Okapi extends GeneralParameters {
         ]
 
         def requestBody = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
-        def reindexResponse = httpRequest httpMode: 'POST', url: "${okapiUrl}/search/index/inventory/reindex", requestBody: requestBody, customHeaders: headers, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
-        println(reindexResponse)
+        def reindexElasticsearchResponse = httpRequest httpMode: 'POST', url: "${okapiUrl}/search/index/inventory/reindex", requestBody: requestBody, customHeaders: headers, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
+        println(reindexElasticsearchResponse)
         /*
             /*
             /*
