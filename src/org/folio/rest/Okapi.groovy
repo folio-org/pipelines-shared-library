@@ -157,12 +157,16 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
+        logger.info("Pulling modules descriptors from ${recreateIndexElasticsearch.join(", ")} to Okapi")
         String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info("Modules descriptors successfully pulled from ${recreateIndexElasticsearch.join()} to Okapi")
+            return true
+            logger.info("Modules descriptors successfully  from ${recreateIndexElasticsearch.join(", ")} to Okapi")
+        } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
+            return false
         } else {
-            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join()} to Okapi." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
         }
     }
 
