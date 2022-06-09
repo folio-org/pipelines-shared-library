@@ -144,7 +144,6 @@ class Okapi extends GeneralParameters {
         }
     }
 
-
     /**
      * reindex Elasticsearch to modules for tenant
      * @param tenant
@@ -152,29 +151,20 @@ class Okapi extends GeneralParameters {
      */
     def reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch ) {
         auth.getOkapiToken(tenant, admin_user)
+        String url = okapiUrl + "/search/index/inventory/reindex"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
+        String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
+        def reindex = http.postRequest(url, body, headers)
+        if (reindex.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Modules descriptors successfully pulled from ${recreateIndexElasticsearch.join(", ")} to Okapi")
+        } else {
+            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
+        }
 
-        def requestBody = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
-        def reindexElasticsearchResponse = httpRequest httpMode: 'POST', url: "${okapiUrl}/search/index/inventory/reindex", requestBody: requestBody, customHeaders: headers, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
-        println(reindexElasticsearchResponse)
-        /*
-            /*
-            /*
-             * this block is commented out due to lack of rigts folio user
-             * Access requires permission: inventory-storage.instance.reindex.item.get
-            def jobId = readJSON(text: reindexResponse.content)['id']
-            timeout(10) {
-                waitUntil {
-                    def resp = httpRequest httpMode: 'GET', url: "${okapiUrl}/instance-storage/reindex/${jobId}", customHeaders: header, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
-                    return (readJSON(text: resp.content)['jobStatus'] == 'Ids published')
-                }
-            }
-            */
-    }
 
     /**
      * Create tenant
