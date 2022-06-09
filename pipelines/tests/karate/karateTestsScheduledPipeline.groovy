@@ -43,7 +43,7 @@ pipeline {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
-    
+
     stages {
         stage("Create environment") {
             steps {
@@ -92,6 +92,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage("Collect test results") {
                     when {
                         expression {
