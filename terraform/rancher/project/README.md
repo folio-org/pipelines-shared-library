@@ -1,7 +1,7 @@
 ```
-$ terraform init \
-  -reconfigure \
-  -backend-config=backends/config.karate.backend
+$ terraform init
+$ terraform workspace list
+$ terraform workspace select <cluster-name>-<project-name> or terraform workspace new <cluster-name>-<project-name>
 $ terraform state pull
 ```
 
@@ -9,16 +9,20 @@ $ terraform state pull
 $ terraform plan \
   -input=false \
   -out tfplan \
-  -var rancher_cluster_name=folio-testing \
-  -var rancher_project_name=karate
+  -var frontend_image_tag=<image> \
+  -var okapi_version=<version> \
+  -var rancher_cluster_name=<cluster-name> \
+  -var rancher_project_name=<project-name>
 $ terraform apply -input=false tfplan
 ```
 
 ```
 $ terraform destroy \
   -auto-approve \
-  -var rancher_cluster_name=folio-testing \
-  -var rancher_project_name=karate
+  -var frontend_image_tag=<image> \
+  -var okapi_version=<version> \
+  -var rancher_cluster_name=<cluster-name> \
+  -var rancher_project_name=<project-name>
 ```
 
 ### Required parameters
@@ -37,17 +41,17 @@ $ terraform destroy \
 
 **folio_docker_registry_password** `Default: ""`
 
-**stripes_image_tag** `Default: ""`
-
-**pg_password** `Default: ""`
+**frontend_image_tag** `Default: ""`
 
 **pgadmin_password** `Default: ""`
 
 ### Optional parameters
 
-**folio_repository** `Default: "core"`
+**repository** `Default: "platform-complete"`
 
-**folio_release** `Default: "master"`
+**branch** `Default: "snapshot"`
+
+**pg_password** `Default: ""`
 
 ### Examples
 Example of content for secrets.auto.tfvars
@@ -60,12 +64,11 @@ aws_secret_key = "<SECRET-KEY>"
 rancher_token_key    = "<TOKEN>"
 
 #Modules related properties
-folio_repository               = "core"
-folio_release                  = "master"
+repository               = "platform-complete"
+branch                  = "snapshot"
 folio_docker_registry_username = "<USERNAME>"
 folio_docker_registry_password = "<PASSWORD>"
 pg_password                    = "<PASSWORD>"
 pgadmin_password               = "<PASSWORD>"
-stripes_image_tag              = "<TAG>"
-
+frontend_image_tag              = "<TAG>"
 ```

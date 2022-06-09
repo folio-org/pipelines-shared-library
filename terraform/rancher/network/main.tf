@@ -57,4 +57,10 @@ module "vpc" {
       "kubernetes.io/role/internal-elb" = "1"
       Type                              = "private"
   })
+  database_subnet_tags = merge(
+    local.clusters_tags,
+    {
+      Type = "database"
+    }
+  )
 }
