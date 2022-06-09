@@ -171,29 +171,29 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
-            // ignore features which has no report generated
-            if (featureSummary.cucumberReportFile) {
-                // No jira issue and feature failed
-                if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
-                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
-                    // Jira issue exists
-                } else if (issuesMap.containsKey(featureSummary.displayName)) {
-                    JiraIssue issue = issuesMap[featureSummary.displayName]
-                    jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
+            // No jira issue and feature failed
+            if (!issuesMap.containsKey(featureSummary.displayName) && featureSummary.failed) {
+                createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                // Jira issue exists
+            } else if (issuesMap.containsKey(featureSummary.displayName)) {
+                JiraIssue issue = issuesMap[featureSummary.displayName]
+                jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
+                echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
 
-
-                    // Issue fixed and no any activity have been started on the issue
-                    if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                // Issue fixed and no any activity have been started on the issue
+                if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                    jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                    echo "Jira ticket '${issue.getKey()}' status chenged to 'Closed'"
+                    // Issue is in "In Review" status
+                } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+                    // Feature us still failing
+                    if (featureSummary.failed) {
+                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
+                        echo "Jira ticket '${issue.getKey()}' status chenged to 'Open'"
+                        // Feature has been fixed
+                    } else {
                         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        // Issue is in "In Review" status
-                    } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
-                        // Feature us still failing
-                        if (featureSummary.failed) {
-                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
-                            // Feature has been fixed
-                        } else {
-                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        }
+                        echo "Jira ticket '${issue.getKey()}' status chenged to 'Closed'"
                     }
                 }
             }
@@ -227,7 +227,8 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 
     try {
         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-        jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
+        def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
+        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
     } catch (e) {
         echo("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()

@@ -67,7 +67,7 @@ pipeline {
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: "mod-inn-reach"),
+                        string(name: 'modules', value: ""),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
@@ -75,7 +75,7 @@ pipeline {
                         string(name: 'prototypeTenant', value: prototypeTenant)
                     ]
 
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    //karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -102,7 +102,7 @@ pipeline {
                         stage("Copy downstream job artifacts") {
                             steps {
                                 script {
-                                    def jobNumber = karateTestsJob.number
+                                    def jobNumber = 119 //karateTestsJob.number
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
