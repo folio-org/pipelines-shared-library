@@ -178,7 +178,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             } else if (issuesMap.containsKey(featureSummary.displayName)) {
                 JiraIssue issue = issuesMap[featureSummary.displayName]
                 jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
-                echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+                echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
 
                 // Issue fixed and no any activity have been started on the issue
                 if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
