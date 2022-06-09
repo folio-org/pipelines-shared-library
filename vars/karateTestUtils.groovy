@@ -173,12 +173,12 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
-            def name = toSearchableSummary(featureSummary.displayName)
-            if (!issuesMap.containsKey(name) && featureSummary.failed) {
+            def featureName = toSearchableSummary(featureSummary.displayName)
+            if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
                 createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
-            } else if (issuesMap.containsKey(name)) {
-                JiraIssue issue = issuesMap[name]
+            } else if (issuesMap.containsKey(featureName)) {
+                JiraIssue issue = issuesMap[featureName]
                 jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
                 echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
 
@@ -205,7 +205,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
 String toSearchableSummary(String summary) {
     if (summary.contains("{") && summary.contains("}")) {
-        return summary.split("\\{")[0] + " " + summary.split("\\}")[1]
+        return summary.split("\\{")[0].trim() + " " + summary.split("\\}")[1].trim()
     } else {
         println("Unexpected summary format '{' and '}' are missing: ${summary}")
         return  summary
