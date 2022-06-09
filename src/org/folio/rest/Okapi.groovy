@@ -162,9 +162,9 @@ class Okapi extends GeneralParameters {
         if (reindex.status == HttpURLConnection.HTTP_OK) {
             logger.info("Modules descriptors successfully pulled from ${recreateIndexElasticsearch.join(", ")} to Okapi")
         } else {
-            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(reindex))
         }
-
+    }
 
     /**
      * Create tenant
