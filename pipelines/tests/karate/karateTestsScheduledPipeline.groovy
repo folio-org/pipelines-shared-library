@@ -67,7 +67,7 @@ pipeline {
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: "mod-inn-reach, mod-kb-ebsco-java"),
+                        string(name: 'modules', value: "mod-inn-reach,mod-kb-ebsco-java"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
