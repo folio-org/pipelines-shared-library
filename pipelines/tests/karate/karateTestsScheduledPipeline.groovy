@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-346') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -43,7 +43,7 @@ pipeline {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
-    
+
     stages {
         stage("Create environment") {
             steps {
@@ -67,7 +67,7 @@ pipeline {
                     def jobParameters = [
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: ""),
+                        string(name: 'modules', value: "mod-inn-reach, mod-kb-ebsco-java"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
