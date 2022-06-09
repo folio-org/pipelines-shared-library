@@ -158,11 +158,11 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
         String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
-        def reindex = http.postRequest(url, body, headers)
-        if (reindex.status == HttpURLConnection.HTTP_OK) {
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Modules descriptors successfully pulled from ${recreateIndexElasticsearch.join(", ")} to Okapi")
         } else {
-            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(reindex))
+            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
         }
     }
 
