@@ -57,11 +57,11 @@ pipeline {
 //        }
 
         stage("Run karate tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [
@@ -93,11 +93,11 @@ pipeline {
 //                    }
 //                }
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+//                    when {
+//                        expression {
+//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//                        }
+//                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
