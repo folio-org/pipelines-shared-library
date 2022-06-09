@@ -165,7 +165,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
         def summary = toSearchableSummary(issue.summary)
-        println(summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
