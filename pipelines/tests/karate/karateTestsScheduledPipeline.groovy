@@ -92,6 +92,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage("Collect test results") {
                     when {
                         expression {
