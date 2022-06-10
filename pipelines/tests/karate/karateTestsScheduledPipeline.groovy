@@ -150,7 +150,8 @@ pipeline {
                         stage("Send slack notifications") {
                             steps {
                                 script {
-                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                    println()
+                                    //karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
                         }
@@ -158,7 +159,8 @@ pipeline {
                         stage("Sync jira tickets") {
                             steps {
                                 script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                    println()
+                                    //karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
                         }
