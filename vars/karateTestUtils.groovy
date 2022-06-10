@@ -60,7 +60,11 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
-                def displayNamePattern = feature.displayName.replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]")
+                def displayNamePattern = feature.displayName
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("\\]", "\\\\]")
+                    .replaceAll("\\{", "\\\\}")
+                    .replaceAll("\\{", "\\\\}")
                 String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
