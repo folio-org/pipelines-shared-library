@@ -240,17 +240,19 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
+    def teamName = "TEAM_MISSING"
     def team = teamByModule[moduleSummary.name]
     if (team) {
-        fields["Development Team"] = team.name
+        teamName = team.name
+        fields["Development Team"] = teamName
     } else {
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }
 
     try {
-        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${team.name}'"
+        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
-        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${team.name}'"
+        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
     } catch (e) {
         echo("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
