@@ -9,7 +9,7 @@ class KarateConstants {
 
     public static final String JIRA_ISSUE_TYPE = "Bug"
 
-    public static final String JIRA_ISSUE_PRIORITY = "P1"
+    public static final String JIRA_ISSUE_PRIORITY = "P2"
 
     public static final String ISSUE_LABEL = "karateRegressionPipeline"
 
