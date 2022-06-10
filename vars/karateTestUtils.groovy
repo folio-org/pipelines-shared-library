@@ -196,17 +196,17 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
                 // Issue fixed and no any activity have been started on the issue
                 if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
                     jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                    echo "Jira ticket '${issue.getKey()}' status chenged to 'Closed'"
+                    echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
                     // Issue is in "In Review" status
                 } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
                     // Feature us still failing
                     if (featureSummary.failed) {
                         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
-                        echo "Jira ticket '${issue.getKey()}' status chenged to 'Open'"
+                        echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
                         // Feature has been fixed
                     } else {
                         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        echo "Jira ticket '${issue.getKey()}' status chenged to 'Closed'"
+                        echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
                     }
                 }
             }
@@ -240,17 +240,17 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
-    def teamName = teamByModule[moduleSummary.name]
-    if (teamName) {
-        fields["Development Team"] = teamName.name
+    def team = teamByModule[moduleSummary.name]
+    if (team) {
+        fields["Development Team"] = team.name
     } else {
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }
 
     try {
-        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${team.name}'"
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
-        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${team.name}'"
     } catch (e) {
         echo("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
@@ -271,7 +271,10 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
         "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
         "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
+
     description
+        .replaceAll("\\{", "&#123;")
+        .replaceAll("\\{", "&#125;")
 }
 
 private JiraClient getJiraClient() {
