@@ -149,7 +149,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      * @param okapiUrl
      */
-    def reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch ) {
+    Boolean reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch ) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapiUrl + "/search/index/inventory/reindex"
         ArrayList headers = [
@@ -162,7 +162,7 @@ class Okapi extends GeneralParameters {
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return true
-            logger.info("Modules descriptors successfully  from ${recreateIndexElasticsearch.join(", ")} to Okapi")
+//            logger.info("Modules descriptors successfully  from ${recreateIndexElasticsearch.join(", ")} to Okapi")
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
             return false
         } else {
