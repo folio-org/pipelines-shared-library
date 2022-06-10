@@ -65,6 +65,8 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
                     .replaceAll("\\]", "\\\\]")
                     .replaceAll("\\{", "\\\\}")
                     .replaceAll("\\{", "\\\\}")
+                println displayNamePattern
+
                 String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
