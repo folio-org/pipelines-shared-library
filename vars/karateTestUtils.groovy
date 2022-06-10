@@ -63,8 +63,8 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
                 def displayNamePattern = feature.displayName
                     .replaceAll("\\[", "\\\\[")
                     .replaceAll("\\]", "\\\\]")
-                    .replaceAll("\\{", "\\\\}")
-                    .replaceAll("\\{", "\\\\}")
+                    .replaceAll("\\{", "\\\\{")
+                    .replaceAll("\\}", "\\\\}")
                 println displayNamePattern
 
                 String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
