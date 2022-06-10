@@ -149,7 +149,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      * @param okapiUrl
      */
-    Boolean reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch ) {
+    def reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapiUrl + "/search/index/inventory/reindex"
         ArrayList headers = [
@@ -157,16 +157,14 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        logger.info("Pulling modules descriptors from ${recreateIndexElasticsearch.join(", ")} to Okapi")
+        logger.info("Starting Elastic Search reindex with recreate flag = ${recreateIndexElasticsearch}")
         String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return true
-//            logger.info("Modules descriptors successfully  from ${recreateIndexElasticsearch.join(", ")} to Okapi")
-        } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
-            return false
+            logger.info("Elastic Search reindex successfully run")
         } else {
-            throw new AbortException("Error during modules descriptors pull from ${recreateIndexElasticsearch.join(", ")} to Okapi." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -252,9 +250,9 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers, true)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            if(tools.jsonParse(res.content)[0].url == service['url']){
+            if (tools.jsonParse(res.content)[0].url == service['url']) {
                 return true
-            }else{
+            } else {
                 throw new AbortException("Registered module has incorrect url." + http.buildHttpErrorMessage(res))
             }
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
