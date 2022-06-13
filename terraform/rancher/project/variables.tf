@@ -164,3 +164,21 @@ variable "github_team_ids" {
   default     = []
   description = "List of github team IDs for project access"
 }
+
+variable "nexus_helm_repo_name" {
+  type        = string
+  default     = "folio-helm-repo"
+  description = "Name of the installed globally nexus helm repo"
+}
+
+variable "create_db_backup" {
+  type        = bool
+  default     = false
+  description = "Create/don't create db backup"
+}
+
+variable "psql_dump_temporary_storage_size" {
+  type        = string
+  default     = "1Gi"
+  description = "Size of attached ebs volume to psql dump container as temporary storage"
+}
