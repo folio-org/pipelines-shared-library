@@ -159,9 +159,10 @@ class Okapi extends GeneralParameters {
         ]
         logger.info("Starting Elastic Search reindex with recreate flag = ${recreateIndexElasticsearch}")
         String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
-        def res = http.postRequest(url, body, headers, true)
+        def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Elastic Search reindex successfully run")
+            println(res)
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
