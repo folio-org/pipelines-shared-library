@@ -101,3 +101,20 @@ resource "rancher2_secret" "edge-api-config" {
     "api_config" = filebase64("${path.module}/resources/api_configuration.json")
   }
 }
+
+resource "rancher2_secret" "s3-postgres-backups-credentials" {
+  depends_on   = [rancher2_namespace.project-namespace]
+  name         = "s3-postgres-backups-credentials"
+  project_id   = rancher2_project.project.id
+  namespace_id = rancher2_namespace.project-namespace.name
+  data = {
+    PGUSER                       = base64encode(var.pg_username)
+    PGPASSWORD                   = base64encode(var.pg_password)
+    PGDATABASE                   = base64encode(var.pg_dbname)
+    RANCHER_CLUSTER_PROJECT_NAME = base64encode(join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name]))
+    RELEASE_BRANCH               = base64encode(var.folio_release)
+    AWS_BUCKET                   = base64encode(var.s3_postgres_backups_bucket_name)
+    AWS_ACCESS_KEY_ID            = base64encode(var.s3_postgres_backups_access_key)
+    AWS_SECRET_ACCESS_KEY        = base64encode(var.s3_postgres_backups_secret_key)
+  }
+}
