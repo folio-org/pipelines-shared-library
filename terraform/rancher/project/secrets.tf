@@ -103,6 +103,7 @@ resource "rancher2_secret" "edge-api-config" {
 }
 
 resource "rancher2_secret" "s3-postgres-backups-credentials" {
+  count        = var.create_db_backup ? 1 : 0
   depends_on   = [rancher2_namespace.project-namespace]
   name         = "s3-postgres-backups-credentials"
   project_id   = rancher2_project.project.id

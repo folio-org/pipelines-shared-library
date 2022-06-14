@@ -208,6 +208,7 @@ resource "rancher2_app" "folio-edge-sip2" {
 # Create a new rancher2 Stripes App in a default Project namespace
 resource "rancher2_app" "psql-dump" {
   count            = var.create_db_backup ? 1 : 0
+  depends_on       = [rancher2_secret.s3-postgres-backups-credentials]
   project_id       = rancher2_project.project.id
   target_namespace = rancher2_namespace.project-namespace.name
   catalog_name     = var.nexus_helm_repo_name
@@ -216,12 +217,6 @@ resource "rancher2_app" "psql-dump" {
   force_upgrade    = "true"
   answers = {
     "psqlDump.projectNamespace"     = rancher2_namespace.project-namespace.name
-    "psqlDump.job.imageRepository"  = join("/", [length(regexall(".*SNAPSHOT.*", rancher2_app.psql-dump.name)) > 0 ? "folioci" : "folioorg"])
-    "psqlDump.job.imageTag"         = "----------------------"
-    "psqlDump.job.restartPolicy"    = "Never"
-    "psqlDump.job.backoffLimit"     = "3"
-    "psqlDump.job.command"          = "['/bin/bash', '/pg_dump_restore.sh']"
-    "psqlDump.pvc.storageClassName" = "gp2"
     "psqlDump.pvc.size"             = var.psql_dump_temporary_storage_size
   }
 }
