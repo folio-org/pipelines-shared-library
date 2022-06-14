@@ -102,7 +102,7 @@ resource "rancher2_secret" "edge-api-config" {
   }
 }
 
-/*resource "rancher2_secret" "s3-postgres-backups-credentials" {
+resource "rancher2_secret" "s3-postgres-backups-credentials" {
   count        = var.create_db_backup ? 1 : 0
   depends_on   = [rancher2_namespace.project-namespace]
   name         = "s3-postgres-backups-credentials"
@@ -120,4 +120,4 @@ resource "rancher2_secret" "edge-api-config" {
     AWS_ACCESS_KEY_ID            = base64encode(var.s3_postgres_backups_access_key)
     AWS_SECRET_ACCESS_KEY        = base64encode(var.s3_postgres_backups_secret_key)
   }
-}*/
+}
