@@ -67,10 +67,10 @@ class Deployment extends GeneralParameters {
     void main() {
         enableList = gitHubUtility.buildEnableList(repository, branch)
         discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-//        okapi.publishModuleDescriptors(enableList)
-//        okapi.registerServices(discoveryList)
-//        okapi.secure(super_admin)
-//        okapi.secure(testing_admin)
+        okapi.publishModuleDescriptors(enableList)
+        okapi.registerServices(discoveryList)
+        okapi.secure(super_admin)
+        okapi.secure(testing_admin)
 
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reIndexElasticsearch, recreateIndexElasticsearch)
