@@ -112,6 +112,7 @@ resource "rancher2_secret" "s3-postgres-backups-credentials" {
     PGUSER                       = base64encode(var.pg_username)
     PGPASSWORD                   = base64encode(var.pg_password)
     PGDATABASE                   = base64encode(var.pg_dbname)
+    PGHOST                       = base64encode("pg-folio")
     S3_BACKUP_PATH               = base64encode("s3://folio-postgresql-backups")
     RANCHER_CLUSTER_PROJECT_NAME = base64encode(join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name]))
     RELEASE_BRANCH               = base64encode(var.folio_release)

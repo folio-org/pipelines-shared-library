@@ -216,8 +216,9 @@ resource "rancher2_app" "psql-dump" {
   template_name    = "psql-dump"
   force_upgrade    = "true"
   answers = {
-    "psqlDump.projectNamespace"     = rancher2_namespace.project-namespace.name
-    "psqlDump.pvc.size"             = var.psql_dump_temporary_storage_size
+    "psql.projectNamespace"     = rancher2_namespace.project-namespace.name
+    "psql.job.EnvVarsSecret"    = "s3-postgres-backups-credentials"
+    "psql.pvc.size"             = var.psql_dump_temporary_storage_size
   }
 }
 
