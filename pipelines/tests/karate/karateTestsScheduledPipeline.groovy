@@ -26,7 +26,7 @@ def teamAssignment
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["project_name": "karate"])[0]
+String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["rancher_cluster_name": clusterName, "project_name": projectName])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -35,13 +35,13 @@ pipeline {
         cron('H 4 * * *')
     }
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
-    }
-
-    options {
-        disableConcurrentBuilds()
     }
 
     stages {
@@ -92,6 +92,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage("Collect test results") {
                     when {
                         expression {

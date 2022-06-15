@@ -1,5 +1,6 @@
 package org.folio.utilities
 
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.AbortException
 
 class Logger implements Serializable {

@@ -41,8 +41,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
-    println(retVal)
-
     retVal
 }
 
@@ -62,7 +60,13 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
-                def displayNamePattern = feature.displayName.replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]")
+                def displayNamePattern = feature.displayName
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("\\]", "\\\\]")
+                    .replaceAll("\\{", "\\\\{")
+                    .replaceAll("\\}", "\\\\}")
+                println displayNamePattern
+
                 String pattern = KarateConstants.CUCUMBER_REPORT_PATTERN_START + displayNamePattern + KarateConstants.CUCUMBER_REPORT_PATTERN_END
                 contents =~ pattern
             } else {
@@ -129,7 +133,12 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
         }
 
-        slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
+        try {
+            slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
+        } catch (Exception e) {
+            println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
+            e.printStackTrace()
+        }
     }
 }
 
@@ -161,40 +170,56 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        def summary = issue.summary
+        def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
-            // ignore features which has no report generated
-            if (featureSummary.cucumberReportFile) {
-                // No jira issue and feature failed
-                if (!issuesMap.containsKey(featureSummary.relativePath) && featureSummary.failed) {
-                    createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
-                    // Jira issue exists
-                } else if (issuesMap.containsKey(featureSummary.relativePath)) {
-                    JiraIssue issue = issuesMap[featureSummary.relativePath]
-                    jiraClient.addIssueComment(issue.id, getIssueDescription(featureSummary))
+            // No jira issue and feature failed
+            def featureName = toSearchableSummary(featureSummary.displayName)
+            if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
+                createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                // Jira issue exists
+            } else if (issuesMap.containsKey(featureName)) {
+                JiraIssue issue = issuesMap[featureName]
+                def description = getIssueDescription(featureSummary)
+                try {
+                    jiraClient.addIssueComment(issue.id, description)
+                    echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
+                } catch (Exception e) {
+                    echo "Error updating '${issue.getKey()}' jira ticket description with following comment:\n ${description}'"
+                    e.printStackTrace()
+                }
 
-
-                    // Issue fixed and no any activity have been started on the issue
-                    if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                // Issue fixed and no any activity have been started on the issue
+                if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                    jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                    echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
+                    // Issue is in "In Review" status
+                } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+                    // Feature us still failing
+                    if (featureSummary.failed) {
+                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
+                        echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
+                        // Feature has been fixed
+                    } else {
                         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        // Issue is in "In Review" status
-                    } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
-                        // Feature us still failing
-                        if (featureSummary.failed) {
-                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
-                            // Feature has been fixed
-                        } else {
-                            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        }
+                        echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
                     }
                 }
             }
         }
+    }
+}
+
+String toSearchableSummary(String summary) {
+    if (summary.contains("{") && summary.contains("}")) {
+        return summary.split("\\{")[0].trim() + " " + summary.split("\\}")[1].trim()
+    } else {
+        println("Unexpected summary format '{' and '}' are missing: ${summary}")
+        return  summary
     }
 }
 
@@ -215,16 +240,19 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
-    def teamName = teamByModule[moduleSummary.name]
-    if (teamName) {
-        fields["Development Team"] = teamName.name
+    def teamName = "TEAM_MISSING"
+    def team = teamByModule[moduleSummary.name]
+    if (team) {
+        teamName = team.name
+        fields["Development Team"] = teamName
     } else {
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }
 
     try {
         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-        jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
+        def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
+        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
     } catch (e) {
         echo("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
@@ -245,7 +273,10 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         "*Jenkins job:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
         "*Cucumber overview report:* ${env.BUILD_URL}cucumber-html-reports/overview-features.html\n" +
         "*Cucumber feature report:* ${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
+
     description
+        .replaceAll("\\{", "&#123;")
+        .replaceAll("\\{", "&#125;")
 }
 
 private JiraClient getJiraClient() {
