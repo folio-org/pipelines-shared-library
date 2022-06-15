@@ -185,11 +185,13 @@ variable "psql_dump_temporary_storage_size" {
 
 variable "s3_postgres_backups_access_key" {
   type        = string
+  default     = ""
   description = "AWS s3 postgres backups bucket access key"
 }
 
 variable "s3_postgres_backups_secret_key" {
   type        = string
+  default     = ""
   description = "AWS s3 postgres backups bucket secret key"
 }
 variable "s3_postgres_backups_bucket_name" {
