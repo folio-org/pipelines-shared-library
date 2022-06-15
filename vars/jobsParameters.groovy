@@ -29,8 +29,7 @@ static ArrayList rancherClustersList() {
             'folio-dev',
             'folio-scratch', //Deprecated
             'folio-perf',
-            'folio-tmp',
-            'volodymyr-testing']
+            'folio-tmp']
 }
 
 @NonCPS
