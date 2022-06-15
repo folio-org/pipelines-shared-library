@@ -167,15 +167,13 @@ class Okapi extends GeneralParameters {
         }
         def jobId = readJSON(res.content.id)
         String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
-        timeout(10) {
-            waitUntil {
+            wait(15) {
                 def resp = http.getRequest(urls, body, headers)
                 if (resp.status == HttpURLConnection.HTTP_CREATED) {
-                    return (readJSON(text: resp.content)['jobStatus'] == 'Ids published')
+                    return tools.jsonParse(resp.content == 'Ids published')
                 }
             }
         }
-    }
 
 
     /**
