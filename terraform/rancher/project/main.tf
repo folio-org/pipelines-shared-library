@@ -205,7 +205,7 @@ resource "rancher2_app" "folio-edge-sip2" {
   }
 }
 
-/*# Create a new rancher2 Stripes App in a default Project namespace
+# Create a new rancher2 Stripes App in a default Project namespace
 resource "rancher2_app" "psql-dump" {
   count            = var.create_db_backup ? 1 : 0
   depends_on       = [rancher2_secret.s3-postgres-backups-credentials]
@@ -220,7 +220,7 @@ resource "rancher2_app" "psql-dump" {
     "psql.job.EnvVarsSecret"    = "s3-postgres-backups-credentials"
     "psql.pvc.size"             = var.psql_dump_temporary_storage_size
   }
-}*/
+}
 
 #TODO Think if always needed or only for perf
 #Telegraf

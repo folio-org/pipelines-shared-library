@@ -183,7 +183,7 @@ variable "psql_dump_temporary_storage_size" {
   description = "Size of attached ebs volume to psql dump container as temporary storage"
 }
 
-/*variable "s3_postgres_backups_access_key" {
+variable "s3_postgres_backups_access_key" {
   type        = string
   description = "AWS s3 postgres backups bucket access key"
 }
@@ -196,4 +196,4 @@ variable "s3_postgres_backups_bucket_name" {
   type        = string
   default     = "folio-postgresql-backups"
   description = "AWS s3 postgres backups bucket name"
-}*/
+}
