@@ -175,6 +175,22 @@ class Okapi extends GeneralParameters {
             }
         }
 
+    def getreindexElasticsearch() {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapiUrl + "/instance-storage/reindex/${jobId}"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
+        def json = JsonOutput.toJson(items)
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
+        } else {
+            throw new AbortException("Unable to retrieve enabled services list." + http.buildHttpErrorMessage(res))
+        }
+    }
 
 
 
