@@ -165,7 +165,7 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
-        def jobId = readJSON(res.content.id)
+        def jobId = tools.jsonParse(res.content).id
         String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
         timeout(10) {
             waitUntil {
@@ -176,7 +176,7 @@ class Okapi extends GeneralParameters {
                 ]
                 def resp = http.getRequest(urls, header)
                 if (resp.status == HttpURLConnection.HTTP_CREATED) {
-                    return (resp.status)
+                    return tools.jsonParse(resp.status)
                 }
             }
         }
