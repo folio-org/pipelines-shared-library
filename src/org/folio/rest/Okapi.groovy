@@ -165,15 +165,18 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
-
-//        def jobId = readJSON(text: reindexResponse.content)['id']
-//        timeout(10) {
-//            waitUntil {
-//                def resp = httpRequest httpMode: 'GET', url: "${okapiUrl}/instance-storage/reindex/${jobId}", customHeaders: header, contentType: 'APPLICATION_JSON', consoleLogResponseBody: true
-//                return (readJSON(text: resp.content)['jobStatus'] == 'Ids published')
-//            }
-//        }
+        def jobId = readJSON(res.content.id)
+        String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
+        timeout(10) {
+            waitUntil {
+                def resp = http.getRequest(urls, body, headers)
+                if (resp.status == HttpURLConnection.HTTP_CREATED) {
+                    return (readJSON(text: resp.content)['jobStatus'] == 'Ids published')
+                }
+            }
+        }
     }
+
 
     /**
      * Create tenant
