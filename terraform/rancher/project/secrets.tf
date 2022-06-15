@@ -109,10 +109,10 @@ resource "rancher2_secret" "edge-api-config" {
   project_id   = rancher2_project.project.id
   namespace_id = rancher2_namespace.project-namespace.name
   data = {
-    PGUSER                       = base64encode(var.pg_username)
-    PGPASSWORD                   = base64encode(var.pg_password)
-    PGDATABASE                   = base64encode(var.pg_dbname)
-    PGHOST                       = base64encode("pg-folio")
+    POSTGRES_USER                = base64encode(var.pg_username)
+    POSTGRES_PASSWORD            = base64encode(var.pg_password)
+    POSTGRES_DATABASE            = base64encode(var.pg_dbname)
+    POSTGRES_HOST                = base64encode("pg-folio")
     S3_BACKUP_PATH               = base64encode("s3://folio-postgresql-backups")
     RANCHER_CLUSTER_PROJECT_NAME = base64encode(join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name]))
     RELEASE_BRANCH               = base64encode(var.folio_release)
