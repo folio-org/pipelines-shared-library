@@ -143,7 +143,12 @@ class JiraClient {
     String addIssueComment(String issueId, String comment) {
         def content = """
             {
-                "body": "${comment.replaceAll("\n", "\\\\\\n")}"
+                "body": "${comment
+                            .replaceAll("\n", "\\\\\\n")
+                            .replaceAll("\"", "\\\\\"")
+                            .replaceAll("\\{", "\\\\{")
+                            .replaceAll("\\{", "\\\\{")
+                        }"
             }
         }"""
 
