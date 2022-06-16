@@ -165,6 +165,7 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
+    }
 //        def jobId = tools.jsonParse(res.content).id
 //        String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
 //        timeout(10) {
@@ -180,7 +181,6 @@ class Okapi extends GeneralParameters {
 //                }
 //            }
 //        }
-    }
 
 
     /**
