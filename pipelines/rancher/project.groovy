@@ -99,7 +99,7 @@ ansiColor('xterm') {
                         stripesUrl = terraform.tfOutput(tfWorkDir, 'stripes_url')
                         /**Wait for dns */
                         def health = okapiUrl + '/_/version'
-                        timeout(30) {
+                        timeout(60) {
                             waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
                                 try {
                                     httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
