@@ -165,7 +165,21 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
+
+        def jobId = tools.jsonParse(res.content).id {
+            auth.getOkapiToken(tenant, tenant.admin_user)
+            String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
+            ArrayList header = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+                                [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+            def resp = http.getRequest(urls, header)
+            if (resp.status == HttpURLConnection.HTTP_OK) {
+                return tools.jsonParse(resp.content)
+            } else {
+                return []
+            }
+        }
     }
+
 //        def jobId = tools.jsonParse(res.content).id
 //        String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
 //        timeout(10) {
