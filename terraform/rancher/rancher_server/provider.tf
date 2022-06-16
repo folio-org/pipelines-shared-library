@@ -3,6 +3,11 @@ terraform {
     kubectl = {
       source = "gavinbunney/kubectl"
     }
+
+    rancher2 = {
+      source  = "rancher/rancher2"
+      version = "1.24.0"
+    }
   }
 }
 data "aws_eks_cluster" "cluster" {
@@ -11,6 +16,14 @@ data "aws_eks_cluster" "cluster" {
 
 data "aws_eks_cluster_auth" "cluster" {
   name = "rancher"
+}
+
+provider "rancher2" {
+
+  api_url = "https://rancher.ci.folio.org/v3"
+  # bootstrap = true
+  token_key = "token-89xnj:9fvk2j8rkmx6mlwwzhzzn96phcf4pssnwszb9kcldzbzxwjgr24zpv"
+
 }
 
 provider "aws" {
