@@ -54,7 +54,7 @@ class TenantService extends GeneralParameters {
             edge.createEdgeUsers(tenant, enableList)
             if (reIndexElasticsearch) {
                 def test = okapi.reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch)
-                return (test)
+                    return (test)
             }
             tenantConfiguration.modInventoryMods(tenant)
             tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
