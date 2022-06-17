@@ -166,8 +166,13 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
     }
-
-    def jobId(OkapiTenant tenant, admin_user) {
+    /**
+     * check this status Elasticsearch (records)
+     * @param tenant
+     * @param admin_user
+     * @return
+     */
+    def jobId(tenant, admin_user) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapiUrl + "/instance-storage/reindex/${jobId}"
         ArrayList headers = [
