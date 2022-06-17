@@ -138,8 +138,7 @@ ansiColor('xterm') {
                             email,
                             cypress_api_key_apidvcorp,
                             params.reIndexElasticsearch,
-                            params.recreateIndexElasticsearch,
-                            reindexId
+                            params.recreateIndexElasticsearch
                         )
 
                         deployment.main()
