@@ -75,8 +75,8 @@ class Deployment extends GeneralParameters {
             discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
             okapi.cleanupServicesRegistration()
             okapi.publishModuleDescriptors(enableList)
-            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.registerServices(discoveryList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
         }  else {
             throw new AbortException('Tenant not set')
