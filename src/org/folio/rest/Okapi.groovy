@@ -184,6 +184,8 @@ class Okapi extends GeneralParameters {
         def res = http.getRequest(url, Id, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info(tools.jsonParse(res.content).status)
+        }else {
+            throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
         }
     }
 
