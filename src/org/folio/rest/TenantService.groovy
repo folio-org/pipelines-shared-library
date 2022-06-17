@@ -55,7 +55,7 @@ class TenantService extends GeneralParameters {
             if (reIndexElasticsearch) {
                 okapi.reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch)
             }
-            okapi.jobId(tenant, admin_user)
+            okapi.reindexId(tenant, admin_user)
             tenantConfiguration.modInventoryMods(tenant)
             tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
             tenantConfiguration.worldcat(tenant)
