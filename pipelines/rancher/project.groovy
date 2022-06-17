@@ -100,9 +100,9 @@ ansiColor('xterm') {
                         /**Wait for dns */
                         def health = okapiUrl + '/_/version'
                         timeout(60) {
-                            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
+                            waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
                                 try {
-                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
+                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
                                     return true
                                 } catch (exception) {
                                     println(exception.getMessage())
