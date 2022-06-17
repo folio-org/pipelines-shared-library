@@ -175,7 +175,7 @@ class Okapi extends GeneralParameters {
                     [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
                 ]
                 def resp = http.getRequest(urls, header)
-                if (resp.status == HttpURLConnection.HTTP_CREATED) {
+                if (resp.status == HttpURLConnection.HTTP_OK) {
                     return tools.jsonParse(resp.status)
                 }
             }
