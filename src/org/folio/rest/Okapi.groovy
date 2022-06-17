@@ -165,22 +165,26 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
-        def jobId = tools.jsonParse(res.content).id
-        String urls = okapiUrl + "/instance-storage/reindex/${jobId}"
-        timeout(10) {
-            waitUntil {
-                ArrayList header = [
-                    [name: 'Content-type', value: "application/json"],
-                    [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                    [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
-                ]
-                def resp = http.getRequest(urls, header)
-                if (resp.status == HttpURLConnection.HTTP_OK) {
-                    return tools.jsonParse(resp.status)
+    }
+
+       def getreIndexElasticsearch(tenant, admin_user ) {
+        auth.getOkapiToken(tenant, admin_user)
+            String url = okapiUrl + "/instance-storage/reindex/${jobId}"
+            timeout(10) {
+                waitUntil {
+                    ArrayList header = [
+                        [name: 'Content-type', value: "application/json"],
+                        [name: 'X-Okapi-Tenant', value: tenant.getId()],
+                        [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+                    ]
+                    def jobId = tools.jsonParse(res.content).id
+                    def res = http.getRequest(url, jobId, header)
+                    if (res.status == HttpURLConnection.HTTP_OK) {
+                        return tools.jsonParse(res.content.status)
+                    }
                 }
             }
         }
-    }
 
     /**
      * Create tenant
