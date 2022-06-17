@@ -22,12 +22,12 @@ provider "rancher2" {
 
   api_url = "https://rancher.ci.folio.org/v3"
   # bootstrap = true
-  token_key = "token-89xnj:9fvk2j8rkmx6mlwwzhzzn96phcf4pssnwszb9kcldzbzxwjgr24zpv"
+  token_key = var.rancher_token_key
 
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region = var.aws_region
 }
 
 
