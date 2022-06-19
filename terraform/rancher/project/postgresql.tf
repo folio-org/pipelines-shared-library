@@ -121,12 +121,12 @@ module "rds" {
 resource "rancher2_app" "pgadmin4" {
   project_id       = rancher2_project.project.id
   target_namespace = rancher2_namespace.project-namespace.name
-  catalog_name = join(":", [
-    element(split(":", rancher2_project.project.id), 1), rancher2_catalog.folio-charts.name
-  ])
+  catalog_name = "dpage"
   name          = "pgadmin4"
   description   = "PgAdmin app"
   template_name = "pgadmin4"
+  template_version = "1.9.11"
+
   answers = {
     "env.email"                                                  = var.pgadmin_username
     "env.password"                                               = var.pgadmin_password
