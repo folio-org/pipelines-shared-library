@@ -161,7 +161,8 @@ class Okapi extends GeneralParameters {
         String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info(tools.jsonParse(res.content))
+//            logger.info(tools.jsonParse(res.content))
+            return tools.jsonParse(res.content).id[0]
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
@@ -172,22 +173,22 @@ class Okapi extends GeneralParameters {
      * @param admin_user
      * @return
      */
-    def reindexId(tenant, admin_user) {
-        auth.getOkapiToken(tenant, admin_user)
-        String url = okapiUrl + "/instance-storage/reindex/${jobId}"
-        ArrayList headers = [
-            [name: 'Content-type', value: "application/json"],
-            [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
-        ]
-        def jobId = tools.jsonParse(res.content).id
-        def res = http.getRequest(url, jobId, headers)
-        if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info(tools.jsonParse(res.content).status)
-        }else {
-            throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
-        }
-    }
+//    void reindexId(tenant, admin_user) {
+//        auth.getOkapiToken(tenant, admin_user)
+//        String url = okapiUrl + "/instance-storage/reindex/${reIndexElasticsearch(res.content).id}"
+//        ArrayList headers = [
+//            [name: 'Content-type', value: "application/json"],
+//            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+//            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+//        ]
+//        def jobId = tools.jsonParse(res.content).id
+//        def res = http.getRequest(url, jobId, headers)
+//        if (res.status == HttpURLConnection.HTTP_OK) {
+//            logger.info(tools.jsonParse(res.content).status)
+//        }else {
+//            throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+//        }
+//    }
 
 
 
