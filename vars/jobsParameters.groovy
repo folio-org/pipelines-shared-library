@@ -204,11 +204,11 @@ def loadReference() {
 }
 
 def reIndexElasticsearch() {
-    return _paramBoolean('reIndexElasticsearch', true, 'True if need to reindex modules')
+    return _paramBoolean('reIndex_Elastic_search', true, 'True if need to reindex modules')
 }
 
 def recreateIndexElasticsearch() {
-    return _paramBoolean('recreateIndexElastic_search', false, 'True if need to recreate index modules , default value: false')
+    return _paramBoolean('recreate_Index_Elastic_search', false, 'True if need to recreate index modules , default value: false')
 }
 
 def loadSample() {
