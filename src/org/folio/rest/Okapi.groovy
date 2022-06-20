@@ -162,7 +162,7 @@ class Okapi extends GeneralParameters {
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info(tools.jsonParse(res.content))
-            return res.content
+            return res
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
