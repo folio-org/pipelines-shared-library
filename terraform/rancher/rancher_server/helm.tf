@@ -1,7 +1,7 @@
 # install rancher
 resource "helm_release" "rancher" {
   provider         = helm.cluster
-  name             = "rancher"
+  name             = var.rancher_cluster_name
   repository       = "https://releases.rancher.com/server-charts/stable"
   chart            = "rancher"
   version          = var.rancher_version
@@ -10,7 +10,7 @@ resource "helm_release" "rancher" {
 
   set {
     name  = "hostname"
-    value = "rancher.ci.folio.org"
+    value = var.rancher_hostname
   }
 
   set {

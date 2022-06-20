@@ -10,6 +10,18 @@ variable "rancher_version" {
   description = "Rancher version"
 }
 
+variable "rancher_cluster_name" {
+  type        = string
+  default     = "rancher"
+  description = "Rancher cluster name"
+}
+
+variable "rancher_hostname" {
+  type        = string
+  default     = "rancher.ci.folio.org"
+  description = "Rancher hostname"
+}
+
 variable "rancher_server_url" {
   type        = string
   default     = "https://rancher.ci.folio.org/v3"
@@ -18,7 +30,6 @@ variable "rancher_server_url" {
 
 variable "rancher_token_key" {
   type        = string
-  default     = "token-89xnj:9fvk2j8rkmx6mlwwzhzzn96phcf4pssnwszb9kcldzbzxwjgr24zpv"
   description = "Rancher token key"
 }
 
