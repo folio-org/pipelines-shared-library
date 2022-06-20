@@ -127,21 +127,21 @@ resource "rancher2_app" "pgadmin4" {
   template_name = "pgadmin4"
   template_version = "1.9.11"
 
-  answers = {
-    "env.email"                                                  = var.pgadmin_username
-    "env.password"                                               = var.pgadmin_password
-    "service.type"                                               = "NodePort"
-    "ingress.enabled"                                            = "true"
-    "ingress.annotations.kubernetes\\.io/ingress\\.class"        = "alb"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme" = "internet-facing"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/group\\.name" = join(".", [
-      data.rancher2_cluster.cluster.name, rancher2_project.project.name
-    ])
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
-    "ingress.hosts[0].paths[0]"                                         = "/*"
-    "ingress.hosts[0].host" = join(".", [
-      join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "pgadmin"]), var.root_domain
-    ])
-  }
+#  answers = {
+#    "env.email"                                                  = var.pgadmin_username
+#    "env.password"                                               = var.pgadmin_password
+#    "service.type"                                               = "NodePort"
+#    "ingress.enabled"                                            = "true"
+#    "ingress.annotations.kubernetes\\.io/ingress\\.class"        = "alb"
+#    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme" = "internet-facing"
+#    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/group\\.name" = join(".", [
+#      data.rancher2_cluster.cluster.name, rancher2_project.project.name
+#    ])
+#    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
+#    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
+#    "ingress.hosts[0].paths[0]"                                         = "/*"
+#    "ingress.hosts[0].host" = join(".", [
+#      join("-", [data.rancher2_cluster.cluster.name, rancher2_project.project.name, "pgadmin"]), var.root_domain
+#    ])
+#  }
 }
