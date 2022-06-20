@@ -181,8 +181,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        jobId = tools.jsonParse(res.content).id
-        def res = http.getRequest(url, jobId, headers)
+        def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info(tools.jsonParse(res.content).status)
         }else {
