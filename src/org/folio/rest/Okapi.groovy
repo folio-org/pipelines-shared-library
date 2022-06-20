@@ -175,7 +175,7 @@ class Okapi extends GeneralParameters {
      */
     void reindexId(tenant) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String jobId = tools.jsonParse(reIndexElasticsearch(id))
+        String jobId = tools.jsonParse(reIndexElasticsearch(tenant))
         String url = okapiUrl + "/instance-storage/reindex/" + jobId
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
