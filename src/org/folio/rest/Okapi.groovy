@@ -162,7 +162,7 @@ class Okapi extends GeneralParameters {
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
           logger.info(tools.jsonParse(res.content))
-            return ''
+            return tools.jsonParse(res.content).id
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
@@ -173,10 +173,9 @@ class Okapi extends GeneralParameters {
      * @param admin_user
      * @return
      */
-    void reindexId(tenant) {
+    void reindexId(tenant, jobId) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        def jobId = tools.jsonParse(res.content).id
-        String url = okapiUrl + "/instance-storage/reindex/" + jobId
+        String url = okapiUrl + "/instance-storage/reindex/${jobId}"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
