@@ -149,7 +149,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      * @param okapiUrl
      */
-    def reIndexElasticsearch(tenant, admin_user, recreateIndexElasticsearch) {
+    def reIndex_Elastic_search(tenant, admin_user, recreate_Index_Elastic_search) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapiUrl + "/search/index/inventory/reindex"
         ArrayList headers = [
@@ -157,8 +157,8 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        logger.info("Starting Elastic Search reindex with recreate flag = ${recreateIndexElasticsearch}")
-        String body = "{\"recreateIndexElasticsearch\": ${recreateIndexElasticsearch} }"
+        logger.info("Starting Elastic Search reindex with recreate flag = ${recreate_Index_Elastic_search}")
+        String body = "{\"recreate_Index_Elastic_search\": ${recreate_Index_Elastic_search} }"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
           logger.info(tools.jsonParse(res.content))

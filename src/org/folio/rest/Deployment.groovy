@@ -46,12 +46,12 @@ class Deployment extends GeneralParameters {
 
     private Edge edge = new Edge(steps, okapiUrl)
 
-    private boolean reIndexElasticsearch
+    private boolean reIndex_Elastic_search
 
-    private boolean recreateIndexElasticsearch
+    private boolean recreate_Index_Elastic_search
 
 
-    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reIndexElasticsearch, recreateIndexElasticsearch) {
+    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reIndex_Elastic_search, recreate_Index_Elastic_search) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
         this.repository = repository
@@ -61,8 +61,8 @@ class Deployment extends GeneralParameters {
         this.email = email
         this.kb_api_key = kb_api_key
         this.tenant.setAdmin_user(admin_user)
-        this.reIndexElasticsearch = reIndexElasticsearch
-        this.recreateIndexElasticsearch = recreateIndexElasticsearch
+        this.reIndex_Elastic_search = reIndex_Elastic_search
+        this.recreate_Index_Elastic_search = recreate_Index_Elastic_search
 
     }
 
@@ -75,6 +75,6 @@ class Deployment extends GeneralParameters {
         okapi.secure(testing_admin)
 
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
-        tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reIndexElasticsearch, recreateIndexElasticsearch)
+        tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reIndex_Elastic_search, recreate_Index_Elastic_search)
     }
 }
