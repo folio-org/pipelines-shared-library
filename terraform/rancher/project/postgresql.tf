@@ -121,7 +121,7 @@ module "rds" {
 resource "rancher2_app" "pgadmin4" {
   project_id       = rancher2_project.project.id
   target_namespace = rancher2_namespace.project-namespace.name
-  catalog_name = "dpage"
+  catalog_name = "runix"
   name          = "pgadmin4"
   description   = "PgAdmin app"
   template_name = "pgadmin4"
