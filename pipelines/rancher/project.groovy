@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-311V1') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -26,8 +26,8 @@ properties([
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
-        jobsParameters.reIndex_Elastic_search(),
-        jobsParameters.recreate_Index_Elastic_search(),
+        jobsParameters.reindex_elastic_search(),
+        jobsParameters.recreate_index_elastic_search(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
@@ -137,8 +137,8 @@ ansiColor('xterm') {
                             admin_user,
                             email,
                             cypress_api_key_apidvcorp,
-                            params.reIndex_Elastic_search,
-                            params.recreate_Index_Elastic_search
+                            params.reindex_elastic_search,
+                            params.recreate_index_elastic_search
                         )
 
                         deployment.main()

@@ -29,7 +29,7 @@ class TenantService extends GeneralParameters {
         this.okapiAdmin = okapiAdmin
     }
 
-    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripesUrl, String kb_api_key, reIndex_Elastic_search, recreate_Index_Elastic_search) {
+    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripesUrl, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
         if (tenant && admin_user) {
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
@@ -52,9 +52,9 @@ class TenantService extends GeneralParameters {
             permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
             users.setPatronGroup(tenant, tenant.admin_user, users.getPatronGroupId(tenant, admin_user))
             edge.createEdgeUsers(tenant, enableList)
-            if (reIndex_Elastic_search) {
-                def jobId = okapi.reIndex_Elastic_search(tenant, admin_user, recreate_Index_Elastic_search)
-                okapi.reindexId(tenant, jobId)
+            if (reindex_elastic_search) {
+                def jobid = okapi.reindex_elastic_search(tenant, admin_user, recreate_index_elastic_search)
+                okapi.reindexid(tenant, jobid)
             }
             tenantConfiguration.modInventoryMods(tenant)
             tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)

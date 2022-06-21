@@ -149,7 +149,7 @@ class Okapi extends GeneralParameters {
      * @param tenant
      * @param okapiUrl
      */
-    def reIndex_Elastic_search(tenant, admin_user, recreate_Index_Elastic_search) {
+    def reindex_elastic_search(tenant, admin_user, recreate_index_elastic_search) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapiUrl + "/search/index/inventory/reindex"
         ArrayList headers = [
@@ -157,11 +157,10 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        logger.info("Starting Elastic Search reindex with recreate flag = ${recreate_Index_Elastic_search}")
-        String body = "{\"recreate_Index_Elastic_search\": ${recreate_Index_Elastic_search} }"
+        logger.info("Starting Elastic Search reindex with recreate flag = ${recreate_index_elastic_search}")
+        String body = "{\"recreate_Index_Elastic_search\": ${recreate_index_elastic_search} }"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-          logger.info(tools.jsonParse(res.content))
             return tools.jsonParse(res.content).id
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
@@ -173,19 +172,30 @@ class Okapi extends GeneralParameters {
      * @param admin_user
      * @return
      */
-    void reindexId(tenant, jobId) {
+    void reindexid(tenant, jobid) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/instance-storage/reindex/${jobId}"
+        String url = okapiUrl + "/instance-storage/reindex/${jobid}"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        def res = http.getRequest(url, headers)
-        if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info(tools.jsonParse(res.content))
-        }else {
-            throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+        steps.timeout(15) {
+            while (true) {
+                def res = http.getRequest(url, headers)
+                if (res.status == HttpURLConnection.HTTP_OK) {
+                    if (tools.jsonParse(res.content).status == "Ids published") {
+                        return true
+                        logger.info("reindex successufully completed")
+                        break
+                    } else if (tools.jsonParse(res.content).status != "Ids published") {
+                        logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
+                        steps.sleep(10)
+                    } else {
+                        throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+                    }
+                }
+            }
         }
     }
 
