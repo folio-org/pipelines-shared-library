@@ -180,12 +180,12 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
         ]
-        steps.timeout(15) {
+        steps.timeout(1440) {
             while (true) {
                 def res = http.getRequest(url, headers)
                 if (res.status == HttpURLConnection.HTTP_OK) {
                     if (tools.jsonParse(res.content).jobStatus == "Ids published") {
-                        logger.info("reindex successfully completed")
+                        logger.info("reindex records to elastic search successfully completed")
                         break
                     } else {
                         logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
