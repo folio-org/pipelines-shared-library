@@ -25,13 +25,11 @@ variable "s3_data_export_secret_key" {
 
 variable "rancher_cluster_name" {
   type        = string
-  default     = "volodymyr-testing"
   description = "Rancher cluster name"
 }
 
 variable "rancher_project_name" {
   type        = string
-  default     = "volodymyrtesting"
   description = "Rancher project name"
 }
 
@@ -44,34 +42,6 @@ variable "rancher_server_url" {
 variable "rancher_token_key" {
   type        = string
   description = "Rancher token key"
-}
-
-variable "pg_username" {
-  type        = string
-  default     = "postgres"
-  description = "Postgres username"
-}
-
-variable "pg_password" {
-  type        = string
-  description = "Postgres password"
-}
-
-variable "pg_dbname" {
-  type        = string
-  default     = "folio_modules"
-  description = "Postgres DB name"
-}
-
-variable "pgadmin_username" {
-  type        = string
-  default     = "user@folio.org"
-  description = "Postgres DB name"
-}
-
-variable "pgadmin_password" {
-  type        = string
-  description = "Postgres DB name"
 }
 
 variable "psql_dump_temporary_storage_size" {

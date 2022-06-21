@@ -35,8 +35,6 @@ ansiColor('xterm') {
             stage('TF vars') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('rancher_project_name', params.project_name)
-                tfVars += terraform.generateTfVar('pg_password', params.pg_password)
-                tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
             }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                               credentialsId    : Constants.AWS_CREDENTIALS_ID,

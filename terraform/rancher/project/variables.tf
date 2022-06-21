@@ -171,7 +171,7 @@ variable "nexus_helm_repo_name" {
   description = "Name of the installed globally nexus helm repo"
 }
 
-variable "create_db_backup" {
+/*variable "create_db_backup" {
   type        = bool
   default     = false
   description = "Create/don't create db backup"
@@ -198,4 +198,4 @@ variable "s3_postgres_backups_bucket_name" {
   type        = string
   default     = "folio-postgresql-backups"
   description = "AWS s3 postgres backups bucket name"
-}
+}*/
