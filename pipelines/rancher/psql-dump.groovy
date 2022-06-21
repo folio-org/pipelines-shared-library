@@ -63,7 +63,7 @@ ansiColor('xterm') {
                     terraform.tfStatePull(tfWorkDir)
                     terraform.tfPlan(tfWorkDir, tfVars)
                     terraform.tfApply(tfWorkDir)
-                    /*terraform.tfDestroy(tfWorkDir, tfVars)*/
+                    terraform.tfDestroy(tfWorkDir, tfVars)
                 }
             }
         } catch (exception) {
