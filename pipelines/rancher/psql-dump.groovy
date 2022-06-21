@@ -59,9 +59,13 @@ ansiColor('xterm') {
                     terraform.tfInit(tfWorkDir, '')
                     terraform.tfWorkspaceSelect(tfWorkDir, params.project_name)
                     terraform.tfStatePull(tfWorkDir)
-                    terraform.tfPlan(tfWorkDir, tfVars)
-                    terraform.tfApply(tfWorkDir)
                     terraform.tfDestroy(tfWorkDir, tfVars)
+                    try {
+                        terraform.tfPlan(tfWorkDir, tfVars)
+                        terraform.tfApply(tfWorkDir)
+                    } catch (exception) {
+                        terraform.tfDestroy(tfWorkDir, tfVars)
+                    }
                 }
             }
         } catch (exception) {
