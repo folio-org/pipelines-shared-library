@@ -185,20 +185,22 @@ class Okapi extends GeneralParameters {
                 def res = http.getRequest(url, headers)
                 if (res.status == HttpURLConnection.HTTP_OK) {
                     if (tools.jsonParse(res.content).status == "Ids published") {
-                        return true
                         logger.info("reindex successufully completed")
                         break
-                    } else if (tools.jsonParse(res.content).status != "Ids published") {
-                        logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
-                        steps.sleep(10)
                     } else {
-                        throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+                        (res.status == HttpURLConnection.HTTP_OK) {
+                            if (tools.jsonParse(res.content).status != "Ids published") {
+                                logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
+                                steps.sleep(10)
+                            } else {
+                                throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
 
 
     /**
