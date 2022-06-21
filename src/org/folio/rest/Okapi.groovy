@@ -184,7 +184,7 @@ class Okapi extends GeneralParameters {
             while (true) {
                 def res = http.getRequest(url, headers)
                 if (res.status == HttpURLConnection.HTTP_OK) {
-                    if (tools.jsonParse(res.content).status == "Ids published") {
+                    if (tools.jsonParse(res.content).jobStatus == "Ids published") {
                         logger.info("reindex successfully completed")
                         break
                     } else {
