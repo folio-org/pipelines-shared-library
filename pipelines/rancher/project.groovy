@@ -117,7 +117,9 @@ ansiColor('xterm') {
                     if (params.action == 'apply') {
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
-                        /**Wait for dns */
+                        /**Wait for dns flush*/
+                        sleep time: 5, unit: 'MINUTES'
+                        /**Check for dns */
                         def health = okapiUrl + '/_/version'
                         timeout(30) {
                             waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
