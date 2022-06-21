@@ -35,10 +35,8 @@ ansiColor('xterm') {
             stage('TF vars') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('rancher_project_name', params.project_name)
-                withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'folio_docker_registry_password', usernameVariable: 'folio_docker_registry_username')]) {
-                    tfVars += terraform.generateTfVar('folio_docker_registry_username', folio_docker_registry_username)
-                    tfVars += terraform.generateTfVar('folio_docker_registry_password', folio_docker_registry_password)
-                }
+                tfVars += terraform.generateTfVar('pg_password', params.pg_password)
+                tfVars += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
             }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                               credentialsId    : Constants.AWS_CREDENTIALS_ID,
