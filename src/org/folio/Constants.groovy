@@ -17,6 +17,7 @@ class Constants {
     static String AWS_S3_SERVICE_ACCOUNT_ID = "ci-s3-service-account"
     static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
+    static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
