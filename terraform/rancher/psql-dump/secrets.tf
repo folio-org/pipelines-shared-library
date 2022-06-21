@@ -1,4 +1,4 @@
-resource "rancher2_secret" "s3-postgres-backups-credentials" {
+/*resource "rancher2_secret" "s3-postgres-backups-credentials" {
   name         = "s3-postgres-backups-credentials"
   project_id   = data.terraform_remote_state.project_state.outputs.rancher2_project_id
   namespace_id = data.terraform_remote_state.project_state.outputs.rancher2_project_namespace
@@ -13,4 +13,4 @@ resource "rancher2_secret" "s3-postgres-backups-credentials" {
     AWS_ACCESS_KEY_ID            = base64encode(var.s3_postgres_backups_access_key)
     AWS_SECRET_ACCESS_KEY        = base64encode(var.s3_postgres_backups_secret_key)
   }
-}
+}*/

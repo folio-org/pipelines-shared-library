@@ -1,5 +1,5 @@
 resource "helm_release" "db-backuper" {
-  depends_on    = [rancher2_secret.s3-postgres-backups-credentials]
+  #depends_on    = [rancher2_secret.s3-postgres-backups-credentials]
   name          = "psql-dump"
   namespace     = var.rancher_project_name
   repository    = "https://repository.folio.org/repository/helm-hosted/"

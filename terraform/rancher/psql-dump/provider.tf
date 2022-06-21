@@ -15,7 +15,7 @@ data "aws_eks_cluster_auth" "cluster" {
   name = var.rancher_cluster_name
 }
 
-data "terraform_remote_state" "project_state" {
+/*data "terraform_remote_state" "project_state" {
   backend = "s3"
   config = {
     bucket = "folio-terraform"
@@ -23,7 +23,7 @@ data "terraform_remote_state" "project_state" {
     key    = "terraform.tfstate"
     region = "us-east-1"
   }
-}
+}*/
 
 provider "helm" {
   kubernetes {
