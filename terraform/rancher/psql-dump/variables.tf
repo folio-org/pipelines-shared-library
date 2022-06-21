@@ -61,8 +61,9 @@ variable "s3_postgres_backups_secret_key" {
   default     = ""
   description = "AWS s3 postgres backups bucket secret key"
 }
-variable "s3_postgres_backups_bucket_name" {
+
+variable "s3_backup_path" {
   type        = string
-  default     = "folio-postgresql-backups"
+  default     = "s3://folio-postgresql-backups"
   description = "AWS s3 postgres backups bucket name"
 }

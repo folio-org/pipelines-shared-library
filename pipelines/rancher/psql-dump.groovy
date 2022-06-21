@@ -64,6 +64,7 @@ ansiColor('xterm') {
                     } catch (exception) {
                         terraform.tfDestroy(tfWorkDir, tfVars)
                     }
+                    terraform.tfDestroy(tfWorkDir, tfVars)
                 }
             }
         } catch (exception) {
