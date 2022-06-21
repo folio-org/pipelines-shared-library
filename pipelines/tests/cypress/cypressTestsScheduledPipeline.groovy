@@ -24,7 +24,7 @@ def cypressTestsJob
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["rancher_cluster_name": clusterName, "project_name": projectName])[0]
+String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["rancher_cluster_name": clusterName, "rancher_project_name": projectName])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -138,13 +138,13 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, Str
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'env_type', value: "testing"),
+        string(name: 'env_config', value: "testing"),
         string(name: 'rancher_cluster_name', value: clusterName),
-        string(name: 'project_name', value: projectName),
+        string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
         string(name: 'folio_repository', value: folio_repository),
         string(name: 'folio_branch', value: folio_branch),
-        string(name: 'stripes_image_tag', value: uiImageVersion),
+        string(name: 'frontend_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: tenant),
         string(name: 'tenant_name', value: "Cypress tenant"),
         string(name: 'tenant_description', value: "Cypress tests main tenant"),

@@ -1,9 +1,9 @@
-locals {
-  performance    = local.module_configs_perf
-  testing        = local.module_configs_test
-  development    = local.module_configs_dev
-  module_configs = var.env_type == "development" ? local.development : (var.env_type == "performance" ? local.performance : local.testing)
-}
+#locals {
+#  performance    = local.module_configs_perf
+#  testing        = local.module_configs_test
+#  development    = local.module_configs_dev
+#  module_configs = var.env_type == "development" ? local.development : (var.env_type == "performance" ? local.performance : local.testing)
+#}
 
 locals {
   module_configs_dev = {
