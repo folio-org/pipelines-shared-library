@@ -187,8 +187,7 @@ class Okapi extends GeneralParameters {
                     if (tools.jsonParse(res.content).status == "Ids published") {
                         logger.info("reindex successufully completed")
                         break
-                    } else {
-                        (res.status == HttpURLConnection.HTTP_OK) {
+                    } else if (res.status == HttpURLConnection.HTTP_OK) {
                             if (tools.jsonParse(res.content).status != "Ids published") {
                                 logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
                                 steps.sleep(10)
@@ -200,7 +199,6 @@ class Okapi extends GeneralParameters {
                 }
             }
         }
-    }
 
 
     /**
