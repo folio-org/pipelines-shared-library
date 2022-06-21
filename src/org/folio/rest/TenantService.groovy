@@ -53,8 +53,8 @@ class TenantService extends GeneralParameters {
             users.setPatronGroup(tenant, tenant.admin_user, users.getPatronGroupId(tenant, admin_user))
             edge.createEdgeUsers(tenant, enableList)
             if (reindex_elastic_search) {
-                def jobid = okapi.reindex_elastic_search(tenant, admin_user, recreate_index_elastic_search)
-                okapi.reindexid(tenant, jobid)
+                def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
+                okapi.checkReindex(tenant, jobid)
             }
             tenantConfiguration.modInventoryMods(tenant)
             tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
