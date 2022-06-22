@@ -1,4 +1,4 @@
-resource "helm_release" "db-backuper" {
+resource "helm_release" "psql-dump" {
   depends_on    = [rancher2_secret.s3-postgres-backups-credentials]
   name          = "psql-dump"
   namespace     = var.rancher_project_name
