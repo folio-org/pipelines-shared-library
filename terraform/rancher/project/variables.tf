@@ -171,31 +171,3 @@ variable "nexus_helm_repo_name" {
   description = "Name of the installed globally nexus helm repo"
 }
 
-/*variable "create_db_backup" {
-  type        = bool
-  default     = false
-  description = "Create/don't create db backup"
-}
-
-variable "psql_dump_temporary_storage_size" {
-  type        = string
-  default     = "1Gi"
-  description = "Size of attached ebs volume to psql dump container as temporary storage"
-}
-
-variable "s3_postgres_backups_access_key" {
-  type        = string
-  default     = ""
-  description = "AWS s3 postgres backups bucket access key"
-}
-
-variable "s3_postgres_backups_secret_key" {
-  type        = string
-  default     = ""
-  description = "AWS s3 postgres backups bucket secret key"
-}
-variable "s3_postgres_backups_bucket_name" {
-  type        = string
-  default     = "folio-postgresql-backups"
-  description = "AWS s3 postgres backups bucket name"
-}*/
