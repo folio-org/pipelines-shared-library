@@ -4,30 +4,13 @@ variable "aws_region" {
   description = "Rancher AWS region for S3 buckets"
 }
 
-variable "s3_access_key" {
-  type        = string
-  description = "AWS s3 access key"
-}
-
-variable "s3_secret_key" {
-  type        = string
-  description = "AWS s3 secret key"
-}
-variable "s3_data_export_access_key" {
-  type        = string
-  description = "AWS s3 access key for data export"
-}
-
-variable "s3_data_export_secret_key" {
-  type        = string
-  description = "AWS s3 secret key for data export"
-}
-
 variable "root_domain" {
-  type    = string
-  default = "ci.folio.org"
+  type        = string
+  default     = "ci.folio.org"
+  description = "Root domain name for Route53"
 }
 
+# Rancher variables
 variable "rancher_server_url" {
   type        = string
   default     = "https://rancher.dev.folio.org/v3"
@@ -41,17 +24,35 @@ variable "rancher_token_key" {
 
 variable "rancher_cluster_name" {
   type        = string
+  description = "Rancher cluster name"
+}
+
+variable "rancher_project_name" {
+  type        = string
   description = "Rancher project name"
 }
 
-variable "folio_repository" {
+#GitHub variables
+variable "repository" {
   type        = string
-  description = "Folio repository for modules. Should be 'core' or 'complete'"
+  description = "GitHub source repository with modules install JSON 'platform-core' or 'platform-complete'"
+  default     = "platform-complete"
+  validation {
+    condition     = can(regex("^(platform-core|platform-complete)$", var.repository))
+    error_message = "Wrong repository value! Possible values 'platform-core' or 'platform-complete'."
+  }
 }
 
-variable "folio_release" {
+variable "branch" {
   type        = string
-  description = "Release tag or branch"
+  default     = "snapshot"
+  description = "GitHub branch of source repository"
+}
+
+variable "install_json" {
+  type        = string
+  default     = ""
+  description = "Modules list in JSON string format"
 }
 
 variable "folio_docker_registry_username" {
@@ -64,57 +65,25 @@ variable "folio_docker_registry_password" {
   description = "Password for docker registry"
 }
 
-variable "folio_embedded_db" {
-  type        = bool
-  default     = true
-  description = "Define if embedded or external Postgresql instance needed"
-}
-
-variable "folio_embedded_es" {
-  type        = bool
-  default     = true
-  description = "Define if embedded or external Elasticsearch instance needed"
-}
-
-variable "folio_embedded_kafka" {
-  type        = bool
-  default     = true
-  description = "Define if embedded or external Kafka instance needed"
-}
-
-variable "folio_embedded_s3" {
-  type        = bool
-  default     = true
-  description = "Define if embedded or external S3 instance needed"
-}
-
-variable "kafka_version" {
+#Okapi variables
+variable "okapi_version" {
   type        = string
-  default     = "2.8.0"
-  description = "Postgres version"
+  description = "Okapi module version"
 }
 
-variable "pg_version" {
+variable "tenant_id" {
   type        = string
-  default     = "12.7"
-  description = "Postgres version"
+  default     = "diku"
+  description = "Default tenant id"
 }
 
-variable "pg_username" {
-  type        = string
-  default     = "postgres"
-  description = "Postgres username"
-}
-
-variable "pg_password" {
-  type        = string
-  description = "Postgres password"
-}
-
-variable "pg_dbname" {
-  type        = string
-  default     = "folio_modules"
-  description = "Postgres DB name"
+variable "admin_user" {
+  type = map(string)
+  default = {
+    username = "diku_admin",
+    password = "admin"
+  }
+  description = "Default admin user"
 }
 
 variable "pgadmin_username" {
@@ -128,39 +97,163 @@ variable "pgadmin_password" {
   description = "Postgres DB name"
 }
 
-variable "tenant_id" {
-  type        = string
-  default     = "diku"
-  description = "Release tag or branch"
-}
-
-variable "admin_user" {
-  type = map(string)
-  default = {
-    username = "diku_admin",
-    password = "admin"
-  }
-}
-
-variable "okapi_version" {
+variable "frontend_image_tag" {
   type        = string
   description = "Release tag or branch"
 }
 
-variable "stripes_image_tag" {
-  type        = string
-  description = "Release tag or branch"
-}
-
-variable "env_type" {
+variable "env_config" {
   type        = string
   default     = "development"
-  description = "config file for dev, perf, test env"
+  description = "Configuration file for modules"
+  validation {
+    condition     = can(regex("^(development|performance|testing)$", var.env_config))
+    error_message = "Wrong env_config value! Possible values 'development' 'performance' 'testing'."
+  }
 }
-
 
 variable "github_team_ids" {
   type        = list(string)
   default     = []
   description = "List of github team IDs for project access"
+}
+
+# PostgreSQL variables
+variable "pg_embedded" {
+  type        = bool
+  default     = true
+  description = "Embedded PostgreSQL if true and AWS RDS Aurora if false"
+}
+
+variable "pg_version" {
+  type        = string
+  default     = "12.7"
+  description = "Postgres version"
+}
+
+variable "pg_dbname" {
+  type        = string
+  default     = "folio_modules"
+  description = "Postgres DB name"
+}
+
+variable "pg_username" {
+  type        = string
+  default     = "postgres"
+  description = "Postgres username"
+}
+
+variable "pg_password" {
+  type        = string
+  default     = ""
+  description = "Postgres password"
+}
+
+variable "pg_instance_type" {
+  type    = string
+  default = "db.r5.xlarge"
+}
+
+variable "pg_rds_snapshot_name" {
+  type    = string
+  default = ""
+}
+
+# Kafka variables
+variable "kafka_embedded" {
+  type        = bool
+  default     = true
+  description = "Embedded Kafka if true and AWS Kafka if false"
+}
+
+variable "kafka_version" {
+  type        = string
+  default     = "2.8.0"
+  description = "Postgres version"
+}
+
+variable "kafka_instance_type" {
+  type    = string
+  default = "kafka.m5.large"
+}
+
+variable "kafka_number_of_broker_nodes" {
+  type    = number
+  default = 2
+}
+
+variable "kafka_ebs_volume_size" {
+  type    = number
+  default = 100 #Increase if not enough
+}
+
+# Elasticsearch variables
+variable "es_embedded" {
+  type        = bool
+  default     = true
+  description = "Embedded Elasticsearch if true and AWS OpenSearch if false"
+}
+
+variable "es_version" {
+  type        = string
+  default     = "7.9"
+  description = "Elasticsearch version"
+}
+
+variable "es_create_service_link_role" {
+  type    = bool
+  default = false
+}
+
+variable "es_dedicated_master" {
+  type    = bool
+  default = false
+}
+
+variable "es_instance_count" {
+  type    = number
+  default = 2
+}
+
+variable "es_instance_type" {
+  type    = string
+  default = "m5.xlarge.search"
+}
+
+variable "es_ebs_volume_size" {
+  type    = number
+  default = 100 #Increase if not enough
+}
+
+variable "es_username" {
+  default = "esadmin"
+}
+
+# Minio variables
+variable "s3_embedded" {
+  type        = bool
+  default     = true
+  description = "Embedded Minio if true and AWS S3 if false"
+}
+
+variable "s3_access_key" {
+  type        = string
+  default     = ""
+  description = "AWS s3 access key"
+}
+
+variable "s3_secret_key" {
+  type        = string
+  default     = ""
+  description = "AWS s3 secret key"
+}
+
+variable "tags" {
+  type = map(any)
+  default = {
+    Terraform = "true"
+    Project   = "folio"
+    Team      = "kitfox"
+  }
+  description = "Default tags"
 }

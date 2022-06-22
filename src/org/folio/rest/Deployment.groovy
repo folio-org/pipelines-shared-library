@@ -32,19 +32,9 @@ class Deployment extends GeneralParameters {
 
     private Okapi okapi = new Okapi(steps, okapiUrl, super_admin)
 
-    private Users users = new Users(steps, okapiUrl)
-
-    private Authorization auth = new Authorization(steps, okapiUrl)
-
-    private Permissions permissions = new Permissions(steps, okapiUrl)
-
-    private ServicePoints servicePoints = new ServicePoints(steps, okapiUrl)
-
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
-    private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
-
-    private Edge edge = new Edge(steps, okapiUrl)
+    private TenantService tenantService = new TenantService(steps, okapiUrl, super_admin)
 
     Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key) {
         super(steps, okapiUrl)
@@ -65,8 +55,6 @@ class Deployment extends GeneralParameters {
         okapi.registerServices(discoveryList)
         okapi.secure(super_admin)
         okapi.secure(testing_admin)
-
-        def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key)
     }
 }
