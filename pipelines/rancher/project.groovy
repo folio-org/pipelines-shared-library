@@ -36,7 +36,7 @@ properties([
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
-        booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4' )
+        booleanParam(name: 'pgadmin4', defaultValue: false, description: 'Deploy pgadmin4' )
     ])
 ])
 
