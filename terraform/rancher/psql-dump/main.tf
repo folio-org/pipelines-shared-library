@@ -7,7 +7,7 @@ resource "helm_release" "psql-dump" {
   devel         = "true"
   force_update  = "true"
   wait_for_jobs = "true"
-  timeout       = "600"
+  timeout       = "900"
   set {
     name  = "psql.projectNamespace"
     value = var.rancher_project_name
