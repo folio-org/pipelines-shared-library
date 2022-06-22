@@ -35,7 +35,8 @@ properties([
         booleanParam(name: 'pg_embedded', defaultValue: true, description: 'Embedded PostgreSQL or AWS RDS'),
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
-        booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3')
+        booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
+        booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4' )
     ])
 ])
 
@@ -96,6 +97,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('kafka_embedded', params.kafka_embedded)
                 tfVars += terraform.generateTfVar('es_embedded', params.es_embedded)
                 tfVars += terraform.generateTfVar('s3_embedded', params.s3_embedded)
+                tfVars += terraform.generateTfVar('pgadmin4', params.pgadmin4)
                 tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
             }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',

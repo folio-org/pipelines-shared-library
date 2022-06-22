@@ -119,6 +119,12 @@ variable "github_team_ids" {
 }
 
 # PostgreSQL variables
+variable "pgadmin4" {
+  type        = bool
+  default     = true
+  description = "Deploy pgadmin4 tool if true"
+}
+
 variable "pg_embedded" {
   type        = bool
   default     = true
