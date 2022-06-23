@@ -130,7 +130,7 @@ module "rds" {
 
 # Create a new rancher2 PgAdmin4 App in a default Project namespace
 resource "rancher2_app" "pgadmin4" {
-  count       = var.pgadmin4 ? 0 : 1
+  count       = var.pgadmin4 ? 1 : 0
   project_id       = rancher2_project.this.id
   target_namespace = rancher2_namespace.this.name
   catalog_name     = "runix"
