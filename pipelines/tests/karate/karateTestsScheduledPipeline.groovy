@@ -47,7 +47,7 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                         projectName, prototypeTenant, folio_repository, folio_branch)
 
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
@@ -84,7 +84,7 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
                                 projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
@@ -181,7 +181,7 @@ pipeline {
     }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, clusterName, projectName, tenant,
+private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),

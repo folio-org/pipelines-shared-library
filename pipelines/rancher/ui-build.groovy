@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
