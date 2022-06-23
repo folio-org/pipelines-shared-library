@@ -94,7 +94,7 @@ class Permissions extends GeneralParameters {
                                              permissions: user.permissions])
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
-                logger.info("${user.username} permissions successfully assigned")
+                logger.info("${user.username} permissions ${user.permissions} successfully assigned")
             } else {
                 throw new AbortException("Can not set permissions for user ${user.username}." + http.buildHttpErrorMessage(res))
             }

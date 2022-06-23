@@ -32,19 +32,9 @@ class Deployment extends GeneralParameters {
 
     private Okapi okapi = new Okapi(steps, okapiUrl, super_admin)
 
-    private Users users = new Users(steps, okapiUrl)
-
-    private Authorization auth = new Authorization(steps, okapiUrl)
-
-    private Permissions permissions = new Permissions(steps, okapiUrl)
-
-    private ServicePoints servicePoints = new ServicePoints(steps, okapiUrl)
-
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
-    private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
-
-    private Edge edge = new Edge(steps, okapiUrl)
+    private TenantService tenantService = new TenantService(steps, okapiUrl, super_admin)
 
     private boolean reindex_elastic_search
     private boolean recreate_index_elastic_search
@@ -73,7 +63,9 @@ class Deployment extends GeneralParameters {
         okapi.secure(super_admin)
         okapi.secure(testing_admin)
 
+
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reindex_elastic_search, recreate_index_elastic_search)
+
     }
 }
