@@ -27,6 +27,8 @@ properties([
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
+        jobsParameters.reindexElasticsearch(),
+        jobsParameters.recreateindexElasticsearch(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
@@ -121,10 +123,10 @@ ansiColor('xterm') {
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
                         def health = okapiUrl + '/_/version'
-                        timeout(30) {
-                            waitUntil(initialRecurrencePeriod: 15000, quiet: true) {
+                        timeout(60) {
+                            waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
                                 try {
-                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 900, url: health, validResponseCodes: '200,403'
+                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
                                     return true
                                 } catch (exception) {
                                     println(exception.getMessage())
@@ -158,7 +160,9 @@ ansiColor('xterm') {
                             tenant,
                             admin_user,
                             email,
-                            cypress_api_key_apidvcorp
+                            cypress_api_key_apidvcorp,
+                            params.reindex_elastic_search,
+                            params.recreate_index_elastic_search
                         )
                         deployment.main()
                     }
