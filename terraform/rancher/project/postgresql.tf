@@ -149,7 +149,7 @@ resource "rancher2_app" "pgadmin4" {
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/group\\.name" = join(".", [
       data.rancher2_cluster.this.name, rancher2_project.this.name
     ])
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
+#    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
     "ingress.hosts[0].paths[0].path"                                         = "/"
     "ingress.hosts[0].paths[0].pathType"                                    = "ImplementationSpecific"
