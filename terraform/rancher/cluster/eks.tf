@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_vpc" "this" {
   filter {
     name   = "tag:Name"
@@ -11,13 +13,23 @@ data "aws_subnets" "private" {
     values = [data.aws_vpc.this.id]
   }
   tags = {
-    Type: "private"
+    Type : "private"
   }
+}
+
+locals {
+  admin_users_map = [
+    for user in split(",", var.admin_users) : {
+      userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${user}"
+      username = user
+      groups   = ["system:masters"]
+    }
+  ]
 }
 
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "18.7.2"
+  version = "18.24.1"
 
   cluster_name      = terraform.workspace
   cluster_version   = "1.21"
@@ -73,7 +85,7 @@ module "eks_cluster" {
   }
 
   eks_managed_node_groups = {
-    rancher_node_group = {
+    eks_node_group = {
       name     = join("-", [terraform.workspace])
       ami_type = "AL2_x86_64"
 
@@ -90,5 +102,11 @@ module "eks_cluster" {
       }
     }
   }
+
+  # aws-auth configmap
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = local.admin_users_map
+
   tags = var.tags
 }

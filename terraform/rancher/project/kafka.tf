@@ -1,29 +1,37 @@
 # Rancher2 Project App Kafka
-resource "rancher2_app" "kafka" {
-  count            = var.kafka_embedded ? 1 : 0
-  project_id       = rancher2_project.this.id
-  target_namespace = rancher2_namespace.this.name
-  catalog_name     = "bitnami"
-  name             = "kafka"
-  description      = "Kafka service"
-  template_name    = "kafka"
-  template_version = "14.9.3" #Application version 2.8.1
-  force_upgrade    = "true"
-  answers = {
-    "global.storageClass"        = "gp2"
-    "metrics.kafka.enabled"      = "false"
-    "persistence.enabled"        = "true"
-    "persistence.size"           = "10Gi"
-    "persistence.storageClass"   = "gp2"
-    "resources.limits.cpu"       = "500m"
-    "resources.limits.memory"    = "1200Mi"
-    "resources.requests.cpu"     = "250m"
-    "resources.requests.memory"  = "1100Mi" // originally 256Mi
-    "zookeeper.enabled"          = "true"
-    "zookeeper.persistence.size" = "5Gi"
-    "livenessProbe.enabled"      = "false"
-    "readinessProbe.enabled"     = "false"
-  }
+resource "rancher2_app_v2" "kafka" {
+  count         = var.kafka_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "kafka"
+  repo_name     = "bitnami"
+  chart_name    = "kafka"
+  chart_version = "14.9.3"
+  force_upgrade = "true"
+  values        = <<-EOT
+    metrics:
+      kafka:
+        enabled: false
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: gp2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 1100Mi
+      limits:
+        cpu: 500m
+        memory: 1200Mi
+    zookeeper:
+      enabled: true
+      persistence:
+        size: 5Gi
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
+  EOT
 }
 
 resource "aws_security_group" "kafka" {

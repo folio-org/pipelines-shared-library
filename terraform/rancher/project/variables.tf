@@ -13,7 +13,7 @@ variable "root_domain" {
 # Rancher variables
 variable "rancher_server_url" {
   type        = string
-  default     = "https://rancher.dev.folio.org/v3"
+  default     = "https://rancher.ci.folio.org/v3"
   description = "Rancher server URL"
 }
 

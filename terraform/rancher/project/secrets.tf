@@ -17,7 +17,7 @@ resource "rancher2_secret" "db-connect-modules" {
     DB_QUERYTIMEOUT        = base64encode("60000")
     KAFKA_HOST             = base64encode(var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0))
     KAFKA_PORT             = base64encode("9092")
-    ELASTICSEARCH_URL      = base64encode(var.es_embedded ? "http://elasticsearch-${rancher2_project.this.name}:9200" : "https://${module.aws_es.endpoint}:443")
+    ELASTICSEARCH_URL      = base64encode(var.es_embedded ? "http://elasticsearch-${var.rancher_project_name}:9200" : "https://${module.aws_es.endpoint}:443")
     ELASTICSEARCH_HOST     = base64encode(var.es_embedded ? "" : module.aws_es.endpoint)
     ELASTICSEARCH_PORT     = base64encode(var.es_embedded ? "9200" : "443")
     ELASTICSEARCH_USERNAME = base64encode(var.es_embedded ? "" : var.es_username)
@@ -32,8 +32,8 @@ resource "rancher2_secret" "project-config" {
   data = {
     OKAPI_URL    = base64encode(join("", ["https://", local.okapi_url]))
     TENANT_ID    = base64encode(var.tenant_id)
-    PROJECT_NAME = base64encode(rancher2_project.this.name)
-    PROJECT_ID   = base64encode(element(split(":", rancher2_project.this.id), 1))
+    PROJECT_NAME = base64encode(var.rancher_project_name)
+    PROJECT_ID   = base64encode(element(split(":", rancher2_namespace.this.id), 1))
   }
 }
 
@@ -43,8 +43,8 @@ resource "rancher2_secret" "s3-config-data-worker" {
   namespace_id = rancher2_namespace.this.name
   data = {
     AWS_URL               = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.amazonaws.com")
-    AWS_REGION            = base64encode(var.s3_embedded ? "" : var.aws_region)
-    AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "data-worker"]))
+    AWS_REGION            = base64encode(var.aws_region)
+    AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-worker"]))
     AWS_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
     AWS_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
   }
@@ -56,8 +56,8 @@ resource "rancher2_secret" "s3-config-data-export" {
   namespace_id = rancher2_namespace.this.name
   data = {
     AWS_URL               = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.amazonaws.com")
-    AWS_REGION            = base64encode(var.s3_embedded ? "" : var.aws_region)
-    AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "data-export"]))
+    AWS_REGION            = base64encode(var.aws_region)
+    AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-export"]))
     AWS_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
     AWS_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
   }

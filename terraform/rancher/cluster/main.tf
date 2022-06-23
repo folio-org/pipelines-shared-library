@@ -1,5 +1,6 @@
 # Create a new rancher2 imported Cluster
-resource "rancher2_cluster" "folio-imported" {
+resource "rancher2_cluster" "this" {
+  count                     = var.register_in_rancher ? 1 : 0
   depends_on                = [module.eks_cluster]
   name                      = terraform.workspace
   description               = "Folio rancher2 imported cluster"
@@ -7,22 +8,23 @@ resource "rancher2_cluster" "folio-imported" {
 }
 
 data "http" "cattle" {
-  url = rancher2_cluster.folio-imported.cluster_registration_token.0.manifest_url
+  count = var.register_in_rancher ? 1 : 0
+  url   = rancher2_cluster.this[0].cluster_registration_token[0].manifest_url
 }
 
 locals {
-  cattle-list = compact(split("---", trimspace(data.http.cattle.body)))
+  cattle-list = var.register_in_rancher ? compact(split("---", trimspace(data.http.cattle[0].body))) : [""]
 }
 
 resource "kubectl_manifest" "cattle" {
-  depends_on = [rancher2_cluster.folio-imported]
-  count      = 9
-  yaml_body  = local.cattle-list[count.index]
+  count     = var.register_in_rancher ? 9 : 0
+  yaml_body = local.cattle-list[count.index]
 }
 
 # Create a new rancher2 Cluster Sync
 resource "rancher2_cluster_sync" "folio-imported" {
+  count         = var.register_in_rancher ? 1 : 0
   depends_on    = [kubectl_manifest.cattle]
-  cluster_id    = rancher2_cluster.folio-imported.id
+  cluster_id    = rancher2_cluster.this[0].id
   state_confirm = 3
 }

@@ -4,6 +4,8 @@ import org.folio.rest.model.OkapiUser
 
 class Constants {
 
+    static String AWS_ADMIN_USERS = "oleksandrhaimanov,dariapavlova,volodymyrkartsev,vasilikapylou,tarasspashchenko"
+
     static String FOLIO_ORG = "folio-org"
     static String FOLIO_GITHUB_URL = "https://github.com/folio-org"
     static String FOLIO_JIRA_URL = "https://issues.folio.org"
@@ -13,7 +15,7 @@ class Constants {
     static String PRIVATE_GITHUB_CREDENTIALS_ID = "id-jenkins-github-personal-token-with-username"
     static String JIRA_CREDENTIALS_ID = "jenkins-jira"
     static String AWS_CREDENTIALS_ID = "stanislav_test"
-    static String RANCHER_TOKEN_ID = "rancher_token"
+    static String RANCHER_TOKEN_ID = "rancher_token_v2"
     static String AWS_S3_SERVICE_ACCOUNT_ID = "ci-s3-service-account"
     static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
@@ -39,7 +41,7 @@ class Constants {
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
                                     "concorde"     : ["concorde"],
                                     "core-platform": ["core-platform"],
-                                    "cypress"      : ["cypress-env-maintenance"],
+                                    "cypress"      : ["AQA"],
                                     "ebsco-core"   : ["ebsco-core"],
                                     "falcon"       : ["falcon"],
                                     "firebird"     : ["firebird"],

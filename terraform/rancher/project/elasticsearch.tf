@@ -1,37 +1,54 @@
 # Create a new rancher2 Folio ElasticSearch App in a default Project namespace
-resource "rancher2_app" "elasticsearch" {
-  count            = var.es_embedded ? 1 : 0
-  project_id       = rancher2_project.this.id
-  target_namespace = rancher2_namespace.this.name
-  catalog_name     = "bitnami"
-  name             = "elasticsearch"
-  description      = "Elasticsearch for mod-search"
-  template_name    = "elasticsearch"
-  template_version = "17.9.29" #Application version 7.17.3
-  force_upgrade    = "true"
-  answers = {
-    "image.debug"                                    = "true"
-    "global.coordinating.name"                       = rancher2_project.this.name
-    "coordinating.replicas"                          = "1"
-    "coordinating.resources.limits.cpu"              = "512m"
-    "coordinating.resources.limits.memory"           = "2048Mi"
-    "coordinating.resources.requests.cpu"            = "256m"
-    "coordinating.resources.requests.memory"         = "1024Mi"
-    "coordinating.livenessProbe.initialDelaySeconds" = "180"
-    "data.replicas"                                  = "1"
-    "data.resources.limits.cpu"                      = "512m"
-    "data.resources.limits.memory"                   = "2048Mi"
-    "data.resources.requests.cpu"                    = "256m"
-    "data.resources.requests.memory"                 = "1024Mi"
-    "data.livenessProbe.initialDelaySeconds"         = "180"
-    "master.replicas"                                = "1"
-    "master.resources.limits.cpu"                    = "512m"
-    "master.resources.limits.memory"                 = "2048Mi"
-    "master.resources.requests.cpu"                  = "256m"
-    "master.resources.requests.memory"               = "1048Mi"
-    "master.livenessProbe.initialDelaySeconds"       = "180"
-    "plugins"                                        = "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
-  }
+resource "rancher2_app_v2" "elasticsearch" {
+  count         = var.es_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "elasticsearch"
+  repo_name     = "bitnami"
+  chart_name    = "elasticsearch"
+  chart_version = "17.9.29"
+  force_upgrade = "true"
+  values        = <<-EOT
+    image:
+      debug: true
+    global:
+      coordinating:
+        name: ${var.rancher_project_name}
+    coordinating:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 256m
+          memory: 1024Mi
+        limits:
+          cpu: 512m
+          memory: 2048Mi
+      livenessProbe:
+        initialDelaySeconds: 180
+    data:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 256m
+          memory: 1024Mi
+        limits:
+          cpu: 512m
+          memory: 2048Mi
+      livenessProbe:
+        initialDelaySeconds: 180
+    master:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 256m
+          memory: 1024Mi
+        limits:
+          cpu: 512m
+          memory: 2048Mi
+      livenessProbe:
+        initialDelaySeconds: 180
+    plugins: "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
+  EOT
 }
 
 resource "random_password" "es_password" {
