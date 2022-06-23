@@ -72,3 +72,13 @@ variable "db_backup_name" {
   type        = string
   description = "Name of DB backup on s3 bucket"
 }
+
+variable "docker_folio_dev_registry_username" {
+  type        = string
+  description = "Username for docker registry"
+}
+
+variable "docker_folio_dev_registry_password" {
+  type        = string
+  description = "Password for docker registry"
+}
