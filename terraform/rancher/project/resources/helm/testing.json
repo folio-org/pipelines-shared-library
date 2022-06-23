@@ -1,14 +1,14 @@
 {
   "okapi": {
-    "javaArgs": "cluster  -cluster-host $CLUSTER_HOST -hazelcast-config-url https://$S3_DOMAIN/$CLUSTER-$DOMAIN_PREFIX-$REGION-$ACCOUNT_NAME/okapi/hazelcast-ecs.xml",
-    "javaOptions": "-Ddeploy.waitIterations=90 --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED -Dloglevel=INFO -Dport=9131 -Dokapiurl=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dstorage=postgres -Dpostgres_host=$DB_HOST -Dpostges_port=$DB_PORT -Dpostgres_username=$DB_USERNAME -Dpostgres_password=$DB_PASSWORD -Dpostgres_database=$DB_NAME $JAVA_OPTS_HEAP_DUMP -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx922m",
+    "javaArgs": "cluster -cluster-host $CLUSTER_HOST -hazelcast-config-url https://$S3_DOMAIN/$CLUSTER-$DOMAIN_PREFIX-$REGION-$ACCOUNT_NAME/okapi/hazelcast-ecs.xml",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Djava.awt.headless=true -Dstorage=postgres -Dpostgres_host=$(OKAPI_HOST) -Dpostgres_port=5432 -Dpostgres_username=$(OKAPI_DB_USER) -Dpostgres_password=$(OKAPI_DB_PASSWORD) -Dpostgres_database=$(OKAPI_DB) -Dlog4j.configurationFile=/etc/log4j2.xml -Dhost=okapi -Dokapiurl=http://okapi:9130 -Dloglevel=INFO -Ddeploy.waitIterations=90 --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED",
     "replicaCount": 1,
     "resources": {
       "limits": {
-        "memory": "3072Mi"
+        "memory": "2048Mi"
       },
       "requests": {
-        "memory": "1440Mi"
+        "memory": "1024Mi"
       }
     }
   },
@@ -836,7 +836,7 @@
     }
   },
   "mod-aes": {
-    "javaArgs": "$JAVA_ARGS -Dkafka.url=aes-kafka.$CLUSTER.folio-eis.$REGION:9092",
+    "javaArgs": "$JAVA_ARGS -Dkafka.url=$KAFKA_HOST:$KAFKA_PORT",
     "javaOptions": "-XX:MaxRAMPercentage=85.0",
     "replicaCount": 1,
     "resources": {
@@ -874,8 +874,8 @@
     }
   },
   "edge-rtac": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral.properties",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -887,8 +887,8 @@
     }
   },
   "edge-patron": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -900,8 +900,8 @@
     }
   },
   "edge-orders": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral/ephemeral.properties -Dapi_config=/etc/edge/api/api_configuration.json",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -913,21 +913,21 @@
     }
   },
   "edge-oai-pmh": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=86400000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "$JAVA_OPTS_VERTEX_LOGGER $JAVA_OPTS_HEAP_DUMP $JAVA_OPTS_META_SPACE -Xmx952m",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms=86400000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral.properties",
     "replicaCount": 1,
     "resources": {
       "limits": {
-        "memory": "512Mi"
+        "memory": "1536Mi"
       },
       "requests": {
-        "memory": "400Mi"
+        "memory": "1024Mi"
       }
     }
   },
   "edge-ncip": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -939,7 +939,7 @@
     }
   },
   "edge-inn-reach": {
-    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral.properties",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -951,8 +951,8 @@
     }
   },
   "edge-ea-data-export": {
-    "javaArgs": "-Dlog_level=DEBUG -Dport=8081 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog_level=DEBUG -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -964,8 +964,8 @@
     }
   },
   "edge-dematic": {
-    "javaArgs": "-Dport=$CONTAINER_PORT",
-    "javaOptions": "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
+    "javaArgs": "",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral.propertie",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -977,8 +977,8 @@
     }
   },
   "edge-connexion": {
-    "javaArgs": "-Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties -Dhttp.port=$INTERNAL_DOCKER_PORT -Dlog.level=debug",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0",
+    "javaArgs": "-Dlog.level=debug",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT",
     "replicaCount": 1,
     "resources": {
       "limits": {
@@ -990,8 +990,8 @@
     }
   },
   "edge-caiasoft": {
-    "javaArgs": "--server.port=$CONTAINER_PORT --log.level=info",
-    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
+    "javaArgs": "--log.level=info",
+    "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$OKAPI_HOST:$OKAPI_PORT -Dsecure_store_props=/etc/edge/ephemeral.properties",
     "replicaCount": 1,
     "resources": {
       "limits": {
