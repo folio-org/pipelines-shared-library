@@ -38,8 +38,8 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('rancher_project_name', params.project_name)
                 tfVars += terraform.generateTfVar('db_backup_name', db_backup_name)
-                withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'docker_folio_dev_registry_password', usernameVariable: 'docker_folio_dev_registry_username')]) {
-                    tfVars += terraform.generateTfVar('docker_folio_dev_registry_username', docker_folio_dev_registry_username)
+                withCredentials([usernamePassword(credentialsId: 'folio-docker-dev', passwordVariable: 'folio_docker_registry_password', usernameVariable: 'folio_docker_registry_username')]) {
+                    tfVars += terraform.generateTfVar('docker_folio_dev_registry_username', folio_docker_registry_username)
                     tfVars += terraform.generateTfVar('docker_folio_dev_registry_password', folio_docker_registry_password)
                 }
             }
