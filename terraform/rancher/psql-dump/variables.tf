@@ -67,3 +67,8 @@ variable "s3_backup_path" {
   default     = "s3://folio-postgresql-backups"
   description = "AWS s3 postgres backups bucket name"
 }
+
+variable "db_backup_name" {
+  type        = string
+  description = "Name of DB backup on s3 bucket"
+}

@@ -3,10 +3,10 @@
 
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
+import java.time.LocalDateTime
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
-    disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         jobsParameters.rancherClusters(),
@@ -16,6 +16,8 @@ properties([
 
 String tfWorkDir = 'terraform/rancher/psql-dump'
 String tfVars = ''
+def date_time = LocalDateTime.now()
+String db_backup_name = "backup_" + date_time + ".pgdump"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -35,6 +37,7 @@ ansiColor('xterm') {
             stage('TF vars') {
                 tfVars += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tfVars += terraform.generateTfVar('rancher_project_name', params.project_name)
+                tfVars += terraform.generateTfVar('db_backup_name', db_backup_name)
             }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                               credentialsId    : Constants.AWS_CREDENTIALS_ID,
@@ -60,9 +63,16 @@ ansiColor('xterm') {
                     try {
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
-                        return true
+                        println("======================================================================================\n\n\n")
+                        println("PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups" +
+                            "/" + params.rancher_cluster_name + "-" + params.project_name + "/" + " directory with name " +
+                            db_backup_name + "\n\n\n")
+                        println("======================================================================================")
                     } catch (exception) {
                         terraform.tfDestroy(tfWorkDir, tfVars)
+                        println("======================================================================================\n\n\n")
+                        println("PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n")
+                        println("======================================================================================")
                         return false
                     }
                     terraform.tfDestroy(tfWorkDir, tfVars)
