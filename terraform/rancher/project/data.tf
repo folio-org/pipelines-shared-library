@@ -1,19 +1,94 @@
-data "rancher2_cluster" "cluster" {
+data "rancher2_cluster" "this" {
   name = var.rancher_cluster_name
 }
 
-data "aws_eks_cluster" "cluster" {
-  name = data.rancher2_cluster.cluster.name
+data "aws_eks_cluster" "this" {
+  name = data.rancher2_cluster.this.name
 }
 
-#TODO Add tag for selection of db subnets during creation
-data "aws_subnets" "db_subnet" {
+# Used for accesing Account ID and ARN
+data "aws_caller_identity" "current" {}
+
+data "aws_subnets" "private" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_eks_cluster.cluster.vpc_config[0].vpc_id]
+    values = [data.aws_eks_cluster.this.vpc_config[0].vpc_id]
   }
+
+  tags = {
+    Type = "private"
+  }
+}
+
+data "aws_subnets" "database" {
   filter {
-    name   = "tag:Name"
-    values = ["perf-eks-vpc-bulk-edit-db-us-west-2a", "perf-eks-vpc-bulk-edit-db-us-west-2b", "perf-eks-vpc-bulk-edit-db-us-west-2c", "perf-eks-vpc-bulk-edit-db-us-west-2d"]
+    name   = "vpc-id"
+    values = [data.aws_eks_cluster.this.vpc_config[0].vpc_id]
   }
+
+  tags = {
+    Type = "database"
+  }
+}
+
+data "http" "install" {
+  url = local.install_json_url
+  request_headers = {
+    Accept = "application/json"
+  }
+}
+
+locals {
+  env_name          = join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name])
+  group_name        = join(".", [data.rancher2_cluster.this.name, rancher2_project.this.name])
+  frontend_url      = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name]), var.root_domain])
+  okapi_url         = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "okapi"]), var.root_domain])
+  minio_url         = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "minio"]), var.root_domain])
+  minio_console_url = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "minio-console"]), var.root_domain])
+  github_url        = "https://raw.githubusercontent.com/folio-org"
+  install_json_url  = join("/", [local.github_url, var.repository, var.branch, "install.json"])
+
+  helm_configs = jsondecode(file("${path.module}/resources/helm/${var.env_config}.json"))
+
+  modules_list = var.install_json != "" ? jsondecode(var.install_json)[*]["id"] : jsondecode(data.http.install.body)[*]["id"]
+
+  folio_helm_catalog_name = join(":", [element(split(":", rancher2_project.this.id), 1), rancher2_catalog.folio-charts.name])
+
+  db_snapshot_arn = "arn:aws:rds:${var.aws_region}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:${var.pg_rds_snapshot_name}"
+
+  modules_map = {
+    for id in local.modules_list : regex("^(.*)-(\\d*\\.\\d*\\.\\d*.*)$", id)[0] => regex("^(.*)-(\\d*\\.\\d*\\.\\d*.*)$", id)[1]
+  }
+  backend_map = {
+    for k, v in local.modules_map : k => v if substr(k, 0, length("mod-")) == "mod-"
+  }
+  edge-map = {
+    for k, v in local.modules_map : k => v if substr(k, 0, length("edge-")) == "edge-" && !contains([k], "edge-sip2")
+  }
+  edge-sip2-map = {
+    for k, v in local.modules_map : k => v if contains([k], "edge-sip2")
+  }
+
+  edge_ephemeral_config = {
+    "edge-rtac" = {},
+    "edge-oai-pmh" = {
+      "test_oaipmh" = "test-user,test"
+    },
+    "edge-patron" = {},
+    "edge-orders" = {
+      "test_edge_orders" = "test-user,test",
+    }
+    "edge-ncip" = {}
+    "edge-dematic" = {
+      (var.tenant_id) = "stagingDirector,${var.tenant_id}"
+    },
+    "edge-caiasoft" = {
+      (var.tenant_id) = "caiaSoftClient,${var.tenant_id}"
+    },
+    "edge-connexion" = {}
+  }
+
+  edge_ephemeral_properties = [
+    for k, v in local.edge_ephemeral_config : v if contains(keys(local.edge-map), k)
+  ]
 }

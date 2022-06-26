@@ -168,10 +168,66 @@ class Okapi extends GeneralParameters {
         }
     }
 
-/**
- * Create tenant
- * @param tenant
- */
+    /**
+     * reindex Elasticsearch to modules for tenant
+     * @param tenant
+     * @param okapiUrl
+     */
+    def reindexElasticsearch(tenant, admin_user, recreate_index_elasticsearch) {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapiUrl + "/search/index/inventory/reindex"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
+        logger.info("Starting Elastic Search reindex with recreate flag = ${recreate_index_elasticsearch}")
+        String body = "{\"recreateindex_elasticsearch\": ${recreate_index_elasticsearch} }"
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id
+        } else {
+            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
+        }
+    }
+    /**
+     * check this status Elasticsearch (records)
+     * @param tenant
+     * @param admin_user
+     * @return
+     */
+    void checkReindex(tenant, jobid) {
+        auth.getOkapiToken(tenant, tenant.admin_user)
+        String url = okapiUrl + "/instance-storage/reindex/${jobid}"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+        ]
+        steps.timeout(1440) {
+            while (true) {
+                def res = http.getRequest(url, headers)
+                if (res.status == HttpURLConnection.HTTP_OK) {
+                    if (tools.jsonParse(res.content).jobStatus == "Ids published") {
+                        logger.info("reindex records to elastic search successfully completed")
+                        break
+                    } else {
+                        logger.info("Waiting timeout, haven't status: Ids published yet." + http.buildHttpErrorMessage(res))
+                        steps.sleep(10)
+
+                    }
+                } else {
+                    throw new AbortException("not possible check id reindex." + http.buildHttpErrorMessage(res))
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Create tenant
+     * @param tenant
+     */
     void createTenant(OkapiTenant tenant) {
         auth.getOkapiToken(supertenant, supertenant.admin_user)
         String url = okapiUrl + "/_/proxy/tenants"
@@ -250,9 +306,9 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdmin_user().getToken() ? supertenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers, true)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            if(tools.jsonParse(res.content)[0].url == service['url']){
+            if (tools.jsonParse(res.content)[0].url == service['url']) {
                 return true
-            }else{
+            } else {
                 throw new AbortException("Registered module has incorrect url." + http.buildHttpErrorMessage(res))
             }
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {

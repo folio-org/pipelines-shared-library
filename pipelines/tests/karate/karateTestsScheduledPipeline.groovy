@@ -26,7 +26,6 @@ def teamAssignment
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
-String uiImageVersion = tools.eval(jobsParameters.getUIImagesList(), ["rancher_cluster_name": clusterName, "project_name": projectName])[0]
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -48,7 +47,7 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, uiImageVersion, clusterName,
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                         projectName, prototypeTenant, folio_repository, folio_branch)
 
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
@@ -85,7 +84,7 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, uiImageVersion, clusterName,
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
                                 projectName, prototypeTenant, folio_repository, folio_branch)
 
                             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
@@ -182,21 +181,26 @@ pipeline {
     }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, String uiImageVersion, clusterName, projectName, tenant,
+private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'env_type', value: "testing"),
+        string(name: 'env_config', value: "testing"),
         string(name: 'rancher_cluster_name', value: clusterName),
-        string(name: 'project_name', value: projectName),
+        string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
+        booleanParam(name: 'build_ui', value: true),
+        booleanParam(name: 'enable_modules', value: true),
         string(name: 'folio_repository', value: folio_repository),
         string(name: 'folio_branch', value: folio_branch),
-        string(name: 'stripes_image_tag', value: uiImageVersion),
         string(name: 'tenant_id', value: tenant),
         string(name: 'tenant_name', value: "Karate tenant"),
         string(name: 'tenant_description', value: "Karate tests main tenant"),
         booleanParam(name: 'load_reference', value: true),
-        booleanParam(name: 'load_sample', value: true)
+        booleanParam(name: 'load_sample', value: true),
+        booleanParam(name: 'pg_embedded', value: true),
+        booleanParam(name: 'kafka_embedded', value: true),
+        booleanParam(name: 'es_embedded', value: true),
+        booleanParam(name: 's3_embedded', value: true)
     ]
 }
