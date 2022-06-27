@@ -25,6 +25,7 @@ class Constants {
 
     static String NEXUS_PUBLISH_CREDENTIALS_ID = "jenkins-nexus"
     static String FOLIO_HELM_REPOSITORY_URL = "https://repository.folio.org/repository/helm-hosted/"
+    static String FOLIO_HELM_REPOSITORY_NAME = "helm-hosted"
 
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
     static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
@@ -34,6 +35,10 @@ class Constants {
     static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
+
+    static String PSQL_DUMP_DOCKER_CLIENT = "alpine/k8s:1.22.9"
+    static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
+    static String RANCHER_CLUSTERS_DEFAULT_REGION = "us-west-2"
 
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
                                     "concorde"     : ["concorde"],
