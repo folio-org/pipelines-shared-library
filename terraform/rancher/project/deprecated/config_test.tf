@@ -962,7 +962,7 @@ locals {
         }
       },
       replicaCount  = 1,
-      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
+      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dlog4j2.formatMsgNoLookups=true"
       dbMaxPoolSize = "5"
     },
     "mod-invoice" = {
