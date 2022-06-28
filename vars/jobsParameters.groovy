@@ -110,7 +110,7 @@ static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
 if (get.getResponseCode().equals(200)) {
-    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + project_name.trim())}
+    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())}
 }
 '''
 }
@@ -178,11 +178,11 @@ def rancherClusters() {
 }
 
 def envType() {
-    return _paramChoice('env_type', envTypeList(), '(Required) Select config file')
+    return _paramChoice('env_config', envTypeList(), '(Required) Select config file')
 }
 
 def projectName() {
-    return _paramExtended('project_name', 'rancher_cluster_name', getProjectNames(), '(Required) Select project to operate')
+    return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), '(Required) Select project to operate')
 }
 
 
@@ -210,6 +210,14 @@ def loadReference() {
     return _paramBoolean('load_reference', defaultTenant().loadReference, 'True if reference data should be applied')
 }
 
+def reindexElasticsearch() {
+    return _paramBoolean('reindex_elastic_search', true, 'True if need to reindex modules')
+}
+
+def recreateindexElasticsearch() {
+    return _paramBoolean('recreate_index_elastic_search', false, 'True if need to recreate index modules , default value: false')
+}
+
 def loadSample() {
     return _paramBoolean('load_sample', defaultTenant().loadSample, 'True if sample data should be applied')
 }
@@ -226,8 +234,8 @@ def folioBranch() {
     return _paramExtended('folio_branch', 'folio_repository', getRepositoryBranches(), '(Required) Choose what platform-core or platform-complete branch to build from')
 }
 
-def stripesImageTag() {
-    return _paramExtended('stripes_image_tag', 'rancher_cluster_name,project_name', getUIImagesList(), '(Required) Choose image tag for UI')
+def frontendImageTag() {
+    return _paramExtended('frontend_image_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), '(Required) Choose image tag for UI')
 }
 
 def okapiVersion() {

@@ -1,22 +1,15 @@
 locals {
-  performance    = local.module_configs_perf
-  testing        = local.module_configs_test
-  development    = local.module_configs_dev
-  module_configs = var.env_type == "development" ? local.development : (var.env_type == "performance" ? local.performance : local.testing)
-}
-
-locals {
-  module_configs_dev = {
+  module_configs_perf = {
     "okapi" = {
       resources = {
         requests = {
           memory = "1440Mi"
         },
         limits = {
-          memory = "3072Mi"
+          memory = "4072Mi"
         }
       },
-      replicaCount = 1,
+      replicaCount = 3,
       javaOptions  = "-Ddeploy.waitIterations=90 --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED -Dloglevel=INFO -Dport=9131 -Dokapiurl=http://pvt.lb.$CLUSTER.$DOMAIN_PREFIX.$REGION:$OKAPI_PORT -Dstorage=postgres -Dpostgres_host=$DB_HOST -Dpostges_port=$DB_PORT -Dpostgres_username=$DB_USERNAME -Dpostgres_password=$DB_PASSWORD -Dpostgres_database=$DB_NAME $JAVA_OPTS_HEAP_DUMP -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx922m"
       javaArgs     = "cluster  -cluster-host $CLUSTER_HOST -hazelcast-config-url https://$S3_DOMAIN/$CLUSTER-$DOMAIN_PREFIX-$REGION-$ACCOUNT_NAME/okapi/hazelcast-ecs.xml"
     },
@@ -952,7 +945,7 @@ locals {
         }
       },
       replicaCount        = 1,
-      javaOptions         = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      javaOptions         = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true -Dsrm.job.execution.cache.expire.seconds=5"
       dbMaxPoolSize       = "15"
       dbReconnectinterval = "1000"
       dbReconnectattempts = "3"
@@ -969,7 +962,7 @@ locals {
         }
       },
       replicaCount  = 1,
-      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC"
+      javaOptions   = "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dlog4j2.formatMsgNoLookups=true"
       dbMaxPoolSize = "5"
     },
     "mod-invoice" = {

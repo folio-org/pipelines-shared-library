@@ -29,6 +29,8 @@ class Constants {
 
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
     static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
+    static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
+    static String DOCKER_FOLIO_REPOSITORY = "docker-folio.dev.folio.org"
 
     static String JENKINS_MASTER_NODE = "master"
 

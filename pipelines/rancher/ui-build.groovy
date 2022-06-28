@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-313') _
 
@@ -19,9 +20,9 @@ properties([
 ])
 
 String imageName = Constants.DOCKER_DEV_REPOSITORY + '/platform-complete' //TODO rename to folio-ui
-String okapiUrl = params.custom_url.isEmpty() ? "https://${params.rancher_cluster_name}-${params.project_name}-okapi.${Constants.CI_ROOT_DOMAIN}" : params.custom_url //TODO add tenant id to URL
+String okapiUrl = params.custom_url.isEmpty() ? "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}" : params.custom_url //TODO add tenant id to URL
 String hash = params.custom_hash.isEmpty() ? common.getLastCommitHash("platform-${params.folio_repository}", params.folio_branch) : params.custom_hash
-String tag = params.custom_tag.isEmpty() ? "${params.rancher_cluster_name}-${params.project_name}-${params.tenant_id}-${hash.take(7)}" : params.custom_tag
+String tag = params.custom_tag.isEmpty() ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${params.tenant_id}-${hash.take(7)}" : params.custom_tag
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
