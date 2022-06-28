@@ -44,13 +44,13 @@ ansiColor('xterm') {
                         psqlDumpMethods.helmInstall(env.BUILD_ID, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.FOLIO_HELM_REPOSITORY_NAME, params.project_name, started_by_user, date_time)
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.project_name)
                         println("\n\n\n")
-                        println("PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
+                        println("\\033[32mPostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
                             "${params.rancher_cluster_name}/${params.project_name}/backup_build-id-${env.BUILD_ID}-${started_by_user}-${db_backup_name}" + "\n\n\n")
                     }
                     catch (exception) {
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.project_name)
                         println("\n\n\n")
-                        println("PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n")
+                        println("\\033[1;31mPostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n")
                         return false
                     }
                 }
