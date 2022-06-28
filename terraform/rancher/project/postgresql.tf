@@ -156,11 +156,14 @@ resource "rancher2_app" "pgadmin4" {
     "ingress.hosts[0].host" = join(".", [
       join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
     ])
-    "serverDefinitions.enabled"                             = "true"
-    "serverDefinitions.servers.Name"                        = "pg_folio"
-#    "serverDefinitions.servers.username"                    = var.pg_username
-#    "serverDefinitions.servers.host"                        = "postgresql"
-#    "serverDefinitions.servers.MaintenanceDB"               = var.pg_dbname
-#    "serverDefinitions.servers.password"                    = var.pg_password
+    "serverDefinitions.enabled"                                         = "true"
+    "serverDefinitions.servers.firstServer"                             = "pg"
+    "serverDefinitions.servers.firstServer.Name"                        = "pg_folio"
+    "serverDefinitions.servers.firstServer.username"                    = var.pg_username
+    "serverDefinitions.servers.firstServer.host"                        = "postgresql"
+    "serverDefinitions.servers.firstServer.MaintenanceDB"               = var.pg_dbname
+    "serverDefinitions.servers.firstServer.password"                    = var.pg_password
+    "serverDefinitions.servers.firstServer.port"                        = "5432"
+
   }
 }
