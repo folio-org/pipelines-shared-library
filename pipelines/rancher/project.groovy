@@ -85,6 +85,10 @@ ansiColor('xterm') {
                               credentialsId    : Constants.AWS_S3_DATA_EXPORT_ID,
                               accessKeyVariable: 'TF_VAR_s3_data_export_access_key',
                               secretKeyVariable: 'TF_VAR_s3_data_export_secret_key'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_POSTGRES_BACKUPS,
+                              accessKeyVariable: 'TF_VAR_s3_postgres_backups_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_postgres_backups_secret_key'],
                              string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')]) {
                 docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     terraform.tfInit(tfWorkDir, '')

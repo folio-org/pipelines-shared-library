@@ -165,9 +165,19 @@ variable "github_team_ids" {
   description = "List of github team IDs for project access"
 }
 
-variable "nexus_helm_repo_name" {
+variable "postgres-backups-s3-bucket" {
   type        = string
-  default     = "folio-helm-repo"
-  description = "Name of the installed globally nexus helm repo"
+  default     = "s3://folio-postgresql-backups"
+  description = "Path of s3 bucket for backups"
+}
+
+variable "s3_postgres_backups_access_key" {
+  type        = string
+  description = "AWS access key"
+}
+
+variable "s3_postgres_backups_secret_key" {
+  type        = string
+  description = "AWS secret key"
 }
 
