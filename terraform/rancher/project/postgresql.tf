@@ -157,8 +157,9 @@ resource "rancher2_app" "pgadmin4" {
       join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
     ])
     "serverDefinitions.enabled"                             = "true"
+    "serverDefinitions.servers.Name"                        = "pg_folio"
     "serverDefinitions.servers.username"                    = var.pg_username
-    "serverDefinitions.servers.host"                        = var.pg_embedded
+    "serverDefinitions.servers.host"                        = "postgresql"
     "serverDefinitions.servers.MaintenanceDB"               = var.pg_dbname
     "serverDefinitions.servers.password"                    = var.pg_password
   }
