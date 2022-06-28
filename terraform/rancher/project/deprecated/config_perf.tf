@@ -945,7 +945,7 @@ locals {
         }
       },
       replicaCount        = 1,
-      javaOptions         = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true"
+      javaOptions         = "-XX=MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true -Dsrm.job.execution.cache.expire.seconds=5"
       dbMaxPoolSize       = "15"
       dbReconnectinterval = "1000"
       dbReconnectattempts = "3"
