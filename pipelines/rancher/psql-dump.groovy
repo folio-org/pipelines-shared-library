@@ -15,8 +15,8 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().toString()
-String db_backup_name = "backup_" + date_time + ".pgdump"
 String started_by_user = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
+String db_backup_name = "backup_build-id-" + env.BUILD_ID + date_time + started_by_user
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
