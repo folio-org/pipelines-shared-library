@@ -16,7 +16,7 @@ properties([
 
 def date_time = LocalDateTime.now().toString()
 String started_by_user = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
-String db_backup_name = "backup_build-id-" + env.BUILD_ID + date_time + started_by_user
+String db_backup_name = "backup_build-id-${env.BUILD_ID}-${date_time}-${started_by_user}"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -26,9 +26,9 @@ ansiColor('xterm') {
     node('jenkins-agent-java11') {
         try {
             stage('Ini') {
-                buildName params.rancher_cluster_name + '.' + params.project_name + '.' + env.BUILD_ID
+                buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
                 buildDescription "rancher_cluster_name: ${params.rancher_cluster_name}\n" +
-                    "rancher_project_name: ${params.project_name}"
+                    "rancher_project_name: ${params.rancher_project_name}"
             }
             stage('Checkout') {
                 checkout scm
@@ -41,14 +41,14 @@ ansiColor('xterm') {
                     psqlDumpMethods.configureKubectl(Constants.RANCHER_CLUSTERS_DEFAULT_REGION, params.rancher_cluster_name)
                     psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.FOLIO_HELM_REPOSITORY_URL)
                     try {
-                        psqlDumpMethods.helmInstall(env.BUILD_ID, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.FOLIO_HELM_REPOSITORY_NAME, params.project_name, started_by_user, date_time)
-                        psqlDumpMethods.helmDelete(env.BUILD_ID, params.project_name)
+                        psqlDumpMethods.helmInstall(env.BUILD_ID, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.FOLIO_HELM_REPOSITORY_NAME, params.rancher_project_name, started_by_user, date_time)
+                        psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n")
                         println("PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
-                            "${params.rancher_cluster_name}/${params.project_name}/backup_build-id-${env.BUILD_ID}-${started_by_user}-${db_backup_name}" + "\n\n\n")
+                            "${params.rancher_cluster_name}/${params.rancher_project_name}/backup_build-id-${env.BUILD_ID}-${started_by_user}-${db_backup_name}" + "\n\n\n")
                     }
                     catch (exception) {
-                        psqlDumpMethods.helmDelete(env.BUILD_ID, params.project_name)
+                        psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n")
                         println("PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n")
                         throw exception

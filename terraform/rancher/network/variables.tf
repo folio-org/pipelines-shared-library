@@ -23,7 +23,7 @@ variable "subnet_prefix_extension" {
 
 variable "clusters" {
   type        = list(string)
-  default     = ["folio-testing", "folio-dev", "folio-perf", "folio-tmp", "volodymyr-testing"]
+  default     = ["folio-testing", "folio-dev", "folio-perf", "folio-tmp"]
   description = "List of EKS clusters names expected to be provisioned in VPC"
 }
 

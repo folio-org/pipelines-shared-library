@@ -1,6 +1,6 @@
 def configureKubectl(String region, String cluster_name) {
     stage('Configure kubectl') {
-        sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name}"
+        sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name} > /dev/null"
     }
 }
 

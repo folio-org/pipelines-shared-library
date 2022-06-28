@@ -96,12 +96,11 @@ resource "rancher2_secret" "edge-api-config" {
 }
 
 resource "rancher2_secret" "s3-postgres-backups-credentials" {
-  depends_on   = [rancher2_namespace.project-namespace]
   name         = "s3-postgres-backups-credentials"
-  project_id   = rancher2_project.project.id
-  namespace_id = rancher2_namespace.project-namespace.name
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.name
   data = {
-    RANCHER_CLUSTER_PROJECT_NAME = base64encode(join("/", [data.rancher2_cluster.cluster.name, rancher2_project.project.name]))
+    RANCHER_CLUSTER_PROJECT_NAME = base64encode(join("/", [data.rancher2_cluster.this.name, rancher2_project.this.name]))
     AWS_BUCKET                   = base64encode(var.s3_postgres-backups-bucket-name)
     AWS_ACCESS_KEY_ID            = base64encode(var.s3_postgres_backups_access_key)
     AWS_SECRET_ACCESS_KEY        = base64encode(var.s3_postgres_backups_secret_key)

@@ -2,7 +2,7 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-313') _
+@Library('pipelines-shared-library') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
