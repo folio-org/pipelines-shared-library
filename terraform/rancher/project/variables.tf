@@ -165,7 +165,7 @@ variable "github_team_ids" {
   description = "List of github team IDs for project access"
 }
 
-variable "postgres-backups-s3-bucket" {
+variable "s3_postgres-backups-bucket-name" {
   type        = string
   default     = "s3://folio-postgresql-backups"
   description = "Path of s3 bucket for backups"
