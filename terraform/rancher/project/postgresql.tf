@@ -158,12 +158,12 @@ resource "rancher2_app" "pgadmin4" {
     ])
     "serverDefinitions.enabled"                                         = "true"
     "serverDefinitions.servers.firstServer"                             = "pg"
-    "serverDefinitions.servers.firstServer.Name"                        = "pg_folio"
-    "serverDefinitions.servers.firstServer.username"                    = var.pg_username
-    "serverDefinitions.servers.firstServer.host"                        = "postgresql"
-    "serverDefinitions.servers.firstServer.MaintenanceDB"               = var.pg_dbname
-    "serverDefinitions.servers.firstServer.password"                    = var.pg_password
-    "serverDefinitions.servers.firstServer.port"                        = "5432"
+    "serverDefinitions.servers.pg.Name"                                 = "pg_folio"
+    "serverDefinitions.servers.pg.username"                             = var.pg_username
+    "serverDefinitions.servers.pg.host"                                 = "postgresql"
+    "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
+    "serverDefinitions.servers.pg.password"                             = var.pg_password
+    "serverDefinitions.servers.pg.port"                                 = "5432"
 
   }
 }
