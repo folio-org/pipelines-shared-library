@@ -23,3 +23,9 @@ def helmDelete(String build_id, String project_namespace) {
         sh "helm delete psql-dump-build-id-${build_id} --namespace=${project_namespace}"
     }
 }
+
+def helmDeleteX(String build_id, String project_namespace) {
+    stage('Helm delete') {
+        sh "helm delete \$(helm list --namespace=${project_namespace} --short) --namespace=${project_namespace}"
+    }
+}
