@@ -9,12 +9,12 @@ def configureHelm(String repo_name, String repo_url) {
         sh "helm repo add ${repo_name} ${repo_url}"
     }
 }
-
+//--version ${chart_version}
 def helmInstall(String build_id, String chart_name, String repo_name, String project_namespace, String started_by_user, String date_time, String chart_version) {
     stage('Helm install') {
         sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.jenkinsBuildId=build-id-${build_id} --set psql.jenkinsStartBuildDateTime=${date_time} \
-        --set psql.jenkinsStartBuildUserName=${started_by_user} --namespace=${project_namespace} --wait --wait-for-jobs"
+        --set psql.jenkinsStartBuildUserName=${started_by_user} --devel --namespace=${project_namespace} --wait --wait-for-jobs"
     }
 }
 
