@@ -16,7 +16,7 @@ properties([
 
 def date_time = LocalDateTime.now().toString()
 String started_by_user = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
-String db_backup_name = "backup_build-id-${env.BUILD_ID}-${date_time}-${started_by_user}"
+String db_backup_name = "backup_build-id-${env.BUILD_ID}-${date_time}-${started_by_user}.pgdump"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -45,7 +45,7 @@ ansiColor('xterm') {
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n")
                         println("PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
-                            "${params.rancher_cluster_name}/${params.rancher_project_name}/backup_build-id-${env.BUILD_ID}-${started_by_user}-${db_backup_name}" + "\n\n\n")
+                            "${params.rancher_cluster_name}/${params.rancher_project_name}/${db_backup_name}" + "\n\n\n")
                     }
                     catch (exception) {
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
