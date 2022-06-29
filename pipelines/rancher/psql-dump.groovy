@@ -41,7 +41,7 @@ ansiColor('xterm') {
                     psqlDumpMethods.configureKubectl(Constants.RANCHER_CLUSTERS_DEFAULT_REGION, params.rancher_cluster_name)
                     psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.FOLIO_HELM_REPOSITORY_URL)
                     try {
-                        psqlDumpMethods.helmInstall(env.BUILD_ID, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.FOLIO_HELM_REPOSITORY_NAME, params.rancher_project_name, started_by_user, date_time)
+                        psqlDumpMethods.helmInstall(env.BUILD_ID, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.FOLIO_HELM_REPOSITORY_NAME, params.rancher_project_name, started_by_user, date_time, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION)
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n")
                         println("PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +

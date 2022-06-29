@@ -95,7 +95,7 @@ resource "rancher2_secret" "edge-api-config" {
   }
 }
 
-resource "rancher2_secret" "s3-postgres-backups-credentials" {
+resource "rancher2_secret" "aws-postgres-backups-s3-bucket-credentials" {
   name         = "s3-postgres-backups-credentials"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
