@@ -14,7 +14,7 @@ def helmInstall(String build_id, String chart_name, String repo_name, String pro
     stage('Helm install') {
         sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.jenkinsBuildId=build-id-${build_id} --set psql.jenkinsStartBuildDateTime=${date_time} \
-        --set psql.jenkinsStartBuildUserName=${started_by_user} --namespace=${project_namespace} --devel --wait --wait-for-jobs"
+        --set psql.jenkinsStartBuildUserName=${started_by_user} --namespace=${project_namespace} --wait --wait-for-jobs"
     }
 }
 
