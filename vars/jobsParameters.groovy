@@ -203,6 +203,14 @@ def loadReference() {
     return _paramBoolean('load_reference', defaultTenant().loadReference, 'True if reference data should be applied')
 }
 
+def reindexElasticsearch() {
+    return _paramBoolean('reindex_elastic_search', true, 'True if need to reindex modules')
+}
+
+def recreateindexElasticsearch() {
+    return _paramBoolean('recreate_index_elastic_search', false, 'True if need to recreate index modules , default value: false')
+}
+
 def loadSample() {
     return _paramBoolean('load_sample', defaultTenant().loadSample, 'True if sample data should be applied')
 }
