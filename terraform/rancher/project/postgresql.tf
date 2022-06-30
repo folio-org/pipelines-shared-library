@@ -158,7 +158,7 @@ resource "rancher2_app" "pgadmin4" {
     ])
     "serverDefinitions.enabled"                                         = "true"
     "serverDefinitions.servers"                                         = jsonencode(
-       pg {
+       pg = {
         Name = "pg_folio",
         Group = "Servers",
         Port = 5432,
