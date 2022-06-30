@@ -158,15 +158,15 @@ resource "rancher2_app" "pgadmin4" {
     ])
     "serverDefinitions.enabled"                                         = "true"
     "serverDefinitions.servers"                                         = jsonencode({
-      "pg" : {
-        "Name" : "pg_folio",
-        "Group" : "Servers",
-        "Port" : 5432,
-        "Username" : var.pg_username,
-        "Host" : "postgresql",
-        "password" : var.pg_password,
-        "SSLMode" : "prefer",
-        "MaintenanceDB" : var.pg_dbname
+      "pg" = {
+        "Name" = "pg_folio",
+        "Group" = "Servers",
+        "Port" = 5432,
+        "Username" = var.pg_username,
+        "Host" = "postgresql",
+        "password" = var.pg_password,
+        "SSLMode" = "prefer",
+        "MaintenanceDB" = var.pg_dbname
       }
     })
   }
