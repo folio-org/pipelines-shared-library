@@ -157,7 +157,7 @@ resource "rancher2_app" "pgadmin4" {
       join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
     ])
     "serverDefinitions.enabled"                                         = "true"
-    "serverDefinitions.servers.pg"                                         = jsonencode([
+    "serverDefinitions.servers.pg"                                         = jsonencode(
       {
         "Name" = "pg_folio",
         "Group" = "Servers",
@@ -168,6 +168,6 @@ resource "rancher2_app" "pgadmin4" {
         "SSLMode" = "prefer",
         "MaintenanceDB" = var.pg_dbname
       }
-    ],)
+    )
   }
 }
