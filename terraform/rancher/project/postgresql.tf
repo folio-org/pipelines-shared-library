@@ -157,13 +157,13 @@ resource "rancher2_app" "pgadmin4" {
       join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
     ])
     "serverDefinitions.enabled"                                         = "true"
-    "serverDefinitions.servers.firstServer"                             = "pg"
-    "serverDefinitions.servers.pg.Name"                                 = "pg_folio"
-    "serverDefinitions.servers.pg.username"                             = var.pg_username
-    "serverDefinitions.servers.pg.host"                                 = "postgresql"
-    "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
-    "serverDefinitions.servers.pg.password"                             = var.pg_password
-    "serverDefinitions.servers.pg.port"                                 = "5432"
+    "serverDefinitions.servers.pg"                                      = jsonencode(map("name","pg_folio","host","postgresql","MaintenanceDB", var.pg_dbname,"port", "5432", "password", var.pg_password, "username", var.pg_username))
+#    "serverDefinitions.servers.pg.Name"                                 = "pg_folio"
+#    "serverDefinitions.servers.pg.username"                             = var.pg_username
+#    "serverDefinitions.servers.pg.host"                                 = "postgresql"
+#    "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
+#    "serverDefinitions.servers.pg.password"                             = var.pg_password
+#    "serverDefinitions.servers.pg.port"                                 = "5432"
 
   }
 }
