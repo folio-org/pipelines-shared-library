@@ -164,5 +164,6 @@ resource "rancher2_app" "pgadmin4" {
     "serverDefinitions.servers.pg.Host"                                 = "postgresql"
     "serverDefinitions.servers.pg.SSLMode"                              = "prefer"
     "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
+    "serverDefinitions.servers.pg.Password"                             = var.pg_password
   }
 }
