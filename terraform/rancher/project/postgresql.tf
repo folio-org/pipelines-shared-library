@@ -130,14 +130,15 @@ module "rds" {
 
 # Create a new rancher2 PgAdmin4 App in a default Project namespace
 resource "rancher2_app" "pgadmin4" {
+  count       = var.pgadmin4 ? 1 : 0
   project_id       = rancher2_project.this.id
   target_namespace = rancher2_namespace.this.name
-  catalog_name = join(":", [
-    element(split(":", rancher2_project.this.id), 1), rancher2_catalog.folio-charts.name
-  ])
+  catalog_name     = "runix"
   name          = "pgadmin4"
   description   = "PgAdmin app"
   template_name = "pgadmin4"
+  template_version = "1.10.1"
+
   answers = {
     "env.email"                                                  = var.pgadmin_username
     "env.password"                                               = var.pgadmin_password
@@ -150,9 +151,18 @@ resource "rancher2_app" "pgadmin4" {
     ])
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
     "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
-    "ingress.hosts[0].paths[0]"                                         = "/*"
+    "ingress.hosts[0].paths[0].path"                                         = "/*"
+    "ingress.hosts[0].paths[0].pathType"                                    = "ImplementationSpecific"
     "ingress.hosts[0].host" = join(".", [
       join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
     ])
+    "serverDefinitions.enabled"                                         = "true"
+    "serverDefinitions.servers.pg.Name"                                 = "pg_folio"
+    "serverDefinitions.servers.pg.Group"                                = "Servers"
+    "serverDefinitions.servers.pg.Port"                                 = "5432"
+    "serverDefinitions.servers.pg.Username"                             = var.pg_username
+    "serverDefinitions.servers.pg.Host"                                 = "postgresql"
+    "serverDefinitions.servers.pg.SSLMode"                              = "prefer"
+    "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
   }
 }
