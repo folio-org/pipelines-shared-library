@@ -10,11 +10,10 @@ def configureHelm(String repo_name, String repo_url) {
     }
 }
 //--version ${chart_version}
-def helmInstall(String build_id, String chart_name, String repo_name, String project_namespace, String started_by_user, String date_time, String chart_version) {
+def helmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String db_backup_name) {
     stage('Helm install') {
         sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --set psql.projectNamespace=${project_namespace} \
-        --set psql.jenkinsBuildId=build-id-${build_id} --set psql.jenkinsStartBuildDateTime=${date_time} \
-        --set psql.jenkinsStartBuildUserName=${started_by_user} --devel --namespace=${project_namespace} --wait --wait-for-jobs"
+        --set psql.jenkinsDbBackupName=${db_backup_name} --devel --namespace=${project_namespace} --wait --wait-for-jobs"
     }
 }
 
