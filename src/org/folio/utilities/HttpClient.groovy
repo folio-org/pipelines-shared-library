@@ -33,6 +33,14 @@ class HttpClient {
             validResponseCodes: "100:599"
     }
 
+    void deleteRequest(String url, String body, ArrayList headers = []) {
+        steps.httpRequest url: url,
+            httpMode: "DELETE",
+            customHeaders: headers,
+            requestBody: body,
+            validResponseCodes: "100:599"
+    }
+
     void uploadRequest(String url, String filePath, ArrayList headers = []) {
         steps.httpRequest url: url,
             httpMode: "POST",

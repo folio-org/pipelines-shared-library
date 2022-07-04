@@ -1,6 +1,7 @@
 package org.folio.rest
 
 
+import hudson.AbortException
 import org.folio.rest.model.Email
 import org.folio.rest.model.GeneralParameters
 import org.folio.rest.model.OkapiTenant
@@ -67,5 +68,18 @@ class Deployment extends GeneralParameters {
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
         tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reindex_elastic_search, recreate_index_elastic_search)
 
+    }
+    void update() {
+        if (tenant) {
+            enableList = gitHubUtility.buildEnableList(repository, branch)
+            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
+            okapi.cleanupServicesRegistration()
+            okapi.publishModuleDescriptors(enableList)
+            okapi.registerServices(discoveryList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+        }  else {
+            throw new AbortException('Tenant not set')
+        }
     }
 }
