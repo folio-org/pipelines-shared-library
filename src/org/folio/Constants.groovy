@@ -17,6 +17,7 @@ class Constants {
     static String AWS_S3_SERVICE_ACCOUNT_ID = "ci-s3-service-account"
     static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
+    static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
@@ -24,6 +25,7 @@ class Constants {
 
     static String NEXUS_PUBLISH_CREDENTIALS_ID = "jenkins-nexus"
     static String FOLIO_HELM_REPOSITORY_URL = "https://repository.folio.org/repository/helm-hosted/"
+    static String FOLIO_HELM_REPOSITORY_NAME = "helm-hosted"
 
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
     static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
@@ -35,6 +37,11 @@ class Constants {
     static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
+
+    static String PSQL_DUMP_DOCKER_CLIENT = "alpine/k8s:1.22.9"
+    static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
+    static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.0-RANCHER-313-20220704094028"
+    static String RANCHER_CLUSTERS_DEFAULT_REGION = "us-west-2"
 
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
                                     "concorde"     : ["concorde"],
