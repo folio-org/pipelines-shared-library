@@ -4,9 +4,21 @@ variable "aws_region" {
   description = "Rancher AWS region for S3 buckets"
 }
 
+variable "admin_users" {
+  type        = string
+  default     = ""
+  description = "Comma separated list of admin users"
+}
+
+variable "register_in_rancher" {
+  type        = bool
+  default     = true
+  description = "True if eks cluster should be registered in Rancher"
+}
+
 variable "rancher_server_url" {
   type        = string
-  default     = "https://rancher.dev.folio.org/v3"
+  default     = "https://rancher.ci.folio.org/v3"
   description = "Rancher server URL"
 }
 

@@ -1,11 +1,11 @@
-```
+```shell
 $ terraform init
 $ terraform workspace list
 $ terraform workspace select <cluster-name>-<project-name> or terraform workspace new <cluster-name>-<project-name>
 $ terraform state pull
 ```
 
-```
+```shell
 $ terraform plan \
   -input=false \
   -out tfplan \
@@ -16,7 +16,7 @@ $ terraform plan \
 $ terraform apply -input=false tfplan
 ```
 
-```
+```shell
 $ terraform destroy \
   -auto-approve \
   -var frontend_image_tag=<image> \

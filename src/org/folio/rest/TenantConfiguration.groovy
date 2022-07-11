@@ -123,6 +123,9 @@ class TenantConfiguration extends GeneralParameters {
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
                 logger.info("Template ${it} succesfully applied")
+            }
+            if else (res.status == 422) {
+                logger.warning("Configuration already presented" + http.buildHttpErrorMessage(res))
             } else {
                 throw new AbortException("Template ${it} can not be applied" + http.buildHttpErrorMessage(res))
             }
