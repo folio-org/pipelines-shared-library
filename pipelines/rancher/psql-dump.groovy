@@ -44,7 +44,7 @@ ansiColor('xterm') {
                     psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.FOLIO_HELM_REPOSITORY_URL)
                     try {
                         if (params.restore_postgresql_from_backup == false) {
-                            psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, db_backup_name)
+                            psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name)
                             psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                             println("\n\n\n")
                             println("\033[32m" + "PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
