@@ -19,7 +19,7 @@ def date_time = LocalDateTime.now().toString()
 String started_by_user = "volodymyr-kartsev"
 //String db_backup_name = "backup_${date_time}-${started_by_user}.pgdump"
 String db_backup_name = params.restore_postgresql_from_backup ? params.restorePostgresqlBackupName : "backup_${date_time}-${started_by_user}.psql"
-//String db_backup_name2 = restore_postgresql_from_backup ? true : false
+String db_backup_name2 = params.restore_postgresql_from_backup ? true : false
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -43,10 +43,9 @@ ansiColor('xterm') {
                 docker.image(Constants.PSQL_DUMP_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     psqlDumpMethods.configureKubectl(Constants.RANCHER_CLUSTERS_DEFAULT_REGION, params.rancher_cluster_name)
                     psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.FOLIO_HELM_REPOSITORY_URL)
-                    println(jobsParameters.restorePostgresqlFromBackup())
-                    println(params.restore_postgresql_from_backup)
+                    println(db_backup_name2)
                     try {
-                        if (params.restore_postgresql_from_backup == false) {
+                        if (db_backup_name2 == false) {
                             psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name)
                             psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                             println("\n\n\n")
