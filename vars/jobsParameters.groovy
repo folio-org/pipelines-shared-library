@@ -234,3 +234,11 @@ def frontendImageTag() {
 def okapiVersion() {
     return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), '(Required) Choose Okapi version')
 }
+
+def restorePostgresqlFromBackup() {
+    return _paramBoolean('restore_postgresql_from_backup', false, 'Restore PostgreSQL from backup')
+}
+
+def restorePostgresqlBackupName() {
+    return _paramString('restore_postgresql_backup_name', '', 'Restore PostgreSQL from backup')
+}

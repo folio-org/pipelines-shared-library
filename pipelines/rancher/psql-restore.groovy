@@ -33,6 +33,8 @@ properties([
         jobsParameters.loadSample(),
         jobsParameters.pgPassword(),
         jobsParameters.pgAdminPassword(),
+        jobsParameters.restorePostgresqlFromBackup(),
+        jobsParameters.restorePostgresqlBackupName(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         booleanParam(name: 'pg_embedded', defaultValue: true, description: 'Embedded PostgreSQL or AWS RDS'),
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
@@ -123,29 +125,33 @@ ansiColor('xterm') {
                     terraform.tfWorkspaceSelect(tfWorkDir, "${params.rancher_cluster_name}-${params.rancher_project_name}")
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
-                        terraform.tfPlan(tfWorkDir, tfVars)
-                        terraform.tfApply(tfWorkDir)
-                        stage('Restore DB') {
-                            if (params.action == 'apply') {
+                        if (params.restore_postgresql_from_backup == 'true'){
+                            stage('Restore DB') {
                                 build job: 'Rancher/volodymyr-workflow/RANCHER-319/Create-PosgreSQL-DB-backup',
                                     parameters: [
                                         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-                                        string(name: 'rancher_project_name', value: params.rancher_project_name)
+                                        string(name: 'rancher_project_name', value: params.rancher_project_name),
+                                        string(name: 'restore_postgresql_from_backup', value: params.restore_postgresql_from_backup),
+                                        string(name: 'restore_postgresql_backup_name', value: params.restore_postgresql_backup_name)
                                     ]
                             }
                         }
-                        /**Wait for dns flush*/
-                        sleep time: 5, unit: 'MINUTES'
-                        /**Check for dns */
-                        def health = okapiUrl + '/_/version'
-                        timeout(60) {
-                            waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
-                                try {
-                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
-                                    return true
-                                } catch (exception) {
-                                    println(exception.getMessage())
-                                    return false
+                        else {
+                            terraform.tfPlan(tfWorkDir, tfVars)
+                            terraform.tfApply(tfWorkDir)
+                            /**Wait for dns flush*/
+                            sleep time: 5, unit: 'MINUTES'
+                            /**Check for dns */
+                            def health = okapiUrl + '/_/version'
+                            timeout(60) {
+                                waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
+                                    try {
+                                        httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
+                                        return true
+                                    } catch (exception) {
+                                        println(exception.getMessage())
+                                        return false
+                                    }
                                 }
                             }
                         }
