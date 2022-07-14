@@ -127,7 +127,7 @@ ansiColor('xterm') {
                         terraform.tfApply(tfWorkDir)
                         stage('Restore DB') {
                             if (params.action == 'apply') {
-                                build job: 'Rancher/Create-PosgreSQL-DB-backup',
+                                build job: 'Rancher/volodymyr-workflow/RANCHER-319/Create-PosgreSQL-DB-backup',
                                     parameters: [
                                         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
                                         string(name: 'rancher_project_name', value: params.rancher_project_name)
