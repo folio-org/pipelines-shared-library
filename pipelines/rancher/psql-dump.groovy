@@ -15,7 +15,8 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().toString()
-String started_by_user = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
+//String started_by_user = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
+String started_by_user = "volodymyr-kartsev"
 String db_backup_name = "backup_${date_time}-${started_by_user}.pgdump"
 boolean backup = true
 
