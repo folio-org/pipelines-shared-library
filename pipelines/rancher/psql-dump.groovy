@@ -43,7 +43,7 @@ ansiColor('xterm') {
                 docker.image(Constants.PSQL_DUMP_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     psqlDumpMethods.configureKubectl(Constants.RANCHER_CLUSTERS_DEFAULT_REGION, params.rancher_cluster_name)
                     psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.FOLIO_HELM_REPOSITORY_URL)
-                    println(params.restore_postgresql_from_backup)
+                    println(jobsParameters.restorePostgresqlFromBackup())
                     try {
                         if (params.restore_postgresql_from_backup == false) {
                             psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name)
