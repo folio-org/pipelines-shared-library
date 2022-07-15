@@ -17,7 +17,7 @@ locals {
 
 # Rancher2 Project App Postgres
 resource "rancher2_app" "postgres" {
-  depends_on      = [rancher2_secret.s3-postgres-backups-credentials]
+  depends_on      = [rancher2_secret.s3-postgres-backups-credentials,rancher2_secret.db-connect-modules]
   count            = var.pg_embedded ? 1 : 0
   project_id       = rancher2_project.this.id
   target_namespace = rancher2_namespace.this.name
