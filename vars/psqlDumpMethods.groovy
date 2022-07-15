@@ -1,15 +1,3 @@
-def installKubectl() {
-    stage('Install kubectl') {
-        sh "curl -sLO https://storage.googleapis.com/kubernetes-release/release/v1.22.9/bin/linux/amd64/kubectl && mv kubectl /usr/bin/kubectl && chmod +x /usr/bin/kubectl"
-    }
-}
-
-def installHelm() {
-    stage('Install Helm') {
-        sh "apk add --update --no-cache curl ca-certificates && curl -sL https://get.helm.sh/helm-v3.9.0-linux-amd64.tar.gz | tar -xvz && mv linux-amd64/helm /usr/bin/helm && chmod +x /usr/bin/helm && rm -rf linux-amd64"
-    }
-}
-
 def configureKubectl(String region, String cluster_name) {
     stage('Configure kubectl') {
         sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name} > /dev/null"

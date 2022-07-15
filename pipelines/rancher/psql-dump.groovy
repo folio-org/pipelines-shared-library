@@ -17,7 +17,7 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().toString()
-String started_by_user = params.restore_postgresql_from_backup ? 'started_by_another_pipeline' : currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
+String started_by_user = params.restore_postgresql_from_backup ? '' : currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
 String db_backup_name = params.restore_postgresql_from_backup ? params.restore_postgresql_backup_name : "backup_${date_time}-${started_by_user}.psql"
 
 ansiColor('xterm') {
