@@ -240,5 +240,5 @@ def restorePostgresqlFromBackup() {
 }
 
 def restorePostgresqlBackupName() {
-    return _paramString('restore_postgresql_backup_name', '', '[WIP] Provide full path/name of DB backup placed in folio-postgresql-backups (e.g. folio-scratch/unam/default-backup.psql)')
+    return _paramString('restore_postgresql_backup_name', '', '[WIP] Provide full path/name of DB backup placed in folio-postgresql-backups (e.g. folio-scratch/unam/default-backup.psql) [WIP]')
 }
