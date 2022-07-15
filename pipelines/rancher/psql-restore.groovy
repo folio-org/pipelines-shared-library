@@ -131,7 +131,7 @@ ansiColor('xterm') {
                                     parameters: [
                                         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
                                         string(name: 'rancher_project_name', value: params.rancher_project_name),
-                                        string(name: 'restore_postgresql_from_backup', value: boolean.toString(params.restore_postgresql_from_backup)),
+                                        string(name: 'restore_postgresql_from_backup', value: params.restore_postgresql_from_backup),
                                         string(name: 'restore_postgresql_backup_name', value: params.restore_postgresql_backup_name)
                                     ]
                             }
