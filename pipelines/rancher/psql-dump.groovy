@@ -21,7 +21,7 @@ def date_time = LocalDateTime.now().toString()
 //String started_by_user = "volodymyr-kartsev"
 //String db_backup_name = "backup_${date_time}-${started_by_user}.pgdump"
 //boolean db_backup_name2 = params.restore_postgresql_from_backup ? true : false
-String db_backup_name = params.restore_postgresql_from_backup ? params.restorePostgresqlBackupName : "backup_${date_time}.psql"
+String db_backup_name = params.restore_postgresql_from_backup ? params.restore_postgresql_backup_name : "backup_${date_time}.psql"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
