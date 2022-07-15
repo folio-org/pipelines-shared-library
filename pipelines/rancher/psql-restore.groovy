@@ -126,6 +126,8 @@ ansiColor('xterm') {
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
                         if (params.restore_postgresql_from_backup == true){
+                            terraform.tfPostgreSQLPlan(tfWorkDir, tfVars)
+                            terraform.tfPostgreSQLApply(tfWorkDir)
                             stage('Restore DB') {
                                 build job: 'Rancher/volodymyr-workflow/RANCHER-319/Create-PosgreSQL-DB-backup',
                                     parameters: [

@@ -22,6 +22,22 @@ def tfApply(String path) {
     }
 }
 
+def tfPostgreSQLPlan(String path, String opts) {
+    stage('TF plan') {
+        dir(path) {
+            sh "terraform plan -target=rancher2_app.postgres -out tfplan ${opts}"
+        }
+    }
+}
+
+def tfPostgreSQLApply(String path) {
+    stage('TF apply') {
+        dir(path) {
+            sh 'terraform apply -input=false tfplan'
+        }
+    }
+}
+
 def tfDestroy(String path, String opts) {
     stage('TF destroy') {
         dir(path) {
