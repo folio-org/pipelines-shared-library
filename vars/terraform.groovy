@@ -25,7 +25,7 @@ def tfApply(String path) {
 def tfPostgreSQLPlan(String path, String opts) {
     stage('TF plan') {
         dir(path) {
-            sh "terraform plan -target=rancher2_app.postgres -out tfplan ${opts}"
+            sh "terraform plan -target=rancher2_app_v2.postgresql -out tfplan ${opts}"
         }
     }
 }
