@@ -236,7 +236,7 @@ def okapiVersion() {
 }
 
 def restorePostgresqlFromBackup() {
-    return _paramBoolean('restore_postgresql_from_backup', false, 'Restore PostgreSQL from backup')
+    return _paramString('restore_postgresql_from_backup', false, 'Restore PostgreSQL from backup')
 }
 
 def restorePostgresqlBackupName() {
