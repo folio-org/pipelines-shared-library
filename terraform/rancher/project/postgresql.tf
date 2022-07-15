@@ -16,40 +16,50 @@ locals {
 }
 
 # Rancher2 Project App Postgres
-resource "rancher2_app" "postgres" {
+resource "rancher2_app_v2" "postgresql" {
   depends_on      = [rancher2_secret.s3-postgres-backups-credentials,rancher2_secret.db-connect-modules]
-  count            = var.pg_embedded ? 1 : 0
-  project_id       = rancher2_project.this.id
-  target_namespace = rancher2_namespace.this.name
-  catalog_name     = "bitnami"
-  name             = "postgresql"
-  template_name    = "postgresql"
-  template_version = "11.0.8"
-  answers = {
-    "image.tag"                                  = join(".", [var.pg_version, "0"])
-    "auth.database"                              = var.pg_dbname
-    "auth.postgresPassword"                      = var.pg_password
-    "primary.persistence.enabled"                = "true"
-    "primary.persistence.size"                   = "20Gi"
-    "primary.persistence.storageClass"           = "gp2"
-    "primary.resources.limits.cpu"               = "1000m"
-    "primary.resources.limits.memory"            = "3072Mi"
-    "primary.resources.requests.cpu"             = "1000m"
-    "primary.resources.requests.memory"          = "2048Mi"
-    "primary.podSecurityContext.fsGroup"         = "1001"
-    "primary.containerSecurityContext.runAsUser" = "1001"
-    "primary.extendedConfiguration"              = <<-EOT
-      shared_buffers = '2048MB'
-      max_connections = '1000'
-      listen_addresses = '0.0.0.0'
-    EOT
-    "volumePermissions.enabled"                  = "true"
-  }
+  count         = var.pg_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "postgresql"
+  repo_name     = "bitnami"
+  chart_name    = "postgresql"
+  chart_version = "11.0.8"
+  force_upgrade = "true"
+  values        = <<-EOT
+    image:
+      tag: ${join(".", [var.pg_version, "0"])}
+    auth:
+      database: ${var.pg_dbname}
+      postgresPassword: ${var.pg_password}
+    primary:
+      persistence:
+        enabled: true
+        size: 20Gi
+        storageClass: gp2
+      resources:
+        requests:
+          cpu: 1000m
+          memory: 2048Mi
+        limits:
+          cpu: 1000m
+          memory: 3072Mi
+      podSecurityContext:
+        fsGroup: 1001
+      containerSecurityContext:
+        runAsUser: 1001
+      extendedConfiguration: |-
+        shared_buffers = '2048MB'
+        max_connections = '1000'
+        listen_addresses = '0.0.0.0'
+    volumePermissions:
+      enabled: true
+  EOT
 }
 
 # Delay for db initialization
 resource "time_sleep" "wait_for_db" {
-  depends_on      = [rancher2_app.postgres]
+  depends_on      = [rancher2_app_v2.postgresql]
   create_duration = "30s"
 }
 
@@ -130,40 +140,44 @@ module "rds" {
 }
 
 # Create a new rancher2 PgAdmin4 App in a default Project namespace
-resource "rancher2_app" "pgadmin4" {
-  count       = var.pgadmin4 ? 1 : 0
-  project_id       = rancher2_project.this.id
-  target_namespace = rancher2_namespace.this.name
-  catalog_name     = "runix"
+resource "rancher2_app_v2" "pgadmin4" {
+  count            = var.pgadmin4 ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
   name          = "pgadmin4"
-  description   = "PgAdmin app"
-  template_name = "pgadmin4"
-  template_version = "1.10.1"
-
-  answers = {
-    "env.email"                                                  = var.pgadmin_username
-    "env.password"                                               = var.pgadmin_password
-    "service.type"                                               = "NodePort"
-    "ingress.enabled"                                            = "true"
-    "ingress.annotations.kubernetes\\.io/ingress\\.class"        = "alb"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme" = "internet-facing"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/group\\.name" = join(".", [
-      data.rancher2_cluster.this.name, rancher2_project.this.name
-    ])
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/listen-ports"  = "[{\"HTTPS\":443}]"
-    "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/success-codes" = "200-399"
-    "ingress.hosts[0].paths[0].path"                                         = "/*"
-    "ingress.hosts[0].paths[0].pathType"                                    = "ImplementationSpecific"
-    "ingress.hosts[0].host" = join(".", [
-      join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "pgadmin"]), var.root_domain
-    ])
-    "serverDefinitions.enabled"                                         = "true"
-    "serverDefinitions.servers.pg.Name"                                 = "pg_folio"
-    "serverDefinitions.servers.pg.Group"                                = "Servers"
-    "serverDefinitions.servers.pg.Port"                                 = "5432"
-    "serverDefinitions.servers.pg.Username"                             = var.pg_username
-    "serverDefinitions.servers.pg.Host"                                 = "postgresql"
-    "serverDefinitions.servers.pg.SSLMode"                              = "prefer"
-    "serverDefinitions.servers.pg.MaintenanceDB"                        = var.pg_dbname
-  }
+  repo_name     = "runix"
+  chart_name    = "pgadmin4"
+  chart_version = "1.10.1"
+  force_upgrade = "true"
+  values        = <<-EOT
+    env:
+      email: ${var.pgadmin_username}
+      password: ${var.pgadmin_password}
+    service:
+      type: NodePort
+    ingress:
+      hosts:
+        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pgadmin"]), var.root_domain])}
+          paths:
+            - path: /*
+              pathType: ImplementationSpecific
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+    serverDefinitions:
+      enabled: true
+      servers:
+        pg:
+          Name: ${var.rancher_project_name}
+          Group: Servers
+          Port: 5432
+          Username: ${var.pg_embedded ? var.pg_username : module.rds.this_rds_cluster_master_username}
+          Host: ${var.pg_embedded ? "postgresql" : module.rds.this_rds_cluster_endpoint}
+          SSLMode: prefer
+          MaintenanceDB: ${var.pg_dbname}
+  EOT
 }

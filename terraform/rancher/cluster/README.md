@@ -1,10 +1,20 @@
-```bash
-$ terraform init \
-  -reconfigure \
-  -backend-config=backends/config.folio-testing.backend
+```shell
+$ terraform init
+$ terraform workspace list
+$ terraform workspace select <cluster-name> or terraform workspace new <cluster-name>
+$ terraform state pull
 ```
 
+```shell
+$ terraform plan \
+  -input=false \
+  -out tfplan
+$ terraform apply -input=false tfplan
+```
 
-terraform plan -input=false -out tfplan
+```shell
+$ terraform destroy \
+  -auto-approve
+```
 
-terraform apply -input=false tfplan
+[//]: # (TODO: update README with variables description )

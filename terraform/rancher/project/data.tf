@@ -39,12 +39,12 @@ data "http" "install" {
 }
 
 locals {
-  env_name          = join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name])
-  group_name        = join(".", [data.rancher2_cluster.this.name, rancher2_project.this.name])
-  frontend_url      = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name]), var.root_domain])
-  okapi_url         = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "okapi"]), var.root_domain])
-  minio_url         = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "minio"]), var.root_domain])
-  minio_console_url = join(".", [join("-", [data.rancher2_cluster.this.name, rancher2_project.this.name, "minio-console"]), var.root_domain])
+  env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
+  group_name        = join(".", [data.rancher2_cluster.this.name, var.rancher_project_name])
+  frontend_url      = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name]), var.root_domain])
+  okapi_url         = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "okapi"]), var.root_domain])
+  minio_url         = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "minio"]), var.root_domain])
+  minio_console_url = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "minio-console"]), var.root_domain])
   github_url        = "https://raw.githubusercontent.com/folio-org"
   install_json_url  = join("/", [local.github_url, var.repository, var.branch, "install.json"])
 
@@ -52,7 +52,7 @@ locals {
 
   modules_list = var.install_json != "" ? jsondecode(var.install_json)[*]["id"] : jsondecode(data.http.install.body)[*]["id"]
 
-  folio_helm_catalog_name = join(":", [element(split(":", rancher2_project.this.id), 1), rancher2_catalog.folio-charts.name])
+  folio_helm_repo_name = "folio-helm"
 
   db_snapshot_arn = "arn:aws:rds:${var.aws_region}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:${var.pg_rds_snapshot_name}"
 
