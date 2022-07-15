@@ -11,7 +11,8 @@ properties([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
-        jobsParameters.restorePostgresqlFromBackup()
+        jobsParameters.restorePostgresqlFromBackup(),
+        jobsParameters.restorePostgresqlBackupName()
     ])
 ])
 
