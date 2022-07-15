@@ -125,7 +125,7 @@ ansiColor('xterm') {
                     terraform.tfWorkspaceSelect(tfWorkDir, "${params.rancher_cluster_name}-${params.rancher_project_name}")
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
-                        if (params.restore_postgresql_from_backup == true){
+                        if (params.restore_postgresql_from_backup == true) {
                             terraform.tfPostgreSQLPlan(tfWorkDir, tfVars)
                             terraform.tfPostgreSQLApply(tfWorkDir)
                             stage('Restore DB') {
@@ -138,22 +138,20 @@ ansiColor('xterm') {
                                     ]
                             }
                         }
-                        else {
-                            terraform.tfPlan(tfWorkDir, tfVars)
-                            terraform.tfApply(tfWorkDir)
-                            /**Wait for dns flush*/
-                            sleep time: 5, unit: 'MINUTES'
-                            /**Check for dns */
-                            def health = okapiUrl + '/_/version'
-                            timeout(60) {
-                                waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
-                                    try {
-                                        httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
-                                        return true
-                                    } catch (exception) {
-                                        println(exception.getMessage())
-                                        return false
-                                    }
+                        terraform.tfPlan(tfWorkDir, tfVars)
+                        terraform.tfApply(tfWorkDir)
+                        /**Wait for dns flush*/
+                        sleep time: 5, unit: 'MINUTES'
+                        /**Check for dns */
+                        def health = okapiUrl + '/_/version'
+                        timeout(60) {
+                            waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
+                                try {
+                                    httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: health, validResponseCodes: '200,403'
+                                    return true
+                                } catch (exception) {
+                                    println(exception.getMessage())
+                                    return false
                                 }
                             }
                         }
