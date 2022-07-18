@@ -49,10 +49,6 @@ resource "rancher2_app_v2" "elasticsearch" {
         initialDelaySeconds: 360
     plugins: "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
   EOT
-  timeouts {
-    create = "15m"
-    update = "15m"
-  }
 }
 
 resource "random_password" "es_password" {
