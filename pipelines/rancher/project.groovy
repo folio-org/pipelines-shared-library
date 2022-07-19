@@ -127,8 +127,7 @@ ansiColor('xterm') {
                     if (params.action == 'apply') {
                         if (params.restore_postgresql_from_backup == true) {
                             if (!params.restore_postgresql_backup_name?.trim()) {
-                                println("\033[1;31m" + "PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n" + "\033[0m")
-                                throw exception
+                                throw new Exception("\n\n\n" + "\033[1;31m" + "PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n" + "\033[0m")
                             }
                             terraform.tfPostgreSQLPlan(tfWorkDir, tfVars)
                             terraform.tfPostgreSQLApply(tfWorkDir)
