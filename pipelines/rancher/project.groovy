@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-319') _
+@Library('pipelines-shared-library@RANCHER-319-v2') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -34,8 +34,6 @@ properties([
         jobsParameters.pgPassword(),
         jobsParameters.pgAdminPassword(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
-        jobsParameters.restorePostgresqlFromBackup(),
-        jobsParameters.restorePostgresqlBackupName(),
         booleanParam(name: 'pg_embedded', defaultValue: true, description: 'Embedded PostgreSQL or AWS RDS'),
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
@@ -125,19 +123,6 @@ ansiColor('xterm') {
                     terraform.tfWorkspaceSelect(tfWorkDir, "${params.rancher_cluster_name}-${params.rancher_project_name}")
                     terraform.tfStatePull(tfWorkDir)
                     if (params.action == 'apply') {
-                        if (params.restore_postgresql_from_backup == true) {
-                            terraform.tfPostgreSQLPlan(tfWorkDir, tfVars)
-                            terraform.tfPostgreSQLApply(tfWorkDir)
-                            stage('Restore DB') {
-                                build job: 'Rancher/volodymyr-workflow/RANCHER-319/Create-PosgreSQL-DB-backup',
-                                    parameters: [
-                                        string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-                                        string(name: 'rancher_project_name', value: params.rancher_project_name),
-                                        booleanParam(name: 'restore_postgresql_from_backup', value: params.restore_postgresql_from_backup),
-                                        string(name: 'restore_postgresql_backup_name', value: params.restore_postgresql_backup_name)
-                                    ]
-                            }
-                        }
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
                         /**Wait for dns flush*/

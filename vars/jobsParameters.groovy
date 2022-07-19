@@ -236,9 +236,9 @@ def okapiVersion() {
 }
 
 def restorePostgresqlFromBackup() {
-    return _paramBoolean('restore_postgresql_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL from backup')
+    return _paramBoolean('restore_postgresql_from_backup', false, '[WIP] Turn on the option if you would like to restore PostgreSQL from backup [WIP]')
 }
 
 def restorePostgresqlBackupName() {
-    return _paramString('restore_postgresql_backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-scratch/unam/default-backup.psql)')
+    return _paramString('restore_postgresql_backup_name', '', '[WIP] Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-scratch/unam/default-backup.psql) [WIP]')
 }
