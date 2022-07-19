@@ -46,21 +46,18 @@ ansiColor('xterm') {
                         if (params.restore_postgresql_from_backup == false) {
                             psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name)
                             psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
-                            println("\n\n\n")
-                            println("\033[32m" + "PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
+                            println("\n\n\n" + "\033[32m" + "PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
                                 "${params.rancher_cluster_name}/${params.rancher_project_name}/${db_backup_name}" + "\n\n\n" + "\033[0m")
                         }
                         else {
                             psqlDumpMethods.restoreHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_REPOSITORY_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, db_backup_name)
                             psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
-                            println("\n\n\n")
-                            println("\033[32m" + "PostgreSQL restore process SUCCESSFULLY COMPLETED\n" + "\n\n\n" + "\033[0m")
+                            println("\n\n\n" + "\033[32m" + "PostgreSQL restore process SUCCESSFULLY COMPLETED\n" + "\n\n\n" + "\033[0m")
                         }
                     }
                     catch (exception) {
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
-                        println("\n\n\n")
-                        println("\033[1;31m" + "PostgreSQL backup process was FAILED!!!\nPlease, check logs and try again.\n\n\n" + "\033[0m")
+                        println("\n\n\n" + "\033[1;31m" + "PostgreSQL backup/restore process was FAILED!!!\nPlease, check logs and try again.\n\n\n" + "\033[0m")
                         throw exception
                     }
                 }
