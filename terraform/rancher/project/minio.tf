@@ -57,7 +57,7 @@ resource "rancher2_app_v2" "minio" {
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/group.name: ${local.group_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-        alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/success-codes: '200-403'
         alb.ingress.kubernetes.io/healthcheck-path: /
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
   EOT
