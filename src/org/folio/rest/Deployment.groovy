@@ -61,8 +61,9 @@ class Deployment extends GeneralParameters {
         discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
         okapi.publishModuleDescriptors(enableList)
         okapi.registerServices(discoveryList)
-        okapi.secure(super_admin)
-        okapi.secure(testing_admin)
+        /*Temporary disabled due to bug with okapi https://issues.folio.org/browse/OKAPI-1112*/
+//        okapi.secure(super_admin)
+//        okapi.secure(testing_admin)
 
 
         def tenantService = new TenantService(steps, okapiUrl, super_admin)
