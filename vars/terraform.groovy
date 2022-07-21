@@ -14,6 +14,14 @@ def tfPlan(String path, String opts) {
     }
 }
 
+def tfRefresh(String path, String opts) {
+    stage('TF refresh') {
+        dir(path) {
+            sh "terraform refresh ${opts}"
+        }
+    }
+}
+
 def tfApply(String path) {
     stage('TF apply') {
         dir(path) {
