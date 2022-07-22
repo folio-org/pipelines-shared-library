@@ -5,7 +5,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
-    buildDiscarder(logRotator(numToKeepStr: '20')),
+    buildDiscarder(logRotator(numToKeepStr: '40')),
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
