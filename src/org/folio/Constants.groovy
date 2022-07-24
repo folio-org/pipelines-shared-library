@@ -5,6 +5,10 @@ import org.folio.rest.model.OkapiUser
 class Constants {
 
     static String AWS_ADMIN_USERS = "oleksandrhaimanov,dariapavlova,volodymyrkartsev,vasilikapylou,tarasspashchenko"
+    static String AWS_CREDENTIALS_ID = "stanislav_test"
+    static String AWS_S3_SERVICE_ACCOUNT_ID = "ci-s3-service-account"
+    static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
+    static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
     static String FOLIO_ORG = "folio-org"
     static String FOLIO_GITHUB_URL = "https://github.com/folio-org"
@@ -14,12 +18,10 @@ class Constants {
     static String GITHUB_CREDENTIALS_ID = "11657186-f4d4-4099-ab72-2a32e023cced"
     static String PRIVATE_GITHUB_CREDENTIALS_ID = "id-jenkins-github-personal-token-with-username"
     static String JIRA_CREDENTIALS_ID = "jenkins-jira"
-    static String AWS_CREDENTIALS_ID = "stanislav_test"
+
     static String RANCHER_TOKEN_ID = "rancher_token_v2"
-    static String AWS_S3_SERVICE_ACCOUNT_ID = "ci-s3-service-account"
-    static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
+
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
-    static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
@@ -35,6 +37,7 @@ class Constants {
     static String DOCKER_FOLIO_REPOSITORY = "docker-folio.dev.folio.org"
 
     static String JENKINS_MASTER_NODE = "master"
+    static String JENKINS_JOB_PROJECT = "/Rancher/Project"
 
     static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
 
