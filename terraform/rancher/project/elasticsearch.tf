@@ -24,7 +24,7 @@ resource "rancher2_app_v2" "elasticsearch" {
           cpu: 512m
           memory: 2048Mi
       livenessProbe:
-        initialDelaySeconds: 180
+        initialDelaySeconds: 360
     data:
       replicas: 1
       resources:
@@ -35,7 +35,7 @@ resource "rancher2_app_v2" "elasticsearch" {
           cpu: 512m
           memory: 2048Mi
       livenessProbe:
-        initialDelaySeconds: 180
+        initialDelaySeconds: 360
     master:
       replicas: 1
       resources:
@@ -46,7 +46,7 @@ resource "rancher2_app_v2" "elasticsearch" {
           cpu: 512m
           memory: 2048Mi
       livenessProbe:
-        initialDelaySeconds: 180
+        initialDelaySeconds: 360
     plugins: "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
   EOT
 }

@@ -234,3 +234,11 @@ def frontendImageTag() {
 def okapiVersion() {
     return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), '(Required) Choose Okapi version')
 }
+
+def restorePostgresqlFromBackup() {
+    return _paramBoolean('restore_postgresql_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL from backup')
+}
+
+def restorePostgresqlBackupName() {
+    return _paramString('restore_postgresql_backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-scratch/unam/default-backup.psql)')
+}
