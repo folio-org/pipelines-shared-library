@@ -21,5 +21,9 @@ terraform {
       source  = "hashicorp/http"
       version = "2.2.0"
     }
+#TODO: temporary workaround for GitHub issue https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2173
+    tls = {
+      version = "<4.0.0"
+    }
   }
 }

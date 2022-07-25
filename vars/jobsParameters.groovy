@@ -126,7 +126,7 @@ if (installJson.getResponseCode().equals(200)) {
         String repository = folio_branch.contains("snapshot") ? "folioci" : "folioorg"
         def dockerHub = new URL('https://hub.docker.com/v2/repositories/' + repository + '/okapi/tags?page_size=100&ordering=last_updated').openConnection()
         if (dockerHub.getResponseCode().equals(200)) {
-            return new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name
+            return new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name - 'latest'
         }
     }
 }
