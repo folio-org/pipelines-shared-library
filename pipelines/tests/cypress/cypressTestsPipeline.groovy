@@ -1,5 +1,3 @@
-package tests.cypress
-
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -15,7 +13,6 @@ return gettags.text.readLines().collect {
 
 def cypressImageVersion = "9.7.0"
 def allureVersion = "2.17.2"
-
 def browserName = "chrome"
 
 properties([
@@ -47,8 +44,11 @@ properties([
         password(name: 'password', defaultValue: "admin", description: 'User password'),
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
+        string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
     ])
 ])
+
+def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -57,6 +57,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    buildName customBuildName
                     sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                         checkout([
                             $class           : 'GitSCM',
@@ -106,7 +107,9 @@ pipeline {
             steps {
                 script {
                     ansiColor('xterm') {
-                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
+                        timeout(time: 4, unit: 'HOURS') {
+                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
+                        }
                     }
                 }
             }
