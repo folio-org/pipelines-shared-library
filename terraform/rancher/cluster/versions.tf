@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.16.0"
+      version = "4.24.0"
     }
     rancher2 = {
       source  = "rancher/rancher2"
@@ -15,15 +15,11 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.5.1"
+      version = "2.6.0"
     }
     http = {
       source  = "hashicorp/http"
       version = "2.2.0"
-    }
-#TODO: temporary workaround for GitHub issue https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2173
-    tls = {
-      version = "<4.0.0"
     }
   }
 }
