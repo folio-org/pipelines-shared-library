@@ -5,6 +5,7 @@ import hudson.AbortException
 import hudson.plugins.jira.model.JiraIssue
 import org.apache.http.HttpHeaders
 import org.folio.client.jira.model.*
+import org.folio.karate.KarateConstants
 
 import java.util.logging.Logger
 
@@ -126,11 +127,23 @@ class JiraClient {
         }
 
         if (transition) {
-            def content = """
-            {
-                "transition": "${transition.id}"
-            }"""
-
+            def content
+            if (status == KarateConstants.ISSUE_CLOSED_STATUS) {
+                content = """
+                    {
+                        "fields": {
+                            "resolution": {
+                              "name": "Done"
+                            }
+                        },
+                        "transition": "${transition.id}"
+                    }"""
+            } else {
+                content = """
+                    {
+                        "transition": "${transition.id}"
+                    }"""
+            }
             def response = postRequest("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_TRANSITIONS}", content)
             if (response.status > 300) {
                 throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
