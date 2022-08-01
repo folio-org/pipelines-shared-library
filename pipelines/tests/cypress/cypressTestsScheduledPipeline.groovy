@@ -1,5 +1,3 @@
-package tests.karate
-
 @Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
@@ -28,6 +26,10 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
+    triggers {
+        cron('H 0 * * 1-6')
+    }
+
     options {
         disableConcurrentBuilds()
     }
@@ -37,23 +39,25 @@ pipeline {
     }
 
     stages {
-        stage("Create environment") {
-            steps {
-                script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                        projectName, tenant, folio_repository, folio_branch)
-
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
+/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
+//        stage("Create environment") {
+//            steps {
+//                script {
+//                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+//                        projectName, tenant, folio_repository, folio_branch)
+//
+//                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//            }
+//        }
 
         stage("Run cypress tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [
@@ -73,16 +77,17 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-                stage("Destroy environment") {
-                    steps {
-                        script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                                projectName, tenant, folio_repository, folio_branch)
-
-                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
+/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
+//                stage("Destroy environment") {
+//                    steps {
+//                        script {
+//                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+//                                projectName, tenant, folio_repository, folio_branch)
+//
+//                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                        }
+//                    }
+//                }
                 stage("Collect test results") {
                     when {
                         expression {
@@ -117,19 +122,19 @@ pipeline {
                 }
             }
         }
-
-        stage("Set job execution result") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result != 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
-        }
+/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
+//        stage("Set job execution result") {
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result != 'SUCCESS'
+//                }
+//            }
+//            steps {
+//                script {
+//                    currentBuild.result = 'FAILURE'
+//                }
+//            }
+//        }
     }
 }
 
