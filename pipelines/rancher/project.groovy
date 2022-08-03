@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-199') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -35,6 +35,7 @@ properties([
         jobsParameters.pgAdminPassword(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
         jobsParameters.restorePostgresqlFromBackup(),
+        jobsParameters.tenantIdToRestoreModulesVersions(),
         jobsParameters.restorePostgresqlBackupName(),
         booleanParam(name: 'pg_embedded', defaultValue: true, description: 'Embedded PostgreSQL or AWS RDS'),
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
@@ -46,6 +47,8 @@ properties([
 
 String tfWorkDir = 'terraform/rancher/project'
 String tfVars = ''
+
+def saved_to_s3_install_json
 
 String frontendUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}.${Constants.CI_ROOT_DOMAIN}"
 String okapiUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}"
@@ -102,6 +105,8 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('es_embedded', params.es_embedded)
                 tfVars += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tfVars += terraform.generateTfVar('pgadmin4', params.pgadmin4)
+                tfVars += terraform.generateTfVar('restore_from_saved_s3_install_json', params.restore_postgresql_from_backup)
+                tfVars += terraform.generateTfVar('path_of_postgresql_backup', params.restore_postgresql_backup_name)
                 tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
             }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
@@ -127,15 +132,16 @@ ansiColor('xterm') {
                     if (params.action == 'apply') {
                         if (params.restore_postgresql_from_backup == true) {
                             if (!params.restore_postgresql_backup_name?.trim()) {
-                                throw new Exception("\n\n\n" + "\033[1;31m" + "You've tried to restore DB state from backup but didn't prove path/name of it.\nPlease, provide correct DB backup path/name and try again.\n\n\n" + "\033[0m")
+                                throw new Exception("\n\n\n" + "\033[1;31m" + "You've tried to restore DB state from backup but didn't provide path/name of it.\nPlease, provide correct DB backup path/name and try again.\n\n\n" + "\033[0m")
                             }
                             terraform.tfPostgreSQLPlan(tfWorkDir, tfVars)
                             terraform.tfPostgreSQLApply(tfWorkDir)
                             stage('Restore DB') {
-                                build job: 'Rancher/volodymyr-workflow/RANCHER-319/Create-PosgreSQL-DB-backup',
+                                build job: 'Rancher/Create-Restore-PosgreSQL-DB-backup',
                                     parameters: [
                                         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
                                         string(name: 'rancher_project_name', value: params.rancher_project_name),
+                                        string(name: 'tenant_id_to_backup_modules_versions', value: params.tenant_id_to_restore_modules_versions),
                                         booleanParam(name: 'restore_postgresql_from_backup', value: params.restore_postgresql_from_backup),
                                         string(name: 'restore_postgresql_backup_name', value: params.restore_postgresql_backup_name)
                                     ]
@@ -143,7 +149,8 @@ ansiColor('xterm') {
                         }
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
-                        /**Wait for dns flush*/
+                        saved_to_s3_install_json = terraform.tfOutput(tfWorkDir, "saved_to_s3_install_json")
+                        /**Wait for dns flush...*/
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
                         def health = okapiUrl + '/_/version'
@@ -165,8 +172,9 @@ ansiColor('xterm') {
             }
             if (params.enable_modules && (params.action == 'apply' || params.action == 'nothing')) {
                 stage('Okapi deployment') {
+                    def tenant_id = params.restore_postgresql_from_backup ? params.tenant_id_to_restore_modules_versions : params.tenant_id
                     OkapiTenant tenant = okapiSettings.tenant(
-                        tenantId: params.tenant_id,
+                        tenantId: tenant_id,
                         tenantName: params.tenant_name,
                         tenantDescription: params.tenant_description,
                         loadReference: params.load_reference,
@@ -186,9 +194,15 @@ ansiColor('xterm') {
                             email,
                             cypress_api_key_apidvcorp,
                             params.reindex_elastic_search,
-                            params.recreate_index_elastic_search
+                            params.recreate_index_elastic_search,
+                            saved_to_s3_install_json
                         )
-                        deployment.main()
+                        if (params.restore_postgresql_from_backup == true) {
+                            deployment.restoreFromBackup()
+                        }
+                        else {
+                            deployment.main()
+                        }
                     }
                 }
             }

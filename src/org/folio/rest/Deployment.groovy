@@ -35,13 +35,17 @@ class Deployment extends GeneralParameters {
 
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
+    private InstallCustomJsonsUtility installCustomJsonsUtility = new InstallCustomJsonsUtility(steps)
+
     private TenantService tenantService = new TenantService(steps, okapiUrl, super_admin)
 
     private boolean reindex_elastic_search
     private boolean recreate_index_elastic_search
 
+    def saved_to_s3_install_json
 
-    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
+
+    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search, saved_to_s3_install_json) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
         this.repository = repository
@@ -53,6 +57,7 @@ class Deployment extends GeneralParameters {
         this.tenant.setAdmin_user(admin_user)
         this.reindex_elastic_search = reindex_elastic_search
         this.recreate_index_elastic_search = recreate_index_elastic_search
+        this.saved_to_s3_install_json = saved_to_s3_install_json
 
     }
 
@@ -75,6 +80,15 @@ class Deployment extends GeneralParameters {
             okapi.cleanupServicesRegistration()
             okapi.publishModuleDescriptors(enableList)
             okapi.registerServices(discoveryList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+        }  else {
+            throw new AbortException('Tenant not set')
+        }
+    }
+    void restoreFromBackup() {
+        if (tenant) {
+            enableList = installCustomJsonsUtility.customBuildEnableList(saved_to_s3_install_json)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
         }  else {
