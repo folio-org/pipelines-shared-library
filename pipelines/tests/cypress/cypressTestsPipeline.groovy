@@ -45,6 +45,7 @@ properties([
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
+        string(name: 'timeout', defaultValue: "", description: 'Custom timeout for build in hours'),
     ])
 ])
 
@@ -107,7 +108,7 @@ pipeline {
             steps {
                 script {
                     ansiColor('xterm') {
-                        timeout(time: 4, unit: 'HOURS') {
+                        timeout(time: "${params.timeout}", unit: 'HOURS') {
                             sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
                         }
                     }
