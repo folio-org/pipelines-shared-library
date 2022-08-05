@@ -5,7 +5,7 @@ resource "helm_release" "alb_controller" {
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.4.0"
+  version    = "1.4.3"
   set {
     name  = "clusterName"
     value = terraform.workspace
@@ -35,19 +35,7 @@ resource "helm_release" "aws_ebs_csi" {
   namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
   chart      = "aws-ebs-csi-driver"
-  version    = "0.9.4"
-  set {
-    name  = "enableVolumeScheduling"
-    value = true
-  }
-  set {
-    name  = "enableVolumeResizing"
-    value = true
-  }
-  set {
-    name  = "enableVolumeSnapshot"
-    value = true
-  }
+  version    = "2.9.0"
   set {
     name  = "controller.region"
     value = var.aws_region
@@ -69,7 +57,7 @@ resource "helm_release" "external_dns" {
   namespace  = "kube-system"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "external-dns"
-  version    = "6.1.6"
+  version    = "6.7.2"
   set {
     name  = "rbac.create"
     value = true
@@ -114,7 +102,7 @@ resource "helm_release" "aws_cluster_autoscaler" {
   namespace  = "kube-system"
   repository = "https://kubernetes.github.io/autoscaler"
   chart      = "cluster-autoscaler"
-  version    = "9.17.2"
+  version    = "9.19.2"
   set {
     name  = "autoDiscovery.clusterName"
     value = terraform.workspace

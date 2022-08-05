@@ -4,6 +4,16 @@ variable "aws_region" {
   description = "Rancher AWS region for S3 buckets"
 }
 
+variable "aws_access_key_id" {
+  type        = string
+  description = "AWS Access Key ID"
+}
+
+variable "aws_secret_access_key" {
+  type        = string
+  description = "AWS Secret Access Key"
+}
+
 variable "admin_users" {
   type        = string
   default     = ""

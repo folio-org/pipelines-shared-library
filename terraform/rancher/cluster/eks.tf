@@ -29,7 +29,7 @@ locals {
 
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "18.24.1"
+  version = "18.26.6"
 
   cluster_name      = terraform.workspace
   cluster_version   = "1.21"
@@ -86,7 +86,7 @@ module "eks_cluster" {
 
   eks_managed_node_groups = {
     eks_node_group = {
-      name     = join("-", [terraform.workspace])
+      name     = terraform.workspace
       ami_type = "AL2_x86_64"
 
       capacity_type  = var.eks_nodes_type
