@@ -17,7 +17,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     triggers {
-        cron('H 0 * * 1-6')
+        cron('H 3 * * 1-5')
     }
 
     options {
