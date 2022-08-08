@@ -1,0 +1,59 @@
+edge-rtac:
+  permissions:
+  - rtac.all
+edge-oai-pmh:
+  tenants:
+  - tenant: test_oaipmh
+    username: test-user
+    password: test
+  permissions:
+  - oai-pmh.all
+edge-patron:
+  permissions:
+  - patron.all
+  - users.collection.get
+edge-orders:
+  tenants:
+  - tenant: test_edge_orders
+    username: test-user
+    password: test
+  permissions:
+  - gobi.all
+  - ebsconet.all
+edge-ncip:
+  permissions:
+  - ncip.all
+edge-dematic:
+  tenants:
+  - tenant: default
+    username: stagingDirector
+    firstName: stagingDirector
+    lastName: SYSTEM
+    password: default
+    create: true
+  permissions:
+  - remote-storage.all
+edge-caiasoft:
+  tenants:
+  - tenant: default
+    username: caiaSoftClient
+    firstName: caiaSoftClient
+    lastName: SYSTEM
+    password: default
+    create: true
+  permissions:
+  - remote-storage.all
+edge-inn-reach:
+  tenants:
+  - tenant: default
+    username: innreachClient
+    firstName: innreachClient
+    lastName: SYSTEM
+    password: default
+    create: true
+  permissions:
+  - inn-reach.all
+edge-connexion:
+  permissions:
+  - copycat.all
+edge-sip2: {}

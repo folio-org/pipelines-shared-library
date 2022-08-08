@@ -20,8 +20,8 @@ static HashMap defaultTenant() {
 }
 
 static ArrayList repositoriesList() {
-    return ['complete',
-            'core']
+    return ['platform-complete',
+            'platform-core']
 }
 
 static ArrayList rancherClustersList() {
@@ -92,7 +92,7 @@ static String generateProjectNamesMap() {
 
 static String getRepositoryBranches() {
     return '''import groovy.json.JsonSlurperClassic
-def get = new URL('https://api.github.com/repos/folio-org/platform-' + folio_repository + '/branches?per_page=100').openConnection()
+def get = new URL('https://api.github.com/repos/folio-org/' + folio_repository + '/branches?per_page=100').openConnection()
 if (get.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
@@ -117,7 +117,7 @@ return projectNamesList[rancher_cluster_name]
 
 static String getOkapiVersions() {
     return '''import groovy.json.JsonSlurperClassic
-def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
+def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
 if (installJson.getResponseCode().equals(200)) {
     String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
     if(okapi){
@@ -248,5 +248,5 @@ def tenantIdToBackupModulesVersions() {
 }
 
 def tenantIdToRestoreModulesVersions() {
-    return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
+    return _paramString('restore_tenant_id', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
 }

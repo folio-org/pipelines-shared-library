@@ -98,7 +98,7 @@ module "eks_cluster" {
       desired_size = var.eks_node_group_size.desired_size
 
       update_config = {
-        max_unavailable_percentage = 50
+        max_unavailable_percentage = 75
       }
     }
   }

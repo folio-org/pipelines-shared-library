@@ -1,3 +1,4 @@
+# General variables
 variable "aws_region" {
   type        = string
   default     = "us-west-2"
@@ -32,29 +33,6 @@ variable "rancher_project_name" {
   description = "Rancher project name"
 }
 
-#GitHub variables
-variable "repository" {
-  type        = string
-  description = "GitHub source repository with modules install JSON 'platform-core' or 'platform-complete'"
-  default     = "platform-complete"
-  validation {
-    condition     = can(regex("^(platform-core|platform-complete)$", var.repository))
-    error_message = "Wrong repository value! Possible values 'platform-core' or 'platform-complete'."
-  }
-}
-
-variable "branch" {
-  type        = string
-  default     = "snapshot"
-  description = "GitHub branch of source repository"
-}
-
-variable "install_json" {
-  type        = string
-  default     = ""
-  description = "Modules list in JSON string format"
-}
-
 variable "folio_docker_registry_username" {
   type        = string
   description = "Username for docker registry"
@@ -66,24 +44,10 @@ variable "folio_docker_registry_password" {
 }
 
 #Okapi variables
-variable "okapi_version" {
-  type        = string
-  description = "Okapi module version"
-}
-
 variable "tenant_id" {
   type        = string
   default     = "diku"
   description = "Default tenant id"
-}
-
-variable "admin_user" {
-  type = map(string)
-  default = {
-    username = "diku_admin",
-    password = "admin"
-  }
-  description = "Default admin user"
 }
 
 variable "pgadmin_username" {
@@ -95,21 +59,6 @@ variable "pgadmin_username" {
 variable "pgadmin_password" {
   type        = string
   description = "Postgres DB name"
-}
-
-variable "frontend_image_tag" {
-  type        = string
-  description = "Release tag or branch"
-}
-
-variable "env_config" {
-  type        = string
-  default     = "development"
-  description = "Configuration file for modules"
-  validation {
-    condition     = can(regex("^(development|performance|testing)$", var.env_config))
-    error_message = "Wrong env_config value! Possible values 'development' 'performance' 'testing'."
-  }
 }
 
 variable "github_team_ids" {
@@ -278,16 +227,4 @@ variable "s3_postgres_backups_access_key" {
 variable "s3_postgres_backups_secret_key" {
   type        = string
   description = "AWS secret key"
-}
-
-variable "restore_postgresql_from_backup" {
-  type        = bool
-  default     = false
-  description = "The variable defines if take versions of modules from repo branch - install.json okapi-install.json, or from saved to s3 bucket files with DB backup during restoration"
-}
-
-variable "path_of_postgresql_backup" {
-  type        = string
-  default     = ""
-  description = "Path of directory with DB backup, *_install.json, *_okapi_install.json"
 }

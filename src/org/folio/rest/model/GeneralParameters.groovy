@@ -7,7 +7,7 @@ import org.folio.utilities.HttpClient
 abstract class GeneralParameters implements Serializable {
     public Object steps
 
-    public String okapiUrl
+    public String okapi_url
 
     public Tools tools = new Tools(steps)
 
@@ -15,8 +15,8 @@ abstract class GeneralParameters implements Serializable {
 
     public Logger logger = new Logger(steps, this.getClass().getCanonicalName())
 
-    GeneralParameters(Object steps, String okapiUrl) {
+    GeneralParameters(Object steps, String okapi_url) {
         this.steps = steps
-        this.okapiUrl = okapiUrl
+        this.okapi_url = okapi_url
     }
 }

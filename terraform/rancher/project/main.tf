@@ -23,7 +23,7 @@ resource "rancher2_project_role_template_binding" "this" {
 resource "rancher2_namespace" "this" {
   name        = var.rancher_project_name
   project_id  = rancher2_project.this.id
-  description = "Project default namespace"
+  description = "${var.rancher_project_name} project namespace"
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_cpu    = "80m"
@@ -42,22 +42,3 @@ resource "rancher2_registry" "folio-docker" {
     password = var.folio_docker_registry_password
   }
 }
-
-#TODO Check if always needed or only for perf
-
-#Telegraf
-#resource "rancher2_app" "telegraf-ds" {
-#  project_id       = rancher2_project.this.id
-#  target_namespace = rancher2_namespace.this.name
-#  depends_on       = [rancher2_namespace.this, rancher2_app.folio-okapi, rancher2_app.folio-backend, rancher2_app.folio-backend-edge, rancher2_app.folio-backend-import-export]
-#  catalog_name     = "influx"
-#  name             = "telegraf-ds"
-#  force_upgrade    = "true"
-#  template_name    = "telegraf-ds"
-#  answers = {
-#    "config.inputs[0].kubernetes.bearer_token"         = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-#    "config.inputs[0].kubernetes.insecure_skip_verify" = "true"
-#    "config.inputs[0].kubernetes.url"                  = "http://$HOSTNAME:10255"
-#    "config.outputs[0].influxdb.urls[0]"               = "${var.carrier_url}:8086"
-#  }
-#}

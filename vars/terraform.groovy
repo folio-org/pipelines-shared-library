@@ -1,4 +1,6 @@
-def tfInit(String path, String opts) {
+import org.folio.Constants
+
+def tfInit(String path, String opts = '') {
     stage('TF init') {
         dir(path) {
             sh "terraform init ${opts}"
@@ -30,14 +32,6 @@ def tfPostgreSQLPlan(String path, String opts) {
     }
 }
 
-def tfPostgreSQLApply(String path) {
-    stage('TF apply') {
-        dir(path) {
-            sh 'terraform apply -input=false tfplan'
-        }
-    }
-}
-
 def tfDestroy(String path, String opts) {
     stage('TF destroy') {
         dir(path) {
@@ -63,9 +57,9 @@ def tfOutput(String path, String variable) {
     }
 }
 
-def tfWorkspaceSelect(String path, String name){
-    stage('TF workspace'){
-        dir(path){
+def tfWorkspaceSelect(String path, String name) {
+    stage('TF workspace') {
+        dir(path) {
             sh "terraform workspace select ${name} || (terraform workspace new ${name} && terraform workspace select ${name})"
         }
     }
@@ -83,4 +77,65 @@ def tfPlanApprove(String path) {
                 description: 'Please review the plan',
                 defaultValue: plan)]
     }
+}
+
+void tfWrapper(Closure body) {
+    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
+                     [$class           : 'AmazonWebServicesCredentialsBinding',
+                      credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                      accessKeyVariable: 'TF_VAR_s3_access_key',
+                      secretKeyVariable: 'TF_VAR_s3_secret_key'],
+                     [$class           : 'AmazonWebServicesCredentialsBinding',
+                      credentialsId    : Constants.AWS_S3_POSTGRES_BACKUPS,
+                      accessKeyVariable: 'TF_VAR_s3_postgres_backups_access_key',
+                      secretKeyVariable: 'TF_VAR_s3_postgres_backups_secret_key'],
+                     string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key'),
+                     usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID,
+                         passwordVariable: 'TF_VAR_folio_docker_registry_password',
+                         usernameVariable: 'TF_VAR_folio_docker_registry_username')]) {
+        docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
+            body()
+        }
+    }
+}
+
+void tfApplyFlow(Closure body) {
+    def config = [:]
+    body.resolveStrategy = Closure.DELEGATE_FIRST
+    body.delegate = config
+    body()
+
+    tfInit(config.working_dir)
+    tfWorkspaceSelect(config.working_dir, config.workspace_name)
+    tfStatePull(config.working_dir)
+    if(config.preAction){
+        config.preAction.delegate = this
+        config.preAction.resolveStrategy = Closure.DELEGATE_FIRST
+        config.preAction.call()
+    }
+    tfPlan(config.working_dir, config.tf_vars)
+    retry(2) {
+        sleep(60)
+        tfApply(config.working_dir)
+    }
+    if(config.postAction){
+        config.postAction.delegate = this
+        config.postAction.resolveStrategy = Closure.DELEGATE_FIRST
+        config.postAction.call()
+    }
+}
+
+void tfDestroyFlow(Closure body) {
+    def config = [:]
+    body.resolveStrategy = Closure.DELEGATE_FIRST
+    body.delegate = config
+    body()
+
+    tfInit(config.working_dir)
+    tfWorkspaceSelect(config.working_dir, config.workspace_name)
+    tfStatePull(config.working_dir)
+    tfDestroy(config.working_dir, config.tf_vars)
 }
