@@ -35,13 +35,12 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    List buildDiscoveryList(String repository, String branch) {
+    List buildDiscoveryList(Map isntall_map) {
         List discoveryList = []
-        getJsonModulesList(repository, branch, 'okapi-install.json').each {
-            String version = (it['id'] =~ /\d+\.\d+\.\d+-.*\.\d+|\d+\.\d+.\d+$/).findAll()[0]
-            discoveryList << [srvcId: it['id'],
-                              instId: it['id'],
-                              url   : 'http://' + tools.removeLastChar(it['id'] - version)]
+        isntall_map.findAll { it.key.startsWith("mod-") }.collect {
+            discoveryList << [srvcId: "${it.key}-${it.value}",
+                              instId: "${it.key}-${it.value}",
+                              url   : "http://${it.key}"]
         }
         return discoveryList
     }
@@ -52,7 +51,29 @@ class GitHubUtility implements Serializable {
      * @param branch
      * @return
      */
-    List buildEnableList(String repository, String branch) {
+    List getEnableList(String repository, String branch) {
         return getJsonModulesList(repository, branch, 'install.json')
+    }
+
+    /**
+     *  Parsing the install.json file and creating a map of module names and versions.
+     * @param install_json
+     * @return
+     */
+    static Map getModulesVersionsMap(List install_json) {
+        Map modules_versions_map = [:]
+        install_json*.id.each{
+            def (_,module_name,version) = (it =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
+            modules_versions_map << [(module_name):version]
+        }
+        return modules_versions_map
+    }
+
+    static Map getBackendModulesMap(Map install_map){
+        return install_map.findAll{it.key.startsWith("mod-")}
+    }
+
+    static Map getEdgeModulesMap(Map install_map){
+        return install_map.findAll{it.key.startsWith("edge-")}
     }
 }

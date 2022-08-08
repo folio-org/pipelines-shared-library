@@ -2,7 +2,7 @@ resource "random_string" "access_key" {
   count   = var.s3_embedded ? 1 : 0
   length  = 20
   lower   = false
-  number  = false
+  numeric = false
   special = false
 }
 

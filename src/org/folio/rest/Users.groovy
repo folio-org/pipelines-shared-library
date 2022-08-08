@@ -10,10 +10,10 @@ import org.folio.rest.model.OkapiUser
 
 class Users extends GeneralParameters {
 
-    private Authorization auth = new Authorization(steps, okapiUrl)
+    private Authorization auth = new Authorization(steps, okapi_url)
 
-    Users(Object steps, String okapiUrl) {
-        super(steps, okapiUrl)
+    Users(Object steps, String okapi_url) {
+        super(steps, okapi_url)
     }
 
     /**
@@ -38,7 +38,7 @@ class Users extends GeneralParameters {
      */
     def getUser(OkapiTenant tenant, OkapiUser user) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/users?query=username%3d%3d" + user.username
+        String url = okapi_url + "/users?query=username%3d%3d" + user.username
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
@@ -57,7 +57,7 @@ class Users extends GeneralParameters {
      */
     void createUser(OkapiTenant tenant, OkapiUser user) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/users"
+        String url = okapi_url + "/users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -93,7 +93,7 @@ class Users extends GeneralParameters {
     //TODO Configure to edit user
     void setPatronGroup(OkapiTenant tenant, OkapiUser user, String patronGroupId) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/users/" + user.uuid
+        String url = okapi_url + "/users/" + user.uuid
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -114,7 +114,7 @@ class Users extends GeneralParameters {
      */
     def getPatronGroupId(OkapiTenant tenant, OkapiUser user) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/groups"
+        String url = okapi_url + "/groups"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
