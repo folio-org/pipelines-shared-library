@@ -37,8 +37,8 @@ pipeline {
                         string(name: 'uiUrl', value: uiUrl),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: tenant),
-                        string(name: 'user', value: 'diku_admin'),
-                        password(name: 'password', value: 'admin'),
+                        string(name: 'user', value: 'folio-aqa'),
+                        password(name: 'password', value: 'Folio-aqa1'),
                         string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true")
                     ]
 
