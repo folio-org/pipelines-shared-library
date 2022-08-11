@@ -37,8 +37,8 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL'),
-        string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL'),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL', trim: true),
+        string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
         password(name: 'password', defaultValue: "admin", description: 'User password'),
@@ -50,6 +50,7 @@ properties([
 ])
 
 def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
+
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
