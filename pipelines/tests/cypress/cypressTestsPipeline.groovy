@@ -119,6 +119,11 @@ pipeline {
 
         stage('Generate and publish tests report') {
             post {
+                steps {
+                    script {
+                        echo "Generate and publish tests report"
+                    }
+                }
                 always {
                     script {
                         def allure_home = tool type: 'allure', name: allureVersion
