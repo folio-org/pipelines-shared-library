@@ -110,44 +110,46 @@ pipeline {
                 script {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
-                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
+                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                         }
                     }
                 }
             }
         }
 
-        stage('Generate tests report') {
-            steps {
-                script {
-                    def allure_home = tool type: 'allure', name: allureVersion
-                    sh "${allure_home}/bin/allure generate --clean"
+        stage('Generate and publish tests report') {
+            post {
+                always {
+                    script {
+                        def allure_home = tool type: 'allure', name: allureVersion
+                        sh "${allure_home}/bin/allure generate --clean"
+                    }
                 }
             }
         }
 
-        stage('Publish tests report') {
-            steps {
-                allure([
-                    includeProperties: false,
-                    jdk              : '',
-                    commandline      : allureVersion,
-                    properties       : [],
-                    reportBuildPolicy: 'ALWAYS',
-                    results          : [[path: 'allure-results']]
-                ])
-            }
-        }
+        // stage('Publish tests report') {
+        //     steps {
+        //         allure([
+        //             includeProperties: false,
+        //             jdk              : '',
+        //             commandline      : allureVersion,
+        //             properties       : [],
+        //             reportBuildPolicy: 'ALWAYS',
+        //             results          : [[path: 'allure-results']]
+        //         ])
+        //     }
+        // }
 
-        stage('Archive artifacts') {
-            steps {
-                script {
-                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
+        // stage('Archive artifacts') {
+        //     steps {
+        //         script {
+        //             zip zipFile: "allure-results.zip", glob: "allure-results/*"
 
-                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
-                }
-            }
-        }
+        //             archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
+        //         }
+        //     }
+        // }
     }
 }
 
