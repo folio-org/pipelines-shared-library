@@ -148,25 +148,24 @@ pipeline {
         //         }
         //     }
         // }
-
-        post {
-            always {
-                // Generate tests report
-                script {
-                    def allure_home = tool type: 'allure', name: allureVersion
-                    sh "${allure_home}/bin/allure generate --clean"
-                }
-                
-                // Publish test report
-                allure([
-                    includeProperties: false,
-                    jdk              : '',
-                    commandline      : allureVersion,
-                    properties       : [],
-                    reportBuildPolicy: 'ALWAYS',
-                    results          : [[path: 'allure-results']]
-                ])
+    }
+    post {
+        always {
+            // Generate tests report
+            script {
+                def allure_home = tool type: 'allure', name: allureVersion
+                sh "${allure_home}/bin/allure generate --clean"
             }
+            
+            // Publish test report
+            allure([
+                includeProperties: false,
+                jdk              : '',
+                commandline      : allureVersion,
+                properties       : [],
+                reportBuildPolicy: 'ALWAYS',
+                results          : [[path: 'allure-results']]
+            ])
         }
     }
 }
