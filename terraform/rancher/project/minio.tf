@@ -41,6 +41,7 @@ resource "rancher2_app_v2" "minio" {
     ingress:
       enabled: true
       hostname: ${local.minio_console_url}
+      path: /*
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -52,6 +53,7 @@ resource "rancher2_app_v2" "minio" {
     apiIngress:
       enabled: true
       hostname: ${local.minio_url}
+      path: /*
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
