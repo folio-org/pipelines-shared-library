@@ -110,7 +110,9 @@ pipeline {
                 script {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
-                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
+                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                            }
                         }
                     }
                 }
