@@ -21,7 +21,7 @@ resource "rancher2_app_v2" "minio" {
   name          = "minio"
   repo_name     = "bitnami"
   chart_name    = "minio"
-  chart_version = "11.5.2"
+  chart_version = "11.8.1"
   force_upgrade = "true"
   values = <<-EOT
     defaultBuckets: ${join(",", [
@@ -36,6 +36,11 @@ resource "rancher2_app_v2" "minio" {
         memory: 1024Mi
     persistence:
       size: 10Gi
+    extraEnvVars:
+    - name: MINIO_SERVER_URL
+      value: https://${local.minio_url}
+    - name: MINIO_BROWSER_REDIRECT_URL
+      value: https://${local.minio_console_url}
     service:
       type: NodePort
     ingress:
@@ -59,8 +64,8 @@ resource "rancher2_app_v2" "minio" {
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/group.name: ${local.group_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-        alb.ingress.kubernetes.io/success-codes: '200-403'
-        alb.ingress.kubernetes.io/healthcheck-path: /
+        alb.ingress.kubernetes.io/success-codes: '200-399'
+        alb.ingress.kubernetes.io/healthcheck-path: /minio/health/live
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
   EOT
 }
