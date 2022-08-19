@@ -138,30 +138,30 @@ pipeline {
                             }
                         }
 
-                        // stage("Parse teams assignment") {
-                        //     steps {
-                        //         script {
-                        //             def jsonContents = readJSON file: "teams-assignment.json"
-                        //             teamAssignment = new TeamAssignment(jsonContents)
-                        //         }
-                        //     }
-                        // }
+                        stage("Parse teams assignment") {
+                            steps {
+                                script {
+                                    def jsonContents = readJSON file: "teams-assignment.json"
+                                    teamAssignment = new TeamAssignment(jsonContents)
+                                }
+                            }
+                        }
 
-                        // stage("Send slack notifications") {
-                        //     steps {
-                        //         script {
-                        //             karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                        //         }
-                        //     }
-                        // }
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
 
-                        // stage("Sync jira tickets") {
-                        //     steps {
-                        //         script {
-                        //             karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                        //         }
-                        //     }
-                        // }
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }
