@@ -14,7 +14,7 @@ def folio_branch = "snapshot"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def prototypeTenant = "diku"
 
-def spinUpEnvironmentJobName = "/Rancher/Project"
+def spinUpEnvironmentJobName = "Rancher/Project(kd-test)"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 def karateTestsJobName = "/Testing/Karate tests"
