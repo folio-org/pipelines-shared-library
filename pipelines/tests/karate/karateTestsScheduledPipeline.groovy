@@ -186,7 +186,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'env_config', value: "testing"),
+        string(name: 'env_config', value: "development"),
         string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
