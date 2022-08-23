@@ -31,7 +31,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     triggers {
-        cron('H 4 * * *')
+        cron('H 3 * * *')
     }
 
     options {
@@ -74,6 +74,7 @@ pipeline {
                         string(name: 'prototypeTenant', value: prototypeTenant)
                     ]
 
+                    sleep time: 60, unit: 'MINUTES'
                     karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
@@ -185,7 +186,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'env_config', value: "testing"),
+        string(name: 'env_config', value: "development"),
         string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),

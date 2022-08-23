@@ -6,7 +6,7 @@ variable "aws_region" {
 
 variable "rancher_version" {
   type        = string
-  default     = "2.6.5"
+  default     = "2.6.6"
   description = "Rancher version"
 }
 

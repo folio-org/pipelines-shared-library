@@ -37,18 +37,20 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL'),
-        string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL'),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL', trim: true),
+        string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
         password(name: 'password', defaultValue: "admin", description: 'User password'),
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
+        string(name: 'timeout', defaultValue: "4", description: 'Custom timeout for build. Set in hours'),
     ])
 ])
 
 def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
+
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -107,8 +109,10 @@ pipeline {
             steps {
                 script {
                     ansiColor('xterm') {
-                        timeout(time: 4, unit: 'HOURS') {
-                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} || true"
+                        timeout(time: "${params.timeout}", unit: 'HOURS') {
+                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                            }
                         }
                     }
                 }

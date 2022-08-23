@@ -39,25 +39,34 @@ pipeline {
     }
 
     stages {
-/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
-//        stage("Create environment") {
-//            steps {
-//                script {
-//                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-//                        projectName, tenant, folio_repository, folio_branch)
-//
-//                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+                        projectName, tenant, folio_repository, folio_branch)
+
+                    tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+
+       stage("Create environment") {
+           steps {
+               script {
+                   def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+                       projectName, tenant, folio_repository, folio_branch)
+
+                   spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+               }
+           }
+       }
 
         stage("Run cypress tests") {
-/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
-//                }
-//            }
+           when {
+               expression {
+                   spinUpEnvironmentJob.result == 'SUCCESS'
+               }
+           }
             steps {
                 script {
                     def jobParameters = [
@@ -77,23 +86,12 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
-//                stage("Destroy environment") {
-//                    steps {
-//                        script {
-//                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-//                                projectName, tenant, folio_repository, folio_branch)
-//
-//                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                        }
-//                    }
-//                }
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+                   when {
+                       expression {
+                           spinUpEnvironmentJob.result == 'SUCCESS'
+                       }
+                   }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
@@ -122,19 +120,19 @@ pipeline {
                 }
             }
         }
-/*Temporary disabled until https://issues.folio.org/browse/RANCHER-368 will be resolved*/
-//        stage("Set job execution result") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result != 'SUCCESS'
-//                }
-//            }
-//            steps {
-//                script {
-//                    currentBuild.result = 'FAILURE'
-//                }
-//            }
-//        }
+
+       stage("Set job execution result") {
+           when {
+               expression {
+                   spinUpEnvironmentJob.result != 'SUCCESS'
+               }
+           }
+           steps {
+               script {
+                   currentBuild.result = 'FAILURE'
+               }
+           }
+       }
     }
 }
 

@@ -457,7 +457,7 @@
   "mod-inventory-storage": {
     "dbMaxPoolSize": "5",
     "javaOptions": "-XX:MaxRAMPercentage=85.0 -Dlog4j2.formatMsgNoLookups=true",
-    "replicaCount": 2,
+    "replicaCount": 1,
     "resources": {
       "limits": {
         "cpu": "512m",
