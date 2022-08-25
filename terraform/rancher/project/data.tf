@@ -44,6 +44,12 @@ data "aws_s3_object" "saved_to_s3_install_json" {
   key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_install.json"])
 }
 
+data "aws_s3_object" "saved_to_s3_platform_complete_tag" {
+  count  = var.restore_from_saved_s3_install_json ? 1 : 0
+  bucket = trimprefix(var.s3_postgres-backups-bucket-name, "s3://")
+  key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_image_tag.txt"])
+}
+
 
 locals {
   env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
@@ -56,6 +62,8 @@ locals {
   install_json_url  = join("/", [local.github_url, var.repository, var.branch, "install.json"])
 
   helm_configs = jsondecode(file("${path.module}/resources/helm/${var.env_config}.json"))
+
+  frontend_image_tag = var.restore_from_saved_s3_install_json ? data.aws_s3_object.saved_to_s3_platform_complete_tag[0].body : var.frontend_image_tag
 
   custom_s3_install_json = var.restore_from_saved_s3_install_json ? data.aws_s3_object.saved_to_s3_install_json[0].body : ""
 

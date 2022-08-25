@@ -9,7 +9,7 @@ resource "rancher2_app_v2" "frontend" {
   force_upgrade = true
   values        = <<-EOT
     image:
-      tag: ${var.frontend_image_tag}
+      tag: ${local.frontend_image_tag}
     service:
       type: NodePort
     ingress:
