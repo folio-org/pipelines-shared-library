@@ -12,7 +12,7 @@ def configureHelm(String repo_name, String repo_url) {
 
 def savePlatformCompleteImageTag(String project_namespace, String cluster_name, String db_backup_name, String s3_postgres_backups_bucket_name, String tenant_id) {
     stage('Save platform complete image tag') {
-        sh "set \$PLATFORM_COMPLETE_POD_LIST=\$(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name -n ${project_namespace} | \
+        sh "PLATFORM_COMPLETE_POD_LIST=\$(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name -n ${project_namespace} | \
         grep platform-complete); for IMAGE in \$PLATFORM_COMPLETE_POD_LIST; \
         do IMAGE_TAG=\$(kubectl get pod \$IMAGE -n ${project_namespace} -o jsonpath='{.spec.containers[*].image}' | \
         sed 's/.*://' | grep ${tenant_id});if [ ! -z \$IMAGE_TAG  ];then break;fi;done; \
