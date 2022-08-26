@@ -44,6 +44,12 @@ data "aws_s3_object" "saved_to_s3_install_json" {
   key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_install.json"])
 }
 
+data "aws_s3_object" "saved_to_s3_okapi_install_json" {
+  count  = var.restore_from_saved_s3_install_json ? 1 : 0
+  bucket = trimprefix(var.s3_postgres-backups-bucket-name, "s3://")
+  key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_okapi_install.json"])
+}
+
 
 locals {
   env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])

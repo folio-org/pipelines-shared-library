@@ -49,6 +49,7 @@ String tfWorkDir = 'terraform/rancher/project'
 String tfVars = ''
 
 def saved_to_s3_install_json
+def saved_to_s3_okapi_install_json
 
 String frontendUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}.${Constants.CI_ROOT_DOMAIN}"
 String okapiUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}"
@@ -150,6 +151,7 @@ ansiColor('xterm') {
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
                         saved_to_s3_install_json = terraform.tfOutput(tfWorkDir, "saved_to_s3_install_json")
+                        saved_to_s3_okapi_install_json = terraform.tfOutput(tfWorkDir, "saved_to_s3_okapi_install_json")
                         /**Wait for dns flush...*/
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
@@ -195,7 +197,8 @@ ansiColor('xterm') {
                             cypress_api_key_apidvcorp,
                             params.reindex_elastic_search,
                             params.recreate_index_elastic_search,
-                            saved_to_s3_install_json
+                            saved_to_s3_install_json,
+                            saved_to_s3_okapi_install_json
                         )
                         if (params.restore_postgresql_from_backup == true) {
                             deployment.restoreFromBackup()
