@@ -97,6 +97,10 @@ class Deployment extends GeneralParameters {
             okapi.publishModuleDescriptors(enableList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+            if (reindex_elastic_search) {
+                def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
+                okapi.checkReindex(tenant, jobid)
+            }
         }  else {
             throw new AbortException('Tenant not set')
         }

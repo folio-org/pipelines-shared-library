@@ -50,6 +50,7 @@ String tfVars = ''
 
 def saved_to_s3_install_json
 def saved_to_s3_okapi_install_json
+def tenant_id = params.restore_postgresql_from_backup ? params.tenant_id_to_restore_modules_versions : params.tenant_id
 
 String frontendUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}.${Constants.CI_ROOT_DOMAIN}"
 String okapiUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}"
@@ -174,7 +175,6 @@ ansiColor('xterm') {
             }
             if (params.enable_modules && (params.action == 'apply' || params.action == 'nothing')) {
                 stage('Okapi deployment') {
-                    def tenant_id = params.restore_postgresql_from_backup ? params.tenant_id_to_restore_modules_versions : params.tenant_id
                     OkapiTenant tenant = okapiSettings.tenant(
                         tenantId: tenant_id,
                         tenantName: params.tenant_name,
