@@ -4,10 +4,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def allureVersion = "2.17.2"
 
-// def uiUrl = "https://bugfest-mg-aqa.int.aws.folio.org"
-// def okapiUrl = "https://okapi-bugfest-mg-aqa.int.aws.folio.org"
-def uiUrl = "https://localhost"
-def okapiUrl = "https://localhost"
+def uiUrl = "https://bugfest-mg-aqa.int.aws.folio.org"
+def okapiUrl = "https://okapi-bugfest-mg-aqa.int.aws.folio.org"
 def tenant = "fs09000003"
 
 def cypressTestsJobName = "/Testing/Cypress tests"
