@@ -117,7 +117,7 @@ pipeline {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                                     // sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
-                                    sh "testrail-run-results --run 2062"
+                                    sh "npx testrail-run-results --run 2062"
                                 }
                             }
                         }
