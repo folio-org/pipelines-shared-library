@@ -6,12 +6,12 @@ output "frontend_url" {
   value = local.frontend_url
 }
 
-output "saved_to_s3_install_json" {
-  value = var.restore_from_saved_s3_install_json ? data.aws_s3_object.saved_to_s3_install_json[0].body : ""
+output "custom_install_json" {
+  value = var.restore_postgresql_from_backup ? data.aws_s3_object.custom_install_json[0].body : ""
   sensitive = true
 }
 
-output "saved_to_s3_platform_complete_tag" {
-  value = var.restore_from_saved_s3_install_json ? data.aws_s3_object.saved_to_s3_platform_complete_tag[0].body : ""
+output "custom_platform_complete_tag" {
+  value = var.restore_postgresql_from_backup ? data.aws_s3_object.custom_platform_complete_tag[0].body : ""
   sensitive = true
 }

@@ -48,7 +48,7 @@ properties([
 String tfWorkDir = 'terraform/rancher/project'
 String tfVars = ''
 
-def saved_to_s3_install_json
+def custom_install_json
 
 String frontendUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}.${Constants.CI_ROOT_DOMAIN}"
 String okapiUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}"
@@ -105,7 +105,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('es_embedded', params.es_embedded)
                 tfVars += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tfVars += terraform.generateTfVar('pgadmin4', params.pgadmin4)
-                tfVars += terraform.generateTfVar('restore_from_saved_s3_install_json', params.restore_postgresql_from_backup)
+                tfVars += terraform.generateTfVar('restore_postgresql_from_backup', params.restore_postgresql_from_backup)
                 tfVars += terraform.generateTfVar('path_of_postgresql_backup', params.restore_postgresql_backup_name)
                 tfVars += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
             }
@@ -149,7 +149,7 @@ ansiColor('xterm') {
                         }
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
-                        saved_to_s3_install_json = terraform.tfOutput(tfWorkDir, "saved_to_s3_install_json")
+                        custom_install_json = terraform.tfOutput(tfWorkDir, "custom_install_json")
                         /**Wait for dns flush...*/
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
@@ -195,7 +195,7 @@ ansiColor('xterm') {
                             cypress_api_key_apidvcorp,
                             params.reindex_elastic_search,
                             params.recreate_index_elastic_search,
-                            saved_to_s3_install_json
+                            custom_install_json
                         )
                         if (params.restore_postgresql_from_backup == true) {
                             deployment.restoreFromBackup()
