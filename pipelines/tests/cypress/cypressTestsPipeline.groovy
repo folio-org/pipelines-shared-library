@@ -82,8 +82,6 @@ pipeline {
             environment {
                 HOME = "${pwd()}/cache"
                 CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                TESTRAIL_HOST = "https://foliotest.testrail.io"
-                TESTRAIL_PROJECTID = "22"
             }
             steps {
                 sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
@@ -109,6 +107,9 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
+
+                TESTRAIL_HOST = "https://foliotest.testrail.io"
+                TESTRAIL_PROJECTID = "14"
             }
             steps {
                 script {
