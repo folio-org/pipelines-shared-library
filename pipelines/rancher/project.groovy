@@ -142,7 +142,10 @@ ansiColor('xterm') {
                             }
                         }
                         terraform.tfPlan(tfWorkDir, tfVars)
-                        terraform.tfApply(tfWorkDir)
+                        retry(2) {
+                            sleep(60)
+                            terraform.tfApply(tfWorkDir)
+                        }
                         /**Wait for dns flush*/
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
