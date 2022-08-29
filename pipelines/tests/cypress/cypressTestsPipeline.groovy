@@ -46,7 +46,7 @@ properties([
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
         string(name: 'timeout', defaultValue: "4", description: 'Custom timeout for build. Set in hours'),
-        string(name: 'testrailRunID', defaultValue: "", description: 'The ID of the test run'),
+        string(name: 'testrailRunID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
     ])
 ])
 
@@ -110,16 +110,18 @@ pipeline {
 
                 TESTRAIL_HOST = "https://foliotest.testrail.io"
                 TESTRAIL_PROJECTID = "14"
-                TESTRAIL_RUN_ID = "${params.testrailRunID}"
             }
             steps {
                 script {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                withCredentials([usernamePassword(credentialsId: 'kd-test-testrail', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
-                                    sh "npx testrail-run-results --run ${params.testrailRunID}"
+                                if (params.testrailRunID) {
+                                    withCredentials([usernamePassword(credentialsId: 'kd-test-testrail', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
+                                    }
+                                } else {
+                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                 }
                             }
                         }
@@ -128,36 +130,36 @@ pipeline {
             }
         }
 
-        // stage('Generate tests report') {
-        //     steps {
-        //         script {
-        //             def allure_home = tool type: 'allure', name: allureVersion
-        //             sh "${allure_home}/bin/allure generate --clean"
-        //         }
-        //     }
-        // }
+        stage('Generate tests report') {
+            steps {
+                script {
+                    def allure_home = tool type: 'allure', name: allureVersion
+                    sh "${allure_home}/bin/allure generate --clean"
+                }
+            }
+        }
 
-        // stage('Publish tests report') {
-        //     steps {
-        //         allure([
-        //             includeProperties: false,
-        //             jdk              : '',
-        //             commandline      : allureVersion,
-        //             properties       : [],
-        //             reportBuildPolicy: 'ALWAYS',
-        //             results          : [[path: 'allure-results']]
-        //         ])
-        //     }
-        // }
+        stage('Publish tests report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk              : '',
+                    commandline      : allureVersion,
+                    properties       : [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results          : [[path: 'allure-results']]
+                ])
+            }
+        }
 
-        // stage('Archive artifacts') {
-        //     steps {
-        //         script {
-        //             zip zipFile: "allure-results.zip", glob: "allure-results/*"
+        stage('Archive artifacts') {
+            steps {
+                script {
+                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
 
-        //             archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
-        //         }
-        //     }
-        // }
+                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
+                }
+            }
+        }
     }
 }
