@@ -45,7 +45,7 @@ class Constants {
 
     static String PSQL_DUMP_DOCKER_CLIENT = "alpine/k8s:1.22.9"
     static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
-    static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.0-RANCHER-199-20220823091505"
+    static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.0-RANCHER-199-improvements-20220829102810"
     static String RANCHER_CLUSTERS_DEFAULT_REGION = "us-west-2"
 
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
