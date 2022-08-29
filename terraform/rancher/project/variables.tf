@@ -280,7 +280,7 @@ variable "s3_postgres_backups_secret_key" {
   description = "AWS secret key"
 }
 
-variable "restore_from_saved_s3_install_json" {
+variable "restore_postgresql_from_backup" {
   type        = bool
   default     = false
   description = "The variable defines if take versions of modules from repo branch - install.json okapi-install.json, or from saved to s3 bucket files with DB backup during restoration"
