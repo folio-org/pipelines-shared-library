@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-199') _
+@Library('pipelines-shared-library@RANCHER-199-improvements') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -51,7 +51,7 @@ String tfVars = ''
 def saved_to_s3_install_json
 def saved_to_s3_okapi_install_json
 def tenant_id = params.restore_postgresql_from_backup ? params.tenant_id_to_restore_modules_versions : params.tenant_id
-boolean recreate_index_elastic_search = params.restore_postgresql_from_backup ? true : params.recreate_index_elastic_search
+boolean recreate_index_elastic_search = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
 String frontendUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}.${Constants.CI_ROOT_DOMAIN}"
 String okapiUrl = "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}"
