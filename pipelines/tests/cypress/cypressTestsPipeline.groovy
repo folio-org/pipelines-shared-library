@@ -110,6 +110,7 @@ pipeline {
 
                 TESTRAIL_HOST = "https://foliotest.testrail.io"
                 TESTRAIL_PROJECTID = "14"
+                TESTRAIL_RUN_ID = "${params.testrailRunID}"
             }
             steps {
                 script {
@@ -117,7 +118,7 @@ pipeline {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 withCredentials([usernamePassword(credentialsId: 'kd-test-testrail', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                    // sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                     sh "npx testrail-run-results --run ${params.testrailRunID}"
                                 }
                             }
