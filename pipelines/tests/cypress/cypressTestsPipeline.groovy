@@ -108,8 +108,8 @@ pipeline {
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
 
-                TESTRAIL_HOST = "https://foliotest.testrail.io"
-                TESTRAIL_PROJECTID = "14"
+                // TESTRAIL_HOST = "https://foliotest.testrail.io"
+                // TESTRAIL_PROJECTID = "14"
             }
             steps {
                 script {
