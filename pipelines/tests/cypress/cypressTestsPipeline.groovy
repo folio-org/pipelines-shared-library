@@ -114,6 +114,7 @@ pipeline {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 if (params.testrailRunID) {
+                                    // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
                                     env.TESTRAIL_PROJECTID = "14"
                                     withCredentials([usernamePassword(credentialsId: 'kd-test-testrail', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
