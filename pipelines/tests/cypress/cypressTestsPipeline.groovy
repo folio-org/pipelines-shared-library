@@ -107,9 +107,6 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
-
-                // TESTRAIL_HOST = "https://foliotest.testrail.io"
-                // TESTRAIL_PROJECTID = "14"
             }
             steps {
                 script {
@@ -117,6 +114,8 @@ pipeline {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 if (params.testrailRunID) {
+                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
+                                    env.TESTRAIL_PROJECTID = "14"
                                     withCredentials([usernamePassword(credentialsId: 'kd-test-testrail', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                                         sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
                                     }
