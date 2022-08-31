@@ -37,7 +37,8 @@ pipeline {
                         string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'folio-aqa'),
                         password(name: 'password', value: 'Folio-aqa1'),
-                        string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true")
+                        string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true"),
+                        string(name: 'customBuildName', value: JOB_BASE_NAME)
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
