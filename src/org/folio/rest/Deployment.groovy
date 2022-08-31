@@ -35,13 +35,18 @@ class Deployment extends GeneralParameters {
 
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
+    private InstallCustomJsonsUtility installCustomJsonsUtility = new InstallCustomJsonsUtility(steps)
+
     private TenantService tenantService = new TenantService(steps, okapiUrl, super_admin)
 
     private boolean reindex_elastic_search
     private boolean recreate_index_elastic_search
 
+    def custom_install_json
+    def custom_okapi_install_json
 
-    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
+
+    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search, custom_install_json, custom_okapi_install_json) {
         super(steps, okapiUrl)
         this.stripesUrl = stripesUrl
         this.repository = repository
@@ -53,6 +58,8 @@ class Deployment extends GeneralParameters {
         this.tenant.setAdmin_user(admin_user)
         this.reindex_elastic_search = reindex_elastic_search
         this.recreate_index_elastic_search = recreate_index_elastic_search
+        this.custom_install_json = custom_install_json
+        this.custom_okapi_install_json = custom_okapi_install_json
 
     }
 
@@ -77,6 +84,23 @@ class Deployment extends GeneralParameters {
             okapi.registerServices(discoveryList)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+        }  else {
+            throw new AbortException('Tenant not set')
+        }
+    }
+    void restoreFromBackup() {
+        if (tenant) {
+            enableList = installCustomJsonsUtility.customBuildEnableList(custom_install_json)
+            discoveryList = installCustomJsonsUtility.customBuildDiscoveryList(custom_okapi_install_json)
+            okapi.cleanupServicesRegistration()
+            okapi.registerServices(discoveryList)
+            okapi.publishModuleDescriptors(enableList)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
+            if (reindex_elastic_search) {
+                def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
+                okapi.checkReindex(tenant, jobid)
+            }
         }  else {
             throw new AbortException('Tenant not set')
         }
