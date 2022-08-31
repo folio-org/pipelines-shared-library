@@ -152,8 +152,8 @@ ansiColor('xterm') {
                         }
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfApply(tfWorkDir)
-                        custom_install_json = terraform.tfOutput(tfWorkDir, "custom_install_json")
-                        custom_okapi_install_json = terraform.tfOutput(tfWorkDir, "custom_okapi_install_json")
+                        custom_install_json = params.restore_postgresql_from_backup ? terraform.tfOutput(tfWorkDir, "custom_install_json") : ''
+                        custom_okapi_install_json = params.restore_postgresql_from_backup ? terraform.tfOutput(tfWorkDir, "custom_okapi_install_json") : ''
                         /**Wait for dns flush...*/
                         sleep time: 5, unit: 'MINUTES'
                         /**Check for dns */
