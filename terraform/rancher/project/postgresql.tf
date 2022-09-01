@@ -17,7 +17,7 @@ locals {
 
 # Rancher2 Project App Postgres
 resource "rancher2_app_v2" "postgresql" {
-  depends_on      = [rancher2_secret.s3-postgres-backups-credentials,rancher2_secret.db-connect-modules]
+  depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-connect-modules]
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -141,7 +141,7 @@ module "rds" {
 
 # Create a new rancher2 PgAdmin4 App in a default Project namespace
 resource "rancher2_app_v2" "pgadmin4" {
-  count            = var.pgadmin4 ? 1 : 0
+  count         = var.pgadmin4 ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "pgadmin4"

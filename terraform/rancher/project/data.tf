@@ -38,6 +38,19 @@ data "http" "install" {
   }
 }
 
+data "aws_s3_object" "custom_install_json" {
+  count  = var.restore_postgresql_from_backup ? 1 : 0
+  bucket = trimprefix(var.s3_postgres-backups-bucket-name, "s3://")
+  key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_install.json"])
+}
+
+data "aws_s3_object" "custom_okapi_install_json" {
+  count  = var.restore_postgresql_from_backup ? 1 : 0
+  bucket = trimprefix(var.s3_postgres-backups-bucket-name, "s3://")
+  key    = join("", [trimsuffix(var.path_of_postgresql_backup, ".psql"), "_okapi_install.json"])
+}
+
+
 locals {
   env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
   group_name        = join(".", [data.rancher2_cluster.this.name, var.rancher_project_name])
@@ -50,7 +63,11 @@ locals {
 
   helm_configs = jsondecode(file("${path.module}/resources/helm/${var.env_config}.json"))
 
-  modules_list = var.install_json != "" ? jsondecode(var.install_json)[*]["id"] : jsondecode(data.http.install.body)[*]["id"]
+  custom_install_json = var.restore_postgresql_from_backup ? data.aws_s3_object.custom_install_json[0].body : ""
+
+  modules_to_install = var.install_json != "" ? var.install_json : local.custom_install_json
+
+  modules_list = local.modules_to_install != "" ? jsondecode(local.modules_to_install)[*]["id"] : jsondecode(data.http.install.body)[*]["id"]
 
   folio_helm_repo_name = "folio-helm"
 

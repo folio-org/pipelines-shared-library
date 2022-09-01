@@ -27,6 +27,7 @@ resource "rancher2_app_v2" "minio" {
     defaultBuckets: ${join(",", [
   join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-export"]),
   join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-worker"]),
+  "local-files"
 ])}
     auth:
       rootUser: ${random_string.access_key[0].result}

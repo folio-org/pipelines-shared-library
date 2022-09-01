@@ -236,9 +236,17 @@ def okapiVersion() {
 }
 
 def restorePostgresqlFromBackup() {
-    return _paramBoolean('restore_postgresql_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL from backup')
+    return _paramBoolean('restore_postgresql_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL DB from backup. Modules versions will be restored up to the same state as at the moment when backup was created')
 }
 
 def restorePostgresqlBackupName() {
-    return _paramString('restore_postgresql_backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-scratch/unam/default-backup.psql)')
+    return _paramString('restore_postgresql_backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-dev/unam/backup_2022-08-23T09:43:59-volodymyr-kartsev/backup_2022-08-23T09:43:59-volodymyr-kartsev.psql)')
+}
+
+def tenantIdToBackupModulesVersions() {
+    return _paramString('tenant_id_to_backup_modules_versions', defaultTenant().id, "Choose for which tenant you would like to save modules versions. Default is diku")
+}
+
+def tenantIdToRestoreModulesVersions() {
+    return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
 }
