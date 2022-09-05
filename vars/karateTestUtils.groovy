@@ -126,7 +126,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
     teamResults.each { entry ->
-        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+        def message = ": `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
