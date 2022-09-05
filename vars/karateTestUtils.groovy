@@ -131,9 +131,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
-            } 
+            }
         }
-        
+
         try {
             if (!message.endsWith("tests.\n")) {
                 message += "All modules for ${team.name} team have succesful result"
