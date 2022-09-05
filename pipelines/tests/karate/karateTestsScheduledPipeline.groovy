@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-432') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -76,7 +76,7 @@ pipeline {
                     def jobParameters = [
                         string(name: 'branch', value: "RANCHER-432"),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: "mod-calendar,acquisitions"),
+                        string(name: 'modules', value: "mod-calendar"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
