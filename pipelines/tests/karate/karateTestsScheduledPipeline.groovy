@@ -84,7 +84,7 @@ pipeline {
                         string(name: 'prototypeTenant', value: prototypeTenant)
                     ]
 
-                    sleep time: 60, unit: 'MINUTES'
+                    // sleep time: 60, unit: 'MINUTES'
                     karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
