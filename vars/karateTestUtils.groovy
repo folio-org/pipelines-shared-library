@@ -137,7 +137,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             println("TEST ${message}")
             // println("TEST ${team.name}")
             if (!message.endsWith("tests.")) {
-                message += "All modules for ${team.name} have succesfull result"
+                message += "All modules for  have succesfull result"
             }
             println("TEST ${message}")
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
