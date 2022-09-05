@@ -130,10 +130,13 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
-            }
+            } 
         }
-
+        
         try {
+            if (!message.endsWith("tests.")) {
+                message += "All modules for ${team.name} have succesfull result"
+            }
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
