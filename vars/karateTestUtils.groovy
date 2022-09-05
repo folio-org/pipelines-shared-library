@@ -135,7 +135,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         }
         
         try {
-            println("TEST ${team.name}")
+            println("TEST ${entry}")
             if (!message.endsWith("tests.")) {
                 message += "All modules for  have succesfull result"
             }
