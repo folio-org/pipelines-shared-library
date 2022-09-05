@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-261') _
+@Library('pipelines-shared-library@RANCHER-433') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -9,6 +9,7 @@ import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
