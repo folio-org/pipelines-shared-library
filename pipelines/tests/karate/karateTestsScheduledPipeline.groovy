@@ -64,9 +64,9 @@ pipeline {
             steps {
                 script {
                     def jobParameters = [
-                        string(name: 'branch', value: params.branch),
+                        string(name: 'branch', value: "RANCHER-432"),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: ""),
+                        string(name: 'modules', value: "mod-calendar,acquisitions"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
@@ -155,13 +155,13 @@ pipeline {
                             }
                         }
 
-                        stage("Sync jira tickets") {
-                            steps {
-                                script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
+                        // stage("Sync jira tickets") {
+                        //     steps {
+                        //         script {
+                        //             karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             }
