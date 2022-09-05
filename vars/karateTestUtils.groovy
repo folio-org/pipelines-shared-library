@@ -136,10 +136,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         
         try {
             if (!message.endsWith("tests.")) {
-                message += "All modules for ${team.name} team have succesfull result"
+                message += "All modules for ${team.name} team have succesful result"
             }
-            println("TEST ${message}")
-            // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
+            slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()

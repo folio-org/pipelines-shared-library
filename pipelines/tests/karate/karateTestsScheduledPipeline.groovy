@@ -76,7 +76,7 @@ pipeline {
                     def jobParameters = [
                         string(name: 'branch', value: "RANCHER-432"),
                         string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: "mod-calendar"),
+                        string(name: 'modules', value: "mod-calendar,acquisitions"),
                         string(name: 'okapiUrl', value: okapiUrl),
                         string(name: 'tenant', value: 'supertenant'),
                         string(name: 'adminUserName', value: 'super_admin'),
