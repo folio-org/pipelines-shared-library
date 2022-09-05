@@ -44,26 +44,26 @@ pipeline {
     }
 
     stages {
-        stage("Destroy environment") {
-            steps {
-                script {
-                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                        projectName, prototypeTenant, folio_repository, folio_branch)
+        // stage("Destroy environment") {
+        //     steps {
+        //         script {
+        //             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+        //                 projectName, prototypeTenant, folio_repository, folio_branch)
 
-                    tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
-        stage("Create environment") {
-            steps {
-                script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                        projectName, prototypeTenant, folio_repository, folio_branch)
+        //             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+        //         }
+        //     }
+        // }
+        // stage("Create environment") {
+        //     steps {
+        //         script {
+        //             def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+        //                 projectName, prototypeTenant, folio_repository, folio_branch)
 
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
+        //             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+        //         }
+        //     }
+        // }
 
         stage("Run karate tests") {
             when {
