@@ -47,7 +47,8 @@ def createSecret(String name, String namespace, String file_path) {
 }
 
 def getS3ObjectBody(String bucketname, String filePathName) {
-    sh "aws s3 cp s3://${bucketname}/${filePathName} ./${filePathName} > /dev/null && cat ${filePathName}"
+    String body = sh "aws s3 cp s3://${bucketname}/${filePathName} ./${filePathName} > /dev/null && cat ${filePathName}"
+    return body
 }
 
 // Adding the image repository and tag to the module's values.yaml file.
