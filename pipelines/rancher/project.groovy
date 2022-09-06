@@ -63,7 +63,7 @@ String okapi_url = "https://" + okapi_domain
 
 String hash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
 String tag = params.ui_build ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id}-${hash.take(7)}" : params.frontend_image_tag
-String final_image_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name) : tag
+String final_image_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name).trim() : tag
 
 def modules_config = ''
 
