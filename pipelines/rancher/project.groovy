@@ -56,7 +56,7 @@ String test = psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backu
 println("================================================================================================================")
 println(test)
 println("================================================================================================================")
-List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
+//List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
 Map install_map = [:]
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
@@ -67,10 +67,10 @@ String okapi_url = "https://" + okapi_domain
 
 String hash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
 String tag = params.ui_build ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id}-${hash.take(7)}" : params.frontend_image_tag
-String final_image_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name) : tag
+//String final_image_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name) : tag
 String final_image_tag2 = psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name)
 println("================================================================================================================")
-println(final_image_tag2 )
+println(final_image_tag2)
 println("================================================================================================================")
 
 def modules_config = ''
