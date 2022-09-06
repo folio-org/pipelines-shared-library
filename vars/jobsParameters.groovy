@@ -34,7 +34,7 @@ static ArrayList rancherClustersList() {
 }
 
 static ArrayList getJenkinsAgents() {
-    return  'return ["java-jenkins"]'
+    return  'return ['java-jenkins']'
 }
 
 @NonCPS
