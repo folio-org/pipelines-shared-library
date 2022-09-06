@@ -57,6 +57,8 @@ Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
 println("================================================================================================================")
 println(install_map)
 println("================================================================================================================")
+psqlDumpMethods.getOkapiVersion(install_map)
+println("================================================================================================================")
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String ui_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant_id, Constants.CI_ROOT_DOMAIN)

@@ -1,5 +1,5 @@
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import org.folio.utilities.Tools
 
 def configureKubectl(String region, String cluster_name) {
     stage('Configure kubectl') {
@@ -53,5 +53,10 @@ def getPlatformCompleteImageTag(String filePathName) {
         filePathName = filePathName.split("\\.")[0]
         helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_image_tag.txt")
     }
+}
+
+def getOkapiVersion(Map install_map) {
+    String okapi = new JsonSlurperClassic().parseText(install_map.getText())*.id.find{it ==~ /okapi-.*/}
+    return okapi.trim()
 }
 
