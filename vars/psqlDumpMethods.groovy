@@ -44,6 +44,7 @@ def getInstallJsonBody(String filePathName) {
         filePathName = filePathName.split("\\.")[0]
         body = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
     }
+    println(body)
     body
 }
 
@@ -53,6 +54,7 @@ def getPlatformCompleteImageTag(String filePathName) {
         filePathName = filePathName.split("\\.")[0]
         tag = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_image_tag.txt")
     }
+    println(tag)
     tag
 }
 
