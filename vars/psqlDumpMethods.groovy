@@ -1,3 +1,5 @@
+import org.folio.Constants
+
 def configureKubectl(String region, String cluster_name) {
     stage('Configure kubectl') {
         sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name} > /dev/null"
@@ -35,3 +37,18 @@ def helmDelete(String build_id, String project_namespace) {
         sh "helm delete psql-dump-build-id-${build_id} --namespace=${project_namespace}"
     }
 }
+
+def getInstallJsonBody(String filePathName) {
+    helm.k8sClient {
+        String body = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
+        return body;
+    }
+}
+
+def getPlatformCompleteImageTag(String filePathName) {
+    helm.k8sClient {
+        String tag = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_image_tag.txt")
+        return tag;
+    }
+}
+
