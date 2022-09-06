@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.utilities.Tools
 
 def configureKubectl(String region, String cluster_name) {
     stage('Configure kubectl') {
@@ -39,10 +40,12 @@ def helmDelete(String build_id, String project_namespace) {
 }
 
 def getInstallJsonBody(String filePathName) {
+    def body
     helm.k8sClient {
         filePathName = filePathName.split("\\.")[0]
-        helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
+        body = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
     }
+    return org.folio.utilities.Tools.jsonParse(body)
 }
 
 def getPlatformCompleteImageTag(String filePathName) {
