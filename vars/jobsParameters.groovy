@@ -33,6 +33,10 @@ static ArrayList rancherClustersList() {
             'folio-tmp']
 }
 
+static ArrayList getJenkinsAgents() {
+    return ['java-jenkins']
+}
+
 @NonCPS
 static ArrayList envTypeList() {
     return ['development',
@@ -99,9 +103,9 @@ if (get.getResponseCode().equals(200)) {
 }
 '''
 }
-static String getJenkinsAgents() {
-    return 'return ["jenkins-agent-java11"]'
-}
+// static String getJenkinsAgents() {
+//     return 'return ["jenkins-agent-java11"]'
+// }
 
 static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
