@@ -53,7 +53,10 @@ boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reinde
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
 List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
-Map install_map = [:]
+Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
+println("================================================================================================================")
+println(install_map)
+println("================================================================================================================")
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String ui_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant_id, Constants.CI_ROOT_DOMAIN)
@@ -81,7 +84,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    /*node('jenkins-agent-java11') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
@@ -141,14 +144,6 @@ ansiColor('xterm') {
             }
 
             if (params.action == 'apply') {
-                stage("Generate install map") {
-                    if (params.restore_postgresql_from_backup) {
-                        //TODO Add restore install json fetch
-                        install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
-                    } else {
-                        install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
-                    }
-                }
 
                 stage("Deploy okapi") {
                     folioDeploy.okapi(modules_config, params.okapi_version, params.rancher_cluster_name, params.rancher_project_name, okapi_domain)
@@ -221,5 +216,5 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
-    }
+    }*/
 }
