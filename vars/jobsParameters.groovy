@@ -174,6 +174,10 @@ def rancherClusters() {
     return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
 }
 
+def agents() {
+    return _paramChoice('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
+}
+
 def envType() {
     return _paramChoice('env_config', envTypeList(), '(Required) Select config file')
 }
@@ -254,6 +258,7 @@ def tenantIdToBackupModulesVersions() {
 def tenantIdToRestoreModulesVersions() {
     return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
 }
-def agents() {
-    return _paramExtended('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
-}
+
+// def agents() {
+//     return _paramExtended('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
+// }
