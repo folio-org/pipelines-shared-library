@@ -55,8 +55,8 @@ def getPlatformCompleteImageTag(String filePathName) {
     }
 }
 
-def getOkapiVersion(def installJson) {
-    String okapi = new JsonSlurperClassic().parse(installJson)*.id.find{it ==~ /okapi-.*/}
+def getOkapiVersion(String installJson) {
+    String okapi = new JsonSlurperClassic().parseText(installJson)*.id.find{it ==~ /okapi-.*/}
     return okapi.trim()
 }
 
