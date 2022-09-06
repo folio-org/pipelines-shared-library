@@ -52,12 +52,14 @@ def tenant_id = params.restore_postgresql_from_backup ? params.restore_tenant_id
 boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reindex_elastic_search
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
-List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
+def custom_install_json = psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name)
+String custom_okapi_version = psqlDumpMethods.getOkapiVersion(custom_install_json)
+List install_json = params.restore_postgresql_from_backup ? custom_install_json : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
 Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
 println("================================================================================================================")
 println(install_map)
 println("================================================================================================================")
-psqlDumpMethods.getOkapiVersion(install_map)
+println(custom_okapi_version)
 println("================================================================================================================")
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
