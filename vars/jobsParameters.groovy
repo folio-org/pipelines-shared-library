@@ -33,8 +33,8 @@ static ArrayList rancherClustersList() {
             'folio-tmp']
 }
 
-static ArrayList getJenkinsAgents() {
-    return ['java-jenkins']
+static ArrayList jenkinsAgentsList() {
+    return ['jenkins-agent-java11']
 }
 
 @NonCPS
@@ -179,7 +179,7 @@ def rancherClusters() {
 }
 
 def agents() {
-    return _paramChoice('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
+    return _paramChoice('agent', jenkinsAgentsList(), 'Choose for which jenkins agent you want to build from')
 }
 
 def envType() {
