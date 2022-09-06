@@ -40,6 +40,7 @@ def helmDelete(String build_id, String project_namespace) {
 
 def getInstallJsonBody(String filePathName) {
     helm.k8sClient {
+        filePathName = filePathName.split("\\.")[0]
         String body = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
         return body;
     }
@@ -47,6 +48,7 @@ def getInstallJsonBody(String filePathName) {
 
 def getPlatformCompleteImageTag(String filePathName) {
     helm.k8sClient {
+        filePathName = filePathName.split("\\.")[0]
         String tag = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_image_tag.txt")
         return tag;
     }
