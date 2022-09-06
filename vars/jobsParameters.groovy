@@ -24,6 +24,7 @@ static ArrayList repositoriesList() {
             'core']
 }
 
+
 static ArrayList rancherClustersList() {
     return ['folio-testing',
             'folio-dev',
@@ -97,6 +98,9 @@ if (get.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
 '''
+}
+static String getJenkinsAgents() {
+    return 'return jenkins-agent-java11'
 }
 
 static String getUIImagesList() {
@@ -249,4 +253,7 @@ def tenantIdToBackupModulesVersions() {
 
 def tenantIdToRestoreModulesVersions() {
     return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
+}
+def agents() {
+    return _paramExtended('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
 }
