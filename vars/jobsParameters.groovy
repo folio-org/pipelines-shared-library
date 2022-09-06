@@ -32,6 +32,10 @@ static ArrayList rancherClustersList() {
             'folio-perf',
             'folio-tmp']
 }
+static ArrayList getJenkinsAgents() {
+    return ['jenkins-agent-java11',
+           'jenkins-agent-java8']
+}
 
 @NonCPS
 static ArrayList envTypeList() {
@@ -99,9 +103,10 @@ if (get.getResponseCode().equals(200)) {
 }
 '''
 }
-static String getJenkinsAgents() {
-    return 'print jenkins-agent-java11'
-}
+
+// static String getJenkinsAgents() {
+//     return 'print jenkins-agent-java11'
+// }
 
 static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
@@ -172,6 +177,10 @@ private def _paramExtended(String name, String reference, String script, String 
 
 def rancherClusters() {
     return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
+}
+
+def agents() {
+    return _paramChoice('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
 }
 
 def envType() {
@@ -253,7 +262,4 @@ def tenantIdToBackupModulesVersions() {
 
 def tenantIdToRestoreModulesVersions() {
     return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
-}
-def agents() {
-    return _paramExtended('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
 }
