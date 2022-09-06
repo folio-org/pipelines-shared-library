@@ -52,15 +52,9 @@ def tenant_id = params.restore_postgresql_from_backup ? params.restore_tenant_id
 boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reindex_elastic_search
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
-//def custom_install_json = psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name)
 List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
 Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
-String custom_okapi_version = install_map.find{ it.key == "okapi" }?.value
-println("================================================================================================================")
-println(install_map)
-println("================================================================================================================")
-println(custom_okapi_version)
-println("================================================================================================================")
+String okapi_version = params.restore_postgresql_from_backup ? install_map.find{ it.key == "okapi" }?.value : params.okapi_version
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String ui_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant_id, Constants.CI_ROOT_DOMAIN)
@@ -150,7 +144,7 @@ ansiColor('xterm') {
             if (params.action == 'apply') {
 
                 stage("Deploy okapi") {
-                    folioDeploy.okapi(modules_config, params.okapi_version, params.rancher_cluster_name, params.rancher_project_name, okapi_domain)
+                    folioDeploy.okapi(modules_config, okapi_version, params.rancher_cluster_name, params.rancher_project_name, okapi_domain)
                 }
 
                 stage("Deploy backend modules") {
