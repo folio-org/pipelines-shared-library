@@ -52,6 +52,10 @@ def tenant_id = params.restore_postgresql_from_backup ? params.restore_tenant_id
 boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reindex_elastic_search
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
+String test = psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name)
+println("================================================================================================================")
+println(test)
+println("================================================================================================================")
 List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
 Map install_map = [:]
 
@@ -64,6 +68,10 @@ String okapi_url = "https://" + okapi_domain
 String hash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
 String tag = params.ui_build ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id}-${hash.take(7)}" : params.frontend_image_tag
 String final_image_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name) : tag
+String final_image_tag2 = psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name)
+println("================================================================================================================")
+println(final_image_tag2 )
+println("================================================================================================================")
 
 def modules_config = ''
 
@@ -81,7 +89,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    /*node('jenkins-agent-java11') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
@@ -221,5 +229,5 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
-    }
+    }*/
 }
