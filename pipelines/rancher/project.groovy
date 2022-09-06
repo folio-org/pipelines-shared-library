@@ -82,7 +82,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    /*node('jenkins-agent-java11') {
+    node('jenkins-agent-java11') {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
@@ -214,5 +214,5 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
-    }*/
+    }
 }
