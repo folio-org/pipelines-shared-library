@@ -100,7 +100,7 @@ if (get.getResponseCode().equals(200)) {
 '''
 }
 static String getJenkinsAgents() {
-    return "return ['jenkins-agent-java11']"
+    return 'return ["jenkins-agent-java11"]'
 }
 
 static String getUIImagesList() {
