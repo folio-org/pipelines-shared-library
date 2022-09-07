@@ -11,7 +11,6 @@ pipeline {
     agent { label "${params.agent}" }
 
     parameters {
-        jobsParameters.agents()
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
