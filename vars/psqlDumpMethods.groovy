@@ -1,4 +1,3 @@
-import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 
 def configureKubectl(String region, String cluster_name) {
