@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "jenkins"
 
 pipeline {
-    agent { label ${params.agent} }
+    agent { label "${params.agent}" }
 
     parameters {
         jobsParameters.agents()
