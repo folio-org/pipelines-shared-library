@@ -64,6 +64,7 @@ pipeline {
             steps {
                 script {
                     def jobParameters = [
+                        jobsParameters.agents(),
                         string(name: 'branch', value: params.branch),
                         string(name: 'threadsCount', value: "4"),
                         string(name: 'modules', value: ""),
