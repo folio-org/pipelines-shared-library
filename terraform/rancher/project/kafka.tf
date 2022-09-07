@@ -22,7 +22,7 @@ resource "rancher2_app_v2" "kafka" {
         memory: 1100Mi
       limits:
         cpu: 500m
-        memory: 1200Mi
+        memory: 4096Mi
     zookeeper:
       enabled: true
       persistence:
@@ -31,6 +31,7 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     readinessProbe:
       enabled: false
+    heapOpts: "-Xmx2662m -Xms1024m"
   EOT
 }
 
