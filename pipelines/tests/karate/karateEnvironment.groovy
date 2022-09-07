@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-431') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -12,6 +12,7 @@ properties([
         jobsParameters.repository(),
         jobsParameters.folioBranch(),
         jobsParameters.okapiVersion(),
+        jobsParameters.agents(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
     ])
 ])
@@ -27,7 +28,7 @@ ansiColor("xterm") {
         currentBuild.result = "ABORTED"
         error("DRY RUN BUILD, NO STAGE IS ACTIVE!")
     }
-    node("jenkins-agent-java11") {
+    node(params.agent) {
         try {
             stage("Create environment") {
                 build job: Constants.JENKINS_JOB_PROJECT,

@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-431') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -28,7 +28,7 @@ List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_re
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label ${params.agent} }
 
     triggers {
         cron('H 3 * * *')
@@ -41,6 +41,7 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
+        jobsParameters.agents()
     }
 
     stages {

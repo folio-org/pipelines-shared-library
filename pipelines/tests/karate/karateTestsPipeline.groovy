@@ -3,14 +3,15 @@ package tests.karate
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-431') _
 
 def karateEnvironment = "jenkins"
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label ${params.agent} }
 
     parameters {
+        jobsParameters.agents()
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
