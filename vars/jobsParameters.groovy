@@ -34,7 +34,11 @@ static ArrayList rancherClustersList() {
 }
 
 static ArrayList jenkinsAgentsList() {
-    return ['jenkins-agent-java11']
+    return ['jenkins-agent-java11',
+    'jenkins-agent-java11-test',
+    'jenkins-agent-java17',
+    'jenkins-agent-java17-test'
+    ]
 }
 
 @NonCPS
@@ -103,10 +107,6 @@ if (get.getResponseCode().equals(200)) {
 }
 '''
 }
-// static String getJenkinsAgents() {
-//     return 'return ["jenkins-agent-java11"]'
-// }
-
 static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
@@ -262,7 +262,3 @@ def tenantIdToBackupModulesVersions() {
 def tenantIdToRestoreModulesVersions() {
     return _paramString('tenant_id_to_restore_modules_versions', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
 }
-
-// def agents() {
-//     return _paramExtended('agent','', getJenkinsAgents(), 'Choose for which jenkins agent you want to build from')
-// }
