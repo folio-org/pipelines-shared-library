@@ -13,6 +13,7 @@ properties([
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
+        jobsParameters.agents(),
         string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
         string(name: 'custom_url', defaultValue: '', description: 'Custom url for bundle build'),
         string(name: 'custom_tag', defaultValue: '', description: 'Custom tag for UI image')
@@ -29,7 +30,7 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         stage('Build and Push') {
             buildName tag + '.' + env.BUILD_ID
             buildDescription "repository: ${params.folio_repository}\n" +

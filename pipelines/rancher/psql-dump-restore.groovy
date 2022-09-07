@@ -12,6 +12,7 @@ properties([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
+        jobsParameters.agents(),
         jobsParameters.tenantIdToBackupModulesVersions(),
         jobsParameters.restorePostgresqlFromBackup(),
         jobsParameters.restorePostgresqlBackupName()
@@ -28,7 +29,7 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
