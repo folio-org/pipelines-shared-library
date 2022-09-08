@@ -24,7 +24,6 @@ static ArrayList repositoriesList() {
             'core']
 }
 
-
 static ArrayList rancherClustersList() {
     return ['folio-testing',
             'folio-dev',
