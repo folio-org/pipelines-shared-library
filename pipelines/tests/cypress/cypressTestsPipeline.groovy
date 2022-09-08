@@ -52,7 +52,6 @@ properties([
 
 def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
 
-
 pipeline {
     agent { label "$params.agent" }
 
