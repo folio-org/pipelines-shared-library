@@ -10,6 +10,7 @@ def karateEnvironment = "jenkins"
 pipeline {
     agent { label 'jenkins-agent-java11'}
 
+
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
