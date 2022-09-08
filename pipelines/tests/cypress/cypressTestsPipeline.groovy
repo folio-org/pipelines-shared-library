@@ -42,6 +42,7 @@ properties([
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
         password(name: 'password', defaultValue: "admin", description: 'User password'),
+        jobsParameters.agents(),
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
@@ -53,7 +54,7 @@ def customBuildName = params.customBuildName?.trim() ? params.customBuildName + 
 
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label "$params.agent" }
 
     stages {
         stage('Checkout') {

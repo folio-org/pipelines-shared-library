@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "jenkins"
 
 pipeline {
-    agent { label "${params.agent}" }
+    agent { label 'jenkins-agent-java11'}
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
@@ -16,7 +16,6 @@ pipeline {
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://folio-testing-karate-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
         string(name: 'tenant', defaultValue: 'supertenant', description: 'Tenant name for tests execution')
-        string(name: 'agent', defaultValue: 'jenkins-agent-java11', description: 'Jenkins agents for building')
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
         password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
         string(name: 'prototypeTenant', defaultValue: 'diku', description: 'A tenant name which will be used by tests as a prototype during test tenant creation')
