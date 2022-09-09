@@ -150,9 +150,9 @@ ansiColor('xterm') {
                                     ]
                             }
                         }
-                        terraform.tfPlan(tfWorkDir, tfVars)
                         retry(2) {
                             sleep(60)
+                            terraform.tfPlan(tfWorkDir, tfVars)
                             terraform.tfApply(tfWorkDir)
                         }
                         custom_install_json = terraform.tfOutput(tfWorkDir, "custom_install_json")
