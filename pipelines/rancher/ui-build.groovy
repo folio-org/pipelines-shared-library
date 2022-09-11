@@ -30,21 +30,29 @@ ansiColor('xterm') {
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
     node('jenkins-agent-java11') {
-        stage('Build and Push') {
-            buildName tag + '.' + env.BUILD_ID
-            buildDescription "repository: ${params.folio_repository}\n" +
-                "branch: ${params.folio_branch}\n" +
-                "hash: ${hash}"
-            docker.withRegistry('https://' + Constants.DOCKER_DEV_REPOSITORY, Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
-                def image = docker.build(
-                    imageName,
-                    "--build-arg OKAPI_URL=${okapiUrl} " +
-                        "--build-arg TENANT_ID=${params.tenant_id} " +
-                        "-f docker/Dockerfile  " +
-                        "https://github.com/folio-org/platform-complete.git#${hash}"
-                )
-                image.push(tag)
+        try {
+            stage('Build and Push') {
+                buildName tag + '.' + env.BUILD_ID
+                buildDescription "repository: ${params.folio_repository}\n" +
+                    "branch: ${params.folio_branch}\n" +
+                    "hash: ${hash}"
+                docker.withRegistry('https://' + Constants.DOCKER_DEV_REPOSITORY, Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                    def image = docker.build(
+                        imageName,
+                        "--build-arg OKAPI_URL=${okapiUrl} " +
+                            "--build-arg TENANT_ID=${params.tenant_id} " +
+                            "-f docker/Dockerfile  " +
+                            "https://github.com/folio-org/platform-complete.git#${hash}"
+                    )
+                    image.push(tag)
+                }
             }
+        } catch (exception) {
+            println(exception)
+            error(exception.getMessage())
+        } finally {
+            sh "docker rmi ${imageName} || exit 0"
+            sh "docker rmi ${imageName}:latest || exit 0"
         }
     }
 }
