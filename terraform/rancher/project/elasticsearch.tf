@@ -55,7 +55,7 @@ resource "random_password" "es_password" {
   count       = var.es_embedded ? 0 : 1
   length      = 16
   special     = true
-  number      = true
+  numeric     = true
   upper       = true
   lower       = true
   min_lower   = 1

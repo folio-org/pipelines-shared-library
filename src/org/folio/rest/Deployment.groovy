@@ -9,15 +9,13 @@ import org.folio.rest.model.OkapiUser
 
 class Deployment extends GeneralParameters {
 
-    private String stripesUrl
+    private String stripes_url
 
-    private String branch
+    private List install_json
 
-    private String repository
+    private Map install_map
 
-    private List enableList
-
-    private List discoveryList
+    private List discovery_list
 
     private String kb_api_key
 
@@ -31,77 +29,57 @@ class Deployment extends GeneralParameters {
 
     private OkapiUser testing_admin = new OkapiUser(username: 'testing_admin', password: 'admin')
 
-    private Okapi okapi = new Okapi(steps, okapiUrl, super_admin)
+    private Okapi okapi = new Okapi(steps, okapi_url, super_admin)
 
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
-    private InstallCustomJsonsUtility installCustomJsonsUtility = new InstallCustomJsonsUtility(steps)
+    private TenantService tenantService = new TenantService(steps, okapi_url, super_admin)
 
-    private TenantService tenantService = new TenantService(steps, okapiUrl, super_admin)
+    private boolean reindex = false
 
-    private boolean reindex_elastic_search
-    private boolean recreate_index_elastic_search
+    private boolean recreate_index = false
 
-    def custom_install_json
-    def custom_okapi_install_json
-
-
-    Deployment(Object steps, String okapiUrl, String stripesUrl, String repository, String branch, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search, custom_install_json, custom_okapi_install_json) {
-        super(steps, okapiUrl)
-        this.stripesUrl = stripesUrl
-        this.repository = repository
-        this.branch = branch
+    Deployment(Object steps, String okapi_url, String stripes_url, List install_json, Map install_map, OkapiTenant tenant, OkapiUser admin_user, Email email, String kb_api_key, reindex, recreate_index) {
+        super(steps, okapi_url)
+        this.stripes_url = stripes_url
+        this.install_json = install_json
+        this.install_map = install_map
         this.tenant = tenant
         this.admin_user = admin_user
         this.email = email
         this.kb_api_key = kb_api_key
         this.tenant.setAdmin_user(admin_user)
-        this.reindex_elastic_search = reindex_elastic_search
-        this.recreate_index_elastic_search = recreate_index_elastic_search
-        this.custom_install_json = custom_install_json
-        this.custom_okapi_install_json = custom_okapi_install_json
-
+        this.reindex = reindex
+        this.recreate_index = recreate_index
     }
 
     void main() {
-        enableList = gitHubUtility.buildEnableList(repository, branch)
-        discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-        okapi.publishModuleDescriptors(enableList)
-        okapi.registerServices(discoveryList)
-
-        def tenantService = new TenantService(steps, okapiUrl, super_admin)
-        tenantService.createTenant(tenant, admin_user, enableList, email, stripesUrl, kb_api_key, reindex_elastic_search, recreate_index_elastic_search)
+        discovery_list = gitHubUtility.buildDiscoveryList(install_map)
+        okapi.publishModuleDescriptors(install_json)
+        okapi.registerServices(discovery_list)
 
         okapi.secure(super_admin)
         okapi.secure(testing_admin)
+
+        tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url, kb_api_key, reindex, recreate_index)
     }
+
+    void cleanup(){
+        okapi.cleanupServicesRegistration()
+    }
+
     void update() {
         if (tenant) {
-            enableList = gitHubUtility.buildEnableList(repository, branch)
-            discoveryList = gitHubUtility.buildDiscoveryList(repository, branch)
-            okapi.cleanupServicesRegistration()
-            okapi.publishModuleDescriptors(enableList)
-            okapi.registerServices(discoveryList)
+            discovery_list = gitHubUtility.buildDiscoveryList(install_map)
+            okapi.publishModuleDescriptors(install_json)
+            okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
-            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
-        }  else {
-            throw new AbortException('Tenant not set')
-        }
-    }
-    void restoreFromBackup() {
-        if (tenant) {
-            enableList = installCustomJsonsUtility.customBuildEnableList(custom_install_json)
-            discoveryList = installCustomJsonsUtility.customBuildDiscoveryList(custom_okapi_install_json)
-            okapi.cleanupServicesRegistration()
-            okapi.registerServices(discoveryList)
-            okapi.publishModuleDescriptors(enableList)
-            okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
-            okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
-            if (reindex_elastic_search) {
-                def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
-                okapi.checkReindex(tenant, jobid)
+            okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 900000)
+            if (reindex) {
+                def job_id = okapi.reindexElasticsearch(tenant, admin_user, recreate_index)
+                okapi.checkReindex(tenant, job_id)
             }
-        }  else {
+        } else {
             throw new AbortException('Tenant not set')
         }
     }

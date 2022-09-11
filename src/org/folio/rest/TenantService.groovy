@@ -10,26 +10,26 @@ class TenantService extends GeneralParameters {
 
     private OkapiUser okapiAdmin
 
-    private Okapi okapi = new Okapi(steps, okapiUrl, okapiAdmin)
+    private Okapi okapi = new Okapi(steps, okapi_url, okapiAdmin)
 
-    private Authorization auth = new Authorization(steps, okapiUrl)
+    private Authorization auth = new Authorization(steps, okapi_url)
 
-    private Users users = new Users(steps, okapiUrl)
+    private Users users = new Users(steps, okapi_url)
 
-    private Permissions permissions = new Permissions(steps, okapiUrl)
+    private Permissions permissions = new Permissions(steps, okapi_url)
 
-    private ServicePoints servicePoints = new ServicePoints(steps, okapiUrl)
+    private ServicePoints servicePoints = new ServicePoints(steps, okapi_url)
 
-    private Edge edge = new Edge(steps, okapiUrl)
+    private Edge edge = new Edge(steps, okapi_url)
 
-    private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapiUrl)
+    private TenantConfiguration tenantConfiguration = new TenantConfiguration(steps, okapi_url)
 
-    TenantService(Object steps, String okapiUrl, OkapiUser okapiAdmin) {
-        super(steps, okapiUrl)
+    TenantService(Object steps, String okapi_url, OkapiUser okapiAdmin) {
+        super(steps, okapi_url)
         this.okapiAdmin = okapiAdmin
     }
 
-    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripesUrl, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
+    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
         if (tenant && admin_user) {
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
@@ -51,7 +51,6 @@ class TenantService extends GeneralParameters {
             auth.login(tenant, tenant.admin_user)
             permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
             users.setPatronGroup(tenant, tenant.admin_user, users.getPatronGroupId(tenant, admin_user))
-            edge.createEdgeUsers(tenant, enableList)
             if (reindex_elastic_search) {
                 def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
                 okapi.checkReindex(tenant, jobid)
@@ -59,7 +58,7 @@ class TenantService extends GeneralParameters {
             tenantConfiguration.modInventoryMods(tenant)
             tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
             tenantConfiguration.worldcat(tenant)
-            tenantConfiguration.configurations(tenant, email, stripesUrl)
+            tenantConfiguration.configurations(tenant, email, stripes_url)
         } else {
             throw new AbortException('Tenant or admin user not set')
         }

@@ -14,14 +14,15 @@ properties([
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
         string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
-        string(name: 'custom_url', defaultValue: '', description: 'Custom url for bundle build'),
+        string(name: 'custom_url', defaultValue: '', description: 'Custom url for okapi'),
         string(name: 'custom_tag', defaultValue: '', description: 'Custom tag for UI image')
     ])
 ])
 
-String imageName = Constants.DOCKER_DEV_REPOSITORY + '/platform-complete' //TODO rename to folio-ui
-String okapiUrl = params.custom_url.isEmpty() ? "https://${params.rancher_cluster_name}-${params.rancher_project_name}-okapi.${Constants.CI_ROOT_DOMAIN}" : params.custom_url //TODO add tenant id to URL
-String hash = params.custom_hash.isEmpty() ? common.getLastCommitHash("platform-${params.folio_repository}", params.folio_branch) : params.custom_hash
+String image_name = Constants.DOCKER_DEV_REPOSITORY + '/platform-complete' //TODO rename to folio-ui
+String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
+String okapi_url = params.custom_url.isEmpty() ? "https://" + okapi_domain : params.custom_url
+String hash = params.custom_hash.isEmpty() ? common.getLastCommitHash(params.folio_repository, params.folio_branch) : params.custom_hash
 String tag = params.custom_tag.isEmpty() ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${params.tenant_id}-${hash.take(7)}" : params.custom_tag
 
 ansiColor('xterm') {
@@ -38,8 +39,8 @@ ansiColor('xterm') {
                     "hash: ${hash}"
                 docker.withRegistry('https://' + Constants.DOCKER_DEV_REPOSITORY, Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
                     def image = docker.build(
-                        imageName,
-                        "--build-arg OKAPI_URL=${okapiUrl} " +
+                        image_name,
+                        "--build-arg OKAPI_URL=${okapi_url} " +
                             "--build-arg TENANT_ID=${params.tenant_id} " +
                             "-f docker/Dockerfile  " +
                             "https://github.com/folio-org/platform-complete.git#${hash}"
@@ -51,8 +52,8 @@ ansiColor('xterm') {
             println(exception)
             error(exception.getMessage())
         } finally {
-            sh "docker rmi ${imageName} || exit 0"
-            sh "docker rmi ${imageName}:latest || exit 0"
+            sh "docker rmi ${image_name}:${tag} || exit 0"
+            sh "docker rmi ${image_name}:latest || exit 0"
         }
     }
 }

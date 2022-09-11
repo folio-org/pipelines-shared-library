@@ -3,7 +3,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.Email
 
-def tenant(Map args = [:]){
+static def tenant(Map args = [:]){
     return new OkapiTenant(
         id: args.tenantId,
         name: args.tenantName,
@@ -14,7 +14,7 @@ def tenant(Map args = [:]){
     )
 }
 
-def adminUser(){
+static def adminUser(){
     return new OkapiUser(
         username: 'diku_admin',
         password: 'admin',

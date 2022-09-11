@@ -1,7 +1,7 @@
 resource "random_password" "pg_password" {
   length           = 16
   special          = true
-  number           = true
+  numeric          = true
   upper            = true
   lower            = true
   min_lower        = 2

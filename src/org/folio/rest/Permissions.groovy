@@ -8,12 +8,12 @@ import org.folio.rest.model.OkapiUser
 
 class Permissions extends GeneralParameters {
 
-    private Users users = new Users(steps, okapiUrl)
+    private Users users = new Users(steps, okapi_url)
 
-    private Authorization auth = new Authorization(steps, okapiUrl)
+    private Authorization auth = new Authorization(steps, okapi_url)
 
-    Permissions(Object steps, String okapiUrl) {
-        super(steps, okapiUrl)
+    Permissions(Object steps, String okapi_url) {
+        super(steps, okapi_url)
     }
 
     /**
@@ -25,7 +25,7 @@ class Permissions extends GeneralParameters {
     def getAllPermissions(OkapiTenant tenant) {
         auth.getOkapiToken(tenant, tenant.admin_user)
         ArrayList permissions = []
-        String url = okapiUrl + "/perms/permissions?query=cql.allRecords%3D1%20not%20permissionName%3D%3Dokapi.%2A%20not%20permissionName%3D%3Dperms.users.assign.okapi%20not%20permissionName%3D%3Dmodperms.%2A%20not%20permissionName%3D%3DSYS%23%2A&length=5000"
+        String url = okapi_url + "/perms/permissions?query=cql.allRecords%3D1%20not%20permissionName%3D%3Dokapi.%2A%20not%20permissionName%3D%3Dperms.users.assign.okapi%20not%20permissionName%3D%3Dmodperms.%2A%20not%20permissionName%3D%3DSYS%23%2A&length=5000"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         logger.info("Get all permissions list. Except okapi.*, modperms.* and SYS#*")
@@ -56,7 +56,7 @@ class Permissions extends GeneralParameters {
     def getUserPermissions(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/perms/users?query=userId%3d%3d" + user.uuid
+        String url = okapi_url + "/perms/users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
@@ -75,7 +75,7 @@ class Permissions extends GeneralParameters {
     void createUserPermissions(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/perms/users"
+        String url = okapi_url + "/perms/users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
@@ -113,7 +113,7 @@ class Permissions extends GeneralParameters {
      */
     void assignUserPermissions(OkapiTenant tenant, OkapiUser user, ArrayList permissions) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/perms/users/" + user.permissionsId + "/permissions"
+        String url = okapi_url + "/perms/users/" + user.permissionsId + "/permissions"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]

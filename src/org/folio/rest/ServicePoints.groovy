@@ -8,12 +8,12 @@ import org.folio.rest.model.OkapiUser
 
 class ServicePoints extends GeneralParameters {
 
-    private Users users = new Users(steps, okapiUrl)
+    private Users users = new Users(steps, okapi_url)
 
-    private Authorization auth = new Authorization(steps, okapiUrl)
+    private Authorization auth = new Authorization(steps, okapi_url)
 
-    ServicePoints(Object steps, String okapiUrl) {
-        super(steps, okapiUrl)
+    ServicePoints(Object steps, String okapi_url) {
+        super(steps, okapi_url)
     }
 
     /**
@@ -23,7 +23,7 @@ class ServicePoints extends GeneralParameters {
      */
     def getServicePointsIds(OkapiTenant tenant) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/service-points"
+        String url = okapi_url + "/service-points"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
@@ -43,7 +43,7 @@ class ServicePoints extends GeneralParameters {
     def getServicePointsUsersRecords(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/service-points-users?query=userId%3d%3d" + user.uuid
+        String url = okapi_url + "/service-points-users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
@@ -61,7 +61,7 @@ class ServicePoints extends GeneralParameters {
     void createServicePointsUsersRecord(OkapiTenant tenant, OkapiUser user, ArrayList servicePointsIds) {
         users.validateUser(user)
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/service-points-users"
+        String url = okapi_url + "/service-points-users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
