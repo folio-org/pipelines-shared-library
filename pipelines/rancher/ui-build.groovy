@@ -31,7 +31,7 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    node('jenkins-agent-java11') {
+    node('params.agent') {
         try {
             stage('Build and Push') {
                 buildName tag + '.' + env.BUILD_ID
