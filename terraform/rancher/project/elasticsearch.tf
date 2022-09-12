@@ -1,14 +1,14 @@
 # Create a new rancher2 Folio ElasticSearch App in a default Project namespace
-resource "rancher2_app_v2" "elasticsearch" {
+resource "rancher2_app_v2" "opensearch" {
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "elasticsearch"
-  repo_name     = "bitnami"
-  chart_name    = "elasticsearch"
-  chart_version = "17.9.29"
+  name          = "opensearch"
+  repo_name     = "opensearch"
+  chart_name    = "opensearch"
+  chart_version = "1.14.0"
   force_upgrade = "true"
-  values        = <<-EOT
+  /*values        = <<-EOT
     image:
       debug: true
     global:
@@ -48,7 +48,7 @@ resource "rancher2_app_v2" "elasticsearch" {
       livenessProbe:
         initialDelaySeconds: 360
     plugins: "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
-  EOT
+  EOT*/
 }
 
 resource "random_password" "es_password" {
