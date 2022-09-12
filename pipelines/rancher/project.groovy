@@ -26,6 +26,7 @@ properties([
         jobsParameters.frontendImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
+        jobsParameters.agents(),
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
@@ -52,9 +53,10 @@ def tenant_id = params.restore_postgresql_from_backup ? params.restore_tenant_id
 boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reindex_elastic_search
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
-List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
-Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
-String okapi_version = params.restore_postgresql_from_backup ? install_map.find{ it.key == "okapi" }?.value : params.okapi_version
+def custom_install_json
+def custom_okapi_install_json
+def tenant_id = params.restore_postgresql_from_backup ? params.tenant_id_to_restore_modules_versions : params.tenant_id
+boolean recreate_index_elastic_search = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String ui_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant_id, Constants.CI_ROOT_DOMAIN)
@@ -64,7 +66,6 @@ String okapi_url = "https://" + okapi_domain
 
 String hash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
 String tag = params.ui_build ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id}-${hash.take(7)}" : params.frontend_image_tag
-String final_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name).trim() : tag
 
 def modules_config = ''
 
@@ -82,7 +83,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
@@ -92,15 +93,13 @@ ansiColor('xterm') {
                     "tenant: ${tenant_id}\n" +
                     "env_config: ${params.env_config}"
             }
-
             stage('Checkout') {
                 checkout scm
-                modules_config = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${params.env_config}.yaml"
             }
 
             stage('UI Build') {
                 //TODO review condition
-                if (params.ui_build && params.action == 'apply' && !params.restore_postgresql_from_backup) {
+                if (params.ui_build && params.action == 'apply') {
                     build job: 'Rancher/UI-Build-261',
                         parameters: [string(name: 'folio_repository', value: params.folio_repository),
                                      string(name: 'folio_branch', value: params.folio_branch),
@@ -112,7 +111,6 @@ ansiColor('xterm') {
                                      string(name: 'custom_tag', value: tag)]
                 }
             }
-
             stage('TF vars') {
                 tf_variables += terraform.generateTfVar('rancher_cluster_name', params.rancher_cluster_name)
                 tf_variables += terraform.generateTfVar('rancher_project_name', params.rancher_project_name)
@@ -191,7 +189,7 @@ ansiColor('xterm') {
 
                 stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(install_map)
-                    if(install_edge_map) {
+                    if (install_edge_map) {
                         writeFile file: "ephemeral.properties", text: new Edge(this, okapi_url).renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
                             helm.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
@@ -203,7 +201,7 @@ ansiColor('xterm') {
                 }
 
                 stage("Deploy UI bundle") {
-                    folioDeploy.uiBundle(tenant_id, modules_config, final_tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
+                    folioDeploy.uiBundle(tenant_id, modules_config, tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
                 }
             }
         } catch (exception) {

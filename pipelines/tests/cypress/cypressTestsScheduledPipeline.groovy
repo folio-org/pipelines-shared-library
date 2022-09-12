@@ -7,7 +7,7 @@ def allureVersion = "2.17.2"
 
 def clusterName = "folio-testing"
 def projectName = "cypress"
-def folio_repository = "complete"
+def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def uiUrl = "https://${clusterName}-${projectName}.ci.folio.org"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"

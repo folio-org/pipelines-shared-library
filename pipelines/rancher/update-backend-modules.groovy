@@ -7,7 +7,7 @@ import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
-@Library('pipelines-shared-library@RANCHER-261') _
+@Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
 
