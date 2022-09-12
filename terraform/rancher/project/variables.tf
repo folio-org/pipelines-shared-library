@@ -151,7 +151,7 @@ variable "es_embedded" {
 
 variable "es_version" {
   type        = string
-  default     = "7.9"
+  default     = "7.10"
   description = "Elasticsearch version"
 }
 
@@ -172,7 +172,7 @@ variable "es_instance_count" {
 
 variable "es_instance_type" {
   type    = string
-  default = "m5.xlarge.search"
+  default = "m5.xlarge.elasticsearch"
 }
 
 variable "es_ebs_volume_size" {

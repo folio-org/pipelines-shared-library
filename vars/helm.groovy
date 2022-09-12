@@ -13,11 +13,6 @@ def k8sClient(Closure body) {
     }
 }
 
-// Getting the kubeconfig file from the AWS EKS cluster.
-String getKubeConfig(String region, String cluster_name) {
-    sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name}"
-}
-
 // Adding a helm repo.
 def addRepo(String repo_name, String repo_url) {
     sh "helm repo add ${repo_name} ${repo_url}"

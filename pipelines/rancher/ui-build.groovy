@@ -10,7 +10,7 @@ properties([
     parameters([
         jobsParameters.repository(),
         jobsParameters.folioBranch(),
-        jobsParameters.rancherClusters(),
+        jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
         jobsParameters.agents(),
@@ -47,14 +47,13 @@ ansiColor('xterm') {
                             "https://github.com/folio-org/platform-complete.git#${hash}"
                     )
                     image.push(tag)
+                    sh "docker rmi ${image_name}:${tag} || exit 0"
+                    sh "docker rmi ${image_name}:latest || exit 0"
                 }
             }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
-        } finally {
-            sh "docker rmi ${image_name}:${tag} || exit 0"
-            sh "docker rmi ${image_name}:latest || exit 0"
         }
     }
 }

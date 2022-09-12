@@ -23,11 +23,11 @@ class Permissions extends GeneralParameters {
      * @param user
      */
     def getAllPermissions(OkapiTenant tenant) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         ArrayList permissions = []
         String url = okapi_url + "/perms/permissions?query=cql.allRecords%3D1%20not%20permissionName%3D%3Dokapi.%2A%20not%20permissionName%3D%3Dperms.users.assign.okapi%20not%20permissionName%3D%3Dmodperms.%2A%20not%20permissionName%3D%3DSYS%23%2A&length=5000"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         logger.info("Get all permissions list. Except okapi.*, modperms.* and SYS#*")
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
@@ -55,10 +55,10 @@ class Permissions extends GeneralParameters {
      */
     def getUserPermissions(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/perms/users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
@@ -74,11 +74,11 @@ class Permissions extends GeneralParameters {
      */
     void createUserPermissions(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/perms/users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         ArrayList permissionsDiff = []
         def checkUserPermissions = getUserPermissions(tenant, user)
         if (checkUserPermissions.totalRecords.toInteger() > 0) {
@@ -112,11 +112,11 @@ class Permissions extends GeneralParameters {
      * @param permissions
      */
     void assignUserPermissions(OkapiTenant tenant, OkapiUser user, ArrayList permissions) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/perms/users/" + user.permissionsId + "/permissions"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         if (permissions) {
             logger.info("Assign permissions to ${user.username}")
             Integer count = 0

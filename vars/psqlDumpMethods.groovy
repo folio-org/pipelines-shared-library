@@ -47,20 +47,3 @@ def savePlatformCompleteImageTag(String project_namespace, String cluster_name, 
         echo \$IMAGE_TAG > ${db_backup_name}_image_tag.txt; aws s3 cp ${db_backup_name}_image_tag.txt ${s3_postgres_backups_bucket_name}/${cluster_name}/${project_namespace}/${db_backup_name}/"
     }
 }
-
-def getInstallJsonBody(String filePathName) {
-    def body
-    helm.k8sClient {
-        filePathName = filePathName.split("\\.")[0]
-        body = helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_install.json")
-    }
-    return org.folio.utilities.Tools.jsonParse(body)
-}
-
-def getPlatformCompleteImageTag(String filePathName) {
-    helm.k8sClient {
-        filePathName = filePathName.split("\\.")[0]
-        helm.getS3ObjectBody(Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, filePathName + "_image_tag.txt")
-    }
-}
-

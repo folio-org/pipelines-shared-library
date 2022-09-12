@@ -1,5 +1,7 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
+import org.folio.rest.model.OkapiTenant
+import org.folio.rest.model.OkapiUser
 
 void call() {}
 
@@ -11,20 +13,38 @@ static String pgAdminDefaultPassword() {
     return 'SuperSecret'
 }
 
-static HashMap defaultTenant() {
-    return [id           : 'diku',
-            name         : 'Datalogisk Institut',
-            description  : 'Danish Library Technology Institute',
-            loadReference: true,
-            loadSample   : true]
+static List dbList() {
+    return ['rds', 'postgresql']
 }
 
-static ArrayList repositoriesList() {
+static OkapiUser defaultAdminUser() {
+    return new OkapiUser(
+        username: 'diku_admin',
+        password: 'admin'
+    )
+}
+
+static OkapiTenant defaultTenant() {
+    return new OkapiTenant(
+        id: 'diku',
+        name: 'Datalogisk Institut',
+        description: 'Danish Library Technology Institute',
+        tenantParameters: [
+            loadReference: false,
+            loadSample   : false
+        ],
+        queryParameters: [
+            reinstall: false
+        ]
+    )
+}
+
+static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
 }
 
-static ArrayList rancherClustersList() {
+static List clustersList() {
     return ['folio-testing',
             'folio-dev',
             'folio-scratch', //Deprecated
@@ -32,16 +52,16 @@ static ArrayList rancherClustersList() {
             'folio-tmp']
 }
 
-static ArrayList jenkinsAgentsList() {
+static List jenkinsAgentsList() {
     return ['jenkins-agent-java11',
-    'jenkins-agent-java11-test',
-    'jenkins-agent-java17',
-    'jenkins-agent-java17-test'
+            'jenkins-agent-java11-test',
+            'jenkins-agent-java17',
+            'jenkins-agent-java17-test'
     ]
 }
 
 @NonCPS
-static ArrayList envTypeList() {
+static List envTypeList() {
     return ['development',
             'performance',
             'testing']
@@ -49,15 +69,16 @@ static ArrayList envTypeList() {
 
 
 @NonCPS
-static ArrayList testingEnvironmentsList() {
+static List testingEnvironmentsList() {
     return ['karate',
             'cypress',
             'sprint']
 }
 
 @NonCPS
-static ArrayList devEnvironmentsList() {
+static List devEnvironmentsList() {
     return ['bama',
+            'bulk-edit',
             'concorde',
             'core-platform',
             'ebsco-core',
@@ -80,22 +101,22 @@ static ArrayList devEnvironmentsList() {
 }
 
 @NonCPS
-static ArrayList perfEnvironmentsList() {
-    return []
+static List perfEnvironmentsList() {
+    return devEnvironmentsList()
 }
 
 @NonCPS
-static ArrayList testEnvironmentsList() {
+static List testEnvironmentsList() {
     return ["test"]
 }
 
 @NonCPS
 static String generateProjectNamesMap() {
-    return JsonOutput.toJson(['folio-testing': testingEnvironmentsList(),
-                              'folio-dev'    : devEnvironmentsList(),
-                              'folio-scratch': devEnvironmentsList(),
-                              'folio-perf'   : perfEnvironmentsList(),
-                              'folio-tmp'    : testEnvironmentsList()])
+    return JsonOutput.toJson(['folio-testing': testingEnvironmentsList().sort(),
+                              'folio-dev'    : devEnvironmentsList().sort(),
+                              'folio-scratch': devEnvironmentsList().sort(),
+                              'folio-perf'   : perfEnvironmentsList().sort(),
+                              'folio-tmp'    : testEnvironmentsList().sort()])
 }
 
 static String getRepositoryBranches() {
@@ -141,7 +162,7 @@ if (installJson.getResponseCode().equals(200)) {
 '''
 }
 
-private def _paramChoice(String name, ArrayList options, String description) {
+private def _paramChoice(String name, List options, String description) {
     return choice(name: name, choices: options, description: description)
 }
 
@@ -174,25 +195,29 @@ private def _paramExtended(String name, String reference, String script, String 
                                                     script   : script]]]
 }
 
-def rancherClusters() {
-    return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
+def refreshParameters() {
+    return _paramBoolean('refresh_parameters', false, 'Do a dry run and refresh pipeline configuration')
 }
 
 def agents() {
     return _paramChoice('agent', jenkinsAgentsList(), 'Choose for which jenkins agent you want to build from')
 }
 
+def clusterName() {
+    return _paramChoice('rancher_cluster_name', clustersList(), 'Select cluster')
+}
+
 def envType() {
-    return _paramChoice('env_config', envTypeList(), '(Required) Select config file')
+    return _paramChoice('env_config', envTypeList(), 'Select config file')
 }
 
 def projectName() {
-    return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), '(Required) Select project to operate')
+    return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), 'Select project to operate')
 }
 
 
 def repository() {
-    return _paramChoice('folio_repository', repositoriesList(), '(Required) Select source repository')
+    return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
 }
 
 def enableModules() {
@@ -200,59 +225,76 @@ def enableModules() {
 }
 
 def tenantId() {
-    return _paramString('tenant_id', defaultTenant().id, '(Required) Id used for tenant creation')
+    return _paramString('tenant_id', defaultTenant().id, 'Id used for tenant creation')
 }
 
 def tenantName() {
-    return _paramString('tenant_name', defaultTenant().name, '(Optional) Name used for tenant creation')
+    return _paramString('tenant_name', defaultTenant().name, 'Name used for tenant creation')
 }
 
 def tenantDescription() {
-    return _paramString('tenant_description', defaultTenant().description, '(Optional) Description used for tenant creation')
+    return _paramString('tenant_description', defaultTenant().description, 'Description used for tenant creation')
 }
 
 def loadReference() {
-    return _paramBoolean('load_reference', defaultTenant().loadReference, 'True if reference data should be applied')
-}
-
-def reindexElasticsearch() {
-    return _paramBoolean('reindex_elastic_search', true, 'True if need to reindex modules')
-}
-
-def recreateindexElasticsearch() {
-    return _paramBoolean('recreate_index_elastic_search', false, 'True if need to recreate index modules , default value: false')
+    return _paramBoolean('load_reference', defaultTenant().tenantParameters.loadReference, 'True if reference data should be applied')
 }
 
 def loadSample() {
-    return _paramBoolean('load_sample', defaultTenant().loadSample, 'True if sample data should be applied')
+    return _paramBoolean('load_sample', defaultTenant().tenantParameters.loadSample, 'True if sample data should be applied')
+}
+
+def reinstall() {
+    return _paramBoolean('reinstall', defaultTenant().queryParameters.reinstall, 'True if force modules install')
+}
+
+def adminUsername() {
+    return _paramString('admin_username', defaultAdminUser().username, 'Admin user name')
+}
+
+def adminPassword() {
+    return _paramPassword('admin_password', defaultAdminUser().password, 'Password for admin user')
+}
+
+def reindexElasticsearch() {
+    return _paramBoolean('reindex_elastic_search', false, 'True if need to reindex modules')
+}
+
+def recreateIndexElasticsearch() {
+    return _paramBoolean('recreate_elastic_search_index', false, 'True if need to recreate index')
 }
 
 def pgPassword() {
-    return _paramPassword('pg_password', pgDefaultPassword(), '(Optional) Password for PostgreSQL database')
+    return _paramPassword('pg_password', pgDefaultPassword(), 'Password for PostgreSQL database')
 }
 
 def pgAdminPassword() {
-    return _paramPassword('pgadmin_password', pgAdminDefaultPassword(), '(Optional) Password for pgAdmin login')
+    return _paramPassword('pgadmin_password', pgAdminDefaultPassword(), 'Password for pgAdmin login')
 }
 
 def folioBranch() {
-    return _paramExtended('folio_branch', 'folio_repository', getRepositoryBranches(), '(Required) Choose what platform-core or platform-complete branch to build from')
+    return _paramExtended('folio_branch', 'folio_repository', getRepositoryBranches(), 'Choose what platform-core or platform-complete branch to build from')
 }
 
 def frontendImageTag() {
-    return _paramExtended('frontend_image_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), '(Required) Choose image tag for UI')
+    return _paramExtended('frontend_image_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), 'Choose image tag for UI')
 }
 
 def okapiVersion() {
-    return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), '(Required) Choose Okapi version')
+    return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), 'Choose Okapi version')
 }
 
-def restorePostgresqlFromBackup() {
-    return _paramBoolean('restore_postgresql_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL DB from backup. Modules versions will be restored up to the same state as at the moment when backup was created')
+
+def restoreFromBackup() {
+    return _paramBoolean('restore_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL DB from backup. Modules versions will be restored up to the same state as at the moment when backup was created')
 }
 
-def restorePostgresqlBackupName() {
-    return _paramString('restore_postgresql_backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-dev/unam/backup_2022-08-23T09:43:59-volodymyr-kartsev/backup_2022-08-23T09:43:59-volodymyr-kartsev.psql)')
+def backupType() {
+    return _paramChoice('backup_type', dbList(), 'Select type of db')
+}
+
+def backupName() {
+    return _paramString('backup_name', '', 'Provide full path/name of DB backup placed in folio-postgresql-backups AWS s3 bucket (e.g. folio-dev/unam/backup_2022-08-23T09:43:59-volodymyr-kartsev/backup_2022-08-23T09:43:59-volodymyr-kartsev.psql)')
 }
 
 def tenantIdToBackupModulesVersions() {

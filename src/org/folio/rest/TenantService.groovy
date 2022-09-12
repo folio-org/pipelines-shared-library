@@ -29,7 +29,7 @@ class TenantService extends GeneralParameters {
         this.okapiAdmin = okapiAdmin
     }
 
-    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url, String kb_api_key, reindex_elastic_search, recreate_index_elastic_search) {
+    void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
         if (tenant && admin_user) {
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
@@ -48,15 +48,15 @@ class TenantService extends GeneralParameters {
                 logger.warning("Module service-points-users does not installed")
             }
             okapi.enableDisableUpgradeModulesForTenant(tenant, authtokenDisableDependenciesList.reverse().collect { [id: it.id, action: "enable"] })
-            auth.login(tenant, tenant.admin_user)
+            auth.login(tenant, tenant.getAdminUser())
             permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
-            users.setPatronGroup(tenant, tenant.admin_user, users.getPatronGroupId(tenant, admin_user))
-            if (reindex_elastic_search) {
-                def jobid = okapi.reindexElasticsearch(tenant, admin_user, recreate_index_elastic_search)
-                okapi.checkReindex(tenant, jobid)
+            users.setPatronGroup(tenant, tenant.getAdminUser(), users.getPatronGroupId(tenant, admin_user))
+            if (tenant.getIndex().reindex) {
+                def job_id = okapi.reindexElasticsearch(tenant, admin_user)
+                okapi.checkReindex(tenant, job_id)
             }
             tenantConfiguration.modInventoryMods(tenant)
-            tenantConfiguration.ebscoRmapiConfig(tenant, kb_api_key)
+            tenantConfiguration.ebscoRmapiConfig(tenant)
             tenantConfiguration.worldcat(tenant)
             tenantConfiguration.configurations(tenant, email, stripes_url)
         } else {

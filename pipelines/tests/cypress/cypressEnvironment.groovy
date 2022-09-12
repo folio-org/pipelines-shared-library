@@ -47,7 +47,7 @@ ansiColor("xterm") {
                         string(name: 'tenant_name', value: "Cypress tenant"),
                         string(name: 'tenant_description', value: "Cypress tests main tenant"),
                         booleanParam(name: 'reindex_elastic_search', value: true),
-                        booleanParam(name: 'recreate_index_elastic_search', value: false),
+                        booleanParam(name: 'recreate_elastic_search_index', value: false),
                         booleanParam(name: 'load_reference', value: true),
                         booleanParam(name: 'load_sample', value: true),
                         string(name: 'github_teams', value: params.github_teams),

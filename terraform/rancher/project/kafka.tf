@@ -14,7 +14,7 @@ resource "rancher2_app_v2" "kafka" {
         enabled: false
     persistence:
       enabled: true
-      size: 10Gi
+      size: 100Gi
       storageClass: gp2
     resources:
       requests:
@@ -87,7 +87,8 @@ resource "aws_msk_cluster" "this" {
 
   broker_node_group_info {
     instance_type   = var.kafka_instance_type
-    client_subnets  = data.aws_subnets.private.ids
+#    client_subnets  = data.aws_subnets.private.ids
+    client_subnets  = slice(data.aws_subnets.private.ids, 0, var.kafka_number_of_broker_nodes)
     security_groups = [aws_security_group.kafka[count.index].id]
     storage_info {
       ebs_storage_info {

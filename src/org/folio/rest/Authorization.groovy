@@ -22,11 +22,11 @@ class Authorization extends GeneralParameters {
         if (!user.uuid) {
             throw new AbortException("${user.username} uuid does not specified")
         }
-        getOkapiToken(tenant, tenant.admin_user)
+        getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/authn/credentials-existence?userId=" + user.uuid
         ArrayList headers = [
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
@@ -45,12 +45,12 @@ class Authorization extends GeneralParameters {
         if (!user.uuid) {
             throw new AbortException("${user.username} uuid does not specified")
         }
-        getOkapiToken(tenant, tenant.admin_user)
+        getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/authn/credentials"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         if (!getUserCredentials(tenant, user).credentialsExist) {
             logger.info("${user.username} does not have credentials. Creating...")
@@ -119,6 +119,6 @@ class Authorization extends GeneralParameters {
 
     void adminUserLogin(OkapiTenant tenant, OkapiUser admin_user){
         admin_user.setToken(getOkapiToken(tenant, admin_user))
-        tenant.setAdmin_user(admin_user)
+        tenant.setAdminUser(admin_user)
     }
 }
