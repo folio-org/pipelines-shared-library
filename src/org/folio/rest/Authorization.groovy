@@ -8,8 +8,8 @@ import org.folio.rest.model.OkapiUser
 
 class Authorization extends GeneralParameters {
 
-    Authorization(Object steps, String okapiUrl) {
-        super(steps, okapiUrl)
+    Authorization(Object steps, String okapi_url) {
+        super(steps, okapi_url)
     }
 
     /**
@@ -23,7 +23,7 @@ class Authorization extends GeneralParameters {
             throw new AbortException("${user.username} uuid does not specified")
         }
         getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/authn/credentials-existence?userId=" + user.uuid
+        String url = okapi_url + "/authn/credentials-existence?userId=" + user.uuid
         ArrayList headers = [
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
@@ -46,7 +46,7 @@ class Authorization extends GeneralParameters {
             throw new AbortException("${user.username} uuid does not specified")
         }
         getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/authn/credentials"
+        String url = okapi_url + "/authn/credentials"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -74,7 +74,7 @@ class Authorization extends GeneralParameters {
      * @return
      */
     void login(OkapiTenant tenant, OkapiUser user) {
-        String url = okapiUrl + "/bl-users/login"
+        String url = okapi_url + "/bl-users/login"
         ArrayList headers = [
             [name: "Content-type", value: "application/json"],
             [name: "X-Okapi-Tenant", value: tenant.getId()],
@@ -100,7 +100,7 @@ class Authorization extends GeneralParameters {
      * @return
      */
     void getOkapiToken(OkapiTenant tenant, OkapiUser user) {
-        String url = okapiUrl + "/authn/login"
+        String url = okapi_url + "/authn/login"
         ArrayList headers = [
             [name: "Content-type", value: "application/json"],
             [name: "X-Okapi-Tenant", value: tenant.getId()],

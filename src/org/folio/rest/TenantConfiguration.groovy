@@ -10,17 +10,17 @@ import org.folio.rest.model.GeneralParameters
 
 class TenantConfiguration extends GeneralParameters {
 
-    private Authorization auth = new Authorization(steps, okapiUrl)
+    private Authorization auth = new Authorization(steps, okapi_url)
 
-    TenantConfiguration(Object steps, String okapiUrl) {
-        super(steps, okapiUrl)
+    TenantConfiguration(Object steps, String okapi_url) {
+        super(steps, okapi_url)
     }
 
     void modInventoryMods(OkapiTenant tenant, Boolean large = false) {
         auth.getOkapiToken(tenant, tenant.admin_user)
         String filePath
         String statusUrl
-        String url = okapiUrl + "/inventory/ingest/mods"
+        String url = okapi_url + "/inventory/ingest/mods"
         ArrayList headers = [
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
@@ -56,7 +56,7 @@ class TenantConfiguration extends GeneralParameters {
 
     void ebscoRmapiConfig(OkapiTenant tenant, String apiKey) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/eholdings/kb-credentials/80898dee-449f-44dd-9c8e-37d5eb469b1d"
+        String url = okapi_url + "/eholdings/kb-credentials/80898dee-449f-44dd-9c8e-37d5eb469b1d"
         ArrayList headers = [
             [name: 'Content-type', value: "application/vnd.api+json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -85,7 +85,7 @@ class TenantConfiguration extends GeneralParameters {
 
     void worldcat(OkapiTenant tenant) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
+        String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -100,9 +100,9 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void configurations(OkapiTenant tenant, Email email, String stripesUrl) {
+    void configurations(OkapiTenant tenant, Email email, String stripes_url) {
         auth.getOkapiToken(tenant, tenant.admin_user)
-        String url = okapiUrl + "/configurations/entries"
+        String url = okapi_url + "/configurations/entries"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
@@ -114,7 +114,7 @@ class TenantConfiguration extends GeneralParameters {
             email_username : email.username,
             email_password : email.password,
             email_from     : email.from,
-            stripes_url    : stripesUrl
+            stripes_url    : stripes_url
         ]
         OkapiConstants.CONFIGURATIONS.each {
             tools.copyResourceFileToWorkspace("okapi/configurations/" + it)

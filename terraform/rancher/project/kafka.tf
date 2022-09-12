@@ -22,7 +22,7 @@ resource "rancher2_app_v2" "kafka" {
         memory: 1100Mi
       limits:
         cpu: 500m
-        memory: 1200Mi
+        memory: 4096Mi
     zookeeper:
       enabled: true
       persistence:
@@ -31,6 +31,7 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     readinessProbe:
       enabled: false
+    heapOpts: "-Xmx2662m -Xms1024m"
   EOT
 }
 
@@ -86,9 +87,13 @@ resource "aws_msk_cluster" "this" {
 
   broker_node_group_info {
     instance_type   = var.kafka_instance_type
-    ebs_volume_size = var.kafka_ebs_volume_size
     client_subnets  = data.aws_subnets.private.ids
     security_groups = [aws_security_group.kafka[count.index].id]
+    storage_info {
+      ebs_storage_info {
+        volume_size = var.kafka_ebs_volume_size
+      }
+    }
   }
 
   configuration_info {

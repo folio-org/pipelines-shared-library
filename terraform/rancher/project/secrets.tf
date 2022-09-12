@@ -1,7 +1,7 @@
 resource "rancher2_secret" "db-connect-modules" {
   name         = "db-connect-modules"
   project_id   = rancher2_project.this.id
-  namespace_id = rancher2_namespace.this.name
+  namespace_id = rancher2_namespace.this.id
   data = {
     ENV                    = base64encode(local.env_name)
     OKAPI_URL              = base64encode("http://okapi:9130")
@@ -61,27 +61,6 @@ resource "rancher2_secret" "s3-config-data-export" {
     AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-export"]))
     AWS_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
     AWS_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
-  }
-}
-
-# For edge* modules
-resource "rancher2_secret" "ephemeral-properties" {
-  name         = "ephemeral-properties"
-  description  = "For edge modules"
-  project_id   = rancher2_project.this.id
-  namespace_id = rancher2_namespace.this.name
-  data = {
-    "ephemeral.properties" = base64encode(
-      templatefile("${path.module}/resources/ephemeral.properties.tftpl",
-        {
-          tenant              = var.tenant_id,
-          edge_tenants        = join(",", setsubtract(distinct(flatten([for i in local.edge_ephemeral_properties : keys(i)])), [var.tenant_id])),
-          admin_user_username = var.admin_user.username,
-          admin_user_password = var.admin_user.password,
-          edge_properties     = local.edge_ephemeral_properties
-        }
-      )
-    )
   }
 }
 

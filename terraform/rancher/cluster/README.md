@@ -52,3 +52,15 @@ In the main.tf we deploy to the cluster [ECK operator](https://www.elastic.co/gu
 Additionally [Logging](https://github.com/banzaicloud/logging-operator/tree/master/config/crd/bases/logging.banzaicloud.io_loggings.yaml), [Flow](https://github.com/banzaicloud/logging-operator/tree/master/config/crd/bases/logging.banzaicloud.io_flows.yaml) and [Output](https://github.com/banzaicloud/logging-operator/tree/master/config/crd/bases/logging.banzaicloud.io_outputs.yaml) CRDs should be created to configured.
 
 ![alt](https://github.com/DariaPavlova1/rancher_efk/blob/main/Images/cluster.drawio.png)
+
+helm upgrade --install okapi \
+  --namespace test \
+  --set image.repository=folioci/okapi \
+  --set image.tag=5.0.0-SNAPSHOT.805 \
+  --set resources.requests.memory=1024Mi \
+  --set resources.limits.memory=2048Mi \
+  --set service.type=NodePort \
+  --set postJob.enabled=false \
+  --set javaOptions="-XX:MaxRAMPercentage=85.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Djava.awt.headless=true -Dstorage=postgres -Dpostgres_host=\$(OKAPI_HOST) -Dpostgres_port=5432 -Dpostgres_username=\$(OKAPI_DB_USER) -Dpostgres_password=\$(OKAPI_DB_PASSWORD) -Dpostgres_database=\$(OKAPI_DB) -Dlog4j.configurationFile=/etc/log4j2.xml -Dhost=okapi -Dokapiurl=http://okapi:9130 -Dloglevel=INFO -Ddeploy.waitIterations=90 --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED" \
+  --set replicaCount=1 \
+  folio-helm/okapi

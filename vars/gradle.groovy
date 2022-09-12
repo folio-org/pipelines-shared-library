@@ -6,7 +6,7 @@ def run(String task, String parameters) {
         usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')
     ]) {
         sh "./gradlew ${task} ${parameters} " +
-            "-PhelmRegistryUrl=${Constants.FOLIO_HELM_REPOSITORY_URL} -PhelmRegistryUsername=${HELM_USERNAME} -PhelmRegistryPassword=${HELM_PASSWORD} " +
+            "-PhelmRegistryUrl=${Constants.FOLIO_HELM_HOSTED_REPOSITORY_URL} -PhelmRegistryUsername=${HELM_USERNAME} -PhelmRegistryPassword=${HELM_PASSWORD} " +
             "-PdockerRegistryUrl=${Constants.DOCKER_FOLIO_REPOSITORY} -PdockerRegistryUsername=${DOCKER_USERNAME} -PdockerRegistryPassword=${DOCKER_PASSWORD}"
     }
 }

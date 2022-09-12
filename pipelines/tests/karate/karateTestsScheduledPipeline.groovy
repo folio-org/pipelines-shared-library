@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def clusterName = "folio-testing"
 def projectName = "karate"
-def folio_repository = "complete"
+def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def prototypeTenant = "diku"
