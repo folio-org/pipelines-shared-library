@@ -26,6 +26,7 @@ properties([
         jobsParameters.frontendImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
+        jobsParameters.agents(),
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
@@ -82,7 +83,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
@@ -191,7 +192,7 @@ ansiColor('xterm') {
 
                 stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(install_map)
-                    if(install_edge_map) {
+                    if (install_edge_map) {
                         writeFile file: "ephemeral.properties", text: new Edge(this, okapi_url).renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
                             helm.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
