@@ -32,6 +32,14 @@ static ArrayList rancherClustersList() {
             'folio-tmp']
 }
 
+static ArrayList jenkinsAgentsList() {
+    return ['jenkins-agent-java11',
+    'jenkins-agent-java11-test',
+    'jenkins-agent-java17',
+    'jenkins-agent-java17-test'
+    ]
+}
+
 @NonCPS
 static ArrayList envTypeList() {
     return ['development',
@@ -98,7 +106,6 @@ if (get.getResponseCode().equals(200)) {
 }
 '''
 }
-
 static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
@@ -168,6 +175,10 @@ private def _paramExtended(String name, String reference, String script, String 
 
 def rancherClusters() {
     return _paramChoice('rancher_cluster_name', rancherClustersList(), '(Required) Select cluster')
+}
+
+def agents() {
+    return _paramChoice('agent', jenkinsAgentsList(), 'Choose for which jenkins agent you want to build from')
 }
 
 def envType() {

@@ -11,6 +11,7 @@ properties([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose what should be done with cluster'),
         jobsParameters.rancherClusters(),
+        jobsParameters.agents(),
         string(name: 'custom_cluster_name', defaultValue: '', description: 'Custom cluster name (Will override rancher_cluster_name)', trim: true),
         choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),
         string(name: 'asg_instance_types', defaultValue: 'm5.xlarge,m5a.xlarge,m5d.xlarge,m5ad.xlarge', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
@@ -30,7 +31,7 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName cluster_name + '.' + env.BUILD_ID

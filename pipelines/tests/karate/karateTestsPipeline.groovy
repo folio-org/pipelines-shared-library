@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "jenkins"
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label 'jenkins-agent-java11'}
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')

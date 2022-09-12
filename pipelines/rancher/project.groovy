@@ -25,6 +25,7 @@ properties([
         jobsParameters.frontendImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
+        jobsParameters.agents(),
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
@@ -79,7 +80,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
