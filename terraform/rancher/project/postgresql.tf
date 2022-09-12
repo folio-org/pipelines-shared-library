@@ -58,10 +58,10 @@ locals {
 }*/
 
 # Delay for db initialization
-resource "time_sleep" "wait_for_db" {
+/*resource "time_sleep" "wait_for_db" {
   depends_on      = [rancher2_app_v2.postgresql]
   create_duration = "30s"
-}
+}*/
 
 #Security group for RDS instance
 resource "aws_security_group" "allow_rds" {
