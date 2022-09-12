@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-448') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -9,6 +9,7 @@ import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -139,7 +140,7 @@ ansiColor('xterm') {
 
             }
 
-            if (params.action == 'apply') {
+            /*if (params.action == 'apply') {
                 stage("Generate install map") {
                     if (params.restore_postgresql_from_backup) {
                         //TODO Add restore install json fetch
@@ -210,7 +211,7 @@ ansiColor('xterm') {
                 stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant_id, modules_config, tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
                 }
-            }
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())

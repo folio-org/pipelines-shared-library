@@ -14,7 +14,7 @@ resource "random_password" "secret_access_key" {
 }
 
 # Create rancher2 Minio app in Project namespace
-resource "rancher2_app_v2" "minio" {
+/*resource "rancher2_app_v2" "minio" {
   count         = var.s3_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -47,7 +47,7 @@ resource "rancher2_app_v2" "minio" {
     ingress:
       enabled: true
       hostname: ${local.minio_console_url}
-      path: /*
+      path: *//*
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -59,7 +59,7 @@ resource "rancher2_app_v2" "minio" {
     apiIngress:
       enabled: true
       hostname: ${local.minio_url}
-      path: /*
+      path: *//*
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -69,4 +69,4 @@ resource "rancher2_app_v2" "minio" {
         alb.ingress.kubernetes.io/healthcheck-path: /minio/health/live
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
   EOT
-}
+}*/

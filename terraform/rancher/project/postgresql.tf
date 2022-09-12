@@ -16,7 +16,7 @@ locals {
 }
 
 # Rancher2 Project App Postgres
-resource "rancher2_app_v2" "postgresql" {
+/*resource "rancher2_app_v2" "postgresql" {
   depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-connect-modules]
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
@@ -55,7 +55,7 @@ resource "rancher2_app_v2" "postgresql" {
     volumePermissions:
       enabled: true
   EOT
-}
+}*/
 
 # Delay for db initialization
 resource "time_sleep" "wait_for_db" {
@@ -140,7 +140,7 @@ module "rds" {
 }
 
 # Create a new rancher2 PgAdmin4 App in a default Project namespace
-resource "rancher2_app_v2" "pgadmin4" {
+/*resource "rancher2_app_v2" "pgadmin4" {
   count         = var.pgadmin4 ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -159,7 +159,7 @@ resource "rancher2_app_v2" "pgadmin4" {
       hosts:
         - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pgadmin"]), var.root_domain])}
           paths:
-            - path: /*
+            - path: *//*
               pathType: ImplementationSpecific
       enabled: true
       annotations:
@@ -180,4 +180,4 @@ resource "rancher2_app_v2" "pgadmin4" {
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT
-}
+}*/

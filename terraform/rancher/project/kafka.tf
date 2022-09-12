@@ -1,5 +1,5 @@
 # Rancher2 Project App Kafka
-resource "rancher2_app_v2" "kafka" {
+/*resource "rancher2_app_v2" "kafka" {
   count         = var.kafka_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -33,7 +33,7 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     heapOpts: "-Xmx2662m -Xms1024m"
   EOT
-}
+}*/
 
 resource "aws_security_group" "kafka" {
   count       = var.kafka_embedded ? 0 : 1
