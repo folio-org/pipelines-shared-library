@@ -189,8 +189,10 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
 
     // Existing tickets
+    List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+" and Development Team = Vega", ["summary", "status"])
+    println("TEST2 ${issuesByTeam}")
     def existingTickets = "Existing issues: \n"
-    issues.each { issue ->
+    issuesByTeam.each { issue ->
         existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
     }
     println("TEST2 ${existingTickets}")
