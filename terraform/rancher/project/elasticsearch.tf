@@ -1,5 +1,5 @@
 # Create a new rancher2 Folio OpenSearch App in a default Project namespace
-resource "rancher2_app_v2" "opensearch" {
+/*resource "rancher2_app_v2" "opensearch" {
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -11,7 +11,7 @@ resource "rancher2_app_v2" "opensearch" {
   values        = <<-EOT
     singleNode: true
   EOT
-}
+}*/
 
 # Create a new rancher2 Folio ElasticSearch App in a default Project namespace
 /*resource "rancher2_app_v2" "elasticsearch" {
