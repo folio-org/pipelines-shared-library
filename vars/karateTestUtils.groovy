@@ -126,6 +126,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
+    println("TESTSlack ${teamResults}")
     teamResults.each { entry ->
         def jenkinsInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
         def moduleResultsInfo
