@@ -309,17 +309,20 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getExistingJiraIssues() {
+void getExistingJiraIssuesByTeam() {
     JiraClient jiraClient = getJiraClient()
  
     def jsonContents = readJSON file: "teams-assignment.json"
+    def emptyMap = [:]
     jsonContents.each { 
         println "${it.team}"
         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${it.team}" """, ["summary", "status"])
-        def existingTickets = "Existing issues: \n"
+        def existingTickets = ""
         issuesByTeam.each { issue ->
             existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
         }
         println("TEST2 ${existingTickets}")
+        emptyMap.put(it.team, existingTickets)
+        println("TEST2 ${emptyMap}")
     }
 }
