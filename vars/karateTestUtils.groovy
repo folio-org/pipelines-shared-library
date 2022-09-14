@@ -107,11 +107,12 @@ void copyCucumberReports() {
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
-void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment, existingJiraIssuesByTeam) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
 
+    println "TEST0 ${existingJiraIssuesByTeam} "
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
             def team = teamByModule.get(moduleExecutionSummary.getName())
@@ -313,20 +314,19 @@ void getExistingJiraIssuesByTeam() {
     JiraClient jiraClient = getJiraClient()
  
     def jsonContents = readJSON file: "teams-assignment.json"
-    def emptyMap = [:]
-    jsonContents.each { 
-        println "${it.team}"
+    def existingJiraIssuesMapByTeam = [:]
+    jsonContents.each {
         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${it.team}" """, ["summary", "status"])
-        def existingTickets = ""
+        def existingTicketsByTeam = ""
         issuesByTeam.each { issue ->
-            existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
+            existingTicketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
         }
-        println("TEST2 ${existingTickets}")
-        emptyMap.put(it.team, existingTickets)
+        existingJiraIssuesMapByTeam.put(it.team, existingTicketsByTeam)
     }
-        println("TEST2 ${emptyMap}")
-        emptyMap.each { entry -> 
-            if (entry.key == "Volaris" && entry.value)
-                println "$entry.key:::::: $entry.value"
-        }
+    return existingJiraIssuesMapByTeam
+        // println("TEST2 ${existingJiraIssuesMapByTeam}")
+        // existingJiraIssuesMapByTeam.each { entry -> 
+        //     if (entry.key == "Volaris" && entry.value)
+        //         println "$entry.key:::::: $entry.value"
+        // }
 }
