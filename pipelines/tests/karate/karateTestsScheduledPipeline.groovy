@@ -103,7 +103,7 @@ pipeline {
                         stage("Copy downstream job artifacts") {
                             steps {
                                 script {
-                                    def jobNumber = "359"
+                                    def jobNumber = "346"
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")

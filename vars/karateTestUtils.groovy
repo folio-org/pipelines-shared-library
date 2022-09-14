@@ -115,6 +115,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
+    issuesMap.each { issue ->
+        println("TEST0 ${issue.getKey()}")
+    }
     println("TEST2 ${issuesMap}")
 
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
