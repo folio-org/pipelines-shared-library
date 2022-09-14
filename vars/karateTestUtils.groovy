@@ -313,19 +313,18 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getExistingJiraIssues(TeamAssignment teamAssignment) {
-    JiraClient jiraClient = getJiraClient()
+// void getExistingJiraIssues(TeamAssignment teamAssignment) {
+//     JiraClient jiraClient = getJiraClient()
  
-    def team = JsonOutput.toJson(teamAssignment).teams
-    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
-        def team = teamByModule[moduleSummary.name]
-        println("TEST2 ${team.name}")
-        // Existing tickets
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team.name}" """, ["summary", "status"])
-        def existingTickets = "Existing issues: \n"
-        issuesByTeam.each { issue ->
-            existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
-        }
-        println("TEST2 ${existingTickets}")
-    }
-}
+//     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
+//         def team = teamByModule[moduleSummary.name]
+//         println("TEST2 ${team.name}")
+//         // Existing tickets
+//         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team.name}" """, ["summary", "status"])
+//         def existingTickets = "Existing issues: \n"
+//         issuesByTeam.each { issue ->
+//             existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
+//         }
+//         println("TEST2 ${existingTickets}")
+//     }
+// }
