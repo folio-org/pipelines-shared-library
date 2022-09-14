@@ -17,7 +17,7 @@ resource "rancher2_secret" "db-connect-modules" {
     DB_QUERYTIMEOUT        = base64encode("60000")
     KAFKA_HOST             = base64encode(var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0))
     KAFKA_PORT             = base64encode("9092")
-    ELASTICSEARCH_URL      = base64encode(var.es_embedded ? "https://opensearch-cluster-master:9200" : "https://${module.aws_es.endpoint}:443")
+    ELASTICSEARCH_URL      = base64encode(var.es_embedded ? "http://opensearch-cluster-master:9200" : "https://${module.aws_es.endpoint}:443")
     ELASTICSEARCH_HOST     = base64encode(var.es_embedded ? "" : module.aws_es.endpoint)
     ELASTICSEARCH_PORT     = base64encode(var.es_embedded ? "9200" : "443")
     ELASTICSEARCH_USERNAME = base64encode(var.es_embedded ? "admin" : var.es_username)
