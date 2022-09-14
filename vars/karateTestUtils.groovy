@@ -325,5 +325,9 @@ void getExistingJiraIssuesByTeam() {
         emptyMap.put(it.team, existingTickets)
     }
         println("TEST2 ${emptyMap}")
-        emptyMap.each{entry -> println "$entry.key:::::: $entry.value"}
+        emptyMap.each{ entry -> 
+            if ($entry.key == "Firebird" && $entry.value)
+                println "$entry.key:::::: $entry.value"
+        }
+        
 }
