@@ -323,6 +323,7 @@ void getExistingJiraIssuesByTeam() {
         }
         println("TEST2 ${existingTickets}")
         emptyMap.put(it.team, existingTickets)
-        println("TEST2 ${emptyMap}")
     }
+        println("TEST2 ${emptyMap}")
+        emptyMap.each{entry -> println "$entry.key:::::: $entry.value"}
 }
