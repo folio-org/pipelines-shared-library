@@ -159,7 +159,7 @@ pipeline {
                         stage("Send slack notifications") {
                             steps {
                                 script {
-                                    getExistingJiraIssues()
+                                    karateTestUtils.getExistingJiraIssues()
                                     karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
