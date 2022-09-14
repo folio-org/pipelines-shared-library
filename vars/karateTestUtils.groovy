@@ -106,6 +106,7 @@ void copyCucumberReports() {
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
+@NonCPS
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
