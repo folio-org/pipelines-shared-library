@@ -190,7 +190,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
     // Existing tickets
     List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+' and "Development Team" = Vega', ["summary", "status"])
-    println("TEST2 ${issuesByTeam}")
     def existingTickets = "Existing issues: \n"
     issuesByTeam.each { issue ->
         existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
@@ -198,6 +197,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     println("TEST2 ${existingTickets}")
 
     def teamByModule = teamAssignment.getTeamsByModules()
+    println("TEST2 ${teamByModule}")
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
