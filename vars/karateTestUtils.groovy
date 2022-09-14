@@ -138,7 +138,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             if (!moduleResultsInfo.endsWith("tests.\n")) {
                 moduleResultsInfo += "All modules for ${entry.key.name} team have succesful result"
             }
-            println("TESTSlack ${entry.key.name}")
+            println("TESTSlack ${moduleResultsInfo}")
             def message = """${jenkinsInfo}\n
                             ${moduleResultsInfo}\n
                             Existing issues:\n
@@ -146,7 +146,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                             Created by run:\n
                         """
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
-            println("TEST3 ${message}")
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()
