@@ -189,9 +189,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
 
     // Existing tickets
+    List<JiraIssue> existingTickets
     issues.each { issue ->
-        println("TEST2 ${issue.key}")
+        existingTickets += "https://issues.folio.org/browse/${issue.key}"
     }
+    println("TEST2 ${existingTickets}")
 
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
