@@ -8,6 +8,7 @@ import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
+import groovy.json.JsonOutput
 
 /**
  * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
