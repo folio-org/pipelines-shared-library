@@ -116,7 +116,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
     issuesMap.each { issue ->
-        println("TEST0 ${issue.getKey()}")
+        println("TEST0 ${issue.id}")
     }
     println("TEST2 ${issuesMap}")
 
