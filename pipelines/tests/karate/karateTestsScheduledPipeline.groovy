@@ -156,13 +156,13 @@ pipeline {
                             }
                         }
 
-                        // stage("Send slack notifications") {
-                        //     steps {
-                        //         script {
-                        //             karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                        //         }
-                        //     }
-                        // }
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }
