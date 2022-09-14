@@ -135,7 +135,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
         }
         println("TESTSlack")
-        println("TESTSlack ${entry}")
+        println("TESTSlack ${entry.key}")
         println("TESTSlack ${entry.key.slackChannel}")
         try {
             if (!moduleResultsInfo.endsWith("tests.\n")) {
