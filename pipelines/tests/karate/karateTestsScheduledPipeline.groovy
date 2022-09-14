@@ -167,18 +167,18 @@ pipeline {
             }
         }
 
-        stage("Set job execution result") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result != 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
-        }
+        // stage("Set job execution result") {
+        //     when {
+        //         expression {
+        //             spinUpEnvironmentJob.result != 'SUCCESS'
+        //         }
+        //     }
+        //     steps {
+        //         script {
+        //             currentBuild.result = 'FAILURE'
+        //         }
+        //     }
+        // }
     }
 }
 

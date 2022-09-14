@@ -187,19 +187,18 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
-
-    // Existing tickets
-    List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+' and "Development Team" = Vega', ["summary", "status"])
-    def existingTickets = "Existing issues: \n"
-    issuesByTeam.each { issue ->
-        existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
-    }
-    println("TEST2 ${existingTickets}")
-    println("TEST")
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         def team = teamByModule[moduleSummary.name]
         println("TEST2 ${team.name}")
+        // Existing tickets
+        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+" and 'Development Team' = ${team.name}", ["summary", "status"])
+        def existingTickets = "Existing issues: \n"
+        issuesByTeam.each { issue ->
+            existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
+        }
+        println("TEST2 ${existingTickets}")
+
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
