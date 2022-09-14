@@ -182,7 +182,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     def teamJSON = JsonOutput.toJson(teamAssignment)
     def contents = new groovy.json.JsonSlurper().parse(teamJSON)
     contents.teams.each { 
-        println name
+        println "${it.name}"
     }
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
