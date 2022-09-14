@@ -8,13 +8,14 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "jenkins"
 
 pipeline {
-    agent { label 'jenkins-agent-java11'}
+    agent { label 'jenkins-agent-java11' }
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
         string(name: 'modules', defaultValue: '', description: 'Comma separated modules list to build(no spaces). Leave empty to launch all.')
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
         string(name: 'okapiUrl', defaultValue: 'https://folio-testing-karate-okapi.ci.folio.org', description: 'Target environment OKAPI URL')
+        string(name: 'edgeUrl', defaultValue: 'https://folio-testing-karate-edge.ci.folio.org', description: 'Target environment EDGE URL')
         string(name: 'tenant', defaultValue: 'supertenant', description: 'Tenant name for tests execution')
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
         password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
@@ -120,6 +121,7 @@ def getKarateConfig() {
 function fn() {
     var config = {
         baseUrl: '${params.okapiUrl}' ,
+        edgeUrl: '${params.edgeUrl}' ,
         admin:
         {
             tenant: '${params.tenant}' ,
