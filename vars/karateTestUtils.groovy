@@ -135,7 +135,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
         }
         println("TESTSlack")
-        println("TESTSlack ${entry.key.team}")
+        println("TESTSlack ${entry.key.slackChannel}")
         try {
             if (!moduleResultsInfo.endsWith("tests.\n")) {
                 moduleResultsInfo += "All modules for ${entry.key.team} team have succesful result"
