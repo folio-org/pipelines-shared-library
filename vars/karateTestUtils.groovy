@@ -110,10 +110,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
-    def team
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
-            team = teamByModule.get(moduleExecutionSummary.getName())
+            def team = teamByModule.get(moduleExecutionSummary.getName())
             if (!teamResults.containsKey(team)) {
                 teamResults[team] = []
             }
@@ -127,18 +126,28 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
     teamResults.each { entry ->
-        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+        def jenkinsInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+        def moduleResultsInfo
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
-                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
+                moduleResultsInfo += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
             }
         }
 
         try {
-            if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${team.name} team have succesful result"
+            if (!moduleResultsInfo.endsWith("tests.\n")) {
+                moduleResultsInfo += "All modules for ${entry.key.team} team have succesful result"
             }
-            slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
+            List<JiraIssue> existingTickets = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+            println("TEST ${existingTickets}")
+            def message = """${jenkinsInfo}\n
+                            ${moduleResultsInfo}\n
+                            Existing issues:\n
+                            ${existingTickets}\n
+                            Created by run:\n
+                        """
+            // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
+            println("TEST ${message}")
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()
