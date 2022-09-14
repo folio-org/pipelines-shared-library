@@ -110,12 +110,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
-    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL)
-    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        println("TEST2 ${issue.key}")
-    }
-
-    println("TEST2 ${issuesMap}")
 
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
@@ -193,41 +187,47 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
+
+    // Existing tickets
+    issues.each { issue ->
+        println("TEST2 ${issue.key}")
+    }
+
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
             if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
-                createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
+                // createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
             } else if (issuesMap.containsKey(featureName)) {
                 JiraIssue issue = issuesMap[featureName]
                 def description = getIssueDescription(featureSummary)
                 try {
-                    jiraClient.addIssueComment(issue.id, description)
+                    // jiraClient.addIssueComment(issue.id, description)
                     echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
                 } catch (Exception e) {
                     echo "Error updating '${issue.getKey()}' jira ticket description with following comment:\n ${description}'"
                     e.printStackTrace()
                 }
 
-                // Issue fixed and no any activity have been started on the issue
-                if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
-                    jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                    echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
-                    // Issue is in "In Review" status
-                } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
-                    // Feature us still failing
-                    if (featureSummary.failed) {
-                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
-                        echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
-                        // Feature has been fixed
-                    } else {
-                        jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-                        echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
-                    }
-                }
+                // // Issue fixed and no any activity have been started on the issue
+                // if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
+                //     jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                //     echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
+                //     // Issue is in "In Review" status
+                // } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+                //     // Feature us still failing
+                //     if (featureSummary.failed) {
+                //         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
+                //         echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
+                //         // Feature has been fixed
+                //     } else {
+                //         jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+                //         echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
+                //     }
+                // }
             }
         }
     }
