@@ -178,9 +178,11 @@ def getSlackColor(def buildStatus) {
  */
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     JiraClient jiraClient = getJiraClient()
-    println("TEST2")
-    println JsonOutput.toJson(teamAssignment)
 
+    def contents = new groovy.json.JsonSlurper().parse(teamAssignment)
+    contents.teams.each { 
+        println name
+    }
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
@@ -191,7 +193,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         def team = teamByModule[moduleSummary.name]
-        println("TEST2 ${team.name}")
         // Existing tickets
         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team.name}" """, ["summary", "status"])
         def existingTickets = "Existing issues: \n"
@@ -314,8 +315,8 @@ private JiraClient getJiraClient() {
 
 void getExistingJiraIssues(TeamAssignment teamAssignment) {
     JiraClient jiraClient = getJiraClient()
-
-    def teamByModule = teamAssignment.getTeamsByModules()
+ 
+    def team = JsonOutput.toJson(teamAssignment).teams
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         def team = teamByModule[moduleSummary.name]
         println("TEST2 ${team.name}")
