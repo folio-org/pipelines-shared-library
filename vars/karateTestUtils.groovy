@@ -106,7 +106,6 @@ void copyCucumberReports() {
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
-@NonCPS
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
@@ -127,8 +126,8 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
-    println("TESTSlack ${teamResults}")
     teamResults.each { entry ->
+        println("TESTSlack ${entry}")
         def jenkinsInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
         def moduleResultsInfo
         entry.value.each { moduleTestResult ->
