@@ -112,12 +112,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     def teamByModule = teamAssignment.getTeamsByModules()
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        def summary = toSearchableSummary(issue.summary)
-        [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+        println("TEST2 ${issue.key}")
     }
-    issuesMap.each { issue ->
-        println("TEST0 ${issue.id}")
-    }
+
     println("TEST2 ${issuesMap}")
 
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
