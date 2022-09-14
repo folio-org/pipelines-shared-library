@@ -189,7 +189,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
 
     // Existing tickets
-    def existingTickets
+    def existingTickets = "Existing issues: \n"
     issues.each { issue ->
         existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
     }
