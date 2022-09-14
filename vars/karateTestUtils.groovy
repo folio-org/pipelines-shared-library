@@ -179,10 +179,9 @@ def getSlackColor(def buildStatus) {
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     JiraClient jiraClient = getJiraClient()
 
-    def teamJSON = JsonOutput.toJson(teamAssignment)
-    def contents = new groovy.json.JsonSlurper().parse(teamJSON)
-    contents.teams.each { 
-        println "${it.name}"
+    def jsonContents = readJSON file: "teams-assignment.json"
+    jsonContents.each { 
+        println "${it.team}"
     }
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
