@@ -179,7 +179,8 @@ def getSlackColor(def buildStatus) {
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     JiraClient jiraClient = getJiraClient()
 
-    def contents = new groovy.json.JsonSlurper().parse(teamAssignment)
+    def team = JsonOutput.toJson(teamAssignment)
+    def contents = new groovy.json.JsonSlurper().parse(team)
     contents.teams.each { 
         println name
     }
@@ -316,6 +317,7 @@ private JiraClient getJiraClient() {
 // void getExistingJiraIssues(TeamAssignment teamAssignment) {
 //     JiraClient jiraClient = getJiraClient()
  
+//     def team = JsonOutput.toJson(teamAssignment).teams
 //     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
 //         def team = teamByModule[moduleSummary.name]
 //         println("TEST2 ${team.name}")
