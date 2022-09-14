@@ -192,7 +192,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         def team = teamByModule[moduleSummary.name]
         println("TEST2 ${team.name}")
         // Existing tickets
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+" and 'Development Team' = ${team.name}", ["summary", "status"])
+        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team.name}" """, ["summary", "status"])
         def existingTickets = "Existing issues: \n"
         issuesByTeam.each { issue ->
             existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
@@ -205,6 +205,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
                 // createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
+                
             } else if (issuesMap.containsKey(featureName)) {
                 JiraIssue issue = issuesMap[featureName]
                 def description = getIssueDescription(featureSummary)
