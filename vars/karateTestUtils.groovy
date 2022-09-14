@@ -178,7 +178,9 @@ def getSlackColor(def buildStatus) {
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     JiraClient jiraClient = getJiraClient()
     println("TEST2")
-    println("TEST2 ${teamAssignment}")
+    teamAssignment.each {
+        println("TEST2 ${it}")
+    }
 
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
