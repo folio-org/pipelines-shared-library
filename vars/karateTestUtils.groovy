@@ -326,8 +326,7 @@ void getExistingJiraIssuesByTeam() {
     }
         println("TEST2 ${emptyMap}")
         emptyMap.each { entry -> 
-            if (entry.key == "Firebird" && entry.value)
+            if (entry.key == "Volaris" && entry.value)
                 println "$entry.key:::::: $entry.value"
         }
-        
 }
