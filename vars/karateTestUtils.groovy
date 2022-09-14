@@ -309,7 +309,7 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getExistingJiraIssues(TeamAssignment teamAssignment) {
+void getExistingJiraIssues() {
     JiraClient jiraClient = getJiraClient()
  
     def jsonContents = readJSON file: "teams-assignment.json"
