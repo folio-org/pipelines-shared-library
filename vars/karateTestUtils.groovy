@@ -197,8 +197,9 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     println("TEST2 ${existingTickets}")
 
     def teamByModule = teamAssignment.getTeamsByModules()
-    println("TEST2 ${teamByModule}")
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
+        def team = teamByModule[moduleSummary.name]
+        println("TEST2 ${team}")
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
