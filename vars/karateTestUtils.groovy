@@ -134,14 +134,11 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 moduleResultsInfo += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
             }
         }
-        println("TESTSlack")
-        println("TESTSlack ${entry.key.name}")
-        println("TESTSlack ${entry.key.slackChannel}")
         try {
             if (!moduleResultsInfo.endsWith("tests.\n")) {
-                moduleResultsInfo += "All modules for ${entry.key.team} team have succesful result"
+                moduleResultsInfo += "All modules for ${entry.key.name} team have succesful result"
             }
-            println("TESTSlack ${entry.key.team}")
+            println("TESTSlack ${entry.key.name}")
             def message = """${jenkinsInfo}\n
                             ${moduleResultsInfo}\n
                             Existing issues:\n
