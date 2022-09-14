@@ -110,6 +110,13 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
+    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+        def summary = toSearchableSummary(issue.summary)
+        [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+    }
+    println("TEST2 ${issuesMap}")
+
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
             def team = teamByModule.get(moduleExecutionSummary.getName())
@@ -136,11 +143,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
         try {
             if (!moduleResultsInfo.endsWith("tests.\n")) {
-                println("TEST1 ${entry.key.team}")
                 moduleResultsInfo += "All modules for ${entry.key.team} team have succesful result"
             }
-            List<JiraIssue> existingTickets = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
-            println("TEST2 ${existingTickets}")
+            println("TEST1 ${entry.key.team}")
             def message = """${jenkinsInfo}\n
                             ${moduleResultsInfo}\n
                             Existing issues:\n
