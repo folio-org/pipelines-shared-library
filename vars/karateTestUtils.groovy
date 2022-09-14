@@ -136,10 +136,11 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
         try {
             if (!moduleResultsInfo.endsWith("tests.\n")) {
+                println("TEST1 ${entry.key.team}")
                 moduleResultsInfo += "All modules for ${entry.key.team} team have succesful result"
             }
             List<JiraIssue> existingTickets = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
-            println("TEST ${existingTickets}")
+            println("TEST2 ${existingTickets}")
             def message = """${jenkinsInfo}\n
                             ${moduleResultsInfo}\n
                             Existing issues:\n
@@ -147,7 +148,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                             Created by run:\n
                         """
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
-            println("TEST ${message}")
+            println("TEST3 ${message}")
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()
