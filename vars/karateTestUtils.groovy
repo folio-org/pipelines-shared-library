@@ -110,10 +110,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
-    def team
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
-            team = teamByModule.get(moduleExecutionSummary.getName())
+            def team = teamByModule.get(moduleExecutionSummary.getName())
             if (!teamResults.containsKey(team)) {
                 teamResults[team] = []
             }
@@ -136,7 +135,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
         try {
             if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${team.name} team have succesful result"
+                message += "All modules for ${entry.key.name} team have succesful result"
             }
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
