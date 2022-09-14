@@ -195,11 +195,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
     }
     println("TEST2 ${existingTickets}")
-
+    println("TEST")
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         def team = teamByModule[moduleSummary.name]
-        println("TEST2 ${team}")
+        println("TEST2 ${team.name}")
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
