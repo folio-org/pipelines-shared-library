@@ -13,6 +13,8 @@ resource "rancher2_app_v2" "opensearch-master" {
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "master"
     replicas: 1
+    roles:
+      - master
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
@@ -44,6 +46,8 @@ resource "rancher2_app_v2" "opensearch-data" {
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "data"
     replicas: 1
+    roles:
+      - data
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
@@ -75,6 +79,8 @@ resource "rancher2_app_v2" "opensearch-client" {
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "client"
     replicas: 1
+    roles:
+      - remote_cluster_client
     persistence:
       enabled: false
     extraEnvs:
