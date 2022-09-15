@@ -30,7 +30,7 @@ resource "rancher2_app_v2" "opensearch-master" {
 }
 
 resource "rancher2_app_v2" "opensearch-data" {
-  depends_on    = [rancher2_app_v2.opensearch-master]
+  #depends_on    = [rancher2_app_v2.opensearch-master]
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -61,7 +61,7 @@ resource "rancher2_app_v2" "opensearch-data" {
 }
 
 resource "rancher2_app_v2" "opensearch-client" {
-  depends_on    = [rancher2_app_v2.opensearch-master]
+  #depends_on    = [rancher2_app_v2.opensearch-master]
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
