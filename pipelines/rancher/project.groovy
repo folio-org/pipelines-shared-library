@@ -140,7 +140,7 @@ ansiColor('xterm') {
 
             }
 
-            /*if (params.action == 'apply') {
+            if (params.action == 'apply') {
                 stage("Generate install map") {
                     if (params.restore_postgresql_from_backup) {
                         //TODO Add restore install json fetch
@@ -211,7 +211,7 @@ ansiColor('xterm') {
                 stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant_id, modules_config, tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
                 }
-            }*/
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
