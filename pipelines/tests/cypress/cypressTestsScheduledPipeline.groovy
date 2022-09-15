@@ -9,9 +9,10 @@ def clusterName = "folio-testing"
 def projectName = "cypress"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
-def uiUrl = "https://${clusterName}-${projectName}.ci.folio.org"
-def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def tenant = "diku"
+def uiUrl = "https://${clusterName}-${projectName}-${tenant}.ci.folio.org"
+def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
+
 
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob

@@ -100,7 +100,7 @@ ansiColor('xterm') {
             stage('UI Build') {
                 //TODO review condition
                 if (params.ui_build && params.action == 'apply') {
-                    build job: 'Rancher/UI-Build-261',
+                    build job: 'Rancher/UI-Build',
                         parameters: [string(name: 'folio_repository', value: params.folio_repository),
                                      string(name: 'folio_branch', value: params.folio_branch),
                                      string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
