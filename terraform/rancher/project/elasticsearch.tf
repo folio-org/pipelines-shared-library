@@ -9,7 +9,7 @@ resource "rancher2_app_v2" "opensearch" {
   chart_version = "1.14.0"
   force_upgrade = "true"
   values        = <<-EOT
-    masterService: "opensearch-${var.rancher_project_name}""
+    masterService: "opensearch-${var.rancher_project_name}"
     replicas: 2
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
