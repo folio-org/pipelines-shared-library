@@ -1,5 +1,5 @@
 # Create a new rancher2 Folio OpenSearch App in a default Project namespace
-/*resource "rancher2_app_v2" "opensearch" {
+resource "rancher2_app_v2" "opensearch" {
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -9,9 +9,23 @@
   chart_version = "1.14.0"
   force_upgrade = "true"
   values        = <<-EOT
-    singleNode: true
+    masterService: "opensearch-${var.rancher_project_name}""
+    replicas: 2
+    extraEnvs:
+      - name: DISABLE_SECURITY_PLUGIN
+        value: "true"
+    resources:
+      requests:
+        cpu: "1000m"
+        memory: "2048Mi"
+      limits:
+        cpu: "1500m"
+        memory: "4096Mi"
+    plugins:
+      enabled: true
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
   EOT
-}*/
+}
 
 # Create a new rancher2 Folio ElasticSearch App in a default Project namespace
 /*resource "rancher2_app_v2" "elasticsearch" {
