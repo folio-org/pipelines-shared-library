@@ -20,10 +20,10 @@ resource "rancher2_app_v2" "opensearch-master" {
         value: "true"
     resources:
       requests:
-        cpu: "300m"
+        cpu: "256m"
         memory: "1024Mi"
       limits:
-        cpu: "600m"
+        cpu: "512m"
         memory: "2048Mi"
     plugins:
       enabled: true
@@ -53,10 +53,10 @@ resource "rancher2_app_v2" "opensearch-data" {
         value: "true"
     resources:
       requests:
-        cpu: "300m"
+        cpu: "256m"
         memory: "1024Mi"
       limits:
-        cpu: "600m"
+        cpu: "512m"
         memory: "2048Mi"
     plugins:
       enabled: true
@@ -88,10 +88,10 @@ resource "rancher2_app_v2" "opensearch-client" {
         value: "true"
     resources:
       requests:
-        cpu: "300m"
+        cpu: "256m"
         memory: "1024Mi"
       limits:
-        cpu: "600m"
+        cpu: "512m"
         memory: "2048Mi"
     plugins:
       enabled: true
