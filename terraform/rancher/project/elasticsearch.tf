@@ -1,9 +1,9 @@
 # Create a new rancher2 Folio OpenSearch App in a default Project namespace
-resource "rancher2_app_v2" "opensearch" {
+resource "rancher2_app_v2" "opensearch-master" {
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "opensearch"
+  name          = "opensearch-master"
   repo_name     = "opensearch"
   chart_name    = "opensearch"
   chart_version = "1.14.0"
@@ -11,17 +11,80 @@ resource "rancher2_app_v2" "opensearch" {
   values        = <<-EOT
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
-    replicas: 2
+    nodeGroup: "master"
+    replicas: 1
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
     resources:
       requests:
-        cpu: "1000m"
-        memory: "2048Mi"
+        cpu: "300m"
+        memory: "1024Mi"
       limits:
-        cpu: "1500m"
-        memory: "4096Mi"
+        cpu: "600m"
+        memory: "2048Mi"
+    plugins:
+      enabled: true
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+  EOT
+}
+
+resource "rancher2_app_v2" "opensearch-data" {
+  depends_on    = [rancher2_app_v2.opensearch-master]
+  count         = var.es_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "opensearch-data"
+  repo_name     = "opensearch"
+  chart_name    = "opensearch"
+  chart_version = "1.14.0"
+  force_upgrade = "true"
+  values        = <<-EOT
+    clusterName: "opensearch-${var.rancher_project_name}"
+    masterService: "opensearch-${var.rancher_project_name}"
+    nodeGroup: "data"
+    replicas: 1
+    extraEnvs:
+      - name: DISABLE_SECURITY_PLUGIN
+        value: "true"
+    resources:
+      requests:
+        cpu: "300m"
+        memory: "1024Mi"
+      limits:
+        cpu: "600m"
+        memory: "2048Mi"
+    plugins:
+      enabled: true
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+  EOT
+}
+
+resource "rancher2_app_v2" "opensearch-client" {
+  depends_on    = [rancher2_app_v2.opensearch-master]
+  count         = var.es_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "opensearch-client"
+  repo_name     = "opensearch"
+  chart_name    = "opensearch"
+  chart_version = "1.14.0"
+  force_upgrade = "true"
+  values        = <<-EOT
+    clusterName: "opensearch-${var.rancher_project_name}"
+    masterService: "opensearch-${var.rancher_project_name}"
+    nodeGroup: "client"
+    replicas: 1
+    extraEnvs:
+      - name: DISABLE_SECURITY_PLUGIN
+        value: "true"
+    resources:
+      requests:
+        cpu: "300m"
+        memory: "1024Mi"
+      limits:
+        cpu: "600m"
+        memory: "2048Mi"
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
