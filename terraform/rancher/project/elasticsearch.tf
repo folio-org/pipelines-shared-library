@@ -75,6 +75,8 @@ resource "rancher2_app_v2" "opensearch-client" {
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "client"
     replicas: 1
+    persistence
+      enabled: false
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
