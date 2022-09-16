@@ -159,7 +159,7 @@ resource "rancher2_app_v2" "pgadmin4" {
       hosts:
         - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pgadmin"]), var.root_domain])}
           paths:
-            - path:
+            - path: /*
               pathType: ImplementationSpecific
       enabled: true
       annotations:
