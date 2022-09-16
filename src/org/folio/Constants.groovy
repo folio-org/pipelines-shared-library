@@ -51,6 +51,7 @@ class Constants {
 
     static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
     static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.2"
+    static String PSQL_DUMP_BACKUPS_BUCKET_NAME = "folio-postgresql-backups"
     static String RANCHER_CLUSTERS_DEFAULT_REGION = "us-west-2"
 
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],

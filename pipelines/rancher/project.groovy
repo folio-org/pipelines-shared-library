@@ -9,6 +9,7 @@ import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -52,8 +53,9 @@ def tenant_id = params.restore_postgresql_from_backup ? params.restore_tenant_id
 boolean reindex = params.restore_postgresql_from_backup ? 'true' : params.reindex_elastic_search
 boolean recreate_index = params.restore_postgresql_from_backup ? 'true' : params.recreate_index_elastic_search
 
-List install_json = params.restore_postgresql_from_backup ? '' : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
-Map install_map = [:]
+List install_json = params.restore_postgresql_from_backup ? psqlDumpMethods.getInstallJsonBody(params.restore_postgresql_backup_name) : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch)
+Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
+String okapi_version = params.restore_postgresql_from_backup ? install_map.find{ it.key == "okapi" }?.value : params.okapi_version
 
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String ui_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant_id, Constants.CI_ROOT_DOMAIN)
@@ -63,6 +65,7 @@ String okapi_url = "https://" + okapi_domain
 
 String hash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
 String tag = params.ui_build ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id}-${hash.take(7)}" : params.frontend_image_tag
+String final_tag = params.restore_postgresql_from_backup ? psqlDumpMethods.getPlatformCompleteImageTag(params.restore_postgresql_backup_name).trim() : tag
 
 def modules_config = ''
 
@@ -140,21 +143,14 @@ ansiColor('xterm') {
             }
 
             if (params.action == 'apply') {
-                stage("Generate install map") {
-                    if (params.restore_postgresql_from_backup) {
-                        //TODO Add restore install json fetch
-                    } else {
-                        install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
-                    }
-                }
 
                 stage("Deploy okapi") {
-                    folioDeploy.okapi(modules_config, params.okapi_version, params.rancher_cluster_name, params.rancher_project_name, okapi_domain)
+                    folioDeploy.okapi(modules_config, okapi_version, params.rancher_cluster_name, params.rancher_project_name, okapi_domain)
                 }
 
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(install_map)
-                    if (install_backend_map) {
+                    if(install_backend_map) {
                         folioDeploy.backend(install_backend_map, modules_config, params.rancher_cluster_name, params.rancher_project_name)
                     }
                 }
@@ -208,7 +204,7 @@ ansiColor('xterm') {
                 }
 
                 stage("Deploy UI bundle") {
-                    folioDeploy.uiBundle(tenant_id, modules_config, tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
+                    folioDeploy.uiBundle(tenant_id, modules_config, final_tag, params.rancher_cluster_name, params.rancher_project_name, ui_domain)
                 }
             }
         } catch (exception) {
