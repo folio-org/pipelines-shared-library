@@ -44,6 +44,18 @@ pipeline {
     }
 
     stages {
+        // Temporary solution for testing
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+                        projectName, prototypeTenant, folio_repository, folio_branch)
+
+                    tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+        
         stage("Create environment") {
             steps {
                 script {
@@ -82,17 +94,6 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-                stage("Destroy environment") {
-                    steps {
-                        script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                                projectName, prototypeTenant, folio_repository, folio_branch)
-
-                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
-
                 stage("Collect test results") {
                     when {
                         expression {
