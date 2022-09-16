@@ -99,59 +99,6 @@ resource "rancher2_app_v2" "opensearch-client" {
   EOT
 }
 
-# Create a new rancher2 Folio ElasticSearch App in a default Project namespace
-/*resource "rancher2_app_v2" "elasticsearch" {
-  count         = var.es_embedded ? 1 : 0
-  cluster_id    = data.rancher2_cluster.this.id
-  namespace     = rancher2_namespace.this.name
-  name          = "elasticsearch"
-  repo_name     = "bitnami"
-  chart_name    = "elasticsearch"
-  chart_version = "17.9.29"
-  force_upgrade = "true"
-  values        = <<-EOT
-    image:
-      debug: true
-    global:
-      coordinating:
-        name: ${var.rancher_project_name}
-    coordinating:
-      replicas: 1
-      resources:
-        requests:
-          cpu: 256m
-          memory: 1024Mi
-        limits:
-          cpu: 512m
-          memory: 2048Mi
-      livenessProbe:
-        initialDelaySeconds: 360
-    data:
-      replicas: 1
-      resources:
-        requests:
-          cpu: 256m
-          memory: 1024Mi
-        limits:
-          cpu: 512m
-          memory: 2048Mi
-      livenessProbe:
-        initialDelaySeconds: 360
-    master:
-      replicas: 1
-      resources:
-        requests:
-          cpu: 256m
-          memory: 1024Mi
-        limits:
-          cpu: 512m
-          memory: 2048Mi
-      livenessProbe:
-        initialDelaySeconds: 360
-    plugins: "analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic"
-  EOT
-}*/
-
 resource "random_password" "es_password" {
   count       = var.es_embedded ? 0 : 1
   length      = 16
