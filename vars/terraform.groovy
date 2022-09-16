@@ -116,11 +116,11 @@ void tfApplyFlow(Closure body) {
         config.preAction.resolveStrategy = Closure.DELEGATE_FIRST
         config.preAction.call()
     }
-    /*retry(2) {
-        sleep(60)*/
+    retry(2) {
+        sleep(60)
         tfPlan(config.working_dir, config.tf_vars)
         tfApply(config.working_dir)
-    /*}*/
+    }
     if(config.postAction){
         config.postAction.delegate = this
         config.postAction.resolveStrategy = Closure.DELEGATE_FIRST
