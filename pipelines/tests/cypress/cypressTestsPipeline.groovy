@@ -115,7 +115,7 @@ pipeline {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                if (params.testrailRunID) {
+                                if (params.testrailRunID && params.testrailProjectID) {
                                     // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
                                     env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
