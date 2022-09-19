@@ -308,7 +308,7 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getJiraIssuesByTeam(String timeFilter) {
+void getJiraIssuesByTeam(timeFilter) {
     JiraClient jiraClient = getJiraClient()
  
     def jsonContents = readJSON file: "teams-assignment.json"
