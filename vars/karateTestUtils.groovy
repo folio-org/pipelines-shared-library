@@ -137,13 +137,13 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 message += "All modules for ${entry.key.name} team have successful result\n"
             }
             // Existing tickets - created more than 1 hour ago
-            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
+            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -1h")
             if (existingTickets) {
                 message += "Existing issues:\n"
                 message += existingTickets              
             }
             // Created tickets by this run - Within the last 20 min
-            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -8h")
+            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -20m")
             if (createdTickets) {
                 message += "Created issues by run:\n"
                 message += createdTickets              
