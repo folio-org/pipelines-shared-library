@@ -30,9 +30,9 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    // triggers {
-    //     cron('H 3 * * *')
-    // }
+    triggers {
+        cron('H 3 * * *')
+    }
 
     options {
         disableConcurrentBuilds()
@@ -44,67 +44,67 @@ pipeline {
     }
 
     stages {
-        // stage("Create environment") {
-        //     steps {
-        //         script {
-        //             def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-        //                 projectName, prototypeTenant, folio_repository, folio_branch)
+        // Temporary solution for testing
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+                        projectName, prototypeTenant, folio_repository, folio_branch)
 
-        //             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-        //         }
-        //     }
-        // }
+                    tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+        
+        stage("Create environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+                        projectName, prototypeTenant, folio_repository, folio_branch)
 
-        // stage("Run karate tests") {
-        //     when {
-        //         expression {
-        //             spinUpEnvironmentJob.result == 'SUCCESS'
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             def jobParameters = [
-        //                 string(name: 'branch', value: params.branch),
-        //                 string(name: 'threadsCount', value: "4"),
-        //                 string(name: 'modules', value: ""),
-        //                 string(name: 'okapiUrl', value: okapiUrl),
-        //                 string(name: 'tenant', value: 'supertenant'),
-        //                 string(name: 'adminUserName', value: 'super_admin'),
-        //                 password(name: 'adminPassword', value: 'admin'),
-        //                 string(name: 'prototypeTenant', value: prototypeTenant)
-        //             ]
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
 
-        //             sleep time: 60, unit: 'MINUTES'
-        //             karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
-        //         }
-        //     }
-        // }
+        stage("Run karate tests") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    def jobParameters = [
+                        string(name: 'branch', value: params.branch),
+                        string(name: 'threadsCount', value: "4"),
+                        string(name: 'modules', value: ""),
+                        string(name: 'okapiUrl', value: okapiUrl),
+                        string(name: 'tenant', value: 'supertenant'),
+                        string(name: 'adminUserName', value: 'super_admin'),
+                        password(name: 'adminPassword', value: 'admin'),
+                        string(name: 'prototypeTenant', value: prototypeTenant)
+                    ]
+
+                    sleep time: 60, unit: 'MINUTES'
+                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
 
         stage("Parallel") {
             parallel {
-                // stage("Destroy environment") {
-                //     steps {
-                //         script {
-                //             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                //                 projectName, prototypeTenant, folio_repository, folio_branch)
-
-                //             tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                //         }
-                //     }
-                // }
-
                 stage("Collect test results") {
-                    // when {
-                    //     expression {
-                    //         spinUpEnvironmentJob.result == 'SUCCESS'
-                    //     }
-                    // }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
                                 script {
-                                    // def jobNumber = "346"
-                                    def jobNumber = "359"
+                                    def jobNumber = karateTestsJob.number
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
                                     copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
@@ -148,18 +148,18 @@ pipeline {
                             }
                         }
 
-                        stage("Sync jira tickets") {
-                            steps {
-                                script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
-
                         stage("Send slack notifications") {
                             steps {
                                 script {
                                     karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
+
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
                         }
@@ -168,18 +168,18 @@ pipeline {
             }
         }
 
-        // stage("Set job execution result") {
-        //     when {
-        //         expression {
-        //             spinUpEnvironmentJob.result != 'SUCCESS'
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             currentBuild.result = 'FAILURE'
-        //         }
-        //     }
-        // }
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
     }
 }
 

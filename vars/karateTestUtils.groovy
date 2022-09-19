@@ -137,7 +137,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         }
         try {
             if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${entry.key.name} team have succesful result\n"
+                message += "All modules for ${entry.key.name} team have successful result"
             }
             
             def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")

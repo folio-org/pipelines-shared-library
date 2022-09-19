@@ -106,6 +106,7 @@ if (get.getResponseCode().equals(200)) {
 }
 '''
 }
+
 static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
