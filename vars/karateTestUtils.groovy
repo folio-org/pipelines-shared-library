@@ -133,7 +133,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
-    println("buildStatus ${buildStatus}")
 
     teamResults.each { entry ->
         def jenkinsJobInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
@@ -147,29 +146,27 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             if (!moduleResultsInfo.endsWith("tests.\n")) {
                 moduleResultsInfo += "All modules for ${entry.key.name} team have succesful result"
             }
-            println("jenkinsJobInfo ${jenkinsJobInfo}")
 
             println("moduleResultsInfo ${moduleResultsInfo}")
 
-        //     def existingTickets = ""
-        //     existingJiraIssuesByTeam.each { team -> 
-        //         if (team.key == entry.key.name && team.value)
-        //             println "$team.key:::::: $team.value"
-        //             existingTickets += $team.value  
-        //     }
-        // // println("TEST2 ${jiraIssuesMapByTeam}")
-        // // jiraIssuesMapByTeam.each { entry -> 
-        // //     if (entry.key == "Volaris" && entry.value)
-        // //         println "$entry.key:::::: $entry.value"
-        // // }
+            def existingTickets = "Existing issues:\n"
+            existingJiraIssuesByTeam.each { team -> 
+                if (team.key == entry.key.name && team.value)
+                    println "$team.key:::::: $team.value"
+                    existingTickets += $team.value  
+            }
+        // println("TEST2 ${jiraIssuesMapByTeam}")
+        // jiraIssuesMapByTeam.each { entry -> 
+        //     if (entry.key == "Volaris" && entry.value)
+        //         println "$entry.key:::::: $entry.value"
+        // }
 
-        //     def message = """${jenkinsJobInfo}
-        //                     ${moduleResultsInfo}\n
-        //                     Existing issues:\n
-        //                     ${existingTickets}\n
-        //                     Created by run:\n
-        //                 """
-        //     println("message ${message}")
+            def message = """${jenkinsJobInfo}
+                            ${moduleResultsInfo}\n
+                            ${existingTickets}\n
+                            Created by run:\n
+                        """
+            println("message ${message}")
 
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
