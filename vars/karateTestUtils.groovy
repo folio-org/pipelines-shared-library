@@ -146,7 +146,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 message += existingTickets              
             }
 
-            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created < -6h")
+            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -6h")
             if (createdTickets) {
                 message += "Created issues by run:\n"
                 message += createdTickets              
