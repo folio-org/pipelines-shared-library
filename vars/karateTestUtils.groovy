@@ -137,7 +137,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     teamResults.each { entry ->
         def jenkinsJobInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-        def moduleResultsInfo
+        def moduleResultsInfo = ""
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                 moduleResultsInfo += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
