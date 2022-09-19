@@ -47,7 +47,7 @@ properties([
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
         string(name: 'timeout', defaultValue: "4", description: 'Custom timeout for build. Set in hours'),
-        string(name: 'testrailProjectID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
+        string(name: 'testrailProjectID', defaultValue: "", description: 'Project ID to be set', trim: true),
         string(name: 'testrailRunID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
     ])
 ])
