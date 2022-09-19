@@ -151,7 +151,6 @@ pipeline {
                         stage("Sync jira tickets") {
                             steps {
                                 script {
-                                    def existingJiraIssuesByTeam = karateTestUtils.getExistingJiraIssuesByTeam()
                                     karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
