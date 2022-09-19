@@ -309,22 +309,6 @@ private JiraClient getJiraClient() {
     }
 }
 
-// Map<String, String> getJiraIssuesByTeam(String timeFilter) {
-//     JiraClient jiraClient = getJiraClient()
- 
-//     def jsonContents = readJSON file: "teams-assignment.json"
-//     def jiraIssuesMapByTeam = [:]
-//     jsonContents.each { entry ->
-//         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${entry.team}" and ${timeFilter} """, ["summary", "status"])
-//         def ticketsByTeam = ""
-//         issuesByTeam.each { issue ->
-//             ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
-//         }
-//         jiraIssuesMapByTeam.put(entry.team, ticketsByTeam)
-//     }
-//     return jiraIssuesMapByTeam
-// }
-
 String getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = ""
 
