@@ -198,12 +198,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
             if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
                 createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
-                
             } else if (issuesMap.containsKey(featureName)) {
                 JiraIssue issue = issuesMap[featureName]
                 def description = getIssueDescription(featureSummary)
                 try {
-                    // jiraClient.addIssueComment(issue.id, description)
+                    jiraClient.addIssueComment(issue.id, description)
                     echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
                 } catch (Exception e) {
                     echo "Error updating '${issue.getKey()}' jira ticket description with following comment:\n ${description}'"
