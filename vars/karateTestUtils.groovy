@@ -108,12 +108,6 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    // def existingJiraIssuesByTeam = getJiraIssuesByTeam("created < -4h")
-    // def createdJiraIssuesByTeam = getJiraIssuesByTeam("created > -4h")
-
-    // println "existingJiraIssuesByTeam '${existingJiraIssuesByTeam}'"
-    // println "createdJiraIssuesByTeam '${createdJiraIssuesByTeam}'"
-
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
@@ -143,36 +137,21 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
         }
         try {
             if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${entry.key.name} team have succesful result"
+                message += "All modules for ${entry.key.name} team have succesful result\n"
             }
             
             def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
-            println("existingTickets ${existingTickets}")
-
             if (existingTickets) {
                 message += "Existing issues:\n"
                 message += existingTickets              
             }
-            // existingJiraIssuesByTeam.each { team -> 
-            //     if (team.key == entry.key.name && team.value) {
-            //         message += "Existing issues:"
-            //         message += team.value
-            //     }
-            // }
 
-            // createdJiraIssuesByTeam.each { team -> 
-            //     if (team.key == entry.key.name && team.value) {
-            //         message += "Created issues by run:"
-            //         message += team.value
-            //     }
-            // }
-            
-            // def message = """${jenkinsJobInfo}
-            //                 ${moduleResultsInfo}
-            //                 Existing issues:
-            //                 ${existingTickets}
-            //                 Created by run:
-            //             """
+            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
+            if (createdTickets) {
+                message += "Created issues by run:\n"
+                message += createdTickets              
+            }
+
             println("message ${message}")
 
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
