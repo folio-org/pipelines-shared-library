@@ -147,25 +147,25 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             }
             println("moduleResultsInfo ${moduleResultsInfo}")
 
-            def existingTickets = ""
-            existingJiraIssuesByTeam.each { team -> 
-                if (team.key == entry.key.name && team.value)
-                    println "$team.key:::::: $team.value"
-                    existingTickets += $team.value  
-            }
-        // println("TEST2 ${jiraIssuesMapByTeam}")
-        // jiraIssuesMapByTeam.each { entry -> 
-        //     if (entry.key == "Volaris" && entry.value)
-        //         println "$entry.key:::::: $entry.value"
-        // }
+        //     def existingTickets = ""
+        //     existingJiraIssuesByTeam.each { team -> 
+        //         if (team.key == entry.key.name && team.value)
+        //             println "$team.key:::::: $team.value"
+        //             existingTickets += $team.value  
+        //     }
+        // // println("TEST2 ${jiraIssuesMapByTeam}")
+        // // jiraIssuesMapByTeam.each { entry -> 
+        // //     if (entry.key == "Volaris" && entry.value)
+        // //         println "$entry.key:::::: $entry.value"
+        // // }
 
-            def message = """${jenkinsJobInfo}
-                            ${moduleResultsInfo}\n
-                            Existing issues:\n
-                            ${existingTickets}\n
-                            Created by run:\n
-                        """
-            println("message ${message}")
+        //     def message = """${jenkinsJobInfo}
+        //                     ${moduleResultsInfo}\n
+        //                     Existing issues:\n
+        //                     ${existingTickets}\n
+        //                     Created by run:\n
+        //                 """
+        //     println("message ${message}")
 
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
