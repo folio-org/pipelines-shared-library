@@ -153,13 +153,9 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             existingJiraIssuesByTeam.each { team -> 
                 if (team.key == entry.key.name && team.value)
                     println "$team.key:::::: $team.value"
-                    existingTickets += $team.value  
+                    existingTickets += team.value  
             }
-        // println("TEST2 ${jiraIssuesMapByTeam}")
-        // jiraIssuesMapByTeam.each { entry -> 
-        //     if (entry.key == "Volaris" && entry.value)
-        //         println "$entry.key:::::: $entry.value"
-        // }
+            println("existingTickets ${existingTickets}")
 
             def message = """${jenkinsJobInfo}
                             ${moduleResultsInfo}\n
