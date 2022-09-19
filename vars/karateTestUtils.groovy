@@ -146,8 +146,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 message += "All modules for ${entry.key.name} team have succesful result"
             }
             
-            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
-            if (existingTickets.value) {
+            if (getJiraIssuesByTeam(entry.key.name, "created < -4h")) {
                 message += "Existing issues:\n"
                 message += team.value                
             }
@@ -344,15 +343,13 @@ private JiraClient getJiraClient() {
 //     return jiraIssuesMapByTeam
 // }
 
-Map<String, String> getJiraIssuesByTeam(String team, String timeFilter) {
-    def jiraIssuesMapByTeam = [:]
+String getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = ""
 
     List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
     issuesByTeam.each { issue ->
         ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
     }
-    jiraIssuesMapByTeam.put(entry.team, ticketsByTeam)
 
-    return jiraIssuesMapByTeam
+    return ticketsByTeam
 }
