@@ -149,15 +149,15 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
             println("moduleResultsInfo ${moduleResultsInfo}")
 
-            def existingTickets = "Existing issues:\n"
+            def existingTickets = ""
             existingJiraIssuesByTeam.each { team -> 
                 if (team.key == entry.key.name && team.value)
                     existingTickets += team.value  
             }
-            println("existingTickets ${existingTickets}")
-
+            
             def message = """${jenkinsJobInfo}
                             ${moduleResultsInfo}
+                            Existing issues:
                             ${existingTickets}
                             Created by run:
                         """
