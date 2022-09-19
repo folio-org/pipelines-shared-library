@@ -108,8 +108,8 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    def existingJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam('created < -4h')
-    def createdJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam('created > -4h')
+    def existingJiraIssuesByTeam = getJiraIssuesByTeam("created < -4h")
+    def createdJiraIssuesByTeam = getJiraIssuesByTeam("created > -4h")
 
     println "existingJiraIssuesByTeam '${existingJiraIssuesByTeam}'"
     println "createdJiraIssuesByTeam '${createdJiraIssuesByTeam}'"
@@ -308,7 +308,7 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getJiraIssuesByTeam(timeFilter) {
+void getJiraIssuesByTeam(String timeFilter) {
     JiraClient jiraClient = getJiraClient()
  
     def jsonContents = readJSON file: "teams-assignment.json"
