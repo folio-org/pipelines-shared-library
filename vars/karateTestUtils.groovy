@@ -135,32 +135,34 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     def buildStatus = currentBuild.result
 
     teamResults.each { entry ->
-        def jenkinsJobInfo = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
         def moduleResultsInfo = ""
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
-                moduleResultsInfo += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
+                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
             }
         }
         try {
-            if (!moduleResultsInfo.endsWith("tests.\n")) {
-                moduleResultsInfo += "All modules for ${entry.key.name} team have succesful result"
+            if (!message.endsWith("tests.\n")) {
+                message += "All modules for ${entry.key.name} team have succesful result"
             }
 
             println("moduleResultsInfo ${moduleResultsInfo}")
 
             def existingTickets = ""
             existingJiraIssuesByTeam.each { team -> 
-                if (team.key == entry.key.name && team.value)
-                    existingTickets += team.value  
+                if (team.key == entry.key.name && team.value) {
+                    message += "Existing issues:"
+                    message += team.value
+                }
             }
             
-            def message = """${jenkinsJobInfo}
-                            ${moduleResultsInfo}
-                            Existing issues:
-                            ${existingTickets}
-                            Created by run:
-                        """
+            // def message = """${jenkinsJobInfo}
+            //                 ${moduleResultsInfo}
+            //                 Existing issues:
+            //                 ${existingTickets}
+            //                 Created by run:
+            //             """
             println("message ${message}")
 
             // slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
