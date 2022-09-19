@@ -107,7 +107,7 @@ void copyCucumberReports() {
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
-void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment, existingJiraIssuesByTeam) {
+void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
@@ -309,8 +309,7 @@ void getExistingJiraIssuesByTeam() {
     def jsonContents = readJSON file: "teams-assignment.json"
     def existingJiraIssuesMapByTeam = [:]
     jsonContents.each { entry ->
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+\
-                                                                + """ and "Development Team" = "${entry.team}" """, ["summary", "status"])
+        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+ """ and "Development Team" = "${entry.team}" """, ["summary", "status"])
         def existingTicketsByTeam = ""
         issuesByTeam.each { issue ->
             existingTicketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
@@ -324,5 +323,3 @@ void getExistingJiraIssuesByTeam() {
                 println "$entry.key:::::: $entry.value"
         }
 }
-
-// created%20%3E%3D%20-20m
