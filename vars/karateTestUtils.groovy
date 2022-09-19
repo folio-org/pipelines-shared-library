@@ -148,7 +148,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             
             def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
             if (existingTickets.value) {
-                message += "Existing issues:"
+                message += "Existing issues:\n"
                 message += team.value                
             }
             // existingJiraIssuesByTeam.each { team -> 
