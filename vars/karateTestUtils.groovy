@@ -8,7 +8,6 @@ import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
-import groovy.json.JsonOutput
 
 /**
  * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
@@ -111,7 +110,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
-
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
             def team = teamByModule.get(moduleExecutionSummary.getName())
@@ -127,7 +125,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     // iterate over teams and send slack notifications
     def buildStatus = currentBuild.result
-
     teamResults.each { entry ->
         def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
         entry.value.each { moduleTestResult ->
@@ -196,7 +193,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
 
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
-        def team = teamByModule[moduleSummary.name]
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
