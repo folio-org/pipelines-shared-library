@@ -112,7 +112,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
 
-    println "TEST0 ${existingJiraIssuesByTeam} "
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
             def team = teamByModule.get(moduleExecutionSummary.getName())
