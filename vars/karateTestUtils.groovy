@@ -108,8 +108,8 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    def existingJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam("created < -4h")
-    def createdJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam("created > -4h")
+    def existingJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam('created < -4h')
+    def createdJiraIssuesByTeam = karateTestUtils.getJiraIssuesByTeam('created > -4h')
 
     println "existingJiraIssuesByTeam '${existingJiraIssuesByTeam}'"
     println "createdJiraIssuesByTeam '${createdJiraIssuesByTeam}'"
