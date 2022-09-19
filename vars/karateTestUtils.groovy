@@ -145,6 +145,8 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             if (!moduleResultsInfo.endsWith("tests.\n")) {
                 moduleResultsInfo += "All modules for ${entry.key.name} team have succesful result"
             }
+            println("jenkinsJobInfo ${jenkinsJobInfo}")
+
             println("moduleResultsInfo ${moduleResultsInfo}")
 
         //     def existingTickets = ""
