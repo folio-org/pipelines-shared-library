@@ -151,6 +151,7 @@ pipeline {
                         stage("Sync jira tickets") {
                             steps {
                                 script {
+                                    def existingJiraIssuesByTeam = karateTestUtils.getExistingJiraIssuesByTeam()
                                     karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
@@ -159,7 +160,6 @@ pipeline {
                         stage("Send slack notifications") {
                             steps {
                                 script {
-                                    def existingJiraIssuesByTeam = karateTestUtils.getExistingJiraIssuesByTeam()
                                     karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment, existingJiraIssuesByTeam)
                                 }
                             }

@@ -140,6 +140,7 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             if (!message.endsWith("tests.\n")) {
                 message += "All modules for ${entry.key.name} team have succesful result"
             }
+
             println("TESTSlack ${message}")
             // def message = """${jenkinsInfo}\n
             //                 ${moduleResultsInfo}\n
@@ -190,14 +191,6 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         def team = teamByModule[moduleSummary.name]
-        // Existing tickets
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team.name}" """, ["summary", "status"])
-        def existingTickets = "Existing issues: \n"
-        issuesByTeam.each { issue ->
-            existingTickets += "https://issues.folio.org/browse/${issue.key}\n"
-        }
-        println("TEST2 ${existingTickets}")
-
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
@@ -315,18 +308,21 @@ void getExistingJiraIssuesByTeam() {
  
     def jsonContents = readJSON file: "teams-assignment.json"
     def existingJiraIssuesMapByTeam = [:]
-    jsonContents.each {
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${it.team}" """, ["summary", "status"])
+    jsonContents.each { entry ->
+        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+\
+                                                                + """ and "Development Team" = "${entry.team}" """, [])
         def existingTicketsByTeam = ""
         issuesByTeam.each { issue ->
             existingTicketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
         }
-        existingJiraIssuesMapByTeam.put(it.team, existingTicketsByTeam)
+        existingJiraIssuesMapByTeam.put(entry.team, existingTicketsByTeam)
     }
-    return existingJiraIssuesMapByTeam
-        // println("TEST2 ${existingJiraIssuesMapByTeam}")
-        // existingJiraIssuesMapByTeam.each { entry -> 
-        //     if (entry.key == "Volaris" && entry.value)
-        //         println "$entry.key:::::: $entry.value"
-        // }
+    // return existingJiraIssuesMapByTeam
+        println("TEST2 ${existingJiraIssuesMapByTeam}")
+        existingJiraIssuesMapByTeam.each { entry -> 
+            if (entry.key == "Volaris" && entry.value)
+                println "$entry.key:::::: $entry.value"
+        }
 }
+
+created%20%3E%3D%20-20m
