@@ -108,11 +108,11 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    def existingJiraIssuesByTeam = getJiraIssuesByTeam("created < -4h")
-    def createdJiraIssuesByTeam = getJiraIssuesByTeam("created > -4h")
+    // def existingJiraIssuesByTeam = getJiraIssuesByTeam("created < -4h")
+    // def createdJiraIssuesByTeam = getJiraIssuesByTeam("created > -4h")
 
-    println "existingJiraIssuesByTeam '${existingJiraIssuesByTeam}'"
-    println "createdJiraIssuesByTeam '${createdJiraIssuesByTeam}'"
+    // println "existingJiraIssuesByTeam '${existingJiraIssuesByTeam}'"
+    // println "createdJiraIssuesByTeam '${createdJiraIssuesByTeam}'"
 
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
@@ -136,7 +136,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
 
     teamResults.each { entry ->
         def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-        def moduleResultsInfo = ""
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
@@ -146,16 +145,25 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             if (!message.endsWith("tests.\n")) {
                 message += "All modules for ${entry.key.name} team have succesful result"
             }
-
-            println("moduleResultsInfo ${moduleResultsInfo}")
-
-            def existingTickets = ""
-            existingJiraIssuesByTeam.each { team -> 
-                if (team.key == entry.key.name && team.value) {
-                    message += "Existing issues:"
-                    message += team.value
-                }
+            
+            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -4h")
+            if (existingTickets.value) {
+                message += "Existing issues:"
+                message += team.value                
             }
+            // existingJiraIssuesByTeam.each { team -> 
+            //     if (team.key == entry.key.name && team.value) {
+            //         message += "Existing issues:"
+            //         message += team.value
+            //     }
+            // }
+
+            // createdJiraIssuesByTeam.each { team -> 
+            //     if (team.key == entry.key.name && team.value) {
+            //         message += "Created issues by run:"
+            //         message += team.value
+            //     }
+            // }
             
             // def message = """${jenkinsJobInfo}
             //                 ${moduleResultsInfo}
@@ -320,23 +328,31 @@ private JiraClient getJiraClient() {
     }
 }
 
-void getJiraIssuesByTeam(String timeFilter) {
-    JiraClient jiraClient = getJiraClient()
+// Map<String, String> getJiraIssuesByTeam(String timeFilter) {
+//     JiraClient jiraClient = getJiraClient()
  
-    def jsonContents = readJSON file: "teams-assignment.json"
+//     def jsonContents = readJSON file: "teams-assignment.json"
+//     def jiraIssuesMapByTeam = [:]
+//     jsonContents.each { entry ->
+//         List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${entry.team}" and ${timeFilter} """, ["summary", "status"])
+//         def ticketsByTeam = ""
+//         issuesByTeam.each { issue ->
+//             ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
+//         }
+//         jiraIssuesMapByTeam.put(entry.team, ticketsByTeam)
+//     }
+//     return jiraIssuesMapByTeam
+// }
+
+Map<String, String> getJiraIssuesByTeam(String team, String timeFilter) {
     def jiraIssuesMapByTeam = [:]
-    jsonContents.each { entry ->
-        List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${entry.team}" and ${timeFilter} """, ["summary", "status"])
-        def ticketsByTeam = ""
-        issuesByTeam.each { issue ->
-            ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
-        }
-        jiraIssuesMapByTeam.put(entry.team, ticketsByTeam)
+    def ticketsByTeam = ""
+
+    List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
+    issuesByTeam.each { issue ->
+        ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
     }
+    jiraIssuesMapByTeam.put(entry.team, ticketsByTeam)
+
     return jiraIssuesMapByTeam
-        // println("TEST2 ${jiraIssuesMapByTeam}")
-        // jiraIssuesMapByTeam.each { entry -> 
-        //     if (entry.key == "Volaris" && entry.value)
-        //         println "$entry.key:::::: $entry.value"
-        // }
 }
