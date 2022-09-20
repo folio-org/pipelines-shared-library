@@ -41,7 +41,18 @@ ansiColor('xterm') {
     }
     node('jenkins-agent-java11') {
         stage('Test') {
-            echo "params.folio_repository"
+            echo params.folio_repository
+            echo params.folio_branch
+            echo params.okapi_version
+            echo params.rancher_project_name
+        }
+        stage('Test2') {
+            echo params.folio_repository
+            echo params.folio_branch
+            echo params.okapi_version
+            echo params.rancher_project_name
+            echo params.load_reference
+            echo jobsParameters.loadSample
         }
 
 
