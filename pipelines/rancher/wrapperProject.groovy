@@ -33,7 +33,8 @@ properties([
 //def pgPassword = ""
 //def pgAdminPassword = ""
 //def github_teams = ''
-
+def a1 = params.load_reference
+def a2 = jobsParameters.loadSample
 ansiColor('xterm') {
     if (params.refreshParameters) {
         currentBuild.result = 'ABORTED'
@@ -51,8 +52,8 @@ ansiColor('xterm') {
             echo params.folio_branch
             echo params.okapi_version
             echo params.rancher_project_name
-            echo params.load_reference
-            echo jobsParameters.loadSample
+            echo "${a1}"
+            echo a2
         }
 
 
