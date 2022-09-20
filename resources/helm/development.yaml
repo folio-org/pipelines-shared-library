@@ -725,7 +725,17 @@ mod-agreements:
   postJob:
     enabled: false
 mod-aes:
-  javaArgs: "$JAVA_ARGS -Dkafka.url=$KAFKA_HOST:$KAFKA_PORT"
+  javaArgs: "$(JAVA_ARGS) -Dkafka.url=$(KAFKA_HOST):$(KAFKA_PORT)"
+  javaOptions: "-XX:MaxRAMPercentage=85.0"
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 400Mi
+  postJob:
+    enabled: false
+mod-entities-links:
   javaOptions: "-XX:MaxRAMPercentage=85.0"
   replicaCount: 1
   resources:
