@@ -1,17 +1,13 @@
 #!groovy
+@Library('pipelines-shared-library') _
+
 import org.folio.Constants
 import org.folio.rest.Deployment
-import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.jenkinsci.plugins.workflow.libs.Library
-
-
-@Library('pipelines-shared-library') _
-
-import org.folio.utilities.Tools
+import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
 properties([
@@ -19,16 +15,13 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
+        jobsParameters.agents(),
+        jobsParameters.backendModule(),
+        jobsParameters.branch('backend_module'),
+        jobsParameters.mvnOptions('-DskipTests'),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.configType(),
-        text(defaultValue: '''[ {
-    "id" : "folio_users-x.x.x",
-    "action" : "enable"
-}, {
-    "id" : "mod-users-x.x.x",
-    "action" : "enable"
-} ]''', description: '(Required) Install json list with modules to update.', name: 'install_json'),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
         jobsParameters.adminUsername(),
@@ -53,13 +46,18 @@ Email email = okapiSettings.email()
 
 Project project_model = new Project(clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
-    action: params.action,
     enableModules: params.enable_modules,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: new Tools(this).jsonParse(params.install_json),
     configType: params.config_type)
+
+Module backend_module = new Module(
+    name: params.backend_module,
+    mvnOptions: params.mvn_options.trim()
+)
+
+String DESCRIPTOR_PATH = "target/ModuleDescriptor.json"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -67,18 +65,65 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Ini') {
-                buildName "${project_model.getClusterName()}.${project_model.getProjectName()}.${env.BUILD_ID}"
-                buildDescription "tenant: ${tenant.getId()}\n" +
+                buildName "${backend_module.getName()}.${env.BUILD_ID}"
+                buildDescription "branch: ${params.folio_branch}\n" +
+                    "env: ${project_model.getClusterName()}-${project_model.getProjectName()}\n" +
+                    "tenant: ${tenant.getId()}\n" +
                     "config_type: ${project_model.getConfigType()}"
             }
 
             stage('Checkout') {
                 checkout scm
-                project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
                 project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
+            }
+
+            stage('Checkout module') {
+                sh "git clone --single-branch --recurse-submodules --branch ${params.folio_branch}  https://github.com/folio-org/${backend_module.getName()}.git ${backend_module.getName()}"
+                backend_module.hash = common.getLastCommitHash(backend_module.getName(), params.folio_branch).take(7)
+            }
+
+            stage('Maven build') {
+                dir(backend_module.getName()) {
+                    backend_module.version = readMavenPom().getVersion()
+                    backend_module.tag = "${backend_module.getVersion()}.${backend_module.getHash()}"
+                    backend_module.imageName = "${Constants.DOCKER_DEV_REPOSITORY}/${backend_module.getName()}:${backend_module.getTag()}"
+                    withMaven(jdk: "${common.selectJavaBasedOnAgent(params.agent)}",
+                        maven: Constants.MAVEN_TOOL_NAME,
+                        options: [artifactsPublisher(disabled: true)]) {
+                        sh """
+                            mvn versions:set -DnewVersion=${backend_module.getTag()}
+                            mvn package ${backend_module.getMvnOptions()}
+                        """
+                    }
+                }
+            }
+
+            stage('Docker build and push') {
+                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                    def image
+                    dir(backend_module.getName() == 'okapi' ? "${backend_module.getName()}/okapi-core" : backend_module.getName()) {
+                        image = docker.build("${backend_module.getImageName()}", '--no-cache=true --pull=true .')
+                        image.push()
+                    }
+                }
+            }
+
+            stage('Deploy preparation') {
+                project_model.installJson = [
+                    [
+                        id    : "${backend_module.getName()}-${backend_module.getTag()}",
+                        action: 'enable'
+                    ]
+                ]
+                project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
+                dir(backend_module.getName()) {
+                    if (fileExists(DESCRIPTOR_PATH)) {
+                        backend_module.descriptor = [readJSON(file: DESCRIPTOR_PATH)]
+                    }
+                }
             }
 
             stage("Deploy backend modules") {
@@ -87,7 +132,8 @@ ansiColor('xterm') {
                     folioDeploy.backend(install_backend_map,
                         project_model.getModulesConfig(),
                         project_model.getClusterName(),
-                        project_model.getProjectName())
+                        project_model.getProjectName(),
+                        true)
                 }
             }
 
@@ -109,24 +155,7 @@ ansiColor('xterm') {
                         admin_user,
                         email
                     )
-                    deployment.update()
-                }
-            }
-
-            stage("Deploy edge modules") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
-                if (install_edge_map) {
-                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
-                        helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
-                    }
-                    new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                    folioDeploy.edge(install_edge_map,
-                        project_model.getModulesConfig(),
-                        project_model.getClusterName(),
-                        project_model.getProjectName(),
-                        project_model.getDomains().edge)
+                    deployment.installSingleBackendModule(backend_module.getDescriptor())
                 }
             }
         } catch (exception) {
@@ -134,6 +163,7 @@ ansiColor('xterm') {
             error(exception.getMessage())
         } finally {
             stage('Cleanup') {
+                common.removeImage(backend_module.getImageName())
                 cleanWs notFailBuild: true
             }
         }

@@ -19,13 +19,13 @@ properties([
         jobsParameters.refreshParameters(),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.repository(),
-        jobsParameters.folioBranch(),
+        jobsParameters.branch(),
         jobsParameters.okapiVersion(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         booleanParam(name: 'ui_build', defaultValue: true, description: 'Build UI image for frontend if false choose from dropdown next'),
         jobsParameters.frontendImageTag(),
-        jobsParameters.envType(),
+        jobsParameters.configType(),
         jobsParameters.enableModules(),
         jobsParameters.agents(),
         jobsParameters.tenantId(),
@@ -75,7 +75,7 @@ Project project_model = new Project(
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
     installJson: params.restore_from_backup ? [] : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch),
-    configType: params.env_config,
+    configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
     backupName: params.backup_name)
@@ -97,7 +97,7 @@ ansiColor('xterm') {
 
             stage('Ini') {
                 buildName "${project_model.getClusterName()}.${project_model.getProjectName()}.${env.BUILD_ID}"
-                buildDescription "action: ${project_model.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "env_config: ${project_model.getConfigType()}"
+                buildDescription "action: ${project_model.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_model.getConfigType()}"
                 project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
                 project_model.uiBundleTag = params.ui_build ? "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${project_model.getHash().take(7)}" : params.frontend_image_tag
             }

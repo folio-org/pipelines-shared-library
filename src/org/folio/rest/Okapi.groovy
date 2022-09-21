@@ -71,14 +71,30 @@ class Okapi extends GeneralParameters {
         }
     }
 
+    void publishModulesDescriptors(List descriptor){
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        logger.info("Publish modules descriptors to okapi.")
+        String url = okapi_url + "/_/proxy/import/modules"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+
+        def json = JsonOutput.toJson(descriptor)
+        def res = http.postRequest(url, json, headers)
+        if (res.status < 300) {
+            logger.info("Modules descriptors successfully published to Okapi")
+        } else {
+            throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
+        }
+    }
+
     /**
      * Fetch modules descriptors for specific modules from registry and push them to okapi
      * @param registries
      */
-    void publishModuleDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
-        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
-        logger.info("Start module descriptors publishing")
-        def items = []
+    List composeModulesDescriptors(List modules, List registries = OkapiConstants.DESCRIPTORS_REPOSITORIES) {
+        logger.info("Start module descriptors compose")
+        List items = []
         modules.each { module ->
             // skip okapi descriptors
             if (!module.id.startsWith(OKAPI_NAME)) {
@@ -97,21 +113,22 @@ class Okapi extends GeneralParameters {
                 }
             }
         }
+        return items
 
         // publish found module descriptors to okapi
-        logger.info("Publish found module descriptors to Okapi.")
-        String url = okapi_url + "/_/proxy/import/modules"
-        ArrayList headers = [[name: 'Content-type', value: "application/json"],
-                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
-                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
-
-        def json = JsonOutput.toJson(items)
-        def res = http.postRequest(url, json, headers)
-        if (res.status < 300) {
-            logger.info("Modules descriptors successfully published to Okapi")
-        } else {
-            throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
-        }
+//        logger.info("Publish found module descriptors to Okapi.")
+//        String url = okapi_url + "/_/proxy/import/modules"
+//        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+//                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+//                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+//
+//        def json = JsonOutput.toJson(items)
+//        def res = http.postRequest(url, json, headers)
+//        if (res.status < 300) {
+//            logger.info("Modules descriptors successfully published to Okapi")
+//        } else {
+//            throw new AbortException("Error during modules descriptors publishing to Okapi." + http.buildHttpErrorMessage(res))
+//        }
     }
 
 /**
@@ -135,6 +152,7 @@ class Okapi extends GeneralParameters {
  * @return true or false
  */
     private Boolean checkModuleDescriptor(module) {
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/_/proxy/modules?filter=${module.id}"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],

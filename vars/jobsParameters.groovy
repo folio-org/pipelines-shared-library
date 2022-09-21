@@ -61,7 +61,7 @@ static List jenkinsAgentsList() {
 }
 
 @NonCPS
-static List envTypeList() {
+static List configTypeList() {
     return ['development',
             'performance',
             'testing']
@@ -119,13 +119,13 @@ static String generateProjectNamesMap() {
                               'folio-tmp'    : testEnvironmentsList().sort()])
 }
 
-static String getRepositoryBranches() {
-    return '''import groovy.json.JsonSlurperClassic
-def get = new URL('https://api.github.com/repos/folio-org/' + folio_repository + '/branches?per_page=100').openConnection()
+static String getRepositoryBranches(String repository) {
+    return """import groovy.json.JsonSlurperClassic
+def get = new URL('https://api.github.com/repos/folio-org/' + ${repository} + '/branches?per_page=100').openConnection()
 if (get.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
-'''
+"""
 }
 
 static String getUIImagesList() {
@@ -160,6 +160,22 @@ if (installJson.getResponseCode().equals(200)) {
     }
 }
 '''
+}
+
+static String getBackendModulesList(){
+    return '''import groovy.json.JsonSlurperClassic
+String nameGroup = "moduleName"
+String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
+def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
+if (installJson.getResponseCode().equals(200)) {
+    List modules_list = ['okapi']
+    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
+        def matcherModule = value =~ patternModuleVersion
+        assert matcherModule.matches()
+        modules_list.add(matcherModule.group(nameGroup))
+    }
+    return modules_list.sort()
+}'''
 }
 
 private def _paramChoice(String name, List options, String description) {
@@ -207,10 +223,6 @@ def clusterName() {
     return _paramChoice('rancher_cluster_name', clustersList(), 'Select cluster')
 }
 
-def envType() {
-    return _paramChoice('env_config', envTypeList(), 'Select config file')
-}
-
 def projectName() {
     return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), 'Select project to operate')
 }
@@ -218,6 +230,14 @@ def projectName() {
 
 def repository() {
     return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
+}
+
+def branch(String reference_parameter = 'folio_repository') {
+    return _paramExtended('folio_branch', reference_parameter, getRepositoryBranches(reference_parameter), 'Choose what platform-core or platform-complete branch to build from')
+}
+
+def configType() {
+    return _paramChoice('config_type', configTypeList(), 'Select config file')
 }
 
 def enableModules() {
@@ -272,10 +292,6 @@ def pgAdminPassword() {
     return _paramPassword('pgadmin_password', pgAdminDefaultPassword(), 'Password for pgAdmin login')
 }
 
-def folioBranch() {
-    return _paramExtended('folio_branch', 'folio_repository', getRepositoryBranches(), 'Choose what platform-core or platform-complete branch to build from')
-}
-
 def frontendImageTag() {
     return _paramExtended('frontend_image_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), 'Choose image tag for UI')
 }
@@ -284,6 +300,9 @@ def okapiVersion() {
     return _paramExtended('okapi_version', 'folio_repository,folio_branch', getOkapiVersions(), 'Choose Okapi version')
 }
 
+def backendModule() {
+    return _paramExtended('backend_module', '', getBackendModulesList(), 'Choose backend module')
+}
 
 def restoreFromBackup() {
     return _paramBoolean('restore_from_backup', false, 'Turn on the option if you would like to restore PostgreSQL DB from backup. Modules versions will be restored up to the same state as at the moment when backup was created')
@@ -303,4 +322,8 @@ def tenantIdToBackupModulesVersions() {
 
 def tenantIdToRestoreModulesVersions() {
     return _paramString('restore_tenant_id', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
+}
+
+def mvnOptions(String options = '') {
+    return _paramString('mvn_options', options, 'Put additional maven options if needed')
 }

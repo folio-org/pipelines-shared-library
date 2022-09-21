@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -9,7 +8,7 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         jobsParameters.repository(),
-        jobsParameters.folioBranch(),
+        jobsParameters.branch(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
@@ -20,11 +19,12 @@ properties([
     ])
 ])
 
-String image_name = Constants.DOCKER_DEV_REPOSITORY + '/platform-complete' //TODO rename to folio-ui
+
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String okapi_url = params.custom_url.isEmpty() ? "https://" + okapi_domain : params.custom_url
 String hash = params.custom_hash.isEmpty() ? common.getLastCommitHash(params.folio_repository, params.folio_branch) : params.custom_hash
 String tag = params.custom_tag.isEmpty() ? "${params.rancher_cluster_name}-${params.rancher_project_name}-${params.tenant_id}-${hash.take(7)}" : params.custom_tag
+String image_name = "${Constants.DOCKER_DEV_REPOSITORY}/platform-complete:${tag}" //TODO rename to folio-ui
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -38,7 +38,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${hash}"
-                docker.withRegistry('https://' + Constants.DOCKER_DEV_REPOSITORY, Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
                     def image = docker.build(
                         image_name,
                         "--build-arg OKAPI_URL=${okapi_url} " +
@@ -46,14 +46,17 @@ ansiColor('xterm') {
                             "-f docker/Dockerfile  " +
                             "https://github.com/folio-org/platform-complete.git#${hash}"
                     )
-                    image.push(tag)
-                    sh "docker rmi ${image_name}:${tag} || exit 0"
-                    sh "docker rmi ${image_name}:latest || exit 0"
+                    image.push()
                 }
             }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
+        } finally {
+            stage('Cleanup') {
+                common.removeImage(image_name)
+                cleanWs notFailBuild: true
+            }
         }
     }
 }
