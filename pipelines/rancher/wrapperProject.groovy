@@ -32,20 +32,7 @@ def pgPassword = "postgres_password_123!"
 def pgAdminPassword    = "SuperSecret"
 def envConfig = "development"
 def agents = "jenkins-agent-java11"
-//    node('jenkins-agent-java11') {
-//        stage('Test') {
-//            echo params.folio_repository
-//            echo params.folio_branch
-//            echo params.okapi_version
-//            echo params.rancher_project_name
-//            echo "${a1}"
-//            echo "${a2}"
-//        }
-//        stage('Test2') {
-//            echo params.folio_repository
-//            echo params.folio_branch
-//            echo params.okapi_version
-//            echo params.rancher_project_name
+
 def testrefreshParameters = false
 def testaction = params.action
 def testloadReference = params.loadReference
@@ -70,7 +57,7 @@ def testpgPassword = pgPassword
 def testpgAdminPassword = pgAdminPassword
 def testgithub_teams = ''
 def testrestorePostgresqlFromBackup = false
-def testtenantIdToRestoreModulesVersions = tenantIid
+def testtenantIdToRestoreModulesVersions = tenantId
 def testrestorePostgresqlBackupName = ''
 def testpg_embedded = true
 def testkafka_embedded = true
@@ -112,8 +99,6 @@ node('jenkins-agent-java11') {
         println(tests3_embedded)
         println(testpgadmin4)
     }
-
-
 }
 //        try {
 //            stage('Build project Job') {
@@ -150,11 +135,6 @@ node('jenkins-agent-java11') {
 //                            booleanParam(name: 'es_embedded', value: true),
 //                            booleanParam(name: 's3_embedded', value: true),
 //                            booleanParam(name: 'pgadmin4', value: true)
-
-//
-////                                    string(name: 'custom_hash', value: hash),
-////                                    string(name: 'custom_url', value: okapiUrl),
-////                                    string(name: 'custom_tag', value: tag)
 //                        ]
 //                }
 //            }
