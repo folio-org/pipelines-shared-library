@@ -23,34 +23,98 @@ properties([
         jobsParameters.loadSample()
     ])
 ])
-//def rancherClusters = "folio-testing"
-//def frontendImageTag = "folio-testing-karate-diku-e025d02"
-//def tenantId = "diku"
-//def tenantName = "Datalogisk Institut"
-//def tenantDescription = "Danish Library Technology Institute"
-//def pgPassword = "postgres_password_123!"
-//def pgAdminPassword    = "SuperSecret"
-//def envConfig = "development"
-//def agents = "jenkins-agent-java11"
-def a1 = params.load_reference
-def a2 = params.load_sample
+def rancherClusters = "folio-testing"
+def frontendImageTag = "folio-testing-karate-diku-e025d02"
+def tenantId = "diku"
+def tenantName = "Datalogisk Institut"
+def tenantDescription = "Danish Library Technology Institute"
+def pgPassword = "postgres_password_123!"
+def pgAdminPassword    = "SuperSecret"
+def envConfig = "development"
+def agents = "jenkins-agent-java11"
+//    node('jenkins-agent-java11') {
+//        stage('Test') {
+//            echo params.folio_repository
+//            echo params.folio_branch
+//            echo params.okapi_version
+//            echo params.rancher_project_name
+//            echo "${a1}"
+//            echo "${a2}"
+//        }
+//        stage('Test2') {
+//            echo params.folio_repository
+//            echo params.folio_branch
+//            echo params.okapi_version
+//            echo params.rancher_project_name
+def testrefreshParameters = false
+def testaction = params.action
+def testloadReference = params.loadReference
+def testfolio_repository = params.repository
+def testfolio_branch = params.folioBranch
+def testokapi_version = params.okapiVersion
+def testrancher_cluster_name = rancherClusters
+def testrancher_project_name = params.projectName
+def testbuild_ui = true
+def testfrontendImageTag = frontendImageTag
+def testenvType = envConfig
+def testenableModules = true
+def testagents = agents
+def testtenantId = tenantId
+def testtenantName = tenantName
+def testtenantDescription = tenantDescription
+def testreindexElasticsearch = true
+def testrecreateindexElasticsearch = false
+def testload_reference = params.loadReference
+def testload_sample = params.loadSample
+def testpgPassword = pgPassword
+def testpgAdminPassword = pgAdminPassword
+def testgithub_teams = ''
+def testrestorePostgresqlFromBackup = false
+def testtenantIdToRestoreModulesVersions = tenantIid
+def testrestorePostgresqlBackupName = ''
+def testpg_embedded = true
+def testkafka_embedded = true
+def testes_embedded = true
+def tests3_embedded = true
+def testpgadmin4 = true
 
-    node('jenkins-agent-java11') {
-        stage('Test') {
-            echo params.folio_repository
-            echo params.folio_branch
-            echo params.okapi_version
-            echo params.rancher_project_name
-            echo "${a1}"
-            echo "${a2}"
-        }
-        stage('Test2') {
-            echo params.folio_repository
-            echo params.folio_branch
-            echo params.okapi_version
-            echo params.rancher_project_name
+node('jenkins-agent-java11') {
+    stage('Test') {
+        println(testaction)
+        println(testloadReference)
+        println(testfolio_repository)
+        println(testfolio_branch)
+        println(testokapi_version)
+        println(testrancher_cluster_name)
+        println(testrancher_project_name)
+        println(testbuild_ui)
+        println(testload_sample)
+        println(testload_reference)
+        println(testrefreshParameters)
+        println(testfrontendImageTag)
+        println(testenvType)
+        println(testenableModules)
+        println(testagents)
+        println(testtenantId)
+        println(testtenantName)
+        println(testtenantDescription)
+        println(testreindexElasticsearch)
+        println(testrecreateindexElasticsearch)
+        println(testpgPassword)
+        println(testpgAdminPassword)
+        println(testgithub_teams)
+        println(testrestorePostgresqlFromBackup)
+        println(testtenantIdToRestoreModulesVersions)
+        println(testrestorePostgresqlBackupName)
+        println(testpg_embedded)
+        println(testkafka_embedded)
+        println(testes_embedded)
+        println(tests3_embedded)
+        println(testpgadmin4)
+    }
 
-        }
+
+}
 //        try {
 //            stage('Build project Job') {
 //                if (params.build_ui && params.action == 'apply') {
@@ -102,5 +166,5 @@ def a2 = params.load_sample
 //                cleanWs notFailBuild: true
 //            }
 //        }
-    }
+//    }
 
