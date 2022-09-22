@@ -149,7 +149,6 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 message += createdTickets              
             }
 
-            println("message ${message}")
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
