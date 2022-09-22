@@ -38,7 +38,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${hash}"
-                docker.withRegistry('https://' + Constants.ECR_FOLIO_UI_REPOSITORY, 'ecr:us-west-2:' + Constants.ECR_FOLIO_UI_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry('https://' + Constants.ECR_FOLIO_UI_REPOSITORY, 'ecr:us-west-2' + Constants.ECR_FOLIO_UI_REPOSITORY_CREDENTIALS_ID) {
                     def image = docker.build(
                         image_name,
                         "--build-arg OKAPI_URL=${okapi_url} " +
