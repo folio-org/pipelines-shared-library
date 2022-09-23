@@ -1,12 +1,12 @@
 #!groovy
 @Library('pipelines-shared-library') _
 
-//import org.folio.Constants
-//import org.folio.rest.Deployment
-//import org.folio.rest.model.Email
-//import org.folio.rest.model.OkapiUser
-//import org.folio.rest.model.OkapiTenant
-//import org.folio.utilities.Tools
+import org.folio.Constants
+import org.folio.rest.Deployment
+import org.folio.rest.model.Email
+import org.folio.rest.model.OkapiUser
+import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
@@ -18,11 +18,16 @@ properties([
         jobsParameters.repository(),
         jobsParameters.folioBranch(),
         jobsParameters.okapiVersion(),
-        jobsParameters.projectName(),
+//        jobsParameters.projectName(),
+        choice(name: 'projectName', choices: ["bama","concorde","core-platform","ebsco-core","falcon","firebird","folijet",
+                                              "metadata","prokopovych","scout","spanish","spitfire","sprint-testing",
+                                              "stripes-force","thor","thunderjet","unam","vega","volaris","volaris-2nd"],
+                                              description: "(Required) Select project to operate"),
         jobsParameters.loadReference(),
         jobsParameters.loadSample()
     ])
 ])
+["bama","concorde","core-platform","ebsco-core","falcon","firebird","folijet","metadata","prokopovych","scout","spanish","spitfire","sprint-testing","stripes-force","thor","thunderjet","unam","vega","volaris","volaris-2nd"]
 def rancherClusters = "folio-dev"
 //def frontendImageTag = "folio-testing-karate-diku-e025d02"
 def tenantId = "diku"
@@ -64,7 +69,6 @@ def agents = "jenkins-agent-java11"
 //def testes_embedded = true
 //def tests3_embedded = true
 //def testpgadmin4 = true
-
 node('jenkins-agent-java11') {
 //    stage('Test') {
 //        println(testaction)
