@@ -106,7 +106,7 @@ node('jenkins-agent-java11') {
 //}
         try {
             stage('Build project Job') {
-                if (params.build_ui && params.action == 'apply') {
+                if (params.action == 'apply') {
                     build job: 'Rancher/Project',
                         parameters: [
 //                            booleanParam(name: 'refreshParameters', value: false),
