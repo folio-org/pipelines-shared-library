@@ -118,7 +118,7 @@ node('jenkins-agent-java11') {
                             string(name: 'rancher_project_name', value: params.projectName),
 //                            booleanParam(name: 'build_ui', value: true),
 //                            string(name: 'frontend_image_tag', value: frontendImageTag),
-                            booleanParam(name: 'env_config', value: envConfig),
+                            string(name: 'env_config', value: envConfig),
                             booleanParam(name: 'enable_modules', value: true),
 //                            string(name: 'agent', value: agents),
 //                            string(name: 'tenant_id', value: tenantId),
