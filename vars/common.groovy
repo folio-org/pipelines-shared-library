@@ -39,3 +39,7 @@ void healthCheck(String url, String status_codes='200,403'){
         }
     }
 }
+
+static String getOkapiVersion(List install_json){
+   return install_json*.id.find{it ==~ /okapi-.*/} - 'okapi-'
+}

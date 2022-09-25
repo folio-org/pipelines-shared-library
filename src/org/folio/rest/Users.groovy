@@ -37,10 +37,10 @@ class Users extends GeneralParameters {
      * @return
      */
     def getUser(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/users?query=username%3d%3d" + user.username
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
@@ -56,11 +56,11 @@ class Users extends GeneralParameters {
      * @return
      */
     void createUser(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def checkUser = getUser(tenant, user)
         if (checkUser.totalRecords.toInteger() == 0) {
             logger.info("User ${user.username} does not exists. Creating...")
@@ -92,11 +92,11 @@ class Users extends GeneralParameters {
      */
     //TODO Configure to edit user
     void setPatronGroup(OkapiTenant tenant, OkapiUser user, String patronGroupId) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/users/" + user.uuid
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         logger.info("Assign patron group ${user.groupName} with id ${patronGroupId} for user ${user.username}")
         String body = JsonOutput.toJson(getUser(tenant, user).users[0] << [patronGroup: patronGroupId])
         def res = http.putRequest(url, body, headers)
@@ -113,10 +113,10 @@ class Users extends GeneralParameters {
      * @param user
      */
     def getPatronGroupId(OkapiTenant tenant, OkapiUser user) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/groups"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).usergroups.findResult { if (it.group == user.groupName) return it.id }

@@ -22,10 +22,10 @@ class ServicePoints extends GeneralParameters {
      * @return
      */
     def getServicePointsIds(OkapiTenant tenant) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/service-points"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).servicepoints*.id
@@ -42,10 +42,10 @@ class ServicePoints extends GeneralParameters {
      */
     def getServicePointsUsersRecords(OkapiTenant tenant, OkapiUser user) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/service-points-users?query=userId%3d%3d" + user.uuid
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
@@ -60,11 +60,11 @@ class ServicePoints extends GeneralParameters {
      */
     void createServicePointsUsersRecord(OkapiTenant tenant, OkapiUser user, ArrayList servicePointsIds) {
         users.validateUser(user)
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/service-points-users"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
         if (servicePointsIds) {
             logger.info("Assign service points ${servicePointsIds.join(", ")} to user ${user.username}")
             String body = JsonOutput.toJson([userId               : user.uuid,

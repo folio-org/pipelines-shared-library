@@ -719,7 +719,7 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 896Mi
+      memory: 1024Mi
     requests:
       memory: 400Mi
   postJob:

@@ -10,7 +10,7 @@ properties([
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose what should be done with cluster'),
-        jobsParameters.rancherClusters(),
+        jobsParameters.clusterName(),
         jobsParameters.agents(),
         string(name: 'custom_cluster_name', defaultValue: '', description: 'Custom cluster name (Will override rancher_cluster_name)', trim: true),
         choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),

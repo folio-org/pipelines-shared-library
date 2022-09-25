@@ -12,13 +12,14 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
+import org.folio.utilities.model.Project
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
-        jobsParameters.rancherClusters(),
+        jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.envType(),
         text(defaultValue: '''[ {
@@ -30,25 +31,35 @@ properties([
 } ]''', description: '(Required) Install json list with modules to update.', name: 'install_json'),
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
-        jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateindexElasticsearch(),
+        jobsParameters.adminUsername(),
+        jobsParameters.adminPassword(),
         jobsParameters.loadReference(),
-        jobsParameters.loadSample()])])
+        jobsParameters.loadSample(),
+        jobsParameters.reinstall(),
+        jobsParameters.reindexElasticsearch(),
+        jobsParameters.recreateIndexElasticsearch()])])
 
-List install_json = new Tools(this).jsonParse(params.install_json)
-Map install_map = new GitHubUtility(this).getModulesVersionsMap(install_json)
+OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
+    tenantParameters: [loadReference: params.load_reference,
+                       loadSample   : params.load_sample],
+    queryParameters: [reinstall: params.reinstall],
+    index: [reindex : params.reindex_elastic_search,
+            recreate: params.recreate_elastic_search_index])
 
-String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
-String edge_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)
-String okapi_url = "https://" + okapi_domain
+OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+    password: params.admin_password)
 
-def modules_config = ''
-
-OkapiTenant tenant = okapiSettings.tenant(tenantId: params.tenant_id,
-    loadReference: params.load_reference,
-    loadSample: params.load_sample)
-OkapiUser admin_user = okapiSettings.adminUser()
 Email email = okapiSettings.email()
+
+Project project_model = new Project(clusterName: params.rancher_cluster_name,
+    projectName: params.rancher_project_name,
+    action: params.action,
+    enableModules: params.enable_modules,
+    domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+              okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
+              edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
+    installJson: new Tools(this).jsonParse(params.install_json),
+    configType: params.env_config)
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -59,60 +70,63 @@ ansiColor('xterm') {
     node('jenkins-agent-java11') {
         try {
             stage('Ini') {
-                println(params.install_json)
-                println(install_json)
-
-                buildName params.rancher_cluster_name + '.' + params.rancher_project_name + '.' + env.BUILD_ID
-                buildDescription "tenant: ${params.tenant_id}\n" +
-                    "env_config: ${params.env_config}"
+                buildName "${project_model.getClusterName()}.${project_model.getProjectName()}.${env.BUILD_ID}"
+                buildDescription "tenant: ${tenant.getId()}\n" +
+                    "env_config: ${project_model.getConfigType()}"
             }
 
             stage('Checkout') {
                 checkout scm
-                modules_config = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${params.env_config}.yaml"
+                project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
+                project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
             }
 
             stage("Deploy backend modules") {
-                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(install_map)
+                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_model.getInstallMap())
                 if (install_backend_map) {
-                    folioDeploy.backend(install_backend_map, modules_config, params.rancher_cluster_name, params.rancher_project_name)
+                    folioDeploy.backend(install_backend_map,
+                        project_model.getModulesConfig(),
+                        project_model.getClusterName(),
+                        project_model.getProjectName())
                 }
             }
 
             stage("Health check") {
                 // Checking the health of the Okapi service.
-                common.healthCheck("${okapi_url}/_/version")
+                common.healthCheck("https://${project_model.getDomains().okapi}/_/version")
             }
 
             stage("Enable backend modules") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                    tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
                         this,
-                        okapi_url,
-                        '',
-                        install_json,
-                        install_map,
+                        "https://${project_model.getDomains().okapi}",
+                        "https://${project_model.getDomains().ui}",
+                        project_model.getInstallJson(),
+                        project_model.getInstallMap(),
                         tenant,
                         admin_user,
-                        email,
-                        cypress_api_key_apidvcorp,
-                        params.reindex_elastic_search,
-                        params.recreate_index_elastic_search
+                        email
                     )
                     deployment.update()
                 }
             }
 
             stage("Deploy edge modules") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(install_map)
+                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
                 if (install_edge_map) {
-                    writeFile file: "ephemeral.properties", text: new Edge(this, okapi_url).renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                     helm.k8sClient {
-                        helm.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        helm.createSecret("ephemeral-properties", params.rancher_project_name, "./ephemeral.properties")
+                        awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
+                        helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
                     }
-                    new Edge(this, okapi_url).createEdgeUsers(tenant, install_edge_map)
-                    folioDeploy.edge(install_edge_map, modules_config, params.rancher_cluster_name, params.rancher_project_name, edge_domain)
+                    new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                    folioDeploy.edge(install_edge_map,
+                        project_model.getModulesConfig(),
+                        project_model.getClusterName(),
+                        project_model.getProjectName(),
+                        project_model.getDomains().edge)
                 }
             }
         } catch (exception) {
