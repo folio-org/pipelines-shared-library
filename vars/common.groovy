@@ -51,6 +51,13 @@ void removeImage(String image_name){
     sh "docker rmi ${image_id.trim()} || exit 0"
 }
 
+void refreshBuidParameters(Boolean refresh){
+    if (refresh) {
+        currentBuild.result = 'ABORTED'
+        error('REFRESH JOB PARAMETERS!')
+    }
+}
+
 String selectJavaBasedOnAgent(String agent_name){
     switch (agent_name) {
         case ~/^.*8.*$/:
