@@ -107,13 +107,41 @@ if (get.getResponseCode().equals(200)) {
 '''
 }
 
-static String getUIImagesList() {
+static String getUIImagesList2() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
 if (get.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(get.getInputStream().getText()).tags.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())}
 }
 '''
+}
+
+static String getUIImagesList() {
+    return '''
+            import com.amazonaws.client.builder.AwsClientBuilder;
+            import com.amazonaws.services.ecr.AmazonECR;
+            import com.amazonaws.services.ecr.AbstractAmazonECR;
+            import com.amazonaws.services.ecr.AmazonECRClient;
+            import com.amazonaws.services.ecr.model.ListImagesRequest;
+            import com.amazonaws.services.ecr.model.ListImagesResult;
+            import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+            import com.amazonaws.regions.Region;
+            import com.amazonaws.regions.RegionUtils;
+            import com.amazonaws.regions.Regions;
+            import jenkins.model.*
+
+            AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
+            ListImagesRequest request = new ListImagesRequest().withRepositoryName("folio-ui");
+            res = client.listImages(request);
+
+
+            def result = []
+            for (image in res) {
+               result.add(image.getImageIds());
+            }
+
+            return result[0].imageTag;
+            '''
 }
 
 static String getProjectNames() {
