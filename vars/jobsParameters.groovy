@@ -190,6 +190,9 @@ def projectName() {
     return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), '(Required) Select project to operate')
 }
 
+def projectDevName() {
+    return _paramChoice('rancher_project_name', devEnvironmentsList().sort(), 'Select project to operate')
+}
 
 def repository() {
     return _paramChoice('folio_repository', repositoriesList(), '(Required) Select source repository')
