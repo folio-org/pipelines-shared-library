@@ -23,7 +23,47 @@ properties([
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
         booleanParam(name: 'ui_build', defaultValue: true, description: 'Build UI image for frontend if false choose from dropdown next'),
-        jobsParameters.frontendImageTag(),
+        [$class: 'CascadeChoiceParameter',
+         choiceType: 'PT_SINGLE_SELECT',
+         description: 'Select Image',
+         filterLength: 1,
+         filterable: false,
+         name: 'ImageTag',
+         script: [
+             $class: 'GroovyScript',
+             script: [
+                 classpath: [],
+                 sandbox: false,
+                 script:
+                     '''
+            import com.amazonaws.client.builder.AwsClientBuilder;
+            import com.amazonaws.services.ecr.AmazonECR;
+            import com.amazonaws.services.ecr.AbstractAmazonECR;
+            import com.amazonaws.services.ecr.AmazonECRClient;
+            import com.amazonaws.services.ecr.model.ListImagesRequest;
+            import com.amazonaws.services.ecr.model.ListImagesResult;
+            import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+            import com.amazonaws.regions.Region;
+            import com.amazonaws.regions.RegionUtils;
+            import com.amazonaws.regions.Regions;
+            import jenkins.model.*
+
+            AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
+            ListImagesRequest request = new ListImagesRequest().withRepositoryName("folio-ui");
+            res = client.listImages(request);
+
+
+            def result = []
+            for (image in res) {
+               result.add(image.getImageIds());
+            }
+
+            return result[0].imageTag;
+            '''
+             ]
+         ]
+        ],
+        //jobsParameters.frontendImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
         jobsParameters.agents(),
