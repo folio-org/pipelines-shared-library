@@ -4,7 +4,7 @@ data "aws_cognito_user_pools" "pool" {
 
 resource "aws_cognito_user_pool_client" "userpool_client" {
   name                                 = "${module.eks_cluster.cluster_id}"
-  user_pool_id                         = "${tolist(data.aws_cognito_user_pools.pool.ids)[0]}"
+  user_pool_id                         = data.aws_cognito_user_pools.pool.ids
   callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]
