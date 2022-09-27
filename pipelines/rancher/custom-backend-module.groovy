@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-296') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -9,6 +9,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -102,6 +103,7 @@ ansiColor('xterm') {
             }
 
             stage('Docker build and push') {
+                common.createEcrRepoIfNotExist(backend_module.getName())
                 docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
                     def image
                     dir(backend_module.getName() == 'okapi' ? "${backend_module.getName()}/okapi-core" : backend_module.getName()) {

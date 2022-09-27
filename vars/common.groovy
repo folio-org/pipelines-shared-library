@@ -66,3 +66,11 @@ String selectJavaBasedOnAgent(String agent_name){
             new Logger(this, 'common').error('Can not detect required Java version')
     }
 }
+
+void createEcrRepoIfNotExist(String repo_name) {
+    helm.k8sClient {
+        if (!awscli.isEcrRepoExist(Constants.AWS_REGION, repo_name)){
+            awscli.createEcrRepo(Constants.AWS_REGION, repo_name)
+        }
+    }
+}
