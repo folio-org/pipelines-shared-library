@@ -55,7 +55,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage("Create environment") {
             steps {
                 script {
@@ -148,18 +148,18 @@ pipeline {
                             }
                         }
 
-                        stage("Send slack notifications") {
-                            steps {
-                                script {
-                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
-
                         stage("Sync jira tickets") {
                             steps {
                                 script {
                                     karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
+                        
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
                                 }
                             }
                         }
@@ -187,7 +187,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
                                          folio_repository, folio_branch) {
     [
         string(name: 'action', value: action),
-        string(name: 'env_config', value: "development"),
+        string(name: 'config_type', value: "development"),
         string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),

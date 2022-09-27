@@ -58,6 +58,8 @@ resource "rancher2_app_v2" "opensearch-data" {
       limits:
         cpu: "512m"
         memory: "2048Mi"
+    persistence:
+      size: 100Gi
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
@@ -161,8 +163,8 @@ module "aws_es" {
     dedicated_master_enabled = var.es_dedicated_master
     instance_count           = var.es_instance_count
     instance_type            = var.es_instance_type
-    zone_awareness_enabled   = "false"
-    availability_zone_count  = 2
+    zone_awareness_enabled   = "true"
+    availability_zone_count  = var.es_instance_count
     dedicated_master_count   = 0
   }
 
@@ -181,7 +183,7 @@ module "aws_es" {
   }
 
   vpc_options = {
-    subnet_ids         = data.aws_subnets.private.ids
+    subnet_ids         = slice(data.aws_subnets.private.ids, 0, var.es_instance_count)
     security_group_ids = tolist([aws_security_group.es[count.index].id])
   }
 

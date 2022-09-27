@@ -9,8 +9,8 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         jobsParameters.repository(),
-        jobsParameters.folioBranch(),
-        jobsParameters.rancherClusters(),
+        jobsParameters.branch(),
+        jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
         jobsParameters.agents(),
@@ -46,15 +46,17 @@ ansiColor('xterm') {
                             "-f docker/Dockerfile  " +
                             "https://github.com/folio-org/platform-complete.git#${hash}"
                     )
-                    image.push(tag)
+                    image.push()
                 }
             }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
         } finally {
-            sh "docker rmi ${image_name}:${tag} || exit 0"
-            sh "docker rmi ${image_name}:latest || exit 0"
+            stage('Cleanup') {
+                common.removeImage(image_name)
+                cleanWs notFailBuild: true
+            }
         }
     }
 }

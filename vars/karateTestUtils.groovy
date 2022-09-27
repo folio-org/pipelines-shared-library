@@ -132,11 +132,23 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
                 message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
             }
         }
-
         try {
             if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${entry.key.name} team have successful result"
+                message += "All modules for ${entry.key.name} team have successful result\n"
             }
+            // Existing tickets - created more than 1 hour ago
+            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -1h")
+            if (existingTickets) {
+                message += "Existing issues:\n"
+                message += existingTickets              
+            }
+            // Created tickets by this run - Within the last 20 min
+            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -20m")
+            if (createdTickets) {
+                message += "Created issues by run:\n"
+                message += createdTickets              
+            }
+
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
@@ -290,3 +302,11 @@ private JiraClient getJiraClient() {
     }
 }
 
+String getJiraIssuesByTeam(String team, String timeFilter) {
+    def ticketsByTeam = ""
+    List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
+    issuesByTeam.each { issue ->
+        ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
+    }
+    return ticketsByTeam
+}

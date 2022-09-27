@@ -17,13 +17,13 @@ class TenantConfiguration extends GeneralParameters {
     }
 
     void modInventoryMods(OkapiTenant tenant, Boolean large = false) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String filePath
         String statusUrl
         String url = okapi_url + "/inventory/ingest/mods"
         ArrayList headers = [
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         if (large) {
             filePath = tools.copyResourceFileToWorkspace("okapi/large-mods-records.xml")
@@ -54,20 +54,20 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void ebscoRmapiConfig(OkapiTenant tenant, String apiKey) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+    void ebscoRmapiConfig(OkapiTenant tenant) {
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/eholdings/kb-credentials/80898dee-449f-44dd-9c8e-37d5eb469b1d"
         ArrayList headers = [
             [name: 'Content-type', value: "application/vnd.api+json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         String body = JsonOutput.toJson([
             data: [
                 type      : "kbCredentials",
                 attributes: [
                     name      : "Knowledge Base",
-                    apiKey    : apiKey,
+                    apiKey    : tenant.kb_api_key,
                     url       : OkapiConstants.EBSCO_API_URL,
                     customerId: OkapiConstants.EBSCO_CUSTOMER_ID
                 ]
@@ -84,12 +84,12 @@ class TenantConfiguration extends GeneralParameters {
     }
 
     void worldcat(OkapiTenant tenant) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
         def res = http.putRequest(url, body, headers)
@@ -101,12 +101,12 @@ class TenantConfiguration extends GeneralParameters {
     }
 
     void configurations(OkapiTenant tenant, Email email, String stripes_url) {
-        auth.getOkapiToken(tenant, tenant.admin_user)
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/configurations/entries"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdmin_user().getToken() ? tenant.getAdmin_user().getToken() : '']
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '']
         ]
         def binding = [
             email_smtp_host: email.smtpHost,

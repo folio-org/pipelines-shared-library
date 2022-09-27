@@ -47,6 +47,7 @@ properties([
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
         string(name: 'timeout', defaultValue: "4", description: 'Custom timeout for build. Set in hours'),
+        string(name: 'testrailProjectID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
         string(name: 'testrailRunID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
     ])
 ])
@@ -114,10 +115,10 @@ pipeline {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                if (params.testrailRunID) {
+                                if (params.testrailRunID && params.testrailProjectID) {
                                     // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
-                                    env.TESTRAIL_PROJECTID = "22"
+                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                                         sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
                                     }
