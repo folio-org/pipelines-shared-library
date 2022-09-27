@@ -191,7 +191,7 @@ def projectName() {
 }
 
 def projectDevName() {
-    return _paramChoice('rancher_project_name', devEnvironmentsList(), 'Select project to operate')
+    return _paramChoice('rancher_project_name', devEnvironmentsList().sort(), 'Select project to operate')
 }
 
 def repository() {
