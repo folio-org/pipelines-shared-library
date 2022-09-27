@@ -1,3 +1,17 @@
+data "aws_cognito_user_pool" "pool" {
+  name = "kubecost"
+}
+
+resource "aws_cognito_user_pool_client" "userpool_client" {
+  name                                 = "${module.eks_cluster.cluster_id}"
+  user_pool_id                         = data.aws_cognito_user_pool.pool.id
+  callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_flows                  = ["code"]
+  allowed_oauth_scopes                 = ["openid"]
+  supported_identity_providers         = ["COGNITO"]
+}
+
 #Creating a new project in Rancher.
 resource "rancher2_project" "kubecost" {
   depends_on                = [rancher2_cluster_sync.this]
@@ -56,5 +70,7 @@ resource "rancher2_app_v2" "kubecost" {
         alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
         alb.ingress.kubernetes.io/auth-session-timeout: "3600"
         alb.ingress.kubernetes.io/auth-type: cognito
+    service:
+      type: NodePort
   EOT
 }
