@@ -1,4 +1,4 @@
-data "aws_cognito_user_pool" "pool" {
+data "aws_cognito_user_pools" "pool" {
   name = "kubecost"
 }
 
