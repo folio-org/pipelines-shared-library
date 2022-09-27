@@ -103,7 +103,7 @@ ansiColor('xterm') {
             }
 
             stage('Docker build and push') {
-                common.createEcrRepoIfNotExist(backend_module.getName())
+                common.checkEcrRepoExistence(backend_module.getName())
                 docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
                     def image
                     dir(backend_module.getName() == 'okapi' ? "${backend_module.getName()}/okapi-core" : backend_module.getName()) {
