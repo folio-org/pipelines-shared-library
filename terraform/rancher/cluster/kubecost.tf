@@ -1,5 +1,5 @@
 #Creating a new project in Rancher.
-resource "rancher2_project" "this" {
+resource "rancher2_project" "kubecost" {
   depends_on                = [rancher2_cluster_sync.this]
   count                     = var.register_in_rancher ? 1 : 0
   provider                  = rancher2
@@ -13,11 +13,11 @@ resource "rancher2_project" "this" {
 }
 
 # Create a new rancher2 Namespace assigned to cluster project
-resource "rancher2_namespace" "this" {
+resource "rancher2_namespace" "kubecost" {
   depends_on  = [rancher2_cluster_sync.this]
   count       = var.register_in_rancher ? 1 : 0
   name        = "kubecost"
-  project_id  = rancher2_project.this[0].id
+  project_id  = rancher2_project.kubecost[0].id
   description = "Project kubecost namespace"
   container_resource_limit {
     limits_memory   = "512Mi"
@@ -30,7 +30,7 @@ resource "rancher2_app_v2" "kubecost" {
   depends_on    = [rancher2_catalog_v2.kubecost]
   count         = var.register_in_rancher ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.this[0].name
+  namespace     = rancher2_namespace.kubecost[0].name
   name          = "kubecost"
   repo_name     = "kubecost"
   chart_name    = "cost-analyzer"
