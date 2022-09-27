@@ -22,7 +22,7 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.rancherClusters(),
         jobsParameters.projectName(),
-        booleanParam(name: 'ui_build', defaultValue: true, description: 'Build UI image for frontend if false choose from dropdown next'),
+        /*booleanParam(name: 'ui_build', defaultValue: true, description: 'Build UI image for frontend if false choose from dropdown next'),
         [$class: 'CascadeChoiceParameter',
          choiceType: 'PT_SINGLE_SELECT',
          description: 'Select Image',
@@ -62,8 +62,8 @@ properties([
             '''
              ]
          ]
-        ],
-        //jobsParameters.frontendImageTag(),
+        ],*/
+        jobsParameters.frontendImageTag(),
         jobsParameters.envType(),
         jobsParameters.enableModules(),
         jobsParameters.agents(),

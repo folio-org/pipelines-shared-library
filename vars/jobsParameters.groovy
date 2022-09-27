@@ -107,7 +107,7 @@ if (get.getResponseCode().equals(200)) {
 '''
 }
 
-static String getUIImagesList2() {
+static String getUIImagesList() {
     return '''import groovy.json.JsonSlurperClassic
 def get = new URL('https://docker.dev.folio.org/v2/platform-complete/tags/list').openConnection()
 if (get.getResponseCode().equals(200)) {
@@ -116,7 +116,7 @@ if (get.getResponseCode().equals(200)) {
 '''
 }
 
-static String getUIImagesList() {
+/*static String getUIImagesList() {
     return '''
             import com.amazonaws.client.builder.AwsClientBuilder;
             import com.amazonaws.services.ecr.AmazonECR;
@@ -142,7 +142,7 @@ static String getUIImagesList() {
 
             return result[0].imageTag;
             '''
-}
+}*/
 
 static String getProjectNames() {
     return """import groovy.json.JsonSlurperClassic
