@@ -55,13 +55,13 @@ void okapi(def config, String version, String cluster_name, String project_name,
     }
 }
 
-void backend(Map install_backend_map, def config, String cluster_name, String project_name) {
+void backend(Map install_backend_map, def config, String cluster_name, String project_name, Boolean custom_module = false) {
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, cluster_name)
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
         install_backend_map.each { name, version ->
             if (name.startsWith("mod-")) {
-                String values_path = helm.generateModuleValues(config, name, version, cluster_name, project_name)
+                String values_path = helm.generateModuleValues(config, name, version, cluster_name, project_name, '', custom_module)
                 helm.upgrade(name, project_name, "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not a backend module")

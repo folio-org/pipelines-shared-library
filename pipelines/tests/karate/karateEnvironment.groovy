@@ -10,7 +10,7 @@ properties([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.repository(),
-        jobsParameters.folioBranch(),
+        jobsParameters.branch(),
         jobsParameters.okapiVersion(),
         jobsParameters.agents(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
@@ -41,7 +41,7 @@ ansiColor("xterm") {
                         string(name: 'rancher_cluster_name', value: clusterName),
                         string(name: 'rancher_project_name', value: projectName),
                         booleanParam(name: 'build_ui', value: true),
-                        string(name: 'env_config', value: "development"),
+                        string(name: 'config_type', value: "development"),
                         booleanParam(name: 'enable_modules', value: true),
                         string(name: 'tenant_id', value: tenantId),
                         string(name: 'tenant_name', value: "Karate tenant"),

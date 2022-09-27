@@ -46,7 +46,7 @@ class Deployment extends GeneralParameters {
 
     void main() {
         discovery_list = gitHubUtility.buildDiscoveryList(install_map)
-        okapi.publishModuleDescriptors(install_json)
+        okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
         okapi.registerServices(discovery_list)
 
         okapi.secure(super_admin)
@@ -55,16 +55,31 @@ class Deployment extends GeneralParameters {
         tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url)
     }
 
-    void cleanup(){
+    void cleanup() {
         okapi.cleanupServicesRegistration()
     }
 
     void update() {
         if (tenant) {
             discovery_list = gitHubUtility.buildDiscoveryList(install_map)
-            okapi.publishModuleDescriptors(install_json)
+            okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
             okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
+            okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 900000)
+            if (tenant.index.reindex) {
+                def job_id = okapi.reindexElasticsearch(tenant, admin_user)
+                okapi.checkReindex(tenant, job_id)
+            }
+        } else {
+            throw new AbortException('Tenant not set')
+        }
+    }
+
+    void installSingleBackendModule(List descriptor = []) {
+        if (tenant) {
+            discovery_list = gitHubUtility.buildDiscoveryList(install_map)
+            okapi.publishModulesDescriptors(descriptor)
+            okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 900000)
             if (tenant.index.reindex) {
                 def job_id = okapi.reindexElasticsearch(tenant, admin_user)
