@@ -32,7 +32,7 @@ resource "rancher2_app_v2" "kubecost" {
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.kubecost[0].name
   name          = "kubecost"
-  repo_name     = "kubecost"
+  repo_name     = "cost-analyzer"
   chart_name    = "cost-analyzer"
   chart_version = "1.97.0"
   force_upgrade = "true"
