@@ -16,6 +16,12 @@ properties([
         jobsParameters.loadSample()
     ])
 ])
+def rancherClusters = "folio-dev"
+//def tenantId = "diku"
+//def tenantName = "Datalogisk Institut"
+//def tenantDescription = "Danish Library Technology Institute"
+//def envConfig = "development"
+//def agents = "jenkins-agent-java11"
 node('jenkins-agent-java11') {
         try {
             stage('Build project Job') {
@@ -26,7 +32,8 @@ node('jenkins-agent-java11') {
                             string(name: 'folio_repository', value: params.folio_repository),
                             string(name: 'folio_branch', value: params.folio_branch),
                             string(name: 'okapi_version', value: params.okapi_version),
-                            string(name: 'rancher_project_name', value: params.projectName),
+                            string(name: 'rancher_cluster_name', value: rancherClusters),
+                            string(name: 'rancher_project_name', value: params.projectDevName),
                             booleanParam(name: 'load_reference', value: params.load_reference),
                             booleanParam(name: 'load_sample', value: params.load_sample)
                         ]
