@@ -54,7 +54,7 @@ String generateModuleValues(def config, String module_name, String module_versio
         } else {
             String repository
             if(custom_module){
-                repository = Constants.DOCKER_DEV_REPOSITORY
+                repository = Constants.ECR_FOLIO_UI_REPOSITORY
             }else{
                 repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
             }
