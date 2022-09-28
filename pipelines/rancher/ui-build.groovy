@@ -20,7 +20,7 @@ properties([
     ])
 ])
 
-String image_name = Constants.ECR_FOLIO_UI_REPOSITORY + '/ui-bundle' //TODO rename to folio-ui
+String image_name = Constants.ECR_FOLIO_REPOSITORY + '/ui-bundle' //TODO rename to folio-ui
 String okapi_domain = common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)
 String okapi_url = params.custom_url.isEmpty() ? "https://" + okapi_domain : params.custom_url
 String hash = params.custom_hash.isEmpty() ? common.getLastCommitHash(params.folio_repository, params.folio_branch) : params.custom_hash
@@ -38,7 +38,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${hash}"
-                docker.withRegistry('https://' + Constants.ECR_FOLIO_REPOSITORY, 'ecr:us-west-2:' + Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                     def image = docker.build(
                         image_name,
                         "--build-arg OKAPI_URL=${okapi_url} " +
