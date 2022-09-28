@@ -51,7 +51,7 @@ properties([
             import jenkins.model.*
 
             AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-            ListImagesRequest request = new ListImagesRequest().withRepositoryName("folio-ui");
+            ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
             res = client.listImages(request);
 
 
