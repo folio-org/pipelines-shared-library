@@ -73,5 +73,14 @@ resource "rancher2_app_v2" "kubecost" {
         alb.ingress.kubernetes.io/auth-type: cognito
     service:
       type: NodePort
+    global:
+      savedReports:
+        enabled: true
+        reports:
+          - title: "Example Saved Report 0"
+            window: "15d"
+            aggregateBy: "namespace"
+            idle: "separate"
+            accumulate: false # daily resolution
   EOT
 }
