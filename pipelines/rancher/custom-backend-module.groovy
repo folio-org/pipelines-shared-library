@@ -90,7 +90,7 @@ ansiColor('xterm') {
                 dir(backend_module.getName()) {
                     backend_module.version = readMavenPom().getVersion()
                     backend_module.tag = "${backend_module.getVersion()}.${backend_module.getHash()}"
-                    backend_module.imageName = "${Constants.DOCKER_DEV_REPOSITORY}/${backend_module.getName()}:${backend_module.getTag()}"
+                    backend_module.imageName = "${Constants.ECR_FOLIO_UI_REPOSITORY}/${backend_module.getName()}:${backend_module.getTag()}"
                     withMaven(jdk: "${common.selectJavaBasedOnAgent(params.agent)}",
                         maven: Constants.MAVEN_TOOL_NAME,
                         options: [artifactsPublisher(disabled: true)]) {
