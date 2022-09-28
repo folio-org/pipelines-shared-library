@@ -5,7 +5,6 @@ resource "rancher2_project" "this" {
   enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
-    requests_cpu    = "80m"
     requests_memory = "400Mi"
   }
 }
@@ -26,7 +25,6 @@ resource "rancher2_namespace" "this" {
   description = "${var.rancher_project_name} project namespace"
   container_resource_limit {
     limits_memory   = "512Mi"
-    requests_cpu    = "80m"
     requests_memory = "400Mi"
   }
 }
