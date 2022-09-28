@@ -1,5 +1,5 @@
 data "aws_cognito_user_pools" "pool" {
-  name = "kubecost"
+  name = "Kubecost"
 }
 
 resource "aws_cognito_user_pool_client" "userpool_client" {
