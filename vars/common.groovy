@@ -70,6 +70,7 @@ String selectJavaBasedOnAgent(String agent_name){
 void checkEcrRepoExistence(String repo_name) {
     helm.k8sClient {
         if (awscli.isEcrRepoExist(repo_name, Constants.AWS_REGION)){
+            println("ECR repo for ${repo_name} doesn't exist, starting creating...")
             awscli.createEcrRepo(repo_name, Constants.AWS_REGION)
         }
     }
