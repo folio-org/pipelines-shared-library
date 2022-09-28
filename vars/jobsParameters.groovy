@@ -1,5 +1,6 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
+import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
@@ -138,31 +139,31 @@ if (get.getResponseCode().equals(200)) {
 }*/
 
 static String getUIImagesList() {
-    return '''
-            import com.amazonaws.client.builder.AwsClientBuilder;
-            import com.amazonaws.services.ecr.AmazonECR;
-            import com.amazonaws.services.ecr.AbstractAmazonECR;
-            import com.amazonaws.services.ecr.AmazonECRClient;
-            import com.amazonaws.services.ecr.model.ListImagesRequest;
-            import com.amazonaws.services.ecr.model.ListImagesResult;
-            import com.amazonaws.services.ecr.AmazonECRClientBuilder;
-            import com.amazonaws.regions.Region;
-            import com.amazonaws.regions.RegionUtils;
-            import com.amazonaws.regions.Regions;
-            import jenkins.model.*
+    return """
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.ecr.AmazonECR;
+import com.amazonaws.services.ecr.AbstractAmazonECR;
+import com.amazonaws.services.ecr.AmazonECRClient;
+import com.amazonaws.services.ecr.model.ListImagesRequest;
+import com.amazonaws.services.ecr.model.ListImagesResult;
+import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
+import com.amazonaws.regions.Regions;
+import jenkins.model.*
 
-            AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-            ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
-            res = client.listImages(request);
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("${Constants.AWS_REGION}").build();
+ListImagesRequest request = new ListImagesRequest().withRepositoryName("${Constants.ECR_FOLIO_UI_REPOSITORY_NAME}");
+res = client.listImages(request);
 
 
-            def result = []
-            for (image in res) {
-               result.add(image.getImageIds());
-            }
+def result = []
+for (image in res) {
+   result.add(image.getImageIds());
+}
 
-            return result[0].imageTag;
-            '''
+return result[0].imageTag;
+"""
 }
 
 static String getProjectNames() {
