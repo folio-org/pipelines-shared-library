@@ -65,7 +65,7 @@ resource "rancher2_app_v2" "kubecost" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"arn:aws:cognito-idp:us-west-2:732722833398:userpool/us-west-2_pz4VAvmj1","UserPoolClientId":"5qugmova8vbn1ilr7p9a2mv3aj", "UserPoolDomain":"folio-testing-kubecost"}'
+        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${tolist(data.aws_cognito_user_pools.pool.arns)[0]}","UserPoolClientId":"${aws_cognito_user_pool_client.userpool_client.id}", "UserPoolDomain":"folio-testing-kubecost"}'
         alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
         alb.ingress.kubernetes.io/auth-scope: openid
         alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
