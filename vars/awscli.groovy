@@ -35,7 +35,7 @@ String getS3FileContent(String path) {
 }
 
 boolean isEcrRepoExist(String repo_name, String region) {
-    return sh(script: "aws ecr describe-repositories --region ${region} --repository-names ${repo_name}", returnStdout: true)
+    return sh(script: "aws ecr describe-repositories --region ${region} --repository-names ${repo_name}", returnStatus: true)
 }
 
 void createEcrRepo(String repo_name, String region) {
