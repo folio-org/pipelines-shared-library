@@ -116,7 +116,7 @@ ansiColor('xterm') {
 
             stage('UI Build') {
                 if (params.ui_bundle_build && project_model.getAction() == 'apply' && !project_model.getRestoreFromBackup()) {
-                    build job: 'Rancher/UI-Build',
+                    build job: 'Rancher/volodymyr-workflow/main/UI-Build',
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),
                             string(name: 'folio_branch', value: params.folio_branch),
