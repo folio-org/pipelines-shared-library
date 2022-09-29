@@ -152,8 +152,8 @@ import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.regions.Regions;
 import jenkins.model.*
 
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion(${Constants.AWS_REGION}).build();
-ListImagesRequest request = new ListImagesRequest().withRepositoryName(${Constants.ECR_FOLIO_UI_REPOSITORY_NAME});
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
+ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
 res = client.listImages(request);
 
 
