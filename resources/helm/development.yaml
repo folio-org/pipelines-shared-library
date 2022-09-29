@@ -15,8 +15,6 @@ ui-bundle:
       alb.ingress.kubernetes.io/healthcheck-path: /
   postJob:
     enabled: false
-  image:
-    repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/ui-bundle
 okapi:
 #  javaArgs: cluster -cluster-host $CLUSTER_HOST -hazelcast-config-url https://$S3_DOMAIN/$CLUSTER-$DOMAIN_PREFIX-$REGION-$ACCOUNT_NAME/okapi/hazelcast-ecs.xml
   javaOptions: "-XX:MaxRAMPercentage=85.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m

@@ -50,18 +50,13 @@ String generateModuleValues(def config, String module_name, String module_versio
     String values_path = "./values"
     if (config[(module_name)]) {
         String repository
-        if(custom_module){
+        if(custom_module || module_name == 'ui-bundle'){
             repository = Constants.ECR_FOLIO_REPOSITORY
-        }else{
+        } else {
             repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
         }
-        if (module_name == 'ui-bundle') {
-            config[(module_name)] << [image: [repository: "${repository}/${module_name}",
-                                              tag       : module_version]]
-        } else {
-            config[(module_name)] << [image: [repository: "${repository}/${module_name}",
-                                              tag       : module_version]]
-        }
+        config[(module_name)] << [image: [repository: "${repository}/${module_name}",
+                                          tag       : module_version]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
             config[(module_name)]['ingress']['hosts'][0] += [host: hostname]
