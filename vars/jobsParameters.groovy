@@ -162,7 +162,7 @@ for (image in res) {
    result.add(image.getImageIds());
 }
 
-return result[0].imageTag.sort().reverse();
+return result[0].imageTag.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
 """
 }
 
