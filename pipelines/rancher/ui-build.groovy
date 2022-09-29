@@ -46,7 +46,7 @@ ansiColor('xterm') {
                             "-f docker/Dockerfile  " +
                             "https://github.com/folio-org/platform-complete.git#${hash}"
                     )
-                    image.push(tag)
+                    image.push()
                 }
             }
         } catch (exception) {
