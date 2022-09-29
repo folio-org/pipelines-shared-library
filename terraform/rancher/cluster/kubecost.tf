@@ -50,7 +50,7 @@ resource "rancher2_app_v2" "kubecost" {
   name          = "kubecost"
   repo_name     = "cost-analyzer"
   chart_name    = "cost-analyzer"
-  chart_version = "1.89.101"
+  chart_version = "1.89.1"
   force_upgrade = "true"
   values        = <<-EOT
     ingress:
