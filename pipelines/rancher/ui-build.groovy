@@ -38,7 +38,7 @@ Module ui_bundle = new Module(
 )
 
 ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${ui_bundle.getHash().take(7)}"
-ui_bundle.imageName = "${Constants.DOCKER_DEV_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
+ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
 String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_model.getDomains().okapi
 
@@ -51,7 +51,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${hash}"
-                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID) {
                     def image = docker.build(
                         ui_bundle.getImageName(),
                         "--build-arg OKAPI_URL=${okapi_url} " +
