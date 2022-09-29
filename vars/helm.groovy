@@ -49,15 +49,16 @@ def getS3ObjectBody(String bucketname, String filePathName) {
 String generateModuleValues(def config, String module_name, String module_version, String cluster_name, String project_name, String hostname = '', Boolean custom_module = false) {
     String values_path = "./values"
     if (config[(module_name)]) {
+        String repository
+        if(custom_module){
+            repository = Constants.ECR_FOLIO_REPOSITORY
+        }else{
+            repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
+        }
         if (module_name == 'ui-bundle') {
-            config[(module_name)] << [image: [tag: module_version]]
+            config[(module_name)] << [image: [repository: "${repository}/${module_name}",
+                                              tag       : module_version]]
         } else {
-            String repository
-            if(custom_module){
-                repository = Constants.ECR_FOLIO_REPOSITORY
-            }else{
-                repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
-            }
             config[(module_name)] << [image: [repository: "${repository}/${module_name}",
                                               tag       : module_version]]
         }
