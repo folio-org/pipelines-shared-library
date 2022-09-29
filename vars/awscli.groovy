@@ -39,5 +39,5 @@ boolean isEcrRepoExist(String repo_name, String region) {
 }
 
 void createEcrRepo(String repo_name, String region) {
-    sh "aws ecr create-repository --region ${region} --repository-name ${repo_name} --tags '[{\"Key\":\"Team\",\"Value\":\"kitfox\"}]'"
+    sh "aws ecr create-repository --region ${region} --repository-name ${repo_name} --tags Key=Team,Value=kitfox"
 }
