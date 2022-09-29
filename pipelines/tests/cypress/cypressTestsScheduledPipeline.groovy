@@ -146,7 +146,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         string(name: 'rancher_cluster_name', value: clusterName),
         string(name: 'rancher_project_name', value: projectName),
         string(name: 'okapi_version', value: okapiVersion),
-        booleanParam(name: 'build_ui', value: true),
+        booleanParam(name: 'ui_bundle_build', value: true),
         booleanParam(name: 'enable_modules', value: true),
         string(name: 'folio_repository', value: folio_repository),
         string(name: 'folio_branch', value: folio_branch),
