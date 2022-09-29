@@ -77,8 +77,24 @@ ansiColor('xterm') {
 
             stage('Checkout') {
                 checkout scm
+                tenant.okapiVersion = common.getOkapiVersion(project_model.getInstallJson())
                 project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
                 project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
+            }
+
+            if(tenant.getOkapiVersion()?.trim()) {
+                stage("Deploy okapi") {
+                    folioDeploy.okapi(project_model.getModulesConfig(),
+                        tenant.getOkapiVersion(),
+                        project_model.getClusterName(),
+                        project_model.getProjectName(),
+                        project_model.getDomains().okapi)
+                }
+            }
+
+            stage("Pause") {
+                // Wait for dns flush.
+                sleep time: 3, unit: 'MINUTES'
             }
 
             stage("Deploy backend modules") {

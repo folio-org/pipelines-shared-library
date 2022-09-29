@@ -40,7 +40,7 @@ ansiColor("xterm") {
                         string(name: 'okapi_version', value: params.okapi_version),
                         string(name: 'rancher_cluster_name', value: clusterName),
                         string(name: 'rancher_project_name', value: projectName),
-                        booleanParam(name: 'build_ui', value: true),
+                        booleanParam(name: 'ui_bundle_build', value: true),
                         string(name: 'config_type', value: "development"),
                         booleanParam(name: 'enable_modules', value: true),
                         string(name: 'tenant_id', value: tenantId),
