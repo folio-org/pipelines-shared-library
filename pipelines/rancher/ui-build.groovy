@@ -51,7 +51,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                     def image = docker.build(
                         ui_bundle.getImageName(),
                         "--build-arg OKAPI_URL=${okapi_url} " +
