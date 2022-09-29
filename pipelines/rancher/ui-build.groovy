@@ -5,7 +5,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-296') _
+@Library('pipelines-shared-library@RANCHER-296-fixes') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),

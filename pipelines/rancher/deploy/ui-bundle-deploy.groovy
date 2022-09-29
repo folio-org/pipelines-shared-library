@@ -1,8 +1,9 @@
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-296-fixes') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -46,7 +47,7 @@ ansiColor("xterm") {
 
             if (params.ui_bundle_build) {
                 stage("Build UI bundle") {
-                    build job: 'Rancher/UI-Build',
+                    build job: 'Rancher/volodymyr-workflow/main/UI-Build',
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),
                             string(name: 'folio_branch', value: params.folio_branch),
