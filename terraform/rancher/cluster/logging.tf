@@ -39,11 +39,11 @@ resource "rancher2_app_v2" "elasticsearch" {
   chart_version = "17.9.29" #"19.1.4"
   force_upgrade = "true"
   values        = <<-EOT
+    global:
+      kibanaEnabled: true
     data:
       persistence:
         size: 128Gi
-    global:
-      kibanaEnabled: true
     data:
       resources:
         limits:
