@@ -33,7 +33,7 @@ Project project_model = new Project(
 )
 
 Module ui_bundle = new Module(
-    name: "platform-complete", //TODO rename to ui-bundle
+    name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
 
@@ -51,7 +51,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${hash}"
-                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID) {
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                     def image = docker.build(
                         ui_bundle.getImageName(),
                         "--build-arg OKAPI_URL=${okapi_url} " +
