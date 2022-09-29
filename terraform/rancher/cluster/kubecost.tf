@@ -81,7 +81,5 @@ resource "rancher2_app_v2" "kubecost" {
       awsSpotDataRegion: "${var.aws_region}"
       awsSpotDataBucket: "spot-datafeed-kubecost"
       awsSpotDataPrefix: "test"
-      awsServiceKeyName: "AKIA2VGNPE73BERNXQW2"
-      awsServiceKeyPassword: "xS7swKReBQyFFOdah1MePcEo+h59YUKr8FAy3hL3"
   EOT
 }
