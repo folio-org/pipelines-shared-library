@@ -50,7 +50,7 @@ resource "rancher2_app_v2" "kubecost" {
   name          = "kubecost"
   repo_name     = "cost-analyzer"
   chart_name    = "cost-analyzer"
-  chart_version = "1.97.0"
+  chart_version = "1.89.1"
   force_upgrade = "true"
   values        = <<-EOT
     ingress:
@@ -74,14 +74,14 @@ resource "rancher2_app_v2" "kubecost" {
         alb.ingress.kubernetes.io/auth-type: cognito
     service:
       type: NodePort
-    global:
-      savedReports:
-        enabled: true
-        reports:
-          - title: "Example Saved Report 0"
-            window: "15d"
-            aggregateBy: "namespace"
-            idle: "separate"
-            accumulate: false # daily resolution
+    kubecostProductConfigs:
+      currencyCode: "USD"
+      spotLabel: "eks.amazonaws.com/capacityType"
+      spotLabelValue: "SPOT"
+      awsSpotDataRegion: "${var.aws_region}"
+      awsSpotDataBucket: "spot-datafeed-kubecost"
+      awsSpotDataPrefix: "test"
+      awsServiceKeyName: "AKIA2VGNPE73BERNXQW2"
+      awsServiceKeyPassword: "xS7swKReBQyFFOdah1MePcEo+h59YUKr8FAy3hL3"
   EOT
 }
