@@ -162,7 +162,7 @@ for (image in res) {
    result.add(image.getImageIds());
 }
 
-return result[0].imageTag;
+return result[0].imageTag.sort().reverse();
 """
 }
 
