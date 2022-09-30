@@ -1,6 +1,5 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
-import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
