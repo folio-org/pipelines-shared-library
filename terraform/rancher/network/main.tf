@@ -9,6 +9,8 @@ resource "aws_eip" "nat_gw_elastic_ip" {
   tags = merge(
     {
       Name = join("-", [var.vpc_name, "nat-eip"])
+      Region = var.aws_region
+      Env    = terraform.workspace
     },
     var.tags
   )
@@ -50,17 +52,23 @@ module "vpc" {
     {
       "kubernetes.io/role/elb" = "1"
       Type                     = "public"
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
   private_subnet_tags = merge(
     local.clusters_tags,
     {
       "kubernetes.io/role/internal-elb" = "1"
       Type                              = "private"
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
   database_subnet_tags = merge(
     local.clusters_tags,
     {
       Type = "database"
+      Region = var.aws_region
+      Env    = terraform.workspace
     }
   )
 }
