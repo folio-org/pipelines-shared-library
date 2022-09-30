@@ -42,8 +42,6 @@ resource "rancher2_app_v2" "elasticsearch" {
     global:
       kibanaEnabled: true
     data:
-      persistence:
-        size: 64Gi
       resources:
         limits:
           memory: 3096Mi
