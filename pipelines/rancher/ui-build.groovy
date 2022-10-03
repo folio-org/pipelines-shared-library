@@ -64,7 +64,7 @@ ansiColor('xterm') {
                     }
                 }
                 else {
-                    println("Image with tag ${ui_bundle.getImageTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it.")
+                    println("Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it.")
                 }
             }
         } catch (exception) {
