@@ -108,10 +108,5 @@ module "eks_cluster" {
 
   aws_auth_users = local.admin_users_map
 
-  tags = merge(
-    var.tags,
-    {
-      Region = var.aws_region
-      Env    = terraform.workspace
-  })
+  tags = var.tags
 }
