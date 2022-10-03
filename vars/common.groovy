@@ -42,13 +42,22 @@ void healthCheck(String url, String status_codes='200,403'){
 
 // A Groovy function that returns the Okapi version from the install.json file.
 static String getOkapiVersion(List install_json){
-   return install_json*.id.find{it ==~ /okapi-.*/} - 'okapi-'
+    if(install_json*.id.find{it ==~ /okapi-.*/}) {
+        return install_json*.id.find { it ==~ /okapi-.*/ } - 'okapi-'
+    }
 }
 
 // Removing the image from the local machine.
 void removeImage(String image_name){
     String image_id = sh returnStdout: true, script: "docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep '${image_name}' | cut -d' ' -f1"
     sh "docker rmi ${image_id.trim()} || exit 0"
+}
+
+void refreshBuidParameters(Boolean refresh){
+    if (refresh) {
+        currentBuild.result = 'ABORTED'
+        error('REFRESH JOB PARAMETERS!')
+    }
 }
 
 String selectJavaBasedOnAgent(String agent_name){

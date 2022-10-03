@@ -23,8 +23,8 @@ properties([
         jobsParameters.okapiVersion(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
-        booleanParam(name: 'ui_build', defaultValue: true, description: 'Build UI image for frontend if false choose from dropdown next'),
-        jobsParameters.frontendImageTag(),
+        jobsParameters.uiBundleBuild(),
+        jobsParameters.uiBundleTag(),
         jobsParameters.configType(),
         jobsParameters.enableModules(),
         jobsParameters.agents(),
@@ -99,7 +99,7 @@ ansiColor('xterm') {
                 buildName "${project_model.getClusterName()}.${project_model.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "action: ${project_model.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_model.getConfigType()}"
                 project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
-                project_model.uiBundleTag = params.ui_build ? "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${project_model.getHash().take(7)}" : params.frontend_image_tag
+                project_model.uiBundleTag = params.ui_bundle_build ? "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${project_model.getHash().take(7)}" : params.ui_bundle_tag
             }
 
             stage('Restore preparation') {
@@ -114,7 +114,7 @@ ansiColor('xterm') {
             }
 
             stage('UI Build') {
-                if (params.ui_build && project_model.getAction() == 'apply' && !project_model.getRestoreFromBackup()) {
+                if (params.ui_bundle_build && project_model.getAction() == 'apply' && !project_model.getRestoreFromBackup()) {
                     build job: 'Rancher/UI-Build',
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),

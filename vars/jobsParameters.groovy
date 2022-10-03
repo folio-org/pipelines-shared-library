@@ -227,6 +227,9 @@ def projectName() {
     return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), 'Select project to operate')
 }
 
+def projectDevName() {
+    return _paramChoice('rancher_project_name', devEnvironmentsList().sort(), 'Select project to operate')
+}
 
 def repository() {
     return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
@@ -292,8 +295,12 @@ def pgAdminPassword() {
     return _paramPassword('pgadmin_password', pgAdminDefaultPassword(), 'Password for pgAdmin login')
 }
 
-def frontendImageTag() {
-    return _paramExtended('frontend_image_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), 'Choose image tag for UI')
+def uiBundleBuild(){
+    return _paramBoolean('ui_bundle_build', false, 'True if build new ui bundle, false if choose from existing one in ui_bundle_tag parameter')
+}
+
+def uiBundleTag() {
+    return _paramExtended('ui_bundle_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), 'Choose image tag for UI')
 }
 
 def okapiVersion() {
