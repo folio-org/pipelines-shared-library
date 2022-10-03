@@ -138,6 +138,8 @@ resource "aws_security_group" "es" {
     var.tags,
     {
       Name = "allow-es"
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }
 
@@ -199,5 +201,7 @@ module "aws_es" {
       service = "ElasticSearch"
       name    = "es-${local.env_name}"
       version = var.es_version
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }

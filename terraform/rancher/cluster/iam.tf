@@ -14,7 +14,9 @@ module "load_balancer_controller_irsa_role" {
 
   tags = merge(
     {
-      Name = "load-balancer-controller-role"
+      Name   = "load-balancer-controller-role"
+      Region = var.aws_region
+      Env    = terraform.workspace
     },
     var.tags
   )
@@ -37,6 +39,8 @@ module "ebs_csi_irsa_role" {
   tags = merge(
     {
       Name = "ebs-csi-role"
+      Region = var.aws_region
+      Env    = terraform.workspace
     },
     var.tags
   )
@@ -60,6 +64,8 @@ module "external_dns_irsa_role" {
   tags = merge(
     {
       Name = "external-dns-role"
+      Region = var.aws_region
+      Env    = terraform.workspace
     },
     var.tags
   )
@@ -83,6 +89,8 @@ module "cluster_autoscaler_role" {
   tags = merge(
     {
       Name = "cluster-autoscaler"
+      Region = var.aws_region
+      Env    = terraform.workspace
     },
     var.tags
   )

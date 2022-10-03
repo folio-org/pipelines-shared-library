@@ -60,6 +60,8 @@ resource "aws_security_group" "kafka" {
     var.tags,
     {
       Name = "allow-kafka"
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }
 
@@ -108,5 +110,7 @@ resource "aws_msk_cluster" "this" {
       service = "Kafka"
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }

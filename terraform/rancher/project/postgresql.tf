@@ -88,6 +88,8 @@ resource "aws_security_group" "allow_rds" {
     var.tags,
     {
       Name = "allow-rds"
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }
 
@@ -136,6 +138,8 @@ module "rds" {
       service = "RDS"
       name    = "rds-${local.env_name}"
       version = var.pg_version
+      Region = var.aws_region
+      Env    = terraform.workspace
   })
 }
 
