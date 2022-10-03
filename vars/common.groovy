@@ -42,7 +42,9 @@ void healthCheck(String url, String status_codes='200,403'){
 
 // A Groovy function that returns the Okapi version from the install.json file.
 static String getOkapiVersion(List install_json){
-   return install_json*.id.find{it ==~ /okapi-.*/} - 'okapi-'
+    if(install_json*.id.find{it ==~ /okapi-.*/}) {
+        return install_json*.id.find { it ==~ /okapi-.*/ } - 'okapi-'
+    }
 }
 
 // Removing the image from the local machine.
