@@ -5,7 +5,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-296') _
+@Library('pipelines-shared-library@RANCHER-296-bugfix') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -51,15 +51,20 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-                    def image = docker.build(
-                        ui_bundle.getImageName(),
-                        "--build-arg OKAPI_URL=${okapi_url} " +
-                            "--build-arg TENANT_ID=${tenant.getId()} " +
-                            "-f docker/Dockerfile  " +
-                            "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
-                    )
-                    image.push()
+                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-bundle", ui_bundle.getImageTag())) {
+                    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+                        def image = docker.build(
+                            ui_bundle.getImageName(),
+                            "--build-arg OKAPI_URL=${okapi_url} " +
+                                "--build-arg TENANT_ID=${tenant.getId()} " +
+                                "-f docker/Dockerfile  " +
+                                "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
+                        )
+                        image.push()
+                    }
+                }
+                else {
+                    println("Image with tag ${ui_bundle.getImageTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it.")
                 }
             }
         } catch (exception) {

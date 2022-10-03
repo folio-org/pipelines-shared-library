@@ -82,3 +82,9 @@ void checkEcrRepoExistence(String repo_name) {
         }
     }
 }
+
+boolean checkEcrImageExistence(String region, String repo_name, String image_tag) {
+    helm.k8sClient {
+        awscli.isEcrImageExist(region, repo_name, image_tag)
+    }
+}
