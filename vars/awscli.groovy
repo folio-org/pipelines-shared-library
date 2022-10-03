@@ -40,7 +40,8 @@ boolean isEcrRepoExist(String repo_name, String region) {
 
 void createEcrRepo(String repo_name, String region) {
     sh "aws ecr create-repository --region ${region} --repository-name ${repo_name} --tags Key=Team,Value=kitfox && \
-        aws ecr put-lifecycle-policy --region ${region} --repository-name ${repo_name} --lifecycle-policy-text '{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images older than 1 day\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countUnit\":\"days\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}'"
+        aws ecr put-lifecycle-policy --region ${region} --repository-name ${repo_name} \
+        --lifecycle-policy-text '{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images older than 1 day\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countUnit\":\"days\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}'"
 }
 
 boolean isEcrImageExist(String region, String repo_name, String image_tag) {
