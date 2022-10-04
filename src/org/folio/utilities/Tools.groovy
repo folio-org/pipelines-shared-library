@@ -76,7 +76,7 @@ class Tools {
         return sh.evaluate(expression);
     }
 
-    List findAllRegex(String list, String regex) {
+    def findAllRegex(String list, String regex) {
         return new JsonSlurperClassic().parseText(list).findAll{ s -> s ==~ /.*/ }
     }
 
