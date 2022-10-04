@@ -32,7 +32,6 @@ ansiColor('xterm') {
                     project_list.each { project ->
                         def temp = new Tools(this).findAllRegex(repo_images, "${cluster}-${project}-.*")
                         if (!temp.isEmpty()) {
-                            println(temp)
                             to_remove.addAll(temp.take(temp.size() - 1))
                         }
                     }
