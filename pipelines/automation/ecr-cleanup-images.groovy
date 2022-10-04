@@ -26,7 +26,7 @@ ansiColor('xterm') {
                 println(repo_images)
                 println()
 
-                List to_remove = []
+                def to_remove
                 clusters_list.each { cluster ->
                     project_list.each { project ->
                         def temp = repo_images.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
