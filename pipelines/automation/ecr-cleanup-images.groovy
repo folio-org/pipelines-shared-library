@@ -27,7 +27,7 @@ ansiColor('xterm') {
                 println(repo_images)
                 println()
 
-                def to_remove
+                List to_remove = []
                 clusters_list.each { cluster ->
                     project_list.each { project ->
                         def temp = new Tools(this).findAllRegex(repo_images, "${cluster}-${project}-.*")
