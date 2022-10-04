@@ -12,7 +12,7 @@ String ui_bundle_repo_name = 'ui-bundle'
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
-    pipelineTriggers([cron('*/6 * * * *')])
+    //pipelineTriggers([cron('*/6 * * * *')])
 ])
 
 List getBackendModulesList(){
