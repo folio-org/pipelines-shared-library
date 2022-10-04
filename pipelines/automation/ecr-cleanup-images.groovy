@@ -1,7 +1,7 @@
+#!groovy
 @Library('pipelines-shared-library@RANCHER-466') _
 
 import org.folio.Constants
-import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 String ui_bundle_repo_name = 'ui-bundle'
@@ -32,7 +32,7 @@ pipeline {
 //                    }
 //                    println(toRemove)
                     helm.k8sClient {
-                        def list = awscli.listEcrImages(Constans.AWS_REGION, ui_bundle_repo_name)
+                        def list = awscli.listEcrImages('us-west-2', ui_bundle_repo_name)
                         println(list)
                     }
                 }
