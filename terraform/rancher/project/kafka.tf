@@ -8,20 +8,19 @@ resource "rancher2_app_v2" "kafka" {
   chart_name    = "kafka"
   chart_version = "14.9.3"
   force_upgrade = "true"
+  replica_count = var.kafka_number_of_broker_nodes
   values        = <<-EOT
     metrics:
       kafka:
         enabled: false
     persistence:
       enabled: true
-      size: 100Gi
+      size: ${var.kafka_ebs_volume_size}
       storageClass: gp2
     resources:
       requests:
-        cpu: 250m
         memory: 1100Mi
       limits:
-        cpu: 500m
         memory: 4096Mi
     zookeeper:
       enabled: true
