@@ -36,6 +36,7 @@ ansiColor('xterm') {
             stage('Checkout') {
                 checkout scm
             }
+
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
