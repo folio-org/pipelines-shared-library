@@ -25,6 +25,8 @@ pipeline {
                     jobsParameters.clustersList().each {val->
                         println(val)
                     }
+                    def test = jobsParameters.getBackendModulesList()
+                    println(test)
                 }
             }
         }
