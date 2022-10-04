@@ -8,7 +8,7 @@ resource "rancher2_app_v2" "kafka" {
   chart_name    = "kafka"
   chart_version = "14.9.3"
   force_upgrade = "true"
-  replica_count = "2"
+  replica_count = 2
   values        = <<-EOT
     metrics:
       kafka:
