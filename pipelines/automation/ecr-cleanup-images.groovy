@@ -1,13 +1,17 @@
 #!groovy
-import groovy.json.JsonSlurperClassic
 
 @Library('pipelines-shared-library@RANCHER-466') _
 
 import org.folio.Constants
 import org.folio.utilities.Tools
+import groovy.json.JsonSlurperClassic
 import org.jenkinsci.plugins.workflow.libs.Library
 
 String ui_bundle_repo_name = 'ui-bundle'
+
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '20')),
+    disableConcurrentBuilds()])
 
 List getBackendModulesList(){
     String nameGroup = "moduleName"
