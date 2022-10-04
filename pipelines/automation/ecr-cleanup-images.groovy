@@ -54,7 +54,7 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
                         if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
-                            def image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
+                            def image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
                             List images_to_remove = []
                             jobsParameters.clustersList().each { cluster ->
                                 jobsParameters.devEnvironmentsList().each { project ->
@@ -65,11 +65,11 @@ ansiColor('xterm') {
                                 }
                             }
                             images_to_remove.each { image_tag ->
-                                //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                                //awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
                                 println("Delete ${image_tag.toString()} image")
                             }
                         }
-                        else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region.")}
+                        else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")}
                     }
                 }
             }
