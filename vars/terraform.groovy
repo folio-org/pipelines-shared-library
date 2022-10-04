@@ -119,7 +119,7 @@ void tfApplyFlow(Closure body) {
     retry(2) {
         sleep(60)
         tfPlan(config.working_dir, config.tf_vars)
-        input message: "test"
+        input 'test'
         tfApply(config.working_dir)
     }
     if(config.postAction){
