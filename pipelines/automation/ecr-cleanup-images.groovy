@@ -36,7 +36,7 @@ ansiColor('xterm') {
             }
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
-                    def image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
+                    String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                     List images_to_remove = []
                     jobsParameters.clustersList().each { cluster ->
                         jobsParameters.devEnvironmentsList().each { project ->
@@ -58,7 +58,8 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
                         if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
-                            List images = new JsonSlurperClassic().parseText(awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString()))
+                            String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
+                            List images = new JsonSlurperClassic().parseText(image_list)
                             List images_to_remove = []
                             if (!images.isEmpty()) {
                                 images_to_remove.addAll(images.take(images.size() - 1))
