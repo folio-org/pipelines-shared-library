@@ -75,4 +75,9 @@ class Tools {
         GroovyShell sh = new GroovyShell(b);
         return sh.evaluate(expression);
     }
+
+    List findAllRegex(List list, String regex) {
+        return list.findAll{ s -> s ==~ /${regex}/ }
+    }
+
 }
