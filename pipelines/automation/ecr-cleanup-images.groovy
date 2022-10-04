@@ -28,7 +28,7 @@ pipeline {
                     List to_remove = []
                     jobsParameters.clustersList().each { cluster ->
                         jobsParameters.devEnvironmentsList().each { project ->
-                            def temp = list.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
+                            def temp = repo_images.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
                             if (!temp.isEmpty()) {
                                 to_remove.addAll(temp.take(temp.size() - 1))
                             }
