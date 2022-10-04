@@ -9,44 +9,40 @@ String ui_bundle_repo_name = 'ui-bundle'
 def clusters_list = jobsParameters.clustersList()
 def project_list = jobsParameters.devEnvironmentsList()
 
-pipeline {
-    agent { label 'jenkins-agent-java11' }
+ansiColor('xterm') {
+    node(params.agent) {
+        try {
+            stage('Checkout') {
+                checkout scm
+            }
 
-    triggers {
-        cron('H 0 * * 1-6')
-    }
-
-    options {
-        disableConcurrentBuilds()
-    }
-
-    stages {
-        stage("Cleanup us-west-2 ui-bundle repo") {
-            steps {
-                script {
-                    String repo_images = ''
-                    helm.k8sClient {
-                        repo_images = awscli.listEcrImages('us-west-2', ui_bundle_repo_name)
-                    }
-                    List to_remove = []
-                    clusters_list.each { cluster ->
-                        project_list.each { project ->
-                            def temp = repo_images.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
-                            if (!temp.isEmpty()) {
-                                to_remove.addAll(temp.take(temp.size() - 1))
-                            }
+            stage("Cleanup us-west-2 ui-bundle repo") {
+                String repo_images = ''
+                helm.k8sClient {
+                    repo_images = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
+                }
+                List to_remove = []
+                clusters_list.each { cluster ->
+                    project_list.each { project ->
+                        def temp = repo_images.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
+                        if (!temp.isEmpty()) {
+                            to_remove.addAll(temp.take(temp.size() - 1))
                         }
                     }
-                    println(to_remove)
                 }
+                println(to_remove)
             }
-        }
 
-        stage("Cleanup us-west-2 mod-* and okapi repos") {
-            steps {
-                script {
-                    println('test')
-                }
+            stage("Cleanup us-west-2 mod-* and okapi repos") {
+                println('test')
+            }
+
+        } catch (exception) {
+            println(exception)
+            error(exception.getMessage())
+        } finally {
+            stage('Cleanup') {
+                cleanWs notFailBuild: true
             }
         }
     }
