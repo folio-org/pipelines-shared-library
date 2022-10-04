@@ -26,10 +26,10 @@ pipeline {
                         repo_images = awscli.listEcrImages('us-west-2', ui_bundle_repo_name)
                     }
                     List to_remove = []
-                    jobsParameters.clustersList().each {cluster->
-                        jobsParameters.devEnvironmentsList().each {project->
+                    jobsParameters.clustersList().each { cluster ->
+                        jobsParameters.devEnvironmentsList().each { project ->
                             def temp = list.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
-                            if (!temp.isEmpty()){
+                            if (!temp.isEmpty()) {
                                 to_remove.addAll(temp.take(temp.size() - 1))
                             }
                         }
@@ -38,7 +38,6 @@ pipeline {
                 }
             }
         }
-    }
 
         stage("Cleanup us-west-2 mod-* and okapi repos") {
             steps {
@@ -47,4 +46,5 @@ pipeline {
                 }
             }
         }
+    }
 }
