@@ -92,11 +92,6 @@ ansiColor('xterm') {
                 }
             }
 
-            stage("Pause") {
-                // Wait for dns flush.
-                sleep time: 3, unit: 'MINUTES'
-            }
-
             stage("Deploy backend modules") {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_model.getInstallMap())
                 if (install_backend_map) {
@@ -105,6 +100,11 @@ ansiColor('xterm') {
                         project_model.getClusterName(),
                         project_model.getProjectName())
                 }
+            }
+
+            stage("Pause") {
+                // Wait for dns flush.
+                sleep time: 3, unit: 'MINUTES'
             }
 
             stage("Health check") {

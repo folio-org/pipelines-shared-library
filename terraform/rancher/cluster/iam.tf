@@ -14,7 +14,7 @@ module "load_balancer_controller_irsa_role" {
 
   tags = merge(
     {
-      Name = "load-balancer-controller-role"
+      Name   = "load-balancer-controller-role"
     },
     var.tags
   )
