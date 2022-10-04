@@ -77,7 +77,7 @@ class Tools {
     }
 
     List findAllRegex(String list, String regex) {
-        return new JsonSlurperClassic().parseText(list).findAll{ s -> s ==~ /${regex}/ }
+        return new JsonSlurperClassic().parseText(list).findAll{ s -> s ==~ /.*/ }
     }
 
 }
