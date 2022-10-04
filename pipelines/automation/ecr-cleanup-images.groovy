@@ -31,8 +31,10 @@ pipeline {
 //                        }
 //                    }
 //                    println(toRemove)
-                    def list = awscli.listEcrImages(Constans.AWS_REGION, ui_bundle_repo_name)
-                    println(list)
+                    helm.k8sClient {
+                        def list = awscli.listEcrImages(Constans.AWS_REGION, ui_bundle_repo_name)
+                        println(list)
+                    }
                 }
             }
         }
