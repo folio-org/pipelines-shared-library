@@ -21,6 +21,11 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     repo_images = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                 }
+
+                println()
+                println(repo_images)
+                println()
+
                 List to_remove = []
                 clusters_list.each { cluster ->
                     project_list.each { project ->
