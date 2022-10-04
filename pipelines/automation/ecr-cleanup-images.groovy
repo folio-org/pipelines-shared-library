@@ -18,7 +18,7 @@ ansiColor('xterm') {
             }
 
             stage("Cleanup us-west-2 ui-bundle repo") {
-                List repo_images = []
+                String repo_images = ''
                 helm.k8sClient {
                     repo_images = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                 }
