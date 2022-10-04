@@ -33,7 +33,9 @@ pipeline {
 //                    println(toRemove)
                     helm.k8sClient {
                         def list = awscli.listEcrImages('us-west-2', ui_bundle_repo_name)
-                        println(list)
+                        list.each {val->
+                            println(val + '===')
+                        }
                     }
                 }
             }
