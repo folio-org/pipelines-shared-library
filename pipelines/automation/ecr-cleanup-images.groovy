@@ -61,9 +61,9 @@ ansiColor('xterm') {
                             def image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
                             List images = new JsonSlurperClassic().parseText(image_list)
                             if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 1))
+                                images.addAll(images.take(images.size() - 1))
                             }
-                            images_to_remove.each { image_tag ->
+                            images.each { image_tag ->
                                 //awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
                                 println("Delete ${image_tag.toString()} image")
                             }
