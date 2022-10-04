@@ -32,7 +32,7 @@ pipeline {
         stage("Cleanup us-west-2 mod-* and okapi repos") {
             steps {
                 script {
-
+                    println('test')
                 }
             }
         }
