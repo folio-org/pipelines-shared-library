@@ -43,6 +43,8 @@ class Constants {
     static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
     static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
     static String DOCKER_FOLIO_REPOSITORY = "docker-folio.dev.folio.org"
+    static String ECR_FOLIO_REPOSITORY = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+    static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = "aws-ecr-rw-credentials"
     static String DOCKER_K8S_CLIENT_IMAGE = "alpine/k8s:1.22.9"
 
     //Jenkins

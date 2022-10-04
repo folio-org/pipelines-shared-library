@@ -75,3 +75,18 @@ String selectJavaBasedOnAgent(String agent_name){
             new Logger(this, 'common').error('Can not detect required Java version')
     }
 }
+
+void checkEcrRepoExistence(String repo_name) {
+    helm.k8sClient {
+        if (awscli.isEcrRepoExist(repo_name, Constants.AWS_REGION)){
+            println("ECR repo for ${repo_name} doesn't exist, starting creating...")
+            awscli.createEcrRepo(repo_name, Constants.AWS_REGION)
+        }
+    }
+}
+
+boolean checkEcrImageExistence(String region, String repo_name, String image_tag) {
+    helm.k8sClient {
+        awscli.isEcrImageExist(region, repo_name, image_tag)
+    }
+}

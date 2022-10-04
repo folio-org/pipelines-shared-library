@@ -49,18 +49,14 @@ def getS3ObjectBody(String bucketname, String filePathName) {
 String generateModuleValues(def config, String module_name, String module_version, String cluster_name, String project_name, String hostname = '', Boolean custom_module = false) {
     String values_path = "./values"
     if (config[(module_name)]) {
-        if (module_name == 'ui-bundle') {
-            config[(module_name)] << [image: [tag: module_version]]
+        String repository
+        if(custom_module || module_name == 'ui-bundle'){
+            repository = Constants.ECR_FOLIO_REPOSITORY
         } else {
-            String repository
-            if(custom_module){
-                repository = Constants.DOCKER_DEV_REPOSITORY
-            }else{
-                repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
-            }
-            config[(module_name)] << [image: [repository: "${repository}/${module_name}",
-                                              tag       : module_version]]
+            repository  = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
         }
+        config[(module_name)] << [image: [repository: "${repository}/${module_name}",
+                                          tag       : module_version]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
             config[(module_name)]['ingress']['hosts'][0] += [host: hostname]
