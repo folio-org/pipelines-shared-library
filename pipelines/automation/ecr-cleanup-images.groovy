@@ -6,6 +6,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 String ui_bundle_repo_name = 'ui-bundle'
 
+def clusters_list = jobsParameters.clustersList()
+def project_list = jobsParameters.devEnvironmentsList()
+
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
@@ -26,8 +29,8 @@ pipeline {
                         repo_images = awscli.listEcrImages('us-west-2', ui_bundle_repo_name)
                     }
                     List to_remove = []
-                    jobsParameters.clustersList().each { cluster ->
-                        jobsParameters.devEnvironmentsList().each { project ->
+                    clusters_list.each { cluster ->
+                        project_list.each { project ->
                             def temp = repo_images.findAll { s -> s ==~ /${cluster}-${project}-.*/ }
                             if (!temp.isEmpty()) {
                                 to_remove.addAll(temp.take(temp.size() - 1))
