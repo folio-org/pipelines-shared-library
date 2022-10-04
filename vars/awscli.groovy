@@ -50,6 +50,5 @@ boolean isEcrImageExist(String region, String repo_name, String image_tag) {
 
 List listEcrImages(String region, String repo_name) {
     //return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output json | jq -r '.[] | tostring'", returnStdout: true)
-    String result = sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output text", returnStdout: true)
-    return result.split(' ') as List
+    return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output json", returnStdout: true)
 }
