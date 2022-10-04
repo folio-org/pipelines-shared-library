@@ -40,7 +40,7 @@ ansiColor('xterm') {
                     List images_to_remove = []
                     jobsParameters.clustersList().each { cluster ->
                         jobsParameters.devEnvironmentsList().each { project ->
-                            def images = new Tools(this).findAllRegex(image_list, "${cluster}-${project}-.*")
+                            List images = new Tools(this).findAllRegex(image_list, "${cluster}-${project}-.*")
                             if (!images.isEmpty()) {
                                 images_to_remove.addAll(images.take(images.size() - 1))
                             }
@@ -58,12 +58,12 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
                         if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
-                            def image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
-                            List images = new JsonSlurperClassic().parseText(image_list)
+                            List images = new JsonSlurperClassic().parseText(awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString()))
+                            List images_to_remove = []
                             if (!images.isEmpty()) {
-                                images.addAll(images.take(images.size() - 1))
+                                images_to_remove.addAll(images.take(images.size() - 1))
                             }
-                            images.each { image_tag ->
+                            images_to_remove.each { image_tag ->
                                 //awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
                                 println("Delete ${image_tag.toString()} image")
                             }
