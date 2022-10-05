@@ -45,9 +45,10 @@ ansiColor('xterm') {
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
-                    List images_to_remove = []
+                    /*List images_to_remove = []*/
                     cluster_project_map.each {cluster, project ->
                         project.each {value->
+                            List images_to_remove = []
                             List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}-.*")
                             if (!images.isEmpty()) {
                                 images_to_remove.addAll(images.take(images.size() - 1))
