@@ -8,7 +8,7 @@ import groovy.json.JsonSlurperClassic
 import org.jenkinsci.plugins.workflow.libs.Library
 
 String ui_bundle_repo_name = 'ui-bundle'
-def cluster_project_map = new JsonSlurperClassic().parseText(generateProjectNamesMap())
+def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.generateProjectNamesMap())
 assert cluster_project_map instanceof Map
 
 properties([
