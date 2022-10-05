@@ -33,9 +33,11 @@ List getBackendModulesList(){
 ansiColor('xterm') {
     node(params.agent) {
         try {
+/*
             stage('Checkout') {
                 checkout scm
             }
+*/
 
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
