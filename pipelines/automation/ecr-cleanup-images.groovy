@@ -69,7 +69,7 @@ ansiColor('xterm') {
                     }*/
                 }
             }
-            stage("Cleanup us-west-2 mod-* and okapi repos") {
+            /*stage("Cleanup us-west-2 mod-* and okapi repos") {
                 def backend_modules_list = getBackendModulesList()
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
@@ -88,7 +88,7 @@ ansiColor('xterm') {
                         else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")}
                     }
                 }
-            }
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
