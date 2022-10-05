@@ -45,7 +45,6 @@ ansiColor('xterm') {
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
-                    /*List images_to_remove = []*/
                     cluster_project_map.each {cluster, project ->
                         project.each {value->
                             List images_to_remove = []
@@ -54,22 +53,13 @@ ansiColor('xterm') {
                                 images_to_remove.addAll(images.take(images.size() - 1))
                             }
                             images_to_remove.each { image_tag ->
-                                //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
-                                println("Delete ${image_tag.toString()} image")
+                                awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
                             }
                         }
                     }
-                    /*jobsParameters.clustersList().each { cluster ->
-                        jobsParameters.devEnvironmentsList().each { project ->
-                            List images = new Tools(this).findAllRegex(image_list, "${cluster}-${project}-.*")
-                            if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 1))
-                            }
-                        }
-                    }*/
                 }
             }
-            /*stage("Cleanup us-west-2 mod-* and okapi repos") {
+            stage("Cleanup us-west-2 mod-* and okapi repos") {
                 def backend_modules_list = getBackendModulesList()
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
@@ -81,14 +71,13 @@ ansiColor('xterm') {
                                 images_to_remove.addAll(images.take(images.size() - 1))
                             }
                             images_to_remove.each { image_tag ->
-                                //awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
-                                println("Delete ${image_tag.toString()} image")
+                                awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
                             }
                         }
                         else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")}
                     }
                 }
-            }*/
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
