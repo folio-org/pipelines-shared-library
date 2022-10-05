@@ -52,10 +52,10 @@ ansiColor('xterm') {
                             if (!images.isEmpty()) {
                                 images_to_remove.addAll(images.take(images.size() - 1))
                             }
-                        }
-                        images_to_remove.each { image_tag ->
-                            //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
-                            println("Delete ${image_tag.toString()} image")
+                            images_to_remove.each { image_tag ->
+                                //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                                println("Delete ${image_tag.toString()} image")
+                            }
                         }
                     }
                     /*jobsParameters.clustersList().each { cluster ->
