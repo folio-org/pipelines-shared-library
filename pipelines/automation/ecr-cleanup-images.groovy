@@ -8,6 +8,8 @@ import groovy.json.JsonSlurperClassic
 import org.jenkinsci.plugins.workflow.libs.Library
 
 String ui_bundle_repo_name = 'ui-bundle'
+def cluster_project_map = new JsonSlurperClassic().parseText(generateProjectNamesMap())
+assert cluster_project_map instanceof Map
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -44,18 +46,26 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                     List images_to_remove = []
-                    jobsParameters.clustersList().each { cluster ->
+                    cluster_project_map.each {cluster, project ->
+                        project.each {value->
+                            List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}-.*")
+                            if (!images.isEmpty()) {
+                                images_to_remove.addAll(images.take(images.size() - 1))
+                            }
+                        }
+                        images_to_remove.each { image_tag ->
+                            //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                            println("Delete ${image_tag.toString()} image")
+                        }
+                    }
+                    /*jobsParameters.clustersList().each { cluster ->
                         jobsParameters.devEnvironmentsList().each { project ->
                             List images = new Tools(this).findAllRegex(image_list, "${cluster}-${project}-.*")
                             if (!images.isEmpty()) {
                                 images_to_remove.addAll(images.take(images.size() - 1))
                             }
                         }
-                    }
-                    images_to_remove.each { image_tag ->
-                        //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
-                        println("Delete ${image_tag.toString()} image")
-                    }
+                    }*/
                 }
             }
             stage("Cleanup us-west-2 mod-* and okapi repos") {
