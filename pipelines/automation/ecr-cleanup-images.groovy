@@ -12,7 +12,7 @@ String ui_bundle_repo_name = 'ui-bundle'
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
-    //pipelineTriggers([cron('*/6 * * * *')])
+    pipelineTriggers([cron('*/6 * * * *')])
 ])
 
 List getBackendModulesList(){
@@ -33,12 +33,6 @@ List getBackendModulesList(){
 ansiColor('xterm') {
     node(params.agent) {
         try {
-/*
-            stage('Checkout') {
-                checkout scm
-            }
-*/
-
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
@@ -57,7 +51,6 @@ ansiColor('xterm') {
                     }
                 }
             }
-
             stage("Cleanup us-west-2 mod-* and okapi repos") {
                 def backend_modules_list = getBackendModulesList()
                 helm.k8sClient {
@@ -78,7 +71,6 @@ ansiColor('xterm') {
                     }
                 }
             }
-
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
