@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-466') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.folio.utilities.Tools
