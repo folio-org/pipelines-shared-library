@@ -30,7 +30,7 @@ resource "rancher2_app_v2" "kafka" {
     readinessProbe:
       enabled: false
     replicaCount: 2
-    heapOpts: "-Xmx2662m -Xms1024m"
+    heapOpts: "-Xmx3277m -Xms1024m"
   EOT
 }
 
