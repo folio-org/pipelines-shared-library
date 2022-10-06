@@ -29,7 +29,7 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     readinessProbe:
       enabled: false
-    replicaCount: 2
+    replicaCount: ${var.kafka_number_of_broker_nodes}
     heapOpts: "-Xmx3277m -Xms1024m"
   EOT
 }
