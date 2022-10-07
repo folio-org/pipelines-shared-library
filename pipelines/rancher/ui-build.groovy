@@ -3,6 +3,7 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -32,12 +33,12 @@ Project project_model = new Project(
 )
 
 Module ui_bundle = new Module(
-    name: "platform-complete", //TODO rename to ui-bundle
+    name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
 
 ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${ui_bundle.getHash().take(7)}"
-ui_bundle.imageName = "${Constants.DOCKER_DEV_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
+ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
 String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_model.getDomains().okapi
 
@@ -50,15 +51,20 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
-                    def image = docker.build(
-                        ui_bundle.getImageName(),
-                        "--build-arg OKAPI_URL=${okapi_url} " +
-                            "--build-arg TENANT_ID=${tenant.getId()} " +
-                            "-f docker/Dockerfile  " +
-                            "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
-                    )
-                    image.push()
+                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-bundle", ui_bundle.getTag())) {
+                    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+                        def image = docker.build(
+                            ui_bundle.getImageName(),
+                            "--build-arg OKAPI_URL=${okapi_url} " +
+                                "--build-arg TENANT_ID=${tenant.getId()} " +
+                                "-f docker/Dockerfile  " +
+                                "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
+                        )
+                        image.push()
+                    }
+                }
+                else {
+                    println("\033[32m" + "Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it." + "\033[0m")
                 }
             }
         } catch (exception) {

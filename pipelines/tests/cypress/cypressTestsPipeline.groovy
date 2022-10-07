@@ -37,7 +37,7 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL', trim: true),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment UI URL', trim: true),
         string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),

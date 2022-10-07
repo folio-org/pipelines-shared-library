@@ -60,7 +60,7 @@ module "vpc" {
   database_subnet_tags = merge(
     local.clusters_tags,
     {
-      Type = "database"
+      Type   = "database"
     }
   )
 }

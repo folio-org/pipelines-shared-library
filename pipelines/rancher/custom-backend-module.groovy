@@ -9,6 +9,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
+import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -89,7 +90,7 @@ ansiColor('xterm') {
                 dir(backend_module.getName()) {
                     backend_module.version = readMavenPom().getVersion()
                     backend_module.tag = "${backend_module.getVersion()}.${backend_module.getHash()}"
-                    backend_module.imageName = "${Constants.DOCKER_DEV_REPOSITORY}/${backend_module.getName()}:${backend_module.getTag()}"
+                    backend_module.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${backend_module.getName()}:${backend_module.getTag()}"
                     withMaven(jdk: "${common.selectJavaBasedOnAgent(params.agent)}",
                         maven: Constants.MAVEN_TOOL_NAME,
                         options: [artifactsPublisher(disabled: true)]) {
@@ -102,7 +103,8 @@ ansiColor('xterm') {
             }
 
             stage('Docker build and push') {
-                docker.withRegistry("https://${Constants.DOCKER_DEV_REPOSITORY}", Constants.DOCKER_DEV_REPOSITORY_CREDENTIALS_ID) {
+                common.checkEcrRepoExistence(backend_module.getName())
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                     def image
                     dir(backend_module.getName() == 'okapi' ? "${backend_module.getName()}/okapi-core" : backend_module.getName()) {
                         image = docker.build("${backend_module.getImageName()}", '--no-cache=true --pull=true .')
@@ -135,6 +137,11 @@ ansiColor('xterm') {
                         project_model.getProjectName(),
                         true)
                 }
+            }
+
+            stage("Pause") {
+                // Wait for dns flush.
+                sleep time: 3, unit: 'MINUTES'
             }
 
             stage("Health check") {
