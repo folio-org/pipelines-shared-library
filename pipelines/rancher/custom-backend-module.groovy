@@ -139,6 +139,11 @@ ansiColor('xterm') {
                 }
             }
 
+            stage("Pause") {
+                // Wait for dns flush.
+                sleep time: 3, unit: 'MINUTES'
+            }
+
             stage("Health check") {
                 // Checking the health of the Okapi service.
                 common.healthCheck("https://${project_model.getDomains().okapi}/_/version")
