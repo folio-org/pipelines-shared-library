@@ -3,6 +3,7 @@
 
 import org.folio.Constants
 import org.folio.rest.Deployment
+import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
@@ -163,6 +164,23 @@ ansiColor('xterm') {
                         email
                     )
                     deployment.installSingleBackendModule(backend_module.getDescriptor())
+                }
+            }
+
+            stage("Deploy edge modules") {
+                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
+                if (install_edge_map) {
+                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                    helm.k8sClient {
+                        awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
+                        helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
+                    }
+                    new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                    folioDeploy.edge(install_edge_map,
+                        project_model.getModulesConfig(),
+                        project_model.getClusterName(),
+                        project_model.getProjectName(),
+                        project_model.getDomains().edge)
                 }
             }
         } catch (exception) {
