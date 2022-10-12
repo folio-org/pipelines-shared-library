@@ -16,7 +16,7 @@
   },
   {
     "team": "Firebird",
-    "modules": ["mod-audit", "edge-dematic", "edge-caiasoft", "mod-data-export", "mod-oai-pmh"],
+    "modules": ["mod-audit", "edge-dematic", "edge-caiasoft", "mod-data-export", "mod-oai-pmh", "edge-oai-pmh"],
     "slackChannel": "#firebird"
   },
   {
