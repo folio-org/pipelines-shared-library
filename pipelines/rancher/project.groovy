@@ -244,13 +244,13 @@ ansiColor('xterm') {
 //                        project_model.getDomains().ui)
 //                }
 //            }
-//        } catch (exception) {
-//            println(exception)
-//            error(exception.getMessage())
-//        } finally {
-//            stage('Cleanup') {
-//                cleanWs notFailBuild: true
-//            }
+        } catch (exception) {
+            println(exception)
+            error(exception.getMessage())
+        } finally {
+            stage('Cleanup') {
+                cleanWs notFailBuild: true
+            }
         }
     }
 }
