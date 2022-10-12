@@ -107,5 +107,6 @@ resource "aws_msk_cluster" "this" {
       service = "Kafka"
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
+      devTeam = var.rancher_project_name
   })
 }

@@ -136,6 +136,7 @@ module "rds" {
       service = "RDS"
       name    = "rds-${local.env_name}"
       version = var.pg_version
+      devTeam = var.rancher_project_name
   })
 }
 

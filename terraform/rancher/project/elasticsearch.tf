@@ -199,5 +199,6 @@ module "aws_es" {
       service = "ElasticSearch"
       name    = "es-${local.env_name}"
       version = var.es_version
+      devTeam = var.rancher_project_name
   })
 }
