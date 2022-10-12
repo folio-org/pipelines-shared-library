@@ -114,73 +114,75 @@ ansiColor('xterm') {
                 }
             }
 
-            stage('Deploy preparation') {
-                project_model.installJson = [
-                    [
-                        id    : "${backend_module.getName()}-${backend_module.getTag()}",
-                        action: 'enable'
+            if(project_model.getEnableModules()) {
+                stage('Deploy preparation') {
+                    project_model.installJson = [
+                        [
+                            id    : "${backend_module.getName()}-${backend_module.getTag()}",
+                            action: 'enable'
+                        ]
                     ]
-                ]
-                project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
-                dir(backend_module.getName()) {
-                    if (fileExists(DESCRIPTOR_PATH)) {
-                        backend_module.descriptor = [readJSON(file: DESCRIPTOR_PATH)]
+                    project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
+                    dir(backend_module.getName()) {
+                        if (fileExists(DESCRIPTOR_PATH)) {
+                            backend_module.descriptor = [readJSON(file: DESCRIPTOR_PATH)]
+                        }
                     }
                 }
-            }
 
-            stage("Deploy backend modules") {
-                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_model.getInstallMap())
-                if (install_backend_map) {
-                    folioDeploy.backend(install_backend_map,
-                        project_model.getModulesConfig(),
-                        project_model.getClusterName(),
-                        project_model.getProjectName(),
-                        true)
-                }
-            }
-
-            stage("Pause") {
-                // Wait for dns flush.
-                sleep time: 3, unit: 'MINUTES'
-            }
-
-            stage("Health check") {
-                // Checking the health of the Okapi service.
-                common.healthCheck("https://${project_model.getDomains().okapi}/_/version")
-            }
-
-            stage("Enable backend modules") {
-                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                    tenant.kb_api_key = cypress_api_key_apidvcorp
-                    Deployment deployment = new Deployment(
-                        this,
-                        "https://${project_model.getDomains().okapi}",
-                        "https://${project_model.getDomains().ui}",
-                        project_model.getInstallJson(),
-                        project_model.getInstallMap(),
-                        tenant,
-                        admin_user,
-                        email
-                    )
-                    deployment.installSingleBackendModule(backend_module.getDescriptor())
-                }
-            }
-
-            stage("Deploy edge modules") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
-                if (install_edge_map) {
-                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
-                        helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
+                stage("Deploy backend modules") {
+                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_model.getInstallMap())
+                    if (install_backend_map) {
+                        folioDeploy.backend(install_backend_map,
+                            project_model.getModulesConfig(),
+                            project_model.getClusterName(),
+                            project_model.getProjectName(),
+                            true)
                     }
-                    new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                    folioDeploy.edge(install_edge_map,
-                        project_model.getModulesConfig(),
-                        project_model.getClusterName(),
-                        project_model.getProjectName(),
-                        project_model.getDomains().edge)
+                }
+
+                stage("Pause") {
+                    // Wait for dns flush.
+                    sleep time: 3, unit: 'MINUTES'
+                }
+
+                stage("Health check") {
+                    // Checking the health of the Okapi service.
+                    common.healthCheck("https://${project_model.getDomains().okapi}/_/version")
+                }
+
+                stage("Enable backend modules") {
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        tenant.kb_api_key = cypress_api_key_apidvcorp
+                        Deployment deployment = new Deployment(
+                            this,
+                            "https://${project_model.getDomains().okapi}",
+                            "https://${project_model.getDomains().ui}",
+                            project_model.getInstallJson(),
+                            project_model.getInstallMap(),
+                            tenant,
+                            admin_user,
+                            email
+                        )
+                        deployment.installSingleBackendModule(backend_module.getDescriptor())
+                    }
+                }
+
+                stage("Deploy edge modules") {
+                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
+                    if (install_edge_map) {
+                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                        helm.k8sClient {
+                            awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
+                            helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
+                        }
+                        new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                        folioDeploy.edge(install_edge_map,
+                            project_model.getModulesConfig(),
+                            project_model.getClusterName(),
+                            project_model.getProjectName(),
+                            project_model.getDomains().edge)
+                    }
                 }
             }
         } catch (exception) {
