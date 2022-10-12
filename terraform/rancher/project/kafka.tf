@@ -14,14 +14,12 @@ resource "rancher2_app_v2" "kafka" {
         enabled: false
     persistence:
       enabled: true
-      size: 100Gi
+      size: ${var.kafka_ebs_volume_size}
       storageClass: gp2
     resources:
       requests:
-        cpu: 250m
         memory: 1100Mi
       limits:
-        cpu: 500m
         memory: 4096Mi
     zookeeper:
       enabled: true
@@ -31,7 +29,8 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     readinessProbe:
       enabled: false
-    heapOpts: "-Xmx2662m -Xms1024m"
+    replicaCount: ${var.kafka_number_of_broker_nodes}
+    heapOpts: "-Xmx3277m -Xms1024m"
   EOT
 }
 
@@ -60,7 +59,7 @@ resource "aws_security_group" "kafka" {
     var.tags,
     {
       Name = "allow-kafka"
-  })
+    })
 }
 
 resource "aws_msk_configuration" "this" {
@@ -87,7 +86,7 @@ resource "aws_msk_cluster" "this" {
 
   broker_node_group_info {
     instance_type   = var.kafka_instance_type
-#    client_subnets  = data.aws_subnets.private.ids
+    #    client_subnets  = data.aws_subnets.private.ids
     client_subnets  = slice(data.aws_subnets.private.ids, 0, var.kafka_number_of_broker_nodes)
     security_groups = [aws_security_group.kafka[count.index].id]
     storage_info {
@@ -108,5 +107,5 @@ resource "aws_msk_cluster" "this" {
       service = "Kafka"
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
-  })
+    })
 }
