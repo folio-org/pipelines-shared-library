@@ -50,7 +50,7 @@ properties([
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
-        booleanParam(name: 'kafka_ui', defaultValue: false, description: 'Deploy kafka-ui')])])
+        booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
