@@ -5,7 +5,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-492') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -33,7 +33,7 @@ Project project_model = new Project(
 )
 
 Module ui_bundle = new Module(
-    name: "ui-bundle",
+    name: "ui-test",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
 
@@ -51,7 +51,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-bundle", ui_bundle.getTag())) {
+                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-test", ui_bundle.getTag())) {
                     docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                         def image = docker.build(
                             ui_bundle.getImageName(),
@@ -64,7 +64,7 @@ ansiColor('xterm') {
                     }
                 }
                 else {
-                    println("\033[32m" + "Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it." + "\033[0m")
+                    println("\033[32m" + "Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-test' repo, there is no need to build it." + "\033[0m")
                 }
             }
         } catch (exception) {
