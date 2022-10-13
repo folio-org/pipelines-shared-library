@@ -5,7 +5,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-492') _
+@Library('pipelines-shared-library') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -33,7 +33,7 @@ Project project_model = new Project(
 )
 
 Module ui_bundle = new Module(
-    name: "ui-test",
+    name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
 
