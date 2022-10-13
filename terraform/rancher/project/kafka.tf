@@ -33,7 +33,6 @@ resource "rancher2_app_v2" "kafka" {
     heapOpts: "-Xmx3277m -Xms1024m"
   EOT
 }
-
 resource "aws_security_group" "kafka" {
   count       = var.kafka_embedded ? 0 : 1
   name        = "allow-kafka-${local.env_name}"
@@ -61,7 +60,6 @@ resource "aws_security_group" "kafka" {
       Name = "allow-kafka"
     })
 }
-
 resource "aws_msk_configuration" "this" {
   count             = var.kafka_embedded ? 0 : 1
   kafka_versions    = [var.kafka_version]
@@ -71,7 +69,6 @@ resource "aws_msk_configuration" "this" {
 auto.create.topics.enable = true
 PROPERTIES
 }
-
 resource "aws_msk_cluster" "this" {
   count                  = var.kafka_embedded ? 0 : 1
   cluster_name           = "kafka-${local.env_name}"
@@ -108,4 +105,37 @@ resource "aws_msk_cluster" "this" {
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
     })
+}
+resource "rancher2_app_v2" "kafka-ui" {
+  count         = var.kafka_ui ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "kafka_ui"
+  repo_name     = "provectus"
+  chart_name    = "kafka_ui"
+  chart_version = "0.4.3"
+  force_upgrade = "true"
+  values        = <<-EOT
+    service:
+      type: NodePort
+    ingress:
+      hosts:
+        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka_ui"]), var.root_domain])}
+          paths:
+            - path: /*
+              pathType: ImplementationSpecific
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+
+    yamlApplicationConfig:
+      kafka:
+        clusters:
+          - name: ${data.rancher2_cluster.this.name}
+            bootstrapServers: ${var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+  EOT
 }

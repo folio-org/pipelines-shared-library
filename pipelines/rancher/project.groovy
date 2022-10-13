@@ -49,7 +49,8 @@ properties([
         booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
-        booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4')])])
+        booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
+        booleanParam(name: 'kafka_ui', defaultValue: false, description: 'Deploy kafka-ui')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -140,6 +141,9 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('es_embedded', params.es_embedded)
                 tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
+                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
+
+
                 tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
                 if (!params.pg_embedded && project_model.getRestoreFromBackup() && project_model.getBackupType() == 'rds') {
                     if (project_model.getBackupName()?.trim()) {
