@@ -11,6 +11,7 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
+        jobsParameters.refreshParameters(),
         jobsParameters.repository(),
         jobsParameters.branch(),
         jobsParameters.clusterName(),
