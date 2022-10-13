@@ -34,11 +34,11 @@ String getS3FileContent(String path) {
     return sh(script: "aws s3 cp s3://${path} -", returnStdout: true).trim()
 }
 
-boolean isEcrRepoExist(String repo_name, String region) {
+boolean isEcrRepoExist(String region, String repo_name) {
     return sh(script: "aws ecr describe-repositories --region ${region} --repository-names ${repo_name}", returnStatus: true)
 }
 
-void createEcrRepo(String repo_name, String region) {
+void createEcrRepo(String region, String repo_name) {
     sh "aws ecr create-repository --region ${region} --repository-name ${repo_name} --tags Key=Team,Value=kitfox && \
         aws ecr put-lifecycle-policy --region ${region} --repository-name ${repo_name} \
         --lifecycle-policy-text '{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images older than 1 day\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countUnit\":\"days\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}'"
@@ -46,4 +46,12 @@ void createEcrRepo(String repo_name, String region) {
 
 boolean isEcrImageExist(String region, String repo_name, String image_tag) {
     return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --image-ids=imageTag=${image_tag}", returnStatus: true)
+}
+
+String listEcrImages(String region, String repo_name) {
+    return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output json", returnStdout: true)
+}
+
+void deleteEcrImage(String region, String repo_name, String image_tag){
+    sh(script: "aws ecr batch-delete-image --region ${region} --repository-name ${repo_name} --image-ids imageTag=${image_tag}")
 }
