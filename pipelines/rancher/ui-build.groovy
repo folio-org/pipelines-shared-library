@@ -51,7 +51,7 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-test", ui_bundle.getTag())) {
+                //if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-test", ui_bundle.getTag())) {
                     docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                         def image = docker.build(
                             ui_bundle.getImageName(),
@@ -62,10 +62,10 @@ ansiColor('xterm') {
                         )
                         image.push()
                     }
-                }
-                else {
+                //}
+                /*else {
                     println("\033[32m" + "Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-test' repo, there is no need to build it." + "\033[0m")
-                }
+                }*/
             }
         } catch (exception) {
             println(exception)
