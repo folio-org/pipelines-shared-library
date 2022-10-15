@@ -106,13 +106,13 @@ resource "aws_msk_cluster" "this" {
       version = var.kafka_version
     })
 }
-resource "rancher2_app_v2" "kafka-ui" {
+resource "rancher2_app_v2" "kafka_ui" {
   count         = var.kafka_ui ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "kafka_ui"
   repo_name     = "provectus"
-  chart_name    = "kafka_ui"
+  chart_name    = "charts/kafka-ui"
   chart_version = "0.4.3"
   force_upgrade = "true"
   values        = <<-EOT
