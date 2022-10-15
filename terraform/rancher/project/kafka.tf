@@ -110,9 +110,9 @@ resource "rancher2_app_v2" "kafka_ui" {
   count         = var.kafka_ui ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "kafka_ui"
+  name          = "kafka-ui"
   repo_name     = "provectus"
-  chart_name    = "charts/kafka-ui"
+  chart_name    = "kafka-ui"
   chart_version = "0.4.3"
   force_upgrade = "true"
   values        = <<-EOT
@@ -120,7 +120,7 @@ resource "rancher2_app_v2" "kafka_ui" {
       type: NodePort
     ingress:
       hosts:
-        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka_ui"]), var.root_domain])}
+        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka-ui"]), var.root_domain])}
           paths:
             - path: /*
               pathType: ImplementationSpecific
