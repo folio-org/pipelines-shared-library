@@ -27,6 +27,7 @@ class Constants {
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
 
     //SMTP
+    static String EMAIL_SMTP_CREDENTIALS_ID = "ses-smtp-rancher"
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
