@@ -68,6 +68,21 @@ resource "rancher2_app_v2" "elasticsearch" {
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+    master:
+      service:
+        type: NodePort
+      ingress:
+        enabled: true
+        hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
+        path: "/*"
+        annotations:
+          kubernetes.io/ingress.class: alb
+          alb.ingress.kubernetes.io/scheme: internet-facing
+          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
+          alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+          alb.ingress.kubernetes.io/success-codes: 200-399
+          alb.ingress.kubernetes.io/healthcheck-path: /
+          alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
   EOT
 }
 
@@ -149,4 +164,8 @@ resource "rancher2_app_v2" "fluentd" {
         - name: ELASTICSEARCH_PORT
           value: "9200"
   EOT
+}
+resource "elasticstack_elasticsearch_index_template" "my_template" {
+  name = "my_ingest_1"
+  index_patterns = ["logstash*"]
 }

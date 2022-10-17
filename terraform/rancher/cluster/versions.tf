@@ -21,5 +21,9 @@ terraform {
       source  = "hashicorp/http"
       version = "2.2.0"
     }
+    elasticstack = {
+      source  = "elastic/elasticstack"
+      version = "~>0.3.3"
+    }
   }
 }
