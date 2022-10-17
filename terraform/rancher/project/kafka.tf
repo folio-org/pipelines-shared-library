@@ -119,7 +119,7 @@ resource "rancher2_app_v2" "kafka_ui" {
     service:
       type: NodePort
     ingress:
-      host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka"]), var.root_domain])}
+      host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka-ui"]), var.root_domain])}
       path: "/*"
       enabled: true
       annotations:
