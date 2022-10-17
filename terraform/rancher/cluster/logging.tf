@@ -165,7 +165,7 @@ resource "rancher2_app_v2" "fluentd" {
           value: "9200"
   EOT
 }
-resource "elasticstack_elasticsearch_index_template" "my_template" {
+ /*resource "elasticstack_elasticsearch_index_template" "my_template" {
   name = "my_ingest_1"
   index_patterns = ["logstash*"]
-}
+} */
