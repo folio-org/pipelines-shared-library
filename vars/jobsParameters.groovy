@@ -92,6 +92,7 @@ static List devEnvironmentsList() {
             'spitfire',
             'sprint-testing', //Deprecated
             'stripes-force',
+            'tamu',
             'thor',
             'thunderjet',
             'unam',
