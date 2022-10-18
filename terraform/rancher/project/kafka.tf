@@ -113,14 +113,14 @@ resource "rancher2_app_v2" "kafka_ui" {
   name          = "kafka-ui"
   repo_name     = "provectus"
   chart_name    = "kafka-ui"
-  chart_version = "0.4.0"
+  chart_version = "0.4.3"
   force_upgrade = "true"
   values        = <<-EOT
     service:
       type: NodePort
     ingress:
       host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kafka-ui"]), var.root_domain])}
-      path: "/*"
+      path: "/"
       enabled: true
       annotations:
         kubernetes.io/ingress.class: alb
