@@ -134,5 +134,11 @@ resource "rancher2_app_v2" "kafka_ui" {
         clusters:
           - name: ${data.rancher2_cluster.this.name}
             bootstrapServers: ${var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+      auth:
+        type: disabled
+      management:
+        health:
+          ldap:
+            enabled: false
   EOT
 }
