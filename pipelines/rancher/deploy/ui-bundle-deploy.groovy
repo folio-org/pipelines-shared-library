@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 

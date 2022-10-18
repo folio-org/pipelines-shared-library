@@ -29,6 +29,10 @@ class Deployment extends GeneralParameters {
 
     private Okapi okapi = new Okapi(steps, okapi_url, super_admin)
 
+    private Authorization auth = new Authorization(steps, okapi_url)
+
+    private Permissions permissions = new Permissions(steps, okapi_url)
+
     private GitHubUtility gitHubUtility = new GitHubUtility(steps)
 
     private TenantService tenantService = new TenantService(steps, okapi_url, super_admin)
@@ -81,6 +85,8 @@ class Deployment extends GeneralParameters {
             okapi.publishModulesDescriptors(descriptor)
             okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 900000)
+            auth.login(tenant, tenant.getAdminUser())
+            permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
             if (tenant.index.reindex) {
                 def job_id = okapi.reindexElasticsearch(tenant, admin_user)
                 okapi.checkReindex(tenant, job_id)

@@ -1,11 +1,12 @@
 package tests.karate
 
+import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-def karateEnvironment = "jenkins"
+def karateEnvironment = "folio-testing-karate"
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -46,16 +47,12 @@ pipeline {
         stage("Build karate config") {
             steps {
                 script {
-                    def jenkinsKarateConfigContents = getKarateConfig()
                     def files = findFiles(glob: '**/karate-config.js')
+                        files.each { file ->
+                            echo "Updating file ${file.path}"
+                            writeFile file: file.path, text: renderKarateConfig(readFile(file.path))
+                        }
 
-                    files.each { file ->
-                        String path = file.path.replaceAll("\\\\", "/")
-                        def folderPath = path.substring(0, path.lastIndexOf("/"))
-
-                        echo "Creating file ${folderPath}/karate-config-${karateEnvironment}.js"
-                        writeFile file: "${folderPath}/karate-config-${karateEnvironment}.js", text: jenkinsKarateConfigContents
-                    }
                 }
             }
         }
@@ -110,37 +107,33 @@ pipeline {
     }
 }
 
-def getKarateConfig() {
-    withCredentials([string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
-                     string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),
-                     string(credentialsId: 'mod-kb-ebsco-key', variable: 'ebsco_key'),
-                     string(credentialsId: 'mod-kb-ebsco-usageId', variable: 'ebsco_usage_id'),
-                     string(credentialsId: 'mod-kb-ebsco-usageSecret', variable: 'ebsco_usage_secret'),
-                     string(credentialsId: 'mod-kb-ebsco-usageKey', variable: 'ebsco_usage_key')]) {
-        return """
-function fn() {
-    var config = {
-        baseUrl: '${params.okapiUrl}' ,
-        edgeUrl: '${params.edgeUrl}' ,
-        admin:
-        {
-            tenant: '${params.tenant}' ,
-            name: '${params.adminUserName}' ,
-            password: '${params.adminPassword}'
-        },
-        prototypeTenant: '${params.prototypeTenant}',
+String renderKarateConfig(String config){
+    withCredentials([
+        string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
+        string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),
+        string(credentialsId: 'mod-kb-ebsco-key', variable: 'ebsco_key'),
+        string(credentialsId: 'mod-kb-ebsco-usageId', variable: 'ebsco_usage_id'),
+        string(credentialsId: 'mod-kb-ebsco-usageSecret', variable: 'ebsco_usage_secret'),
+        string(credentialsId: 'mod-kb-ebsco-usageKey', variable: 'ebsco_usage_key')
+    ]) {
+        def engine = new SimpleTemplateEngine()
+        Map binding = [
+            "baseUrl"                            : params.okapiUrl,
+            "edgeUrl"                            : params.edgeUrl,
+            "admin"                              : [
+                tenant  : params.tenant,
+                name    : params.adminUserName,
+                password: params.adminPassword
+            ],
+            "prototypeTenant"                    : params.prototypeTenant,
+            "kbEbscoCredentialsUrl"              : ebsco_url,
+            "kbEbscoCredentialsCustomerId"       : ebsco_id,
+            "kbEbscoCredentialsApiKey"           : ebsco_key,
 
-        kbEbscoCredentialsUrl: '${ebsco_url}',
-        kbEbscoCredentialsCustomerId: '${ebsco_id}',
-        kbEbscoCredentialsApiKey: '${ebsco_key}',
-
-        usageConsolidationCredentialsId: '${ebsco_usage_id}',
-        usageConsolidationCredentialsSecret: '${ebsco_usage_secret}',
-        usageConsolidationCustomerKey: '${ebsco_usage_key}'
-    }
-
-    return config;
-}
-"""
+            "usageConsolidationCredentialsId"    : ebsco_usage_id,
+            "usageConsolidationCredentialsSecret": ebsco_usage_secret,
+            "usageConsolidationCustomerKey"      : ebsco_usage_key
+        ]
+        return engine.createTemplate(config.replaceAll(/(\\)/, /\\$0/)).make(binding).toString()
     }
 }

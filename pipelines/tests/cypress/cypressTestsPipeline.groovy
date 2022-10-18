@@ -11,7 +11,7 @@ return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
 
-def cypressImageVersion = "9.7.0"
+def cypressImageVersion = "10.9.0"
 def allureVersion = "2.17.2"
 def browserName = "chrome"
 
@@ -37,7 +37,7 @@ properties([
                 ]
             ]
         ],
-        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress.ci.folio.org", description: 'Target environment UI URL', trim: true),
+        string(name: 'uiUrl', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment UI URL', trim: true),
         string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),

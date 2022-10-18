@@ -42,7 +42,9 @@ void healthCheck(String url, String status_codes='200,403'){
 
 // A Groovy function that returns the Okapi version from the install.json file.
 static String getOkapiVersion(List install_json){
-   return install_json*.id.find{it ==~ /okapi-.*/} - 'okapi-'
+    if(install_json*.id.find{it ==~ /okapi-.*/}) {
+        return install_json*.id.find { it ==~ /okapi-.*/ } - 'okapi-'
+    }
 }
 
 // Removing the image from the local machine.
@@ -73,3 +75,13 @@ String selectJavaBasedOnAgent(String agent_name){
             new Logger(this, 'common').error('Can not detect required Java version')
     }
 }
+
+void checkEcrRepoExistence(String repo_name) {
+    helm.k8sClient {
+        if (awscli.isEcrRepoExist(Constants.AWS_REGION, repo_name)){
+            println("ECR repo for ${repo_name} doesn't exist, starting creating...")
+            awscli.createEcrRepo(Constants.AWS_REGION, repo_name)
+        }
+    }
+}
+

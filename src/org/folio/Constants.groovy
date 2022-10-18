@@ -27,6 +27,7 @@ class Constants {
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
 
     //SMTP
+    static String EMAIL_SMTP_CREDENTIALS_ID = "ses-smtp-rancher"
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
@@ -43,6 +44,8 @@ class Constants {
     static String DOCKER_DEV_REPOSITORY = "docker.dev.folio.org"
     static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
     static String DOCKER_FOLIO_REPOSITORY = "docker-folio.dev.folio.org"
+    static String ECR_FOLIO_REPOSITORY = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+    static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = "aws-ecr-rw-credentials"
     static String DOCKER_K8S_CLIENT_IMAGE = "alpine/k8s:1.22.9"
 
     //Jenkins
@@ -61,27 +64,28 @@ class Constants {
     static String MAVEN_TOOL_NAME = "maven3-jenkins-slave-all"
 
     //Teams
-    static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
-                                    "concorde"     : ["concorde"],
-                                    "core-platform": ["core-platform"],
-                                    "cypress"      : ["AQA"],
-                                    "ebsco-core"   : ["ebsco-core"],
-                                    "falcon"       : ["falcon"],
-                                    "firebird"     : ["firebird"],
-                                    "folijet"      : ["folijet"],
-                                    "karate"       : [],
-                                    "metadata"     : ["spitfire"],
-                                    "prokopovych"  : ["core-functional"],
-                                    "scout"        : ["scout"],
-                                    "spanish"      : ["unam"],
-                                    "spitfire"     : ["spitfire"],
-                                    "sprint-testing"       : [],
-                                    "stripes-force": ["stripes-force"],
-                                    "thor"         : ["thor"],
-                                    "thunderjet"   : ["thunderjet"],
-                                    "unam"         : ["unam"],
-                                    "vega"         : ["vega"],
-                                    "volaris"      : ["volaris"],
-                                    "volaris-2nd"  : ["volaris"]]
+    static Map ENVS_MEMBERS_LIST = ["bama"          : ["Bama"],
+                                    "concorde"      : ["concorde"],
+                                    "core-platform" : ["core-platform"],
+                                    "cypress"       : ["AQA"],
+                                    "ebsco-core"    : ["ebsco-core"],
+                                    "falcon"        : ["falcon"],
+                                    "firebird"      : ["firebird"],
+                                    "folijet"       : ["folijet"],
+                                    "karate"        : [],
+                                    "metadata"      : ["spitfire"],
+                                    "prokopovych"   : ["core-functional"],
+                                    "scout"         : ["scout"],
+                                    "spanish"       : ["unam"],
+                                    "spitfire"      : ["spitfire"],
+                                    "sprint-testing": [],
+                                    "stripes-force" : ["stripes-force"],
+                                    "tamu"          : [],
+                                    "thor"          : ["thor"],
+                                    "thunderjet"    : ["thunderjet"],
+                                    "unam"          : ["unam"],
+                                    "vega"          : ["vega"],
+                                    "volaris"       : ["volaris"],
+                                    "volaris-2nd"   : ["volaris"]]
 
 }
