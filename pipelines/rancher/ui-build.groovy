@@ -51,21 +51,16 @@ ansiColor('xterm') {
                 buildDescription "repository: ${params.folio_repository}\n" +
                     "branch: ${params.folio_branch}\n" +
                     "hash: ${ui_bundle.getHash()}"
-                if (common.checkEcrImageExistence(Constants.AWS_REGION, "ui-bundle", ui_bundle.getTag())) {
-                    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-                        def image = docker.build(
-                            ui_bundle.getImageName(),
-                            "--build-arg OKAPI_URL=${okapi_url} " +
-                                "--build-arg TENANT_ID=${tenant.getId()} " +
-                                "-f docker/Dockerfile  " +
-                                "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
-                        )
-                        image.push()
+                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+                    def image = docker.build(
+                        ui_bundle.getImageName(),
+                        "--build-arg OKAPI_URL=${okapi_url} " +
+                            "--build-arg TENANT_ID=${tenant.getId()} " +
+                            "-f docker/Dockerfile  " +
+                            "https://github.com/folio-org/platform-complete.git#${ui_bundle.getHash()}"
+                    )
+                    image.push()
                     }
-                }
-                else {
-                    println("\033[32m" + "Image with tag ${ui_bundle.getTag()} already exist in ECR ${Constants.AWS_REGION} 'ui-bundle' repo, there is no need to build it." + "\033[0m")
-                }
             }
         } catch (exception) {
             println(exception)
