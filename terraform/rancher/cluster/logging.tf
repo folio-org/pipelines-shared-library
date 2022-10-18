@@ -165,7 +165,33 @@ resource "rancher2_app_v2" "fluentd" {
           value: "9200"
   EOT
 }
- /*resource "elasticstack_elasticsearch_index_template" "my_template" {
-  name = "my_ingest_1"
-  index_patterns = ["logstash*"]
-} */
+
+// Create an index lifecycle policy 
+resource "elasticstack_elasticsearch_index_lifecycle" "logstash_policy" {
+  name = var.index_policy_name
+
+  hot {
+    min_age = "0ms"
+    set_priority {
+      priority = 100
+    }
+  }
+
+  delete {
+    min_age = "31d"
+    delete {}
+  }
+
+}
+
+// Create an index template for the policy
+resource "elasticstack_elasticsearch_index_template" "logstash_template" {
+  name = var.index_template_name
+  index_patterns = ["stash*"]
+
+  template {
+    settings = jsonencode({
+      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.logstash_policy.name
+    })
+  }
+}

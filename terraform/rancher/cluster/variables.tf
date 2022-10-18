@@ -79,3 +79,15 @@ variable "tags" {
   }
   description = "Default tags"
 }
+
+variable "index_policy_name" {
+  type        = string
+  default     = "logstash_policy_test"
+  description = "A policy name cannot start with an underscore and cannot contain a comma or a space."
+}
+
+variable "index_template_name" {
+  type        = string
+  default     = "logstash_template_test"
+  description = "A unique identifier for this template."
+}

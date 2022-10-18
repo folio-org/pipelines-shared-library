@@ -36,9 +36,8 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
-/*provider "elasticstack" {
+provider "elasticstack" {
   elasticsearch {
-    endpoints = ["https://folio-testing-elasticsearch.ci.folio.org"]
+    endpoints = ["https://${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}:443"]
   } 
-
-} */
+}
