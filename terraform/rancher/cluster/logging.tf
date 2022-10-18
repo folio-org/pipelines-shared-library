@@ -187,7 +187,7 @@ resource "elasticstack_elasticsearch_index_lifecycle" "logstash_policy" {
 // Create an index template for the policy
 resource "elasticstack_elasticsearch_index_template" "logstash_template" {
   name = var.index_template_name
-  index_patterns = ["stash*"]
+  index_patterns = ["logstash*"]
 
   template {
     settings = jsonencode({
