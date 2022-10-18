@@ -95,4 +95,15 @@ class Deployment extends GeneralParameters {
             throw new AbortException('Tenant not set')
         }
     }
+
+    void createTenant() {
+        discovery_list = gitHubUtility.buildDiscoveryList(install_map)
+        okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
+        //okapi.registerServices(discovery_list)
+
+        //okapi.secure(super_admin)
+        //okapi.secure(testing_admin)
+
+        tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url)
+    }
 }
