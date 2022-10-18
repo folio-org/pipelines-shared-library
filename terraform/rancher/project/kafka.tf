@@ -113,7 +113,7 @@ resource "rancher2_app_v2" "kafka_ui" {
   name          = "kafka-ui"
   repo_name     = "provectus"
   chart_name    = "kafka-ui"
-  chart_version = "0.4.3"
+  chart_version = "0.4.1"
   force_upgrade = "true"
   values        = <<-EOT
     service:
