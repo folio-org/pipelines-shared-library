@@ -38,6 +38,6 @@ provider "kubernetes" {
 
 provider "elasticstack" {
   elasticsearch {
-    endpoints = ["https://${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}:443"]
+    endpoints = [var.elasticsearch_url]
   } 
 }

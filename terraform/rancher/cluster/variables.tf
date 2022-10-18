@@ -91,3 +91,9 @@ variable "index_template_name" {
   default     = "logstash_template_test"
   description = "A unique identifier for this template."
 }
+
+variable "elasticsearch_url" {
+  type        = string
+  default     = "https://folio-testing-elasticsearch.ci.folio.org:443"
+  description = "A URL for elasticsearch endpoint"
+}
