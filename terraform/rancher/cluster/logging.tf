@@ -191,7 +191,7 @@ resource "elasticstack_elasticsearch_index_template" "index_template" {
 
   template {
     settings = jsonencode({
-      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.logstash_policy.name
+      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy.name
     })
   }
 }
