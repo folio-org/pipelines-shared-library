@@ -24,6 +24,7 @@ terraform {
     elasticstack = {
       source  = "elastic/elasticstack"
       version = "~>0.3.3"
+      
     }
   }
 }
