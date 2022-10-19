@@ -167,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
 }
 
 // Create an index lifecycle policy 
-resource "elasticstack_elasticsearch_index_lifecycle" "logstash_policy" {
+resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   name = var.index_policy_name
 
   hot {
@@ -185,7 +185,7 @@ resource "elasticstack_elasticsearch_index_lifecycle" "logstash_policy" {
 }
 
 // Create an index template for the policy
-resource "elasticstack_elasticsearch_index_template" "logstash_template" {
+resource "elasticstack_elasticsearch_index_template" "index_template" {
   name = var.index_template_name
   index_patterns = ["logstash*"]
 
