@@ -465,7 +465,8 @@ class Okapi extends GeneralParameters {
     def getInstalledModules(String tenant_id) {
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/_/proxy/tenants/${tenant_id}/modules"
-        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
