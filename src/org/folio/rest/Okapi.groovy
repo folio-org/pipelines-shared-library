@@ -470,7 +470,7 @@ class Okapi extends GeneralParameters {
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             /*return tools.jsonParse(res.content)*/
-            return res.content
+            return res
         } else {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
         }
