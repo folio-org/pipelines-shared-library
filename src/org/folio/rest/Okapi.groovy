@@ -462,7 +462,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def getInstalledModules(String tenant_id) {
+    List getInstalledModules(String tenant_id) {
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/_/proxy/tenants/${tenant_id}/modules"
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
