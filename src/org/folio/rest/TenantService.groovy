@@ -31,9 +31,9 @@ class TenantService extends GeneralParameters {
 
     void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
         if (tenant && admin_user) {
-            enableList = okapi.buildInstallList(okapi.getInstalledModules('test1'), 'enable')
+            enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules('test1'), 'enable')
             logger.info("Val is ${enableList}")
-            /*okapi.createTenant(tenant)
+            okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
             String authtokenModId = okapi.getModuleId(tenant, 'authtoken')
@@ -58,13 +58,13 @@ class TenantService extends GeneralParameters {
                 okapi.checkReindex(tenant, job_id)
             }
 
-            *//*Disabled due to commit. Need investigation and fix
+            /*Disabled due to commit. Need investigation and fix
             https://github.com/folio-org/mod-inventory/commit/68fc2aed9174d2a53370e19e0ed0fb0d2b93c276
 
-            // tenantConfiguration.modInventoryMods(tenant)*//*
+            // tenantConfiguration.modInventoryMods(tenant)*/
             tenantConfiguration.ebscoRmapiConfig(tenant)
             tenantConfiguration.worldcat(tenant)
-            tenantConfiguration.configurations(tenant, email, stripes_url)*/
+            tenantConfiguration.configurations(tenant, email, stripes_url)
 
         } else {
             throw new AbortException('Tenant or admin user not set')
