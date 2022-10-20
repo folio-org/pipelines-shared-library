@@ -466,10 +466,11 @@ class Okapi extends GeneralParameters {
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/_/proxy/tenants/${tenant_id}/modules"
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
-                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: false]]
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            println(tools.jsonParse(res.content))
+            def test = tools.jsonParse(res.content)
+            println(test)
             return tools.jsonParse(res.content)
         } else {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
