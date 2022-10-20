@@ -23,7 +23,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.configType(),
-        jobsParameters.tenantId(),
+        jobsParameters.tenantId('diku'),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
         jobsParameters.loadReference(),
