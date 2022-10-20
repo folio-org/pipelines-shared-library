@@ -31,7 +31,7 @@ class TenantService extends GeneralParameters {
 
     void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
         if (tenant && admin_user) {
-            enableList = okapi.getInstalledModules('test1')
+            enableList = okapi.buildInstallList(okapi.getInstalledModules('test1'), 'enable')
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
