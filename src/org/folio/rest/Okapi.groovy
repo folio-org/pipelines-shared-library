@@ -469,8 +469,8 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            /*return tools.jsonParse(res.content)*/
-            return res
+            println(tools.jsonParse(res.content))
+            return tools.jsonParse(res.content)
         } else {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
         }
