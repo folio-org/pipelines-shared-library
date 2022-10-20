@@ -26,7 +26,7 @@ static OkapiUser defaultAdminUser() {
 
 static OkapiTenant defaultTenant() {
     return new OkapiTenant(
-        id: 'diku',
+        id: '',
         name: 'Datalogisk Institut',
         description: 'Danish Library Technology Institute',
         tenantParameters: [
