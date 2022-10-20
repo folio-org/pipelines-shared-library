@@ -97,9 +97,9 @@ class Deployment extends GeneralParameters {
     }
 
     void createTenant() {
-        //discovery_list = gitHubUtility.buildDiscoveryList(install_map)
-        //okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
-        //okapi.registerServices(discovery_list)
+        discovery_list = gitHubUtility.buildDiscoveryList(install_map)
+        okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
+        okapi.registerServices(discovery_list)
 
         //okapi.secure(super_admin)
         //okapi.secure(testing_admin)
