@@ -461,4 +461,17 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Error during okapi discovery table cleanup: " + http.buildHttpErrorMessage(res))
         }
     }
+
+    def getInstalledModules(String tenant_id) {
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        String url = okapi_url + "/_/proxy/tenants/${tenant_id}/modules"
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content)
+        } else {
+            throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
+        }
+    }
 }
