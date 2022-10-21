@@ -91,9 +91,3 @@ variable "index_template_name" {
   default     = "logstash_template"
   description = "A unique identifier for this template."
 }
-
-variable "elasticsearch_url" {
-  type        = string
-  default     = "https://${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}:443"
-  description = "A URL for elasticsearch endpoint"
-}
