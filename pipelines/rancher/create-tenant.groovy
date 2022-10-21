@@ -20,8 +20,8 @@ properties([
         jobsParameters.refreshParameters(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
-        booleanParam(name: 'install_custom_module_list', defaultValue: false, description: '(Optional) Turn on the option and provide list of modules to install'),
-        text(name: 'install_list', defaultValue: '', description: '(Optional) Provide list of modules that you need to install. For example: mod-users, mod-login, mod-permissions'),
+        booleanParam(name: 'install_custom_module_list', defaultValue: false, description: '(Optional) If you would like to install custom list of modules - turn on the option and provide a list'),
+        text(name: 'install_list', defaultValue: '', description: '(Optional) Provide list of modules that you would like to install. For example: mod-users, mod-login, mod-permissions'),
         jobsParameters.referenceTenantId(),
         jobsParameters.additionalTenantId(),
         jobsParameters.additionalTenantName(),
@@ -42,7 +42,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index],
     additional_tenant_id: params.additional_tenant_id,
-    reference_tenant_id: params.reference_tenant_id)
+    reference_tenant_id: params.reference_tenant_id,
+    custom_modules_list: params.install_list)
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)

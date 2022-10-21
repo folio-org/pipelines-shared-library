@@ -72,8 +72,14 @@ class TenantService extends GeneralParameters {
     void createAdditionalTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
         if (tenant.additional_tenant_id && tenant.reference_tenant_id){
             enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(tenant.reference_tenant_id), 'enable')
-            logger.info("Val is ${enableList}")
             tenant.setOkapiVersion(okapi.getModuleIdFromInstallJson(enableList, okapi.OKAPI_NAME))
+            if (tenant.custom_modules_list){
+                List custom_modules_list = []
+                tenant.custom_modules_list.split(',').each {
+                    module-> custom_modules_list.addAll(okapi.getModuleIdFromInstallJson(enableList, module.trim()))}
+                enableList = okapi.buildInstallList(custom_modules_list, 'enable')
+            }
+            logger.info("Val is ${enableList}")
             createTenant(tenant, admin_user, enableList, email, stripes_url)
         }
         else {

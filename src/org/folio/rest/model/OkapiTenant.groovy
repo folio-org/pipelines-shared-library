@@ -12,4 +12,5 @@ class OkapiTenant implements Serializable {
     String kb_api_key
     String additional_tenant_id
     String reference_tenant_id
+    String custom_modules_list
 }
