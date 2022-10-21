@@ -92,6 +92,7 @@ static List devEnvironmentsList() {
             'spitfire',
             'sprint-testing', //Deprecated
             'stripes-force',
+            'tamu',
             'thor',
             'thunderjet',
             'unam',
@@ -152,7 +153,7 @@ for (image in res) {
    result.add(image.getImageIds());
 }
 
-return result[0].imageTag.sort().reverse().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
+return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
 """
 }
 
@@ -188,7 +189,7 @@ String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)
 def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
 if (installJson.getResponseCode().equals(200)) {
     List modules_list = ['okapi']
-    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
+    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*|edge-.*/ }.each { value ->
         def matcherModule = value =~ patternModuleVersion
         assert matcherModule.matches()
         modules_list.add(matcherModule.group(nameGroup))

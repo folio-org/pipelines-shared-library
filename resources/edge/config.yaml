@@ -3,7 +3,7 @@ edge-rtac:
   - rtac.all
 edge-oai-pmh:
   tenants:
-  - tenant: test_oaipmh
+  - tenant: testoaipmh
     username: test-user
     password: test
   permissions:
@@ -14,7 +14,7 @@ edge-patron:
   - users.collection.get
 edge-orders:
   tenants:
-  - tenant: test_edge_orders
+  - tenant: testedgeorders
     username: test-user
     password: test
   permissions:

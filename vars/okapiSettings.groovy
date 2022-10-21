@@ -16,7 +16,7 @@ static OkapiUser adminUser(Map args = [:]) {
 
 def email() {
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                      credentialsId    : Constants.EMAIL_SMTP_CREDENTIALS_ID,
                       accessKeyVariable: 'EMAIL_USERNAME',
                       secretKeyVariable: 'EMAIL_PASSWORD']]) {
         return new Email(

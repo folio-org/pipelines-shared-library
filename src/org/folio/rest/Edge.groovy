@@ -87,8 +87,10 @@ ${institutional}
             }
         }
         default_edge_user.setPermissions(permissions_list)
-        users.createUser(tenant, default_edge_user)
-        auth.createUserCredentials(tenant, default_edge_user)
-        permissions.createUserPermissions(tenant, default_edge_user)
+        if(default_edge_user.getPermissions()) {
+            users.createUser(tenant, default_edge_user)
+            auth.createUserCredentials(tenant, default_edge_user)
+            permissions.createUserPermissions(tenant, default_edge_user)
+        }
     }
 }

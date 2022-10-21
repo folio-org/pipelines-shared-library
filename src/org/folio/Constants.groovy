@@ -27,6 +27,7 @@ class Constants {
     static String EBSCO_KB_CREDENTIALS_ID = "cypress_api_key_apidvcorp"
 
     //SMTP
+    static String EMAIL_SMTP_CREDENTIALS_ID = "ses-smtp-rancher"
     static String EMAIL_SMTP_SERVER = "email-smtp.us-west-2.amazonaws.com"
     static String EMAIL_SMTP_PORT = "587"
     static String EMAIL_FROM = "noreply@ci.folio.org"
@@ -63,27 +64,28 @@ class Constants {
     static String MAVEN_TOOL_NAME = "maven3-jenkins-slave-all"
 
     //Teams
-    static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
-                                    "concorde"     : ["concorde"],
-                                    "core-platform": ["core-platform"],
-                                    "cypress"      : ["AQA"],
-                                    "ebsco-core"   : ["ebsco-core"],
-                                    "falcon"       : ["falcon"],
-                                    "firebird"     : ["firebird"],
-                                    "folijet"      : ["folijet"],
-                                    "karate"       : [],
-                                    "metadata"     : ["spitfire"],
-                                    "prokopovych"  : ["core-functional"],
-                                    "scout"        : ["scout"],
-                                    "spanish"      : ["unam"],
-                                    "spitfire"     : ["spitfire"],
-                                    "sprint-testing"       : [],
-                                    "stripes-force": ["stripes-force"],
-                                    "thor"         : ["thor"],
-                                    "thunderjet"   : ["thunderjet"],
-                                    "unam"         : ["unam"],
-                                    "vega"         : ["vega"],
-                                    "volaris"      : ["volaris"],
-                                    "volaris-2nd"  : ["volaris"]]
+    static Map ENVS_MEMBERS_LIST = ["bama"          : ["Bama"],
+                                    "concorde"      : ["concorde"],
+                                    "core-platform" : ["core-platform"],
+                                    "cypress"       : ["AQA"],
+                                    "ebsco-core"    : ["ebsco-core"],
+                                    "falcon"        : ["falcon"],
+                                    "firebird"      : ["firebird"],
+                                    "folijet"       : ["folijet"],
+                                    "karate"        : [],
+                                    "metadata"      : ["spitfire"],
+                                    "prokopovych"   : ["core-functional"],
+                                    "scout"         : ["scout"],
+                                    "spanish"       : ["unam"],
+                                    "spitfire"      : ["spitfire"],
+                                    "sprint-testing": [],
+                                    "stripes-force" : ["stripes-force"],
+                                    "tamu"          : [],
+                                    "thor"          : ["thor"],
+                                    "thunderjet"    : ["thunderjet"],
+                                    "unam"          : ["unam"],
+                                    "vega"          : ["vega"],
+                                    "volaris"       : ["volaris"],
+                                    "volaris-2nd"   : ["volaris"]]
 
 }
