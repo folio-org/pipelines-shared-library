@@ -280,7 +280,7 @@ def tenantDescription() {
 }
 
 def referenceTenantId() {
-    return _paramString('reference_tenant_id', defaultTenant().id, 'Id used to extract list of installed modules. For Rancher environments its usually diku')
+    return _paramString('reference_tenant_id', defaultTenant().id, 'Id used to extract list of installed modules. For Rancher environments it\'s usually diku')
 }
 
 def additionalTenantId() {

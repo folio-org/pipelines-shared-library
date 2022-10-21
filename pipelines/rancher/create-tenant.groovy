@@ -20,6 +20,8 @@ properties([
         jobsParameters.refreshParameters(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
+        booleanParam(name: 'install_custom_module_list', defaultValue: false, description: '(Optional) Turn on the option and provide list of modules to install'),
+        text(name: 'install_list', defaultValue: '', description: '(Optional) Provide list of modules that you need to install. For example: mod-users, mod-login, mod-permissions'),
         jobsParameters.referenceTenantId(),
         jobsParameters.additionalTenantId(),
         jobsParameters.additionalTenantName(),
