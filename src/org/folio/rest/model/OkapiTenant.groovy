@@ -10,4 +10,6 @@ class OkapiTenant implements Serializable {
     String okapiVersion
     Map index
     String kb_api_key
+    String additional_tenant_id
+    String reference_tenant_id
 }

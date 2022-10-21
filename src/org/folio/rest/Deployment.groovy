@@ -104,6 +104,6 @@ class Deployment extends GeneralParameters {
         //okapi.secure(super_admin)
         //okapi.secure(testing_admin)
 
-        tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url)
+        tenantService.createAdditionalTenant(tenant, admin_user, install_json, email, stripes_url)
     }
 }

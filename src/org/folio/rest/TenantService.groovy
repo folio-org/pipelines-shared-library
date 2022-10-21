@@ -31,8 +31,6 @@ class TenantService extends GeneralParameters {
 
     void createTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
         if (tenant && admin_user) {
-            enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules('test1'), 'enable')
-            logger.info("Val is ${enableList}")
             okapi.createTenant(tenant)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, enableList, 900000)
@@ -68,6 +66,18 @@ class TenantService extends GeneralParameters {
 
         } else {
             throw new AbortException('Tenant or admin user not set')
+        }
+    }
+
+    void createAdditionalTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
+        if (tenant.additional_tenant_id && tenant.reference_tenant_id){
+            enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(tenant.reference_tenant_id), 'enable')
+            logger.info("Val is ${enableList}")
+            tenant.setOkapiVersion(okapi.getModuleIdFromInstallJson(enableList, okapi.OKAPI_NAME))
+            createTenant(tenant, admin_user, enableList, email, stripes_url)
+        }
+        else {
+            throw new AbortException('Additional tenant id or reference tenant id not set')
         }
     }
 }

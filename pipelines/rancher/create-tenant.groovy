@@ -36,28 +36,16 @@ OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: params.reinstall],
-    okapiVersion: 'okapi-4.14.4',
+    okapiVersion: '',
     index: [reindex : params.reindex_elastic_search,
-            recreate: params.recreate_elastic_search_index])
+            recreate: params.recreate_elastic_search_index],
+    additional_tenant_id: params.additional_tenant_id,
+    reference_tenant_id: params.reference_tenant_id)
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
 
 Email email = okapiSettings.email()
-
-Deployment deployment2 = new Deployment(
-    this,
-    "https://${project_model.getDomains().okapi}",
-    "https://${project_model.getDomains().ui}",
-    project_model.getInstallJson(),
-    project_model.getInstallMap(),
-    tenant,
-    admin_user,
-    email
-)
-Okapi okapi = new Okapi(deployment2, common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN), new OkapiUser(username: 'super_admin', password: 'admin'))
-List enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
-println(enableList)
 
 Project project_model = new Project(
     hash: '',
@@ -68,7 +56,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: params.restore_from_backup ? [] : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch),
+    installJson: '',
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
