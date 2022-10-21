@@ -94,6 +94,6 @@ variable "index_template_name" {
 
 variable "elasticsearch_url" {
   type        = string
-  default     = "https://folio-testing-elasticsearch.ci.folio.org:443"
+  default     = "https://${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}:443"
   description = "A URL for elasticsearch endpoint"
 }
