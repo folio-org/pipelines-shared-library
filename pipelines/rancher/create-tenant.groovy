@@ -56,7 +56,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: '',
+    installJson: [],
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
