@@ -5,6 +5,7 @@
 import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.GitHubUtility
+import org.folio.rest.Okapi
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
@@ -29,15 +30,19 @@ properties([
         jobsParameters.loadSample()])
 ])
 
-OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
-    name: params.tenant_name,
-    description: params.tenant_description,
+Okapi okapi = new Okapi('', common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN), new OkapiUser(username: 'super_admin', password: 'admin'))
+List enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
+println(enableList)
+
+OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
+    name: params.additional_tenant_name,
+    description: params.additional_tenant_description,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: params.reinstall],
-    okapiVersion: params.okapi_version,
-    index: [reindex : params.restore_from_backup ? 'true' : params.reindex_elastic_search,
-            recreate: params.restore_from_backup ? 'true' : params.recreate_elastic_search_index])
+    okapiVersion: 'okapi-4.14.4',
+    index: [reindex : params.reindex_elastic_search,
+            recreate: params.recreate_elastic_search_index])
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
@@ -45,7 +50,7 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 Email email = okapiSettings.email()
 
 Project project_model = new Project(
-    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
+    hash: '',
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     action: params.action,
