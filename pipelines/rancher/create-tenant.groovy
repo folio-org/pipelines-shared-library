@@ -30,10 +30,6 @@ properties([
         jobsParameters.loadSample()])
 ])
 
-Okapi okapi = new Okapi('', common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN), new OkapiUser(username: 'super_admin', password: 'admin'))
-List enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
-println(enableList)
-
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     name: params.additional_tenant_name,
     description: params.additional_tenant_description,
@@ -48,6 +44,20 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
 
 Email email = okapiSettings.email()
+
+Deployment deployment2 = new Deployment(
+    this,
+    "https://${project_model.getDomains().okapi}",
+    "https://${project_model.getDomains().ui}",
+    project_model.getInstallJson(),
+    project_model.getInstallMap(),
+    tenant,
+    admin_user,
+    email
+)
+Okapi okapi = new Okapi(deployment2, common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN), new OkapiUser(username: 'super_admin', password: 'admin'))
+List enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
+println(enableList)
 
 Project project_model = new Project(
     hash: '',
