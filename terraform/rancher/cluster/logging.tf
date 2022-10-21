@@ -179,7 +179,7 @@ resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   }
 
   delete {
-    min_age = "20d"
+    min_age = "31d"
     delete {}
   }
 
