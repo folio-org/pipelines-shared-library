@@ -17,21 +17,16 @@ import org.jenkinsci.plugins.workflow.libs.Library
 properties([
     parameters([
         jobsParameters.refreshParameters(),
-        jobsParameters.repository(),
-        jobsParameters.branch(),
-        jobsParameters.okapiVersion(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
-        jobsParameters.configType(),
-        jobsParameters.tenantId('diku'),
-        jobsParameters.tenantName(),
-        jobsParameters.tenantDescription(),
-        jobsParameters.loadReference(),
-        jobsParameters.loadSample(),
-        jobsParameters.reinstall(),
+        jobsParameters.referenceTenantId(),
+        jobsParameters.additionalTenantId(),
+        jobsParameters.additionalTenantName(),
+        jobsParameters.additionalTenantDescription(),
         jobsParameters.adminUsername(),
         jobsParameters.adminPassword(),
-        jobsParameters.restoreFromBackup(),])
+        jobsParameters.loadReference(),
+        jobsParameters.loadSample()])
 ])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,

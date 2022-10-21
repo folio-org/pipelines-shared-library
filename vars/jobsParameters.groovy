@@ -26,7 +26,7 @@ static OkapiUser defaultAdminUser() {
 
 static OkapiTenant defaultTenant() {
     return new OkapiTenant(
-        id: '',
+        id: 'diku',
         name: 'Datalogisk Institut',
         description: 'Danish Library Technology Institute',
         tenantParameters: [
@@ -277,6 +277,22 @@ def tenantName() {
 
 def tenantDescription() {
     return _paramString('tenant_description', defaultTenant().description, 'Description used for tenant creation')
+}
+
+def referenceTenantId() {
+    return _paramString('reference_tenant_id', defaultTenant().id, 'Id used to extract list of installed modules. For Rancher environments its usually diku')
+}
+
+def additionalTenantId() {
+    return _paramString('additional_tenant_id', '', 'Please provide id for new tenant')
+}
+
+def additionalTenantName() {
+    return _paramString('additional_tenant_name', 'Additional tenant name', 'Please provide new additional tenant name')
+}
+
+def additionalTenantDescription() {
+    return _paramString('additional_tenant_description', "Additional tenant description", 'Please provide new additional tenant description')
 }
 
 def loadReference() {
