@@ -33,8 +33,8 @@ properties([
 
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
-List installedModulesList = okapi.getInstalledModules(params.reference_tenant_id)
-List installedModulesList2 = okapi.buildInstallListFromJson(installedModulesList, 'enable')
+//List installedModulesList = okapi.getInstalledModules(params.reference_tenant_id)
+List installedModulesList2 = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
 
 
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
@@ -43,7 +43,7 @@ OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: 'false'],
-    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList, okapi.OKAPI_NAME),
+    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList2, okapi.OKAPI_NAME),
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index],
     additional_tenant_id: params.additional_tenant_id,
