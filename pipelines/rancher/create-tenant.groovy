@@ -84,7 +84,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            stage("Create tenant") {
+            /*stage("Create tenant") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
@@ -99,16 +99,18 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
-            }
+            }*/
             stage("Build UI bundle") {
-                build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
-                    parameters: [
-                        string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
-                        string(name: 'rancher_project_name', value: project_model.getProjectName()),
-                        string(name: 'tenant_id', value: tenant.getId()),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch),
-                        string(name: 'ui_bundle_build', value: params.deploy_ui)]
+                if (params.deploy_ui) {
+                    build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
+                        parameters: [
+                            string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
+                            string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                            string(name: 'tenant_id', value: tenant.getId()),
+                            string(name: 'folio_repository', value: params.folio_repository),
+                            string(name: 'folio_branch', value: params.folio_branch),
+                            string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
+                }
             }
         } catch (exception) {
             println(exception)
