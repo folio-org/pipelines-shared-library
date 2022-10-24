@@ -22,13 +22,16 @@ properties([
         jobsParameters.projectName(),
         text(name: 'install_list', defaultValue: '', description: '(Optional) If you would like to install custom list of modules - provide it to the field below \nFor example: mod-search, mod-data-export, mod-organizations \nIf you would like to install all modules - ingnore the option'),
         jobsParameters.referenceTenantId(),
-        jobsParameters.additionalTenantId(),
-        jobsParameters.additionalTenantName(),
-        jobsParameters.additionalTenantDescription(),
-        jobsParameters.adminUsername(),
-        jobsParameters.adminPassword(),
+        jobsParameters.tenantId(''),
+        jobsParameters.tenantName(''),
+        jobsParameters.tenantDescription(''),
+        jobsParameters.adminUsername(''),
+        jobsParameters.adminPassword(''),
         jobsParameters.loadReference(),
-        jobsParameters.loadSample()])
+        jobsParameters.loadSample()],
+        booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
+        jobsParameters.repository(),
+        jobsParameters.branch())
 ])
 
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
@@ -64,6 +67,10 @@ Project project_model = new Project(
     backupType: params.backup_type,
     backupName: params.backup_name)
 
+OkapiUser superuser = new OkapiUser()
+Okapi okapi = new Okapi(this, "https://${project_model.getDomains().okapi}", superuser)
+println(okapi.getInstalledModules('diku'))
+
 ansiColor('xterm') {
     if (params.refresh_parameters) {
         currentBuild.result = 'ABORTED'
@@ -72,7 +79,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            stage("Create tenant") {
+            /*stage("Create tenant") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
@@ -87,7 +94,18 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
-            }
+            }*/
+            /*stage("Build UI bundle") {
+                build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
+                    parameters: [
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch),
+                        string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
+                        string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                        string(name: 'tenant_id', value: tenant.getadditionalTenantId()),
+                        string(name: 'custom_hash', value: project_model.getHash()),
+                        string(name: 'custom_tag', value: project_model.getUiBundleTag())]
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
