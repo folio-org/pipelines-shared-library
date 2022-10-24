@@ -23,7 +23,7 @@ properties([
         jobsParameters.tenantName(''),
         jobsParameters.tenantDescription(''),
         jobsParameters.adminUsername(''),
-        jobsParameters.adminPassword(''),
+        jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
@@ -99,6 +99,16 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
+            }
+            stage("Build UI bundle") {
+                build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
+                    parameters: [
+                        string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
+                        string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                        string(name: 'tenant_id', value: tenant.getId()),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch),
+                        string(name: 'ui_bundle_build', value: params.deploy_ui)]
             }
         } catch (exception) {
             println(exception)

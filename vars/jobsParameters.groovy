@@ -311,8 +311,8 @@ def adminUsername(String admin_username = defaultAdminUser().username) {
     return _paramString('admin_username', admin_username, 'Admin user name')
 }
 
-def adminPassword(String admin_password = defaultAdminUser().password) {
-    return _paramPassword('admin_password', admin_password, 'Password for admin user')
+def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
+    return _paramPassword('admin_password', admin_password, description)
 }
 
 def reindexElasticsearch() {
