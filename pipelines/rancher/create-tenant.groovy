@@ -64,6 +64,10 @@ Project project_model = new Project(
     backupType: params.backup_type,
     backupName: params.backup_name)
 
+OkapiUser superuser = new OkapiUser()
+Okapi okapi = new Okapi(this, "https://${project_model.getDomains().okapi}", superuser)
+println(okapi.getInstalledModules('diku'))
+
 ansiColor('xterm') {
     if (params.refresh_parameters) {
         currentBuild.result = 'ABORTED'
@@ -72,7 +76,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            stage("Create tenant") {
+            /*stage("Create tenant") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
@@ -87,7 +91,7 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
-            }
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
