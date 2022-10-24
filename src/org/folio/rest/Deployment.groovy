@@ -23,7 +23,7 @@ class Deployment extends GeneralParameters {
 
     private OkapiUser admin_user = new OkapiUser()
 
-    private OkapiUser super_admin = new OkapiUser(username: 'super_admin', password: 'admin')
+    private OkapiUser super_admin = new OkapiUser()
 
     private OkapiUser testing_admin = new OkapiUser(username: 'testing_admin', password: 'admin')
 
@@ -37,13 +37,14 @@ class Deployment extends GeneralParameters {
 
     private TenantService tenantService = new TenantService(steps, okapi_url, super_admin)
 
-    Deployment(Object steps, String okapi_url, String stripes_url, List install_json, Map install_map, OkapiTenant tenant, OkapiUser admin_user, Email email) {
+    Deployment(Object steps, String okapi_url, String stripes_url, List install_json, Map install_map, OkapiTenant tenant, OkapiUser admin_user, OkapiUser super_admin, Email email) {
         super(steps, okapi_url)
         this.stripes_url = stripes_url
         this.install_json = install_json
         this.install_map = install_map
         this.tenant = tenant
         this.admin_user = admin_user
+        this.super_admin = super_admin
         this.email = email
         this.tenant.setAdminUser(admin_user)
     }
@@ -97,13 +98,6 @@ class Deployment extends GeneralParameters {
     }
 
     void createTenant() {
-        /*discovery_list = gitHubUtility.buildDiscoveryList(install_map)
-        okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
-        okapi.registerServices(discovery_list)*/
-
-        //okapi.secure(super_admin)
-        //okapi.secure(testing_admin)
-
-        tenantService.createAdditionalTenant(tenant, admin_user, install_json, email, stripes_url)
+        tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url)
     }
 }

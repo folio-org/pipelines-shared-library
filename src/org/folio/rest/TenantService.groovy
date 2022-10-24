@@ -60,30 +60,20 @@ class TenantService extends GeneralParameters {
             https://github.com/folio-org/mod-inventory/commit/68fc2aed9174d2a53370e19e0ed0fb0d2b93c276
 
             // tenantConfiguration.modInventoryMods(tenant)*/
-            tenantConfiguration.ebscoRmapiConfig(tenant)
-            tenantConfiguration.worldcat(tenant)
+            if (okapi.getModuleIdFromInstallJson(enableList, 'folio_eholdings')){
+                tenantConfiguration.ebscoRmapiConfig(tenant)
+            } else {
+                logger.warning("Module folio_eholdings does not installed")
+            }
+            if (okapi.getModuleIdFromInstallJson(enableList, 'mod-copycat')){
+                tenantConfiguration.worldcat(tenant)
+            } else {
+                logger.warning("Module mod-copycat does not installed")
+            }
             tenantConfiguration.configurations(tenant, email, stripes_url)
 
         } else {
             throw new AbortException('Tenant or admin user not set')
-        }
-    }
-
-    void createAdditionalTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
-        if (tenant.additional_tenant_id && tenant.reference_tenant_id){
-            enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(tenant.reference_tenant_id), 'enable')
-            tenant.setOkapiVersion(okapi.getModuleIdFromInstallJson(enableList, okapi.OKAPI_NAME))
-            if (tenant.custom_modules_list){
-                List custom_modules_list = []
-                tenant.custom_modules_list.split(',').each {
-                    module-> custom_modules_list.addAll(okapi.getModuleIdFromInstallJson(enableList, module.trim()))}
-                enableList = okapi.buildInstallList(custom_modules_list, 'enable')
-            }
-            logger.info("Val is ${enableList}")
-            createTenant(tenant, admin_user, enableList, email, stripes_url)
-        }
-        else {
-            throw new AbortException('Additional tenant id or reference tenant id not set')
         }
     }
 }
