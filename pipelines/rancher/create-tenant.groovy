@@ -4,13 +4,10 @@
 
 import org.folio.Constants
 import org.folio.rest.Deployment
-import org.folio.rest.GitHubUtility
 import org.folio.rest.Okapi
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.Tools
-import groovy.json.JsonSlurperClassic
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -33,9 +30,15 @@ properties([
 
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
-//List installedModulesList = okapi.getInstalledModules(params.reference_tenant_id)
-List installedModulesList2 = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
+List installedModulesList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
+if (params.install_list){
+    List custom_modules_list = []
+    params.install_list.split(',').each {
+        module-> custom_modules_list.addAll(okapi.getModuleIdFromInstallJson(installedModulesList, module.trim()))}
+    installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
+}
 
+println(installedModulesList)
 
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     name: params.additional_tenant_name,
@@ -43,7 +46,7 @@ OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: 'false'],
-    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList2, okapi.OKAPI_NAME),
+    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList, okapi.OKAPI_NAME),
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index],
     additional_tenant_id: params.additional_tenant_id,
@@ -56,7 +59,7 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 Email email = okapiSettings.email()
 
 Project project_model = new Project(
-    hash: '',
+    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     action: params.action,
@@ -64,7 +67,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: installedModulesList2,
+    installJson: installedModulesList,
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
@@ -78,7 +81,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            stage("Create tenant") {
+            /*stage("Create tenant") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
@@ -93,7 +96,7 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
-            }
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
