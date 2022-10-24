@@ -31,12 +31,13 @@ properties([
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
 List installedModulesList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
-/*if (params.install_list){
+if (params.install_list){
     List custom_modules_list = []
-    params.install_list.split(',').each {
-        module-> custom_modules_list.addAll(okapi.getModuleIdFromInstallJson(installedModulesList, module.trim()))}
-    installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
-}*/
+    params.install_list.split(',').each {module->
+        //custom_modules_list.addAll(okapi.getModuleIdFromInstallJson(installedModulesList, module.trim()))
+        println(module)}
+    //installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
+}
 
 println(installedModulesList)
 
