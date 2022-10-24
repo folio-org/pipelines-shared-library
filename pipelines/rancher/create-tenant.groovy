@@ -25,7 +25,10 @@ properties([
         jobsParameters.adminUsername(),
         jobsParameters.adminPassword(),
         jobsParameters.loadReference(),
-        jobsParameters.loadSample()])
+        jobsParameters.loadSample(),
+        booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
+        jobsParameters.repository(),
+        jobsParameters.branch()])
 ])
 
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
@@ -59,7 +62,7 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 Email email = okapiSettings.email()
 
 Project project_model = new Project(
-    hash: '',
+    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     action: params.action,
