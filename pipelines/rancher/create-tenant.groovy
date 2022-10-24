@@ -49,6 +49,9 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 
 Email email = okapiSettings.email()
 
+OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
+
 Project project_model = new Project(
     hash: '',
     clusterName: params.rancher_cluster_name,
@@ -58,7 +61,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: [],
+    installJson: okapi.getInstalledModules(params.reference_tenant_id),
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
@@ -73,10 +76,7 @@ ansiColor('xterm') {
     node(params.agent) {
         try {
             stage("Create tenant") {
-                OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
-                Okapi okapi = new Okapi(this, "https://${project_model.getDomains().okapi}", superuser)
-                println(okapi.getInstalledModules('diku'))
-                /*withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
                         this,
@@ -89,7 +89,7 @@ ansiColor('xterm') {
                         email
                     )
                     deployment.createTenant()
-                }*/
+                }
             }
         } catch (exception) {
             println(exception)
