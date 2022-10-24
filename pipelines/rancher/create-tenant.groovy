@@ -34,11 +34,7 @@ List installedModulesList = okapi.buildInstallListFromJson(okapi.getInstalledMod
 if (params.install_list){
     List custom_modules_list = []
     params.install_list.split(',').each {module->
-        println(module.toString().trim())
-        println(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()))
-        println(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()).getClass())
-        custom_modules_list.add(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()))
-        println(custom_modules_list)}
+        custom_modules_list.add(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()))}
     installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
 }
 
