@@ -40,9 +40,9 @@ if (params.install_list){
 
 println(installedModulesList)
 
-OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
-    name: params.additional_tenant_name,
-    description: params.additional_tenant_description,
+OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
+    name: params.tenant_name,
+    description: params.tenant_description,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: 'false'],
