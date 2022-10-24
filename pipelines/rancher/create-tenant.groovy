@@ -39,7 +39,7 @@ if (params.install_list){
         println(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()).getClass())
         custom_modules_list.add(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()))
         println(custom_modules_list)}
-    //installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
+    installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
 }
 
 println(installedModulesList)
