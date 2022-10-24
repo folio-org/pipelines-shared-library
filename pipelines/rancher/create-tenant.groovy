@@ -73,7 +73,7 @@ ansiColor('xterm') {
     node(params.agent) {
         try {
             stage("Create tenant") {
-                OkapiUser superuser = new OkapiUser()
+                OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
                 Okapi okapi = new Okapi(this, "https://${project_model.getDomains().okapi}", superuser)
                 println(okapi.getInstalledModules('diku'))
                 /*withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
