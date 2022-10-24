@@ -307,12 +307,12 @@ def reinstall() {
     return _paramBoolean('reinstall', defaultTenant().queryParameters.reinstall, 'True if force modules install')
 }
 
-def adminUsername() {
-    return _paramString('admin_username', defaultAdminUser().username, 'Admin user name')
+def adminUsername(String admin_username = defaultAdminUser().username) {
+    return _paramString('admin_username', admin_username, 'Admin user name')
 }
 
-def adminPassword() {
-    return _paramPassword('admin_password', defaultAdminUser().password, 'Password for admin user')
+def adminPassword(String admin_password = defaultAdminUser().password) {
+    return _paramPassword('admin_password', admin_password, 'Password for admin user')
 }
 
 def reindexElasticsearch() {
