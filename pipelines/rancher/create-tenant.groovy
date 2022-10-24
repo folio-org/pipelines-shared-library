@@ -31,13 +31,18 @@ properties([
         jobsParameters.loadSample()])
 ])
 
+OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
+List installedModulesList = okapi.getInstalledModules(params.reference_tenant_id)
+
+
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
     name: params.additional_tenant_name,
     description: params.additional_tenant_description,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: 'false'],
-    okapiVersion: '',
+    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList, okapi.OKAPI_NAME),
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index],
     additional_tenant_id: params.additional_tenant_id,
@@ -49,9 +54,6 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 
 Email email = okapiSettings.email()
 
-OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
-Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
-
 Project project_model = new Project(
     hash: '',
     clusterName: params.rancher_cluster_name,
@@ -61,7 +63,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: okapi.getInstalledModules(params.reference_tenant_id),
+    installJson: installedModulesList,
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
