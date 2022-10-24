@@ -18,7 +18,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         text(name: 'install_list', defaultValue: '', description: '(Optional) If you would like to install custom list of modules - provide it to the field below \nFor example: mod-search, mod-data-export, mod-organizations \nIf you would like to install all modules - ingnore the option'),
-        jobsParameters.referenceTenantId(),
+        jobsParameters.referenceTenantId('test'),
         jobsParameters.additionalTenantId(),
         jobsParameters.additionalTenantName(),
         jobsParameters.additionalTenantDescription(),
