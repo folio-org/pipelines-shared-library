@@ -33,7 +33,8 @@ properties([
 
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
-List installedModulesList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.additional_tenant_id), 'enable')
+List installedModulesList = okapi.getInstalledModules(params.reference_tenant_id)
+List installedModulesList2 = okapi.buildInstallListFromJson(installedModulesList, 'enable')
 
 
 OkapiTenant tenant = new OkapiTenant(id: params.additional_tenant_id,
@@ -63,7 +64,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: installedModulesList,
+    installJson: installedModulesList2,
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
