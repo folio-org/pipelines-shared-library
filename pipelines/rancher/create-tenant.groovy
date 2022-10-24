@@ -59,7 +59,7 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 Email email = okapiSettings.email()
 
 Project project_model = new Project(
-    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
+    hash: '',
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     action: params.action,
