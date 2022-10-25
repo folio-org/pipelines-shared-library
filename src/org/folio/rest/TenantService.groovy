@@ -60,8 +60,8 @@ class TenantService extends GeneralParameters {
             https://github.com/folio-org/mod-inventory/commit/68fc2aed9174d2a53370e19e0ed0fb0d2b93c276
 
             // tenantConfiguration.modInventoryMods(tenant)*/
-            tenantConfiguration.ebscoRmapiConfig(tenant)
-            tenantConfiguration.worldcat(tenant)
+            //tenantConfiguration.ebscoRmapiConfig(tenant)
+            //tenantConfiguration.worldcat(tenant)
             tenantConfiguration.configurations(tenant, email, stripes_url)
 
         } else {
