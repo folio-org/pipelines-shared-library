@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
+import hudson.util.Secret
 
 @Library('pipelines-shared-library') _
 
@@ -41,7 +42,7 @@ properties([
         string(name: 'okapiUrl', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
-        password(name: 'password', defaultValue: "admin", description: 'User password'),
+        password(name: 'password', defaultValueAsSecret: Secret.fromString('admin'), description: 'User password'),
         jobsParameters.agents(),
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=smoke,grepFilterSpecs=true", description: 'Cypress execution parameters'),
