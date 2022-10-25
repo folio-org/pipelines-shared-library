@@ -35,11 +35,9 @@ OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
 List installed_modules = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
 List modules_to_install = []
-String core_modules = "mod-permissions, mod-users, mod-authtoken"
+String core_modules = "mod-permissions, mod-users, mod-users-bl, mod-authtoken"
 
 if (params.install_list && !params.refresh_parameters){
-    println(params.install_list.toString())
-    println(core_modules)
     core_modules = core_modules + "," + params.install_list.toString()
     println(core_modules)
     core_modules.split(',').each {module->
