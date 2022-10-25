@@ -69,8 +69,8 @@ class TenantService extends GeneralParameters {
         }
     }
 
-    void createAdditionalTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
-        if (tenant.additional_tenant_id && tenant.reference_tenant_id){
+    /*void createAdditionalTenant(OkapiTenant tenant, OkapiUser admin_user, List enableList, Email email, String stripes_url) {
+        if (tenant.reference_tenant_id){
             enableList = okapi.buildInstallListFromJson(okapi.getInstalledModules(tenant.reference_tenant_id), 'enable')
             tenant.setOkapiVersion(okapi.getModuleIdFromInstallJson(enableList, okapi.OKAPI_NAME))
             if (tenant.custom_modules_list){
@@ -85,5 +85,5 @@ class TenantService extends GeneralParameters {
         else {
             throw new AbortException('Additional tenant id or reference tenant id not set')
         }
-    }
+    }*/
 }

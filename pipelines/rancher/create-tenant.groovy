@@ -33,15 +33,19 @@ properties([
 
 OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
-List installedModulesList = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
-if (params.install_list && !params.refresh_parameters){
-    List custom_modules_list = []
-    params.install_list.split(',').each {module->
-        custom_modules_list.add(okapi.getModuleIdFromInstallJson(installedModulesList, module.toString().trim()))}
-    installedModulesList = okapi.buildInstallList(custom_modules_list, 'enable')
-}
+List installed_modules = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
+List modules_to_install = []
+String core_modules = "mod-permissions, mod-users, mod-authtoken"
 
-println(installedModulesList)
+if (params.install_list && !params.refresh_parameters){
+    core_modules = core_modules + params.install_list
+    core_modules.split(',').each {module->
+        modules_to_install.add(okapi.getModuleIdFromInstallJson(installed_modules, module.toString().trim()))}
+    modules_to_install = okapi.buildInstallList(modules_to_install, 'enable')
+}
+else {modules_to_install = installed_modules}
+
+println(installed_modules)
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -49,12 +53,10 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: 'false'],
-    okapiVersion: okapi.getModuleIdFromInstallJson(installedModulesList, okapi.OKAPI_NAME),
+    okapiVersion: okapi.getModuleIdFromInstallJson(modules_to_install, okapi.OKAPI_NAME),
     index: [reindex : params.reindex_elastic_search,
-            recreate: params.recreate_elastic_search_index],
-    additional_tenant_id: params.additional_tenant_id,
-    reference_tenant_id: params.reference_tenant_id,
-    custom_modules_list: params.install_list)
+            recreate: params.recreate_elastic_search_index])
+
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
@@ -70,7 +72,7 @@ Project project_model = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: installedModulesList,
+    installJson: modules_to_install,
     configType: params.config_type,
     restoreFromBackup: params.restore_from_backup,
     backupType: params.backup_type,
@@ -84,7 +86,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            /*stage("Create tenant") {
+            stage("Create tenant") {
                 withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
@@ -99,19 +101,19 @@ ansiColor('xterm') {
                     )
                     deployment.createTenant()
                 }
-            }*/
-            stage("Build UI bundle") {
-                if (params.deploy_ui) {
-                    build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
-                        parameters: [
-                            string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
-                            string(name: 'rancher_project_name', value: project_model.getProjectName()),
-                            string(name: 'tenant_id', value: tenant.getId()),
-                            string(name: 'folio_repository', value: params.folio_repository),
-                            string(name: 'folio_branch', value: params.folio_branch),
-                            string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
-                }
             }
+            /*if (params.deploy_ui) {
+                stage("Build UI bundle") {
+                        build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
+                            parameters: [
+                                string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
+                                string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                                string(name: 'tenant_id', value: tenant.getId()),
+                                string(name: 'folio_repository', value: params.folio_repository),
+                                string(name: 'folio_branch', value: params.folio_branch),
+                                string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
+                }
+            }*/
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
