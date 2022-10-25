@@ -43,8 +43,7 @@ if (params.install_list && !params.refresh_parameters){
     core_modules.split(',').each {module->
         modules_to_install.add(okapi.getModuleIdFromInstallJson(installed_modules, module.toString().trim()))}
     modules_to_install = okapi.buildInstallList(modules_to_install, 'enable')
-}
-else {
+} else {
     modules_to_install = installed_modules
 }
 
