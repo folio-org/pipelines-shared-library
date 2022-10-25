@@ -60,8 +60,18 @@ class TenantService extends GeneralParameters {
             https://github.com/folio-org/mod-inventory/commit/68fc2aed9174d2a53370e19e0ed0fb0d2b93c276
 
             // tenantConfiguration.modInventoryMods(tenant)*/
-            //tenantConfiguration.ebscoRmapiConfig(tenant)
-            //tenantConfiguration.worldcat(tenant)
+            if (enableList.findAll('folio_eholdings')){
+                //tenantConfiguration.ebscoRmapiConfig(tenant)
+                logger.warning("Module folio_eholdings installed!!!!!")
+            } else {
+                logger.warning("Module folio_eholdings does not installed")
+            }
+            if (enableList.findAll('mod-copycat')){
+                //tenantConfiguration.worldcat(tenant)
+                logger.warning("Module mod-copycat installed!!!!!")
+            } else {
+                logger.warning("Module mod-copycat does not installed")
+            }
             tenantConfiguration.configurations(tenant, email, stripes_url)
 
         } else {
