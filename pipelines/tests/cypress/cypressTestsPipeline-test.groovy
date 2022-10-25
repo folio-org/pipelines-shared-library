@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
+import hudson.util.Secret
 
 @Library('pipelines-shared-library') _
 
