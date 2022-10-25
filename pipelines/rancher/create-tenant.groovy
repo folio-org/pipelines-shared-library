@@ -38,7 +38,7 @@ List modules_to_install = []
 String core_modules = "mod-permissions, mod-users, mod-authtoken"
 
 if (params.install_list && !params.refresh_parameters){
-    core_modules = core_modules + params.install_list
+    core_modules = core_modules + params.install_list.toString()
     core_modules.split(',').each {module->
         modules_to_install.add(okapi.getModuleIdFromInstallJson(installed_modules, module.toString().trim()))}
     modules_to_install = okapi.buildInstallList(modules_to_install, 'enable')
