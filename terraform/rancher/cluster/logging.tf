@@ -126,12 +126,13 @@ data:
 
     # Send the logs to the standard output
     <match **>
-      @type elasticsearch
+      @type elasticsearch_dynamic
       include_tag_key true
       host "#{ENV['ELASTICSEARCH_HOST']}"
       port "#{ENV['ELASTICSEARCH_PORT']}"
       scheme http
       logstash_format true
+      logstash_prefix logstash-${record["kubernetes"]["namespace_name"]}
       <buffer>
         @type file
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
@@ -166,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
   EOT
 }
 
-// Create an index lifecycle policy 
+// Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   name = var.index_policy_name
 
