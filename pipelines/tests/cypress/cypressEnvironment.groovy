@@ -17,11 +17,11 @@ properties([
     ])
 ])
 
+def tenantId = "diku"
 def clusterName = "folio-testing"
 def projectName = "cypress"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
-def frontendUrl = "https://${clusterName}-${projectName}.ci.folio.org"
-def tenantId = "diku"
+def frontendUrl = "https://${clusterName}-${projectName}-${tenantId}.ci.folio.org"
 
 ansiColor("xterm") {
     if (params.refreshParameters) {
