@@ -14,6 +14,17 @@ static OkapiUser adminUser(Map args = [:]) {
     )
 }
 
+def superadmin() {
+    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                      credentialsId    : Constants.OKAPI_SUPERADMIN_CREDENTIALS_ID,
+                      accessKeyVariable: 'SUPERADMIN_USERNAME',
+                      secretKeyVariable: 'SUPERADMIN_PASSWORD']]) {
+    return new OkapiUser(
+        username: SUPERADMIN_USERNAME,
+        password: SUPERADMIN_PASSWORD)
+    }
+}
+
 def email() {
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                       credentialsId    : Constants.EMAIL_SMTP_CREDENTIALS_ID,

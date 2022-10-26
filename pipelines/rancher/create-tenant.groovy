@@ -31,8 +31,8 @@ properties([
         jobsParameters.branch()])
 ])
 
-OkapiUser superuser = new OkapiUser(username: 'super_admin', password: 'admin')
-Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superuser)
+OkapiUser superadmin = okapiSettings.superadmin()
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin)
 List installed_modules = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
 List modules_to_install = []
 String core_modules = "mod-permissions, mod-users, mod-users-bl, mod-authtoken"

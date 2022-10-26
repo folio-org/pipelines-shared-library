@@ -63,6 +63,8 @@ class Constants {
     //Tools
     static String MAVEN_TOOL_NAME = "maven3-jenkins-slave-all"
 
+    static String OKAPI_SUPERADMIN_CREDENTIALS_ID = "okapi-superadmin-credentials"
+
     //Teams
     static Map ENVS_MEMBERS_LIST = ["bama"          : ["Bama"],
                                     "concorde"      : ["concorde"],
