@@ -31,8 +31,8 @@ properties([
         jobsParameters.branch()])
 ])
 
-OkapiUser superadmin = okapiSettings.superadmin()
-Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin)
+OkapiUser superadmin_user = okapiSettings.superadmin_user()
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
 List installed_modules = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
 List modules_to_install = []
 String core_modules = "mod-permissions, mod-users, mod-users-bl, mod-authtoken"
@@ -99,12 +99,13 @@ ansiColor('xterm') {
                         project_model.getInstallMap(),
                         tenant,
                         admin_user,
+                        superadmin_user,
                         email
                     )
                     deployment.createTenant()
                 }
             }
-            /*if (params.deploy_ui) {
+            if (params.deploy_ui) {
                 stage("Build UI bundle") {
                         build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
                             parameters: [
@@ -115,7 +116,7 @@ ansiColor('xterm') {
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
                 }
-            }*/
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
