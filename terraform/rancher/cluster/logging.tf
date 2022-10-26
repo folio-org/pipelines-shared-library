@@ -42,6 +42,9 @@ resource "rancher2_app_v2" "elasticsearch" {
     global:
       kibanaEnabled: true
     data:
+      persistence:
+        size: 128Gi
+    data:
       resources:
         limits:
           memory: 3096Mi
@@ -56,6 +59,21 @@ resource "rancher2_app_v2" "elasticsearch" {
       ingress:
         enabled: true
         hostname: "${module.eks_cluster.cluster_id}-kibana.${var.root_domain}"
+        path: "/*"
+        annotations:
+          kubernetes.io/ingress.class: alb
+          alb.ingress.kubernetes.io/scheme: internet-facing
+          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
+          alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+          alb.ingress.kubernetes.io/success-codes: 200-399
+          alb.ingress.kubernetes.io/healthcheck-path: /
+          alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+    master:
+      service:
+        type: NodePort
+      ingress:
+        enabled: true
+        hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
         path: "/*"
         annotations:
           kubernetes.io/ingress.class: alb
@@ -146,4 +164,34 @@ resource "rancher2_app_v2" "fluentd" {
         - name: ELASTICSEARCH_PORT
           value: "9200"
   EOT
+}
+
+// Create an index lifecycle policy 
+resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
+  name = var.index_policy_name
+
+  hot {
+    min_age = "0ms"
+    set_priority {
+      priority = 100
+    }
+  }
+
+  delete {
+    min_age = "31d"
+    delete {}
+  }
+
+}
+
+// Create an index template for the policy
+resource "elasticstack_elasticsearch_index_template" "index_template" {
+  name = var.index_template_name
+  index_patterns = ["logstash*"]
+
+  template {
+    settings = jsonencode({
+      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy.name
+    })
+  }
 }
