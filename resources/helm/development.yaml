@@ -424,11 +424,11 @@ mod-inventory-storage:
     enabled: false
 mod-inventory:
   dbMaxPoolSize: '5'
-  javaOptions: "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
+  javaOptions: "-XX:MaxRAMPercentage=66.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
     requests:
       memory: 400Mi
   postJob:
