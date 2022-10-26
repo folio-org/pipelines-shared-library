@@ -14,7 +14,7 @@ static OkapiUser adminUser(Map args = [:]) {
     )
 }
 
-def superadmin() {
+superadmin() {
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                       credentialsId    : Constants.OKAPI_SUPERADMIN_CREDENTIALS_ID,
                       accessKeyVariable: 'SUPERADMIN_USERNAME',
