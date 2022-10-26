@@ -107,8 +107,8 @@ ansiColor('xterm') {
                 }
             }
             if (params.deploy_ui) {
-                stage("Build UI bundle") {
-                        build job: 'Rancher/volodymyr-workflow/main/ui-bundle-deploy',
+                stage("UI bundle deploy") {
+                        build job: 'Rancher/Update/ui-bundle-deploy',
                             parameters: [
                                 string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
                                 string(name: 'rancher_project_name', value: project_model.getProjectName()),
