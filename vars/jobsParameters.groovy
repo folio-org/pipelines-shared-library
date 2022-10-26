@@ -283,18 +283,6 @@ def referenceTenantId(String reference_tenant_id = defaultTenant().id) {
     return _paramString('reference_tenant_id', reference_tenant_id, 'Id used to extract list of installed modules. For Rancher environments it\'s usually diku')
 }
 
-/*def additionalTenantId() {
-    return _paramString('additional_tenant_id', '', 'Please provide id for new tenant')
-}
-
-def additionalTenantName() {
-    return _paramString('additional_tenant_name', 'Additional tenant name', 'Please provide new additional tenant name')
-}
-
-def additionalTenantDescription() {
-    return _paramString('additional_tenant_description', "Additional tenant description", 'Please provide new additional tenant description')
-}*/
-
 def loadReference() {
     return _paramBoolean('load_reference', defaultTenant().tenantParameters.loadReference, 'True if reference data should be applied')
 }

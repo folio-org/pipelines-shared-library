@@ -41,17 +41,6 @@ class Okapi extends GeneralParameters {
         return modulesList
     }
 
-    static List buildInstallListFromJson(List modulesIds, String action) {
-        List modulesList = []
-        modulesIds.id.each {
-            modulesList << [
-                id: it,
-                action: action
-            ]
-        }
-        return modulesList
-    }
-
     def buildInstallJsonByModuleName(String moduleName) {
         String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
         if (moduleId) {
