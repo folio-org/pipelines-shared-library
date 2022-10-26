@@ -23,7 +23,7 @@ class Deployment extends GeneralParameters {
 
     private OkapiUser admin_user = new OkapiUser()
 
-    private OkapiUser super_admin = okapiSettings.superadmin()
+    private OkapiUser super_admin = new OkapiUser(username: 'super_admin', password: 'admin')
 
     private OkapiUser testing_admin = new OkapiUser(username: 'testing_admin', password: 'admin')
 
