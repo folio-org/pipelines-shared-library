@@ -22,7 +22,7 @@ void project(Project project_model, OkapiTenant tenant, Map tf) {
                                                      string(name: 'rancher_project_name', value: project_model.getProjectName()),
                                                      string(name: 'tenant_id_to_backup_modules_versions', value: tenant.getId()),
                                                      booleanParam(name: 'restore_from_backup', value: project_model.getRestoreFromBackup()),
-                                                     string(name: 'restore_backup_name', value: project_model.getBackupName())]
+                                                     string(name: 'restore_backup_name', value: project_model.getBackupFilesPath())]
                                 }
                             }
                         } else {
