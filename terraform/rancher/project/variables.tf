@@ -221,7 +221,7 @@ variable "tags" {
 
 variable "s3_postgres-backups-bucket-name" {
   type        = string
-  default     = "s3://folio-postgresql-backups"
+  default     = "s3://folio-postgresql-backups/postgresql"
   description = "Path of s3 bucket for backups"
 }
 
