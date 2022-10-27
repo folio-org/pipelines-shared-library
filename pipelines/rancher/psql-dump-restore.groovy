@@ -22,7 +22,6 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().withNano(0).toString()
-String started_by_user = params.restore_postgresql_from_backup ? '' : currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]['userId']
 String db_backup_name = params.restore_postgresql_from_backup ? params.backup_name : "backup_${date_time}-${started_by_user}"
 OkapiUser admin_user = okapiSettings.adminUser()
 
