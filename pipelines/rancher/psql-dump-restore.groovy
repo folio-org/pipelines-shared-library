@@ -42,7 +42,7 @@ ansiColor('xterm') {
             }
 
             helm.k8sClient {
-                psqlDumpMethods.configureKubectl(Constants.RANCHER_CLUSTERS_DEFAULT_REGION, params.rancher_cluster_name)
+                psqlDumpMethods.configureKubectl(Constants.AWS_REGION, params.rancher_cluster_name)
                 psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL)
                 try {
                     if (params.restore_postgresql_from_backup == false) {
