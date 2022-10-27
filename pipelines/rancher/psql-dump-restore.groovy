@@ -22,7 +22,7 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().withNano(0).toString()
-//String db_backup_name = params.restore_postgresql_from_backup ? params.backup_name : "backup_${date_time}-${started_by_user}"
+String db_backup_name = params.restore_postgresql_from_backup ? params.backup_name : ""
 OkapiUser admin_user = okapiSettings.adminUser()
 
 ansiColor('xterm') {
