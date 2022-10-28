@@ -24,6 +24,8 @@ properties([
         jobsParameters.tenantDescription(''),
         jobsParameters.adminUsername(''),
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
+        jobsParameters.reindexElasticsearch(),
+        jobsParameters.recreateIndexElasticsearch(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
@@ -33,7 +35,6 @@ properties([
 
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
-//List installed_modules = okapi.buildInstallListFromJson(okapi.getInstalledModules(params.reference_tenant_id), 'enable')
 List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
 List modules_to_install = []
 String core_modules = "mod-permissions, mod-users, mod-users-bl, mod-authtoken"
@@ -47,8 +48,6 @@ if (params.install_list && !params.refresh_parameters){
 } else {
     modules_to_install = installed_modules
 }
-
-println(modules_to_install)
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -117,6 +116,7 @@ ansiColor('xterm') {
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
                 }
+                println("Get the application URL by running these commands: \n ${project_model.getDomains().ui}")
             }
         } catch (exception) {
             println(exception)
