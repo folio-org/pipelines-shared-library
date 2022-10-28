@@ -13,21 +13,25 @@ def configureHelm(String repo_name, String repo_url) {
 }
 
 
-def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String tenant_id_to_backup_modules_versions, String tenant_admin_username_to_backup_modules_versions, String tenant_admin_password_to_backup_modules_versions) {
+def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String tenant_id_to_backup_modules_versions, String tenant_admin_username_to_backup_modules_versions, String tenant_admin_password_to_backup_modules_versions, String psql_dump_backups_bucket_name, String postgresql_backups_directory) {
     stage('Helm install') {
         sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.jenkinsDbBackupName=${db_backup_name} --set psql.job.action='backup' --set psql.clusterName=${cluster_name} \
         --set psql.tenantBackupModulesForId=${tenant_id_to_backup_modules_versions} \
         --set psql.tenantBackupModulesForAdminUsername=${tenant_admin_username_to_backup_modules_versions} \
         --set psql.tenantBackupModulesForAdminPassword=${tenant_admin_password_to_backup_modules_versions} \
+        --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
+        --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
         --namespace=${project_namespace} --wait --wait-for-jobs"
     }
 }
 
-def restoreHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String db_backup_name) {
+def restoreHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory) {
     stage('Helm install') {
         sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.jenkinsDbBackupName=${db_backup_name} --set psql.job.action='restore' \
+        --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
+        --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
         --namespace=${project_namespace} --wait --wait-for-jobs"
     }
 }

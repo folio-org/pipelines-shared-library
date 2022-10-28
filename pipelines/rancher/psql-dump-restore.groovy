@@ -22,8 +22,9 @@ properties([
 ])
 
 def date_time = LocalDateTime.now().withNano(0).toString()
-String db_backup_name = params.restore_from_backup ? params.backup_name : ""
+String db_backup_name = params.restore_from_backup ? params.backup_name : "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id_to_backup_modules_versions}-${date_time}"
 OkapiUser admin_user = okapiSettings.adminUser()
+String postgresql_backups_directory = "postgresql"
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
@@ -46,13 +47,13 @@ ansiColor('xterm') {
                 psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL)
                 try {
                     if (params.restore_postgresql_from_backup == false) {
-                        psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name, params.tenant_id_to_backup_modules_versions, admin_user.username, admin_user.password)
+                        psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name, params.tenant_id_to_backup_modules_versions, admin_user.username, admin_user.password, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, postgresql_backups_directory)
                         psqlDumpMethods.savePlatformCompleteImageTag(params.rancher_project_name, params.rancher_cluster_name, db_backup_name, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, params.tenant_id_to_backup_modules_versions)
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n" + "\033[32m" + "PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
                             "${params.rancher_cluster_name}/${params.rancher_project_name}/${db_backup_name}" + "\n\n\n" + "\033[0m")
                     } else {
-                        psqlDumpMethods.restoreHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, db_backup_name)
+                        psqlDumpMethods.restoreHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, db_backup_name, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, postgresql_backups_directory)
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n" + "\033[32m" + "PostgreSQL restore process SUCCESSFULLY COMPLETED\n" + "\n\n\n" + "\033[0m")
                     }
