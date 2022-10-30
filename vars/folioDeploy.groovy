@@ -46,23 +46,23 @@ void project(Project project_model, OkapiTenant tenant, Map tf) {
     }
 }
 
-void okapi(def config, String version, String cluster_name, String project_name, String domain) {
-    String values_path = helm.generateModuleValues(config, 'okapi', version, cluster_name, project_name, domain)
+void okapi(Project project_config) {
+    String values_path = helm.generateModuleValues('okapi', project_config.getTenant().getOkapiVersion(), project_config, project_config.getDomains().okapi)
     helm.k8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, cluster_name)
+        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
-        helm.upgrade('okapi', project_name, "${values_path}/okapi.yaml", Constants.FOLIO_HELM_REPO_NAME, 'okapi')
+        helm.upgrade('okapi', project_config.getProjectName(), "${values_path}/okapi.yaml", Constants.FOLIO_HELM_REPO_NAME, 'okapi')
     }
 }
 
-void backend(Map install_backend_map, def config, String cluster_name, String project_name, Boolean custom_module = false) {
+void backend(Map install_backend_map, Project project_config, Boolean custom_module = false) {
     helm.k8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, cluster_name)
+        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
         install_backend_map.each { name, version ->
             if (name.startsWith("mod-")) {
-                String values_path = helm.generateModuleValues(config, name, version, cluster_name, project_name, '', custom_module)
-                helm.upgrade(name, project_name, "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
+                String values_path = helm.generateModuleValues(name, version, project_config, '', custom_module)
+                helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not a backend module")
             }
@@ -70,14 +70,14 @@ void backend(Map install_backend_map, def config, String cluster_name, String pr
     }
 }
 
-void edge(Map install_edge_map, def config, String cluster_name, String project_name, String domain) {
+void edge(Map install_edge_map, Project project_config) {
     helm.k8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, cluster_name)
+        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
         install_edge_map.each { name, version ->
             if (name.startsWith("edge-")) {
-                String values_path = helm.generateModuleValues(config, name, version, cluster_name, project_name, domain)
-                helm.upgrade(name, project_name, "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
+                String values_path = helm.generateModuleValues(name, version, project_config, project_config.getDomains().edge)
+                helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not an edge module")
             }
@@ -85,11 +85,11 @@ void edge(Map install_edge_map, def config, String cluster_name, String project_
     }
 }
 
-void uiBundle(String tenant_id, def config, String version, String cluster_name, String project_name, String domain) {
-    String values_path = helm.generateModuleValues(config, 'ui-bundle', version, cluster_name, project_name, domain)
+void uiBundle(String tenant_id, Project project_config) {
+    String values_path = helm.generateModuleValues('ui-bundle', project_config.getUiBundleTag(), project_config, project_config.getDomains().ui)
     helm.k8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, cluster_name)
+        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
-        helm.upgrade("${tenant_id}-ui-bundle", project_name, "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_REPO_NAME, 'platform-complete')
+        helm.upgrade("${tenant_id}-ui-bundle", project_config.getProjectName(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_REPO_NAME, 'platform-complete')
     }
 }

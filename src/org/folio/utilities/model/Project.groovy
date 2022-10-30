@@ -1,5 +1,7 @@
 package org.folio.utilities.model
 
+import org.folio.rest.model.OkapiTenant
+
 class Project implements Serializable {
     String hash
     String uiBundleTag
@@ -18,6 +20,7 @@ class Project implements Serializable {
     String backupEngineVersion
     String backupMasterUsername
     String backupFilesPath
+    OkapiTenant tenant
 
     static constraints = {
         backupType(inList: ['rds', 'postgresql'])
