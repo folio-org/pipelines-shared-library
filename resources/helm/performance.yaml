@@ -745,6 +745,16 @@ mod-entities-links:
       memory: 400Mi
   postJob:
     enabled: false
+mod-serials-management:
+  javaOptions: "-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=66.0 -XX:+PrintFlagsFinal"
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2Gi
+    requests:
+      memory: 768Mi
+  postJob:
+    enabled: false
 edge-sip2:
   javaArgs: "-conf /usr/ms/sip2.conf"
   javaOptions: "-XX:MaxRAMPercentage=85.0"

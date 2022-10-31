@@ -132,7 +132,7 @@ data:
       port "#{ENV['ELASTICSEARCH_PORT']}"
       scheme http
       logstash_format true
-      logstash_prefix logstash-${record["kubernetes"]["namespace_name"]}
+      logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
       <buffer>
         @type file
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
