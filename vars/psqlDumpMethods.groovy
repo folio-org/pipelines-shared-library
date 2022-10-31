@@ -42,12 +42,12 @@ def helmDelete(String build_id, String project_namespace) {
     }
 }
 
-def savePlatformCompleteImageTag(String project_namespace, String cluster_name, String db_backup_name, String s3_postgres_backups_bucket_name, String tenant_id) {
+def savePlatformCompleteImageTag(String project_namespace, String db_backup_name, String s3_postgres_backups_bucket_name, String postgresql_backups_directory, String tenant_id) {
     stage('Save platform complete image tag') {
         sh "PLATFORM_COMPLETE_POD_LIST=\$(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name -n ${project_namespace} | \
         grep platform-complete); for IMAGE in \$PLATFORM_COMPLETE_POD_LIST; \
         do IMAGE_TAG=\$(kubectl get pod \$IMAGE -n ${project_namespace} -o jsonpath='{.spec.containers[*].image}' | \
         sed 's/.*://' | grep ${tenant_id});if [ ! -z \$IMAGE_TAG  ];then break;fi;done; \
-        echo \$IMAGE_TAG > ${db_backup_name}_image_tag.txt; aws s3 cp ${db_backup_name}_image_tag.txt ${s3_postgres_backups_bucket_name}/${cluster_name}/${project_namespace}/${db_backup_name}/"
+        echo \$IMAGE_TAG > ${db_backup_name}_image_tag.txt; aws s3 cp ${db_backup_name}_image_tag.txt ${s3_postgres_backups_bucket_name}/${postgresql_backups_directory}/${db_backup_name}/"
     }
 }

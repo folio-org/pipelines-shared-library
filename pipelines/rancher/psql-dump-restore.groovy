@@ -50,7 +50,7 @@ ansiColor('xterm') {
                 try {
                     if (params.restore_from_backup == false) {
                         psqlDumpMethods.backupHelmInstall(env.BUILD_ID, Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.PSQL_DUMP_HELM_CHART_NAME, Constants.PSQL_DUMP_HELM_INSTALL_CHART_VERSION, params.rancher_project_name, params.rancher_cluster_name, db_backup_name, tenant.getId(), admin_user.username, admin_user.password, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, postgresql_backups_directory)
-                        psqlDumpMethods.savePlatformCompleteImageTag(params.rancher_project_name, params.rancher_cluster_name, db_backup_name, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, tenant.getId())
+                        psqlDumpMethods.savePlatformCompleteImageTag(params.rancher_project_name, db_backup_name, "s3://" + Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, tenant.getId())
                         psqlDumpMethods.helmDelete(env.BUILD_ID, params.rancher_project_name)
                         println("\n\n\n" + "\033[32m" + "PostgreSQL backup process SUCCESSFULLY COMPLETED\nYou can find your backup in AWS s3 bucket folio-postgresql-backups/" +
                             "${params.rancher_cluster_name}/${params.rancher_project_name}/${db_backup_name}" + "\n\n\n" + "\033[0m")
