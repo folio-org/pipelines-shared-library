@@ -51,7 +51,7 @@ class Constants {
     //Jenkins
     static String JENKINS_MASTER_NODE = "master"
     static String JENKINS_JOB_PROJECT = "/Rancher/Project"
-    static String JENKINS_JOB_RESTORE_PG_BACKUP = "Rancher/volodymyr-workflow/main/Create-Restore-PosgreSQL-DB-backup"
+    static String JENKINS_JOB_RESTORE_PG_BACKUP = "Rancher/Create-Restore-PosgreSQL-DB-backup"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
 

@@ -1,8 +1,7 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-503') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
-import org.folio.rest.model.OkapiTenant
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.LocalDateTime
 import org.folio.rest.model.OkapiUser
