@@ -25,7 +25,6 @@ properties([
 def date_time = LocalDateTime.now().withNano(0).toString()
 String db_backup_name = params.restore_from_backup ? params.backup_name : "${params.rancher_cluster_name}-${params.rancher_project_name}-${tenant_id_to_backup_modules_versions}-${date_time}"
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username, password: params.admin_password)
-//OkapiTenant tenant = new OkapiTenant(id: params.tenant_id_to_backup_modules_versions)
 String postgresql_backups_directory = "postgresql"
 
 ansiColor('xterm') {

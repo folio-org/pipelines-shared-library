@@ -347,10 +347,6 @@ def tenantIdToBackupModulesVersions() {
     return _paramString('tenant_id_to_backup_modules_versions', defaultTenant().id, "Choose for which tenant you would like to save modules versions. Default is diku")
 }
 
-def tenantIdToRestoreModulesVersions() {
-    return _paramString('restore_tenant_id', defaultTenant().id, "Choose for which tenant you would like to restore Environment and modules versions. Default is diku. The option is active only when restore_postgresql_from_backup is turned on!")
-}
-
 def mvnOptions(String options = '') {
     return _paramString('mvn_options', options, 'Put additional maven options if needed')
 }
