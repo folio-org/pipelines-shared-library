@@ -55,14 +55,23 @@ class TenantService extends GeneralParameters {
                 def job_id = okapi.reindexElasticsearch(tenant, admin_user)
                 okapi.checkReindex(tenant, job_id)
             }
-            /*
-            Disabled due to commit. Need investigation and fix
+
+            /*Disabled due to commit. Need investigation and fix
             https://github.com/folio-org/mod-inventory/commit/68fc2aed9174d2a53370e19e0ed0fb0d2b93c276
-             */
-            // tenantConfiguration.modInventoryMods(tenant)
-            tenantConfiguration.ebscoRmapiConfig(tenant)
-            tenantConfiguration.worldcat(tenant)
+
+            // tenantConfiguration.modInventoryMods(tenant)*/
+            if (okapi.getModuleIdFromInstallJson(enableList, 'folio_eholdings')){
+                tenantConfiguration.ebscoRmapiConfig(tenant)
+            } else {
+                logger.warning("Module folio_eholdings does not installed")
+            }
+            if (okapi.getModuleIdFromInstallJson(enableList, 'mod-copycat')){
+                tenantConfiguration.worldcat(tenant)
+            } else {
+                logger.warning("Module mod-copycat does not installed")
+            }
             tenantConfiguration.configurations(tenant, email, stripes_url)
+
         } else {
             throw new AbortException('Tenant or admin user not set')
         }
