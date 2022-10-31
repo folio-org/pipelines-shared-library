@@ -167,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
   EOT
 }
 
-// Create an index lifecycle policy 
+// Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   name = var.index_policy_name
 

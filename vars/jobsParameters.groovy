@@ -267,16 +267,20 @@ def enableModules() {
     return _paramBoolean('enable_modules', true, 'True if modules should be registered and enabled in Okapi')
 }
 
-def tenantId() {
-    return _paramString('tenant_id', defaultTenant().id, 'Id used for tenant creation')
+def tenantId(String tenant_id = defaultTenant().id) {
+    return _paramString('tenant_id', tenant_id, 'Id used for tenant creation')
 }
 
-def tenantName() {
-    return _paramString('tenant_name', defaultTenant().name, 'Name used for tenant creation')
+def tenantName(String tenant_name = defaultTenant().name) {
+    return _paramString('tenant_name', tenant_name, 'Name used for tenant creation')
 }
 
-def tenantDescription() {
-    return _paramString('tenant_description', defaultTenant().description, 'Description used for tenant creation')
+def tenantDescription(String tenant_description = defaultTenant().description) {
+    return _paramString('tenant_description', tenant_description, 'Description used for tenant creation')
+}
+
+def referenceTenantId(String reference_tenant_id = defaultTenant().id) {
+    return _paramString('reference_tenant_id', reference_tenant_id, 'Id used to extract list of installed modules. For Rancher environments it\'s usually diku')
 }
 
 def loadReference() {
@@ -291,12 +295,12 @@ def reinstall() {
     return _paramBoolean('reinstall', defaultTenant().queryParameters.reinstall, 'True if force modules install')
 }
 
-def adminUsername() {
-    return _paramString('admin_username', defaultAdminUser().username, 'Admin user name')
+def adminUsername(String admin_username = defaultAdminUser().username) {
+    return _paramString('admin_username', admin_username, 'Admin user name')
 }
 
-def adminPassword() {
-    return _paramPassword('admin_password', defaultAdminUser().password, 'Password for admin user')
+def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
+    return _paramPassword('admin_password', admin_password, description)
 }
 
 def reindexElasticsearch() {

@@ -65,6 +65,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
 
+OkapiUser superadmin_user = okapiSettings.superadmin_user()
+
 Email email = okapiSettings.email()
 
 Project project_model = new Project(
@@ -210,6 +212,7 @@ ansiColor('xterm') {
                                 project_model.getInstallMap(),
                                 tenant,
                                 admin_user,
+                                superadmin_user,
                                 email
                             )
                             if (project_model.getRestoreFromBackup()) {
