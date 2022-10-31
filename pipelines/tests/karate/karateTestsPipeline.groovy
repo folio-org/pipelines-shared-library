@@ -3,7 +3,6 @@ package tests.karate
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
-import hudson.util.Secret
 
 @Library('pipelines-shared-library') _
 
@@ -20,7 +19,7 @@ pipeline {
         string(name: 'edgeUrl', defaultValue: 'https://folio-testing-karate-edge.ci.folio.org', description: 'Target environment EDGE URL')
         string(name: 'tenant', defaultValue: 'supertenant', description: 'Tenant name for tests execution')
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
-        password(name: 'adminPassword', defaultValueAsSecret: Secret.fromString('admin'), description: 'Admin user password')
+        password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
         string(name: 'prototypeTenant', defaultValue: 'diku', description: 'A tenant name which will be used by tests as a prototype during test tenant creation')
     }
 
