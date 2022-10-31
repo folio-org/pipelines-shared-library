@@ -57,7 +57,7 @@ class Constants {
 
     //PostgreSQL
     static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
-    static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.3-RANCHER-503-20221031102625"
+    static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = "1.0.3-RANCHER-503-20221031110212"
     static String PSQL_DUMP_BACKUPS_BUCKET_NAME = "folio-postgresql-backups"
 
     //Tools
