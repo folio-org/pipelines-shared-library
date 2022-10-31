@@ -48,6 +48,6 @@ def savePlatformCompleteImageTag(String project_namespace, String db_backup_name
         grep platform-complete); for IMAGE in \$PLATFORM_COMPLETE_POD_LIST; \
         do IMAGE_TAG=\$(kubectl get pod \$IMAGE -n ${project_namespace} -o jsonpath='{.spec.containers[*].image}' | \
         sed 's/.*://' | grep .*-${tenant_id}-.*);if [ ! -z \$IMAGE_TAG  ];then break;fi;done; \
-        echo \$IMAGE_TAG > ${db_backup_name}_image_tag.txt; aws s3 cp ${db_backup_name}_image_tag.txt ${s3_postgres_backups_bucket_name}/${postgresql_backups_directory}/${db_backup_name}/"
+        echo \$IMAGE_TAG > ${db_backup_name}-image_tag.txt; aws s3 cp ${db_backup_name}-image_tag.txt ${s3_postgres_backups_bucket_name}/${postgresql_backups_directory}/${db_backup_name}/"
     }
 }
