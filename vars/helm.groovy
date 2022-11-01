@@ -76,7 +76,7 @@ String generateModuleValues(def config, String module_name, String module_versio
                     new Logger(this, 'helm').warning("Missing nlb configuration for module ${module_name}")
                     break
             }
-            config[(module_name)]['service']['annotations'] += ['external-dns.alpha.kubernetes.io/hostname:': "${edge_nlb_domain}"]
+            config[(module_name)]['service']['annotations'] += ['external-dns.alpha.kubernetes.io/hostname': "${edge_nlb_domain}"]
         }
         writeYaml file: "${values_path}/${module_name}.yaml", data: config[module_name]
         return values_path
