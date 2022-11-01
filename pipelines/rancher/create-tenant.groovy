@@ -13,6 +13,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 
 properties([
+    buildDiscarder(logRotator(numToKeepStr: '20')),
+    disableConcurrentBuilds(),
     parameters([
         jobsParameters.refreshParameters(),
         jobsParameters.clusterName(),
@@ -24,10 +26,10 @@ properties([
         jobsParameters.tenantDescription(''),
         jobsParameters.adminUsername(''),
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
-        jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateIndexElasticsearch(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
+        jobsParameters.reindexElasticsearch(),
+        jobsParameters.recreateIndexElasticsearch(),
         booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
         jobsParameters.repository(),
         jobsParameters.branch()])
