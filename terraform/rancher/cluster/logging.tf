@@ -169,6 +169,7 @@ resource "rancher2_app_v2" "fluentd" {
 
 // Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
+  depends_on    = [rancher2_app_v2.elasticsearch]
   name = var.index_policy_name
 
   hot {
