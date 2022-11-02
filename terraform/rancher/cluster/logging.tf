@@ -1,29 +1,26 @@
 #Creating a new project in Rancher.
-resource "rancher2_project" "this" {
-  depends_on                = [rancher2_cluster_sync.this]
+resource "rancher2_project" "logging" {
+  depends_on                = [time_sleep.wait_300_seconds]
   count                     = var.register_in_rancher ? 1 : 0
   provider                  = rancher2
-  name                      = "Logging"
+  name                      = "logging"
   cluster_id                = rancher2_cluster_sync.this[0].cluster_id
   enable_project_monitoring = false
   container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_cpu    = "80m"
-    requests_memory = "400Mi"
+    limits_memory   = "400Mi"
+    requests_memory = "200Mi"
   }
 }
 
 # Create a new rancher2 Namespace assigned to cluster project
-resource "rancher2_namespace" "this" {
-  depends_on  = [rancher2_cluster_sync.this]
+resource "rancher2_namespace" "logging" {
   count       = var.register_in_rancher ? 1 : 0
   name        = "logging"
-  project_id  = rancher2_project.this[0].id
+  project_id  = rancher2_project.logging[0].id
   description = "Project logging namespace"
   container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_cpu    = "80m"
-    requests_memory = "400Mi"
+    limits_memory   = "400Mi"
+    requests_memory = "200Mi"
   }
 }
 
@@ -32,7 +29,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   depends_on    = [rancher2_catalog_v2.bitnami]
   count         = var.register_in_rancher ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.this[0].name
+  namespace     = rancher2_namespace.logging[0].name
   name          = "elasticsearch"
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
@@ -41,24 +38,18 @@ resource "rancher2_app_v2" "elasticsearch" {
   values        = <<-EOT
     global:
       kibanaEnabled: true
-    data:
-      persistence:
-        size: 128Gi
-    data:
-      resources:
-        limits:
-          memory: 3096Mi
-    kibana:
+    master:
+      replicas: 2
       resources:
         requests:
-          memory: 1024Mi
+          memory: 1Gi
         limits:
-          memory: 2048Mi
+          memory: 2Gi
       service:
         type: NodePort
       ingress:
         enabled: true
-        hostname: "${module.eks_cluster.cluster_id}-kibana.${var.root_domain}"
+        hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
         path: "/*"
         annotations:
           kubernetes.io/ingress.class: alb
@@ -68,12 +59,25 @@ resource "rancher2_app_v2" "elasticsearch" {
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-    master:
+    data:
+      persistence:
+        size: 100Gi
+      resources:
+        requests:
+          memory: 1Gi
+        limits:
+          memory: 2Gi
+    kibana:
+      resources:
+        requests:
+          memory: 1Gi
+        limits:
+          memory: 2Gi
       service:
         type: NodePort
       ingress:
         enabled: true
-        hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
+        hostname: "${module.eks_cluster.cluster_id}-kibana.${var.root_domain}"
         path: "/*"
         annotations:
           kubernetes.io/ingress.class: alb
@@ -91,7 +95,7 @@ resource "kubectl_manifest" "elasticsearch_output" {
   depends_on         = [rancher2_app_v2.elasticsearch]
   count              = var.register_in_rancher ? 1 : 0
   provider           = kubectl
-  override_namespace = rancher2_namespace.this[0].name
+  override_namespace = rancher2_namespace.logging[0].name
   yaml_body          = <<YAML
 apiVersion: v1
 kind: ConfigMap
@@ -145,10 +149,10 @@ data:
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "fluentd" {
-  depends_on    = [kubectl_manifest.elasticsearch_output]
+  depends_on    = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output]
   count         = var.register_in_rancher ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.this[0].name
+  namespace     = rancher2_namespace.logging[0].name
   name          = "fluentd"
   repo_name     = "bitnami"
   chart_name    = "fluentd"
@@ -169,8 +173,9 @@ resource "rancher2_app_v2" "fluentd" {
 
 // Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
-  depends_on    = [rancher2_app_v2.elasticsearch]
-  name = var.index_policy_name
+  depends_on = [rancher2_app_v2.elasticsearch]
+  count      = var.register_in_rancher ? 1 : 0
+  name       = var.index_policy_name
 
   hot {
     min_age = "0ms"
@@ -188,12 +193,13 @@ resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
 
 // Create an index template for the policy
 resource "elasticstack_elasticsearch_index_template" "index_template" {
-  name = var.index_template_name
+  count          = var.register_in_rancher ? 1 : 0
+  name           = var.index_template_name
   index_patterns = ["logstash*"]
 
   template {
     settings = jsonencode({
-      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy.name
+      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy[0].name
     })
   }
 }

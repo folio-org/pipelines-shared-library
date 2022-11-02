@@ -40,6 +40,11 @@ ansiColor('xterm') {
                     "vpc_name: ${params.vpc_name}"
             }
             stage('TF vars') {
+/* Uncomment when GitHub OAuth app will be configured */
+//                withCredentials([usernamePassword(credentialsId: "${cluster_name}-grafana-oauth", passwordVariable: 'github_client_secret', usernameVariable: 'github_client_id')]) {
+//                    tfVars += terraform.generateTfVar('github_client_id', github_client_id)
+//                    tfVars += terraform.generateTfVar('github_client_secret', github_client_secret)
+//                }
                 tfVars += terraform.generateTfVar('eks_nodes_type', params.eks_nodes_type)
                 tfVars += terraform.generateTfVar('register_in_rancher', params.register_in_rancher)
                 tfVars += terraform.generateTfVar('admin_users', Constants.AWS_ADMIN_USERS)

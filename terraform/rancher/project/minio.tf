@@ -34,7 +34,7 @@ resource "rancher2_app_v2" "minio" {
       rootPassword: ${random_password.secret_access_key[0].result}
     resources:
       limits:
-        memory: 1024Mi
+        memory: 1.5Gi
     persistence:
       size: 10Gi
     extraEnvVars:

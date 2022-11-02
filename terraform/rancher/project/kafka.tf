@@ -18,13 +18,13 @@ resource "rancher2_app_v2" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 1100Mi
+        memory: 2Gi
       limits:
-        memory: 4096Mi
+        memory: 4Gi
     zookeeper:
       enabled: true
       persistence:
-        size: 5Gi
+        size: 10Gi
     livenessProbe:
       enabled: false
     readinessProbe:

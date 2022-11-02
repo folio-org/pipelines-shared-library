@@ -91,3 +91,21 @@ variable "index_template_name" {
   default     = "logstash_template"
   description = "A unique identifier for this template."
 }
+
+variable "grafana_admin_password" {
+  type        = string
+  default     = "SuperSecret"
+  description = "GitHub OAuth client ID"
+}
+
+variable "github_client_id" {
+  type        = string
+  default     = ""
+  description = "Password for Grafana admin user"
+}
+
+variable "github_client_secret" {
+  type        = string
+  default     = ""
+  description = "GitHub OAuth client Secret"
+}
