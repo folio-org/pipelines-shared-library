@@ -118,7 +118,7 @@ ansiColor('xterm') {
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
                 }
-                println("Get the application URL by running these commands: \n ${project_model.getDomains().ui}")
+                println("Get the application URL by running these commands: \n https://${project_model.getDomains().ui}")
             }
         } catch (exception) {
             println(exception)
