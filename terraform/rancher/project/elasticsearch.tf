@@ -59,7 +59,7 @@ resource "rancher2_app_v2" "opensearch-data" {
         cpu: "512m"
         memory: "2048Mi"
     persistence:
-      size: 100Gi
+      size: ${var.es_ebs_volume_size}
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
