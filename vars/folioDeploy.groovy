@@ -3,26 +3,26 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Logger
 import org.folio.utilities.model.Project
 
-void project(Project project_model, OkapiTenant tenant, Map tf) {
-    switch (project_model.getAction()) {
+void project(Project project_config, OkapiTenant tenant, Map tf) {
+    switch (project_config.getAction()) {
         case "apply":
             terraform.tfWrapper {
                 terraform.tfApplyFlow {
                     working_dir = tf.working_dir
                     tf_vars = tf.variables
-                    workspace_name = "${project_model.getClusterName()}-${project_model.getProjectName()}"
-                    if (project_model.getRestoreFromBackup() && project_model.getBackupType() == 'postgresql') {
-                        if (project_model.getBackupName()?.trim()) {
+                    workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
+                    if (project_config.getRestoreFromBackup() && project_config.getBackupType() == 'postgresql') {
+                        if (project_config.getBackupName()?.trim()) {
                             preAction = {
                                 stage('Restore DB') {
                                     terraform.tfPostgreSQLPlan(tf.working_dir, tf.variables ?: '')
                                     terraform.tfApply(tf.working_dir)
                                     build job: Constants.JENKINS_JOB_RESTORE_PG_BACKUP,
-                                        parameters: [string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
-                                                     string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                                        parameters: [string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                                                     string(name: 'rancher_project_name', value: project_config.getProjectName()),
                                                      string(name: 'tenant_id_to_backup_modules_versions', value: tenant.getId()),
-                                                     booleanParam(name: 'restore_from_backup', value: project_model.getRestoreFromBackup()),
-                                                     string(name: 'backup_name', value: project_model.getBackupName())]
+                                                     booleanParam(name: 'restore_from_backup', value: project_config.getRestoreFromBackup()),
+                                                     string(name: 'backup_name', value: project_config.getBackupName())]
                                 }
                             }
                         } else {
@@ -37,7 +37,7 @@ void project(Project project_model, OkapiTenant tenant, Map tf) {
                 terraform.tfDestroyFlow {
                     working_dir = tf.working_dir
                     tf_vars = tf.variables ?: ''
-                    workspace_name = "${project_model.getClusterName()}-${project_model.getProjectName()}"
+                    workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
                 }
             }
             break
