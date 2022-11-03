@@ -3,7 +3,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-523') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -22,7 +22,7 @@ properties([
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
 
-Project project_model = new Project(
+Project project_config = new Project(
     hash: params.ui_bundle_build ? common.getLastCommitHash(params.folio_repository, params.folio_branch) : '',
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -32,7 +32,7 @@ Project project_model = new Project(
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
 )
 
-project_model.uiBundleTag = params.ui_bundle_build ? "${project_model.getClusterName()}-${project_model.getProjectName()}-${tenant.getId()}-${project_model.getHash().take(7)}" : params.ui_bundle_tag
+project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}" : params.ui_bundle_tag
 
 ansiColor("xterm") {
     common.refreshBuidParameters(params.refresh_parameters)
@@ -42,7 +42,7 @@ ansiColor("xterm") {
                 checkout scm
             }
             stage("Read configs") {
-                project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
+                project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
             }
 
             if (params.ui_bundle_build) {
@@ -51,21 +51,17 @@ ansiColor("xterm") {
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),
                             string(name: 'folio_branch', value: params.folio_branch),
-                            string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
-                            string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                            string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                            string(name: 'rancher_project_name', value: project_config.getProjectName()),
                             string(name: 'tenant_id', value: tenant.getId()),
-                            string(name: 'custom_hash', value: project_model.getHash()),
-                            string(name: 'custom_tag', value: project_model.getUiBundleTag())]
+                            string(name: 'custom_hash', value: project_config.getHash()),
+                            string(name: 'custom_tag', value: project_config.getUiBundleTag())]
                 }
             }
 
             stage("Deploy UI bundle") {
                 folioDeploy.uiBundle(tenant.getId(),
-                    project_model.getModulesConfig(),
-                    project_model.getUiBundleTag(),
-                    project_model.getClusterName(),
-                    project_model.getProjectName(),
-                    project_model.getDomains().ui)
+                    project_config)
             }
         } catch (exception) {
             println(exception)

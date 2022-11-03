@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-523') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -48,7 +48,7 @@ OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
 
-Project project_model = new Project(clusterName: params.rancher_cluster_name,
+Project project_config = new Project(clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     enableModules: params.enable_modules,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
@@ -74,14 +74,14 @@ ansiColor('xterm') {
             stage('Ini') {
                 buildName "${backend_module.getName()}.${env.BUILD_ID}"
                 buildDescription "branch: ${params.folio_branch}\n" +
-                    "env: ${project_model.getClusterName()}-${project_model.getProjectName()}\n" +
+                    "env: ${project_config.getClusterName()}-${project_config.getProjectName()}\n" +
                     "tenant: ${tenant.getId()}\n" +
-                    "config_type: ${project_model.getConfigType()}"
+                    "config_type: ${project_config.getConfigType()}"
             }
 
             stage('Checkout') {
                 checkout scm
-                project_model.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_model.getConfigType()}.yaml"
+                project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
             }
 
             stage('Checkout module') {
@@ -116,15 +116,15 @@ ansiColor('xterm') {
                 }
             }
 
-            if(project_model.getEnableModules()) {
+            if(project_config.getEnableModules()) {
                 stage('Deploy preparation') {
-                    project_model.installJson = [
+                    project_config.installJson = [
                         [
                             id    : "${backend_module.getName()}-${backend_module.getTag()}",
                             action: 'enable'
                         ]
                     ]
-                    project_model.installMap = new GitHubUtility(this).getModulesVersionsMap(project_model.getInstallJson())
+                    project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                     dir(backend_module.getName()) {
                         if (fileExists(DESCRIPTOR_PATH)) {
                             backend_module.descriptor = [readJSON(file: DESCRIPTOR_PATH)]
@@ -133,12 +133,10 @@ ansiColor('xterm') {
                 }
 
                 stage("Deploy backend modules") {
-                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_model.getInstallMap())
+                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map,
-                            project_model.getModulesConfig(),
-                            project_model.getClusterName(),
-                            project_model.getProjectName(),
+                            project_config,
                             true)
                     }
                 }
@@ -150,7 +148,7 @@ ansiColor('xterm') {
 
                 stage("Health check") {
                     // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_model.getDomains().okapi}/_/version")
+                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
                 }
 
                 stage("Enable backend modules") {
@@ -158,10 +156,10 @@ ansiColor('xterm') {
                         tenant.kb_api_key = cypress_api_key_apidvcorp
                         Deployment deployment = new Deployment(
                             this,
-                            "https://${project_model.getDomains().okapi}",
-                            "https://${project_model.getDomains().ui}",
-                            project_model.getInstallJson(),
-                            project_model.getInstallMap(),
+                            "https://${project_config.getDomains().okapi}",
+                            "https://${project_config.getDomains().ui}",
+                            project_config.getInstallJson(),
+                            project_config.getInstallMap(),
                             tenant,
                             admin_user,
                             superadmin_user,
@@ -172,19 +170,16 @@ ansiColor('xterm') {
                 }
 
                 stage("Deploy edge modules") {
-                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_model.getInstallMap())
+                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
-                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_model.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
-                            awscli.getKubeConfig(Constants.AWS_REGION, project_model.getClusterName())
-                            helm.createSecret("ephemeral-properties", project_model.getProjectName(), "./ephemeral.properties")
+                            awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                            helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
                         }
-                        new Edge(this, "https://${project_model.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                        new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map,
-                            project_model.getModulesConfig(),
-                            project_model.getClusterName(),
-                            project_model.getProjectName(),
-                            project_model.getDomains().edge)
+                            project_config)
                     }
                 }
             }

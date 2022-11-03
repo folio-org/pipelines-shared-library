@@ -67,7 +67,7 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 
 Email email = okapiSettings.email()
 
-Project project_model = new Project(
+Project project_config = new Project(
     hash: '',
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -95,10 +95,10 @@ ansiColor('xterm') {
                     tenant.kb_api_key = cypress_api_key_apidvcorp
                     Deployment deployment = new Deployment(
                         this,
-                        "https://${project_model.getDomains().okapi}",
-                        "https://${project_model.getDomains().ui}",
-                        project_model.getInstallJson(),
-                        project_model.getInstallMap(),
+                        "https://${project_config.getDomains().okapi}",
+                        "https://${project_config.getDomains().ui}",
+                        project_config.getInstallJson(),
+                        project_config.getInstallMap(),
                         tenant,
                         admin_user,
                         superadmin_user,
@@ -111,14 +111,14 @@ ansiColor('xterm') {
                 stage("UI bundle deploy") {
                         build job: 'Rancher/Update/ui-bundle-deploy',
                             parameters: [
-                                string(name: 'rancher_cluster_name', value: project_model.getClusterName()),
-                                string(name: 'rancher_project_name', value: project_model.getProjectName()),
+                                string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                                string(name: 'rancher_project_name', value: project_config.getProjectName()),
                                 string(name: 'tenant_id', value: tenant.getId()),
                                 string(name: 'folio_repository', value: params.folio_repository),
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
                 }
-                println("Get the application URL by running these commands: \n https://${project_model.getDomains().ui}")
+                println("Get the application URL by running these commands: \n https://${project_config.getDomains().ui}")
             }
         } catch (exception) {
             println(exception)
