@@ -142,7 +142,7 @@ pipeline {
                     sh "ls -la ./allure-results"
                     sh "${allure_home}/bin/allure generate --clean"
                     sh "ls -la"
-                    sh "ls -la ./cypress/screenshots"
+                    sh "ls -la ./cypress/screenshots/checkin.basic.cy.js/"
                     sh "ls -la ./allure-results"
                     sh "ls -la ./allure-report/data/"
                     sh "ls -la ./allure-report/data/attachments/"
