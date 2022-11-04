@@ -141,7 +141,7 @@ pipeline {
                     sh "ls -la"
                     sh "${allure_home}/bin/allure generate --clean"
                     sh "ls -la"
-                    sh "ls -la /home/jenkins/workspace/Testing/Cypress tests(kd-test)/cypress/screenshots"
+                    sh "ls -la ./cypress/screenshots"
                 }
             }
         }
