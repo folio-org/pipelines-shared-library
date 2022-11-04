@@ -144,7 +144,8 @@ pipeline {
                     sh "ls -la"
                     sh "ls -la ./cypress/screenshots"
                     sh "ls -la ./allure-results"
-                    sh "ls -la ./allure-report"
+                    sh "ls -la ./allure-report/data/"
+                    sh "ls -la ./allure-report/data/attachments/"
                 }
             }
         }
