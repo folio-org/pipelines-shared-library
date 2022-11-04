@@ -137,7 +137,10 @@ pipeline {
             steps {
                 script {
                     def allure_home = tool type: 'allure', name: allureVersion
+                    sh "pwd"
+                    sh "ls -la"
                     sh "${allure_home}/bin/allure generate --clean"
+                    sh "ls -la"
                 }
             }
         }
