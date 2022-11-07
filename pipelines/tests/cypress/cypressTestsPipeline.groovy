@@ -110,7 +110,6 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
-                CYPRESS_allureReuseAfterSpec = "true"
             }
             steps {
                 script {
@@ -121,6 +120,7 @@ pipeline {
                                     // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
                                     env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
+                                    env.CYPRESS_allureReuseAfterSpec = "true"
                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                                         sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
                                     }
