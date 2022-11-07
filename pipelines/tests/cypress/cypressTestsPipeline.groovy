@@ -110,6 +110,7 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
+                CYPRESS_allureReuseAfterSpec = "true"
             }
             steps {
                 script {
