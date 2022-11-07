@@ -14,9 +14,10 @@ def cypressTestsJob
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    triggers {
-        cron('H 3 * * 1-6')
-    }
+/* Disabled in scope of RANCHER-533 */
+//    triggers {
+//        cron('H 3 * * 1-6')
+//    }
 
     options {
         disableConcurrentBuilds()
