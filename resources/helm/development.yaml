@@ -438,7 +438,7 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 640Mi
     requests:
       memory: 400Mi
   postJob:
