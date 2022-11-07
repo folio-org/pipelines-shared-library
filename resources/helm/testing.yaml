@@ -296,7 +296,7 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 720Mi
     requests:
       memory: 400Mi
   postJob:
