@@ -170,7 +170,7 @@ resource "rancher2_app_v2" "pgadmin4" {
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
-        alb.ingress.kubernetes.io/healthcheck-port: 80
+        alb.ingress.kubernetes.io/healthcheck-port: '80'
         
     serverDefinitions:
       enabled: true
