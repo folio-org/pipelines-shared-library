@@ -4,8 +4,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def allureVersion = "2.17.2"
 
-def uiUrl = "https://bugfest-mg-aqa.int.aws.folio.org"
-def okapiUrl = "https://okapi-bugfest-mg-aqa.int.aws.folio.org"
+def uiUrl = "https://bugfest-nolana-aqa.int.aws.folio.org"
+def okapiUrl = "https://okapi-bugfest-nolana-aqa.int.aws.folio.org"
 def tenant = "fs09000003"
 
 def cypressTestsJobName = "/Testing/Cypress tests"
@@ -14,17 +14,16 @@ def cypressTestsJob
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-/* Disabled in scope of RANCHER-533 */
-//    triggers {
-//        cron('H 3 * * 1-6')
-//    }
+    triggers {
+        cron('H 3 * * 1-6')
+    }
 
     options {
         disableConcurrentBuilds()
     }
 
     parameters {
-        string(name: 'branch', defaultValue: 'mg-tests-run', description: 'Cypress tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'nolana', description: 'Cypress tests repository branch to checkout')
     }
 
     stages {
@@ -38,8 +37,11 @@ pipeline {
                         string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'folio-aqa'),
                         password(name: 'password', value: 'Folio-aqa1'),
-                        string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true"),
-                        string(name: 'customBuildName', value: JOB_BASE_NAME)
+                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
+                        string(name: 'customBuildName', value: JOB_BASE_NAME),
+                        string(name: 'timeout', value: '6'),
+                        string(name: 'testrailProjectID', value: '14'),
+                        string(name: 'testrailRunID', value: '2099')
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
