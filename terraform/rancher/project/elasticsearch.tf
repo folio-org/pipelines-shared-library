@@ -20,9 +20,9 @@ resource "rancher2_app_v2" "opensearch-master" {
         value: "true"
     resources:
       requests:
-        memory: 1Gi
+        memory: 1536Mi
       limits:
-        memory: 2Gi
+        memory: 2048Mi
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
@@ -51,9 +51,9 @@ resource "rancher2_app_v2" "opensearch-data" {
         value: "true"
     resources:
       requests:
-        memory: 1Gi
+        memory: 1536Mi
       limits:
-        memory: 2Gi
+        memory: 2048Mi
     persistence:
       size: ${var.es_ebs_volume_size}
     plugins:
@@ -86,9 +86,9 @@ resource "rancher2_app_v2" "opensearch-client" {
         value: "true"
     resources:
       requests:
-        memory: 1Gi
+        memory: 1024Mi
       limits:
-        memory: 2Gi
+        memory: 1536Mi
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]

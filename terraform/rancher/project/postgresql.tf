@@ -39,9 +39,9 @@ resource "rancher2_app_v2" "postgresql" {
         storageClass: gp2
       resources:
         requests:
-          memory: 1Gi
+          memory: 1536Mi
         limits:
-          memory: 2Gi
+          memory: 3096Mi
       podSecurityContext:
         fsGroup: 1001
       containerSecurityContext:
@@ -169,7 +169,7 @@ resource "rancher2_app_v2" "pgadmin4" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
         alb.ingress.kubernetes.io/healthcheck-port: '80'
-        
+
     serverDefinitions:
       enabled: true
       servers:

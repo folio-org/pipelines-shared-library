@@ -7,8 +7,8 @@ resource "rancher2_project" "logging" {
   cluster_id                = rancher2_cluster_sync.this[0].cluster_id
   enable_project_monitoring = false
   container_resource_limit {
-    limits_memory   = "400Mi"
-    requests_memory = "200Mi"
+    limits_memory   = "512Mi"
+    requests_memory = "256Mi"
   }
 }
 
@@ -19,8 +19,8 @@ resource "rancher2_namespace" "logging" {
   project_id  = rancher2_project.logging[0].id
   description = "Project logging namespace"
   container_resource_limit {
-    limits_memory   = "400Mi"
-    requests_memory = "200Mi"
+    limits_memory   = "512Mi"
+    requests_memory = "256Mi"
   }
 }
 
@@ -34,7 +34,6 @@ resource "rancher2_app_v2" "elasticsearch" {
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
   chart_version = "17.9.29" #"19.1.4"
-  force_upgrade = "true"
   values        = <<-EOT
     global:
       kibanaEnabled: true
@@ -42,9 +41,9 @@ resource "rancher2_app_v2" "elasticsearch" {
       replicas: 2
       resources:
         requests:
-          memory: 1Gi
+          memory: 512Mi
         limits:
-          memory: 2Gi
+          memory: 768Mi
       service:
         type: NodePort
       ingress:
@@ -64,15 +63,15 @@ resource "rancher2_app_v2" "elasticsearch" {
         size: 100Gi
       resources:
         requests:
-          memory: 1Gi
+          memory: 1536Mi
         limits:
-          memory: 2Gi
+          memory: 2048Mi
     kibana:
       resources:
         requests:
-          memory: 1Gi
+          memory: 768Mi
         limits:
-          memory: 2Gi
+          memory: 1024Mi
       service:
         type: NodePort
       ingress:
@@ -157,7 +156,6 @@ resource "rancher2_app_v2" "fluentd" {
   repo_name     = "bitnami"
   chart_name    = "fluentd"
   chart_version = "5.3.0"
-  force_upgrade = "true"
   values        = <<-EOT
     image:
       tag: 1.14.1-debian-10-r28

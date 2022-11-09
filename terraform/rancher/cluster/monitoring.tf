@@ -8,7 +8,7 @@ resource "rancher2_project" "monitoring" {
   enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
-    requests_memory = "400Mi"
+    requests_memory = "256Mi"
   }
 }
 
@@ -20,7 +20,7 @@ resource "rancher2_namespace" "monitoring" {
   description = "Project monitoring namespace"
   container_resource_limit {
     limits_memory   = "512Mi"
-    requests_memory = "400Mi"
+    requests_memory = "256Mi"
   }
 }
 
@@ -34,7 +34,6 @@ resource "rancher2_app_v2" "metrics-server" {
   repo_name     = "metrics-server"
   chart_name    = "metrics-server"
   chart_version = "3.8.2"
-  force_upgrade = "true"
 }
 
 # Create prometheus app in monitoring namespace
@@ -78,6 +77,18 @@ resource "rancher2_app_v2" "prometheus" {
               resources:
                requests:
                  storage: 20Gi
+        additionalScrapeConfigs:
+        - job_name: kubecost
+          honor_labels: true
+          scrape_interval: 1m
+          scrape_timeout: 10s
+          metrics_path: /metrics
+          scheme: http
+          dns_sd_configs:
+          - names:
+            - kubecost-cost-analyzer.kubecost
+            type: 'A'
+            port: 9003
     grafana:
       adminPassword: ${var.grafana_admin_password}
       ingress:
@@ -96,10 +107,6 @@ resource "rancher2_app_v2" "prometheus" {
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       service:
         type: NodePort
-#      persistence:
-#        enabled: true
-#        storageClassName: "gp2"
-#        size: 20Gi
       env:
         GF_FEATURE_TOGGLES_ENABLE: "ngalert"
       grafana.ini:

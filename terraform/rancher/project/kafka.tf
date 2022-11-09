@@ -18,13 +18,18 @@ resource "rancher2_app_v2" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 2Gi
+        memory: 2048Mi
       limits:
-        memory: 4Gi
+        memory: 4096Mi
     zookeeper:
       enabled: true
       persistence:
         size: 10Gi
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 768Mi
     livenessProbe:
       enabled: false
     readinessProbe:
@@ -61,7 +66,7 @@ resource "aws_security_group" "kafka" {
     var.tags,
     {
       Name = "allow-kafka"
-    })
+  })
 }
 resource "aws_msk_configuration" "this" {
   count             = var.kafka_embedded ? 0 : 1
@@ -85,7 +90,7 @@ resource "aws_msk_cluster" "this" {
   }
 
   broker_node_group_info {
-    instance_type   = var.kafka_instance_type
+    instance_type = var.kafka_instance_type
     #    client_subnets  = data.aws_subnets.private.ids
     client_subnets  = slice(data.aws_subnets.private.ids, 0, var.kafka_number_of_broker_nodes)
     security_groups = [aws_security_group.kafka[count.index].id]
@@ -108,7 +113,7 @@ resource "aws_msk_cluster" "this" {
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
       devTeam = var.rancher_project_name
-    })
+  })
 }
 resource "rancher2_app_v2" "kafka_ui" {
   count         = var.kafka_ui ? 1 : 0
