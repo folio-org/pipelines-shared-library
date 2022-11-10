@@ -77,6 +77,8 @@ void edge(Map install_edge_map, Project project_config) {
         install_edge_map.each { name, version ->
             if (name.startsWith("edge-")) {
                 String values_path = helm.generateModuleValues(name, version, project_config, project_config.getDomains().edge)
+                String config = sh(script: "cat ${values_path}", returnStdout: true).trim()
+                new Logger(this, "folioDeploy").warning("${config}\n==============================")
                 helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not an edge module")
