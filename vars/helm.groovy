@@ -60,7 +60,7 @@ String generateModuleValues(String module_name, String module_version, Project p
         config[(module_name)] << [image: [repository: "${repository}/${module_name}",
                                           pullPolicy: "Always",
                                           tag       : module_version]]
-        config[(module_name)] << [podAnnotations: [date: "{{ now | unixEpoch }}"]]
+        config[(module_name)] << [metadata: [labels: [date: "{{ now | unixEpoch }}"]]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
             config[(module_name)]['ingress']['hosts'][0] += [host: domain]
