@@ -26,7 +26,7 @@ def install(String name, String namespace, String values_path, String chart_repo
 
 // Upgrading the helm chart.
 def upgrade(String name, String namespace, String values_path, String chart_repo, String chart_name) {
-    sh "helm upgrade --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
+    sh "helm upgrade --force --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
 }
 
 // Deleting the helm chart.
