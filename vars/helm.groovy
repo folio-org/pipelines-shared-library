@@ -27,7 +27,7 @@ def install(String name, String namespace, String values_path, String chart_repo
 
 // Upgrading the helm chart.
 def upgrade(String name, String namespace, String values_path, String chart_repo, String chart_name) {
-    sh "helm upgrade --force --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
+    sh "helm upgrade --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
 }
 
 // Deleting the helm chart.
@@ -59,7 +59,6 @@ String generateModuleValues(String module_name, String module_version, Project p
             repository = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
         }
         config[(module_name)] << [image: [repository: "${repository}/${module_name}",
-                                          pullPolicy: "Always",
                                           tag       : module_version]]
         config[(module_name)] << [podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
