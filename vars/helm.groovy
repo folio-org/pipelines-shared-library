@@ -58,6 +58,7 @@ String generateModuleValues(String module_name, String module_version, Project p
             repository = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
         }
         config[(module_name)] << [image: [repository: "${repository}/${module_name}",
+                                          pullPolicy: "Always",
                                           tag       : module_version]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
