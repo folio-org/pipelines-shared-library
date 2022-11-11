@@ -32,7 +32,7 @@ module "eks_cluster" {
   version = "18.30.2"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.21"
+  cluster_version   = "1.21" //For kube-poxy metrics 1.22 version needed
   cluster_ip_family = "ipv4"
 
   vpc_id     = data.aws_vpc.this.id
@@ -65,6 +65,14 @@ module "eks_cluster" {
       to_port                       = 9443
       source_cluster_security_group = true
       description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+    }
+    ingress_cluster_metrics_server = {
+      type                          = "ingress"
+      protocol                      = "tcp"
+      from_port                     = 4443
+      to_port                       = 4443
+      source_cluster_security_group = true
+      description                   = "metrics-server"
     }
     ingress_self_all = {
       type        = "ingress"

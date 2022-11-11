@@ -2,6 +2,11 @@
 ui-bundle:
   service:
     type: NodePort
+  resources:
+    limits:
+      memory: 400Mi
+    requests:
+      memory: 100Mi
   ingress:
     enabled: true
     hosts:
@@ -28,9 +33,9 @@ okapi:
   replicaCount: 1
   resources:
     limits:
-      memory: 1512Mi
+      memory: 1Gi
     requests:
-      memory: 1360Mi
+      memory: 768Mi
   service:
     type: NodePort
   ingress:
@@ -113,9 +118,9 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 1Gi
     requests:
-      memory: 400Mi
+      memory: 768Mi
   postJob:
     enabled: false
 mod-source-record-manager:
@@ -126,9 +131,9 @@ mod-source-record-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1Gi
     requests:
-      memory: 400Mi
+      memory: 768Mi
   postJob:
     enabled: false
 mod-service-interaction:
@@ -136,9 +141,9 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 768Mi
     requests:
-      memory: 400Mi
+      memory: 512Mi
   postJob:
     enabled: false
 mod-sender:
@@ -156,9 +161,9 @@ mod-search:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 1Gi
     requests:
-      memory: 400Mi
+      memory: 768Mi
   postJob:
     enabled: false
 mod-rtac:
@@ -176,9 +181,9 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 768Mi
     requests:
-      memory: 400Mi
+      memory: 512Mi
   postJob:
     enabled: false
 mod-quick-marc:
@@ -196,9 +201,9 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 768Mi
     requests:
-      memory: 400Mi
+      memory: 512Mi
   postJob:
     enabled: false
 mod-permissions:
@@ -296,9 +301,9 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 1Gi
     requests:
-      memory: 400Mi
+      memory: 768Mi
   postJob:
     enabled: false
 mod-notify:
@@ -356,9 +361,9 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 768Mi
     requests:
-      memory: 400Mi
+      memory: 512Mi
   postJob:
     enabled: false
 mod-ldp:
@@ -424,13 +429,13 @@ mod-inventory-storage:
     enabled: false
 mod-inventory:
   dbMaxPoolSize: '5'
-  javaOptions: "-XX:MaxRAMPercentage=66.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
+  javaOptions: "-XX:MaxRAMPercentage=85.0 -XX:+UseG1GC -Dorg.folio.metadata.inventory.storage.type=okapi"
   replicaCount: 1
   resources:
     limits:
-      memory: 2048Mi
+      memory: 2Gi
     requests:
-      memory: 400Mi
+      memory: 1664Mi
   postJob:
     enabled: false
 mod-inn-reach:
@@ -448,9 +453,9 @@ mod-graphql:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 200Mi
     requests:
-      memory: 400Mi
+      memory: 100Mi
   postJob:
     enabled: false
 mod-gobi:
@@ -569,9 +574,9 @@ mod-data-import:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 768Mi
     requests:
-      memory: 400Mi
+      memory: 512Mi
   postJob:
     enabled: false
 mod-data-export-worker:
@@ -581,7 +586,7 @@ mod-data-export-worker:
     limits:
       memory: 1024Mi
     requests:
-      memory: 400Mi
+      memory: 768Mi
   postJob:
     enabled: false
 mod-data-export-spring:
@@ -719,9 +724,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1.5Gi
     requests:
-      memory: 400Mi
+      memory: 1Gi
   postJob:
     enabled: false
 mod-aes:
@@ -746,11 +751,11 @@ mod-entities-links:
   postJob:
     enabled: false
 mod-serials-management:
-  javaOptions: "-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=66.0 -XX:+PrintFlagsFinal"
+  javaOptions: "-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=85.0 -XX:+PrintFlagsFinal"
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 1Gi
     requests:
       memory: 768Mi
   postJob:
