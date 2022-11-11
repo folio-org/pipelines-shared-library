@@ -136,7 +136,7 @@ resource "rancher2_app_v2" "kafka_ui" {
     yamlApplicationConfig:
       kafka:
         clusters:
-          - name: ${data.rancher2_cluster.this.name}
+          - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
             bootstrapServers: ${var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
       auth:
         type: disabled
