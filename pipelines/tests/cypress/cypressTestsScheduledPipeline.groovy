@@ -77,8 +77,11 @@ pipeline {
                         string(name: 'tenant', value: tenant),
                         string(name: 'user', value: 'diku_admin'),
                         password(name: 'password', value: 'admin'),
-                        string(name: 'cypressParameters', value: "--env grepTags=smoke,grepFilterSpecs=true"),
-                        string(name: 'customBuildName', value: JOB_BASE_NAME)
+                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
+                        string(name: 'customBuildName', value: JOB_BASE_NAME),
+                        string(name: 'timeout', value: '6'),
+                        string(name: 'testrailProjectID', value: '14'),
+                        string(name: 'testrailRunID', value: '2108')
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
