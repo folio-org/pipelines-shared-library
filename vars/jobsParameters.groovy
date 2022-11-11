@@ -85,12 +85,12 @@ static List devEnvironmentsList() {
             'falcon',
             'firebird',
             'folijet',
+            'folijet-lotus',
             'metadata',
             'prokopovych',
             'scout',
             'spanish',
             'spitfire',
-            'sprint-testing', //Deprecated
             'stripes-force',
             'tamu',
             'thor',
