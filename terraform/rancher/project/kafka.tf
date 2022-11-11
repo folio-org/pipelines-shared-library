@@ -31,6 +31,9 @@ resource "rancher2_app_v2" "kafka" {
       enabled: false
     replicaCount: ${var.kafka_number_of_broker_nodes}
     heapOpts: "-Xmx3277m -Xms1024m"
+    extraEnvVars:
+    - name: KAFKA_DELETE_TOPIC_ENABLE
+      value: true
   EOT
 }
 resource "aws_security_group" "kafka" {
