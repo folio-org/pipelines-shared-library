@@ -41,7 +41,7 @@ ansiColor("xterm") {
                         string(name: 'rancher_cluster_name', value: clusterName),
                         string(name: 'rancher_project_name', value: projectName),
                         booleanParam(name: 'ui_bundle_build', value: true),
-                        string(name: 'config_type', value: "development"),
+                        string(name: 'config_type', value: "testing"),
                         booleanParam(name: 'enable_modules', value: true),
                         string(name: 'tenant_id', value: tenantId),
                         string(name: 'tenant_name', value: "Karate tenant"),
