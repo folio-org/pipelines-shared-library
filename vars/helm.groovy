@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.model.Project
+import java.time.LocalDateTime
 
 // A function that is used to run the k8sClient inside a docker container.
 def k8sClient(Closure body) {
@@ -59,6 +60,7 @@ String generateModuleValues(String module_name, String module_version, Project p
         }
         config[(module_name)] << [image: [repository: "${repository}/${module_name}",
                                           tag       : module_version]]
+        config[(module_name)] << [podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
             config[(module_name)]['ingress']['hosts'][0] += [host: domain]
