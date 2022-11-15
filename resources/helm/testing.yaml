@@ -82,7 +82,7 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: '320Mi'
+      memory: '512Mi'
     requests:
       memory: '256Mi'
   service:

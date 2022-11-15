@@ -18,9 +18,9 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: '320Mi'
     requests:
-      memory: '192Mi'
+      memory: '256Mi'
   service:
     type: NodePort
 edge-connexion:
@@ -82,9 +82,9 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: '512Mi'
     requests:
-      memory: '192Mi'
+      memory: '256Mi'
   service:
     type: NodePort
 edge-ncip:
