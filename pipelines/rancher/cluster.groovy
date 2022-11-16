@@ -19,7 +19,7 @@ properties([
         string(name: 'eks_max_size', defaultValue: '8', description: 'Maximum size of node group for eks cluster', trim: true),
         string(name: 'vpc_name', defaultValue: 'folio-rancher-vpc', description: 'Name of the target VPC', trim: true),
         booleanParam(name: 'register_in_rancher', defaultValue: true, description: 'Set to false if eks cluster should not be registered in rancher'),
-        booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost')])])
+        booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost')
     ])
 ])
 
