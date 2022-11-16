@@ -18,7 +18,8 @@ properties([
         string(name: 'eks_min_size', defaultValue: '4', description: 'Minimum size of node group for eks cluster', trim: true),
         string(name: 'eks_max_size', defaultValue: '8', description: 'Maximum size of node group for eks cluster', trim: true),
         string(name: 'vpc_name', defaultValue: 'folio-rancher-vpc', description: 'Name of the target VPC', trim: true),
-        booleanParam(name: 'register_in_rancher', defaultValue: true, description: 'Set to false if eks cluster should not be registered in rancher')
+        booleanParam(name: 'register_in_rancher', defaultValue: true, description: 'Set to false if eks cluster should not be registered in rancher'),
+        booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost')])])
     ])
 ])
 
@@ -48,6 +49,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('eks_nodes_type', params.eks_nodes_type)
                 tfVars += terraform.generateTfVar('register_in_rancher', params.register_in_rancher)
                 tfVars += terraform.generateTfVar('admin_users', Constants.AWS_ADMIN_USERS)
+                tfVars += terraform.generateTfVar('deploy_kubecost', params.deploy_kubecost)
                 if (!params.vpc_name.isEmpty()) {
                     tfVars += terraform.generateTfVar('vpc_name', params.vpc_name)
                 } else {
@@ -76,7 +78,12 @@ ansiColor('xterm') {
                  credentialsId    : Constants.AWS_CREDENTIALS_ID,
                  accessKeyVariable: 'TF_VAR_aws_access_key_id',
                  secretKeyVariable: 'TF_VAR_aws_secret_access_key'],
-                string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')
+                [$class           : 'AmazonWebServicesCredentialsBinding',
+                 credentialsId    : Constants.KUBECOST_AWS_CREDENTIALS_ID,
+                 accessKeyVariable: 'TF_VAR_aws_kubecost_access_key_id',
+                 secretKeyVariable: 'TF_VAR_aws_kubecost_secret_access_key'],
+                string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key'),
+                string(credentialsId: Constants.KUBECOST_LICENSE_KEY, variable: 'TF_VAR_kubecost_licence_key')
             ]) {
                 docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
                     terraform.tfInit(tfWorkDir, '')

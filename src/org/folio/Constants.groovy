@@ -92,3 +92,7 @@ class Constants {
                                     "volaris-2nd"  : ["volaris"]]
 
 }
+
+    //Kubecost
+    static String KUBECOST_AWS_CREDENTIALS_ID = "kubecost_athena_aws_user"
+    static String KUBECOST_LICENSE_KEY = "kubecost_license_key"

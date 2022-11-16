@@ -1,68 +1,36 @@
-/* Temporary conflicts with Prometheus/Grafana installation. Will be resolved in scope of RANCHER-541 */
 data "aws_cognito_user_pools" "pool" {
   name = "Kubecost"
 }
 
 resource "aws_cognito_user_pool_client" "userpool_client" {
   depends_on                           = [data.aws_cognito_user_pools.pool]
-  count                                = var.deploy_kubecost ? 1 : 0
-  name                                 = module.eks_cluster.cluster_id
-  user_pool_id                         = tolist(data.aws_cognito_user_pools.pool.ids)[0]
+  name                                 = "folio-kubecost"
+  user_pool_id                         = "${tolist(data.aws_cognito_user_pools.pool.ids)[0]}"
   generate_secret                      = true
-  callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
+  callback_urls                        = ["https://folio-kubecost.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid"]
   supported_identity_providers         = ["COGNITO"]
 }
 
-#Creating a new project in Rancher.
-resource "rancher2_project" "kubecost" {
-  depends_on                = [rancher2_cluster_sync.this]
-  count                     = var.deploy_kubecost ? 1 : 0
-  provider                  = rancher2
-  name                      = "kubecost"
-  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
-  enable_project_monitoring = false
-  container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
-  }
-}
-
-# Create a new rancher2 Namespace assigned to cluster project
-resource "rancher2_namespace" "kubecost" {
-  depends_on  = [rancher2_cluster_sync.this]
-  count       = var.deploy_kubecost ? 1 : 0
-  name        = "kubecost"
-  project_id  = rancher2_project.kubecost[0].id
-  description = "Project kubecost namespace"
-  container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
-  }
-}
-
-# Create rancher2 Kubecost app in kubecost namespace
-resource "rancher2_app_v2" "kubecost" {
-  depends_on    = [rancher2_catalog_v2.kubecost]
-  count         = var.deploy_kubecost ? 1 : 0
-  cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.kubecost[0].name
-  name          = "kubecost"
-  repo_name     = "cost-analyzer"
-  chart_name    = "cost-analyzer"
-  chart_version = "1.89.1"
-  values        = <<-EOT
+# install Kubecost
+resource "helm_release" "kubecost" {
+  name             = "kubecost"
+  repository       = "https://kubecost.github.io/cost-analyzer"
+  chart            = "cost-analyzer"
+  version          = "1.97.0"
+  namespace        = "kubecost"
+  create_namespace = true
+  values           = [<<EOF
     ingress:
       enabled: true
-      hosts:
-        - "${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}"
+      hosts: 
+          - "folio-kubecost.${var.root_domain}"
       paths: ["/*"]
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
@@ -76,8 +44,11 @@ resource "rancher2_app_v2" "kubecost" {
     service:
       type: NodePort
     kubecostProductConfigs:
+      clusters:
+        - name: "tmp"
+          address: http://folio-tmp-kubecost.ci.folio.org
       currencyCode: "USD"
-      clusterName: ${module.eks_cluster.cluster_id}
+      clusterName: "kubecost-main" 
       labelMappingConfigs:
         enabled: true
         owner_label: "owner"
@@ -103,27 +74,12 @@ resource "rancher2_app_v2" "kubecost" {
         enabled: true
       athenaProjectID: "732722833398"
       athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/query_results"
-      athenaRegion: ${var.aws_region}
+      athenaRegion: us-west-2
       athenaDatabase: athenacurcfn_aws_kubecost
       athenaTable: "aws_kubecost"
       athenaWorkgroup: "primary"
       awsServiceKeyName: "${var.aws_kubecost_access_key_id}"
       awsServiceKeyPassword: "${var.aws_kubecost_secret_access_key}"
-    global:
-      grafana:
-        enabled: false
-        domainName: ${rancher2_app_v2.prometheus[0].name}-grafana.${rancher2_namespace.monitoring[0].name}.svc
-      prometheus:
-        enabled: false
-        nodeExporter:
-          enabled: false
-        serviceAccounts:
-          nodeExporter:
-            create: false
-        kubeStateMetrics:
-          enabled: false
-        kube-state-metrics:
-          disabled: true
-        fqdn: http://${rancher2_app_v2.prometheus[0].name}-prometheus.${rancher2_namespace.monitoring[0].name}.svc:9090
-  EOT
+  EOF 
+  ]
 }
