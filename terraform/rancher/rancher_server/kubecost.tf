@@ -84,6 +84,7 @@ resource "helm_release" "kubecost" {
       athenaWorkgroup: "primary"
       awsServiceKeyName: "${var.aws_kubecost_access_key_id}"
       awsServiceKeyPassword: "${var.aws_kubecost_secret_access_key}"
+      createServiceKeySecret: true
   EOF 
   ]
 }
