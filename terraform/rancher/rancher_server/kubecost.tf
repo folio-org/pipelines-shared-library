@@ -45,8 +45,12 @@ resource "helm_release" "kubecost" {
       type: NodePort
     kubecostProductConfigs:
       clusters:
-        - name: "tmp"
-          address: http://folio-tmp-kubecost.ci.folio.org
+        - name: folio-dev
+          address: "https://folio-dev-kubecost.ci.folio.org"
+        - name: folio-testing
+          address: "https://folio-testing-kubecost.ci.folio.org"
+        - name: folio-perf
+          address: "https://folio-perf-kubecost.ci.folio.org"
       currencyCode: "USD"
       clusterName: "kubecost-main" 
       labelMappingConfigs:
@@ -72,10 +76,10 @@ resource "helm_release" "kubecost" {
       productKey:
         key: "${var.kubecost_licence_key}"
         enabled: true
-      athenaProjectID: "732722833398"
+      athenaProjectID: "${var.projectID}"
       athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/query_results"
-      athenaRegion: us-west-2
-      athenaDatabase: athenacurcfn_aws_kubecost
+      athenaRegion: "${var.aws_region}"
+      athenaDatabase: "athenacurcfn_aws_kubecost"
       athenaTable: "aws_kubecost"
       athenaWorkgroup: "primary"
       awsServiceKeyName: "${var.aws_kubecost_access_key_id}"

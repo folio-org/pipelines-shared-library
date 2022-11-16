@@ -130,3 +130,9 @@ variable "deploy_kubecost" {
   default     = true
   description = "Deploy Kubecost tool if true"
 }
+
+variable "projectID" {
+  type        = string
+  description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
+}
+

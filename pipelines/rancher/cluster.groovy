@@ -50,6 +50,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('register_in_rancher', params.register_in_rancher)
                 tfVars += terraform.generateTfVar('admin_users', Constants.AWS_ADMIN_USERS)
                 tfVars += terraform.generateTfVar('deploy_kubecost', params.deploy_kubecost)
+                tfVars += terraform.generateTfVar('projectID', Constants.AWS_PROJECT_ID)
                 if (!params.vpc_name.isEmpty()) {
                     tfVars += terraform.generateTfVar('vpc_name', params.vpc_name)
                 } else {

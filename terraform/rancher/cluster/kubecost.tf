@@ -1,19 +1,21 @@
 /* Temporary conflicts with Prometheus/Grafana installation. Will be resolved in scope of RANCHER-541 */
-data "aws_cognito_user_pools" "pool" {
-  name = "Kubecost"
-}
 
-resource "aws_cognito_user_pool_client" "userpool_client" {
-  depends_on                           = [data.aws_cognito_user_pools.pool]
-  name                                 = module.eks_cluster.cluster_id
-  user_pool_id                         = tolist(data.aws_cognito_user_pools.pool.ids)[0]
-  generate_secret                      = true
-  callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
-  allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_flows                  = ["code"]
-  allowed_oauth_scopes                 = ["openid"]
-  supported_identity_providers         = ["COGNITO"]
-}
+/* Disable auth for Kubecist UI. With auth cannot connect context in Main Kubecost */
+# data "aws_cognito_user_pools" "pool" {
+#   name = "Kubecost"
+# }
+
+# resource "aws_cognito_user_pool_client" "userpool_client" {
+#   depends_on                           = [data.aws_cognito_user_pools.pool]
+#   name                                 = module.eks_cluster.cluster_id
+#   user_pool_id                         = tolist(data.aws_cognito_user_pools.pool.ids)[0]
+#   generate_secret                      = true
+#   callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
+#   allowed_oauth_flows_user_pool_client = true
+#   allowed_oauth_flows                  = ["code"]
+#   allowed_oauth_scopes                 = ["openid"]
+#   supported_identity_providers         = ["COGNITO"]
+# }
 
 #Creating a new project in Rancher.
 resource "rancher2_project" "kubecost" {
@@ -66,12 +68,6 @@ resource "rancher2_app_v2" "kubecost" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${tolist(data.aws_cognito_user_pools.pool.arns)[0]}","UserPoolClientId":"${aws_cognito_user_pool_client.userpool_client.id}", "UserPoolDomain":"folio-kubecost"}'
-        alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
-        alb.ingress.kubernetes.io/auth-scope: openid
-        alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
-        alb.ingress.kubernetes.io/auth-session-timeout: "3600"
-        alb.ingress.kubernetes.io/auth-type: cognito
     service:
       type: NodePort
     kubecostProductConfigs:
@@ -100,10 +96,10 @@ resource "rancher2_app_v2" "kubecost" {
       productKey:
         key: "${var.kubecost_licence_key}"
         enabled: true
-      athenaProjectID: "732722833398"
+      athenaProjectID: "${var.projectID}"
       athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/query_results"
-      athenaRegion: ${var.aws_region}
-      athenaDatabase: athenacurcfn_aws_kubecost
+      athenaRegion: "${var.aws_region}"
+      athenaDatabase: "athenacurcfn_aws_kubecost"
       athenaTable: "aws_kubecost"
       athenaWorkgroup: "primary"
       awsServiceKeyName: "${var.aws_kubecost_access_key_id}"

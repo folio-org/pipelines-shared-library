@@ -12,7 +12,8 @@ class Constants {
     //Kubecost
     static String KUBECOST_AWS_CREDENTIALS_ID = "kubecost_athena_aws_user"
     static String KUBECOST_LICENSE_KEY = "kubecost_license_key"
-    
+    static String AWS_PROJECT_ID = "732722833398"
+
     //Helm
     static String HELM_MODULES_CONFIG_PATH = "resources/helm"
 
