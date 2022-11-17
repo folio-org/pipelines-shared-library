@@ -50,17 +50,16 @@ ansiColor('xterm') {
                             List images_to_remove = []
                             List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}\\.(.*?)..*")
                             if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 1))
+                                images_to_remove.addAll(images.take(images.size() - 2))
                             }
                             images_to_remove.each { image_tag ->
-                                //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
-                                println(image_tag.toString())
+                                awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
                             }
                         }
                     }
                 }
             }
-            /*stage("Cleanup us-west-2 mod-* and okapi repos") {
+            stage("Cleanup us-west-2 mod-* and okapi repos") {
                 def backend_modules_list = getBackendModulesList()
                 helm.k8sClient {
                     backend_modules_list.each { module_repo ->
@@ -78,7 +77,7 @@ ansiColor('xterm') {
                         else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")}
                     }
                 }
-            }*/
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
