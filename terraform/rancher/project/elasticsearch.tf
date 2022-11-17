@@ -193,6 +193,10 @@ module "aws_es" {
       service = "ElasticSearch"
       name    = "es-${local.env_name}"
       version = var.es_version
-      devTeam = var.rancher_project_name
+      kubernetes_cluster = data.rancher2_cluster.this.name
+      kubernetes_namespace = var.rancher_project_name
+      kubernetes_label_team = var.rancher_project_name
+      kubernetes_service = "RDS-Database"
+      kubernetes_controller = "RDS-${local.env_name}"
   })
 }
