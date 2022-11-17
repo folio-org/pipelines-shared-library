@@ -50,7 +50,7 @@ ansiColor('xterm') {
                             List images_to_remove = []
                             List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}\\.(.*?)..*")
                             if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 2))
+                                images_to_remove.addAll(images.take(images.size() - 1))
                             }
                             images_to_remove.each { image_tag ->
                                 //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
