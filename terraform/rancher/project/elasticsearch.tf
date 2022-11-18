@@ -196,6 +196,7 @@ module "aws_es" {
       kubernetes_cluster = data.rancher2_cluster.this.name
       kubernetes_namespace = var.rancher_project_name
       kubernetes_label_team = var.rancher_project_name
+      team = var.rancher_project_name
       kubernetes_service = "RDS-Database"
       kubernetes_controller = "RDS-${local.env_name}"
   })
