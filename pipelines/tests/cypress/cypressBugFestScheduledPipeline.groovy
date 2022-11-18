@@ -15,7 +15,7 @@ pipeline {
     agent { label 'jenkins-agent-java11' }
 
     triggers {
-        cron('H 3 * * 1-6')
+        cron('H 1 * * 1-6')
     }
 
     options {
@@ -39,7 +39,7 @@ pipeline {
                         password(name: 'password', value: 'Folio-aqa1'),
                         string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
                         string(name: 'customBuildName', value: JOB_BASE_NAME),
-                        string(name: 'timeout', value: '6'),
+                        string(name: 'timeout', value: '8'),
                         string(name: 'testrailProjectID', value: '14'),
                         string(name: 'testrailRunID', value: '2099')
                     ]
