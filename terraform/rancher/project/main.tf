@@ -27,6 +27,9 @@ resource "rancher2_namespace" "this" {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"
   }
+  labels = {
+    team = var.rancher_project_name
+  }
 }
 
 # Create a new rancher2 Project Registry
