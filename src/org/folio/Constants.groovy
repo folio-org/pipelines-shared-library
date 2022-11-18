@@ -9,6 +9,11 @@ class Constants {
     static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
     static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
+    //Kubecost
+    static String KUBECOST_AWS_CREDENTIALS_ID = "kubecost_athena_aws_user"
+    static String KUBECOST_LICENSE_KEY = "kubecost_license_key"
+    static String AWS_PROJECT_ID = "732722833398"
+
     //Helm
     static String HELM_MODULES_CONFIG_PATH = "resources/helm"
 
