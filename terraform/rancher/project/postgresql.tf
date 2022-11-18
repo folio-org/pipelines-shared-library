@@ -52,6 +52,13 @@ resource "rancher2_app_v2" "postgresql" {
         listen_addresses = '0.0.0.0'
     volumePermissions:
       enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: monitoring
+        interval: 30s
+        scrapeTimeout: 30s
   EOT
 }
 
