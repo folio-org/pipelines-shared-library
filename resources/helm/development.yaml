@@ -881,6 +881,16 @@ mod-template-engine:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+mod-z3950:
+  javaOptions: ''
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
+  postJob:
+    enabled: false
 mod-user-import:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
