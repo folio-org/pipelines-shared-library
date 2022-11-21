@@ -13,7 +13,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    buildName customBuildName
                     sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                         checkout([
                             $class           : 'GitSCM',
