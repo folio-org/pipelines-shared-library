@@ -294,6 +294,37 @@ mod-configuration:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+# mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
+mod-codex-mux:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
+  postJob:
+    enabled: false
+mod-codex-inventory:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
+  postJob:
+    enabled: false
+mod-codex-ekb:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
+  postJob:
+    enabled: false
 mod-copycat:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
@@ -850,6 +881,16 @@ mod-template-engine:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+mod-z3950:
+  javaOptions: ''
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
+  postJob:
+    enabled: false
 mod-user-import:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
