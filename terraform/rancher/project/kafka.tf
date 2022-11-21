@@ -112,7 +112,12 @@ resource "aws_msk_cluster" "this" {
       service = "Kafka"
       name    = "kafka-${local.env_name}"
       version = var.kafka_version
-      devTeam = var.rancher_project_name
+      kubernetes_cluster = data.rancher2_cluster.this.name
+      kubernetes_namespace = var.rancher_project_name
+      kubernetes_label_team = var.rancher_project_name
+      team = var.rancher_project_name
+      kubernetes_service = "MSK-Cluster"
+      kubernetes_controller = "MSK-${local.env_name}"
   })
 }
 resource "rancher2_app_v2" "kafka_ui" {
