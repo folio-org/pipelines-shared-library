@@ -32,7 +32,6 @@ ansiColor('xterm') {
                     usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
                 ]) {
                     helm.k8sClient {
-                        sh "ls"
                         sh """
                             echo "DEBUG 0"
                             AUTH="$NEXUS_USERNAME:$NEXUS_PASSWORD"
