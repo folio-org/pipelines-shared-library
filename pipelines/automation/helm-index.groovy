@@ -38,7 +38,7 @@ ansiColor('xterm') {
                             CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
                             echo \$CHART_PACKAGE
                             ls
-                            echo "Pushing $CHART to repo Nexus ..."
+                            echo "Pushing $CHART_PACKAGE to repo Nexus ..."
                             curl -is -u "$AUTH" http://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "$CHART_PACKAGE" | indent
 
                         """
