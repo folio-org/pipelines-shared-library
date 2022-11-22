@@ -28,14 +28,21 @@ ansiColor('xterm') {
                 }
             }
             stage("Test") {
-                helm.k8sClient {
-                    sh "ls"
-                    sh """
-                        CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                        echo \$CHART_PACKAGE
-                        ls
-                    """
-                    cleanWs()
+                withCredentials([
+                    usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
+                ]) {
+                    helm.k8sClient {
+                        sh "ls"
+                        sh """
+                            AUTH="$NEXUS_USERNAME:$NEXUS_PASSWORD"
+                            CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                            echo \$CHART_PACKAGE
+                            ls
+                            echo "Pushing $CHART to repo Nexus ..."
+                            curl -is -u "$AUTH" http://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "$CHART_PACKAGE" | indent
+
+                        """
+                    }
                 }
             }
         } catch (exception) {
