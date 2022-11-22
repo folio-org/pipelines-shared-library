@@ -7,6 +7,14 @@ import org.folio.utilities.Tools
 import groovy.json.JsonSlurperClassic
 import org.jenkinsci.plugins.workflow.libs.Library
 
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '20')),
+    disableConcurrentBuilds(),
+    parameters([
+        booleanParam(name: 'indexAllCharts', defaultValue: false, description: 'Run index for all charts in folio-helm-v2 repo')
+    ])
+])
+
 def chartsRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/folio-helm-v2.git"
 
 ansiColor('xterm') {
@@ -33,16 +41,13 @@ ansiColor('xterm') {
                 ]) {
                     helm.k8sClient {
                         sh """
-                            echo "DEBUG 0"
-                            AUTH="$NEXUS_USERNAME:$NEXUS_PASSWORD"
-                            echo "DEBUG 1"
-
-                            for dir in charts/*;
-                                do 
-                                    CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                                    echo \$CHART_PACKAGE
-                                    curl -is -u "\$AUTH" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
-                                done;
+                            // for dir in charts/*;
+                            //     do 
+                            //         CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                            //         curl -is -u "\$NEXUS_USERNAME:\$NEXUS_PASSWORD" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
+                            //     done;
+                            ls
+                            git diff --name-only HEAD HEAD~1
                         """
                     }
                 }
