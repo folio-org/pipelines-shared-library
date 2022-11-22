@@ -16,7 +16,7 @@ ansiColor('xterm') {
                 sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                     checkout([
                         $class           : 'GitSCM',
-                        branches         : [[name: "*/master"]],
+                        branches         : [[name: "*/RANCHER-535"]],
                         extensions       : scm.extensions + [[$class             : 'SubmoduleOption',
                                                             disableSubmodules  : false,
                                                             parentCredentials  : false,
@@ -36,14 +36,13 @@ ansiColor('xterm') {
                             echo "DEBUG 0"
                             AUTH="$NEXUS_USERNAME:$NEXUS_PASSWORD"
                             echo "DEBUG 1"
-                            CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                            echo "DEBUG 2"
-                            echo \$CHART_PACKAGE
-                            ls
-                            echo "DEBUG 3"
-                            echo "Pushing \$CHART_PACKAGE to repo Nexus ..."
-                            curl -is -u "\$AUTH" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
 
+                            for dir in charts/*;
+                                do 
+                                    CHART_PACKAGE="\$(helm package charts/\$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                                    echo \$CHART_PACKAGE
+                                    curl -is -u "\$AUTH" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
+                                done;
                         """
                     }
                 }
@@ -60,6 +59,14 @@ ansiColor('xterm') {
 }
 
 
+
+//  CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+//                             echo "DEBUG 2"
+//                             echo \$CHART_PACKAGE
+//                             ls
+//                             echo "DEBUG 3"
+//                             echo "Pushing \$CHART_PACKAGE to repo Nexus ..."
+//                             curl -is -u "\$AUTH" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
 
 
 // import org.folio.Constants
