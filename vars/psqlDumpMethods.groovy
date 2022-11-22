@@ -22,7 +22,7 @@ def backupHelmInstall(String build_id, String repo_name, String chart_name, Stri
         --set psql.tenantBackupModulesForAdminPassword=${tenant_admin_password_to_backup_modules_versions} \
         --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
-        --namespace=${project_namespace} --wait --wait-for-jobs"
+        --namespace=${project_namespace} --timeout 240m --wait --wait-for-jobs"
     }
 }
 
@@ -32,7 +32,7 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
         --set psql.dbBackupName=${db_backup_name} --set psql.job.action='restore' \
         --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
-        --namespace=${project_namespace} --wait --wait-for-jobs"
+        --namespace=${project_namespace} --timeout 240m --wait --wait-for-jobs"
     }
 }
 
