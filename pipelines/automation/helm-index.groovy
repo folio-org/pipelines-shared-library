@@ -41,11 +41,6 @@ ansiColor('xterm') {
                 ]) {
                     helm.k8sClient {
                         sh """
-                            // for dir in charts/*;
-                            //     do 
-                            //         CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                            //         curl -is -u "\$NEXUS_USERNAME:\$NEXUS_PASSWORD" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
-                            //     done;
                             ls
                             git diff --name-only HEAD HEAD~1
                         """
@@ -64,7 +59,14 @@ ansiColor('xterm') {
 }
 
 
+                            // for dir in charts/*;
+                            //     do 
+                            //         CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                            //         curl -is -u "\$NEXUS_USERNAME:\$NEXUS_PASSWORD" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
+                            //     done;
 
+
+                            
 //  CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
 //                             echo "DEBUG 2"
 //                             echo \$CHART_PACKAGE
