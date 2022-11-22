@@ -59,12 +59,11 @@ ansiColor('xterm') {
 }
 
 def getChangedRegulations(regulationType) {
-    logger.printInfoMessage("Get changed ${regulationType} files")
     try {
         script.sh(script: "git diff HEAD~1 HEAD -m -1 --name-only --diff-filter=ACMRT --pretty='format:' " +
                 "| grep -E \"${regulationType}\"", returnStdout: true).split('\\n')
     } catch (Exception e) {
-        logger.printInfoMessage("No changed ${regulationType} files found")
+        println("No changed ${regulationType} files found")
     }
 }
 
