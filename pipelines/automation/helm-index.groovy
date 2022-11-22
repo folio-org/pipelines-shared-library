@@ -33,6 +33,7 @@ ansiColor('xterm') {
                                                             trackingSubmodules : false]],
                         userRemoteConfigs: [[url: chartsRepositoryUrl]]
                     ])
+                    sh "git diff --name-only HEAD HEAD~1"
                 }
             }
             stage("Test") {
@@ -42,7 +43,6 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         sh """
                             ls
-                            git diff --name-only HEAD HEAD~1
                         """
                     }
                 }
@@ -66,7 +66,7 @@ ansiColor('xterm') {
                             //     done;
 
 
-                            
+
 //  CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
 //                             echo "DEBUG 2"
 //                             echo \$CHART_PACKAGE
