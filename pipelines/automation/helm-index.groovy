@@ -21,7 +21,7 @@ def chartsForIndex = []
 ansiColor('xterm') {
     node('jenkins-agent-java11') {
         try {
-            stage('Checkout') {
+            stage('Init') {
                 sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                     checkout([
                         $class           : 'GitSCM',
@@ -36,15 +36,14 @@ ansiColor('xterm') {
                     ])
                     if (params.indexAllCharts) {
                         chartsForIndex = sh(script: "ls -d charts/*", returnStdout: true).split('\\n')
+                        currentBuild.displayName = "Index all charts"
                     } else {
                         chartsForIndex = sh(script: "git diff HEAD~1 --name-only | cut -d'/' -f1-2 | sort | uniq", returnStdout: true).split('\\n')
-                    }
-                    chartsForIndex.each {
-                        println it
+                        currentBuild.displayName = "Triggered by Github"
                     }
                 }
             }
-            stage("Test") {
+            stage("Package and index charts") {
                 withCredentials([
                     usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
                 ]) {
