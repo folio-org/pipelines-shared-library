@@ -41,8 +41,8 @@ ansiColor('xterm') {
                             echo \$CHART_PACKAGE
                             ls
                             echo "DEBUG 3"
-                            echo "Pushing $CHART_PACKAGE to repo Nexus ..."
-                            curl -is -u "$AUTH" http://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "$CHART_PACKAGE" | indent
+                            echo "Pushing \$CHART_PACKAGE to repo Nexus ..."
+                            curl -is -u "$AUTH" http://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE" | indent
 
                         """
                     }
