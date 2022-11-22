@@ -34,8 +34,8 @@ pipeline {
             steps {
                 sh "ls"
                 sh """
-                    CHART_PACKAGE="$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                    echo $CHART_PACKAGE
+                    CHART_PACKAGE="\$(helm package edge-caiasoft/ --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                    echo \$CHART_PACKAGE
                     ls
                 """
             }
