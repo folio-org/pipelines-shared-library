@@ -16,6 +16,7 @@ properties([
 ])
 
 def chartsRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/folio-helm-v2.git"
+def chartsForIndex = []
 
 ansiColor('xterm') {
     node('jenkins-agent-java11') {
@@ -33,20 +34,42 @@ ansiColor('xterm') {
                                                             trackingSubmodules : false]],
                         userRemoteConfigs: [[url: chartsRepositoryUrl]]
                     ])
-                    def filesToDeploy = sh(script: "git diff HEAD~1 HEAD -m -1 --name-only --diff-filter=ACMRT --pretty='format:' ", returnStdout: true).split('\\n')
-                }
-            }
-            stage("Test") {
-                withCredentials([
-                    usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
-                ]) {
-                    helm.k8sClient {
-                        sh """
-                            ls
-                        """
+                    if (params.indexAllCharts) {
+                        chartsForIndex = sh(script: "ls charts/", returnStdout: true).split('\\n')
+                    } else {
+                        chartsForIndex = sh(script: "git diff HEAD~1 --name-only | cut -d'/' -f1-2 | sort | uniq", returnStdout: true).split('\\n')
+                    }
+                    chartsForIndex.each {
+                        println it
                     }
                 }
             }
+            // stage("Test") {
+            //     withCredentials([
+            //         usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD'),
+            //     ]) {
+            //         if (params.indexAllCharts) {
+            //             helm.k8sClient {
+            //                 sh """
+            //                 for dir in charts/*;
+            //                     do 
+            //                         CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+            //                         curl -is -u "\$NEXUS_USERNAME:\$NEXUS_PASSWORD" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
+            //                     done;
+            //                 """
+            //             }
+            //         } else {
+            //             helm.k8sClient {
+            //                 chartsForIndex.each {
+            //                     sh """
+            //                     CHART_PACKAGE="\$(helm package ${it} --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+            //                     curl -is -u "\$NEXUS_USERNAME:\$NEXUS_PASSWORD" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
+            //                     """
+            //                 }
+            //             }                        
+            //         }
+            //     }
+            // }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
