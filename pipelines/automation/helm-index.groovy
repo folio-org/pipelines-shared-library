@@ -38,11 +38,8 @@ pipeline {
                     echo \$CHART_PACKAGE
                     ls
                 """
+                cleanWs()
             }
-        }
-
-        stage('Cleanup') {
-            cleanWs()
         }
     }
 }
