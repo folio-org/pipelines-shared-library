@@ -51,7 +51,7 @@ ansiColor('xterm') {
                         chartsForIndex.each {
                             sh """
                             CHART_PACKAGE="\$(helm package ${it} --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
-                            curl -is -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" ${Constants.FOLIO_HELM_V2_REPO_NAME} --upload-file "${CHART_PACKAGE}"
+                            curl -is -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" ${Constants.FOLIO_HELM_V2_REPO_NAME} --upload-file "\$CHART_PACKAGE"
                             """
                         }
                     }
