@@ -40,8 +40,9 @@ pipeline {
                 """
             }
         }
+
         stage('Cleanup') {
-            cleanWs notFailBuild: true
+            cleanWs()
         }
     }
 }
