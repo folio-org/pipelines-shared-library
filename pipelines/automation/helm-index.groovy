@@ -39,7 +39,7 @@ ansiColor('xterm') {
 
                             for dir in charts/*;
                                 do 
-                                    CHART_PACKAGE="\$(helm package charts/\$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
+                                    CHART_PACKAGE="\$(helm package \$dir --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
                                     echo \$CHART_PACKAGE
                                     curl -is -u "\$AUTH" https://repository.folio.org/repository/folio-helm-v2-test/ --upload-file "\$CHART_PACKAGE"
                                 done;
