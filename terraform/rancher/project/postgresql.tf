@@ -39,9 +39,9 @@ resource "rancher2_app_v2" "postgresql" {
         storageClass: gp2
       resources:
         requests:
-          memory: 1536Mi
+          memory: 512Mi
         limits:
-          memory: 3096Mi
+          memory: 6144Mi
       podSecurityContext:
         fsGroup: 1001
       containerSecurityContext:
