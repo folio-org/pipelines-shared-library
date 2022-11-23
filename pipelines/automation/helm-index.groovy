@@ -50,6 +50,7 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         chartsForIndex.each {
                             sh """
+                            echo "Pushing ${it} to repo Nexus..."
                             CHART_PACKAGE="\$(helm package ${it} --dependency-update | cut -d":" -f2 | tr -d '[:space:]')"
                             curl -is -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" ${Constants.FOLIO_HELM_V2_REPO_NAME} --upload-file "\$CHART_PACKAGE"
                             """
