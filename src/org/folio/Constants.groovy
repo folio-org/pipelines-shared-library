@@ -43,7 +43,7 @@ class Constants {
     static String FOLIO_HELM_HOSTED_REPO_NAME = "helm-hosted"
     static String FOLIO_HELM_HOSTED_REPO_URL = "https://repository.folio.org/repository/helm-hosted/"
     
-    static String FOLIO_HELM_V2_REPO_NAME = "https://repository.folio.org/repository/folio-helm-v2-test/"
+    static String FOLIO_HELM_V2_REPO_NAME = "https://repository.folio.org/repository/folio-helm-v2/"
 
     // Docker
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"
