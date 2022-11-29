@@ -105,6 +105,7 @@ ansiColor('xterm') {
             stage("Deploy backend modules") {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 println install_backend_map
+                println project_config
                 // if (install_backend_map) {
                 //     folioDeploy.backend(install_backend_map,
                 //         project_config)
