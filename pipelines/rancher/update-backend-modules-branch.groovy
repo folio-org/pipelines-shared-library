@@ -29,7 +29,7 @@ properties([
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
         jobsParameters.adminUsername(),
-        jobsParameters.adminPassword(),
+        // jobsParameters.adminPassword(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
@@ -48,8 +48,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index])
 
-OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
-    password: params.admin_password)
+// OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+//     password: params.admin_password)
 
 Email email = okapiSettings.email()
 
