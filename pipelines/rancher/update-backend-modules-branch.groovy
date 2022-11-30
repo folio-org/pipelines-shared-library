@@ -63,7 +63,7 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     installJson: new GitHubUtility(this).getEnableList(params.folio_repository,, params.folio_branch),
     configType: params.config_type,
     tenant: tenant)
-
+Map actionMaps
 ansiColor('xterm') {
     if (params.refreshParameters) {
         currentBuild.result = 'ABORTED'
@@ -111,7 +111,7 @@ ansiColor('xterm') {
                 println install_backend_map
                 modules_to_install = installed_modules
                 println modules_to_install
-                Map actionMaps = compare.createActionMaps()
+                actionMaps = compare.createActionMaps(install_backend_map, modules_to_install)
                 println actionMaps
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
