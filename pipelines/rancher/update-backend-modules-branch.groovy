@@ -111,6 +111,7 @@ ansiColor('xterm') {
                 println install_backend_map
                 modules_to_install = installed_modules
                 println modules_to_install
+                println compare.testFunc(install_backend_map, modules_to_install)
                 actionMaps = compare.createActionMaps(install_backend_map, modules_to_install)
                 println actionMaps
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""

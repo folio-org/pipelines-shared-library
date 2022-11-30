@@ -82,7 +82,7 @@ String compareVersion(String inA, String inB){
   return 'equal'
 }
 
-void createActionMaps(Map oldMap, Map newMap) {
+def createActionMaps(Map oldMap, Map newMap) {
     Map updateMap = newMap
     Map disableMap = [:]
     Map downgradeMap = [:]
@@ -110,6 +110,11 @@ void createActionMaps(Map oldMap, Map newMap) {
     actionMaps.downgradeMap = downgradeMap
     return actionMaps
 }
+
+def testFunc(Map oldMap, Map newMap) {
+    println oldMap
+}
+
 
 // def (Map updateMap, Map disableMap, Map downgradeMap) = createActionMaps(getModuleMap(mapCurrent), getModuleMap(mapNew)).values()
 // println updateMap
