@@ -61,6 +61,11 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     configType: params.config_type,
     tenant: tenant)
 
+
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
+List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
+List modules_to_install = []
+
 ansiColor('xterm') {
     if (params.refreshParameters) {
         currentBuild.result = 'ABORTED'
@@ -105,7 +110,6 @@ ansiColor('xterm') {
 
             stage("Deploy backend modules") {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
                 println install_backend_map
                 println installed_modules
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
