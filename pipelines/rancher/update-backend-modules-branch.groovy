@@ -111,7 +111,7 @@ ansiColor('xterm') {
                 println install_backend_map
                 modules_to_install = installed_modules
                 println modules_to_install
-                Map actionMaps = compare.createActionMaps(install_backend_map, modules_to_install)
+                Map actionMaps = createActionMaps(install_backend_map, modules_to_install)
                 println actionMaps
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
@@ -175,4 +175,35 @@ ansiColor('xterm') {
             }
         }
     }
+}
+
+def createActionMaps(Map oldMap, Map newMap) {
+    Map updateMap = newMap
+    Map disableMap = [:]
+    Map downgradeMap = [:]
+    oldMap.each { key, value ->
+        if (newMap.containsKey(key)) {
+            println "${key} version: ${value} -> ${map2[key]} : ${compareVersion(value, map2[key])}"
+            switch (compareVersion(value, newMap[key])) {
+            case 'equal':
+                updateMap.remove(key)
+                break
+            case 'downgrade':
+                downgradeMap.put(key, newMap[key])
+                updateMap.remove(key)
+                break
+            default:
+                break
+            }
+        }
+        else {
+            println "${key}:${value} disable"
+            disableMap.put(key, value)
+        }
+    }
+    Map actionMaps = [:]
+    actionMaps.updateMap = updateMap
+    actionMaps.disableMap = disableMap
+    actionMaps.downgradeMap = downgradeMap
+    return actionMaps
 }
