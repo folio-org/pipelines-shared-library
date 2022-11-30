@@ -111,8 +111,9 @@ ansiColor('xterm') {
                 println install_backend_map
                 modules_to_install = installed_modules
                 println modules_to_install
-                compare.createActionMaps(install_backend_map, modules_to_install)
-                // println actionMaps
+                println compare.mapNew
+                Map actionMaps = compare.createActionMaps(install_backend_map, modules_to_install)
+                println actionMaps
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
                 //     folioDeploy.backend(install_backend_map,
