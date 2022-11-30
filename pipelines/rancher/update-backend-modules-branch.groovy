@@ -60,7 +60,7 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: new GitHubUtility(this).getEnableList(params.folio_repository,, params.folio_branch),
+    installJson: new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch),
     configType: params.config_type,
     tenant: tenant)
 Map actionMaps
@@ -107,16 +107,17 @@ ansiColor('xterm') {
             // }
 
             stage("Deploy backend modules") {
-                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                modules_to_install = installed_modules
+                Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                Map okapi_backend_map = new GitHubUtility(this).getModulesVersionsMap(installed_modules)
+                okapi_backend_map.findAll{it.key.startsWith("mod-")}
                 
-                compare.createActionMaps(install_backend_map, modules_to_install)
+                compare.createActionMaps(github_backend_map, okapi_backend_map)
 
-                // actionMaps = compare.createActionMaps(install_backend_map, modules_to_install)
+                // actionMaps = compare.createActionMaps(github_backend_map, modules_to_install)
                 // println actionMaps
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
-                // if (install_backend_map) {
-                //     folioDeploy.backend(install_backend_map,
+                // if (github_backend_map) {
+                //     folioDeploy.backend(github_backend_map,
                 //         project_config)
                 // }
             }
