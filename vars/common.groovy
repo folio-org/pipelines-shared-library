@@ -85,33 +85,3 @@ void checkEcrRepoExistence(String repo_name) {
     }
 }
 
-def createActionMaps(Map oldMap, Map newMap) {
-    Map updateMap = newMap
-    Map disableMap = [:]
-    Map downgradeMap = [:]
-    oldMap.each { key, value ->
-        if (newMap.containsKey(key)) {
-            println "${key} version: ${value} -> ${map2[key]} : ${compareVersion(value, map2[key])}"
-            switch (compareVersion(value, newMap[key])) {
-            case 'equal':
-                updateMap.remove(key)
-                break
-            case 'downgrade':
-                downgradeMap.put(key, newMap[key])
-                updateMap.remove(key)
-                break
-            default:
-                break
-            }
-        }
-        else {
-            println "${key}:${value} disable"
-            disableMap.put(key, value)
-        }
-    }
-    Map actionMaps = [:]
-    actionMaps.updateMap = updateMap
-    actionMaps.disableMap = disableMap
-    actionMaps.downgradeMap = downgradeMap
-    return actionMaps
-}

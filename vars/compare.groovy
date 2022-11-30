@@ -1,4 +1,3 @@
-#!groovy
 import groovy.json.JsonOutput
 
 // def mapCurrent = '''[ {
