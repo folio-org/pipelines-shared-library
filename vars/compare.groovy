@@ -88,7 +88,7 @@ def createActionMaps(oldMap, newMap) {
     Map downgradeMap = [:]
     oldMap.each { key, value ->
         if (newMap.containsKey(key)) {
-            println "${key} version: ${value} -> ${map2[key]} : ${compareVersion(value, map2[key])}"
+            println "${key} version: ${value} ->"
             switch (compareVersion(value, newMap[key])) {
             case 'equal':
                 updateMap.remove(key)
