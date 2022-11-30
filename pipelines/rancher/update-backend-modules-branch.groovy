@@ -4,6 +4,7 @@ import org.folio.rest.Deployment
 import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
+import org.folio.rest.Okapi
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
