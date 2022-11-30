@@ -104,9 +104,10 @@ ansiColor('xterm') {
 
             stage("Deploy backend modules") {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
                 println install_backend_map
-                println project_config.installMap
-                println project_config.getModulesConfig()
+                println installed_modules
+                // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
                 //     folioDeploy.backend(install_backend_map,
                 //         project_config)
