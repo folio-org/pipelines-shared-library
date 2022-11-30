@@ -109,6 +109,9 @@ ansiColor('xterm') {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 println install_backend_map
                 println installed_modules
+                installed_modules.each {
+                    println it.id
+                }
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
                 //     folioDeploy.backend(install_backend_map,
