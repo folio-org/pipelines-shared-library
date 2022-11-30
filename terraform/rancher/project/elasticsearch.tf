@@ -95,9 +95,7 @@ resource "rancher2_app_v2" "opensearch-client" {
     ingress:
       hosts:
         - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch"]), var.root_domain])}
-          paths:
-            - path: /*
-              pathType: ImplementationSpecific
+      path: /
       enabled: true
       annotations:
         kubernetes.io/ingress.class: alb
