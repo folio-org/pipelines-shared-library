@@ -35,6 +35,9 @@ properties([
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
         jobsParameters.recreateIndexElasticsearch()])])
+OkapiUser superadmin_user = okapiSettings.superadmin_user()
+Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
+List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
@@ -45,8 +48,6 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
-
-OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
 
@@ -60,11 +61,6 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     installJson: new GitHubUtility(this).getEnableList(params.folio_repository,, params.folio_branch),
     configType: params.config_type,
     tenant: tenant)
-
-
-Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
-List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).collect { [id: it.id, action: "enable"] }
-List modules_to_install = []
 
 ansiColor('xterm') {
     if (params.refreshParameters) {
