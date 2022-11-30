@@ -38,7 +38,8 @@ properties([
 
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
-Map installed_modules = okapi.getInstalledModules(params.tenant_id).collect { [id: it.id, action: "enable"] }
+List installed_modules = okapi.getInstalledModules(params.tenant_id).collect { [id: it.id, action: "enable"] }
+List modules_to_install = []
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
@@ -109,9 +110,8 @@ ansiColor('xterm') {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 println install_backend_map
                 println installed_modules
-                installed_modules.each {
-                    println it.id
-                }
+                modules_to_install = installed_modules
+                println modules_to_install
                 // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (install_backend_map) {
                 //     folioDeploy.backend(install_backend_map,
