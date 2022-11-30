@@ -111,7 +111,7 @@ def createActionMaps(Map oldMap, Map newMap) {
     return actionMaps
 }
 
-def testFunc(Map oldMap, Map newMap) {
+Map testFunc(Map oldMap, Map newMap) {
     println oldMap
 }
 
