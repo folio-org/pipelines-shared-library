@@ -1,51 +1,51 @@
 #!groovy
 import groovy.json.JsonOutput
 
-def mapCurrent = '''[ {
-  "id" : "folio_developer-6.2.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_handler-stripes-registry-1.2.0",
-  "action" : "enable"
-} ,{
-  "id" : "folio_myprofile-7.1.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-erm-usage-data-provider-4.1.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-fund-1.1.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-package-title-4.1.0",
-  "action" : "enable"
-}]'''
-def mapNew = '''[ {
-  "id" : "folio_developer-6.2.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_handler-stripes-registry-SNAPSHOT-1.3.0",
-  "action" : "enable"
-} , {
-  "id" : "folio_myprofile-7.1.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-erm-usage-data-provider-4.1.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-fund-1.3.0",
-  "action" : "enable"
-}, {
-  "id" : "folio_plugin-find-package-title-4.0.0",
-  "action" : "enable"
-}]'''
+// def mapCurrent = '''[ {
+//   "id" : "folio_developer-6.2.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_handler-stripes-registry-1.2.0",
+//   "action" : "enable"
+// } ,{
+//   "id" : "folio_myprofile-7.1.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-erm-usage-data-provider-4.1.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-fund-1.1.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-package-title-4.1.0",
+//   "action" : "enable"
+// }]'''
+// def mapNew = '''[ {
+//   "id" : "folio_developer-6.2.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_handler-stripes-registry-SNAPSHOT-1.3.0",
+//   "action" : "enable"
+// } , {
+//   "id" : "folio_myprofile-7.1.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-erm-usage-data-provider-4.1.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-fund-1.3.0",
+//   "action" : "enable"
+// }, {
+//   "id" : "folio_plugin-find-package-title-4.0.0",
+//   "action" : "enable"
+// }]'''
 
 //def getContentAsJson (String inputMap) {
 //  def slurper = new groovy.json.JsonSlurper()
 //  return slurper.parseText(inputMap)
 //}
 
-def getModuleMap (String inputString) {
+def getModuleMap(String inputString) {
   def slurper = new groovy.json.JsonSlurper()
   def moduleList = slurper.parseText(inputString)
   String nameGroup = "moduleName"
@@ -112,7 +112,7 @@ def createActionMaps(Map oldMap, Map newMap) {
     return actionMaps
 }
 
-def (Map updateMap, Map disableMap, Map downgradeMap) = createActionMaps(getModuleMap(mapCurrent), getModuleMap(mapNew)).values()
-println updateMap
-println disableMap
-println downgradeMap
+// def (Map updateMap, Map disableMap, Map downgradeMap) = createActionMaps(getModuleMap(mapCurrent), getModuleMap(mapNew)).values()
+// println updateMap
+// println disableMap
+// println downgradeMap
