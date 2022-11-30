@@ -92,6 +92,22 @@ resource "rancher2_app_v2" "opensearch-client" {
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+    ingress:
+      hosts:
+        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch"]), var.root_domain])}
+          paths:
+            - path: /*
+              pathType: ImplementationSpecific
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
+        alb.ingress.kubernetes.io/healthcheck-port: '80'
+
   EOT
 }
 
