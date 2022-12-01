@@ -61,13 +61,8 @@ def getModuleMap(String inputString) {
 }
 
 String compareVersion(String inA, String inB){
-  List patSubLines = [~/-SNAPSHOT/]
-//  for (patSubLine in patSubLines) {
-    inA -= patSubLines
-    inB -= patSubLines
-
-  List verA = inA.tokenize('.') + '0'
-  List verB = inB.tokenize('.') + '0'
+  List verA = inA.minus("-SNAPSHOT").tokenize('.') + '0'
+  List verB = inB.minus("-SNAPSHOT").tokenize('.') + '0'
   int commonIndices = Math.min(verA.size(), verB.size())
   for (int i = 0; i < commonIndices; ++i) {
     long numA = verA[i].toLong()
@@ -82,7 +77,7 @@ String compareVersion(String inA, String inB){
   return 'equal'
 }
 
-def createActionMaps(Map oldMap, Map newMap) {
+def createActionMaps(oldMap, newMap) {
     Map updateMap = newMap
     Map disableMap = [:]
     Map downgradeMap = [:]
