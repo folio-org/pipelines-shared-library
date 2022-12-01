@@ -82,7 +82,7 @@ String compareVersion(String inA, String inB){
   return 'equal'
 }
 
-def createActionMaps(oldMap, newMap) {
+def createActionMaps(Map oldMap, Map newMap) {
     Map updateMap = newMap
     Map disableMap = [:]
     Map downgradeMap = [:]
