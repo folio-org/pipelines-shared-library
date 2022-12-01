@@ -63,7 +63,7 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     installJson: new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch),
     configType: params.config_type,
     tenant: tenant)
-Map actionMaps
+
 ansiColor('xterm') {
     if (params.refreshParameters) {
         currentBuild.result = 'ABORTED'
@@ -85,26 +85,26 @@ ansiColor('xterm') {
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
             }
 
-            // stage('UI Build') {
-            //     if (params.ui_bundle_build) {
-            //         build job: 'Rancher/UI-Build',
-            //             parameters: [
-            //                 string(name: 'folio_repository', value: params.folio_repository),
-            //                 string(name: 'folio_branch', value: params.folio_branch),
-            //                 string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
-            //                 string(name: 'rancher_project_name', value: project_config.getProjectName()),
-            //                 string(name: 'tenant_id', value: tenant.getId()),
-            //                 string(name: 'custom_hash', value: project_config.getHash()),
-            //                 string(name: 'custom_url', value: "https://${project_config.getDomains().okapi}"),
-            //                 string(name: 'custom_tag', value: project_config.getUiBundleTag())]
-            //     }
-            // }
+            stage('UI Build') {
+                if (params.ui_bundle_build) {
+                    build job: 'Rancher/UI-Build',
+                        parameters: [
+                            string(name: 'folio_repository', value: params.folio_repository),
+                            string(name: 'folio_branch', value: params.folio_branch),
+                            string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                            string(name: 'rancher_project_name', value: project_config.getProjectName()),
+                            string(name: 'tenant_id', value: tenant.getId()),
+                            string(name: 'custom_hash', value: project_config.getHash()),
+                            string(name: 'custom_url', value: "https://${project_config.getDomains().okapi}"),
+                            string(name: 'custom_tag', value: project_config.getUiBundleTag())]
+                }
+            }
 
-            // if(tenant.getOkapiVersion()?.trim()) {
-            //     stage("Deploy okapi") {
-            //         folioDeploy.okapi(project_config)
-            //     }
-            // }
+            if(tenant.getOkapiVersion()?.trim()) {
+                stage("Deploy okapi") {
+                    folioDeploy.okapi(project_config)
+                }
+            }
 
             stage("Deploy backend modules") {
                 Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
@@ -120,33 +120,33 @@ ansiColor('xterm') {
                 }
             }
 
-            // stage("Pause") {
-            //     // Wait for dns flush.
-            //     sleep time: 3, unit: 'MINUTES'
-            // }
+            stage("Pause") {
+                // Wait for dns flush.
+                sleep time: 3, unit: 'MINUTES'
+            }
 
-            // stage("Health check") {
-            //     // Checking the health of the Okapi service.
-            //     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-            // }
+            stage("Health check") {
+                // Checking the health of the Okapi service.
+                common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+            }
 
-            // stage("Enable backend modules") {
-            //     withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-            //         tenant.kb_api_key = cypress_api_key_apidvcorp
-            //         Deployment deployment = new Deployment(
-            //             this,
-            //             "https://${project_config.getDomains().okapi}",
-            //             "https://${project_config.getDomains().ui}",
-            //             project_config.getInstallJson(),
-            //             project_config.getInstallMap(),
-            //             tenant,
-            //             admin_user,
-            //             superadmin_user,
-            //             email
-            //         )
-            //         deployment.update()
-            //     }
-            // }
+            stage("Enable backend modules") {
+                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                    tenant.kb_api_key = cypress_api_key_apidvcorp
+                    Deployment deployment = new Deployment(
+                        this,
+                        "https://${project_config.getDomains().okapi}",
+                        "https://${project_config.getDomains().ui}",
+                        project_config.getInstallJson(),
+                        project_config.getInstallMap(),
+                        tenant,
+                        admin_user,
+                        superadmin_user,
+                        email
+                    )
+                    deployment.update()
+                }
+            }
 
             stage("Deploy edge modules") {
                 Map github_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
@@ -168,9 +168,9 @@ ansiColor('xterm') {
                 }
             }
 
-            // stage("Deploy UI bundle") {
-            //     folioDeploy.uiBundle(tenant.getId(), project_config)
-            // }
+            stage("Deploy UI bundle") {
+                folioDeploy.uiBundle(tenant.getId(), project_config)
+            }
 
         } catch (exception) {
             println(exception)
