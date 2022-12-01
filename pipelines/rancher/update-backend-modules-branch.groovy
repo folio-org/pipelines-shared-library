@@ -29,7 +29,7 @@ properties([
         jobsParameters.enableModules(),
         jobsParameters.tenantId(),
         jobsParameters.adminUsername(),
-        // jobsParameters.adminPassword(),
+        jobsParameters.adminPassword(),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
@@ -48,8 +48,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index])
 
-// OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
-//     password: params.admin_password)
+OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+    password: params.admin_password)
 
 Email email = okapiSettings.email()
 
@@ -113,10 +113,11 @@ ansiColor('xterm') {
                 
                 println update_modules.updateMap
 
-                // if (update_modules.updateMap) {
+                if (update_modules.updateMap) {
+                    println "Not empty Map for mod"
                 //     folioDeploy.backend(update_modules.updateMap,
                 //         project_config)
-                // }
+                }
             }
 
             // stage("Pause") {
@@ -154,16 +155,17 @@ ansiColor('xterm') {
                 
                 println update_modules.updateMap
                 // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                // if (install_edge_map) {
+                if (update_modules.updateMap) {
+                    println "Not empty Map for edge"
                 //     writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                 //     helm.k8sClient {
                 //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                 //         helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
                 //     }
-                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                //     folioDeploy.edge(install_edge_map,
+                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, update_modules.updateMap)
+                //     folioDeploy.edge(update_modules.updateMap,
                 //         project_config)
-                // }
+                }
             }
 
             // stage("Deploy UI bundle") {
