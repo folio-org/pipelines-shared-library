@@ -111,10 +111,7 @@ ansiColor('xterm') {
                 Map backend_installed_modules_map = new GitHubUtility(this).getBackendModulesMap(installed_modules_map)                
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
                 
-                println update_modules.updateMap
-
                 if (update_modules.updateMap) {
-                    println "Not empty Map for mod"
                     folioDeploy.backend(update_modules.updateMap,
                         project_config)
                 }
@@ -153,10 +150,7 @@ ansiColor('xterm') {
                 Map edge_installed_modules_map = new GitHubUtility(this).getEdgeModulesMap(installed_modules_map)                
                 Map update_modules = compare.createActionMaps(edge_installed_modules_map, github_edge_map)
                 
-                println update_modules.updateMap
-
                 if (update_modules.updateMap) {
-                    println "Not empty Map for edge"
                     writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(update_modules.updateMap, tenant, admin_user)
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
