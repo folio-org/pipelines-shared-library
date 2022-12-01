@@ -109,13 +109,11 @@ ansiColor('xterm') {
             stage("Deploy backend modules") {
                 Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 Map okapi_backend_map = new GitHubUtility(this).getModulesVersionsMap(installed_modules)
-                okapi_backend_map.findAll{it.key.startsWith("mod-")}
+                Map backend_modules = okapi_backend_map.findAll{it.key.startsWith("mod-")}
                 
-                compare.createActionMaps(github_backend_map, okapi_backend_map)
+                Map update_modules = compare.createActionMaps(backend_modules, github_backend_map)
+                println update_modules.updateMap
 
-                // actionMaps = compare.createActionMaps(github_backend_map, modules_to_install)
-                // println actionMaps
-                // sh """kubectl get pods -n folijet -o jsonpath="{..image}" |tr -s '[[:space:]]' '\n' |uniq | grep 'mod-' | cut -d'/' -f2"""
                 // if (github_backend_map) {
                 //     folioDeploy.backend(github_backend_map,
                 //         project_config)
