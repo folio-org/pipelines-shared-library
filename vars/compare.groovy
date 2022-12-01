@@ -44,21 +44,21 @@ import groovy.json.JsonOutput
 //  return slurper.parseText(inputMap)
 //}
 
-def getModuleMap(String inputString) {
-  def slurper = new groovy.json.JsonSlurper()
-  def moduleList = slurper.parseText(inputString)
-  String nameGroup = "moduleName"
-  String versionGroup = "moduleVersion"
-  Map moduleMap = [:]
-  def patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*).*)$/
+// def getModuleMap(String inputString) {
+//   def slurper = new groovy.json.JsonSlurper()
+//   def moduleList = slurper.parseText(inputString)
+//   String nameGroup = "moduleName"
+//   String versionGroup = "moduleVersion"
+//   Map moduleMap = [:]
+//   def patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*).*)$/
 
-  moduleList.each { value ->
-    def matcherModule = value.id =~ patternModuleVersion
-    assert matcherModule.matches()
-    moduleMap[matcherModule.group(nameGroup)] = matcherModule.group(versionGroup)
-  }
-  return moduleMap
-}
+//   moduleList.each { value ->
+//     def matcherModule = value.id =~ patternModuleVersion
+//     assert matcherModule.matches()
+//     moduleMap[matcherModule.group(nameGroup)] = matcherModule.group(versionGroup)
+//   }
+//   return moduleMap
+// }
 
 String compareVersion(String inA, String inB){
   List verA = inA.minus("-SNAPSHOT").tokenize('.') + '0'

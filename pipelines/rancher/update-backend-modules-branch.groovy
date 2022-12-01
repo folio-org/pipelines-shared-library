@@ -39,7 +39,7 @@ properties([
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
 List installed_modules = okapi.getInstalledModules(params.tenant_id).collect { [id: it.id, action: "enable"] }
-List modules_to_install = []
+Map installed_modules_map = new GitHubUtility(this).getModulesVersionsMap(installed_modules)
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
@@ -108,14 +108,13 @@ ansiColor('xterm') {
 
             stage("Deploy backend modules") {
                 Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                Map okapi_backend_map = new GitHubUtility(this).getModulesVersionsMap(installed_modules)
-                Map backend_modules = okapi_backend_map.findAll{it.key.startsWith("mod-")}
+                Map backend_installed_modules_map = new GitHubUtility(this).getBackendModulesMap(installed_modules_map)                
+                Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
                 
-                Map update_modules = compare.createActionMaps(backend_modules, github_backend_map)
                 println update_modules.updateMap
 
-                // if (github_backend_map) {
-                //     folioDeploy.backend(github_backend_map,
+                // if (update_modules.updateMap) {
+                //     folioDeploy.backend(update_modules.updateMap,
                 //         project_config)
                 // }
             }
@@ -148,19 +147,24 @@ ansiColor('xterm') {
             //     }
             // }
 
-            // stage("Deploy edge modules") {
-            //     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-            //     if (install_edge_map) {
-            //         writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-            //         helm.k8sClient {
-            //             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-            //             helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
-            //         }
-            //         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-            //         folioDeploy.edge(install_edge_map,
-            //             project_config)
-            //     }
-            // }
+            stage("Deploy edge modules") {
+                Map github_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                Map edge_installed_modules_map = new GitHubUtility(this).getEdgeModulesMap(installed_modules_map)                
+                Map update_modules = compare.createActionMaps(edge_installed_modules_map, github_edge_map)
+                
+                println update_modules.updateMap
+                // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                // if (install_edge_map) {
+                //     writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                //     helm.k8sClient {
+                //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                //         helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
+                //     }
+                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                //     folioDeploy.edge(install_edge_map,
+                //         project_config)
+                // }
+            }
 
             // stage("Deploy UI bundle") {
             //     folioDeploy.uiBundle(tenant.getId(), project_config)
