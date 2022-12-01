@@ -115,8 +115,8 @@ ansiColor('xterm') {
 
                 if (update_modules.updateMap) {
                     println "Not empty Map for mod"
-                //     folioDeploy.backend(update_modules.updateMap,
-                //         project_config)
+                    folioDeploy.backend(update_modules.updateMap,
+                        project_config)
                 }
             }
 
@@ -157,14 +157,14 @@ ansiColor('xterm') {
                 // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 if (update_modules.updateMap) {
                     println "Not empty Map for edge"
-                //     writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                //     helm.k8sClient {
-                //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                //         helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
-                //     }
-                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, update_modules.updateMap)
-                //     folioDeploy.edge(update_modules.updateMap,
-                //         project_config)
+                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                    helm.k8sClient {
+                        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                        helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
+                    }
+                    new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, update_modules.updateMap)
+                    folioDeploy.edge(update_modules.updateMap,
+                        project_config)
                 }
             }
 
