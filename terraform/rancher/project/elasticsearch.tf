@@ -73,6 +73,8 @@ resource "rancher2_app_v2" "opensearch-client" {
   chart_version = "1.14.0"
   force_upgrade = "true"
   values        = <<-EOT
+    service:
+      type: NodePort
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "client"
