@@ -93,6 +93,17 @@ resource "rancher2_app_v2" "prometheus" {
             - kubecost-cost-analyzer.kubecost
             type: 'A'
             port: 9003
+        - job_name: mod-orders
+          honor_labels: true
+          scrape_interval: 1m
+          scrape_timeout: 10s
+          metrics_path: /metrics
+          scheme: http
+          dns_sd_configs:
+          - names:
+            - mod-orders.test
+            type: 'A'
+            port: 9991
     grafana:
       adminPassword: ${var.grafana_admin_password}
       ingress:
