@@ -59,6 +59,10 @@ resource "rancher2_app_v2" "prometheus" {
                requests:
                  storage: 10Gi
     prometheus:
+      service:
+        type: NodePort
+      ingress:
+        enabled: true
       server:
         global:
           scrape_interval: 30s
