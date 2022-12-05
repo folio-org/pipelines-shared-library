@@ -38,12 +38,13 @@ resource "rancher2_app_v2" "elasticsearch" {
     global:
       kibanaEnabled: true
     master:
+      heapSize: 1024m
       replicas: 2
       resources:
         requests:
           memory: 512Mi
         limits:
-          memory: 768Mi
+          memory: 2048Mi
       service:
         type: NodePort
       ingress:
@@ -135,11 +136,19 @@ data:
       port "#{ENV['ELASTICSEARCH_PORT']}"
       scheme http
       logstash_format true
+      suppress_type_name true
       logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
       <buffer>
         @type file
+        retry_forever false
+        retry_max_times 3
+        retry_wait 10
+        retry_max_interval 300
+        reconnect_on_error true
+        reload_on_failure true
+        reload_connections false
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 2
+        flush_thread_count 8
         flush_interval 5s
       </buffer>
     </match>
@@ -183,7 +192,7 @@ resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   }
 
   delete {
-    min_age = "31d"
+    min_age = "7d"
     delete {}
   }
 
