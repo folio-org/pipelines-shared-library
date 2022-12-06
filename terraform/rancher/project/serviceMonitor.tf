@@ -1,6 +1,5 @@
 # Create ServiceMonitor for monitoring jvm metrics on 9991 port
 resource "kubectl_manifest" "service_monitor" {
-  count              = var.register_in_rancher ? 1 : 0
   provider           = kubectl
   override_namespace = rancher2_namespace.this.name
   yaml_body          = <<YAML
