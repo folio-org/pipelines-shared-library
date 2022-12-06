@@ -25,7 +25,7 @@ properties([
         jobsParameters.tenantId(),
         jobsParameters.adminUsername(),
         jobsParameters.adminPassword()
-        ])])
+    ])])
 
 
 
