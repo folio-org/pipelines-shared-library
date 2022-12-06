@@ -10,7 +10,7 @@ import org.folio.rest.model.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-504') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
