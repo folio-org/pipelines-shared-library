@@ -173,7 +173,7 @@ resource "rancher2_app_v2" "prometheus" {
           # https://grafana.com/grafana/dashboards/14359-jvm-metrics/
           jvm-metrics-dashboard:
             gnetId: 14359
-            revision: 1
+            revision: 2
             datasource:
             - name: DS_PROMETHEUS
               value: Prometheus
