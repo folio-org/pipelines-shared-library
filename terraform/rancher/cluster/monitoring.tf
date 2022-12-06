@@ -175,7 +175,7 @@ resource "rancher2_app_v2" "prometheus" {
             gnetId: 14359
             revision: 1
             datasource:
-            - name: datasource
+            - name: DS_PROMETHEUS
               value: Prometheus
       plugins:
       - grafana-piechart-panel
