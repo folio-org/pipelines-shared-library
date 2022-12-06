@@ -84,7 +84,3 @@ void checkEcrRepoExistence(String repo_name) {
         }
     }
 }
-
-def testFunc(Map oldMap, Map newMap) {
-    return oldMap
-}
