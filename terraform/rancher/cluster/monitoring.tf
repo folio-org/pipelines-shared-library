@@ -163,6 +163,20 @@ resource "rancher2_app_v2" "prometheus" {
             datasource:
             - name: DS_PRODUCTION-AU
               value: Prometheus
+          # https://grafana.com/grafana/dashboards/10124-jvm/
+          kubernetes-jvm-dashboard:
+            gnetId: 10124
+            revision: 1
+            datasource:
+            - name: datasource
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/14359-jvm-metrics/
+          jvm-metrics-dashboard:
+            gnetId: 14359
+            revision: 1
+            datasource:
+            - name: datasource
+              value: Prometheus
       plugins:
       - grafana-piechart-panel
     prometheus-node-exporter:
