@@ -39,9 +39,9 @@ resource "rancher2_app_v2" "postgresql" {
         storageClass: gp2
       resources:
         requests:
-          memory: 1536Mi
+          memory: 512Mi
         limits:
-          memory: 3096Mi
+          memory: 6144Mi
       podSecurityContext:
         fsGroup: 1001
       containerSecurityContext:
@@ -52,13 +52,6 @@ resource "rancher2_app_v2" "postgresql" {
         listen_addresses = '0.0.0.0'
     volumePermissions:
       enabled: true
-    metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: true
-        namespace: monitoring
-        interval: 30s
-        scrapeTimeout: 30s
   EOT
 }
 
@@ -142,6 +135,12 @@ module "rds" {
       name    = "rds-${local.env_name}"
       version = var.pg_version
       devTeam = var.rancher_project_name
+      kubernetes_cluster = data.rancher2_cluster.this.name
+      kubernetes_namespace = var.rancher_project_name
+      kubernetes_label_team = var.rancher_project_name
+      team = var.rancher_project_name
+      kubernetes_service = "RDS-Database"
+      kubernetes_controller = "RDS-${local.env_name}"
   })
 }
 

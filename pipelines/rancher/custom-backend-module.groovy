@@ -179,7 +179,8 @@ ansiColor('xterm') {
                         }
                         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map,
-                            project_config)
+                            project_config,
+                            true)
                     }
                 }
             }

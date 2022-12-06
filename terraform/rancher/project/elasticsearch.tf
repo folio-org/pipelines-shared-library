@@ -73,6 +73,8 @@ resource "rancher2_app_v2" "opensearch-client" {
   chart_version = "1.14.0"
   force_upgrade = "true"
   values        = <<-EOT
+    service:
+      type: NodePort
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     nodeGroup: "client"
@@ -92,6 +94,18 @@ resource "rancher2_app_v2" "opensearch-client" {
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+    ingress:
+      hosts:
+        - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-client"]), var.root_domain])}
+      path: /
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+
   EOT
 }
 
@@ -193,6 +207,11 @@ module "aws_es" {
       service = "ElasticSearch"
       name    = "es-${local.env_name}"
       version = var.es_version
-      devTeam = var.rancher_project_name
+      kubernetes_cluster = data.rancher2_cluster.this.name
+      kubernetes_namespace = var.rancher_project_name
+      kubernetes_label_team = var.rancher_project_name
+      team = var.rancher_project_name
+      kubernetes_service = "ES-Dashboard"
+      kubernetes_controller = "ES-${local.env_name}"
   })
 }

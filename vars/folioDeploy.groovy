@@ -70,13 +70,13 @@ void backend(Map install_backend_map, Project project_config, Boolean custom_mod
     }
 }
 
-void edge(Map install_edge_map, Project project_config) {
+void edge(Map install_edge_map, Project project_config, Boolean custom_module = false) {
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
         install_edge_map.each { name, version ->
             if (name.startsWith("edge-")) {
-                String values_path = helm.generateModuleValues(name, version, project_config, project_config.getDomains().edge)
+                String values_path = helm.generateModuleValues(name, version, project_config, project_config.getDomains().edge, custom_module)
                 helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not an edge module")

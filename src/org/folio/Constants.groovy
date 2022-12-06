@@ -9,6 +9,11 @@ class Constants {
     static String AWS_S3_DATA_EXPORT_ID = "ci-data-export-s3"
     static String AWS_S3_POSTGRES_BACKUPS = "manage-postgres-db-backups-s3"
 
+    //Kubecost
+    static String KUBECOST_AWS_CREDENTIALS_ID = "kubecost_athena_aws_user"
+    static String KUBECOST_LICENSE_KEY = "kubecost_license_key"
+    static String AWS_PROJECT_ID = "732722833398"
+
     //Helm
     static String HELM_MODULES_CONFIG_PATH = "resources/helm"
 
@@ -38,6 +43,8 @@ class Constants {
     static String FOLIO_HELM_HOSTED_REPO_NAME = "helm-hosted"
     static String FOLIO_HELM_HOSTED_REPO_URL = "https://repository.folio.org/repository/helm-hosted/"
     static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
+
+    static String FOLIO_HELM_V2_REPO_NAME = "https://repository.folio.org/repository/folio-helm-v2/"
 
     // Docker
     static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = "folio-docker-dev"

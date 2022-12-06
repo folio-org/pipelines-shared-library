@@ -109,3 +109,30 @@ variable "github_client_secret" {
   default     = ""
   description = "GitHub OAuth client Secret"
 }
+
+variable "kubecost_licence_key" {
+  type        = string
+  description = "Apply business or enterprise product license key"
+}
+
+variable "aws_kubecost_access_key_id" {
+  type        = string
+  description = "ACCESS KEY ID for Kubecost user"
+}
+
+variable "aws_kubecost_secret_access_key" {
+  type        = string
+  description = "SECRET KEY ID for Kubecost user"
+}
+
+variable "deploy_kubecost" {
+  type        = bool
+  default     = true
+  description = "Deploy Kubecost tool if true"
+}
+
+variable "projectID" {
+  type        = string
+  description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
+}
+
