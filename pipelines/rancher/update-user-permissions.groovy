@@ -4,11 +4,11 @@ import org.folio.Constants
 @Library('pipelines-shared-library') _
 
 import org.folio.rest.Deployment
-import org.folio.rest.GitHubUtility
+//import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-import org.folio.utilities.model.Project
+//import org.folio.utilities.model.Project
 
 //import org.folio.rest.Edge
 //import org.folio.rest.GitHubUtility
@@ -48,23 +48,6 @@ OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
 
-Project project_config = new Project(
-    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
-    clusterName: params.rancher_cluster_name,
-    projectName: params.rancher_project_name,
-    action: params.action,
-    enableModules: params.enable_modules,
-    domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
-              okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
-              edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: params.restore_from_backup ? [] : new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch),
-    configType: params.config_type,
-    restoreFromBackup: params.restore_from_backup,
-    backupType: params.backup_type,
-    backupName: params.backup_name,
-    tenant: tenant)
-
-
 ansiColor('xterm') {
     if (params.refresh_parameters) {
         currentBuild.result = 'ABORTED'
@@ -76,10 +59,10 @@ ansiColor('xterm') {
             stage("Update user permissions") {
                 Deployment deployment = new Deployment(
                     this,
-                    "https://${project_config.getDomains().okapi}",
-                    "https://${project_config.getDomains().ui}",
-                    project_config.getInstallJson(),
-                    project_config.getInstallMap(),
+                    common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
+                    common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+//                    project_config.getInstallJson(),
+//                    project_config.getInstallMap(),
                     tenant,
                     admin_user,
                     superadmin_user,
