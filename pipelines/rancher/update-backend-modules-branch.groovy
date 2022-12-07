@@ -166,7 +166,9 @@ ansiColor('xterm') {
             }
 
             stage("Deploy UI bundle") {
-                folioDeploy.uiBundle(tenant.getId(), project_config)
+                if (params.ui_bundle_build) {
+                    folioDeploy.uiBundle(tenant.getId(), project_config)
+                }
             }
 
         } catch (exception) {
