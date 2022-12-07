@@ -53,7 +53,9 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 
 Email email = okapiSettings.email()
 
-Project project_config = new Project(clusterName: params.rancher_cluster_name,
+Project project_config = new Project(
+    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
+    clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     action: params.action,
     enableModules: params.enable_modules,
@@ -76,6 +78,7 @@ ansiColor('xterm') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "tenant: ${tenant.getId()}\n" +
                     "config_type: ${project_config.getConfigType()}"
+                project_config.uiBundleTag = "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}"
             }
 
             stage('Checkout') {
