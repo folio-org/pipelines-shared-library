@@ -124,6 +124,27 @@ resource "rancher2_app_v2" "prometheus" {
           client_secret: ${var.github_client_secret}
           allow_assign_grafana_admin: true
           role_attribute_path: contains(groups[*], 'folio-devops') && 'Admin' || 'Viewer'
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+             path: /var/lib/grafana/dashboards/default
+      dashboards:
+        default:
+          # https://grafana.com/grafana/dashboards/9628-postgresql-database/
+          postgresql-dashboard:
+            gnetId: 9628
+            revision: 7
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
       plugins:
       - grafana-piechart-panel
     prometheus-node-exporter:
