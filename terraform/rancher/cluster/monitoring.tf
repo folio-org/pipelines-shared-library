@@ -67,9 +67,9 @@ resource "rancher2_app_v2" "prometheus" {
         serviceMonitorSelectorNilUsesHelmValues: false
         resources:
           requests:
-            memory: 750Mi
+            memory: 1024Mi
           limits:
-            memory: 1Gi
+            memory: 3096Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
@@ -144,6 +144,20 @@ resource "rancher2_app_v2" "prometheus" {
             revision: 7
             datasource:
             - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/6742-postgresql-statistics/
+          postgresql-statistics-dashboard:
+            gnetId: 6742
+            revision: 1
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/12483-kubernetes-kafka/
+          kafka-dashboard:
+            gnetId: 12483
+            revision: 1
+            datasource:
+            - name: DS_PRODUCTION-AU
               value: Prometheus
       plugins:
       - grafana-piechart-panel

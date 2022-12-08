@@ -3,7 +3,7 @@ resource "rancher2_app_v2" "kafka" {
   count         = var.kafka_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "kafka"
+  name          = "kafka-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "kafka"
   chart_version = "14.9.3"
@@ -11,7 +11,14 @@ resource "rancher2_app_v2" "kafka" {
   values        = <<-EOT
     metrics:
       kafka:
-        enabled: false
+        enabled: true
+      jmx:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: monitoring
+        interval: 30s
+        scrapeTimeout: 30s
     persistence:
       enabled: true
       size: ${var.kafka_ebs_volume_size}
