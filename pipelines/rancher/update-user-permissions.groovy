@@ -48,7 +48,7 @@ Project project_config = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: [],
+    installJson: params.restore_from_backup = [],
     tenant: tenant)
 
 ansiColor('xterm') {
