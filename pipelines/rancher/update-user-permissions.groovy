@@ -18,9 +18,8 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-//        jobsParameters.refreshParameters(),
+
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
-//        jobsParameters.branch(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
@@ -60,7 +59,7 @@ ansiColor('xterm') {
                     common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
                     common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
                     '',
-                    '',
+                    [:],
                     tenant,
                     admin_user,
                     superadmin_user,
