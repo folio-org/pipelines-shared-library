@@ -6,14 +6,14 @@ resource "kubectl_manifest" "service_monitor" {
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: ${var.rancher_project_name}-metrics
+  name: ${var.rancher_project_name}-folio-metrics
 spec:
   endpoints:
   - interval: 30s
     path: /metrics
     scheme: http
     targetPort: 9991
-  jobLabel: app
+  jobLabel: folio
   namespaceSelector:
     matchNames:
     - ${var.rancher_project_name}
