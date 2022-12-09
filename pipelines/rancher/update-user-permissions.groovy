@@ -58,8 +58,6 @@ ansiColor('xterm') {
                     this,
                     common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
                     common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
-                    '',
-                    [:],
                     tenant,
                     admin_user,
                     superadmin_user,
