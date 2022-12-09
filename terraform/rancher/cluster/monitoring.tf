@@ -177,6 +177,13 @@ resource "rancher2_app_v2" "prometheus" {
             datasource:
             - name: DS_PROMETHEUS
               value: Prometheus
+          # https://grafana.com/grafana/dashboards/15178-opensearch-prometheus/
+          opensearch-metrics-dashboard:
+            gnetId: 15178
+            revision: 2
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
       plugins:
       - grafana-piechart-panel
     prometheus-node-exporter:

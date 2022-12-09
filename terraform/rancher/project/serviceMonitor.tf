@@ -23,3 +23,28 @@ spec:
       operator: Exists
   YAML
 }
+
+# Create ServiceMonitor for monitoring Openearch metrics
+resource "kubectl_manifest" "service_monitor_opensearch" {
+  provider           = kubectl
+  override_namespace = rancher2_namespace.this.name
+  yaml_body          = <<YAML
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ${var.rancher_project_name}-opensearch-mertics
+spec:
+  endpoints:
+  - interval: 30s
+    path: /_prometheus/metrics
+    scheme: http
+    targetPort: 9200
+  jobLabel: opensearch
+  namespaceSelector:
+    matchNames:
+    - ${var.rancher_project_name}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opensearch
+  YAML
+}
