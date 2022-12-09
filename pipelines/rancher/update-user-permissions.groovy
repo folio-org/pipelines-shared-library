@@ -1,19 +1,17 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-573') _
 
 import org.folio.rest.Deployment
-//import org.folio.rest.GitHubUtility
+import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
-//import org.folio.utilities.model.Project
-
-//import org.folio.rest.Edge
-//import org.folio.rest.GitHubUtility
-//import org.folio.utilities.Logger
-//import org.folio.utilities.Tools
+import org.folio.utilities.model.Project
+import org.folio.rest.Edge
+import org.folio.utilities.Logger
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
@@ -68,9 +66,9 @@ ansiColor('xterm') {
                     superadmin_user,
                     email
                 )
-                deployment.updatePermissionsAll
-            }
-            } catch (exception) {
+                deployment.updatePermissionsAll()
+                }
+        } catch (exception) {
             println(exception)
             error(exception.getMessage())
         } finally {
