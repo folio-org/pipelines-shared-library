@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-573') _
 
 import org.folio.rest.Deployment
 import org.folio.rest.model.Email
