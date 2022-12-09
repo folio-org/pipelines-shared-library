@@ -90,6 +90,7 @@ ansiColor('xterm') {
                     terraform.tfInit(tfWorkDir, '')
                     terraform.tfWorkspaceSelect(tfWorkDir, cluster_name)
                     terraform.tfStatePull(tfWorkDir)
+                    terraform.tfInit(tfWorkDir, '')
                     if (params.action == 'apply') {
                         terraform.tfPlan(tfWorkDir, tfVars)
                         terraform.tfPlanApprove(tfWorkDir)
