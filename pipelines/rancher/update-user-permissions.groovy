@@ -16,6 +16,8 @@ properties([
     parameters([
 
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
+        jobsParameters.repository(),
+        jobsParameters.branch(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
