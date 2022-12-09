@@ -75,8 +75,8 @@ ansiColor('xterm') {
             stage("Update user permissions") {
                 Deployment deployment = new Deployment(
                     this,
-                    "https://${project_config.getDomains().okapi}",
-                    "https://${project_config.getDomains().ui}",
+                    common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
+                    common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
                     project_config.getInstallJson(),
                     project_config.getInstallMap(),
                     tenant,
