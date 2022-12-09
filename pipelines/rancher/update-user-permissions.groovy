@@ -16,8 +16,6 @@ properties([
     parameters([
 
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
-        jobsParameters.repository(),
-        jobsParameters.branch(),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.tenantId(),
@@ -50,7 +48,7 @@ Project project_config = new Project(
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: [''],
+    installJson: [],
     tenant: tenant)
 
 ansiColor('xterm') {
