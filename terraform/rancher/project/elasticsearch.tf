@@ -109,6 +109,54 @@ resource "rancher2_app_v2" "opensearch-client" {
   EOT
 }
 
+resource "rancher2_app_v2" "opensearch-dashboards" {
+  count         = var.es_embedded ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "opensearch-dashboards"
+  repo_name     = "opensearch"
+  chart_name    = "opensearch"
+  chart_version = "1.14.0"
+  force_upgrade = "true"
+  values        = <<-EOT
+    service:
+      type: ClusterIP
+      port: 5601
+    clusterName: "opensearch-${var.rancher_project_name}"
+    masterService: "opensearch-${var.rancher_project_name}"
+    nodeGroup: "client"
+    replicas: 1
+    roles:
+      - remote_cluster_client
+    persistence:
+      enabled: false
+    extraEnvs:
+      - name: DISABLE_SECURITY_PLUGIN
+        value: "true"
+    resources:
+      requests:
+        memory: 1024Mi
+      limits:
+        memory: 1536Mi
+    plugins:
+      enabled: true
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+    ingress:
+      hosts:
+        - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
+      path: /
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+
+  EOT
+}
+
+
 resource "random_password" "es_password" {
   count       = var.es_embedded ? 0 : 1
   length      = 16
