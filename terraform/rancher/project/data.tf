@@ -8,6 +8,10 @@ data "aws_eks_cluster" "this" {
   name = data.rancher2_cluster.this.name
 }
 
+data "aws_eks_cluster_auth" "this" {
+  name = data.rancher2_cluster.this.name
+}
+
 # Used for accessing Account ID and ARN
 data "aws_caller_identity" "current" {}
 
