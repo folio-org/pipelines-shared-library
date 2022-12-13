@@ -161,7 +161,7 @@ variable "es_version" {
   description = "Elasticsearch version"
 }
 
-variable "opensearch-dashboards" {
+variable "opensearch_dashboards" {
   type        = bool
   default     = true
   description = "Deploy opensearch-dashboards tool if true"
