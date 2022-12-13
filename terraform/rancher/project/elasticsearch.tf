@@ -117,7 +117,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
   name          = "opensearch-dashboards"
   repo_name     = "opensearch"
   chart_name    = "opensearch-dashboards"
-  chart_version = "1.14.0"
+  chart_version = "2.6.0"
   force_upgrade = "true"
   values        = <<-EOT
     service:
