@@ -126,10 +126,6 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     masterService: "opensearch-${var.rancher_project_name}"
     replicas: 1
     opensearchHosts: ${var.es_embedded ? "" : module.aws_es[0].endpoint}:${var.es_embedded ? "9200" : "443"}
-    roles:
-      - remote_cluster_client
-    persistence:
-      enabled: false
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
