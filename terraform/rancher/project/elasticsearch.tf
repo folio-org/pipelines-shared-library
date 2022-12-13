@@ -110,6 +110,7 @@ resource "rancher2_app_v2" "opensearch-client" {
 }
 
 resource "rancher2_app_v2" "opensearch-dashboards" {
+  #depends_on    = [rancher2_app_v2.opensearch-master]
   count         = var.es_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -120,12 +121,11 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
   force_upgrade = "true"
   values        = <<-EOT
     service:
-      type: ClusterIP
-      port: 5601
+      type: NodePort
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
-    nodeGroup: "client"
     replicas: 1
+    opensearchHosts: ${var.es_embedded ? "" : module.aws_es[0].endpoint}:${var.es_embedded ? "9200" : "443"}
     roles:
       - remote_cluster_client
     persistence:
