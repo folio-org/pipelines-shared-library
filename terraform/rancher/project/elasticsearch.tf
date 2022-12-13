@@ -125,7 +125,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     replicas: 1
-    opensearchHosts: ${var.es_embedded ? "" : module.aws_es[0].endpoint}:${var.es_embedded ? "9200" : "443"}
+    opensearchHosts: ${var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443"}
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
         value: "true"
@@ -134,9 +134,6 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
         memory: 1024Mi
       limits:
         memory: 1536Mi
-    plugins:
-      enabled: true
-      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
     ingress:
       hosts:
         - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
