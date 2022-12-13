@@ -116,7 +116,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
   namespace     = rancher2_namespace.this.name
   name          = "opensearch-dashboards"
   repo_name     = "opensearch"
-  chart_name    = "opensearch"
+  chart_name    = "opensearch-dashboards"
   chart_version = "1.14.0"
   force_upgrade = "true"
   values        = <<-EOT
