@@ -100,4 +100,8 @@ class Deployment extends GeneralParameters {
     void createTenant() {
         tenantService.createTenant(tenant, admin_user, install_json, email, stripes_url)
     }
+    void updatePermissionsAll() {
+        auth.login(tenant, tenant.getAdminUser())
+        permissions.assignUserPermissions(tenant, admin_user, permissions.getAllPermissions(tenant))
+    }
 }
