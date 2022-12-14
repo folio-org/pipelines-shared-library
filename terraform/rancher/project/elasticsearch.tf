@@ -121,7 +121,9 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
   force_upgrade = "true"
   values        = <<-EOT
     service:
-      type: NodePort
+      type: ClusterIP
+      port: 5601
+      httpPortName: http
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     replicas: 1
