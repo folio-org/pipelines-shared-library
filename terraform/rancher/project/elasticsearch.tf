@@ -125,6 +125,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     replicas: 1
+    extraEnvs: [OPENSEARCH_USERNAME: "${var.es_embedded ? "admin" : var.es_username}", OPENSEARCH_PASSWORD: "${var.es_embedded ? "admin" : random_password.es_password[0].result}"]
     opensearchHosts: ${var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443"}
     extraEnvs:
       - name: DISABLE_SECURITY_PLUGIN
