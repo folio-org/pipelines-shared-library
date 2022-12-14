@@ -196,47 +196,47 @@ ansiColor('xterm') {
                     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
                 }
 
-                stage("Enable backend modules") {
-                    if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
-                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                            tenant.kb_api_key = cypress_api_key_apidvcorp
-                            Deployment deployment = new Deployment(
-                                this,
-                                "https://${project_config.getDomains().okapi}",
-                                "https://${project_config.getDomains().ui}",
-                                project_config.getInstallJson(),
-                                project_config.getInstallMap(),
-                                tenant,
-                                admin_user,
-                                superadmin_user,
-                                email
-                            )
-                            if (project_config.getRestoreFromBackup()) {
-                                deployment.cleanup()
-                                deployment.update()
-                            } else {
-                                deployment.main()
-                            }
-                        }
-                    }
-                }
+//                stage("Enable backend modules") {
+//                    if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
+//                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+//                            tenant.kb_api_key = cypress_api_key_apidvcorp
+//                            Deployment deployment = new Deployment(
+//                                this,
+//                                "https://${project_config.getDomains().okapi}",
+//                                "https://${project_config.getDomains().ui}",
+//                                project_config.getInstallJson(),
+//                                project_config.getInstallMap(),
+//                                tenant,
+//                                admin_user,
+//                                superadmin_user,
+//                                email
+//                            )
+//                            if (project_config.getRestoreFromBackup()) {
+//                                deployment.cleanup()
+//                                deployment.update()
+//                            } else {
+//                                deployment.main()
+//                            }
+//                        }
+//                    }
+//                }
 
-                stage("Deploy edge modules") {
-                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                    if (install_edge_map) {
-                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                        helm.k8sClient {
-                            awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                            helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
-                        }
-                        new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                        folioDeploy.edge(install_edge_map, project_config)
-                    }
-                }
+//                stage("Deploy edge modules") {
+//                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+//                    if (install_edge_map) {
+//                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+//                        helm.k8sClient {
+//                            awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+//                            helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
+//                        }
+//                        new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+//                        folioDeploy.edge(install_edge_map, project_config)
+//                    }
+//                }
 
-                stage("Deploy UI bundle") {
-                    folioDeploy.uiBundle(tenant.getId(), project_config)
-                }
+//                stage("Deploy UI bundle") {
+//                    folioDeploy.uiBundle(tenant.getId(), project_config)
+//                }
             }
         } catch (exception) {
             println(exception)
