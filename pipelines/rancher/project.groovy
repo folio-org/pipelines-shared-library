@@ -179,12 +179,12 @@ ansiColor('xterm') {
                     folioDeploy.okapi(project_config)
                 }
 
-                stage("Deploy backend modules") {
-                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                    if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
-                    }
-                }
+//                stage("Deploy backend modules") {
+//                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+//                    if (install_backend_map) {
+//                        folioDeploy.backend(install_backend_map, project_config)
+//                    }
+//                }
 
                 stage("Pause") {
                     // Wait for dns flush.
