@@ -188,8 +188,8 @@ variable "es_instance_type" {
 }
 
 variable "es_ebs_volume_size" {
-  type    = string
-  default = "100Gi" #Increase if not enough
+  type    = number
+  default = 100 #Increase if not enough
 }
 
 variable "es_username" {

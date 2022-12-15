@@ -228,7 +228,7 @@ module "aws_es" {
   }
 
   ebs_options = {
-    ebs_enabled = var.es_ebs_volume_size != "" ? "true" : "false"
+    ebs_enabled = var.es_ebs_volume_size > 0 ? "true" : "false"
     volume_size = var.es_ebs_volume_size
   }
 
