@@ -140,8 +140,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
         - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
           paths:
             - path: /
-              backend:
-                serviceName: "${data.rancher2_cluster.this.serviceName}"
+      
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
