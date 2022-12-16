@@ -141,7 +141,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
           paths:
             - path: /
               backend:
-                serviceName: ${var.es_embedded ? "" : module.aws_es[0].endpoint}
+                serviceName: {{ $.Values.service.servicename }}
                 servicePort: ${var.es_embedded ? "9200" : "443"}
       annotations:
         kubernetes.io/ingress.class: alb
