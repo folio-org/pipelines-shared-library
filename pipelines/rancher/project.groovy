@@ -169,6 +169,11 @@ ansiColor('xterm') {
             }
 
             if (project_config.getAction() == 'apply') {
+
+                stage("Deploy greenmail") {
+                    folioDeploy.greenmail(project_config)
+                }
+
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
@@ -177,15 +182,11 @@ ansiColor('xterm') {
                     folioDeploy.okapi(project_config)
                 }
 
-                stage("Deploy backend modules") {
+                /*stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
                     }
-                }
-
-                stage("Deploy greenmail") {
-                    folioDeploy.greenmail(project_config)
                 }
 
                 stage("Pause") {
@@ -238,7 +239,7 @@ ansiColor('xterm') {
 
                 stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
-                }
+                }*/
             }
         } catch (exception) {
             println(exception)
