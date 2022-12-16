@@ -111,13 +111,13 @@ resource "rancher2_app_v2" "opensearch-client" {
 
 resource "rancher2_app_v2" "opensearch-dashboards" {
   #depends_on    = [rancher2_app_v2.opensearch-master]
-  count         = var.es_embedded ? 1 : 0
+  count         = var.opensearch_dashboards ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "opensearch-dashboards"
   repo_name     = "opensearch"
   chart_name    = "opensearch-dashboards"
-  chart_version = "1.4.0"
+  chart_version = "2.6.2"
   force_upgrade = "true"
   values        = <<-EOT
     service:
