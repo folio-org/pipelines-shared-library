@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-257') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -182,6 +182,10 @@ ansiColor('xterm') {
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
                     }
+                }
+
+                stage("Deploy greenmail") {
+                    folioDeploy.greenmail(project_config)
                 }
 
                 stage("Pause") {

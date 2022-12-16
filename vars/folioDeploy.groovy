@@ -93,3 +93,20 @@ void uiBundle(String tenant_id, Project project_config) {
         helm.upgrade("${tenant_id}-ui-bundle", project_config.getProjectName(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_REPO_NAME, 'platform-complete')
     }
 }
+
+void greenmail(Project project_config, Boolean custom_module = false) {
+    helm.k8sClient {
+        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+        helm.addRepo(Constants.FOLIO_HELM_REPO_NAME, Constants.FOLIO_HELM_REPO_URL)
+
+
+        install_backend_map.each { name, version ->
+            if (name.startsWith("mod-")) {
+                String values_path = helm.generateModuleValues(name, version, project_config, '', custom_module)
+                helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_REPO_NAME, name)
+            } else {
+                new Logger(this, "folioDeploy").warning("${name} is not a backend module")
+            }
+        }
+    }
+}
