@@ -135,11 +135,14 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
       limits:
         memory: 1536Mi
     ingress:
+      enabled: true
       hosts:
         - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
           paths:
             - path: /
-      enabled: true
+              backend:
+                serviceName: ""
+                servicePort: "5601"
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
