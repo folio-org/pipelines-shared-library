@@ -142,7 +142,6 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
             - path: /
               backend:
                 serviceName: {{ $.Values.service.servicename }}
-                servicePort: ${var.es_embedded ? "9200" : "443"}
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
