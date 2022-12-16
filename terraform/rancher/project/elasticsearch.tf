@@ -141,7 +141,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
           paths:
             - path: /
               backend:
-                serviceName: {{ $.Values.service.servicename }}
+                serviceName: {{ .Values.service.servicename }}
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
