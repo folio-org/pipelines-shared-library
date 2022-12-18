@@ -30,10 +30,6 @@ def upgrade(String name, String namespace, String values_path, String chart_repo
     sh "helm upgrade --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
 }
 
-def upgrade_greenmail(String name, String namespace, String chart_repo, String chart_name) {
-    sh "helm upgrade --install ${name} --namespace=${namespace} ${chart_repo}/${chart_name}"
-}
-
 // Deleting the helm chart.
 def delete(String name, String namespace) {
     sh "helm delete ${name} --namespace=${namespace}"
