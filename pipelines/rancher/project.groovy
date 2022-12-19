@@ -105,7 +105,7 @@ ansiColor('xterm') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "action: ${project_config.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_config.getConfigType()}"
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
-                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}" : params.ui_bundle_tag
+                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}" : params.ui_bundle_tag
             }
 
             stage('Restore preparation') {
