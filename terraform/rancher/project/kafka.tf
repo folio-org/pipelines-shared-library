@@ -116,14 +116,14 @@ resource "aws_msk_cluster" "this" {
   tags = merge(
     var.tags,
     {
-      service = "Kafka"
-      name    = "kafka-${local.env_name}"
-      version = var.kafka_version
-      kubernetes_cluster = data.rancher2_cluster.this.name
-      kubernetes_namespace = var.rancher_project_name
+      service               = "Kafka"
+      name                  = "kafka-${local.env_name}"
+      version               = var.kafka_version
+      kubernetes_cluster    = data.rancher2_cluster.this.name
+      kubernetes_namespace  = var.rancher_project_name
       kubernetes_label_team = var.rancher_project_name
-      team = var.rancher_project_name
-      kubernetes_service = "MSK-Cluster"
+      team                  = var.rancher_project_name
+      kubernetes_service    = "MSK-Cluster"
       kubernetes_controller = "MSK-${local.env_name}"
   })
 }
