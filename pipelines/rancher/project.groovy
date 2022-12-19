@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-345') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -219,7 +219,7 @@ ansiColor('xterm') {
                     }
                 }
 
-                stage("Deploy edge modules") {
+                /*stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
@@ -230,7 +230,7 @@ ansiColor('xterm') {
                         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map, project_config)
                     }
-                }
+                }*/
 
                 stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
