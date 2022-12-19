@@ -138,8 +138,8 @@ variable "kafka_number_of_broker_nodes" {
 }
 
 variable "kafka_ebs_volume_size" {
-  type    = string
-  default = "50Gi" #Increase if not enough
+  type    = number
+  default = 50
 }
 
 variable "kafka_ui" {
@@ -182,8 +182,8 @@ variable "es_instance_type" {
 }
 
 variable "es_ebs_volume_size" {
-  type    = string
-  default = "100Gi" #Increase if not enough
+  type    = number
+  default = 100
 }
 
 variable "es_username" {
