@@ -37,17 +37,17 @@ class Edge extends GeneralParameters {
             }
         }
         return """secureStore.type=Ephemeral
-        # a comma separated list of tenants
-        tenants=${tenants}
-        # a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
-        tenantsMappings=fli01:${default_tenant.getId()}
-        #######################################################
-        # For each tenant, the institutional user password...
-        #
-        # Note: this is intended for development purposes only
-        #######################################################
-        ${default_tenant.getId()}=${default_user.getUsername()},${default_user.getPassword()}
-        ${institutional}
+# a comma separated list of tenants
+tenants=${tenants}
+# a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
+tenantsMappings=fli01:${default_tenant.getId()}
+#######################################################
+# For each tenant, the institutional user password...
+#
+# Note: this is intended for development purposes only
+#######################################################
+${default_tenant.getId()}=${default_user.getUsername()},${default_user.getPassword()}
+${institutional}
 """
     }
 
