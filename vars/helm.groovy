@@ -37,7 +37,8 @@ def delete(String name, String namespace) {
 
 def createSecret(String name, String namespace, String file_path) {
     try {
-        sh "kubectl create secret generic ${name} --namespace=${namespace} --from-file=${file_path}"
+        //sh "kubectl create secret generic ${name} --namespace=${namespace} --from-file=${file_path}"
+        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path}"
     } catch (Exception e) {
         println(e.getMessage())
     }
