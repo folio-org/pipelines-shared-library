@@ -36,13 +36,7 @@ class Edge extends GeneralParameters {
                 }
             }
         }
-        return """apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ephemeral-properties
-data: |
-        ephemeral-properties: |
-        secureStore.type=Ephemeral
+        return """secureStore.type=Ephemeral
         # a comma separated list of tenants
         tenants=${tenants}
         # a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
