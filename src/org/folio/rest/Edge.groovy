@@ -35,12 +35,13 @@ class Edge extends GeneralParameters {
                     tenants += it.tenant == "default" ? "" : "," + it.tenant
                 }
             }
-            return """apiVersion: v1
+        }
+        return """apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ${name}-ephemeral-properties
+  name: ephemeral-properties
 data: |
-    ${name}-ephemeral-properties: |
+        ephemeral-properties: |
         secureStore.type=Ephemeral
         # a comma separated list of tenants
         tenants=${tenants}
@@ -54,7 +55,6 @@ data: |
         ${default_tenant.getId()}=${default_user.getUsername()},${default_user.getPassword()}
         ${institutional}
 """
-        }
     }
 
     void createEdgeUsers(OkapiTenant tenant, Map install_edge_map) {
