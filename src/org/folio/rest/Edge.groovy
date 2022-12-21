@@ -16,14 +16,14 @@ class Edge extends GeneralParameters {
         super(steps, okapi_url)
     }
 
-    String renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user) {
+    String renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user, String name) {
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
         String tenants = default_tenant.getId()
         String institutional = ""
 
-        install_edge_map.each { name, version ->
+        //install_edge_map.each { name, version ->
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
                     def obj = [
@@ -35,7 +35,7 @@ class Edge extends GeneralParameters {
                     tenants = it.tenant == "default" ? "" : "," + it.tenant
                 }
             }
-        }
+        //}
         return """secureStore.type=Ephemeral
 # a comma separated list of tenants
 tenants=${tenants}
