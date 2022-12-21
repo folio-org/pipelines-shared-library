@@ -53,7 +53,7 @@ edge-dematic:
       - paths:
           - /asrService*
   javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.propertie'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.properties'
   postJob:
     enabled: false
   replicaCount: 1
