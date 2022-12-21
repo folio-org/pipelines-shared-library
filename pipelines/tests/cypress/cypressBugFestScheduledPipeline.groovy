@@ -14,9 +14,10 @@ def cypressTestsJob
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    triggers {
-        cron('H 1 * * 1-6')
-    }
+    // Stopped by https://issues.folio.org/browse/RANCHER-591
+    // triggers {
+    //     cron('H 1 * * 1-6')
+    // }
 
     options {
         disableConcurrentBuilds()

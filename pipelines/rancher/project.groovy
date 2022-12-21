@@ -19,6 +19,7 @@ properties([
     parameters([
         jobsParameters.refreshParameters(),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
+        booleanParam(name: 'namespace_only', defaultValue: false, description: 'Apply only namespace creation stages'),
         jobsParameters.repository(),
         jobsParameters.branch(),
         jobsParameters.okapiVersion(),
@@ -119,7 +120,7 @@ ansiColor('xterm') {
             }
 
             stage('UI Build') {
-                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup()) {
+                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
                     build job: 'Rancher/UI-Build',
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),
@@ -168,7 +169,7 @@ ansiColor('xterm') {
                 folioDeploy.project(project_config, tenant, tf)
             }
 
-            if (project_config.getAction() == 'apply') {
+            if (project_config.getAction() == 'apply' && !params.namespace_only) {
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
