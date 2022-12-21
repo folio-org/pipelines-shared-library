@@ -31,8 +31,8 @@ class Edge extends GeneralParameters {
                         username: it.username,
                         password: it.password == "default" ? default_tenant.getId() : it.password
                     ]
-                    institutional = obj.tenant + "=" + obj.username + "," + obj.password + "\n"
-                    tenants = it.tenant == "default" ? "" : "," + it.tenant
+                    institutional =+ obj.tenant + "=" + obj.username + "," + obj.password + "\n"
+                    tenants =+ it.tenant == "default" ? "" : "," + it.tenant
                 }
             }
         //}
