@@ -16,7 +16,7 @@ class Edge extends GeneralParameters {
         super(steps, okapi_url)
     }
 
-    String renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user, String name) {
+    String renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user, Object name) {
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
@@ -24,17 +24,17 @@ class Edge extends GeneralParameters {
         String institutional = ""
 
         //install_edge_map.each { name, version ->
-            if (config[(name)].tenants) {
-                config[(name)].tenants.each {
-                    def obj = [
-                        tenant  : it.tenant == "default" ? default_tenant.getId() : it.tenant,
-                        username: it.username,
-                        password: it.password == "default" ? default_tenant.getId() : it.password
-                    ]
-                    institutional =+ obj.tenant + "=" + obj.username + "," + obj.password + "\n"
-                    tenants =+ it.tenant == "default" ? "" : "," + it.tenant
-                }
+        if (config[(name)].tenants) {
+            config[(name)].tenants.each {
+                def obj = [
+                    tenant  : it.tenant == "default" ? default_tenant.getId() : it.tenant,
+                    username: it.username,
+                    password: it.password == "default" ? default_tenant.getId() : it.password
+                ]
+                institutional =+ obj.tenant + "=" + obj.username + "," + obj.password + "\n"
+                tenants =+ it.tenant == "default" ? "" : "," + it.tenant
             }
+        }
         //}
         return """secureStore.type=Ephemeral
 # a comma separated list of tenants
