@@ -24,7 +24,7 @@ resource "rancher2_app_v2" "postgresql" {
   name          = "postgresql-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "postgresql"
-  chart_version = "11.0.8"
+  chart_version = "11.6.2"
   force_upgrade = "true"
   values        = <<-EOT
     image:

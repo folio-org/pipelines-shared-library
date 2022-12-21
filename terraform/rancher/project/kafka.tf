@@ -6,7 +6,7 @@ resource "rancher2_app_v2" "kafka" {
   name          = "kafka-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "kafka"
-  chart_version = "14.9.3"
+  chart_version = "17.2.3"
   force_upgrade = "true"
   values        = <<-EOT
     metrics:
@@ -154,7 +154,7 @@ resource "rancher2_app_v2" "kafka_ui" {
       kafka:
         clusters:
           - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
-            bootstrapServers: ${var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+            bootstrapServers: ${var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
       auth:
         type: disabled
       management:
