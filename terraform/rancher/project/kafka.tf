@@ -9,6 +9,8 @@ resource "rancher2_app_v2" "kafka" {
   chart_version = "17.2.3"
   force_upgrade = "true"
   values        = <<-EOT
+    image:
+      tag: 2.8.1-debian-10-r99
     metrics:
       kafka:
         enabled: true
