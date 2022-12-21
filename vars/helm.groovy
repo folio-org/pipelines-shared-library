@@ -17,9 +17,7 @@ def k8sClient(Closure body) {
 
 // Adding a helm repo.
 def addRepo(String repo_name, String repo_url) {
-    withCredentials([usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-        sh "helm repo add ${repo_name} ${repo_url} --username ${NEXUS_USERNAME} --password ${NEXUS_PASSWORD}"
-    }
+    sh "helm repo add ${repo_name} ${repo_url}"
 }
 
 // Installing a helm chart.
