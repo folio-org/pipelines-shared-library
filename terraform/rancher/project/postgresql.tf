@@ -21,7 +21,7 @@ resource "rancher2_app_v2" "postgresql" {
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "postgresql"
+  name          = "postgresql-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "postgresql"
   chart_version = "11.0.8"
@@ -52,6 +52,13 @@ resource "rancher2_app_v2" "postgresql" {
         listen_addresses = '0.0.0.0'
     volumePermissions:
       enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: monitoring
+        interval: 30s
+        scrapeTimeout: 30s
   EOT
 }
 
