@@ -11,6 +11,9 @@ resource "rancher2_app_v2" "kafka" {
   values        = <<-EOT
     image:
       tag: 2.8.1-debian-10-r99
+    zookeeper:
+      image:
+        tag: 3.7.0-debian-10-r257
     metrics:
       kafka:
         enabled: true
