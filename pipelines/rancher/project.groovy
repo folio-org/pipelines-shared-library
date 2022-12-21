@@ -225,7 +225,7 @@ ansiColor('xterm') {
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                             install_edge_map.each {name, version ->
-                                writeFile file: "${name}-ephemeral-properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user, name)
+                                writeFile file: "${name}-ephemeral-properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user, name.toString())
                                 helm.createSecret("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
                             }
                         }
