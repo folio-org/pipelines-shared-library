@@ -23,7 +23,7 @@ resource "rancher2_app_v2" "kafka" {
         scrapeTimeout: 30s
     persistence:
       enabled: true
-      size: ${var.kafka_ebs_volume_size}
+      size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
       storageClass: gp2
     resources:
       requests:
