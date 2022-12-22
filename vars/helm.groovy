@@ -16,9 +16,13 @@ def k8sClient(Closure body) {
 }
 
 // Adding a helm repo.
-def addRepo(String repo_name, String repo_url) {
-    withCredentials([usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-        sh "helm repo add ${repo_name} ${repo_url} --username ${NEXUS_USERNAME} --password ${NEXUS_PASSWORD}"
+def addRepo(String repo_name, String repo_url, Boolean use_Nexus_creds = false) {
+    if (use_Nexus_creds) {
+        withCredentials([usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+            sh "helm repo add ${repo_name} ${repo_url} --username ${NEXUS_USERNAME} --password ${NEXUS_PASSWORD}"
+        }        
+    } else {
+        sh "helm repo add ${repo_name} ${repo_url}"
     }
 }
 
