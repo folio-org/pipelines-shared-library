@@ -3,15 +3,24 @@ resource "rancher2_app_v2" "kafka" {
   count         = var.kafka_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "kafka"
+  name          = "kafka-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "kafka"
-  chart_version = "14.9.3"
+  chart_version = "17.2.3"
   force_upgrade = "true"
   values        = <<-EOT
+    image:
+      tag: 2.8.1-debian-10-r99
     metrics:
       kafka:
-        enabled: false
+        enabled: true
+      jmx:
+        enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: monitoring
+        interval: 30s
+        scrapeTimeout: 30s
     persistence:
       enabled: true
       size: ${var.kafka_ebs_volume_size}
@@ -22,6 +31,8 @@ resource "rancher2_app_v2" "kafka" {
       limits:
         memory: 4096Mi
     zookeeper:
+      image:
+        tag: 3.7.0-debian-10-r257
       enabled: true
       persistence:
         size: 10Gi
@@ -147,7 +158,7 @@ resource "rancher2_app_v2" "kafka_ui" {
       kafka:
         clusters:
           - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
-            bootstrapServers: ${var.kafka_embedded ? "kafka" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+            bootstrapServers: ${var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
       auth:
         type: disabled
       management:
