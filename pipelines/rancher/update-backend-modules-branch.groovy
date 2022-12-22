@@ -78,7 +78,7 @@ ansiColor('xterm') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "tenant: ${tenant.getId()}\n" +
                     "config_type: ${project_config.getConfigType()}"
-                project_config.uiBundleTag = "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}"
+                project_config.uiBundleTag = "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}"
             }
 
             stage('Checkout') {
@@ -111,9 +111,9 @@ ansiColor('xterm') {
 
             stage("Deploy backend modules") {
                 Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                Map backend_installed_modules_map = new GitHubUtility(this).getBackendModulesMap(installed_modules_map)                
+                Map backend_installed_modules_map = new GitHubUtility(this).getBackendModulesMap(installed_modules_map)
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
-                
+
                 if (update_modules.updateMap) {
                     folioDeploy.backend(update_modules.updateMap,
                         project_config)
@@ -150,9 +150,9 @@ ansiColor('xterm') {
 
             stage("Deploy edge modules") {
                 Map github_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                Map edge_installed_modules_map = new GitHubUtility(this).getEdgeModulesMap(installed_modules_map)                
+                Map edge_installed_modules_map = new GitHubUtility(this).getEdgeModulesMap(installed_modules_map)
                 Map update_modules = compare.createActionMaps(edge_installed_modules_map, github_edge_map)
-                
+
                 if (update_modules.updateMap) {
                     writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(update_modules.updateMap, tenant, admin_user)
                     helm.k8sClient {
