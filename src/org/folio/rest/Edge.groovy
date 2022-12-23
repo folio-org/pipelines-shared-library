@@ -35,7 +35,7 @@ class Edge extends GeneralParameters {
                 tenants += it.tenant == "default" ? "" : "," + it.tenant
             }
         }
-            writeFile file: "${name}-ephemeral-properties", text: """secureStore.type=Ephemeral
+            steps.writeFile file: "${name}-ephemeral-properties", text: """secureStore.type=Ephemeral
 # a comma separated list of tenants
 tenants=${tenants}
 # a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
