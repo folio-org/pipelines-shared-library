@@ -20,21 +20,20 @@ class Edge extends GeneralParameters {
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
-        String tenants = default_tenant.getId()
-        String institutional = ""
-
         install_edge_map.each { name, version ->
-        if (config[(name)].tenants) {
-            config[(name)].tenants.each {
-                def obj = [
-                    tenant  : it.tenant == "default" ? default_tenant.getId() : it.tenant,
-                    username: it.username,
-                    password: it.password == "default" ? default_tenant.getId() : it.password
-                ]
-                institutional += obj.tenant + "=" + obj.username + "," + obj.password + "\n"
-                tenants += it.tenant == "default" ? "" : "," + it.tenant
+            String tenants = default_tenant.getId()
+            String institutional = ""
+            if (config[(name)].tenants) {
+                config[(name)].tenants.each {
+                    def obj = [
+                        tenant  : it.tenant == "default" ? default_tenant.getId() : it.tenant,
+                        username: it.username,
+                        password: it.password == "default" ? default_tenant.getId() : it.password
+                    ]
+                    institutional += obj.tenant + "=" + obj.username + "," + obj.password + "\n"
+                    tenants += it.tenant == "default" ? "" : "," + it.tenant
+                }
             }
-        }
             steps.writeFile file: "${name}-ephemeral-properties", text: """secureStore.type=Ephemeral
 # a comma separated list of tenants
 tenants=${tenants}
