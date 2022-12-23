@@ -109,7 +109,7 @@ ansiColor('xterm') {
                 project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
             }
 
-            stage('Restore preparation') {
+            /*stage('Restore preparation') {
                 if (project_config.getRestoreFromBackup()) {
                     helm.k8sClient {
                         project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
@@ -168,14 +168,14 @@ ansiColor('xterm') {
 
             stage('Project') {
                 folioDeploy.project(project_config, tenant, tf)
-            }
+            }*/
 
             if (project_config.getAction() == 'apply' && !params.namespace_only) {
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
 
-                stage("Deploy okapi") {
+                /*stage("Deploy okapi") {
                     folioDeploy.okapi(project_config)
                 }
 
@@ -225,20 +225,20 @@ ansiColor('xterm') {
                             }
                         }
                     }
-                }
+                }*/
 
                 stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                            new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                             install_edge_map.each {name, version ->
-                                writeFile file: "${name}-ephemeral-properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user, name)
                                 helm.createSecret("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
                             }
                         }
-                        new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                        folioDeploy.edge(install_edge_map, project_config)
+                        //new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                        //folioDeploy.edge(install_edge_map, project_config)
                     }
                 }
 
