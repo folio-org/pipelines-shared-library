@@ -51,7 +51,8 @@ properties([
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
-        booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui')])])
+        booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -105,7 +106,7 @@ ansiColor('xterm') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "action: ${project_config.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_config.getConfigType()}"
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
-                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}" : params.ui_bundle_tag
+                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
             }
 
             stage('Restore preparation') {
@@ -182,6 +183,12 @@ ansiColor('xterm') {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
+                    }
+                }
+
+                if (params.greenmail_server){
+                    stage("Deploy greenmail") {
+                        folioDeploy.greenmail(project_config)
                     }
                 }
 
