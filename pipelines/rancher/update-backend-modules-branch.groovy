@@ -154,10 +154,12 @@ ansiColor('xterm') {
                 Map update_modules = compare.createActionMaps(edge_installed_modules_map, github_edge_map)
 
                 if (update_modules.updateMap) {
-                    writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(update_modules.updateMap, tenant, admin_user)
+                    new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(update_modules.updateMap, tenant, admin_user)
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                        helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
+                        update_modules.updateMap.each {name, version ->
+                            helm.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                        }
                     }
                     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, update_modules.updateMap)
                     folioDeploy.edge(update_modules.updateMap,

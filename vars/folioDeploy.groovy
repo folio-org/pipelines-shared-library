@@ -97,7 +97,7 @@ void uiBundle(String tenant_id, Project project_config) {
 void greenmail(Project project_config) {
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        helm.addRepo(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL)
+        helm.addRepo(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, false)
         helm.upgrade("greenmail", project_config.getProjectName(), "''", Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")
     }
 }

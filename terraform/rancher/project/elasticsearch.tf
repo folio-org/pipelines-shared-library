@@ -55,7 +55,7 @@ resource "rancher2_app_v2" "opensearch-data" {
       limits:
         memory: 2048Mi
     persistence:
-      size: ${var.es_ebs_volume_size}
+      size: ${join("", [var.es_ebs_volume_size, "Gi"])}
     plugins:
       enabled: true
       installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
