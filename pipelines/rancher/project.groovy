@@ -230,11 +230,11 @@ ansiColor('xterm') {
                 stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
+                        new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                            new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                             install_edge_map.each {name, version ->
-                                helm.createSecret("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                                helm.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
                             }
                         }
                         //new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)

@@ -20,7 +20,7 @@ def addRepo(String repo_name, String repo_url, Boolean use_Nexus_creds = false) 
     if (use_Nexus_creds) {
         withCredentials([usernamePassword(credentialsId: Constants.NEXUS_PUBLISH_CREDENTIALS_ID, usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
             sh "helm repo add ${repo_name} ${repo_url} --username ${NEXUS_USERNAME} --password ${NEXUS_PASSWORD}"
-        }        
+        }
     } else {
         sh "helm repo add ${repo_name} ${repo_url}"
     }
@@ -41,9 +41,8 @@ def delete(String name, String namespace) {
     sh "helm delete ${name} --namespace=${namespace}"
 }
 
-def createSecret(String name, String namespace, String file_path) {
+def createConfigMap(String name, String namespace, String file_path) {
     try {
-        //sh "kubectl create secret generic ${name} --namespace=${namespace} --from-file=${file_path}"
         sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path}"
     } catch (Exception e) {
         println(e.getMessage())
