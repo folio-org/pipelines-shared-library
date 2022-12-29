@@ -67,9 +67,9 @@ resource "rancher2_app_v2" "prometheus" {
         serviceMonitorSelectorNilUsesHelmValues: false
         resources:
           requests:
-            memory: 750Mi
+            memory: 1024Mi
           limits:
-            memory: 1Gi
+            memory: 3096Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
@@ -100,7 +100,7 @@ resource "rancher2_app_v2" "prometheus" {
         annotations:
           kubernetes.io/ingress.class: alb
           alb.ingress.kubernetes.io/scheme: internet-facing
-          alb.ingress.kubernetes.io/group.name: folio-tmp
+          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
           alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /
@@ -124,6 +124,62 @@ resource "rancher2_app_v2" "prometheus" {
           client_secret: ${var.github_client_secret}
           allow_assign_grafana_admin: true
           role_attribute_path: contains(groups[*], 'folio-devops') && 'Admin' || 'Viewer'
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+             path: /var/lib/grafana/dashboards/default
+      dashboards:
+        default:
+          # https://grafana.com/grafana/dashboards/9628-postgresql-database/
+          postgresql-dashboard:
+            gnetId: 9628
+            revision: 7
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/6742-postgresql-statistics/
+          postgresql-statistics-dashboard:
+            gnetId: 6742
+            revision: 1
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/12483-kubernetes-kafka/
+          kafka-dashboard:
+            gnetId: 12483
+            revision: 1
+            datasource:
+            - name: DS_PRODUCTION-AU
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/10124-jvm/
+          kubernetes-jvm-dashboard:
+            gnetId: 10124
+            revision: 1
+            datasource:
+            - name: datasource
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/14359-jvm-metrics/
+          jvm-metrics-dashboard:
+            gnetId: 14359
+            revision: 2
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/15178-opensearch-prometheus/
+          opensearch-metrics-dashboard:
+            gnetId: 15178
+            revision: 2
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
       plugins:
       - grafana-piechart-panel
     prometheus-node-exporter:

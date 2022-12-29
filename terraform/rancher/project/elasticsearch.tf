@@ -25,7 +25,7 @@ resource "rancher2_app_v2" "opensearch-master" {
         memory: 2048Mi
     plugins:
       enabled: true
-      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
   EOT
 }
 
@@ -55,10 +55,10 @@ resource "rancher2_app_v2" "opensearch-data" {
       limits:
         memory: 2048Mi
     persistence:
-      size: ${var.es_ebs_volume_size}
+      size: ${join("", [var.es_ebs_volume_size, "Gi"])}
     plugins:
       enabled: true
-      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
   EOT
 }
 
@@ -93,7 +93,7 @@ resource "rancher2_app_v2" "opensearch-client" {
         memory: 1536Mi
     plugins:
       enabled: true
-      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
+      installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
     ingress:
       hosts:
         - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-client"]), var.root_domain])}
@@ -246,14 +246,14 @@ module "aws_es" {
   tags = merge(
     var.tags,
     {
-      service = "ElasticSearch"
-      name    = "es-${local.env_name}"
-      version = var.es_version
-      kubernetes_cluster = data.rancher2_cluster.this.name
-      kubernetes_namespace = var.rancher_project_name
+      service               = "ElasticSearch"
+      name                  = "es-${local.env_name}"
+      version               = var.es_version
+      kubernetes_cluster    = data.rancher2_cluster.this.name
+      kubernetes_namespace  = var.rancher_project_name
       kubernetes_label_team = var.rancher_project_name
-      team = var.rancher_project_name
-      kubernetes_service = "ES-Dashboard"
+      team                  = var.rancher_project_name
+      kubernetes_service    = "ES-Dashboard"
       kubernetes_controller = "ES-${local.env_name}"
   })
 }

@@ -120,9 +120,11 @@ pipeline {
                                     // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
                                     env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
+                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
                                     env.CYPRESS_allureReuseAfterSpec = "true"
+                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters} --env testRailRunId=${params.testrailRunID}"
+                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                     }
                                 } else {
                                     sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"

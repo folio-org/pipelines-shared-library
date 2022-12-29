@@ -203,6 +203,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         booleanParam(name: 'pg_embedded', value: true),
         booleanParam(name: 'kafka_embedded', value: true),
         booleanParam(name: 'es_embedded', value: true),
-        booleanParam(name: 's3_embedded', value: true)
+        booleanParam(name: 's3_embedded', value: true),
+        booleanParam(name: 'greenmail_server', value: true)
     ]
 }

@@ -21,10 +21,10 @@ resource "rancher2_app_v2" "postgresql" {
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
-  name          = "postgresql"
+  name          = "postgresql-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "postgresql"
-  chart_version = "11.0.8"
+  chart_version = "11.6.2"
   force_upgrade = "true"
   values        = <<-EOT
     image:
@@ -52,6 +52,13 @@ resource "rancher2_app_v2" "postgresql" {
         listen_addresses = '0.0.0.0'
     volumePermissions:
       enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: monitoring
+        interval: 30s
+        scrapeTimeout: 30s
   EOT
 }
 
@@ -131,15 +138,15 @@ module "rds" {
   tags = merge(
     var.tags,
     {
-      service = "RDS"
-      name    = "rds-${local.env_name}"
-      version = var.pg_version
-      devTeam = var.rancher_project_name
-      kubernetes_cluster = data.rancher2_cluster.this.name
-      kubernetes_namespace = var.rancher_project_name
+      service               = "RDS"
+      name                  = "rds-${local.env_name}"
+      version               = var.pg_version
+      devTeam               = var.rancher_project_name
+      kubernetes_cluster    = data.rancher2_cluster.this.name
+      kubernetes_namespace  = var.rancher_project_name
       kubernetes_label_team = var.rancher_project_name
-      team = var.rancher_project_name
-      kubernetes_service = "RDS-Database"
+      team                  = var.rancher_project_name
+      kubernetes_service    = "RDS-Database"
       kubernetes_controller = "RDS-${local.env_name}"
   })
 }

@@ -55,7 +55,8 @@ ansiColor("xterm") {
                         booleanParam(name: 'kafka_embedded', value: true),
                         booleanParam(name: 'es_embedded', value: true),
                         booleanParam(name: 's3_embedded', value: true),
-                        booleanParam(name: 'pgadmin4', value: true)
+                        booleanParam(name: 'pgadmin4', value: true),
+                        booleanParam(name: 'greenmail_server', value: true)
                     ]
             }
         } catch (exception) {

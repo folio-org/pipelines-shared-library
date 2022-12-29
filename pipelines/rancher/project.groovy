@@ -19,6 +19,7 @@ properties([
     parameters([
         jobsParameters.refreshParameters(),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
+        booleanParam(name: 'namespace_only', defaultValue: false, description: 'Apply only namespace creation stages'),
         jobsParameters.repository(),
         jobsParameters.branch(),
         jobsParameters.okapiVersion(),
@@ -51,6 +52,7 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
         booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
         booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
@@ -105,7 +107,7 @@ ansiColor('xterm') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
                 buildDescription "action: ${project_config.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_config.getConfigType()}"
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
-                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}-${tenant.getId()}-${project_config.getHash().take(7)}" : params.ui_bundle_tag
+                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
             }
 
             stage('Restore preparation') {
@@ -120,7 +122,7 @@ ansiColor('xterm') {
             }
 
             stage('UI Build') {
-                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup()) {
+                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
                     build job: 'Rancher/UI-Build',
                         parameters: [
                             string(name: 'folio_repository', value: params.folio_repository),
@@ -170,7 +172,7 @@ ansiColor('xterm') {
                 folioDeploy.project(project_config, tenant, tf)
             }
 
-            if (project_config.getAction() == 'apply') {
+            if (project_config.getAction() == 'apply' && !params.namespace_only) {
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
@@ -183,6 +185,12 @@ ansiColor('xterm') {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
+                    }
+                }
+
+                if (params.greenmail_server){
+                    stage("Deploy greenmail") {
+                        folioDeploy.greenmail(project_config)
                     }
                 }
 
@@ -224,10 +232,12 @@ ansiColor('xterm') {
                 stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
-                        writeFile file: "ephemeral.properties", text: new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                        new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                            helm.createSecret("ephemeral-properties", project_config.getProjectName(), "./ephemeral.properties")
+                            install_edge_map.each {name, version ->
+                                helm.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                            }
                         }
                         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map, project_config)
