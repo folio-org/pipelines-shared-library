@@ -31,7 +31,7 @@ resource "rancher2_app_v2" "postgresql" {
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
       database: "folio_modules"
-      auth.username: "test"
+      username: "test"
       postgresPassword: ${var.pg_password}
     primary:
       persistence:
