@@ -30,10 +30,22 @@ resource "rancher2_app_v2" "postgresql" {
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
-      database: "folio_modules, test"
-      username: "test"
+      database: ${var.pg_dbname}
       postgresPassword: ${var.pg_password}
     primary:
+      initdb:
+        scripts:
+          init.sql: |
+            CREATE DATABASE ldp;
+            CREATE USER ldpadmin PASSWORD '12345678';
+            CREATE USER ldpconfig PASSWORD '12345678';
+            CREATE USER ldp PASSWORD '12345678';
+            ALTER DATABASE ldp OWNER TO ldpadmin;
+            ALTER DATABASE ldp SET search_path TO public;
+            REVOKE CREATE ON SCHEMA public FROM public;
+            GRANT ALL ON SCHEMA public TO ldpadmin;
+            GRANT USAGE ON SCHEMA public TO ldpconfig;
+            GRANT USAGE ON SCHEMA public TO ldp;
       persistence:
         enabled: true
         size: 20Gi
