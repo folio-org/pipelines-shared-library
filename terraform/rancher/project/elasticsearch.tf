@@ -129,7 +129,8 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     extraEnvs:
       - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
         value: "true"
-    resources:
+      - name: opensearch.ssl.verificationMode
+        value: ${var.es_embedded ? "none" : "full"}
       requests:
         memory: 1024Mi
       limits:
