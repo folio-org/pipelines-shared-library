@@ -254,6 +254,16 @@ mod-authtoken:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-bulk-operations:
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '3662Mi'
+    requests:
+      memory: '2930Mi'
 mod-calendar:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
@@ -837,6 +847,16 @@ mod-service-interaction:
       memory: '1280Mi'
     requests:
       memory: '1024Mi'
+mod-settings:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '683Mi'
+    requests:
+      memory: '512Mi'
 mod-source-record-manager:
   dbMaxPoolSize: '15'
   dbReconnectattempts: '3'
