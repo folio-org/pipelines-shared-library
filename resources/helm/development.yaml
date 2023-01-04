@@ -254,6 +254,16 @@ mod-authtoken:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+mod-bulk-operations:
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '3662Mi'
+    requests:
+      memory: '2930Mi'
 mod-calendar:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
