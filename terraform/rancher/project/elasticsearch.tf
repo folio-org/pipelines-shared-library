@@ -127,10 +127,8 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     replicas: 1
     opensearchHosts: ${var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443"}
     extraEnvs:
-      - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
-        value: "true"
-      - name: "opensearch.ssl.verificationMode"
-        value: ${var.es_embedded ? "none" : "full"}
+        DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+        opensearch.ssl.verificationMode: ${var.es_embedded ? "none" : "full"}
       requests:
         memory: 1024Mi
       limits:
