@@ -847,6 +847,16 @@ mod-service-interaction:
       memory: '1280Mi'
     requests:
       memory: '1024Mi'
+mod-settings:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '683Mi'
+    requests:
+      memory: '512Mi'
 mod-source-record-manager:
   dbMaxPoolSize: '15'
   dbReconnectattempts: '3'
