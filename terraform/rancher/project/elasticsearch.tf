@@ -139,9 +139,9 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
         value: ${var.es_embedded ? "admin" : random_password.es_password[0].result}
     resources:
       requests:
-        memory: 1024Mi
+        memory: 2048Mi
       limits:
-        memory: 1536Mi
+        memory: 3072Mi
     ingress:
       enabled: true
       hosts:
