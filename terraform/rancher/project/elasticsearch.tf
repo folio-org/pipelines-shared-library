@@ -129,6 +129,10 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     extraEnvs:
       - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
         value: "true"
+      - name: OPENSEARCH_USERNAME
+        value: ${var.es_embedded ? "admin" : var.es_username}
+      - name: OPENSEARCH_PASSWORD
+        value: ${var.es_embedded ? "admin" : random_password.es_password[0].result}
     resources:
       requests:
         memory: 2048Mi
