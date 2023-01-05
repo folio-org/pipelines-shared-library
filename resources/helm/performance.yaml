@@ -12,7 +12,7 @@ edge-caiasoft:
       - paths:
           - /caiasoftService*
   javaArgs: '--log.level=info'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.properties'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-caiasoft-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -53,7 +53,7 @@ edge-dematic:
       - paths:
           - /asrService*
   javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.propertie'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dematic-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -76,7 +76,7 @@ edge-inn-reach:
     hosts:
       - paths:
           - /innreach*
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.properties'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-inn-reach-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -124,7 +124,7 @@ edge-oai-pmh:
       - paths:
           - /oai*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=86400000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.properties'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-oai-pmh-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -148,7 +148,7 @@ edge-orders:
       - paths:
           - /orders*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral/ephemeral.properties -Dapi_config=/etc/edge/api/api_configuration.json'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral/edge-orders-ephemeral-properties -Dapi_config=/etc/edge/api/api_configuration.json'
   postJob:
     enabled: false
   replicaCount: 1
@@ -196,7 +196,7 @@ edge-rtac:
       - paths:
           - /*rtac*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral.properties'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-rtac-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -254,6 +254,16 @@ mod-authtoken:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-bulk-operations:
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '3662Mi'
+    requests:
+      memory: '2930Mi'
 mod-calendar:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
@@ -837,6 +847,16 @@ mod-service-interaction:
       memory: '1280Mi'
     requests:
       memory: '1024Mi'
+mod-settings:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '683Mi'
+    requests:
+      memory: '512Mi'
 mod-source-record-manager:
   dbMaxPoolSize: '15'
   dbReconnectattempts: '3'
