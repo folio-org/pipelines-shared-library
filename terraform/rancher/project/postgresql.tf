@@ -37,9 +37,9 @@ resource "rancher2_app_v2" "postgresql" {
         scripts:
           init.sql: |
             CREATE DATABASE ldp;
-            CREATE USER ldpadmin PASSWORD '12345678';
-            CREATE USER ldpconfig PASSWORD '12345678';
-            CREATE USER ldp PASSWORD '12345678';
+            CREATE USER ldpadmin PASSWORD 'diku_ldp9367';
+            CREATE USER ldpconfig PASSWORD 'diku_ldp9367';
+            CREATE USER ldp PASSWORD 'diku_ldp9367';
             ALTER DATABASE ldp OWNER TO ldpadmin;
             ALTER DATABASE ldp SET search_path TO public;
             REVOKE CREATE ON SCHEMA public FROM public;
