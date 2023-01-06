@@ -52,7 +52,8 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
         booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
-        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server')])])
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
+        booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -147,6 +148,7 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
                 tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
+                tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
 
 
                 tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })

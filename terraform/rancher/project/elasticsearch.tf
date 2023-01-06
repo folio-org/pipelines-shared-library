@@ -109,6 +109,54 @@ resource "rancher2_app_v2" "opensearch-client" {
   EOT
 }
 
+resource "rancher2_app_v2" "opensearch-dashboards" {
+  #depends_on    = [rancher2_app_v2.opensearch-master]
+  count         = var.opensearch_dashboards ? 1 : 0
+  cluster_id    = data.rancher2_cluster.this.id
+  namespace     = rancher2_namespace.this.name
+  name          = "opensearch-dashboards"
+  repo_name     = "opensearch"
+  chart_name    = "opensearch-dashboards"
+  chart_version = "1.4.1"
+  force_upgrade = "true"
+  values        = <<-EOT
+    service:
+      type: NodePort
+    clusterName: "opensearch-${var.rancher_project_name}"
+    masterService: "opensearch-${var.rancher_project_name}"
+    replicas: 1
+    opensearchHosts: ${var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443"}
+    extraEnvs:
+      - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+        value: "true"
+      - name: OPENSEARCH_SSL_VERIFICATIONMODE
+        value: ${var.es_embedded ? "none" : "full"}
+      - name: OPENSEARCH_USERNAME
+        value: ${var.es_embedded ? "admin" : var.es_username}
+      - name: OPENSEARCH_PASSWORD
+        value: ${var.es_embedded ? "admin" : random_password.es_password[0].result}
+    resources:
+      requests:
+        memory: 2048Mi
+      limits:
+        memory: 3072Mi
+    ingress:
+      enabled: true
+      hosts:
+        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
+          paths:
+            - path: /
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${local.group_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+
+  EOT
+}
+
+
 resource "random_password" "es_password" {
   count       = var.es_embedded ? 0 : 1
   length      = 16
