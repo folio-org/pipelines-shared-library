@@ -129,10 +129,7 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     extraEnvs:
       - name: OPENSEARCH_SSL_VERIFICATIONMODE
         value: ${var.es_embedded ? "none" : "full"}
-      - name: OPENSEARCH_USERNAME
-        value: ${var.es_embedded ? "admin" : var.es_username}
-      - name: OPENSEARCH_PASSWORD
-        value: ${var.es_embedded ? "admin" : random_password.es_password[0].result}
+
       - name: LOGGING_VERBOSE
         value: "true"
     resources:
