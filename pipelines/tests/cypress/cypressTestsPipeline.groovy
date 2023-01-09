@@ -14,7 +14,9 @@ return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
 
-def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+
+
+//def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
 def allureVersion = "2.17.2"
 def browserName = "chrome"
 
@@ -103,25 +105,28 @@ pipeline {
 //            }
 //        }
 //
-//        stage('Cypress tests execution') {
+        stage('Cypress tests execution') {
+            steps{
+                def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+            }
+            agent {
+                docker {
+                    image "cypress/included:${cypressImageVersion}"
+                    args '--entrypoint='
+                    reuseNode true
+                }
+            }
+            environment {
+                HOME = "${pwd()}/cache"
+                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
 
-//            agent {
-//                docker {
-//                    image "cypress/included:${cypressImageVersion}"
-//                    args '--entrypoint='
-//                    reuseNode true
-//                }
-//            }
-//            environment {
-//                HOME = "${pwd()}/cache"
-//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-//
-//                CYPRESS_BASE_URL = "${params.uiUrl}"
-//                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
-//                CYPRESS_OKAPI_TENANT = "${params.tenant}"
-//                CYPRESS_diku_login = "${params.user}"
-//                CYPRESS_diku_password = "${params.password}"
-//            }
+                CYPRESS_BASE_URL = "${params.uiUrl}"
+                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
+                CYPRESS_OKAPI_TENANT = "${params.tenant}"
+                CYPRESS_diku_login = "${params.user}"
+                CYPRESS_diku_password = "${params.password}"
+            }
+        }
 //            steps {
 //                script {
 //                    ansiColor('xterm') {
