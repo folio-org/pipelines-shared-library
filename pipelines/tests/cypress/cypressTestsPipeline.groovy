@@ -1,8 +1,10 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import hudson.util.Secret
+import groovy.json.JsonSlurper
 
-@Library('pipelines-shared-library') _
+
+@Library('pipelines-shared-library@RANCHER-493') _
 
 def cypressRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
 
@@ -11,6 +13,10 @@ def gettags = ("git ls-remote -t -h ${cypressRepositoryUrl}").execute()
 return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
+
+//def jsonSlurper = new JsonSlurper()
+//def cypressImageVersion2 = jsonSlurper.parse(new File('package.json'))
+//println "config = $config"
 
 def cypressImageVersion = "10.9.0"
 def allureVersion = "2.17.2"
@@ -81,91 +87,96 @@ pipeline {
             }
         }
 
-        stage('Build tests') {
-            environment {
-                HOME = "${pwd()}/cache"
-                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-            }
-            steps {
-                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                sh "yarn add -D cypress-testrail-simple"
-                sh "yarn install"
-            }
-        }
+        def CyprImageVer = readJSON(text: readFile("${workspace}/stripes-testing/package.json"))
+        println(CyprImageVer.dependencies.cypress)
 
-        stage('Cypress tests execution') {
-            agent {
-                docker {
-                    image "cypress/included:${cypressImageVersion}"
-                    args '--entrypoint='
-                    reuseNode true
-                }
-            }
-            environment {
-                HOME = "${pwd()}/cache"
-                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
 
-                CYPRESS_BASE_URL = "${params.uiUrl}"
-                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
-                CYPRESS_OKAPI_TENANT = "${params.tenant}"
-                CYPRESS_diku_login = "${params.user}"
-                CYPRESS_diku_password = "${params.password}"
-            }
-            steps {
-                script {
-                    ansiColor('xterm') {
-                        timeout(time: "${params.timeout}", unit: 'HOURS') {
-                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                if (params.testrailRunID && params.testrailProjectID) {
-                                    // Run with TesTrail Integration
-                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
-                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
-                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
-                                    env.CYPRESS_allureReuseAfterSpec = "true"
-                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
-                                    withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
-                                    }
-                                } else {
-                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-        stage('Generate tests report') {
-            steps {
-                script {
-                    def allure_home = tool type: 'allure', name: allureVersion
-                    sh "${allure_home}/bin/allure generate --clean"
-                }
-            }
-        }
+//        stage('Build tests') {
+//            environment {
+//                HOME = "${pwd()}/cache"
+//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+//            }
+//            steps {
+//                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+//                sh "yarn add -D cypress-testrail-simple"
+//                sh "yarn install"
+//            }
+//        }
+//
+//        stage('Cypress tests execution') {
+//            agent {
+//                docker {
+//                    image "cypress/included:${cypressImageVersion}"
+//                    args '--entrypoint='
+//                    reuseNode true
+//                }
+//            }
+//            environment {
+//                HOME = "${pwd()}/cache"
+//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+//
+//                CYPRESS_BASE_URL = "${params.uiUrl}"
+//                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
+//                CYPRESS_OKAPI_TENANT = "${params.tenant}"
+//                CYPRESS_diku_login = "${params.user}"
+//                CYPRESS_diku_password = "${params.password}"
+//            }
+//            steps {
+//                script {
+//                    ansiColor('xterm') {
+//                        timeout(time: "${params.timeout}", unit: 'HOURS') {
+//                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
+//                                if (params.testrailRunID && params.testrailProjectID) {
+//                                    // Run with TesTrail Integration
+//                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
+//                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
+//                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
+//                                    env.CYPRESS_allureReuseAfterSpec = "true"
+//                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
+//                                    withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+//                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+//                                    }
+//                                } else {
+//                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-        stage('Publish tests report') {
-            steps {
-                allure([
-                    includeProperties: false,
-                    jdk              : '',
-                    commandline      : allureVersion,
-                    properties       : [],
-                    reportBuildPolicy: 'ALWAYS',
-                    results          : [[path: 'allure-results']]
-                ])
-            }
-        }
+//        stage('Generate tests report') {
+//            steps {
+//                script {
+//                    def allure_home = tool type: 'allure', name: allureVersion
+//                    sh "${allure_home}/bin/allure generate --clean"
+//                }
+//            }
+//        }
 
-        stage('Archive artifacts') {
-            steps {
-                script {
-                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
+//        stage('Publish tests report') {
+//            steps {
+//                allure([
+//                    includeProperties: false,
+//                    jdk              : '',
+//                    commandline      : allureVersion,
+//                    properties       : [],
+//                    reportBuildPolicy: 'ALWAYS',
+//                    results          : [[path: 'allure-results']]
+//                ])
+//            }
+//        }
 
-                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
-                }
-            }
-        }
+//        stage('Archive artifacts') {
+//            steps {
+//                script {
+//                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
+//
+//                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
+//                }
+//            }
+//        }
     }
 }
