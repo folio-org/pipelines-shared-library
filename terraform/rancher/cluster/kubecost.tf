@@ -55,6 +55,10 @@ resource "rancher2_app_v2" "kubecost" {
   chart_name    = "cost-analyzer"
   chart_version = "1.98.0"
   values        = <<-EOT
+    kubecostModel:
+      resources:
+        limits:
+          memory: "4096Mi"
     ingress:
       enabled: true
       hosts:
@@ -96,15 +100,6 @@ resource "rancher2_app_v2" "kubecost" {
       productKey:
         key: "${var.kubecost_licence_key}"
         enabled: true
-      athenaProjectID: "${var.projectID}"
-      athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/query_results"
-      athenaRegion: "${var.aws_region}"
-      athenaDatabase: "athenacurcfn_aws_kubecost"
-      athenaTable: "aws_kubecost"
-      athenaWorkgroup: "primary"
-      awsServiceKeyName: "${var.aws_kubecost_access_key_id}"
-      awsServiceKeyPassword: "${var.aws_kubecost_secret_access_key}"
-      createServiceKeySecret: true
     global:
       grafana:
         enabled: false

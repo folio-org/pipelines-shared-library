@@ -69,7 +69,7 @@ resource "rancher2_app_v2" "prometheus" {
           requests:
             memory: 1024Mi
           limits:
-            memory: 3096Mi
+            memory: 4096Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
