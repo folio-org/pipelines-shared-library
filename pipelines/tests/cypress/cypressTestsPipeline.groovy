@@ -82,7 +82,7 @@ pipeline {
                 }
             }
         }
-        stage{
+        stage("tsets"){
             steps{
                 script {
                     println("${cypressImageVersion}")
