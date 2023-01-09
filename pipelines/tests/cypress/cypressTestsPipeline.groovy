@@ -93,6 +93,7 @@ pipeline {
 //                    def CyprImageVer = readJSON(text: readFile("${workspace}/stripes-testing/package.json"))
 //                    println(CyprImageVer.dependencies.cypress)
                     println("$workspace")
+                    sh "ls -la ${workspace}/stripes-testing"
                 }
 
             }
