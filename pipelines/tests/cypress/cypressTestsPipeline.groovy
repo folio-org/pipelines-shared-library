@@ -124,7 +124,7 @@ pipeline {
         }
             steps {
                 script {
-                    input "test"
+                    println("${cypressImageVersion}")
 //                    ansiColor('xterm') {
 //                        timeout(time: "${params.timeout}", unit: 'HOURS') {
 //                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
