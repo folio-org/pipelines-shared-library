@@ -122,8 +122,9 @@ pipeline {
                 CYPRESS_diku_password = "${params.password}"
             }
         }
-//            steps {
-//                script {
+        steps {
+            script {
+                input "test"
 //                    ansiColor('xterm') {
 //                        timeout(time: "${params.timeout}", unit: 'HOURS') {
 //                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -144,8 +145,8 @@ pipeline {
 //                        }
 //                    }
 //                }
-//            }
-//        }
+            }
+        }
 
 //        stage('Generate tests report') {
 //            steps {
