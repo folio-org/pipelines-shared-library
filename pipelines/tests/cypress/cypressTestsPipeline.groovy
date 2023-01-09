@@ -89,8 +89,11 @@ pipeline {
 
         stage('CypressVersionIm') {
             steps {
-                def CyprImageVer = readJSON(text: readFile("${workspace}/stripes-testing/package.json"))
-                println(CyprImageVer.dependencies.cypress)
+                script {
+                    def CyprImageVer = readJSON(text: readFile("${workspace}/stripes-testing/package.json"))
+                    println(CyprImageVer.dependencies.cypress)
+                }
+
             }
 
 
