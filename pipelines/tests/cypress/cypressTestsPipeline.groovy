@@ -1,8 +1,6 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import hudson.util.Secret
-import groovy.json.JsonSlurper
-
 
 @Library('pipelines-shared-library@RANCHER-493') _
 
@@ -88,43 +86,41 @@ pipeline {
             steps {
                 script {
                     def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+                    println("${CypressImageVersion.dependencies.cypress}")
                 }
             }
         }
-        stage('Build tests') {
-            environment {
-                HOME = "${pwd()}/cache"
-                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-            }
-            steps {
-                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                sh "yarn add -D cypress-testrail-simple"
-                sh "yarn install"
-            }
-        }
-//
-        stage('Cypress tests execution') {
-//            steps{
-//                def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+//        stage('Build tests') {
+//            environment {
+//                HOME = "${pwd()}/cache"
+//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
 //            }
-            agent {
-                docker {
-                    image "cypress/included:${cypressImageVersion}"
-                    args '--entrypoint='
-                    reuseNode true
-                }
-            }
-            environment {
-                HOME = "${pwd()}/cache"
-                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+//            steps {
+//                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+//                sh "yarn add -D cypress-testrail-simple"
+//                sh "yarn install"
+//            }
+//        }
 
-                CYPRESS_BASE_URL = "${params.uiUrl}"
-                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
-                CYPRESS_OKAPI_TENANT = "${params.tenant}"
-                CYPRESS_diku_login = "${params.user}"
-                CYPRESS_diku_password = "${params.password}"
-            }
-        }
+//        stage('Cypress tests execution') {
+//            agent {
+//                docker {
+//                    image "cypress/included:${cypressImageVersion}"
+//                    args '--entrypoint='
+//                    reuseNode true
+//                }
+//            }
+//            environment {
+//                HOME = "${pwd()}/cache"
+//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+//
+//                CYPRESS_BASE_URL = "${params.uiUrl}"
+//                CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
+//                CYPRESS_OKAPI_TENANT = "${params.tenant}"
+//                CYPRESS_diku_login = "${params.user}"
+//                CYPRESS_diku_password = "${params.password}"
+//            }
+//        }
 //            steps {
 //                script {
 //                    ansiColor('xterm') {
