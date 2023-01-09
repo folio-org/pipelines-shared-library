@@ -84,15 +84,9 @@ pipeline {
                 }
             }
         }
-        stage("tsets"){
-            steps{
-                script {
-                    println("${cypressImageVersion}")
-                }
-            }
+        stage('Cypress tests Image version') {
+            def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
         }
-
-
 //        stage('Build tests') {
 //            environment {
 //                HOME = "${pwd()}/cache"
@@ -106,9 +100,9 @@ pipeline {
 //        }
 //
         stage('Cypress tests execution') {
-            steps{
-                def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
-            }
+//            steps{
+//                def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+//            }
             agent {
                 docker {
                     image "cypress/included:${cypressImageVersion}"
