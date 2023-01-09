@@ -86,7 +86,7 @@ pipeline {
             steps {
                 script {
                     def packageJson = readJSON(text: readFile("${workspace}/package.json"))
-                    def cypressImageVersion = ${packageJson.dependencies.cypress}
+                    def cypressImageVersion = packageJson.dependencies.cypress
                     println("${cypressImageVersion}")
                 }
             }
