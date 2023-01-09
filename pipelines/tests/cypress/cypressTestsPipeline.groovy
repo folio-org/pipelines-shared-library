@@ -14,11 +14,7 @@ return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
 
-//def jsonSlurper = new JsonSlurper()
-//def cypressImageVersion2 = jsonSlurper.parse(new File('package.json'))
-//println "config = $config"
-
-def cypressImageVersion = "10.9.0"
+def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
 def allureVersion = "2.17.2"
 def browserName = "chrome"
 
@@ -86,21 +82,13 @@ pipeline {
                 }
             }
         }
-
-        stage('CypressVersionIm') {
-            steps {
+        stage{
+            steps{
                 script {
-                    def CyprImageVer = readJSON(text: readFile("${workspace}/package.json"))
-                    println(CyprImageVer.dependencies.cypress)
-//                    println("$workspace")
-//                    sh "ls -la ${workspace}"
+                    println("${cypressImageVersion}")
                 }
-
             }
-
-
         }
-
 
 
 //        stage('Build tests') {
@@ -116,6 +104,7 @@ pipeline {
 //        }
 //
 //        stage('Cypress tests execution') {
+
 //            agent {
 //                docker {
 //                    image "cypress/included:${cypressImageVersion}"
