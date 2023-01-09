@@ -85,7 +85,9 @@ pipeline {
             }
         }
         stage('Cypress tests Image version') {
-            def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+            steps {
+                def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+            }
         }
 //        stage('Build tests') {
 //            environment {
