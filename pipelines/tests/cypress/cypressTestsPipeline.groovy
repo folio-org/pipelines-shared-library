@@ -121,7 +121,6 @@ pipeline {
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
             }
-        }
             steps {
                 script {
                     println("${cypressImageVersion}")
@@ -145,9 +144,9 @@ pipeline {
 //                        }
 //                    }
 //                }
+                }
             }
         }
-
 //        stage('Generate tests report') {
 //            steps {
 //                script {
