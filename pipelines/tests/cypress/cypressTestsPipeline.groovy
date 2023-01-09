@@ -87,21 +87,21 @@ pipeline {
         stage('Cypress tests Image version') {
             steps {
                 script {
-                    cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+                    def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
                 }
             }
         }
-//        stage('Build tests') {
-//            environment {
-//                HOME = "${pwd()}/cache"
-//                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-//            }
-//            steps {
-//                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-//                sh "yarn add -D cypress-testrail-simple"
-//                sh "yarn install"
-//            }
-//        }
+        stage('Build tests') {
+            environment {
+                HOME = "${pwd()}/cache"
+                CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+            }
+            steps {
+                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                sh "yarn add -D cypress-testrail-simple"
+                sh "yarn install"
+            }
+        }
 //
         stage('Cypress tests execution') {
 //            steps{
