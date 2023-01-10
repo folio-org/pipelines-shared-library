@@ -86,6 +86,7 @@ static List devEnvironmentsList() {
             'bulk-edit',
             'concorde',
             'core-platform',
+            'data-migration',
             'ebsco-core',
             'falcon',
             'firebird',
@@ -260,8 +261,8 @@ def repository() {
     return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
 }
 
-def branch(String reference_parameter = 'folio_repository') {
-    return _paramExtended('folio_branch', reference_parameter, getRepositoryBranches(reference_parameter), 'Choose what platform-core or platform-complete branch to build from')
+def branch(String reference_parameter = 'folio_repository', String parameter_name = 'folio_branch') {
+    return _paramExtended(parameter_name, reference_parameter, getRepositoryBranches(reference_parameter), 'Choose what platform-core or platform-complete branch to build from')
 }
 
 def configType() {
