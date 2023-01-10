@@ -125,7 +125,7 @@ pipeline {
                 script {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
-                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 if (params.testrailRunID && params.testrailProjectID) {
                                     // Run with TesTrail Integration
                                     env.TESTRAIL_HOST = "https://foliotest.testrail.io"
@@ -145,6 +145,7 @@ pipeline {
                 }
             }
         }
+
         stage('Generate tests report') {
             steps {
                 script {
