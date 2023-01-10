@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import hudson.util.Secret
 
-@Library('pipelines-shared-library@RANCHER-493') _
+@Library('pipelines-shared-library') _
 
 def cypressRepositoryUrl = "${Constants.FOLIO_GITHUB_URL}/stripes-testing.git"
 
@@ -11,8 +11,6 @@ def gettags = ("git ls-remote -t -h ${cypressRepositoryUrl}").execute()
 return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
-
-
 
 def cypressImageVersion
 def allureVersion = "2.17.2"
@@ -86,7 +84,6 @@ pipeline {
                 script {
                     def packageJson = readJSON(text: readFile("${workspace}/package.json"))
                     cypressImageVersion = packageJson.dependencies.cypress
-
                 }
             }
         }
