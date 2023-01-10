@@ -42,7 +42,6 @@ OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Email email = okapiSettings.email()
 
 Project project_config = new Project(
-    hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
