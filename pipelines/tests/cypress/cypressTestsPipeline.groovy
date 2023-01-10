@@ -14,7 +14,7 @@ return gettags.text.readLines().collect {
 
 
 
-//def cypressImageVersion = readJSON(text: readFile("${workspace}/package.json"))
+def cypressImageVersion = "10.9.0"
 def allureVersion = "2.17.2"
 def browserName = "chrome"
 
@@ -87,7 +87,6 @@ pipeline {
 //                script {
 //                    def packageJson = readJSON(text: readFile("${workspace}/package.json"))
 //                    def cypressImageVersion = packageJson.dependencies.cypress
-////                    println("${cypressImageVersion}")
 //                }
 //            }
 //        }
