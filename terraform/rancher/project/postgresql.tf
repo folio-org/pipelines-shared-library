@@ -204,7 +204,7 @@ resource "rancher2_app_v2" "pgadmin4" {
           Group: Servers
           Port: 5432
           Username: ${var.pg_embedded ? var.pg_username : module.rds[0].this_rds_cluster_master_username}
-          Host: ${var.pg_embedded ? "postgresql" : module.rds[0].this_rds_cluster_endpoint}
+          Host: ${var.pg_embedded ? [join("-", ["postgresql", var.rancher_project_name])] : module.rds[0].this_rds_cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT
