@@ -82,15 +82,15 @@ pipeline {
                 }
             }
         }
-        stage('Cypress tests Image version') {
-            steps {
-                script {
-                    def packageJson = readJSON(text: readFile("${workspace}/package.json"))
-                    def cypressImageVersion = packageJson.dependencies.cypress
-//                    println("${cypressImageVersion}")
-                }
-            }
-        }
+//        stage('Cypress tests Image version') {
+//            steps {
+//                script {
+//                    def packageJson = readJSON(text: readFile("${workspace}/package.json"))
+//                    def cypressImageVersion = packageJson.dependencies.cypress
+////                    println("${cypressImageVersion}")
+//                }
+//            }
+//        }
         stage('Build tests') {
             environment {
                 HOME = "${pwd()}/cache"
