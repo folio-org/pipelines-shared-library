@@ -123,60 +123,58 @@ pipeline {
             }
             steps {
                 script {
-                    println("${cypressImageVersion}")
-//                    ansiColor('xterm') {
-//                        timeout(time: "${params.timeout}", unit: 'HOURS') {
-//                            catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-//                                if (params.testrailRunID && params.testrailProjectID) {
-//                                    // Run with TesTrail Integration
-//                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
-//                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
-//                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
-//                                    env.CYPRESS_allureReuseAfterSpec = "true"
-//                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
-//                                    withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-//                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
-//                                    }
-//                                } else {
-//                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
+                    ansiColor('xterm') {
+                        timeout(time: "${params.timeout}", unit: 'HOURS') {
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                if (params.testrailRunID && params.testrailProjectID) {
+                                    // Run with TesTrail Integration
+                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
+                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
+                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
+                                    env.CYPRESS_allureReuseAfterSpec = "true"
+                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
+                                    withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                    }
+                                } else {
+                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-//        stage('Generate tests report') {
-//            steps {
-//                script {
-//                    def allure_home = tool type: 'allure', name: allureVersion
-//                    sh "${allure_home}/bin/allure generate --clean"
-//                }
-//            }
-//        }
+        stage('Generate tests report') {
+            steps {
+                script {
+                    def allure_home = tool type: 'allure', name: allureVersion
+                    sh "${allure_home}/bin/allure generate --clean"
+                }
+            }
+        }
 
-//        stage('Publish tests report') {
-//            steps {
-//                allure([
-//                    includeProperties: false,
-//                    jdk              : '',
-//                    commandline      : allureVersion,
-//                    properties       : [],
-//                    reportBuildPolicy: 'ALWAYS',
-//                    results          : [[path: 'allure-results']]
-//                ])
-//            }
-//        }
+        stage('Publish tests report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk              : '',
+                    commandline      : allureVersion,
+                    properties       : [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results          : [[path: 'allure-results']]
+                ])
+            }
+        }
 
-//        stage('Archive artifacts') {
-//            steps {
-//                script {
-//                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
-//
-//                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
-//                }
-//            }
-//        }
+        stage('Archive artifacts') {
+            steps {
+                script {
+                    zip zipFile: "allure-results.zip", glob: "allure-results/*"
+
+                    archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
+                }
+            }
+        }
     }
 }
