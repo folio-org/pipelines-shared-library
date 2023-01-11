@@ -12,7 +12,7 @@ return gettags.text.readLines().collect {
   it.split()[1].replaceAll('refs/heads/', '').replaceAll('refs/tags/', '').replaceAll("\\\\^\\\\{\\\\}", '')
 }"""
 
-def cypressImageVersion = "10.9.0"
+def cypressImageVersion
 def allureVersion = "2.17.2"
 def browserName = "chrome"
 
@@ -55,7 +55,6 @@ properties([
 
 def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
 
-
 pipeline {
     agent { label "$params.agent" }
 
@@ -80,7 +79,14 @@ pipeline {
                 }
             }
         }
-
+        stage('Cypress tests Image version') {
+            steps {
+                script {
+                    def packageJson = readJSON(text: readFile("${workspace}/package.json"))
+                    cypressImageVersion = packageJson.dependencies.cypress
+                }
+            }
+        }
         stage('Build tests') {
             environment {
                 HOME = "${pwd()}/cache"
