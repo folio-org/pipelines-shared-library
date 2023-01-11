@@ -242,6 +242,10 @@ ansiColor('xterm') {
                     }
                 }
 
+                stage("Post deploy actions") {
+
+                }
+
                 stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
                 }

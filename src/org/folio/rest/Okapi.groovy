@@ -208,6 +208,45 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
     }
+
+    def configureLdpDbSettings(tenant, admin_user) {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapi_url + "/ldp/config/dbinfo"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
+        //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
+        String body = "{"value":"{\"pass\":\"\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://postgresql-test/ldp\"}","tenant":"diku","key":"dbinfo"}"
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id
+        } else {
+            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    def configureLdpSavedQueryRepo(tenant, admin_user) {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapi_url + "/ldp/config/sqconfig"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
+        //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
+        String body = "{"key": "sqconfig","tenant":"{{ tenant }}","value":"{\"owner\":\"{{ gh_owner }}\",\"repo\":\"{{ gh_repo }}\",\"token\":\"{{ gh_token }}\"}"}"
+        def res = http.postRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id
+        } else {
+            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
+        }
+    }
+
     /**
      * check this status Elasticsearch (records)
      * @param tenant

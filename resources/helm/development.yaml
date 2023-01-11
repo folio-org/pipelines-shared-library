@@ -941,6 +941,16 @@ mod-users-bl:
       memory: '512Mi'
     requests:
       memory: '384Mi'
+ldp:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '683Mi'
+    requests:
+      memory: '512Mi'
 okapi:
   ingress:
     annotations:
