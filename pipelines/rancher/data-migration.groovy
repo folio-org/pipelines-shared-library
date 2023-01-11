@@ -46,8 +46,16 @@ ansiColor('xterm') {
                 build job: Constants.JENKINS_JOB_PROJECT,
                     parameters: [
                         string(name: 'action', value: 'destroy'),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_src),
+                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
                         string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name)
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        booleanParam(name: 'pg_embedded', value: false),
+                        booleanParam(name: 'kafka_embedded', value: false),
+                        booleanParam(name: 'es_embedded', value: false),
+                        booleanParam(name: 's3_embedded', value: false)
                     ]
             }
             stage('Restore data-migration project from backup') {
