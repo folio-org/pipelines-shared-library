@@ -396,7 +396,7 @@ mod-data-import:
       memory: '517Mi'
     requests:
       memory: '388Mi'
-mod-data-import-converter-storage:
+mod-di-converter-storage:
   javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
