@@ -209,7 +209,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpDbSettings(tenant, admin_user) {
+/*    def configureLdpDbSettings(tenant, admin_user) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
@@ -245,7 +245,7 @@ class Okapi extends GeneralParameters {
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
-    }
+    }*/
 
     /**
      * check this status Elasticsearch (records)
