@@ -26,13 +26,13 @@ properties([
     parameters([
         jobsParameters.refreshParameters(),
         jobsParameters.repository(),
-        jobsParameters.branch(parameter_name = 'folio_branch_src'),
-        jobsParameters.branch(parameter_name = 'folio_branch_dst'),
-        jobsParameters.backupName()])])
+        jobsParameters.branch('folio_repository', 'folio_branch_src'),
+        jobsParameters.branch('folio_repository', 'folio_branch_dst'),
+        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true)])])
 
 def rancher_cluster_name = 'folio-tmp'
-def rancher_project_name = 'data-migration'
-def config_type = 'performance'
+def rancher_project_name = 'test-1'
+def config_type = 'development'
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
