@@ -236,7 +236,8 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Configure Saved Query repo")
-        String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\\\"owner\\\":\\\"RandomOtherGuy\\\",\\\"repo\\\":\\\"ldp-queries\\\",\\\"token\\\":\\\"test\\\"}\\\"}"
+        //String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\\\"owner\\\":\\\"RandomOtherGuy\\\",\\\"repo\\\":\\\"ldp-queries\\\",\\\"token\\\":\\\"test\\\"}\\\"}"
+        String body = """{"key": "sqconfig","tenant":"diku","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"test-1\\"}"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
