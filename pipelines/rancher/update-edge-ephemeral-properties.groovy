@@ -38,7 +38,6 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_name,
     description: "${params.tenant_name} tenant for ${params.edge_module}",
     tenantParameters: [loadReference: params.load_reference,
                        loadSample   : params.load_sample],
-    queryParameters: [reinstall: params.reinstall],
     queryParameters: [reinstall: 'false'],
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index])
