@@ -86,7 +86,7 @@ ansiColor('xterm') {
                 Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
 
-                println install_edge_map
+                // println install_edge_map
                 // if (install_edge_map) {
                 //     new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                 //     helm.k8sClient {
