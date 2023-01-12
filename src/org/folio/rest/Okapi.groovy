@@ -215,7 +215,7 @@ class Okapi extends GeneralParameters {
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
         //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
@@ -234,7 +234,7 @@ class Okapi extends GeneralParameters {
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
         //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
