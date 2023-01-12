@@ -218,7 +218,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Configure LDP DB settings")
-        String body = "{\"value\":\"{\"pass\":\"\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://test/ldp\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
+        String body = "{\"value\":\"{\\\"pass\\\":\\\"password\\\",\\\"user\\\":\\\"ldp\\\",\\\"url\\\":\\\"jdbc:postgresql://test/ldp\\\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
