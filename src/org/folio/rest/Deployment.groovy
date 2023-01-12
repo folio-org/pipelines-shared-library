@@ -65,8 +65,8 @@ class Deployment extends GeneralParameters {
     }
 
     void test() {
-        okapi.configureLdpDbSettings(tenant, admin_user)
-        okapi.configureLdpSavedQueryRepo(tenant, admin_user)
+        okapi.configureLdpDbSettings(tenant, admin_user, "asfsdfa")
+        okapi.configureLdpSavedQueryRepo(tenant, admin_user, "asjkfasdf")
     }
 
     void update() {

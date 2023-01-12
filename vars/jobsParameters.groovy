@@ -13,6 +13,10 @@ static String pgAdminDefaultPassword() {
     return 'SuperSecret'
 }
 
+static String pgLdpDefaultPassword() {
+    return 'diku_ldp9367'
+}
+
 static List dbList() {
     return ['rds', 'postgresql']
 }

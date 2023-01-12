@@ -209,7 +209,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpDbSettings(tenant, admin_user) {
+    def configureLdpDbSettings(tenant, admin_user, db_host ) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
@@ -218,8 +218,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Configure LDP DB settings")
-        //String body = "{\"value\":\"{\\\"pass\\\":\\\"password\\\",\\\"user\\\":\\\"ldp\\\",\\\"url\\\":\\\"jdbc:postgresql://test/ldp\\\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
-        String body = """{"value":"{\\"pass\\":\\"pass\\",\\"user\\":\\"ldp\\",\\"url\\":\\"jdbc:postgresql://test666/ldp\\"}","tenant":"diku","key":"dbinfo"}"""
+        String body = """{"value":"{\\"pass\\":\\"pass\\",\\"user\\":\\"ldp\\",\\"url\\":\\"jdbc:postgresql://${db_host}/ldp\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
@@ -228,7 +227,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpSavedQueryRepo(tenant, admin_user) {
+    def configureLdpSavedQueryRepo(tenant, admin_user, gh_token) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/sqconfig"
         ArrayList headers = [
@@ -237,8 +236,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Configure Saved Query repo")
-        //String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\\\"owner\\\":\\\"RandomOtherGuy\\\",\\\"repo\\\":\\\"ldp-queries\\\",\\\"token\\\":\\\"test\\\"}\\\"}"
-        String body = """{"key": "sqconfig","tenant":"diku","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"test-666\\"}"}"""
+        String body = """{"key": "sqconfig","tenant":"${tenant.getId()}","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"${gh_token}\\"}"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
