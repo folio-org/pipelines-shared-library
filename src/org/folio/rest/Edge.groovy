@@ -20,9 +20,11 @@ class Edge extends GeneralParameters {
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
+        println "[DEBUG]"
         install_edge_map.each { name, version ->
             String tenants = default_tenant.getId()
             String institutional = ""
+            println "[DEBUG] ${tenants}"
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
                     def obj = [
