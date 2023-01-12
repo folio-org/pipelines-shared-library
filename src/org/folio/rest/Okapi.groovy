@@ -218,7 +218,8 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
         logger.info("Starting Configure LDP DB settings")
-        String body = "{\"value\":\"{\\\"pass\\\":\\\"password\\\",\\\"user\\\":\\\"ldp\\\",\\\"url\\\":\\\"jdbc:postgresql://test/ldp\\\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
+        //String body = "{\"value\":\"{\\\"pass\\\":\\\"password\\\",\\\"user\\\":\\\"ldp\\\",\\\"url\\\":\\\"jdbc:postgresql://test/ldp\\\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
+        String body = """{"value":"{\"pass\":\"pass\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://test666/ldp\"}","tenant":"diku","key":"dbinfo"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
@@ -237,7 +238,7 @@ class Okapi extends GeneralParameters {
         ]
         logger.info("Starting Configure Saved Query repo")
         //String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\\\"owner\\\":\\\"RandomOtherGuy\\\",\\\"repo\\\":\\\"ldp-queries\\\",\\\"token\\\":\\\"test\\\"}\\\"}"
-        String body = """{"key": "sqconfig","tenant":"diku","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"test-1\\"}"}"""
+        String body = """{"key": "sqconfig","tenant":"diku","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"test-666\\"}"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
