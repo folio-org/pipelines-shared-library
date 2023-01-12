@@ -62,26 +62,26 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            if (params.create_tenant) {
-                stage("Create tenant") {
-                        build job: 'Rancher/Update/create-tenant',
-                            parameters: [
-                                string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-                                string(name: 'rancher_project_name', value: params.rancher_project_name),
-                                string(name: 'install_list', value: params.edge_module),
-                                string(name: 'tenant_id', value: params.tenant_name),
-                                string(name: 'tenant_name', value: params.tenant_name),
-                                string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
-                                string(name: 'admin_username', value: params.admin_username),
-                                string(name: 'admin_password', value: params.admin_password),
-                                booleanParam(name: 'load_reference', value: params.load_reference),
-                                booleanParam(name: 'load_sample', value: params.load_sample),
-                                string(name: 'folio_repository', value: params.folio_repository),
-                                string(name: 'folio_branch', value: params.folio_branch),
-                                string(name: 'deploy_ui', value: params.deploy_ui.toString())]
-                }
-                println("Tenant ${params.edge_module} was created successfully")
-            }
+            // if (params.create_tenant) {
+            //     stage("Create tenant") {
+            //             build job: 'Rancher/Update/create-tenant',
+            //                 parameters: [
+            //                     string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
+            //                     string(name: 'rancher_project_name', value: params.rancher_project_name),
+            //                     string(name: 'install_list', value: params.edge_module),
+            //                     string(name: 'tenant_id', value: params.tenant_name),
+            //                     string(name: 'tenant_name', value: params.tenant_name),
+            //                     string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
+            //                     string(name: 'admin_username', value: params.admin_username),
+            //                     string(name: 'admin_password', value: params.admin_password),
+            //                     booleanParam(name: 'load_reference', value: params.load_reference),
+            //                     booleanParam(name: 'load_sample', value: params.load_sample),
+            //                     string(name: 'folio_repository', value: params.folio_repository),
+            //                     string(name: 'folio_branch', value: params.folio_branch),
+            //                     string(name: 'deploy_ui', value: params.deploy_ui.toString())]
+            //     }
+            //     println("Tenant ${params.edge_module} was created successfully")
+            // }
             stage("Recreate ephemeral-properties") {
                 Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
