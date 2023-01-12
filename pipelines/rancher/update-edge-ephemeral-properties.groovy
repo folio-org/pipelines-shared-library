@@ -86,6 +86,8 @@ ansiColor('xterm') {
             stage("Recreate ephemeral-properties") {
                 // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 Map edge = [name:"${params.edge_module}"]
+                println tenant
+                println admin_user
                 new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(edge, tenant, admin_user)
 
                 // println install_edge_map
