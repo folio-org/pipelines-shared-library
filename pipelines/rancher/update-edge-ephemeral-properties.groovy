@@ -25,11 +25,34 @@ properties([
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
-        booleanParam(name: 'createTenant', defaultValue: true, description: 'Do you need to create tenant?'),
+        jobsParameters.reindexElasticsearch(),
+        jobsParameters.recreateIndexElasticsearch(),
+        booleanParam(name: 'create_tenant', defaultValue: true, description: 'Do you need to create tenant?'),
         booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
         jobsParameters.repository(),
         jobsParameters.branch()])
 ])
+
+OkapiTenant tenant = new OkapiTenant(id: params.tenant_name,
+    name: params.tenant_name,
+    description: "${params.tenant_name} tenant for ${params.edge_module}",
+    tenantParameters: [loadReference: params.load_reference,
+                       loadSample   : params.load_sample],
+    queryParameters: [reinstall: params.reinstall],
+    queryParameters: [reinstall: 'false'],
+    index: [reindex : params.reindex_elastic_search,
+            recreate: params.recreate_elastic_search_index])
+
+OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+    password: params.admin_password)
+
+Project project_config = new Project(clusterName: params.rancher_cluster_name,
+    projectName: params.rancher_project_name,
+    enableModules: params.enable_modules,
+    domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+              okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
+              edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
+    configType: params.config_type)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -39,7 +62,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            if (params.createTenant) {
+            if (params.create_tenant) {
                 stage("Create tenant") {
                         build job: 'Rancher/Update/create-tenant',
                             parameters: [
@@ -59,8 +82,22 @@ ansiColor('xterm') {
                 }
                 println("Tenant ${params.edge_module} was created successfully")
             }
-            stage("Create tenant") {
+            stage("Recreate ephemeral-properties") {
+                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
 
+                println install_edge_map
+                // if (install_edge_map) {
+                //     new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                //     helm.k8sClient {
+                //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                //         install_edge_map.each {name, version ->
+                //             helm.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                //         }
+                //     }
+                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                //     folioDeploy.edge(install_edge_map, project_config)
+                // }                
             }
         } catch (exception) {
             println(exception)
