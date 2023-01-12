@@ -64,6 +64,11 @@ class Deployment extends GeneralParameters {
         okapi.cleanupServicesRegistration()
     }
 
+    void test() {
+        okapi.configureLdpDbSettings(tenant, admin_user)
+        okapi.configureLdpSavedQueryRepo(tenant, admin_user)
+    }
+
     void update() {
         if (tenant) {
             discovery_list = gitHubUtility.buildDiscoveryList(install_map)

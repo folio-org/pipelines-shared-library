@@ -210,7 +210,7 @@ class Okapi extends GeneralParameters {
     }
 
     def configureLdpDbSettings(tenant, admin_user) {
-        auth.getOkapiToken(tenant, tenant.getAdminUser())
+        auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
@@ -228,7 +228,7 @@ class Okapi extends GeneralParameters {
     }
 
     def configureLdpSavedQueryRepo(tenant, admin_user) {
-        auth.getOkapiToken(tenant, tenant.getAdminUser())
+        auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/sqconfig"
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],

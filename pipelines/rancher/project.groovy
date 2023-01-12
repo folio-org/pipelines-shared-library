@@ -201,7 +201,7 @@ ansiColor('xterm') {
                 stage("Health check") {
                     // Checking the health of the Okapi service.
                     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-                }
+                }*/
 
                 stage("Enable backend modules") {
                     if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
@@ -222,13 +222,14 @@ ansiColor('xterm') {
                                 deployment.cleanup()
                                 deployment.update()
                             } else {
-                                deployment.main()
+                                deployment.test()
+                                //deployment.main()
                             }
                         }
                     }
                 }
 
-                stage("Deploy edge modules") {
+                /*stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
@@ -243,11 +244,11 @@ ansiColor('xterm') {
                     }
                 }*/
 
-                stage("Post deploy actions") {
+                /*stage("Post deploy actions") {
                     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user)
                     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user)
                     //folioDeploy.ldp(project_config)
-                }
+                }*/
 
                 /*stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
