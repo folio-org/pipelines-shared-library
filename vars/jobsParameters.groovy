@@ -201,7 +201,7 @@ if (installJson.getResponseCode().equals(200)) {
 static String getEdgeModulesList() {
     return '''import groovy.json.JsonSlurperClassic
 String nameGroup = "moduleName"
-String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*).*)$/
+String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
 def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
 if (installJson.getResponseCode().equals(200)) {
     List modules_list = []
