@@ -5,6 +5,7 @@ import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
+import org.folio.rest.Okapi
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
@@ -243,7 +244,9 @@ ansiColor('xterm') {
                 }*/
 
                 stage("Post deploy actions") {
-                    folioDeploy.ldp(project_config)
+                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user)
+                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user)
+                    //folioDeploy.ldp(project_config)
                 }
 
                 /*stage("Deploy UI bundle") {

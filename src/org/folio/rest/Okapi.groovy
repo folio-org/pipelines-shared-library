@@ -209,7 +209,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-/*    def configureLdpDbSettings(tenant, admin_user) {
+    def configureLdpDbSettings(tenant, admin_user) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
@@ -219,7 +219,7 @@ class Okapi extends GeneralParameters {
         ]
         logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
         //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
-        String body = "{"value":"{\"pass\":\"\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://postgresql-test/ldp\"}","tenant":"diku","key":"dbinfo"}"
+        String body = "{\"value\":\"{\"pass\":\"\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://test/ldp\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
@@ -238,14 +238,14 @@ class Okapi extends GeneralParameters {
         ]
         logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
         //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
-        String body = "{"key": "sqconfig","tenant":"{{ tenant }}","value":"{\"owner\":\"{{ gh_owner }}\",\"repo\":\"{{ gh_repo }}\",\"token\":\"{{ gh_token }}\"}"}"
+        String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\"owner\":\"RandomOtherGuy\",\"repo\":\"ldp-queries\",\"token\":\"test\"}\"}"
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
         } else {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
-    }*/
+    }
 
     /**
      * check this status Elasticsearch (records)
