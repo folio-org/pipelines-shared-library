@@ -17,6 +17,7 @@ class Edge extends GeneralParameters {
     }
 
     void renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user) {
+        println "[DEBUG]"
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
