@@ -108,7 +108,10 @@ ansiColor('xterm') {
             }
             stage("Rollout Deployment") {
                 println project_config.getProjectName()
-                helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                    helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
+                }
             }
         } catch (exception) {
             println(exception)
