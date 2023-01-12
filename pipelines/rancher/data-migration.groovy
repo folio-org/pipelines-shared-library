@@ -55,7 +55,8 @@ ansiColor('xterm') {
                         booleanParam(name: 'pg_embedded', value: false),
                         booleanParam(name: 'kafka_embedded', value: false),
                         booleanParam(name: 'es_embedded', value: false),
-                        booleanParam(name: 's3_embedded', value: false)
+                        booleanParam(name: 's3_embedded', value: false),
+                        booleanParam(name: 'opensearch_dashboards', value: false)
                     ]
             }
             stage('Restore data-migration project from backup') {
@@ -75,6 +76,7 @@ ansiColor('xterm') {
                         booleanParam(name: 'kafka_embedded', value: false),
                         booleanParam(name: 'es_embedded', value: false),
                         booleanParam(name: 's3_embedded', value: false),
+                        booleanParam(name: 'opensearch_dashboards', value: false)
                     ]
             }
             stage('Update with src release versions') {
