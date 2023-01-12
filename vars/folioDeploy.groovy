@@ -103,9 +103,9 @@ void greenmail(Project project_config) {
     }
 }
 
-void ldp_server(Project project_config, tenant, admin_user, superadmin_user) {
-    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, "zzzz")
-    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, "ppppp")
+void ldp_server(Project project_config, tenant, admin_user, superadmin_user, db_host, gh_token) {
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, db_host)
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, gh_token)
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)

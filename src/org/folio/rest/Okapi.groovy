@@ -215,7 +215,7 @@ class Okapi extends GeneralParameters {
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure LDP DB settings")
         String body = """{"value":"{\\"pass\\":\\"pass\\",\\"user\\":\\"ldp\\",\\"url\\":\\"jdbc:postgresql://${db_host}/ldp\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
@@ -233,7 +233,7 @@ class Okapi extends GeneralParameters {
         ArrayList headers = [
             [name: 'Content-type', value: "application/json"],
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure Saved Query repo")
         String body = """{"key": "sqconfig","tenant":"${tenant.getId()}","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"${gh_token}\\"}"}"""
