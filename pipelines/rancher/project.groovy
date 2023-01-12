@@ -244,11 +244,11 @@ ansiColor('xterm') {
                     }
                 }*/
 
-                /*stage("Post deploy actions") {
-                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user)
-                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user)
+                stage("Post deploy actions") {
+                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, "xxxx")
+                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, "yyyyy")
                     //folioDeploy.ldp(project_config)
-                }*/
+                }
 
                 /*stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
