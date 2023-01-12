@@ -245,9 +245,7 @@ ansiColor('xterm') {
                 }*/
 
                 stage("Post deploy actions") {
-                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, "xxxx")
-                    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, "yyyyy")
-                    //folioDeploy.ldp(project_config)
+                    folioDeploy.ldp_server(project_config, tenant, admin_user, superadmin_user)
                 }
 
                 /*stage("Deploy UI bundle") {

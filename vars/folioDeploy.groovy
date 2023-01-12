@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.rest.Okapi
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Logger
 import org.folio.utilities.model.Project
@@ -102,7 +103,9 @@ void greenmail(Project project_config) {
     }
 }
 
-void ldp(Project project_config) {
+void ldp_server(Project project_config, tenant, admin_user, superadmin_user) {
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, "zzzz")
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, "ppppp")
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
