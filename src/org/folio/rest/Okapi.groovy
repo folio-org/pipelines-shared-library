@@ -209,7 +209,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpDbSettings(tenant, admin_user, db_host, db_name, db_password ) {
+    def configureLdpDbSettings(tenant, admin_user, db_host, db_name, db_user, db_password ) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
@@ -218,7 +218,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure LDP DB settings")
-        String body = """{"value":"{\\"pass\\":\\"${db_password}\\",\\"user\\":\\"${db_name}\\",\\"url\\":\\"jdbc:postgresql://${db_host}/ldp\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
+        String body = """{"value":"{\\"pass\\":\\"${db_password}\\",\\"user\\":\\"${db_user}\\",\\"url\\":\\"jdbc:postgresql://${db_host}/${db_name}\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
