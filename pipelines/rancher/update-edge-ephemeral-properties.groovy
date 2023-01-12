@@ -75,7 +75,7 @@ ansiColor('xterm') {
                                 string(name: 'tenant_name', value: params.tenant_name),
                                 string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
                                 string(name: 'admin_username', value: params.admin_username),
-                                string(name: 'admin_password', value: params.admin_password),
+                                password(name: 'admin_password', value: params.admin_password),
                                 booleanParam(name: 'load_reference', value: params.load_reference),
                                 booleanParam(name: 'load_sample', value: params.load_sample),
                                 string(name: 'folio_repository', value: params.folio_repository),
