@@ -83,8 +83,9 @@ ansiColor('xterm') {
             //     println("Tenant ${params.edge_module} was created successfully")
             // }
             stage("Recreate ephemeral-properties") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                ​Map edge = [name:"${params.edge_module}"]
+                new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(edge, tenant, admin_user)
 
                 // println install_edge_map
                 // if (install_edge_map) {
