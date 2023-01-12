@@ -22,6 +22,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.edgeModule(),
+        jobsParameters.tenantName(),
         jobsParameters.tenantName(''),
         jobsParameters.adminUsername(''),
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
@@ -35,7 +36,7 @@ properties([
         jobsParameters.branch()])
 ])
 
-OkapiTenant tenant = new OkapiTenant(id: params.tenant_name,
+OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
     description: "${params.tenant_name} tenant for ${params.edge_module}",
     tenantParameters: [loadReference: params.load_reference,
@@ -70,7 +71,7 @@ ansiColor('xterm') {
             //                     string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
             //                     string(name: 'rancher_project_name', value: params.rancher_project_name),
             //                     string(name: 'install_list', value: params.edge_module),
-            //                     string(name: 'tenant_id', value: params.tenant_name),
+            //                     string(name: 'tenant_id', value: params.tenant_id),
             //                     string(name: 'tenant_name', value: params.tenant_name),
             //                     string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
             //                     string(name: 'admin_username', value: params.admin_username),
