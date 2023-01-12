@@ -13,7 +13,7 @@ static String pgAdminDefaultPassword() {
     return 'SuperSecret'
 }
 
-static String pgLdpDefaultPassword() {
+static String pgLdpUserDefaultPassword() {
     return 'diku_ldp9367'
 }
 

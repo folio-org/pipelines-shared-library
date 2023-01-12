@@ -209,7 +209,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpDbSettings(tenant, admin_user, db_host ) {
+    def configureLdpDbSettings(tenant, admin_user, db_host, db_name, db_password ) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/dbinfo"
         ArrayList headers = [
@@ -218,7 +218,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure LDP DB settings")
-        String body = """{"value":"{\\"pass\\":\\"pass\\",\\"user\\":\\"ldp\\",\\"url\\":\\"jdbc:postgresql://${db_host}/ldp\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
+        String body = """{"value":"{\\"pass\\":\\"${db_password}\\",\\"user\\":\\"${db_name}\\",\\"url\\":\\"jdbc:postgresql://${db_host}/ldp\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
@@ -227,7 +227,7 @@ class Okapi extends GeneralParameters {
         }
     }
 
-    def configureLdpSavedQueryRepo(tenant, admin_user, gh_token) {
+    def configureLdpSavedQueryRepo(tenant, admin_user, ldp_queries_gh_owner, ldp_queries_gh_repo, ldp_queries_gh_token) {
         auth.getOkapiToken(tenant, admin_user)
         String url = okapi_url + "/ldp/config/sqconfig"
         ArrayList headers = [
@@ -236,7 +236,7 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure Saved Query repo")
-        String body = """{"key": "sqconfig","tenant":"${tenant.getId()}","value":"{\\"owner\\":\\"RandomOtherGuy\\",\\"repo\\":\\"ldp-queries\\",\\"token\\":\\"${gh_token}\\"}"}"""
+        String body = """{"key": "sqconfig","tenant":"${tenant.getId()}","value":"{\\"owner\\":\\"${ldp_queries_gh_owner}\\",\\"repo\\":\\"${ldp_queries_gh_repo}\\",\\"token\\":\\"${ldp_queries_gh_token}\\"}"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
