@@ -22,7 +22,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.edgeModule(),
-        jobsParameters.tenantName(),
+        jobsParameters.tenantId(),
         jobsParameters.tenantName(''),
         jobsParameters.adminUsername(''),
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
