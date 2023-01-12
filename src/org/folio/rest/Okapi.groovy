@@ -217,14 +217,13 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
-        logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
-        //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
+        logger.info("Starting Configure LDP DB settings")
         String body = "{\"value\":\"{\"pass\":\"\",\"user\":\"ldp\",\"url\":\"jdbc:postgresql://test/ldp\"}\",\"tenant\":\"diku\",\"key\":\"dbinfo\"}"
-        def res = http.postRequest(url, body, headers)
+        def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
         } else {
-            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Error during Configure LDP DB settings" + http.buildHttpErrorMessage(res))
         }
     }
 
@@ -236,14 +235,13 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: false]
         ]
-        logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.getIndex().recreate}")
-        //String body = "{\"recreateindex_elasticsearch\": ${tenant.getIndex().recreate} }"
+        logger.info("Starting Configure Saved Query repo")
         String body = "{\"key\": \"sqconfig\",\"tenant\":\"diku\",\"value\":\"{\"owner\":\"RandomOtherGuy\",\"repo\":\"ldp-queries\",\"token\":\"test\"}\"}"
-        def res = http.postRequest(url, body, headers)
+        def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
         } else {
-            throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Error during Configure Saved Query repo" + http.buildHttpErrorMessage(res))
         }
     }
 
