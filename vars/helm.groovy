@@ -49,6 +49,14 @@ def createConfigMap(String name, String namespace, String file_path) {
     }
 }
 
+def rolloutDeployment(String name, String namespace) {
+    try {
+        sh "kubectl rollout restart deployment ${name} --namespace=${namespace}"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
 def getS3ObjectBody(String bucketname, String filePathName) {
     sh(script: "aws s3 cp s3://${bucketname}/${filePathName} ./${filePathName} > /dev/null && cat ${filePathName}", returnStdout: true)
 }

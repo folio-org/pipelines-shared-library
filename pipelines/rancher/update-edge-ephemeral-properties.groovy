@@ -30,7 +30,7 @@ properties([
         jobsParameters.loadSample(),
         jobsParameters.reindexElasticsearch(),
         jobsParameters.recreateIndexElasticsearch(),
-        booleanParam(name: 'create_tenant', defaultValue: true, description: 'Do you need to create tenant?'),
+        booleanParam(name: 'create_tenant', defaultValue: false, description: 'Do you need to create tenant?'),
         booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
         jobsParameters.repository(),
         jobsParameters.branch()])
@@ -78,6 +78,8 @@ ansiColor('xterm') {
                                 password(name: 'admin_password', value: params.admin_password),
                                 booleanParam(name: 'load_reference', value: params.load_reference),
                                 booleanParam(name: 'load_sample', value: params.load_sample),
+                                booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
+                                booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
                                 string(name: 'folio_repository', value: params.folio_repository),
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'deploy_ui', value: params.deploy_ui.toString())]
@@ -86,10 +88,10 @@ ansiColor('xterm') {
             }
             stage("Recreate ephemeral-properties") {
                 // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                Map edge = [name:"${params.edge_module}"]
+                // Map edge = [name:"${params.edge_module}"]
                 println tenant.getId()
                 println admin_user
-                new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(edge, tenant, admin_user)
+                // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(edge, tenant, admin_user)
 
                 // println install_edge_map
                 // if (install_edge_map) {
@@ -103,6 +105,10 @@ ansiColor('xterm') {
                 //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                 //     folioDeploy.edge(install_edge_map, project_config)
                 // }                
+            }
+            stage("Rollout Deployment") {
+                println project_config.getProjectName()
+                helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
             }
         } catch (exception) {
             println(exception)
