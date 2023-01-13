@@ -2,6 +2,7 @@ import org.folio.Constants
 import org.folio.rest.Okapi
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Logger
+import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
 
 void project(Project project_config, OkapiTenant tenant, Map tf) {
@@ -103,11 +104,49 @@ void greenmail(Project project_config) {
     }
 }
 
-void ldp_server(Project project_config, tenant, admin_user, superadmin_user, db_host, ldp_db_user_password, ldp_queries_gh_token) {
+void ldp_server(Project project_config, tenant, admin_user, superadmin_user, db_host, ldp_db_user_password, ldp_queries_gh_token, main_db_password) {
+    String ldpconf = """{
+    "deployment_environment": "testing",
+    "ldp_database": {
+        "database_name": "ldp",
+        "database_host": "${db_host}",
+        "database_port": 5432,
+        "database_user": "ldp",
+        "database_password": "${ldp_db_user_password}",
+        "database_sslmode": "disable"
+    },
+    "enable_sources": ["${tenant.getId()}"],
+    "sources": {
+        "${tenant.getId()}": {
+            "okapi_url": "http://okapi:9130",
+            "okapi_tenant": "${tenant.getId()}",
+            "okapi_user": "${tenant.getAdminUser().username}",
+            "okapi_password": "${tenant.getAdminUser().password}",
+            "direct_tables": [
+               "inventory_instances",
+               "inventory_holdings",
+               "inventory_items",
+               "srs_marc",
+               "srs_records"
+            ],
+            "direct_database_name": "folio_modules",
+            "direct_database_host": "${db_host}",
+            "direct_database_port": 5432,
+            "direct_database_user": "postgres",
+            "direct_database_password": "${main_db_password}"
+        }
+    },
+    "anonymize": false
+}"""
+
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user, db_host, "ldp", "ldp", ldp_db_user_password)
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user, "RandomOtherGuy", "ldp-queries", ldp_queries_gh_token)
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+
+        new Tools(this).createFileFromString("ldpconf.json", ldpconf)
+        helm.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
+
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         helm.upgrade("ldp-server", project_config.getProjectName(), "''", Constants.FOLIO_HELM_V2_REPO_NAME, "ldp-server")
     }

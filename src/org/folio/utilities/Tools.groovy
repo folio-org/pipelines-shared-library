@@ -80,4 +80,9 @@ class Tools {
         return new JsonSlurperClassic().parseText(list).findAll{ s -> s ==~ /${regex}/ }
     }
 
+    void createFileFromString(String filePathName, String fileContent) {
+        steps.writeFile file: filePathName, text: """${fileContent}"""
+        logger.info("Created file in ${filePathName}")
+    }
+
 }
