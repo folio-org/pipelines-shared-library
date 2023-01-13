@@ -223,7 +223,7 @@ ansiColor('xterm') {
                                 deployment.cleanup()
                                 deployment.update()
                             } else {
-                                deployment.test()
+                                //deployment.test()
                                 //deployment.main()
                             }
                         }
@@ -247,7 +247,7 @@ ansiColor('xterm') {
 
                 stage("Post deploy stage") {
                     withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token'),]) {
-                        folioDeploy.ldp_server(project_config, tenant, admin_user, superadmin_user, "postgresql-${project_config.getProjectName()}", "test", ldp_queries_gh_token)
+                        folioDeploy.ldp_server(project_config, tenant, admin_user, superadmin_user, "postgresql-${project_config.getProjectName()}", "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token)
                     }
                 }
 
