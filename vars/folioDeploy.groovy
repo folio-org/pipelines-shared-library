@@ -145,7 +145,7 @@ void ldp_server(Project project_config, tenant, admin_user, superadmin_user, db_
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
 
         new Tools(this).createFileFromString("ldpconf.json", ldpconf)
-        helm.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
+        helm.createConfigMap("ldpconf.json", project_config.getProjectName(), "./ldpconf.json")
 
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         helm.upgrade("ldp-server", project_config.getProjectName(), "''", Constants.FOLIO_HELM_V2_REPO_NAME, "ldp-server")
