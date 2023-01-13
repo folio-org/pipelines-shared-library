@@ -24,8 +24,8 @@ class Edge extends GeneralParameters {
         install_edge_map.each { name, version ->
             String tenants = default_tenant.getId()
             String institutional = ""
-            logger.info("[DEBUG] ${tenants}")
-            logger.info("[DEBUG] ${config}")
+            logger.info("[DEBUG] ${tenants} -tenenta")
+            logger.info("[DEBUG] ${name} -name")
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
                     logger.info("[DEBUG] ${it}")
