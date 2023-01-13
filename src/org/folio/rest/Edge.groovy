@@ -25,6 +25,7 @@ class Edge extends GeneralParameters {
             String tenants = default_tenant.getId()
             String institutional = ""
             logger.info("[DEBUG] ${tenants}")
+            logger.info("[DEBUG] ${config}")
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
                     logger.info("[DEBUG] ${it}")
