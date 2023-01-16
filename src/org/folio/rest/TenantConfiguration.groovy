@@ -83,6 +83,13 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
+    void getWordlcat(OkapiTenant tenant){
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
+        String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
+        String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
+        def res = http.getRequest(okapi_url  + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4")
+    }
+
     void worldcat(OkapiTenant tenant) {
         auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
