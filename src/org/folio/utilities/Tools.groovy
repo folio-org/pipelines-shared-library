@@ -2,7 +2,12 @@ package org.folio.utilities
 
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurperClassic
+import groovy.text.GStringTemplateEngine
 import org.folio.Constants
+import org.folio.rest.model.LdpConfig
+import org.folio.rest.model.OkapiTenant
+import org.folio.rest.model.OkapiUser
+import org.folio.utilities.model.Project
 
 class Tools {
     Object steps
@@ -83,6 +88,34 @@ class Tools {
     void createFileFromString(String filePathName, String fileContent) {
         steps.writeFile file: filePathName, text: """${fileContent}"""
         logger.info("Created file in ${filePathName}")
+    }
+
+    String build_ldp_setting_json(Project project_config, OkapiUser admin_user, String template_name, LdpConfig ldpConfig,
+                                  db_host, db_port, folio_db_name, folio_db_user, folio_db_password) {
+        def binding = [
+            tenant_id              : project_config.getTenant().getId(),
+            tenant_admin_user      : admin_user.getUsername(),
+            tenant_admin_password  : admin_user.getPassword(),
+            okapi_url              : "https://${project_config.getDomains().okapi}",
+            deployment_environment : project_config.getConfigType(),
+            db_host                : db_host,
+            db_port                : db_port,
+            folio_db_name          : folio_db_name,
+            folio_db_user          : folio_db_user,
+            folio_db_password      : folio_db_password,
+            ldp_db_name            : ldpConfig.getLdp_db_name(),
+            ldp_db_user_name       : ldpConfig.getLdp_db_user_name(),
+            ldp_db_user_password   : ldpConfig.getLdp_db_user_password(),
+            sqconfig_repo_name     : ldpConfig.getSqconfig_repo_name(),
+            sqconfig_repo_owner    : ldpConfig.getSqconfig_repo_owner(),
+            sqconfig_repo_token    : ldpConfig.getSqconfig_repo_token()
+        ]
+
+        this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
+        def content = steps.readFile template_name
+        String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
+        return body
+
     }
 
 }
