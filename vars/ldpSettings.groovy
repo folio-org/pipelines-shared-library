@@ -11,7 +11,7 @@ static LdpConfig ldpConfig(Map args = [:]) {
         ldpconfig_db_user_password: args.ldp_db_user_password,
         sqconfig_repo_name: 'ldp-queries',
         sqconfig_repo_owner: 'RandomOtherGuy',
-        sqconfig_repo_token: ldpSettings.get_ldp_queries_gh_token()
+        sqconfig_repo_token: args.ldp_queries_gh_token
     )
 }
 
