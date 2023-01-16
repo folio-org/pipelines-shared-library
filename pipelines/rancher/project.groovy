@@ -73,7 +73,9 @@ OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
 
-LdpConfig ldpConfig = ldpSettings.ldpConfig(ldp_db_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token: ldpSettings.get_ldp_queries_gh_token)
+withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token')]) {
+    LdpConfig ldpConfig = ldpSettings.ldpConfig(ldp_db_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token: ldp_queries_gh_token)
+}
 
 Project project_config = new Project(
     hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
