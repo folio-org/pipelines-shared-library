@@ -1,11 +1,10 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-578') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
-import org.folio.rest.Okapi
 import org.folio.rest.model.Email
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
@@ -53,7 +52,8 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
         booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
-        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server')])])
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
+        booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -148,6 +148,7 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
                 tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
+                tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
                 tf.variables += terraform.generateTfVar('pg_ldp_user_password', jobsParameters.pgLdpUserDefaultPassword())
 
 
@@ -223,7 +224,6 @@ ansiColor('xterm') {
                                 deployment.cleanup()
                                 deployment.update()
                             } else {
-                                //deployment.test()
                                 deployment.main()
                             }
                         }
