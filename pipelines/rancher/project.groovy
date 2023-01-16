@@ -110,74 +110,74 @@ ansiColor('xterm') {
                 project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
             }
 
-//            stage('Restore preparation') {
-//                if (project_config.getRestoreFromBackup()) {
-//                    helm.k8sClient {
-//                        project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
-//                        project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
-//                        project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
-//                        tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
-//                    }
-//                }
-//            }
-//
-//            stage('UI Build') {
-//                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
-//                    build job: 'Rancher/UI-Build',
-//                        parameters: [
-//                            string(name: 'folio_repository', value: params.folio_repository),
-//                            string(name: 'folio_branch', value: params.folio_branch),
-//                            string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
-//                            string(name: 'rancher_project_name', value: project_config.getProjectName()),
-//                            string(name: 'tenant_id', value: tenant.getId()),
-//                            string(name: 'custom_hash', value: project_config.getHash()),
-//                            string(name: 'custom_url', value: "https://${project_config.getDomains().okapi}"),
-//                            string(name: 'custom_tag', value: project_config.getUiBundleTag())]
-//                }
-//            }
-//
-//            stage('TF vars') {
-//                tf.variables += terraform.generateTfVar('rancher_cluster_name', project_config.getClusterName())
-//                tf.variables += terraform.generateTfVar('rancher_project_name', project_config.getProjectName())
-//                tf.variables += terraform.generateTfVar('tenant_id', tenant.getId())
-//                tf.variables += terraform.generateTfVar('pg_password', params.pg_password)
-//                tf.variables += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
-//                tf.variables += terraform.generateTfVar('pg_embedded', params.pg_embedded)
-//                tf.variables += terraform.generateTfVar('kafka_embedded', params.kafka_embedded)
-//                tf.variables += terraform.generateTfVar('es_embedded', params.es_embedded)
-//                tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
-//                tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
-//                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
-//                tf.variables += terraform.generateTfVar('pg_ldp_user_password', jobsParameters.pgLdpUserDefaultPassword())
-//
-//
-//                tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
-//                if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
-//                    if (project_config.getBackupName()?.trim()) {
-//                        helm.k8sClient {
-//                            project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
-//                            project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
-//                        }
-//                        tf.variables += terraform.generateTfVar('pg_rds_snapshot_name', project_config.getBackupName())
-//                        tf.variables += terraform.generateTfVar('pg_version', project_config.getBackupEngineVersion())
-//                        tf.variables += terraform.generateTfVar('pg_dbname', project_config.getBackupMasterUsername())
-//                        tf.variables += terraform.generateTfVar('pg_username', project_config.getBackupMasterUsername())
-//                    } else {
-//                        new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
-//                    }
-//                }
-//            }
-//
-//            stage('Project') {
-//                folioDeploy.project(project_config, tenant, tf)
-//            }
+            stage('Restore preparation') {
+                if (project_config.getRestoreFromBackup()) {
+                    helm.k8sClient {
+                        project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
+                        project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
+                        project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
+                        tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
+                    }
+                }
+            }
+
+            stage('UI Build') {
+                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
+                    build job: 'Rancher/UI-Build',
+                        parameters: [
+                            string(name: 'folio_repository', value: params.folio_repository),
+                            string(name: 'folio_branch', value: params.folio_branch),
+                            string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                            string(name: 'rancher_project_name', value: project_config.getProjectName()),
+                            string(name: 'tenant_id', value: tenant.getId()),
+                            string(name: 'custom_hash', value: project_config.getHash()),
+                            string(name: 'custom_url', value: "https://${project_config.getDomains().okapi}"),
+                            string(name: 'custom_tag', value: project_config.getUiBundleTag())]
+                }
+            }
+
+            stage('TF vars') {
+                tf.variables += terraform.generateTfVar('rancher_cluster_name', project_config.getClusterName())
+                tf.variables += terraform.generateTfVar('rancher_project_name', project_config.getProjectName())
+                tf.variables += terraform.generateTfVar('tenant_id', tenant.getId())
+                tf.variables += terraform.generateTfVar('pg_password', params.pg_password)
+                tf.variables += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
+                tf.variables += terraform.generateTfVar('pg_embedded', params.pg_embedded)
+                tf.variables += terraform.generateTfVar('kafka_embedded', params.kafka_embedded)
+                tf.variables += terraform.generateTfVar('es_embedded', params.es_embedded)
+                tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
+                tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
+                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
+                tf.variables += terraform.generateTfVar('pg_ldp_user_password', jobsParameters.pgLdpUserDefaultPassword())
+
+
+                tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
+                if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
+                    if (project_config.getBackupName()?.trim()) {
+                        helm.k8sClient {
+                            project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
+                            project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
+                        }
+                        tf.variables += terraform.generateTfVar('pg_rds_snapshot_name', project_config.getBackupName())
+                        tf.variables += terraform.generateTfVar('pg_version', project_config.getBackupEngineVersion())
+                        tf.variables += terraform.generateTfVar('pg_dbname', project_config.getBackupMasterUsername())
+                        tf.variables += terraform.generateTfVar('pg_username', project_config.getBackupMasterUsername())
+                    } else {
+                        new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
+                    }
+                }
+            }
+
+            stage('Project') {
+                folioDeploy.project(project_config, tenant, tf)
+            }
 
             if (project_config.getAction() == 'apply' && !params.namespace_only) {
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
 
-                /*stage("Deploy okapi") {
+                stage("Deploy okapi") {
                     folioDeploy.okapi(project_config)
                 }
 
@@ -202,7 +202,7 @@ ansiColor('xterm') {
                 stage("Health check") {
                     // Checking the health of the Okapi service.
                     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-                }*/
+                }
 
                 stage("Enable backend modules") {
                     if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
@@ -224,13 +224,13 @@ ansiColor('xterm') {
                                 deployment.update()
                             } else {
                                 //deployment.test()
-                                //deployment.main()
+                                deployment.main()
                             }
                         }
                     }
                 }
 
-                /*stage("Deploy edge modules") {
+                stage("Deploy edge modules") {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
@@ -243,7 +243,7 @@ ansiColor('xterm') {
                         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map, project_config)
                     }
-                }*/
+                }
 
                 stage("Post deploy stage") {
                     withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token'),]) {
@@ -251,9 +251,9 @@ ansiColor('xterm') {
                     }
                 }
 
-                /*stage("Deploy UI bundle") {
+                stage("Deploy UI bundle") {
                     folioDeploy.uiBundle(tenant.getId(), project_config)
-                }*/
+                }
             }
         } catch (exception) {
             println(exception)
