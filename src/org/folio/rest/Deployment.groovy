@@ -61,6 +61,7 @@ class Deployment extends GeneralParameters {
     }
 
     void cleanup() {
+        okapi.unsecure()
         okapi.cleanupServicesRegistration()
     }
 

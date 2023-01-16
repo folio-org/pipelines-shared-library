@@ -41,11 +41,11 @@ class Okapi extends GeneralParameters {
         return modulesList
     }
 
-    def buildInstallJsonByModuleName(String moduleName) {
+    def buildInstallJsonByModuleName(String moduleName, String action = 'enable') {
         String moduleId = getEnabledModules()*.instId.find { it ==~ /${moduleName}-.*/ }
         if (moduleId) {
             return [[id    : moduleId,
-                     action: "enable"]]
+                     action: action]]
         } else {
             throw new AbortException("Missing required module: ${moduleName}")
         }
@@ -479,6 +479,18 @@ class Okapi extends GeneralParameters {
         permissions.createUserPermissions(supertenant, user)
         auth.createUserCredentials(supertenant, user)
         enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
+    }
+
+    void unsecure() {
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        def requiredModules = ['mod-users'      : buildInstallJsonByModuleName('mod-users', 'disable'),
+                               'mod-permissions': buildInstallJsonByModuleName('mod-permissions', 'disable'),
+                               'mod-login'      : buildInstallJsonByModuleName('mod-login', 'disable'),
+                               'mod-authtoken'  : buildInstallJsonByModuleName('mod-authtoken', 'disable')]
+        enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-authtoken'])
+        enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-login'])
+        enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-permissions'])
+        enableDisableUpgradeModulesForTenant(supertenant, requiredModules['mod-users'])
     }
 
     void cleanupServicesRegistration() {
