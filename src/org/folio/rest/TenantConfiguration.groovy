@@ -83,11 +83,20 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void getWordlcat(OkapiTenant tenant){
+    void WordlcatCheck(OkapiTenant tenant){
         auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
-        String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
-        def res = http.getRequest(okapi_url  + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4")
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Worldcat successfully set")
+        } else {
+            throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
+        }
     }
 
     void worldcat(OkapiTenant tenant) {
