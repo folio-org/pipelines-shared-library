@@ -111,7 +111,7 @@ void ldp_server(Project project_config, tenant, admin_user, superadmin_user, db_
         "database_name": "ldp",
         "database_host": "${db_host}",
         "database_port": 5432,
-        "database_user": "ldp",
+        "database_user": "ldpadmin",
         "database_password": "${ldp_db_user_password}",
         "database_sslmode": "disable"
     },
