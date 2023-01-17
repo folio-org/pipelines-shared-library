@@ -1,5 +1,5 @@
 {
-    "value": "{\\\\"owner\\\\":\\\\"${sqconfig_repo_owner}\\\\",\\\\"repo\\\\":\\\\"${sqconfig_repo_name}\\\\",\\\\"token\\\\":\\\\"${sqconfig_repo_token}\\\\"}",
+    "value": "{\\"owner\\":\\"${sqconfig_repo_owner}\\",\\"repo\\":\\"${sqconfig_repo_name}\\",\\"token\\":\\"${sqconfig_repo_token}\\"}",
     "tenant": "${tenant_id}",
     "key": "sqconfig"
 }
