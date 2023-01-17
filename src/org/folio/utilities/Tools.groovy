@@ -91,7 +91,7 @@ class Tools {
     }
 
     String build_ldp_setting_json(Project project_config, OkapiUser admin_user, String template_name, LdpConfig ldpConfig,
-                                  db_host, db_port, folio_db_name, folio_db_user, folio_db_password) {
+                                  db_host, folio_db_name, folio_db_user, folio_db_password) {
         def binding = [
             tenant_id              : project_config.getTenant().getId(),
             tenant_admin_user      : admin_user.getUsername(),
@@ -99,7 +99,7 @@ class Tools {
             okapi_url              : "https://${project_config.getDomains().okapi}",
             deployment_environment : project_config.getConfigType(),
             db_host                : db_host,
-            db_port                : db_port,
+            db_port                : 5432,
             folio_db_name          : folio_db_name,
             folio_db_user          : folio_db_user,
             folio_db_password      : folio_db_password,
