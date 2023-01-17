@@ -17,15 +17,12 @@ class Edge extends GeneralParameters {
     }
 
     void renderEphemeralProperties(Map install_edge_map, OkapiTenant default_tenant, OkapiUser default_user) {
-        logger.info("[DEBUG]")
         def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
         def config = steps.readYaml file: file_path
 
         install_edge_map.each { name, version ->
             String tenants = default_tenant.getId()
             String institutional = ""
-            logger.info("[DEBUG] ${tenants} -tenenta")
-            logger.info("[DEBUG] ${name} -name")
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
                     logger.info("[DEBUG] ${it}")
