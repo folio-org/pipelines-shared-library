@@ -406,6 +406,16 @@ mod-data-import-converter-storage:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-di-converter-storage:
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '427Mi'
+    requests:
+      memory: '341Mi'
 mod-ebsconet:
   javaOptions: '-XX:MaxRAMPercentage=80.0'
   postJob:

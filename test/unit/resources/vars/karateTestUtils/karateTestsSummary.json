@@ -1593,7 +1593,7 @@
       "featuresPassed": 0,
       "name": "mod-data-export"
     },
-    "mod-data-import-converter-storage": {
+    "mod-di-converter-storage": {
       "featuresFailed": 0,
       "executionResult": "SUCCESS",
       "featuresSkipped": 0,
@@ -1611,40 +1611,40 @@
         },
         {
           "passedCount": 1,
-          "packageQualifiedName": "folijet.mod-data-import-converter-storage.data-import-converter-storage-junit",
+          "packageQualifiedName": "folijet.mod-di-converter-storage.data-import-converter-storage-junit",
           "scenarioCount": 1,
           "failed": false,
           "cucumberReportFile": null,
-          "relativePath": "folijet/mod-data-import-converter-storage/data-import-converter-storage-junit.feature",
+          "relativePath": "folijet/mod-di-converter-storage/data-import-converter-storage-junit.feature",
           "description": "",
-          "name": "mod-data-import-converter-storage integration tests",
+          "name": "mod-di-converter-storage integration tests",
           "failedCount": 0
         },
         {
           "passedCount": 3,
-          "packageQualifiedName": "folijet.mod-data-import-converter-storage.features.jobProfiles",
+          "packageQualifiedName": "folijet.mod-di-converter-storage.features.jobProfiles",
           "scenarioCount": 3,
           "failed": false,
           "cucumberReportFile": "report-feature_105_2599930057.html",
-          "relativePath": "folijet/mod-data-import-converter-storage/features/jobProfiles.feature",
+          "relativePath": "folijet/mod-di-converter-storage/features/jobProfiles.feature",
           "description": "",
           "name": "Job Profiles",
           "failedCount": 0
         },
         {
           "passedCount": 1,
-          "packageQualifiedName": "folijet.mod-data-import-converter-storage.features.create-profiles-and-remove-them",
+          "packageQualifiedName": "folijet.mod-di-converter-storage.features.create-profiles-and-remove-them",
           "scenarioCount": 1,
           "failed": false,
           "cucumberReportFile": "report-feature_106_3123193631.html",
-          "relativePath": "folijet/mod-data-import-converter-storage/features/create-profiles-and-remove-them.feature",
+          "relativePath": "folijet/mod-di-converter-storage/features/create-profiles-and-remove-them.feature",
           "description": "",
           "name": "Create job profile for CREATE",
           "failedCount": 0
         }
       ],
       "featuresPassed": 4,
-      "name": "mod-data-import-converter-storage"
+      "name": "mod-di-converter-storage"
     },
     "mod-email": {
       "featuresFailed": 0,

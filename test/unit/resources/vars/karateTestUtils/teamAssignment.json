@@ -21,7 +21,7 @@
   },
   {
     "team": "Folijet",
-    "modules": ["mod-source-record-storage", "mod-source-record-manager", "mod-data-import-converter-storage"],
+    "modules": ["mod-source-record-storage", "mod-source-record-manager", "mod-di-converter-storage"],
     "slackChannel": "#folijet"
   },
   {
