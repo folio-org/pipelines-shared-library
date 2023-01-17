@@ -74,7 +74,7 @@ OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
 
-LdpConfig ldpConfig = ldpSettings.ldpConfig(ldp_db_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token: "${jobsParameters.pgLdpUserDefaultPassword()}")
+LdpConfig ldpConfig = ldpSettings.ldpConfig(ldp_db_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token: ldpSettings.get_ldp_queries_gh_token())
 
 Project project_config = new Project(
     hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
@@ -153,7 +153,7 @@ ansiColor('xterm') {
 //                tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
 //                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
 //                tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
-//                tf.variables += terraform.generateTfVar('pg_ldp_user_password', params.pg_ldp_user_password)
+//                tf.variables += terraform.generateTfVar('pg_ldp_user_password', "${jobsParameters.pgLdpUserDefaultPassword()}")
 //
 //
 //                tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
