@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.rest.Okapi
 import org.folio.rest.model.OkapiTenant
+import org.folio.rest.model.OkapiUser
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
@@ -140,10 +141,10 @@ void ldp_server(tenant, Project project_config, admin_user, superadmin_user, ldp
 //}"""
 
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user,
-        new Tools(this).build_ldp_setting_json(project_config, admin_user, "ldp_db_info.json.template", ldpConfig,
+        new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_db_info.json.template", ldpConfig,
             db_host, "5432", "folio_modules", "postgres", folio_db_password))
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user,
-        new Tools(this).build_ldp_setting_json(project_config, admin_user, "ldp_sqconfig.json.template", ldpConfig,
+        new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_sqconfig.json.template", ldpConfig,
             db_host, "5432", "folio_modules", "postgres", folio_db_password))
 //    helm.k8sClient {
 //        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
