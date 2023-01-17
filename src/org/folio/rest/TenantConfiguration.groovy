@@ -95,7 +95,7 @@ class TenantConfiguration extends GeneralParameters {
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Worldcat exists")
         } else {
-            throw new AbortException("Worldcat not exist" + http.buildHttpErrorMessage(res))
+            logger.warning("False")
         }
     }
 
@@ -116,7 +116,7 @@ class TenantConfiguration extends GeneralParameters {
                 throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
             }
         } else {
-            logger.warning("worldcat's id not exits, reference data not performed")
+            logger.warning("Worldcat's id not exits, reference data not performed")
         }
     }
 
