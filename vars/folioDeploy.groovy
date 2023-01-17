@@ -143,15 +143,15 @@ void ldp_server(tenant, Project project_config, admin_user, superadmin_user, Ldp
 
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_db_info.json.template", ldpConfig,
-            db_host, "5432", "folio_modules", "postgres", folio_db_password))
+            db_host, 5432, "folio_modules", "postgres", folio_db_password))
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_sqconfig.json.template", ldpConfig,
-            db_host, "5432", "folio_modules", "postgres", folio_db_password))
+            db_host, 5432, "folio_modules", "postgres", folio_db_password))
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
 
         new Tools(this).createFileFromString("ldpconf.json", new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_ldpconf.json.template", ldpConfig,
-            db_host, "5432", "folio_modules", "postgres", folio_db_password))
+            db_host, 5432, "folio_modules", "postgres", folio_db_password))
         helm.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
 
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
