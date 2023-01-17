@@ -90,7 +90,7 @@ ansiColor('xterm') {
                 // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 Map edge = ["${params.edge_module}":"vers"]
 
-                new File('edge/test.properties').readLines().each {
+                readFile('edge/test.properties').readLines().each {
                     def keyValue = it.split("=", 2)
                     if (keyValue[0]=="tenants") {
                         println "${keyValue[1]},${params.tenant_name}"
