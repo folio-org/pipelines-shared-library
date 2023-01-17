@@ -3,7 +3,7 @@
     "ldp_database": {
         "database_name": "${ldp_db_name}",
         "database_host": "${db_host}",
-        "database_port": "${db_port}",
+        "database_port": ${db_port},
         "database_user": "${ldp_db_user_name}",
         "database_password": "${ldp_db_user_password}",
         "database_sslmode": "disable"
@@ -24,7 +24,7 @@
             ],
             "direct_database_name": "${folio_db_name}",
             "direct_database_host": "${db_host}",
-            "direct_database_port": "${db_port}",
+            "direct_database_port": ${db_port},
             "direct_database_user": "${folio_db_user}",
             "direct_database_password": "${folio_db_password}"
         }
