@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.rest.Okapi
+import org.folio.rest.model.LdpConfig
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.folio.utilities.Logger
@@ -105,7 +106,7 @@ void greenmail(Project project_config) {
     }
 }
 
-void ldp_server(tenant, Project project_config, admin_user, superadmin_user, ldpConfig, db_host, folio_db_password) {
+void ldp_server(tenant, Project project_config, admin_user, superadmin_user, LdpConfig ldpConfig, String db_host, folio_db_password) {
 //    String ldpconf = """{
 //    "deployment_environment": "testing",
 //    "ldp_database": {
