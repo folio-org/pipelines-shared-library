@@ -56,6 +56,9 @@ properties([
         booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
         booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
 
+OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+    password: params.admin_password)
+
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
     description: params.tenant_description,
@@ -64,10 +67,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     queryParameters: [reinstall: params.reinstall],
     okapiVersion: params.okapi_version,
     index: [reindex : params.restore_from_backup ? 'true' : params.reindex_elastic_search,
-            recreate: params.restore_from_backup ? 'true' : params.recreate_elastic_search_index])
-
-OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
-    password: params.admin_password)
+            recreate: params.restore_from_backup ? 'true' : params.recreate_elastic_search_index],
+    adminUser: admin_user)
 
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
@@ -252,7 +253,7 @@ ansiColor('xterm') {
 
                 stage("Post deploy stage") {
                     //withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token')]) {
-                        folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
+                        folioDeploy.ldp_server(project_config, admin_user, superadmin_user, ldpConfig,
                             "postgresql-${project_config.getProjectName()}", params.pg_password)
                     //}
                 }

@@ -210,16 +210,16 @@ class Okapi extends GeneralParameters {
     }
 
     def configureLdpDbSettings(tenant, admin_user, body ) {
-        //auth.getOkapiToken(tenant, admin_user)
-        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        auth.getOkapiToken(tenant, admin_user)
+        //auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/ldp/config/dbinfo"
-//        ArrayList headers = [
-//            [name: 'Content-type', value: "application/json"],
-//            [name: 'X-Okapi-Tenant', value: tenant.getId()],
-//            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
-//        ]
-        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
-                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+//        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
+//                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         logger.info(headers)
         logger.info("Starting Configure LDP DB settings")
         //String body = """{"value":"{\\"pass\\":\\"${db_password}\\",\\"user\\":\\"${db_user}\\",\\"url\\":\\"jdbc:postgresql://${db_host}/${db_name}\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
