@@ -323,10 +323,6 @@ def pgAdminPassword() {
     return _paramPassword('pgadmin_password', pgAdminDefaultPassword(), 'Password for pgAdmin login')
 }
 
-def pgLdpUserPassword() {
-    return _paramPassword('pg_ldp_user_password', pgLdpUserDefaultPassword(), 'Password for ldp user')
-}
-
 def uiBundleBuild(){
     return _paramBoolean('ui_bundle_build', false, 'True if build new ui bundle, false if choose from existing one in ui_bundle_tag parameter')
 }
