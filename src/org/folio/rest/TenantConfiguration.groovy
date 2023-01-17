@@ -95,7 +95,7 @@ class TenantConfiguration extends GeneralParameters {
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Worldcat exists")
         } else {
-            logger.warning("False")
+//            logger.warning("Worldcat - copycat/profiles/{id} is not exists")
         }
     }
 
