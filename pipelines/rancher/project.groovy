@@ -252,7 +252,7 @@ ansiColor('xterm') {
 
                 stage("Post deploy stage") {
                     //withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token')]) {
-                        folioDeploy.ldp_server(project_config, admin_user, superadmin_user, ldpConfig,
+                        folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
                             "postgresql-${project_config.getProjectName()}", params.pg_password)
                     //}
                 }

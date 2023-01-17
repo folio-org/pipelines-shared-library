@@ -104,7 +104,7 @@ void greenmail(Project project_config) {
     }
 }
 
-void ldp_server(Project project_config, admin_user, superadmin_user, ldpConfig, db_host, folio_db_password) {
+void ldp_server(tenant, Project project_config, admin_user, superadmin_user, ldpConfig, db_host, folio_db_password) {
 //    String ldpconf = """{
 //    "deployment_environment": "testing",
 //    "ldp_database": {
@@ -139,10 +139,10 @@ void ldp_server(Project project_config, admin_user, superadmin_user, ldpConfig, 
 //    "anonymize": false
 //}"""
 
-    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(project_config.getTenant(), admin_user,
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user, "ldp_db_info.json.template", ldpConfig,
             db_host, "5432", "folio_modules", "postgres", folio_db_password))
-    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(project_config.getTenant(), admin_user,
+    new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user, "ldp_sqconfig.json.template", ldpConfig,
             db_host, "5432", "folio_modules", "postgres", folio_db_password))
 //    helm.k8sClient {
