@@ -107,6 +107,7 @@ class Authorization extends GeneralParameters {
         ]
         String body = JsonOutput.toJson([username: user.username,
                                          password: user.password])
+        logger.info(body)
         def res = http.postRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_CREATED) {
             user.setToken(tools.jsonParse(res.content).okapiToken)
