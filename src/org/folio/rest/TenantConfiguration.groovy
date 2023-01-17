@@ -107,9 +107,9 @@ class TenantConfiguration extends GeneralParameters {
             [name: 'X-Okapi-Tenant', value: tenant.getId()],
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
+        String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
         def check = worldcatCheck(tenant)
         if (check.status == "Worldcat exists") {
-            String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
             def res = http.putRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
                 logger.info("Worldcat successfully set")
@@ -117,7 +117,7 @@ class TenantConfiguration extends GeneralParameters {
                 throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
             }
         } else {
-            throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
+            throw new AbortException("Worldcat not exist" + http.buildHttpErrorMessage(check))
         }
     }
 
