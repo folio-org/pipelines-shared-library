@@ -218,7 +218,7 @@ class Okapi extends GeneralParameters {
 //            [name: 'X-Okapi-Tenant', value: tenant.getId()],
 //            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
 //        ]
-        ArrayList headers = [[name: 'X-Okapi-Tenant', value: supertenant.getId()],
+        ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         logger.info(headers)
         logger.info("Starting Configure LDP DB settings")
