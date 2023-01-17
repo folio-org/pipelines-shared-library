@@ -93,9 +93,9 @@ class TenantConfiguration extends GeneralParameters {
         ]
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info("Worldcat successfully set")
+            logger.info("Worldcat exists")
         } else {
-            throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
+            throw new AbortException("Worldcat not exist" + http.buildHttpErrorMessage(res))
         }
     }
 
