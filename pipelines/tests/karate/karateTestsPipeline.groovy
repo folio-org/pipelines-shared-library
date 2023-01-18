@@ -45,28 +45,34 @@ pipeline {
             }
         }
         stage("Prepare edge modules configuration") {
-            if (params.createCustomTenant) {
-                steps {
+            when {
+                expression {
+                    params.createCustomTenant == true
+                }
+            }
+            steps {
+                script {
                     def jsonContents = readJSON file: "edge-configuration.json"
+                    def jobParameters = [
+                        string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: params.rancher_project_name),
+                        string(name: 'edge_module', value: ),
+                        string(name: 'tenant_id', value: ),
+                        string(name: 'tenant_name', value: ),
+                        string(name: 'admin_username', value: ),
+                        password(name: 'admin_password', value: ),
+                        booleanParam(name: 'load_reference', value: params.load_reference),
+                        booleanParam(name: 'load_sample', value: params.load_sample),
+                        booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
+                        booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
+                        booleanParam(name: 'create_tenant', value: true),
+                        booleanParam(name: 'create_tenant', value: false),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch),
+                        string(name: 'deploy_ui', value: false)
+                    ]
 
-                    // build job: 'Rancher/Update/update-ephemeral-properties',
-                    //     parameters: [
-                    //         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-                    //         string(name: 'rancher_project_name', value: params.rancher_project_name),
-                    //         string(name: 'edge_module', value: ),
-                    //         string(name: 'tenant_id', value: ),
-                    //         string(name: 'tenant_name', value: ),
-                    //         string(name: 'admin_username', value: ),
-                    //         password(name: 'admin_password', value: ),
-                    //         booleanParam(name: 'load_reference', value: params.load_reference),
-                    //         booleanParam(name: 'load_sample', value: params.load_sample),
-                    //         booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
-                    //         booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
-                    //         booleanParam(name: 'create_tenant', value: true),
-                    //         booleanParam(name: 'create_tenant', value: false),
-                    //         string(name: 'folio_repository', value: params.folio_repository),
-                    //         string(name: 'folio_branch', value: params.folio_branch),
-                    //         string(name: 'deploy_ui', value: false)]
+                    // build job: "/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
