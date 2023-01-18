@@ -49,6 +49,14 @@ def createConfigMap(String name, String namespace, String file_path) {
     }
 }
 
+def recreateConfigMap(String name, String namespace, String file_path) {
+    try {
+        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path} -o yaml --dry-run | kubectl apply -f -"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
 def rolloutDeployment(String name, String namespace) {
     try {
         sh "kubectl rollout restart deployment ${name} --namespace=${namespace}"

@@ -88,40 +88,35 @@ ansiColor('xterm') {
             // }
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
+                String contentOfNewConfigMap = ""
+
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                     def oldConfigMap = helm.getConfigMap(configMapName, params.rancher_project_name, configMapName)
                 }
 
-                println oldConfigMap
-                String contentOfNewConfigMap = ""
                 oldConfigMap.readLines().each {
                     if(it.split("=").size() == 2) {
                         def keyValue = it.split("=")
-                        if (keyValue[0]=="tenants") {
-                            keyValue[1]= "${keyValue[1]},${params.tenant_name}"
+                        if (keyValue[0] == "tenants") {
+                            keyValue[1] += ",${params.tenant_name}"
                         } 
-                        if (keyValue[0]=="tenantsMappings") {
-                            keyValue[1]="${keyValue[1]},fli01:${params.tenant_name}"
+                        if (keyValue[0] == "tenantsMappings") {
+                            keyValue[1] += ",fli01:${params.tenant_name}"
                         } 
                         contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
                     } else {
                         contentOfNewConfigMap += "$it\n"
                     }
                 }
-                println contentOfNewConfigMap
+                contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
+                println contentOfNewConfigMap   
+                writeFile file: configMapName, text: contentOfNewConfigMap    
 
-                // if (install_edge_map) {
-                //     new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                //     helm.k8sClient {
-                //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                //         install_edge_map.each {name, version ->
-                //             helm.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
-                //         }
-                //     }
-                //     new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                //     folioDeploy.edge(install_edge_map, project_config)
-                // }                
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                    helm.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
+                }
             }
             // stage("Rollout Deployment") {
             //     helm.k8sClient {
