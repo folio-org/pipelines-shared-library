@@ -44,8 +44,8 @@ pipeline {
                 }
             }
         }
-        if (params.createCustomTenant) {
-            stage("Prepare edge modules configuration") {
+        stage("Prepare edge modules configuration") {
+            if (params.createCustomTenant) {
                 steps {
                     def jsonContents = readJSON file: "edge-configuration.json"
 
