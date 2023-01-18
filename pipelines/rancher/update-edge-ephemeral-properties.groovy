@@ -64,28 +64,28 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            // if (params.create_tenant) {
-            //     stage("Create tenant") {
-            //             build job: 'Rancher/Update/create-tenant',
-            //                 parameters: [
-            //                     string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-            //                     string(name: 'rancher_project_name', value: params.rancher_project_name),
-            //                     string(name: 'install_list', value: params.edge_module),
-            //                     string(name: 'tenant_id', value: params.tenant_id),
-            //                     string(name: 'tenant_name', value: params.tenant_name),
-            //                     string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
-            //                     string(name: 'admin_username', value: params.admin_username),
-            //                     password(name: 'admin_password', value: params.admin_password),
-            //                     booleanParam(name: 'load_reference', value: params.load_reference),
-            //                     booleanParam(name: 'load_sample', value: params.load_sample),
-            //                     booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
-            //                     booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
-            //                     string(name: 'folio_repository', value: params.folio_repository),
-            //                     string(name: 'folio_branch', value: params.folio_branch),
-            //                     string(name: 'deploy_ui', value: params.deploy_ui.toString())]
-            //     }
-            //     println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
-            // }
+            if (params.create_tenant) {
+                stage("Create tenant") {
+                        build job: 'Rancher/Update/create-tenant',
+                            parameters: [
+                                string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
+                                string(name: 'rancher_project_name', value: params.rancher_project_name),
+                                string(name: 'install_list', value: params.edge_module),
+                                string(name: 'tenant_id', value: params.tenant_id),
+                                string(name: 'tenant_name', value: params.tenant_name),
+                                string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
+                                string(name: 'admin_username', value: params.admin_username),
+                                password(name: 'admin_password', value: params.admin_password),
+                                booleanParam(name: 'load_reference', value: params.load_reference),
+                                booleanParam(name: 'load_sample', value: params.load_sample),
+                                booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
+                                booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
+                                string(name: 'folio_repository', value: params.folio_repository),
+                                string(name: 'folio_branch', value: params.folio_branch),
+                                string(name: 'deploy_ui', value: params.deploy_ui.toString())]
+                }
+                println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
+            }
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
                 String contentOfNewConfigMap = ""
@@ -111,7 +111,6 @@ ansiColor('xterm') {
                     }
                 }
                 contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
-                println contentOfNewConfigMap   
                 writeFile file: configMapName, text: contentOfNewConfigMap    
 
                 helm.k8sClient {
@@ -119,12 +118,12 @@ ansiColor('xterm') {
                     helm.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
                 }
             }
-            // stage("Rollout Deployment") {
-            //     helm.k8sClient {
-            //         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-            //         helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
-            //     }
-            // }
+            stage("Rollout Deployment") {
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                    helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
+                }
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
