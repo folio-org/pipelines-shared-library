@@ -3,7 +3,7 @@ import org.folio.rest.model.LdpConfig
 static LdpConfig ldpConfig(Map args = [:]) {
     return new LdpConfig(
         ldp_db_name: 'ldp',
-        ldp_db_user_name: 'ldp',
+        ldp_db_user_name: 'ldpadmin',
         ldp_db_user_password: args.ldp_db_user_password,
         ldpadmin_db_user_name: 'ldpadmin',
         ldpadmin_db_user_password: args.ldp_db_user_password,

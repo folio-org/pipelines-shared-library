@@ -951,7 +951,7 @@ mod-users-bl:
       memory: '640Mi'
     requests:
       memory: '512Mi'
-ldp:
+ldp-server:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
     enabled: false
