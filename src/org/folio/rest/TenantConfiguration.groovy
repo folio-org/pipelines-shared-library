@@ -83,7 +83,7 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
-    void worldcatCheck(OkapiTenant tenant){
+    boolean worldcatCheck(OkapiTenant tenant){
         auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
         ArrayList headers = [
@@ -94,8 +94,10 @@ class TenantConfiguration extends GeneralParameters {
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Worldcat exists")
+            return true
         } else {
             logger.info("Worldcat - copycat/profiles/{id} is not exists")
+            return false
         }
     }
 
