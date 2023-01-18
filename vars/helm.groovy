@@ -59,7 +59,7 @@ def rolloutDeployment(String name, String namespace) {
 
 def getConfigMap(String name, String namespace, String data) {
     try {
-        sh "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}"
+        sh "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}'"
     } catch (Exception e) {
         println(e.getMessage())
     }
