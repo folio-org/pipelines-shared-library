@@ -107,40 +107,6 @@ void greenmail(Project project_config) {
 }
 
 void ldp_server(tenant, Project project_config, admin_user, superadmin_user, LdpConfig ldpConfig, String db_host, folio_db_password) {
-//    String ldpconf = """{
-//    "deployment_environment": "testing",
-//    "ldp_database": {
-//        "database_name": "ldp",
-//        "database_host": "${db_host}",
-//        "database_port": 5432,
-//        "database_user": "ldpadmin",
-//        "database_password": "${ldp_db_user_password}",
-//        "database_sslmode": "disable"
-//    },
-//    "enable_sources": ["${tenant.getId()}"],
-//    "sources": {
-//        "${tenant.getId()}": {
-//            "okapi_url": "http://okapi:9130",
-//            "okapi_tenant": "${tenant.getId()}",
-//            "okapi_user": "${tenant.getAdminUser().username}",
-//            "okapi_password": "${tenant.getAdminUser().password}",
-//            "direct_tables": [
-//               "inventory_instances",
-//               "inventory_holdings",
-//               "inventory_items",
-//               "srs_marc",
-//               "srs_records"
-//            ],
-//            "direct_database_name": "folio_modules",
-//            "direct_database_host": "${db_host}",
-//            "direct_database_port": 5432,
-//            "direct_database_user": "postgres",
-//            "direct_database_password": "${main_db_password}"
-//        }
-//    },
-//    "anonymize": false
-//}"""
-
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpDbSettings(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_db_info.json.template", ldpConfig,
             db_host, "folio_modules", "postgres", folio_db_password))

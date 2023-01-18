@@ -218,7 +218,6 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure LDP DB settings")
-        //String body = """{"value":"{\\"pass\\":\\"${db_password}\\",\\"user\\":\\"${db_user}\\",\\"url\\":\\"jdbc:postgresql://${db_host}/${db_name}\\"}","tenant":"${tenant.getId()}","key":"dbinfo"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
@@ -236,7 +235,6 @@ class Okapi extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         logger.info("Starting Configure Saved Query repo")
-        //String body = """{"key": "sqconfig","tenant":"${tenant.getId()}","value":"{\\"owner\\":\\"${ldp_queries_gh_owner}\\",\\"repo\\":\\"${ldp_queries_gh_repo}\\",\\"token\\":\\"${ldp_queries_gh_token}\\"}"}"""
         def res = http.putRequest(url, body, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content).id
