@@ -4,7 +4,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-384') _
 
 import org.folio.Constants
-import org.folio.utilities.Logger
 import groovy.json.JsonSlurperClassic
 
 String getOkapiVersion(folio_repository, folio_branch) {
@@ -30,9 +29,9 @@ properties([
         jobsParameters.branch('folio_repository', 'folio_branch_dst'),
         string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true)])])
 
-def rancher_cluster_name = 'folio-tmp'
-def rancher_project_name = 'test-1'
-def config_type = 'development'
+def rancher_cluster_name = 'folio-perf'
+def rancher_project_name = 'data-migration'
+def config_type = 'performance'
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
