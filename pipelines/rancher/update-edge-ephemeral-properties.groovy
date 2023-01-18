@@ -89,10 +89,11 @@ ansiColor('xterm') {
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
                 String contentOfNewConfigMap = ""
+                String oldConfigMap
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    def oldConfigMap = helm.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+                    oldConfigMap = helm.getConfigMap(configMapName, params.rancher_project_name, configMapName)
                 }
 
                 oldConfigMap.readLines().each {
