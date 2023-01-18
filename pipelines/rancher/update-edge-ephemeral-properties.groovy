@@ -93,7 +93,7 @@ ansiColor('xterm') {
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    oldConfigMap = helm.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+                    oldConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
                 }
 
                 oldConfigMap.readLines().each {
@@ -115,13 +115,13 @@ ansiColor('xterm') {
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    helm.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
+                    kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
                 }
             }
             stage("Rollout Deployment") {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    helm.rolloutDeployment(params.edge_module, project_config.getProjectName())
+                    kubectl.rolloutDeployment(params.edge_module, project_config.getProjectName())
                 }
             }
         } catch (exception) {
