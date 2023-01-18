@@ -84,26 +84,33 @@ ansiColor('xterm') {
             //                     string(name: 'folio_branch', value: params.folio_branch),
             //                     string(name: 'deploy_ui', value: params.deploy_ui.toString())]
             //     }
-            //     println("Tenant ${params.edge_module} was created successfully")
+            //     println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
             // }
             stage("Recreate ephemeral-properties") {
-                // Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                Map edge = ["${params.edge_module}":"vers"]
-                def file_path = tools.copyResourceFileToWorkspace('edge/test.properties')
-
-                readFile(file_path).readLines().each {
-                    def keyValue = it.split("=", 2)
-                    if (keyValue[0]=="tenants") {
-                        println "${keyValue[1]},${params.tenant_name}"
-                    } 
-                    if (keyValue[0]=="tenantsMappings") {
-                        println "${keyValue[1]},fli01:${params.tenant_name}"
-                    } 
+                String configMapName = "${params.edge_module}-ephemeral-properties"
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                    def oldConfigMap = helm.getConfigMap(configMapName, params.rancher_project_name, configMapName)
                 }
 
-                // new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(edge, tenant, admin_user)
+                println oldConfigMap
+                String contentOfNewConfigMap = ""
+                oldConfigMap.readLines().each {
+                    if(it.split("=").size() == 2) {
+                        def keyValue = it.split("=")
+                        if (keyValue[0]=="tenants") {
+                            keyValue[1]= "${keyValue[1]},${params.tenant_name}"
+                        } 
+                        if (keyValue[0]=="tenantsMappings") {
+                            keyValue[1]="${keyValue[1]},fli01:${params.tenant_name}"
+                        } 
+                        contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
+                    } else {
+                        contentOfNewConfigMap += "$it\n"
+                    }
+                }
+                println contentOfNewConfigMap
 
-                // println install_edge_map
                 // if (install_edge_map) {
                 //     new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                 //     helm.k8sClient {
@@ -132,36 +139,3 @@ ansiColor('xterm') {
         }
     }
 }
-
-
-
-
-
-// Map merge(Map... maps) {
-//     Map result = [:]
-//     maps.each { map ->
-//         map.each { k, v ->
-//             result[k] = result[k] instanceof Map ? merge(result[k], v) : v
-//         }
-//     }
-
-//     result
-// }
-
-
-// def config = readYaml text: """
-// config: 
-//    num_instances: 3
-//    instance_size: large
-// """
-
-// def configOverrides = readYaml text: """
-// config:
-//     instance_size: small
-// """
-
-// // Showcasing what the above code does:
-// println "merge(config, configOverrides): " + merge(config, configOverrides)
-// // => [config:[num_instances:3, instance_size:small]]
-// println "merge(configOverrides, config): " + merge(configOverrides, config)
-// // => [config:[instance_size:large, num_instances:3]]

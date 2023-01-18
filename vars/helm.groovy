@@ -57,6 +57,14 @@ def rolloutDeployment(String name, String namespace) {
     }
 }
 
+def getConfigMap(String name, String namespace, String data) {
+    try {
+        sh "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
 def getS3ObjectBody(String bucketname, String filePathName) {
     sh(script: "aws s3 cp s3://${bucketname}/${filePathName} ./${filePathName} > /dev/null && cat ${filePathName}", returnStdout: true)
 }
