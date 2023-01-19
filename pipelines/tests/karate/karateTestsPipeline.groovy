@@ -9,6 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
 String projectName = params.okapiUrl.minus("https://").split("-")[2]
+List edgeModulesRollout = []
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -58,6 +59,7 @@ pipeline {
                     jsonContents.each {
                         String edgeName = it.name 
                         String configMapName = "${edgeName}-ephemeral-properties"
+                        edgeModulesRollout += edgeName
 
                         it.tenants.each {
                             def jobParameters = [
@@ -144,11 +146,13 @@ pipeline {
     post {
         always {
             script {
-                def files = findFiles(glob: "**/*-ephemeral-properties")
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
-                    files.each { file ->
+                    findFiles(glob: "**/*-ephemeral-properties").each { file ->
                         kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                    }
+                    edgeModulesRollout.each { module ->
+                        kubectl.rolloutDeployment(params.edge_module, project_config.getProjectName())
                     }
                 }
             }
