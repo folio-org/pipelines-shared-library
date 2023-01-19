@@ -149,7 +149,7 @@ pipeline {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
                     findFiles(glob: "**/*-ephemeral-properties").each { file ->
-                        kubectl.testFuncJob(file, projectName, "./${file}")  
+                        kubectl.recreateConfigMap(file, projectName, "./${file}")  
                     }
                     if (edgeModulesRollout) {
                         edgeModulesRollout.each { module ->
