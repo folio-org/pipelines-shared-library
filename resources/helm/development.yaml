@@ -542,9 +542,9 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: '683Mi'
+      memory: '774Mi'
     requests:
-      memory: '512Mi'
+      memory: '683Mi'
 mod-inventory:
   dbMaxPoolSize: '5'
   javaOptions: '-XX:MaxRAMPercentage=66.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
