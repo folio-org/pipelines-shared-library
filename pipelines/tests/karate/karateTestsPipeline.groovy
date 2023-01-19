@@ -72,7 +72,8 @@ pipeline {
                                 booleanParam(name: 'create_tenant', value: false)
                             ]
                             def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
-                            println ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"] 
+                            writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
+                            sh "ls"
                         }
                     }
                 }
