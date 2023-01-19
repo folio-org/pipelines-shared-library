@@ -142,9 +142,11 @@ pipeline {
     }
     post {
         always {
-            helm.k8sClient {
-                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                kubectl.recreateConfigMap(configMapName, projectName, "./${configMapName}")  
+            script {
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                    kubectl.recreateConfigMap(configMapName, projectName, "./${configMapName}")  
+                }
             }
         }
     }
