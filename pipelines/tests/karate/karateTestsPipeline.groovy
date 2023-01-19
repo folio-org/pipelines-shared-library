@@ -9,7 +9,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
 String projectName = params.okapiUrl.minus("https://").split("-")[2]
-String configMapName
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -58,7 +57,7 @@ pipeline {
                     def jsonContents = readJSON file: "edge-configuration.json"
                     jsonContents.each {
                         String edgeName = it.name 
-                        configMapName = "${edgeName}-ephemeral-properties"
+                        String configMapName = "${edgeName}-ephemeral-properties"
 
                         it.tenants.each {
                             def jobParameters = [
@@ -72,7 +71,9 @@ pipeline {
                                 booleanParam(name: 'create_tenant', value: false)
                             ]
                             def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
-                            writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
+                            if (!configMapName.exists()){
+                                writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
+                            }
                             sh "ls"
                         }
                     }
@@ -146,7 +147,10 @@ pipeline {
             script {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                    kubectl.recreateConfigMap(configMapName, projectName, "./${configMapName}")  
+                    def files = findFiles(glob: '/*-ephemeral-properties')
+                        files.each { file ->
+                            kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                    }
                 }
             }
         }
