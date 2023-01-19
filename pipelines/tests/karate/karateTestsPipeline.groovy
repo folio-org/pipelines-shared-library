@@ -148,7 +148,7 @@ pipeline {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
                     def files = findFiles(glob: "**/*-ephemeral-properties")
                         files.each { file ->
-                            kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                            recreateConfigMap(file, projectName, "./${file}")  
                     }
                 }
             }
@@ -184,5 +184,13 @@ String renderKarateConfig(String config){
             "usageConsolidationCustomerKey"      : ebsco_usage_key
         ]
         return engine.createTemplate(config.replaceAll(/(\\)/, /\\$0/)).make(binding).toString()
+    }
+}
+
+def recreateConfigMap(String name, String namespace, String file_path) {
+    try {
+        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path} -o yaml --dry-run | kubectl apply -f -"
+    } catch (Exception e) {
+        println(e.getMessage())
     }
 }
