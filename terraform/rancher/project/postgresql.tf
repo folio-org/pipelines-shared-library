@@ -206,17 +206,6 @@ resource "rancher2_app_v2" "pgadmin4" {
           Username: ${var.pg_embedded ? var.pg_username : module.rds[0].this_rds_cluster_master_username}
           Host: ${var.pg_embedded ? join("-", ["postgresql", var.rancher_project_name]) : module.rds[0].this_rds_cluster_endpoint}
           SSLMode: prefer
-          MaintenanceDB: ${var.pg_embedded ? var.pg_dbname : module.rds_database_name_cli[0].result}
+          MaintenanceDB: ${var.pg_embedded ? var.pg_dbname : module.rds[0].this_rds_cluster_database_name}
   EOT
-}
-
-module rds_database_name_cli {
-  depends_on        = [
-    module.rds
-  ]
-  count             = var.pg_embedded ? 0 : 1
-  source            = "digitickets/cli/aws"
-  version           = "5.0.4"
-  aws_cli_commands  = ["rds", "describe-db-clusters", "--db-cluster-identifier", "rds-${local.env_name}"]
-  aws_cli_query     = "DBClusters[0].DatabaseName"
 }
