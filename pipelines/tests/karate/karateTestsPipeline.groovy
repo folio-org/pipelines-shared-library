@@ -7,6 +7,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 def karateEnvironment = "folio-testing-karate"
+String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
+String projectName = params.okapiUrl.minus("https://").split("-")[2]
+String configMapName
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -53,10 +56,10 @@ pipeline {
             steps {
                 script {
                     def jsonContents = readJSON file: "edge-configuration.json"
-                    String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
-                    String projectName = params.okapiUrl.minus("https://").split("-")[2]
                     jsonContents.each {
                         String edgeName = it.name 
+                        configMapName = "${edgeName}-ephemeral-properties"
+
                         it.tenants.each {
                             def jobParameters = [
                                 string(name: 'rancher_cluster_name', value: clusterName),
@@ -66,16 +69,10 @@ pipeline {
                                 string(name: 'tenant_name', value: it.name),
                                 string(name: 'admin_username', value: it.user),
                                 password(name: 'admin_password', value: it.password),
-                                booleanParam(name: 'load_reference', value: false),
-                                booleanParam(name: 'load_sample', value: false),
-                                booleanParam(name: 'reindex_elastic_search', value: false),
-                                booleanParam(name: 'recreate_elastic_search_index', value: false),
-                                booleanParam(name: 'create_tenant', value: false),
-                                string(name: 'folio_repository', value: "platform-complete"),
-                                string(name: 'folio_branch', value: "snapshot"),
-                                booleanParam(name: 'deploy_ui', value: false)
+                                booleanParam(name: 'create_tenant', value: false)
                             ]
-                            build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
+                            def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
+                            println ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"] 
                         }
                     }
                 }
@@ -142,6 +139,14 @@ pipeline {
         //         }
         //     }
         // }
+    }
+    post {
+        always {
+            helm.k8sClient {
+                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                kubectl.recreateConfigMap(configMapName, projectName, "./${configMapName}")  
+            }
+        }
     }
 }
 

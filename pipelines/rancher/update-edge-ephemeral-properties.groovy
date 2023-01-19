@@ -26,14 +26,7 @@ properties([
         jobsParameters.tenantName(''),
         jobsParameters.adminUsername(''),
         jobsParameters.adminPassword('', 'Please, necessarily provide password for admin user'),
-        jobsParameters.loadReference(),
-        jobsParameters.loadSample(),
-        jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateIndexElasticsearch(),
-        booleanParam(name: 'create_tenant', defaultValue: false, description: 'Do you need to create tenant?'),
-        booleanParam(name: 'deploy_ui', defaultValue: true, description: 'Do you need to provide UI access to the new tenant?'),
-        jobsParameters.repository(),
-        jobsParameters.branch()])
+        booleanParam(name: 'create_tenant', defaultValue: false, description: 'Do you need to create tenant?')])
 ])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
@@ -76,40 +69,39 @@ ansiColor('xterm') {
                                 string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
                                 string(name: 'admin_username', value: params.admin_username),
                                 password(name: 'admin_password', value: params.admin_password),
-                                booleanParam(name: 'load_reference', value: params.load_reference),
-                                booleanParam(name: 'load_sample', value: params.load_sample),
-                                booleanParam(name: 'reindex_elastic_search', value: params.reindex_elastic_search),
-                                booleanParam(name: 'recreate_elastic_search_index', value: params.recreate_elastic_search_index),
-                                string(name: 'folio_repository', value: params.folio_repository),
-                                string(name: 'folio_branch', value: params.folio_branch),
-                                string(name: 'deploy_ui', value: params.deploy_ui.toString())]
+                                booleanParam(name: 'load_reference', value: true),
+                                booleanParam(name: 'load_sample', value: true),
+                                booleanParam(name: 'reindex_elastic_search', value: true),
+                                booleanParam(name: 'recreate_elastic_search_index', value: false),
+                                booleanParam(name: 'deploy_ui', value: false)]
                 }
                 println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
             }
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
                 String contentOfNewConfigMap = ""
-                String oldConfigMap
+                String existingConfigMap
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    oldConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+                    existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
                 }
-
-                oldConfigMap.readLines().each {
+                env.existingConfigMap = existingConfigMap
+                existingConfigMap.readLines().each {
                     if(it.split("=").size() == 2) {
                         def keyValue = it.split("=")
-                        if (keyValue[0] == "tenants") {
+                        if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
                             keyValue[1] += ",${params.tenant_name}"
                         } 
-                        if (keyValue[0] == "tenantsMappings") {
-                            keyValue[1] += ",fli01:${params.tenant_name}"
-                        } 
+                        // if (keyValue[0] == "tenantsMappings" && ${params.edge_module} == "edge-inn-reach") {
+                        //     keyValue[1] += ",fli01:${params.tenant_name}"
+                        // } 
                         contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
                     } else {
                         contentOfNewConfigMap += "$it\n"
                     }
                 }
+
                 contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
                 writeFile file: configMapName, text: contentOfNewConfigMap    
 
