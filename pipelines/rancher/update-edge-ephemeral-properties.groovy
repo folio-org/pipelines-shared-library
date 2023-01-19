@@ -80,33 +80,29 @@ ansiColor('xterm') {
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
                 String contentOfNewConfigMap = ""
-                String existingConfigMap
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
-                }
-                env.existingConfigMap = existingConfigMap
-                existingConfigMap.readLines().each {
-                    if(it.split("=").size() == 2) {
-                        def keyValue = it.split("=")
-                        if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
-                            keyValue[1] += ",${params.tenant_name}"
-                        } 
-                        // if (keyValue[0] == "tenantsMappings" && ${params.edge_module} == "edge-inn-reach") {
-                        //     keyValue[1] += ",fli01:${params.tenant_name}"
-                        // } 
-                        contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
-                    } else {
-                        contentOfNewConfigMap += "$it\n"
+                    // Get data from existing ConfigMap
+                    env.existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+
+                    env.existingConfigMap.readLines().each {
+                        if(it.split("=").size() == 2) {
+                            def keyValue = it.split("=")
+                            if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
+                                keyValue[1] += ",${params.tenant_name}"
+                            } 
+
+                            contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
+                        } else {
+                            contentOfNewConfigMap += "$it\n"
+                        }
                     }
-                }
 
-                contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
-                writeFile file: configMapName, text: contentOfNewConfigMap    
+                    contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"   
 
-                helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                    // Recreate existing ConfigMap with a new values
+                    writeFile file: configMapName, text: contentOfNewConfigMap 
                     kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
                 }
             }
