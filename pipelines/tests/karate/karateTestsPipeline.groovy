@@ -144,11 +144,12 @@ pipeline {
     post {
         always {
             script {
-                def files = findFiles(glob: "**/*-ephemeral-properties")
                 helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                    files.each { file ->
-                        kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName) {
+                        def files = findFiles(glob: "**/*-ephemeral-properties")
+                        files.each { file ->
+                            kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                        }
                     }
                 }
             }
