@@ -164,6 +164,7 @@ ansiColor('xterm') {
                         }
                         tf.variables += terraform.generateTfVar('pg_rds_snapshot_name', project_config.getBackupName())
                         tf.variables += terraform.generateTfVar('pg_version', project_config.getBackupEngineVersion())
+                        //It works only with bugfests snapshots.
                         tf.variables += terraform.generateTfVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
                         tf.variables += terraform.generateTfVar('pg_username', project_config.getBackupMasterUsername())
                     } else {

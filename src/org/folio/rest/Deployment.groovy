@@ -61,7 +61,8 @@ class Deployment extends GeneralParameters {
     }
 
     void cleanup() {
-        okapi.unsecure()
+        //This function breaks pipeline but is required in case you are working with non-bugfest rds snapshot.
+        //okapi.unsecure()
         okapi.cleanupServicesRegistration()
     }
 
