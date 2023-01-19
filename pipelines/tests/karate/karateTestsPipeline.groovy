@@ -4,7 +4,7 @@ import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-332-edge') _
 
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
