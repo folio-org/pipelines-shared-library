@@ -146,7 +146,10 @@ pipeline {
             script {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                        kubectl.recreateConfigMap("edge-dematic-ephemeral-properties", projectName, "./edge-dematic-ephemeral-properties")
+                    def files = findFiles(glob: "**/*-ephemeral-properties")
+                    files.each { file ->
+                        kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                    }
                 }
             }
         }
