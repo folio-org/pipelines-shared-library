@@ -106,7 +106,7 @@ ansiColor('xterm') {
                     }
                     // Recreate existing ConfigMap with a new values
                     writeFile file: configMapName, text: contentOfNewConfigMap 
-                    kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
+                    kubectl.testFuncJob(configMapName, project_config.getProjectName(), "./${configMapName}")  
                 }
             }
             stage("Rollout Deployment") {
