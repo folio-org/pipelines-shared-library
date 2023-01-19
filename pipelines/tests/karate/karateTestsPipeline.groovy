@@ -71,7 +71,7 @@ pipeline {
                                 booleanParam(name: 'create_tenant', value: false)
                             ]
                             def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
-                            if (!fileExists(configMapName)){
+                            if (!fileExists(configMapName)) {
                                 writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
                             }
                             sh "ls"
@@ -147,7 +147,7 @@ pipeline {
             script {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                    def files = findFiles(glob: '/*-ephemeral-properties')
+                    def files = findFiles(glob: "**/*-ephemeral-properties")
                         files.each { file ->
                             kubectl.recreateConfigMap(file, projectName, "./${file}")  
                     }
