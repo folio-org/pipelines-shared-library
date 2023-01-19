@@ -80,6 +80,7 @@ ansiColor('xterm') {
             stage("Recreate ephemeral-properties") {
                 String configMapName = "${params.edge_module}-ephemeral-properties"
                 String contentOfNewConfigMap = ""
+                boolean existsTenant
 
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
@@ -91,6 +92,8 @@ ansiColor('xterm') {
                             def keyValue = it.split("=")
                             if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
                                 keyValue[1] += ",${params.tenant_name}"
+                            } else if (keyValue[0] == params.tenant_name) {
+                                existsTenant = true
                             }
                             contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
                         } else {
@@ -98,8 +101,9 @@ ansiColor('xterm') {
                         }
                     }
 
-                    contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"   
-
+                    if (!existsTenant) {
+                        contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"   
+                    }
                     // Recreate existing ConfigMap with a new values
                     writeFile file: configMapName, text: contentOfNewConfigMap 
                     kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
