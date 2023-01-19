@@ -74,7 +74,6 @@ pipeline {
                             if (!fileExists(configMapName)) {
                                 writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
                             }
-                            sh "ls"
                         }
                     }
                 }
@@ -144,13 +143,11 @@ pipeline {
     }
     post {
         always {
-            script {
-                helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                    def files = findFiles(glob: "**/*-ephemeral-properties")
-                        files.each { file ->
-                            kubectl.recreateConfigMap(file, projectName, "./${file}")  
-                    }
+            helm.k8sClient {
+                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                def files = findFiles(glob: "**/*-ephemeral-properties")
+                    files.each { file ->
+                        kubectl.recreateConfigMap(file, projectName, "./${file}")  
                 }
             }
         }
