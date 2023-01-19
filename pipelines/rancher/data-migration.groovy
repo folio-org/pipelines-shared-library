@@ -71,6 +71,7 @@ ansiColor('xterm') {
                         booleanParam(name: 'restore_from_backup', value: true),
                         string(name: 'backup_type', value: 'rds'),
                         string(name: 'backup_name', value: params.backup_name),
+                        string(name: 'tenant_id', value: "fs09000000"),
                         booleanParam(name: 'pg_embedded', value: false),
                         booleanParam(name: 'kafka_embedded', value: false),
                         booleanParam(name: 'es_embedded', value: false),
@@ -86,6 +87,7 @@ ansiColor('xterm') {
                         string(name: 'rancher_cluster_name', value: rancher_cluster_name),
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
+                        string(name: 'tenant_id', value: "fs09000000")
                     ]
             }
             stage('Update with dst release versions') {
@@ -96,6 +98,7 @@ ansiColor('xterm') {
                         string(name: 'rancher_cluster_name', value: rancher_cluster_name),
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
+                        string(name: 'tenant_id', value: "fs09000000")
                     ]
             }
 
