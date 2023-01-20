@@ -156,11 +156,7 @@ pipeline {
                             def jobParameters = [
                                 string(name: 'rancher_cluster_name', value: clusterName),
                                 string(name: 'rancher_project_name', value: projectName),
-                                string(name: 'install_list', value: it.name),
-                                string(name: 'tenant_id', value: it.name),
-                                string(name: 'tenant_name', value: it.name),
-                                string(name: 'admin_username', value: it.user),
-                                password(name: 'admin_password', value: it.password)
+                                string(name: 'tenant_id', value: it.name)
                             ]
                             def ephemeralPropBuildJobResult = build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
                         }

@@ -280,9 +280,8 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         if (isTenantExists(tenant.id)) {
             logger.info("Tenant ${tenant.id} exists. Deleting...")
-            String body = JsonOutput.toJson([id         : tenant.id,
-                                             name       : tenant.name,
-                                             description: tenant.description])
+            String body = JsonOutput.toJson([id         : tenant.id])
+            
             def res = http.deleteRequest(url, body, headers)
             logger.info("DEBUG ${okapi_url} okapi URL")
             if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
