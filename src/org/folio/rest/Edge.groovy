@@ -25,8 +25,6 @@ class Edge extends GeneralParameters {
             String institutional = ""
             if (config[(name)].tenants) {
                 config[(name)].tenants.each {
-                    logger.info("[DEBUG] ${it}")
-                    logger.info("[DEBUG] ${it.tenant}")
                     def obj = [
                         tenant  : it.tenant == "default" ? default_tenant.getId() : it.tenant,
                         username: it.username,
