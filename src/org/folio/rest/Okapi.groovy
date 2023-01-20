@@ -283,9 +283,8 @@ class Okapi extends GeneralParameters {
             String body = JsonOutput.toJson([id         : tenant.id,
                                              name       : tenant.name,
                                              description: tenant.description])
-            // def res = http.deleteRequest(url, body, headers)
+            def res = http.deleteRequest(url, body, headers)
             logger.info("DEBUG ${okapi_url} okapi URL")
-            def res
             if (res.status == HttpURLConnection.HTTP_OK) {
                 logger.info("Tenant ${tenant.id} successfully deleted")
             } else {
