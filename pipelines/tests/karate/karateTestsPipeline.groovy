@@ -142,18 +142,46 @@ pipeline {
                 }
             }
         }
+        stage("Delete tenants edge modules") {
+            when {
+                expression {
+                    params.createCustomTenant == true
+                }
+            }
+            steps {
+                script {
+                    def jsonContents = readJSON file: "edge-configuration.json"
+                    jsonContents.each {
+                        it.tenants.each {
+                            def jobParameters = [
+                                string(name: 'rancher_cluster_name', value: clusterName),
+                                string(name: 'rancher_project_name', value: projectName),
+                                string(name: 'install_list', value: it.name),
+                                string(name: 'tenant_id', value: it.name),
+                                string(name: 'tenant_name', value: it.name),
+                                string(name: 'admin_username', value: it.user),
+                                password(name: 'admin_password', value: it.password)
+                            ]
+                            def ephemeralPropBuildJobResult = build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
+                }
+            }
+        }        
     }
     post {
         always {
             script {
-                helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
-                    findFiles(glob: "**/*-ephemeral-properties").each { file ->
-                        kubectl.recreateConfigMap(file, projectName, "./${file}")  
-                    }
-                    if (edgeModulesRollout) {
-                        edgeModulesRollout.each { module ->
-                            kubectl.rolloutDeployment(module, projectName)
+                if (params.createCustomTenant) {
+                    helm.k8sClient {
+                        awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
+                        findFiles(glob: "**/*-ephemeral-properties").each { file ->
+                            kubectl.recreateConfigMap(file, projectName, "./${file}")  
+                        }
+                        if (edgeModulesRollout) {
+                            edgeModulesRollout.each { module ->
+                                kubectl.rolloutDeployment(module, projectName)
+                            }
                         }
                     }
                 }

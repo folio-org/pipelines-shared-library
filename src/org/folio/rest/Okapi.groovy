@@ -285,7 +285,7 @@ class Okapi extends GeneralParameters {
                                              description: tenant.description])
             def res = http.deleteRequest(url, body, headers)
             logger.info("DEBUG ${okapi_url} okapi URL")
-            if (res.status == HttpURLConnection.HTTP_OK) {
+            if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
                 logger.info("Tenant ${tenant.id} successfully deleted")
             } else {
                 throw new AbortException("Tenant ${tenant.id} does not deleted." + http.buildHttpErrorMessage(res))
