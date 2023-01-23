@@ -72,7 +72,8 @@ static List configTypeList() {
 static List testingEnvironmentsList() {
     return ['karate',
             'cypress',
-            'sprint']
+            'sprint',
+            'spring']
 }
 
 @NonCPS
