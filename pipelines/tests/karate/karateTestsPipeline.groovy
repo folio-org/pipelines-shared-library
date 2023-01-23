@@ -158,7 +158,7 @@ pipeline {
                                 string(name: 'rancher_project_name', value: projectName),
                                 string(name: 'tenant_id', value: it.name)
                             ]
-                            def ephemeralPropBuildJobResult = build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
+                            build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
