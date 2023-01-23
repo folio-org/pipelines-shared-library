@@ -7,7 +7,7 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-        booleanParam(name: 'refreshParameters', defaultValue: true, description: 'Do a dry run and refresh pipeline configuration'),
+        booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.repository(),
         jobsParameters.branch(),
