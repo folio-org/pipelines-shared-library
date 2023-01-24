@@ -208,6 +208,41 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Error during Elastic Search reindex." + http.buildHttpErrorMessage(res))
         }
     }
+
+    def configureLdpDbSettings(tenant, admin_user, body ) {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapi_url + "/ldp/config/dbinfo"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        logger.info("Starting Configure LDP DB settings")
+        def res = http.putRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id
+        } else {
+            throw new AbortException("Error during Configure LDP DB settings" + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    def configureLdpSavedQueryRepo(tenant, admin_user, body) {
+        auth.getOkapiToken(tenant, admin_user)
+        String url = okapi_url + "/ldp/config/sqconfig"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        logger.info("Starting Configure Saved Query repo")
+        def res = http.putRequest(url, body, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            return tools.jsonParse(res.content).id
+        } else {
+            throw new AbortException("Error during Configure Saved Query repo" + http.buildHttpErrorMessage(res))
+        }
+    }
+
     /**
      * check this status Elasticsearch (records)
      * @param tenant

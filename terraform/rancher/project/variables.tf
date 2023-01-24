@@ -234,3 +234,8 @@ variable "s3_postgres_backups_secret_key" {
   type        = string
   description = "AWS secret key"
 }
+
+variable "pg_ldp_user_password" {
+  type    = string
+  description = "Postgresql password for ldp user"
+}

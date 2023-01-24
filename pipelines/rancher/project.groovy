@@ -6,6 +6,7 @@ import org.folio.rest.Deployment
 import org.folio.rest.Edge
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
+import org.folio.rest.model.LdpConfig
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.Logger
@@ -71,6 +72,8 @@ OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 
 Email email = okapiSettings.email()
+
+LdpConfig ldpConfig = ldpSettings.ldpConfig(ldp_db_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}", ldp_queries_gh_token: ldpSettings.get_ldp_queries_gh_token())
 
 Project project_config = new Project(
     hash: common.getLastCommitHash(params.folio_repository, params.folio_branch),
@@ -149,6 +152,7 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
                 tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
                 tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
+                tf.variables += terraform.generateTfVar('pg_ldp_user_password', "${jobsParameters.pgLdpUserDefaultPassword()}")
 
 
                 tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
@@ -242,6 +246,11 @@ ansiColor('xterm') {
                         new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
                         folioDeploy.edge(install_edge_map, project_config)
                     }
+                }
+
+                stage("Post deploy stage") {
+                    folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
+                        "postgresql-${project_config.getProjectName()}", params.pg_password)
                 }
 
                 stage("Deploy UI bundle") {
