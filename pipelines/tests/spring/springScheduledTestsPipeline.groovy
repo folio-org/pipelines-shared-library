@@ -101,7 +101,7 @@ pipeline {
             }
         }
 
-        stage("Parallel") {
+        stage("Parallel Cypress results") {
             parallel {
                 stage("Collect test results") {
                     when {
@@ -162,7 +162,7 @@ pipeline {
             }
         }
 
-        stage("Parallel") {
+        stage("Parallel Karate results") {
             parallel {
                 stage("Collect test results") {
                     when {
