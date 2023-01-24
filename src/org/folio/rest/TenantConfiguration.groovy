@@ -83,6 +83,24 @@ class TenantConfiguration extends GeneralParameters {
         }
     }
 
+    boolean worldcatCheck(OkapiTenant tenant){
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
+        String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Worldcat exists")
+            return true
+        } else {
+            logger.info("Worldcat - copycat/profiles/{id} is not exists")
+            return false
+        }
+    }
+
     void worldcat(OkapiTenant tenant) {
         auth.getOkapiToken(tenant, tenant.getAdminUser())
         String url = okapi_url + "/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4"
@@ -92,11 +110,15 @@ class TenantConfiguration extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         String body = JsonOutput.toJson(OkapiConstants.WORLDCAT)
-        def res = http.putRequest(url, body, headers)
-        if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
-            logger.info("Worldcat successfully set")
+        if (worldcatCheck(tenant)) {
+            def res = http.putRequest(url, body, headers)
+            if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
+                logger.info("Worldcat successfully set")
+            } else {
+                throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
+            }
         } else {
-            throw new AbortException("Worldcat can not be set" + http.buildHttpErrorMessage(res))
+            logger.warning("Worldcat's id not exits, reference data not performed")
         }
     }
 
