@@ -7,6 +7,7 @@ class OkapiUser implements Serializable {
     String lastName = ''
     String email = ''
     String groupName
+    String barcode
     ArrayList permissions
     String permissionsId
     String uuid
