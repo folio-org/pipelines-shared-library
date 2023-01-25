@@ -121,7 +121,7 @@ pipeline {
                             }
                         }
 
-                        stage('Publish tests report') {
+                        stage('Publish tests report Cypress') {
                             steps {
                                 allure([
                                     includeProperties: false,
@@ -187,7 +187,7 @@ pipeline {
                             }
                         }
 
-                        stage('Publish tests report') {
+                        stage('Publish tests report Karate') {
                             steps {
                                 script {
                                     cucumber buildStatus: "UNSTABLE",
@@ -208,31 +208,6 @@ pipeline {
                                 }
                             }
                         }
-
-//                        stage("Parse teams assignment") {
-//                            steps {
-//                                script {
-//                                    def jsonContents = readJSON file: "teams-assignment.json"
-//                                    teamAssignment = new TeamAssignment(jsonContents)
-//                                }
-//                            }
-//                        }
-//
-//                        stage("Sync jira tickets") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
-//
-//                        stage("Send slack notifications") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
                     }
                 }
             }
