@@ -8,6 +8,7 @@ import org.folio.rest.Okapi
 import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.json.JsonSlurperClassic
 
 
 @Library('pipelines-shared-library') _
@@ -84,6 +85,13 @@ ansiColor('xterm') {
             stage('Checkout') {
                 checkout scm
                 tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
+                if(!tenant.getOkapiVersion()?.trim()) {
+                    String repository = params.folio_branch.contains("snapshot") ? "folioci" : "folioorg"
+                    def dockerHub = new URL('https://hub.docker.com/v2/repositories/' + repository + '/okapi/tags?page_size=100&ordering=last_updated').openConnection()
+                    if (dockerHub.getResponseCode().equals(200)) {
+                        tenant.okapiVersion = (new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name - 'latest')[0]
+                    }
+                }
                 project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
             }
