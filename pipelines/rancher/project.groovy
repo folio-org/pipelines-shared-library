@@ -248,9 +248,11 @@ ansiColor('xterm') {
                     }
                 }
 
-                stage("Post deploy stage") {
-                    folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
-                        "postgresql-${project_config.getProjectName()}", params.pg_password)
+                if (!project_config.getRestoreFromBackup()) {
+                    stage("Post deploy stage") {
+                        folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
+                            "postgresql-${project_config.getProjectName()}", params.pg_password)
+                    }
                 }
 
                 stage("Deploy UI bundle") {
