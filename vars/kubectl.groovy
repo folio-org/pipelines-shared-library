@@ -29,3 +29,12 @@ def getConfigMap(String name, String namespace, String data) {
         println(e.getMessage())
     }
 }
+
+def checkDeploymentStatus(String name, String namespace) {
+    try {
+        sh "kubectl wait deploy/${name} --namespace=${namespace} --for condition=available --timeout=10s"
+    } catch (Exception e) {
+        println("Deployment ${name} not ready!")
+        println(e.getMessage())
+    }
+}
