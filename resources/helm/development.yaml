@@ -396,6 +396,16 @@ mod-data-import:
       memory: '517Mi'
     requests:
       memory: '388Mi'
+mod-data-import-converter-storage:
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '341Mi'
+    requests:
+      memory: '256Mi'
 mod-di-converter-storage:
   javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
@@ -532,9 +542,9 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: '774Mi'
     requests:
-      memory: '384Mi'
+      memory: '683Mi'
 mod-inventory:
   dbMaxPoolSize: '5'
   javaOptions: '-XX:MaxRAMPercentage=66.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
@@ -941,6 +951,16 @@ mod-users-bl:
       memory: '512Mi'
     requests:
       memory: '384Mi'
+ldp-server:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '683Mi'
+    requests:
+      memory: '512Mi'
 okapi:
   ingress:
     annotations:

@@ -23,6 +23,10 @@ resource "helm_release" "kubecost" {
   namespace        = "kubecost"
   create_namespace = true
   values           = [<<EOF
+    kubecostModel:
+      resources:
+        limits:
+          memory: "4096Mi"
     ingress:
       enabled: true
       hosts: 
@@ -77,7 +81,7 @@ resource "helm_release" "kubecost" {
         key: "${var.kubecost_licence_key}"
         enabled: true
       athenaProjectID: "${var.projectID}"
-      athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/query_results"
+      athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/reports"
       athenaRegion: "${var.aws_region}"
       athenaDatabase: "athenacurcfn_aws_kubecost"
       athenaTable: "aws_kubecost"

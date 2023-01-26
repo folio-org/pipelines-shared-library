@@ -1,0 +1,5 @@
+{
+    "value": "{\\"pass\\":\\"${ldp_db_user_password}\\",\\"user\\":\\"${ldp_db_user_name}\\",\\"url\\":\\"jdbc:postgresql:\\/\\/${db_host}\\/${ldp_db_name}\\"}",
+    "tenant": "${tenant_id}",
+    "key": "dbinfo"
+}

@@ -10,6 +10,7 @@ static OkapiUser adminUser(Map args = [:]) {
         lastName: 'ADMINISTRATOR',
         email: 'admin@diku.example.org',
         groupName: 'staff',
+        barcode: '88888888',
         permissions: ["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"]
     )
 }

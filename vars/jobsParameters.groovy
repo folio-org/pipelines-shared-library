@@ -13,6 +13,10 @@ static String pgAdminDefaultPassword() {
     return 'SuperSecret'
 }
 
+static String pgLdpUserDefaultPassword() {
+    return 'diku_ldp9367'
+}
+
 static List dbList() {
     return ['rds', 'postgresql']
 }
@@ -72,7 +76,8 @@ static List configTypeList() {
 static List testingEnvironmentsList() {
     return ['karate',
             'cypress',
-            'sprint']
+            'sprint',
+            'spring']
 }
 
 @NonCPS

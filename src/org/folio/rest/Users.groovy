@@ -67,6 +67,7 @@ class Users extends GeneralParameters {
             String uuid = UUID.randomUUID().toString()
             String body = JsonOutput.toJson([id      : uuid,
                                              username: user.username,
+                                             barcode: user.barcode,
                                              active  : true,
                                              personal: [lastName : user.lastName,
                                                         firstName: user.firstName,

@@ -33,6 +33,19 @@ resource "rancher2_app_v2" "postgresql" {
       database: ${var.pg_dbname}
       postgresPassword: ${var.pg_password}
     primary:
+      initdb:
+        scripts:
+          init.sql: |
+            CREATE DATABASE ldp;
+            CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+            CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+            CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+            ALTER DATABASE ldp OWNER TO ldpadmin;
+            ALTER DATABASE ldp SET search_path TO public;
+            REVOKE CREATE ON SCHEMA public FROM public;
+            GRANT ALL ON SCHEMA public TO ldpadmin;
+            GRANT USAGE ON SCHEMA public TO ldpconfig;
+            GRANT USAGE ON SCHEMA public TO ldp;
       persistence:
         enabled: true
         size: 20Gi
@@ -191,7 +204,7 @@ resource "rancher2_app_v2" "pgadmin4" {
           Group: Servers
           Port: 5432
           Username: ${var.pg_embedded ? var.pg_username : module.rds[0].this_rds_cluster_master_username}
-          Host: ${var.pg_embedded ? "postgresql" : module.rds[0].this_rds_cluster_endpoint}
+          Host: ${var.pg_embedded ? join("-", ["postgresql", var.rancher_project_name]) : module.rds[0].this_rds_cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT
