@@ -38,7 +38,7 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index])
 
-OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
+OkapiUser admin_user = okapiSettings.edgeUser(username: params.admin_username,
     password: params.admin_password)
 
 Project project_config = new Project(clusterName: params.rancher_cluster_name,
