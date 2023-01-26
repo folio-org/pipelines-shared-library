@@ -71,7 +71,7 @@ ansiColor('xterm') {
                                 password(name: 'admin_password', value: params.admin_password),
                                 booleanParam(name: 'load_reference', value: true),
                                 booleanParam(name: 'load_sample', value: true),
-                                booleanParam(name: 'reindex_elastic_search', value: true),
+                                booleanParam(name: 'reindex_elastic_search', value: false),
                                 booleanParam(name: 'recreate_elastic_search_index', value: false),
                                 booleanParam(name: 'deploy_ui', value: false)]
                 }
