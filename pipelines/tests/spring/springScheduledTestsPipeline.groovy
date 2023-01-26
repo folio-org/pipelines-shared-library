@@ -51,7 +51,7 @@ pipeline {
         string(name: 'threadsCount', defaultValue: '4', description: 'Number of parallel threads')
     }
 
-//    stages {
+    stages {
 //        stage("Destroy environment before Cypress") {
 //            steps {
 //                script {
@@ -75,11 +75,11 @@ pipeline {
 //        }
 
         stage("Run cypress tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [
@@ -104,11 +104,11 @@ pipeline {
         stage("Parallel Cypress results") {
             parallel {
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+//                    when {
+//                        expression {
+//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//                        }
+//                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
@@ -161,11 +161,11 @@ pipeline {
 //        }
 
         stage("Run karate tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [
@@ -235,18 +235,18 @@ pipeline {
             }
         }
 
-        stage("Set job execution result") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result != 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    currentBuild.result = 'FAILURE'
-                }
-            }
-        }
+//        stage("Set job execution result") {
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result != 'SUCCESS'
+//                }
+//            }
+//            steps {
+//                script {
+//                    currentBuild.result = 'FAILURE'
+//                }
+//            }
+//        }
     }
 }
 
