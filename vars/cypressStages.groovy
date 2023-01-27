@@ -66,8 +66,7 @@ def call(params) {
 //            CYPRESS_diku_password = "${params.password}"
 //        }
             script {
-                docker.image("cypress/included:${cypressImageVersion}").inside("-v \"$WORKSPACE\":/project --entrypoint=") {
-                    dir("/project") {
+                docker.image("cypress/included:${cypressImageVersion}").inside("-v \"$WORKSPACE\":/project -w /project --entrypoint=") {
                         env.HOME = "/project/cache"
                         env.CYPRESS_CACHE_FOLDER = "/project/cache"
                         env.CYPRESS_BASE_URL = "${params.uiUrl}"
@@ -89,15 +88,14 @@ def call(params) {
                                         env.CYPRESS_allureReuseAfterSpec = "true"
                                         println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                         withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                            sh "cd /project && cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                         }
                                     } else {
-                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                        sh "cd /project && cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                     }
                                 }
                             }
                         }
-                    }
                 }
             }
     }
