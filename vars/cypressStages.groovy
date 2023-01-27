@@ -67,8 +67,8 @@ def call(params) {
 //        }
             script {
                 docker.image("cypress/included:${cypressImageVersion}").inside("-v \"$WORKSPACE\":/project -w /project --entrypoint=") {
-                        env.HOME = "/project/cache"
-                        env.CYPRESS_CACHE_FOLDER = "/project/cache"
+                        env.HOME = "${pwd()}/cache"
+                        env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
                         env.CYPRESS_BASE_URL = "${params.uiUrl}"
                         env.CYPRESS_OKAPI_HOST = "${params.okapiUrl}"
                         env.CYPRESS_OKAPI_TENANT = "${params.tenant}"
@@ -78,6 +78,7 @@ def call(params) {
                         ansiColor('xterm') {
                             timeout(time: "${params.timeout}", unit: 'HOURS') {
                                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    sh "touch test_file"
                                     sh "pwd"
                                     sh "ls -ltra"
                                     if (params.testrailRunID && params.testrailProjectID) {
@@ -88,10 +89,10 @@ def call(params) {
                                         env.CYPRESS_allureReuseAfterSpec = "true"
                                         println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                         withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                            sh "cd /project && cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                            sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                         }
                                     } else {
-                                        sh "cd /project && cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
                                     }
                                 }
                             }
