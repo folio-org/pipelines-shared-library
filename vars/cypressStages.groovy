@@ -1,6 +1,9 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
-@Library('pipelines-shared-library') _
+import groovy.transform.Field
+@Library('pipelines-shared-library@RANCHER-608') _
+
+@Field def cypressImageVersion
 
 def call(params) {
     stage('Checkout Cypress repo') {
