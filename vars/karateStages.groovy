@@ -5,7 +5,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def call(params) {
     stage("Checkout") {
-        steps {
             script {
                 sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
                     checkout([
@@ -21,11 +20,9 @@ def call(params) {
                     ])
                 }
             }
-        }
     }
 
     stage("Build karate config") {
-        steps {
             script {
                 def files = findFiles(glob: '**/karate-config.js')
                 files.each { file ->
@@ -34,11 +31,9 @@ def call(params) {
                 }
 
             }
-        }
     }
 
     stage('Run karate tests') {
-        steps {
             script {
                 def karateEnvironment = "folio-testing-karate"
                 withMaven(
@@ -53,11 +48,9 @@ def call(params) {
                     sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                 }
             }
-        }
     }
 
     stage('Publish tests report') {
-        steps {
             script {
                 cucumber buildStatus: "UNSTABLE",
                     fileIncludePattern: "**/target/karate-reports*/*.json",
@@ -65,11 +58,9 @@ def call(params) {
 
                 junit testResults: '**/target/karate-reports*/*.xml'
             }
-        }
     }
 
     stage('Archive artifacts') {
-        steps {
             script {
                 // archive artifacts for upstream job
                 if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
@@ -83,6 +74,5 @@ def call(params) {
                     archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
                 }
             }
-        }
     }
 }
