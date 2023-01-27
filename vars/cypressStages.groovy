@@ -40,6 +40,8 @@ def call(params) {
             sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
             sh "yarn add -D cypress-testrail-simple"
             sh "yarn install"
+            sh "pwd"
+            sh "ls -ltra"
         }
     }
 
