@@ -14,6 +14,7 @@ def folio_branch = "snapshot"
 def tenant = "diku"
 def uiUrl = "https://${clusterName}-${projectName}-${tenant}.ci.folio.org"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
+def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 
 def prototypeTenant = "diku"
 
@@ -45,45 +46,45 @@ pipeline {
     }
 
     stages {
-        stage("Run cypress tests") {
+//        stage("Run cypress tests") {
+//            steps {
+//                script {
+//                    def jobParameters = [
+//                        branch: params.branch,
+//                        uiUrl: uiUrl,
+//                        okapiUrl: okapiUrl,
+//                        tenant: tenant,
+//                        user: 'diku_admin',
+//                        password: 'admin',
+//                        cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
+//                        customBuildName: JOB_BASE_NAME,
+//                        timeout: '6',
+//                        testrailProjectID: '14',
+//                        testrailRunID: '2108'
+//                    ]
+//                    cypressStages(jobParameters)
+//                }
+//            }
+//        }
+
+        stage("Run karate tests") {
             steps {
                 script {
                     def jobParameters = [
                         branch: params.branch,
-                        uiUrl: uiUrl,
+                        threadsCount: "4",
+                        modules: "",
                         okapiUrl: okapiUrl,
-                        tenant: tenant,
-                        user: 'diku_admin',
-                        password: 'admin',
-                        cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
-                        customBuildName: JOB_BASE_NAME,
-                        timeout: '6',
-                        testrailProjectID: '14',
-                        testrailRunID: '2108'
+                        edgeUrl: edgeUrl,
+                        tenant: 'supertenant',
+                        adminUserName: 'super_admin',
+                        adminPassword: 'admin',
+                        prototypeTenant: prototypeTenant
                     ]
-                    cypressStages(jobParameters)
+                    karateStages(jobParameters)
                 }
             }
         }
-
-//        stage("Run karate tests") {
-//            steps {
-//                script {
-//                    def jobParameters = [
-//                        string(name: 'branch', value: params.branch),
-//                        string(name: 'threadsCount', value: "4"),
-//                        string(name: 'modules', value: ""),
-//                        string(name: 'okapiUrl', value: okapiUrl),
-//                        string(name: 'tenant', value: 'supertenant'),
-//                        string(name: 'adminUserName', value: 'super_admin'),
-//                        password(name: 'adminPassword', value: 'admin'),
-//                        string(name: 'prototypeTenant', value: prototypeTenant)
-//                    ]
-//
-//                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
 //
 //        stage("Parallel Karate results") {
 //            parallel {

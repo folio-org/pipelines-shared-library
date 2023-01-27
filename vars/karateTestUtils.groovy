@@ -1,3 +1,4 @@
+import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
@@ -140,13 +141,13 @@ void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSumma
             def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -1h")
             if (existingTickets) {
                 message += "Existing issues:\n"
-                message += existingTickets              
+                message += existingTickets
             }
             // Created tickets by this run - Within the last 20 min
             def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -20m")
             if (createdTickets) {
                 message += "Created issues by run:\n"
-                message += createdTickets              
+                message += createdTickets
             }
 
             slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
@@ -309,4 +310,35 @@ String getJiraIssuesByTeam(String team, String timeFilter) {
         ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
     }
     return ticketsByTeam
+}
+
+String renderKarateConfig(String config, params){
+    withCredentials([
+        string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
+        string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),
+        string(credentialsId: 'mod-kb-ebsco-key', variable: 'ebsco_key'),
+        string(credentialsId: 'mod-kb-ebsco-usageId', variable: 'ebsco_usage_id'),
+        string(credentialsId: 'mod-kb-ebsco-usageSecret', variable: 'ebsco_usage_secret'),
+        string(credentialsId: 'mod-kb-ebsco-usageKey', variable: 'ebsco_usage_key')
+    ]) {
+        def engine = new SimpleTemplateEngine()
+        Map binding = [
+            "baseUrl"                            : params.okapiUrl,
+            "edgeUrl"                            : params.edgeUrl,
+            "admin"                              : [
+                tenant  : params.tenant,
+                name    : params.adminUserName,
+                password: params.adminPassword
+            ],
+            "prototypeTenant"                    : params.prototypeTenant,
+            "kbEbscoCredentialsUrl"              : ebsco_url,
+            "kbEbscoCredentialsCustomerId"       : ebsco_id,
+            "kbEbscoCredentialsApiKey"           : ebsco_key,
+
+            "usageConsolidationCredentialsId"    : ebsco_usage_id,
+            "usageConsolidationCredentialsSecret": ebsco_usage_secret,
+            "usageConsolidationCustomerKey"      : ebsco_usage_key
+        ]
+        return engine.createTemplate(config.replaceAll(/(\\)/, /\\$0/)).make(binding).toString()
+    }
 }
