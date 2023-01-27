@@ -34,6 +34,8 @@ Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
 String okapiVersion = versions[0]
 
+def cypressParameters
+
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
@@ -74,7 +76,7 @@ pipeline {
 //            }
 //        }
 
-        stage("Run cypress tests") {
+        stage("Collect cypress parameters") {
 //            when {
 //                expression {
 //                    spinUpEnvironmentJob.result == 'SUCCESS'
@@ -98,7 +100,7 @@ pipeline {
 //
 //                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
 
-                    def jobParameters = [
+                    cypressParameters = [
                         branch: params.branch,
                         uiUrl: uiUrl,
                         okapiUrl: okapiUrl,
@@ -111,10 +113,12 @@ pipeline {
                         testrailProjectID: '14',
                         testrailRunID: '2108'
                     ]
-                    cypressStages(jobParameters)
+
                 }
             }
         }
+
+        cypressStages(cypressParameters)
 
 //        stage("Parallel Cypress results") {
 //            parallel {
