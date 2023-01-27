@@ -62,7 +62,7 @@ def call(params) {
 //            CYPRESS_diku_password = "${params.password}"
 //        }
             script {
-                docker.image("cypress/included:${cypressImageVersion}").inside("-v ${pwd()}:${pwd()} --entrypoint=") {
+                docker.image("cypress/included:${cypressImageVersion}").inside("-v \"${pwd()}\":\"${pwd()}\" --entrypoint=") {
                     env.HOME = "${pwd()}/cache"
                     env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
                     env.CYPRESS_BASE_URL = "${params.uiUrl}"
