@@ -175,80 +175,80 @@ pipeline {
 //            }
 //        }
 
-        stage("Run karate tests") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//        stage("Run karate tests") {
+////            when {
+////                expression {
+////                    spinUpEnvironmentJob.result == 'SUCCESS'
+////                }
+////            }
+//            steps {
+//                script {
+//                    def jobParameters = [
+//                        string(name: 'branch', value: params.branch),
+//                        string(name: 'threadsCount', value: "4"),
+//                        string(name: 'modules', value: ""),
+//                        string(name: 'okapiUrl', value: okapiUrl),
+//                        string(name: 'tenant', value: 'supertenant'),
+//                        string(name: 'adminUserName', value: 'super_admin'),
+//                        password(name: 'adminPassword', value: 'admin'),
+//                        string(name: 'prototypeTenant', value: prototypeTenant)
+//                    ]
+//
+//                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
 //                }
 //            }
-            steps {
-                script {
-                    def jobParameters = [
-                        string(name: 'branch', value: params.branch),
-                        string(name: 'threadsCount', value: "4"),
-                        string(name: 'modules', value: ""),
-                        string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: 'supertenant'),
-                        string(name: 'adminUserName', value: 'super_admin'),
-                        password(name: 'adminPassword', value: 'admin'),
-                        string(name: 'prototypeTenant', value: prototypeTenant)
-                    ]
-
-                    karateTestsJob = build job: karateTestsJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
-
-        stage("Parallel Karate results") {
-            parallel {
-                stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//        }
+//
+//        stage("Parallel Karate results") {
+//            parallel {
+//                stage("Collect test results") {
+////                    when {
+////                        expression {
+////                            spinUpEnvironmentJob.result == 'SUCCESS'
+////                        }
+////                    }
+//                    stages {
+//                        stage("Copy downstream job artifacts") {
+//                            steps {
+//                                script {
+//                                    def jobNumber = karateTestsJob.number
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
+//                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
+//
+//                                    unzip zipFile: "cucumber.zip", dir: "results"
+//                                    unzip zipFile: "junit.zip", dir: "results"
+//                                    unzip zipFile: "karate-summary.zip", dir: "results"
+//                                }
+//                            }
+//                        }
+//
+//                        stage('Publish tests report Karate') {
+//                            steps {
+//                                script {
+//                                    cucumber buildStatus: "UNSTABLE",
+//                                        fileIncludePattern: "results/**/target/karate-reports*/*.json",
+//                                        sortingMethod: "ALPHABETICAL"
+//
+//                                    junit testResults: 'results/**/target/karate-reports*/*.xml'
+//                                }
+//                            }
+//                        }
+//
+//                        stage("Collect execution results") {
+//                            steps {
+//                                script {
+//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
+//
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                }
+//                            }
 //                        }
 //                    }
-                    stages {
-                        stage("Copy downstream job artifacts") {
-                            steps {
-                                script {
-                                    def jobNumber = karateTestsJob.number
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "cucumber.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "junit.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "karate-summary.zip")
-                                    copyArtifacts(projectName: karateTestsJobName, selector: specific("${jobNumber}"), filter: "teams-assignment.json")
-
-                                    unzip zipFile: "cucumber.zip", dir: "results"
-                                    unzip zipFile: "junit.zip", dir: "results"
-                                    unzip zipFile: "karate-summary.zip", dir: "results"
-                                }
-                            }
-                        }
-
-                        stage('Publish tests report Karate') {
-                            steps {
-                                script {
-                                    cucumber buildStatus: "UNSTABLE",
-                                        fileIncludePattern: "results/**/target/karate-reports*/*.json",
-                                        sortingMethod: "ALPHABETICAL"
-
-                                    junit testResults: 'results/**/target/karate-reports*/*.xml'
-                                }
-                            }
-                        }
-
-                        stage("Collect execution results") {
-                            steps {
-                                script {
-                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("results/**/target/karate-reports*/karate-summary-json.txt")
-
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
 //        stage("Set job execution result") {
 //            when {
