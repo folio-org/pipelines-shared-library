@@ -187,11 +187,11 @@ pipeline {
         stage("Parallel Karate results") {
             parallel {
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+//                    when {
+//                        expression {
+//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//                        }
+//                    }
                     stages {
                         stage("Copy downstream job artifacts") {
                             steps {
