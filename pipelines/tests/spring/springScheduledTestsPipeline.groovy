@@ -82,61 +82,76 @@ pipeline {
 //            }
             steps {
                 script {
-                    def jobParameters = [
-                        string(name: 'branch', value: params.branch),
-                        string(name: 'uiUrl', value: uiUrl),
-                        string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
-                        string(name: 'user', value: 'diku_admin'),
-                        password(name: 'password', value: 'admin'),
-                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
-                        string(name: 'customBuildName', value: JOB_BASE_NAME),
-                        string(name: 'timeout', value: '6'),
-                        string(name: 'testrailProjectID', value: '14'),
-                        string(name: 'testrailRunID', value: '2108')
-                    ]
+//                    def jobParameters = [
+//                        string(name: 'branch', value: params.branch),
+//                        string(name: 'uiUrl', value: uiUrl),
+//                        string(name: 'okapiUrl', value: okapiUrl),
+//                        string(name: 'tenant', value: tenant),
+//                        string(name: 'user', value: 'diku_admin'),
+//                        password(name: 'password', value: 'admin'),
+//                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
+//                        string(name: 'customBuildName', value: JOB_BASE_NAME),
+//                        string(name: 'timeout', value: '6'),
+//                        string(name: 'testrailProjectID', value: '14'),
+//                        string(name: 'testrailRunID', value: '2108')
+//                    ]
+//
+//                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
 
-                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    def jobParameters = [
+                        branch: params.branch,
+                        uiUrl: uiUrl,
+                        okapiUrl: okapiUrl,
+                        tenant: tenant,
+                        user: 'diku_admin',
+                        password: 'admin',
+                        cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
+                        customBuildName: JOB_BASE_NAME,
+                        timeout: '6',
+                        testrailProjectID: '14',
+                        testrailRunID: '2108'
+                    ]
+                    cypressStages(jobParameters)
                 }
             }
         }
 
-        stage("Parallel Cypress results") {
-            parallel {
-                stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//        stage("Parallel Cypress results") {
+//            parallel {
+//                stage("Collect test results") {
+////                    when {
+////                        expression {
+////                            spinUpEnvironmentJob.result == 'SUCCESS'
+////                        }
+////                    }
+//                    stages {
+//                        stage("Copy downstream job artifacts") {
+//                            steps {
+//                                script {
+//                                    def jobNumber = cypressTestsJob.number
+//                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
+//
+//                                    unzip zipFile: "allure-results.zip", dir: "."
+//                                }
+//                            }
+//                        }
+//
+//                        stage('Publish tests report Cypress') {
+//                            steps {
+//                                allure([
+//                                    includeProperties: false,
+//                                    jdk              : '',
+//                                    commandline      : allureVersion,
+//                                    properties       : [],
+//                                    reportBuildPolicy: 'ALWAYS',
+//                                    results          : [[path: 'allure-results']]
+//                                ])
+//                            }
 //                        }
 //                    }
-                    stages {
-                        stage("Copy downstream job artifacts") {
-                            steps {
-                                script {
-                                    def jobNumber = cypressTestsJob.number
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
-
-                                    unzip zipFile: "allure-results.zip", dir: "."
-                                }
-                            }
-                        }
-
-                        stage('Publish tests report Cypress') {
-                            steps {
-                                allure([
-                                    includeProperties: false,
-                                    jdk              : '',
-                                    commandline      : allureVersion,
-                                    properties       : [],
-                                    reportBuildPolicy: 'ALWAYS',
-                                    results          : [[path: 'allure-results']]
-                                ])
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
 //        stage("Destroy environment before Karate") {
 //            steps {
