@@ -7,7 +7,6 @@ import groovy.transform.Field
 
 def call(params) {
     stage('Checkout Cypress repo') {
-        steps {
             script {
                 def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
                 buildName customBuildName
@@ -25,22 +24,19 @@ def call(params) {
                     ])
                 }
             }
-        }
     }
     stage('Cypress tests Image version') {
-        steps {
             script {
                 def packageJson = readJSON(text: readFile("${workspace}/package.json"))
                 cypressImageVersion = packageJson.dependencies.cypress
             }
-        }
     }
     stage('Build tests') {
         environment {
             HOME = "${pwd()}/cache"
             CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
         }
-        steps {
+        script {
             sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
             sh "yarn add -D cypress-testrail-simple"
             sh "yarn install"
@@ -65,9 +61,8 @@ def call(params) {
             CYPRESS_diku_login = "${params.user}"
             CYPRESS_diku_password = "${params.password}"
         }
-        steps {
-            def browserName = "chrome"
             script {
+                def browserName = "chrome"
                 ansiColor('xterm') {
                     timeout(time: "${params.timeout}", unit: 'HOURS') {
                         catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
@@ -88,20 +83,17 @@ def call(params) {
                     }
                 }
             }
-        }
     }
 
     stage('Generate tests report') {
-        steps {
             script {
                 def allure_home = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
                 sh "${allure_home}/bin/allure generate --clean"
             }
-        }
     }
 
     stage('Publish tests report') {
-        steps {
+        script {
             allure([
                 includeProperties: false,
                 jdk              : '',
@@ -114,12 +106,10 @@ def call(params) {
     }
 
     stage('Archive artifacts') {
-        steps {
             script {
                 zip zipFile: "allure-results.zip", glob: "allure-results/*"
 
                 archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results.zip", fingerprint: true, defaultExcludes: false
             }
-        }
     }
 }
