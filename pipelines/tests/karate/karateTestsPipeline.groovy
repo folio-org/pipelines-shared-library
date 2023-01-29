@@ -71,7 +71,7 @@ pipeline {
                                 string(name: 'tenant_name', value: it.name),
                                 string(name: 'admin_username', value: it.user),
                                 password(name: 'admin_password', value: it.password),
-                                booleanParam(name: 'create_tenant', value: false)
+                                booleanParam(name: 'create_tenant', value: true)
                             ]
                             def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
                             if (!fileExists(configMapName)) {
