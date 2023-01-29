@@ -24,7 +24,7 @@ pipeline {
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
         password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
         string(name: 'prototypeTenant', defaultValue: 'diku', description: 'A tenant name which will be used by tests as a prototype during test tenant creation')
-        booleanParam(name: 'createCustomTenant', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?')
+        booleanParam(name: 'createCustomEdgeTenant', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?')
     }
 
     stages {
@@ -50,7 +50,7 @@ pipeline {
         stage("Prepare edge modules configuration") {
             when {
                 expression {
-                    params.createCustomTenant == true
+                    params.createCustomEdgeTenant == true
                 }
             }
             steps {
@@ -146,7 +146,7 @@ pipeline {
         stage("Delete tenants edge modules") {
             when {
                 expression {
-                    params.createCustomTenant == true
+                    params.createCustomEdgeTenant == true
                 }
             }
             steps {
@@ -169,7 +169,7 @@ pipeline {
     post {
         always {
             script {
-                if (params.createCustomTenant) {
+                if (params.createCustomEdgeTenant) {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
                         findFiles(glob: "**/*-ephemeral-properties").each { file ->
