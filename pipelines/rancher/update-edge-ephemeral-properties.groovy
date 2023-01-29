@@ -71,20 +71,21 @@ ansiColor('xterm') {
 
                     OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
                         password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
-
-                    Deployment deployment = new Deployment(
-                        this,
-                        "https://${project_config.getDomains().okapi}",
-                        "https://${project_config.getDomains().ui}",
-                        project_config.getInstallJson(),
-                        project_config.getInstallMap(),
-                        tenant,
-                        edge_user,
-                        superadmin_user,
-                        email
-                    )
-                    deployment.createTenant()
-
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        tenant.kb_api_key = cypress_api_key_apidvcorp
+                        Deployment deployment = new Deployment(
+                            this,
+                            "https://${project_config.getDomains().okapi}",
+                            "https://${project_config.getDomains().ui}",
+                            project_config.getInstallJson(),
+                            project_config.getInstallMap(),
+                            tenant,
+                            edge_user,
+                            superadmin_user,
+                            email
+                        )
+                        deployment.createTenant()
+                    }
                     println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
                 }
             }
