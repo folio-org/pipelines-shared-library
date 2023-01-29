@@ -97,9 +97,9 @@ ansiColor('xterm') {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                     // Get data from existing ConfigMap
-                    env.existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+                    def existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
 
-                    env.existingConfigMap.readLines().each {
+                    existingConfigMap.readLines().each {
                         if(it.split("=").size() == 2) {
                             def keyValue = it.split("=")
                             if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {

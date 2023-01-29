@@ -61,6 +61,14 @@ pipeline {
                         String configMapName = "${edgeName}-ephemeral-properties"
                         edgeModulesRollout += edgeName
 
+                        // Get existing ConfigMap
+                        if (!fileExists(configMapName)) {
+                            helm.k8sClient {
+                                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                                writeFile file: configMapName, text: kubectl.getConfigMap(configMapName, projectName, configMapName)
+                            }
+                        }
+                        // Trigger job for creating tenant and recreating configMap
                         it.tenants.each {
                             def jobParameters = [
                                 string(name: 'rancher_cluster_name', value: clusterName),
@@ -73,10 +81,7 @@ pipeline {
                                 password(name: 'admin_password', value: it.password),
                                 booleanParam(name: 'create_tenant', value: true)
                             ]
-                            def ephemeralPropBuildJobResult = build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
-                            if (!fileExists(configMapName)) {
-                                writeFile file: configMapName, text: ephemeralPropBuildJobResult.getBuildVariables()["existingConfigMap"]
-                            }
+                            build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
