@@ -69,22 +69,24 @@ ansiColor('xterm') {
                     def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
                     def config = steps.readYaml file: file_path
 
-                    OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
-                        password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
-                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                        tenant.kb_api_key = cypress_api_key_apidvcorp
-                        Deployment deployment = new Deployment(
-                            this,
-                            "https://${project_config.getDomains().okapi}",
-                            "https://${project_config.getDomains().ui}",
-                            project_config.getInstallJson(),
-                            project_config.getInstallMap(),
-                            tenant,
-                            edge_user,
-                            superadmin_user,
-                            email
-                        )
-                        deployment.createTenant()
+                    retry(2) {
+                        OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
+                            password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
+                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                            tenant.kb_api_key = cypress_api_key_apidvcorp
+                            Deployment deployment = new Deployment(
+                                this,
+                                "https://${project_config.getDomains().okapi}",
+                                "https://${project_config.getDomains().ui}",
+                                project_config.getInstallJson(),
+                                project_config.getInstallMap(),
+                                tenant,
+                                edge_user,
+                                superadmin_user,
+                                email
+                            )
+                            deployment.createTenant()
+                        }
                     }
                     println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
                 }
