@@ -104,7 +104,7 @@ ansiColor('xterm') {
                             def keyValue = it.split("=")
                             if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
                                 keyValue[1] += ",${params.tenant_name}"
-                            } else if (keyValue[0] == params.tenant_name) {
+                            } else if (keyValue[0] == params.tenant_name && keyValue[1].contains(params.admin_username)) {
                                 existsTenant = true
                             }
                             contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
