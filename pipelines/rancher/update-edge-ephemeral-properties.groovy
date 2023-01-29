@@ -38,9 +38,6 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     index: [reindex : params.reindex_elastic_search,
             recreate: params.recreate_elastic_search_index])
 
-OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
-    password: params.admin_password)
-
 Project project_config = new Project(clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     enableModules: params.enable_modules,
@@ -48,6 +45,8 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
     configType: params.config_type)
+
+Email email = okapiSettings.email()
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -59,22 +58,40 @@ ansiColor('xterm') {
         try {
             if (params.create_tenant) {
                 stage("Create tenant") {
-                        build job: 'Rancher/Update/create-tenant',
-                            parameters: [
-                                string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
-                                string(name: 'rancher_project_name', value: params.rancher_project_name),
-                                string(name: 'install_list', value: params.edge_module),
-                                string(name: 'tenant_id', value: params.tenant_id),
-                                string(name: 'tenant_name', value: params.tenant_name),
-                                string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
-                                string(name: 'admin_username', value: params.admin_username),
-                                password(name: 'admin_password', value: params.admin_password),
-                                booleanParam(name: 'load_reference', value: true),
-                                booleanParam(name: 'load_sample', value: true),
-                                booleanParam(name: 'reindex_elastic_search', value: false),
-                                booleanParam(name: 'recreate_elastic_search_index', value: false),
-                                booleanParam(name: 'deploy_ui', value: false)]
+                        // build job: 'Rancher/Update/create-tenant',
+                        //     parameters: [
+                        //         string(name: 'rancher_cluster_name', value: params.rancher_cluster_name),
+                        //         string(name: 'rancher_project_name', value: params.rancher_project_name),
+                        //         string(name: 'install_list', value: params.edge_module),
+                        //         string(name: 'tenant_id', value: params.tenant_id),
+                        //         string(name: 'tenant_name', value: params.tenant_name),
+                        //         string(name: 'tenant_description', value: "${params.tenant_name} tenant for ${params.edge_module}"),
+                        //         string(name: 'admin_username', value: params.admin_username),
+                        //         password(name: 'admin_password', value: params.admin_password),
+                        //         booleanParam(name: 'load_reference', value: true),
+                        //         booleanParam(name: 'load_sample', value: true),
+                        //         booleanParam(name: 'reindex_elastic_search', value: false),
+                        //         booleanParam(name: 'recreate_elastic_search_index', value: false),
+                        //         booleanParam(name: 'deploy_ui', value: false)]
+                Tools tools = new Tools(this)
+
+                def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
+                def config = steps.readYaml file: file_path
+                
+                if(config[(params.edge_module)].permissions) {
+                    println config[(params.edge_module)].permissions
                 }
+                
+
+                OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
+                    password: params.admin_password, permissions: config[(params.edge_module)].permissions)
+                }
+
+                // createTenant
+                // users.createUser(tenant, edge_user)
+                // auth.createUserCredentials(tenant, edge_user)
+                // permissions.createUserPermissions(tenant, edge_user)
+
                 println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
             }
             stage("Recreate ephemeral-properties") {
