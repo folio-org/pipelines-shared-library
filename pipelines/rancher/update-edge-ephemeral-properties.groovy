@@ -70,7 +70,7 @@ ansiColor('xterm') {
                     def config = steps.readYaml file: file_path
 
                     OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
-                        password: params.admin_password, permissions: config[(params.edge_module)].permissions)
+                        password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
 
                     Deployment deployment = new Deployment(
                         this,
