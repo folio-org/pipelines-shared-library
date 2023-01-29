@@ -38,10 +38,10 @@ List installed_modules = okapi.getInstalledModules(params.reference_tenant_id).c
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
     description: "${params.tenant_name} tenant for ${params.edge_module}",
-    tenantParameters: [loadReference: params.load_reference,
-                       loadSample   : params.load_sample],
+    tenantParameters: [loadReference: true,
+                       loadSample   : true],
     queryParameters: [reinstall: 'false'],
-    index: [reindex : params.reindex_elastic_search,
+    index: [reindex : true,
             recreate: params.recreate_elastic_search_index])
 
 Project project_config = new Project(clusterName: params.rancher_cluster_name,
