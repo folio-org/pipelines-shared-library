@@ -66,6 +66,7 @@ pipeline {
                                 string(name: 'rancher_cluster_name', value: clusterName),
                                 string(name: 'rancher_project_name', value: projectName),
                                 string(name: 'edge_module', value: edgeName),
+                                string(name: 'reference_tenant_id', value: params.prototypeTenant),
                                 string(name: 'tenant_id', value: it.name),
                                 string(name: 'tenant_name', value: it.name),
                                 string(name: 'admin_username', value: it.user),
