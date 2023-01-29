@@ -54,7 +54,6 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     configType: params.config_type)
 
 Email email = okapiSettings.email()
-Tools tools = new Tools(this)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -66,6 +65,7 @@ ansiColor('xterm') {
         try {
             if (params.create_tenant) {
                 stage("Create tenant") {
+                    Tools tools = new Tools(this)
                     def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
                     def config = steps.readYaml file: file_path
 
