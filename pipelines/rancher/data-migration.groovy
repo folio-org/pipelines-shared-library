@@ -1,7 +1,7 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-384') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
