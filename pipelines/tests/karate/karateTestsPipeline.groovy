@@ -4,7 +4,7 @@ import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-332-edge') _
+@Library('pipelines-shared-library') _
 
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
@@ -88,66 +88,66 @@ pipeline {
             }
         }
 
-        // stage("Build karate config") {
-        //     steps {
-        //         script {
-        //             def files = findFiles(glob: '**/karate-config.js')
-        //                 files.each { file ->
-        //                     echo "Updating file ${file.path}"
-        //                     writeFile file: file.path, text: renderKarateConfig(readFile(file.path))
-        //                 }
+        stage("Build karate config") {
+            steps {
+                script {
+                    def files = findFiles(glob: '**/karate-config.js')
+                        files.each { file ->
+                            echo "Updating file ${file.path}"
+                            writeFile file: file.path, text: renderKarateConfig(readFile(file.path))
+                        }
 
-        //         }
-        //     }
-        // }
+                }
+            }
+        }
 
-        // stage('Run karate tests') {
-        //     steps {
-        //         script {
-        //             withMaven(
-        //                 jdk: 'openjdk-11-jenkins-slave-all',
-        //                 maven: 'maven3-jenkins-slave-all',
-        //                 mavenSettingsConfig: 'folioci-maven-settings'
-        //             ) {
-        //                 def modules = ""
-        //                 if (params.modules) {
-        //                     modules = "-pl common,testrail-integration," + params.modules
-        //                 }
-        //                 sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Run karate tests') {
+            steps {
+                script {
+                    withMaven(
+                        jdk: 'openjdk-11-jenkins-slave-all',
+                        maven: 'maven3-jenkins-slave-all',
+                        mavenSettingsConfig: 'folioci-maven-settings'
+                    ) {
+                        def modules = ""
+                        if (params.modules) {
+                            modules = "-pl common,testrail-integration," + params.modules
+                        }
+                        sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                    }
+                }
+            }
+        }
 
-        // stage('Publish tests report') {
-        //     steps {
-        //         script {
-        //             cucumber buildStatus: "UNSTABLE",
-        //                 fileIncludePattern: "**/target/karate-reports*/*.json",
-        //                 sortingMethod: "ALPHABETICAL"
+        stage('Publish tests report') {
+            steps {
+                script {
+                    cucumber buildStatus: "UNSTABLE",
+                        fileIncludePattern: "**/target/karate-reports*/*.json",
+                        sortingMethod: "ALPHABETICAL"
 
-        //             junit testResults: '**/target/karate-reports*/*.xml'
-        //         }
-        //     }
-        // }
+                    junit testResults: '**/target/karate-reports*/*.xml'
+                }
+            }
+        }
 
-        // stage('Archive artifacts') {
-        //     steps {
-        //         script {
-        //             // archive artifacts for upstream job
-        //             if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-        //                 zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-        //                 zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-        //                 zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+        stage('Archive artifacts') {
+            steps {
+                script {
+                    // archive artifacts for upstream job
+                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
+                        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+                        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+                        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
 
-        //                 archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
-        //                 archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
-        //                 archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
-        //                 archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
-        //             }
-        //         }
-        //     }
-        // }
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+                    }
+                }
+            }
+        }
         stage("Delete tenants edge modules") {
             when {
                 expression {
