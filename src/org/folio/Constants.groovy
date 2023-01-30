@@ -60,6 +60,7 @@ class Constants {
     static String JENKINS_MASTER_NODE = "master"
     static String JENKINS_JOB_PROJECT = "/Rancher/Project"
     static String JENKINS_JOB_RESTORE_PG_BACKUP = "Rancher/Create-Restore-PosgreSQL-DB-backup"
+    static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = "/Rancher/Update/backend-modules-deploy-branch"
 
     static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
 
@@ -103,5 +104,7 @@ class Constants {
     static String CYPRESS_REPOSITORY_URL ="${FOLIO_GITHUB_URL}/stripes-testing.git"
     static String CYPRESS_ALLURE_VERSION ="2.17.2"
 
+    //RDS
+    static String BUGFEST_SNAPSHOT_DBNAME = "folio"
 
 }

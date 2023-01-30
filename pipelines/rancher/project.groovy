@@ -164,7 +164,8 @@ ansiColor('xterm') {
                         }
                         tf.variables += terraform.generateTfVar('pg_rds_snapshot_name', project_config.getBackupName())
                         tf.variables += terraform.generateTfVar('pg_version', project_config.getBackupEngineVersion())
-                        tf.variables += terraform.generateTfVar('pg_dbname', project_config.getBackupMasterUsername())
+                        //It works only with bugfests snapshots.
+                        tf.variables += terraform.generateTfVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
                         tf.variables += terraform.generateTfVar('pg_username', project_config.getBackupMasterUsername())
                     } else {
                         new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
