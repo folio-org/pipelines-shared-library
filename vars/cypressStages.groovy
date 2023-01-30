@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
 
-@Library('pipelines-shared-library@RANCHER-608') _
+@Library('pipelines-shared-library') _
 
 @Field def cypressImageVersion
 
