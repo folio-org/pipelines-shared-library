@@ -303,6 +303,32 @@ class Okapi extends GeneralParameters {
         }
     }
 
+    /**
+     * Delete tenant
+     * @param tenant
+     */
+    void deleteTenant(OkapiTenant tenant) {
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        String url = okapi_url + "/_/proxy/tenants/" + tenant.id
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+        if (isTenantExists(tenant.id)) {
+            logger.info("Tenant ${tenant.id} exists. Deleting...")
+            String body = JsonOutput.toJson([id         : tenant.id])
+            
+            def res = http.deleteRequest(url, body, headers)
+            logger.info("DEBUG ${okapi_url} okapi URL")
+            if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
+                logger.info("Tenant ${tenant.id} successfully deleted")
+            } else {
+                throw new AbortException("Tenant ${tenant.id} does not deleted." + http.buildHttpErrorMessage(res))
+            }
+        } else {
+            logger.info("Tenant ${tenant.id} does not exist")
+        }
+    }
+
 /**
  * Build query based on tenant parameters
  * @param parameters

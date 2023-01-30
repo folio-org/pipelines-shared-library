@@ -204,6 +204,22 @@ if (installJson.getResponseCode().equals(200)) {
 }'''
 }
 
+static String getEdgeModulesList() {
+    return '''import groovy.json.JsonSlurperClassic
+String nameGroup = "moduleName"
+String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
+def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
+if (installJson.getResponseCode().equals(200)) {
+    List modules_list = []
+    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ "edge-.*" }.each { value ->
+        def matcherModule = value =~ patternModuleVersion
+        assert matcherModule.matches()
+        modules_list.add(matcherModule.group(nameGroup))
+    }
+    return modules_list.sort()
+}'''
+}
+
 private def _paramChoice(String name, List options, String description) {
     return choice(name: name, choices: options, description: description)
 }
@@ -339,6 +355,10 @@ def okapiVersion() {
 
 def backendModule() {
     return _paramExtended('backend_module', '', getBackendModulesList(), 'Choose backend module')
+}
+
+def edgeModule() {
+    return _paramExtended('edge_module', '', getEdgeModulesList(), 'Choose edge module')
 }
 
 def restoreFromBackup() {

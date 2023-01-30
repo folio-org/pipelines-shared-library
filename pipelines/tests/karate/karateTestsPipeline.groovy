@@ -7,6 +7,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 def karateEnvironment = "folio-testing-karate"
+String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
+String projectName = params.okapiUrl.minus("https://").split("-")[2]
+List edgeModulesRollout = []
 
 pipeline {
     agent { label 'jenkins-agent-java11' }
@@ -21,6 +24,7 @@ pipeline {
         string(name: 'adminUserName', defaultValue: 'super_admin', description: 'Admin user name')
         password(name: 'adminPassword', defaultValue: 'admin', description: 'Admin user password')
         string(name: 'prototypeTenant', defaultValue: 'diku', description: 'A tenant name which will be used by tests as a prototype during test tenant creation')
+        booleanParam(name: 'createCustomEdgeTenant', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?')
     }
 
     stages {
@@ -39,6 +43,46 @@ pipeline {
                                                                   trackingSubmodules : false]],
                             userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/folio-integration-tests.git"]]
                         ])
+                    }
+                }
+            }
+        }
+        stage("Prepare edge modules configuration") {
+            when {
+                expression {
+                    params.createCustomEdgeTenant == true
+                }
+            }
+            steps {
+                script {
+                    def jsonContents = readJSON file: "edge-configuration.json"
+                    jsonContents.each {
+                        String edgeName = it.name 
+                        String configMapName = "${edgeName}-ephemeral-properties"
+                        edgeModulesRollout += edgeName
+
+                        // Get existing ConfigMap
+                        if (!fileExists(configMapName)) {
+                            helm.k8sClient {
+                                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                                writeFile file: configMapName, text: kubectl.getConfigMap(configMapName, projectName, configMapName)
+                            }
+                        }
+                        // Trigger job for creating tenant and recreating configMap
+                        it.tenants.each {
+                            def jobParameters = [
+                                string(name: 'rancher_cluster_name', value: clusterName),
+                                string(name: 'rancher_project_name', value: projectName),
+                                string(name: 'edge_module', value: edgeName),
+                                string(name: 'reference_tenant_id', value: params.prototypeTenant),
+                                string(name: 'tenant_id', value: it.name),
+                                string(name: 'tenant_name', value: it.name),
+                                string(name: 'admin_username', value: it.user),
+                                password(name: 'admin_password', value: it.password),
+                                booleanParam(name: 'create_tenant', value: true)
+                            ]
+                            build job: "Rancher/Update/update-ephemeral-properties", parameters: jobParameters, wait: true, propagate: false
+                        }
                     }
                 }
             }
@@ -100,6 +144,47 @@ pipeline {
                         archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
                         archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+                    }
+                }
+            }
+        }
+        stage("Delete tenants edge modules") {
+            when {
+                expression {
+                    params.createCustomEdgeTenant == true
+                }
+            }
+            steps {
+                script {
+                    def jsonContents = readJSON file: "edge-configuration.json"
+                    jsonContents.each {
+                        it.tenants.each {
+                            def jobParameters = [
+                                string(name: 'rancher_cluster_name', value: clusterName),
+                                string(name: 'rancher_project_name', value: projectName),
+                                string(name: 'tenant_id', value: it.name)
+                            ]
+                            build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
+                }
+            }
+        }        
+    }
+    post {
+        always {
+            script {
+                if (params.createCustomEdgeTenant) {
+                    helm.k8sClient {
+                        awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
+                        findFiles(glob: "**/*-ephemeral-properties").each { file ->
+                            kubectl.recreateConfigMap(file.name, projectName, "./${file.name}")  
+                        }
+                        if (edgeModulesRollout) {
+                            edgeModulesRollout.each { module ->
+                                kubectl.rolloutDeployment(module, projectName)
+                            }
+                        }
                     }
                 }
             }

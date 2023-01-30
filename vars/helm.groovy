@@ -41,14 +41,6 @@ def delete(String name, String namespace) {
     sh "helm delete ${name} --namespace=${namespace}"
 }
 
-def createConfigMap(String name, String namespace, String file_path) {
-    try {
-        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path}"
-    } catch (Exception e) {
-        println(e.getMessage())
-    }
-}
-
 def getS3ObjectBody(String bucketname, String filePathName) {
     sh(script: "aws s3 cp s3://${bucketname}/${filePathName} ./${filePathName} > /dev/null && cat ${filePathName}", returnStdout: true)
 }

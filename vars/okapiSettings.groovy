@@ -2,6 +2,18 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiUser
 import org.folio.rest.model.Email
 
+static OkapiUser edgeUser(Map args = [:]) {
+    return new OkapiUser(
+        username: args.username,
+        password: args.password,
+        firstName: args.username,
+        lastName: 'ADMINISTRATOR',
+        email: 'admin@diku.example.org',
+        groupName: 'staff',
+        permissions: args.permissions
+    )
+}
+
 static OkapiUser adminUser(Map args = [:]) {
     return new OkapiUser(
         username: args.username,
