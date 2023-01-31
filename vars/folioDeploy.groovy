@@ -118,7 +118,7 @@ void ldp_server(tenant, Project project_config, admin_user, superadmin_user, Ldp
 
         new Tools(this).createFileFromString("ldpconf.json", new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_ldpconf.json.template", ldpConfig,
             db_host, "folio_modules", "postgres", folio_db_password))
-        helm.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
+        kubectl.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
 
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         helm.upgrade("ldp-server", project_config.getProjectName(), "''", Constants.FOLIO_HELM_V2_REPO_NAME, "ldp-server")
