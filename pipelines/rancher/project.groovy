@@ -192,12 +192,6 @@ ansiColor('xterm') {
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
                     }
-
-                    OkapiUser mod_search_user = new OkapiUser(
-                        username: "mod-search",
-                        password: "Mod-search-1-0-0"
-                    )
-                    new Authorization(this, "https://${project_config.getDomains().okapi}").createUserCredentials(tenant, mod_search_user)
                 }
 
                 if (params.greenmail_server){
@@ -239,6 +233,12 @@ ansiColor('xterm') {
                             }
                         }
                     }
+                    OkapiUser mod_search_user = new OkapiUser(
+                        username: "mod-search",
+                        password: "Mod-search-1-0-0"
+                    )
+                    new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
+                    new Authorization(this, "https://${project_config.getDomains().okapi}").createUserCredentials(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
