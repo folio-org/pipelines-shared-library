@@ -68,6 +68,36 @@ class Authorization extends GeneralParameters {
     }
 
     /**
+     * Create credentials entry for user
+     * @param tenant
+     * @param user
+     */
+    void deleteUserCredentials(OkapiTenant tenant, OkapiUser user) {
+        if (!user.uuid) {
+            throw new AbortException("${user.username} uuid does not specified")
+        }
+        getOkapiToken(tenant, tenant.getAdminUser())
+        String url = okapi_url + "/authn/credentials"
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+        if (getUserCredentials(tenant, user).credentialsExist) {
+            logger.info("Deleting credentials from ${user.username} user")
+            String body = JsonOutput.toJson([userId  : user.uuid])
+            def res = http.deleteRequest(url, body, headers)
+            if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
+                logger.info("${user.username} credentials successfully deleted")
+            } else {
+                throw new AbortException("Can not delete credentials for ${user.username}." + http.buildHttpErrorMessage(res))
+            }
+        } else {
+            logger.info("No credentials set to ${user.username} user")
+        }
+    }
+
+    /**
      * Login via bl-users
      * @param tenant
      * @param user

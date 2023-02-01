@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-622') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -191,6 +191,12 @@ ansiColor('xterm') {
                     if (install_backend_map) {
                         folioDeploy.backend(install_backend_map, project_config)
                     }
+
+                    OkapiUser mod_search_user = new OkapiUser(
+                        username: "mod-search",
+                        password: "Mod-search-1-0-0"
+                    )
+                    auth.createUserCredentials(tenant, mod_search_user)
                 }
 
                 if (params.greenmail_server){
