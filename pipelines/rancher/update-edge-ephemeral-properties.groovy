@@ -50,7 +50,7 @@ Project project_config = new Project(clusterName: params.rancher_cluster_name,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)],
-    installJson: installed_modules,          
+    installJson: installed_modules,
     configType: params.config_type)
 
 Email email = okapiSettings.email()
@@ -62,7 +62,7 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node(params.agent) {
+    node('rancher||jenkins-agent-java11') {
         try {
             if (params.create_tenant) {
                 stage("Create tenant") {
@@ -109,18 +109,18 @@ ansiColor('xterm') {
                             } else if (keyValue[0] == params.tenant_name && keyValue[1].contains(params.admin_username)) {
                                 existsTenant = true
                             }
-                            contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n" 
+                            contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n"
                         } else {
                             contentOfNewConfigMap += "$it\n"
                         }
                     }
 
                     if (!existsTenant) {
-                        contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"   
+                        contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
                     }
                     // Recreate existing ConfigMap with a new values
-                    writeFile file: configMapName, text: contentOfNewConfigMap 
-                    kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")  
+                    writeFile file: configMapName, text: contentOfNewConfigMap
+                    kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")
                 }
             }
             stage("Rollout Deployment") {

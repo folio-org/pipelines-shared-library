@@ -28,7 +28,7 @@ List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_re
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label 'rancher' }
 
     triggers {
         cron('H 3 * * *')

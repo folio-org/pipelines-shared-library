@@ -19,7 +19,7 @@ properties([
 ])
 def rancher_clusters = "folio-dev"
 
-node('jenkins-agent-java11') {
+node('rancher') {
         try {
             stage('Build project Job') {
                 if (params.action == 'apply' || params.action == 'destroy') {

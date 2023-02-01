@@ -12,7 +12,7 @@ String projectName = params.okapiUrl.minus("https://").split("-")[2]
 List edgeModulesRollout = []
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label 'rancher||jenkins-agent-java11' }
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
@@ -57,7 +57,7 @@ pipeline {
                 script {
                     def jsonContents = readJSON file: "edge-configuration.json"
                     jsonContents.each {
-                        String edgeName = it.name 
+                        String edgeName = it.name
                         String configMapName = "${edgeName}-ephemeral-properties"
                         edgeModulesRollout += edgeName
 
@@ -169,16 +169,16 @@ pipeline {
                     }
                 }
             }
-        }        
+        }
     }
     post {
         always {
             script {
                 if (params.createCustomEdgeTenant) {
                     helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, clusterName) 
+                        awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
                         findFiles(glob: "**/*-ephemeral-properties").each { file ->
-                            kubectl.recreateConfigMap(file.name, projectName, "./${file.name}")  
+                            kubectl.recreateConfigMap(file.name, projectName, "./${file.name}")
                         }
                         if (edgeModulesRollout) {
                             edgeModulesRollout.each { module ->
