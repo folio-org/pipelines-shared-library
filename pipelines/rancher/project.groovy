@@ -196,8 +196,7 @@ ansiColor('xterm') {
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
-                    private Authorization auth = new Authorization(steps, okapi_url)
-                    auth.createUserCredentials(tenant, mod_search_user)
+                    new Authorization(this, "https://${project_config.getDomains().okapi}").createUserCredentials(tenant, mod_search_user)
                 }
 
                 if (params.greenmail_server){
