@@ -237,8 +237,9 @@ ansiColor('xterm') {
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
+                    def checkUser = getUser(tenant, mod_search_user)
+                    mod_search_user.setUuid(checkUser.users[0].id)
                     new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
-                    new Authorization(this, "https://${project_config.getDomains().okapi}").createUserCredentials(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
