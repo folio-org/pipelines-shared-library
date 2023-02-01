@@ -234,11 +234,15 @@ ansiColor('xterm') {
                     //         }
                     //     }
                     // }
+
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
-                    def checkUser = new Users(this, "https://${project_config.getDomains().okapi}").getUser(tenant, mod_search_user)
+
+                    Users user = new Users(this, "https://${project_config.getDomains().okapi}")
+
+                    def checkUser = user.getUser(tenant, mod_search_user)
                     mod_search_user.setUuid(checkUser.users[0].id)
                     new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
                 }
