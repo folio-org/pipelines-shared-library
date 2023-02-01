@@ -4,6 +4,7 @@
 import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.Edge
+import org.folio.rest.Users
 import org.folio.rest.Authorization
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
@@ -183,16 +184,16 @@ ansiColor('xterm') {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
 
-                stage("Deploy okapi") {
-                    folioDeploy.okapi(project_config)
-                }
+                // stage("Deploy okapi") {
+                //     folioDeploy.okapi(project_config)
+                // }
 
-                stage("Deploy backend modules") {
-                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                    if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
-                    }
-                }
+                // stage("Deploy backend modules") {
+                //     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                //     if (install_backend_map) {
+                //         folioDeploy.backend(install_backend_map, project_config)
+                //     }
+                // }
 
                 if (params.greenmail_server){
                     stage("Deploy greenmail") {
@@ -200,44 +201,44 @@ ansiColor('xterm') {
                     }
                 }
 
-                stage("Pause") {
-                    // Wait for dns flush.
-                    sleep time: 5, unit: 'MINUTES'
-                }
+                // stage("Pause") {
+                //     // Wait for dns flush.
+                //     sleep time: 5, unit: 'MINUTES'
+                // }
 
-                stage("Health check") {
-                    // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-                }
+                // stage("Health check") {
+                //     // Checking the health of the Okapi service.
+                //     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+                // }
 
                 stage("Enable backend modules") {
-                    if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
-                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                            tenant.kb_api_key = cypress_api_key_apidvcorp
-                            Deployment deployment = new Deployment(
-                                this,
-                                "https://${project_config.getDomains().okapi}",
-                                "https://${project_config.getDomains().ui}",
-                                project_config.getInstallJson(),
-                                project_config.getInstallMap(),
-                                tenant,
-                                admin_user,
-                                superadmin_user,
-                                email
-                            )
-                            if (project_config.getRestoreFromBackup()) {
-                                deployment.cleanup()
-                                deployment.update()
-                            } else {
-                                deployment.main()
-                            }
-                        }
-                    }
+                    // if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
+                    //     withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                    //         tenant.kb_api_key = cypress_api_key_apidvcorp
+                    //         Deployment deployment = new Deployment(
+                    //             this,
+                    //             "https://${project_config.getDomains().okapi}",
+                    //             "https://${project_config.getDomains().ui}",
+                    //             project_config.getInstallJson(),
+                    //             project_config.getInstallMap(),
+                    //             tenant,
+                    //             admin_user,
+                    //             superadmin_user,
+                    //             email
+                    //         )
+                    //         if (project_config.getRestoreFromBackup()) {
+                    //             deployment.cleanup()
+                    //             deployment.update()
+                    //         } else {
+                    //             deployment.main()
+                    //         }
+                    //     }
+                    // }
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
-                    def checkUser = getUser(tenant, mod_search_user)
+                    def checkUser = users.getUser(tenant, mod_search_user)
                     mod_search_user.setUuid(checkUser.users[0].id)
                     new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
                 }
