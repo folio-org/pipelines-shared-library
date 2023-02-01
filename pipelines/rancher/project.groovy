@@ -238,7 +238,7 @@ ansiColor('xterm') {
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
-                    def checkUser = users.getUser(tenant, mod_search_user)
+                    def checkUser = new Users(this, "https://${project_config.getDomains().okapi}").getUser(tenant, mod_search_user)
                     mod_search_user.setUuid(checkUser.users[0].id)
                     new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
                 }
