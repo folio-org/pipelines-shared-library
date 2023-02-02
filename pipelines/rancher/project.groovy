@@ -234,15 +234,14 @@ ansiColor('xterm') {
                             }
                         }
                     }
-
                     
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-1"
                     )
                     println "DEBUG for mod-search"
-                    Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
-                    auth.resetUserPassword(tenant, mod_search_user)
+                    // Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
+                    // auth.resetUserPassword(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
