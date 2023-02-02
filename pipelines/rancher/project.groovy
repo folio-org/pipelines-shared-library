@@ -238,14 +238,10 @@ ansiColor('xterm') {
                     
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
-                        password: "Mod-search-1-0-0"
+                        password: "Mod-search-1-0-1"
                     )
                     println "DEBUG for mod-search"
-                    Users user = new Users(this, "https://${project_config.getDomains().okapi}")
                     Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
-                    // user.createUser(tenant, mod_search_user)
-                    def checkUser = user.getUser(tenant, mod_search_user)
-                    mod_search_user.setUuid(checkUser.users[0].id)
                     auth.resetUserPassword(tenant, mod_search_user)
                 }
 

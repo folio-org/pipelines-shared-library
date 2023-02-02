@@ -8,6 +8,8 @@ import org.folio.rest.model.OkapiUser
 
 class Authorization extends GeneralParameters {
 
+    private Users users = new Users(steps, okapi_url)
+    
     Authorization(Object steps, String okapi_url) {
         super(steps, okapi_url)
     }
@@ -123,6 +125,12 @@ class Authorization extends GeneralParameters {
     }
 
     void resetUserPassword(OkapiTenant tenant, OkapiUser user){
+
+        if (!user.uuid) {
+            def checkUser = users.getUser(tenant, user)
+            user.setUuid(checkUser.users[0].id)
+        }
+
         getOkapiToken(tenant, tenant.getAdminUser())
         String passResetActionUrl = okapi_url + "/authn/password-reset-action"
         String resetPassUrl = okapi_url + "/authn/reset-password"
