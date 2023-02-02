@@ -241,10 +241,10 @@ ansiColor('xterm') {
                     )
 
                     Users user = new Users(this, "https://${project_config.getDomains().okapi}")
-                    user.createUser(tenant, mod_search_user)
+                    // user.createUser(tenant, mod_search_user)
                     def checkUser = user.getUser(tenant, mod_search_user)
-                    // // mod_search_user.setUuid(checkUser.users[0].id)
-                    // new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
+                    mod_search_user.setUuid(checkUser.users[0].id)
+                    new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
