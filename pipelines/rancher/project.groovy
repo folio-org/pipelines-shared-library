@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-622') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -234,7 +234,6 @@ ansiColor('xterm') {
                             if (project_config.getRestoreFromBackup()) {
                                 deployment.cleanup()
                                 deployment.update()
-                                println "DEBUG for mod-search"
                                 Users user = new Users(this, "https://${project_config.getDomains().okapi}")
                                 user.resetUserPassword(tenant, mod_search_user)
                             } else {

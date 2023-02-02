@@ -7,7 +7,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.rest.model.OkapiUser
 
 class Authorization extends GeneralParameters {
-    
+
     Authorization(Object steps, String okapi_url) {
         super(steps, okapi_url)
     }
