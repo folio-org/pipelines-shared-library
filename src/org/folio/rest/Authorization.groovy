@@ -29,6 +29,8 @@ class Authorization extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         def res = http.getRequest(url, headers)
+        logger.info("DEBUG ${res} ")
+        logger.info("DEBUG ${res.status} ")
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
         } else {
