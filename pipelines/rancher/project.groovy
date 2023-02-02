@@ -212,37 +212,37 @@ ansiColor('xterm') {
                 // }
 
                 stage("Enable backend modules") {
-                    // if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
-                    //     withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                    //         tenant.kb_api_key = cypress_api_key_apidvcorp
-                    //         Deployment deployment = new Deployment(
-                    //             this,
-                    //             "https://${project_config.getDomains().okapi}",
-                    //             "https://${project_config.getDomains().ui}",
-                    //             project_config.getInstallJson(),
-                    //             project_config.getInstallMap(),
-                    //             tenant,
-                    //             admin_user,
-                    //             superadmin_user,
-                    //             email
-                    //         )
-                    //         if (project_config.getRestoreFromBackup()) {
-                    //             deployment.cleanup()
-                    //             deployment.update()
-                    //         } else {
-                    //             deployment.main()
-                    //         }
-                    //     }
-                    // }
+                    if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
+                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                            tenant.kb_api_key = cypress_api_key_apidvcorp
+                            Deployment deployment = new Deployment(
+                                this,
+                                "https://${project_config.getDomains().okapi}",
+                                "https://${project_config.getDomains().ui}",
+                                project_config.getInstallJson(),
+                                project_config.getInstallMap(),
+                                tenant,
+                                admin_user,
+                                superadmin_user,
+                                email
+                            )
+                            if (project_config.getRestoreFromBackup()) {
+                                deployment.cleanup()
+                                deployment.update()
+                            } else {
+                                deployment.main()
+                            }
+                        }
+                    }
 
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
                     )
-                    Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
+
                     Users user = new Users(this, "https://${project_config.getDomains().okapi}")
                     user.createUser(tenant, mod_search_user)
-                    // def checkUser = user.getUser(tenant, mod_search_user)
+                    def checkUser = user.getUser(tenant, mod_search_user)
                     // // mod_search_user.setUuid(checkUser.users[0].id)
                     // new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
                 }
