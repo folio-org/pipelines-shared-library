@@ -184,16 +184,16 @@ ansiColor('xterm') {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
                 }
 
-                stage("Deploy okapi") {
-                    folioDeploy.okapi(project_config)
-                }
+                // stage("Deploy okapi") {
+                //     folioDeploy.okapi(project_config)
+                // }
 
-                stage("Deploy backend modules") {
-                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                    if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
-                    }
-                }
+                // stage("Deploy backend modules") {
+                //     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                //     if (install_backend_map) {
+                //         folioDeploy.backend(install_backend_map, project_config)
+                //     }
+                // }
 
                 if (params.greenmail_server){
                     stage("Deploy greenmail") {
@@ -201,15 +201,15 @@ ansiColor('xterm') {
                     }
                 }
 
-                stage("Pause") {
-                    // Wait for dns flush.
-                    sleep time: 5, unit: 'MINUTES'
-                }
+                // stage("Pause") {
+                //     // Wait for dns flush.
+                //     sleep time: 5, unit: 'MINUTES'
+                // }
 
-                stage("Health check") {
-                    // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-                }
+                // stage("Health check") {
+                //     // Checking the health of the Okapi service.
+                //     common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+                // }
 
                 stage("Enable backend modules") {
                     if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
@@ -234,14 +234,19 @@ ansiColor('xterm') {
                             }
                         }
                     }
+
                     
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-1"
                     )
                     println "DEBUG for mod-search"
-                    // Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
-                    // auth.resetUserPassword(tenant, mod_search_user)
+                    Users user = new Users(this, "https://${project_config.getDomains().okapi}")
+                    Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
+
+                    def checkUser = user.getUser(tenant, mod_search_user)
+                    mod_search_user.setUuid(checkUser.users[0].id)
+                    auth.resetUserPassword(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
