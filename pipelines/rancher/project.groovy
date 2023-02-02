@@ -244,7 +244,7 @@ ansiColor('xterm') {
                     // user.createUser(tenant, mod_search_user)
                     def checkUser = user.getUser(tenant, mod_search_user)
                     mod_search_user.setUuid(checkUser.users[0].id)
-                    new Authorization(this, "https://${project_config.getDomains().okapi}").getUserCredentials(tenant, mod_search_user)
+                    new Authorization(this, "https://${project_config.getDomains().okapi}").createUserCredentials(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
