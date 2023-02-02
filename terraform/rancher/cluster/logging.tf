@@ -33,7 +33,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   name          = "elasticsearch"
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
-  chart_version = "17.9.29" #"19.1.4"
+  chart_version = "19.1.4" #"19.1.4"
   values        = <<-EOT
     global:
       kibanaEnabled: true
@@ -167,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.14.1-debian-10-r28
+      tag: 1.15.1-debian-11-r11
     aggregator:
       configMap: elasticsearch-output
       extraEnvVars:
