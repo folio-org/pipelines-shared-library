@@ -96,6 +96,11 @@ Project project_config = new Project(
 Map tf = [working_dir: 'terraform/rancher/project',
           variables  : '']
 
+OkapiUser mod_search_user = new OkapiUser(
+    username: "mod-search",
+    password: "Mod-search-1-0-0"
+)
+
 ansiColor('xterm') {
     if (params.refresh_parameters) {
         currentBuild.result = 'ABORTED'
@@ -235,18 +240,13 @@ ansiColor('xterm') {
                         }
                     }
 
-                    
-                    OkapiUser mod_search_user = new OkapiUser(
-                        username: "mod-search",
-                        password: "Mod-search-1-0-1"
-                    )
                     println "DEBUG for mod-search"
                     Users user = new Users(this, "https://${project_config.getDomains().okapi}")
-                    Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
+                    // Authorization auth = new Authorization(this, "https://${project_config.getDomains().okapi}")
 
-                    def checkUser = user.getUser(tenant, mod_search_user)
-                    mod_search_user.setUuid(checkUser.users[0].id)
-                    auth.resetUserPassword(tenant, mod_search_user)
+                    // def checkUser = user.getUser(tenant, mod_search_user)
+                    // mod_search_user.setUuid(checkUser.users[0].id)
+                    user.resetUserPassword(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
