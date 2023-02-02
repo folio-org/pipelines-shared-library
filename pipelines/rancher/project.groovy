@@ -234,15 +234,14 @@ ansiColor('xterm') {
                             if (project_config.getRestoreFromBackup()) {
                                 deployment.cleanup()
                                 deployment.update()
+                                println "DEBUG for mod-search"
+                                Users user = new Users(this, "https://${project_config.getDomains().okapi}")
+                                user.resetUserPassword(tenant, mod_search_user)
                             } else {
                                 deployment.main()
                             }
                         }
                     }
-
-                    println "DEBUG for mod-search"
-                    Users user = new Users(this, "https://${project_config.getDomains().okapi}")
-                    user.resetUserPassword(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {
