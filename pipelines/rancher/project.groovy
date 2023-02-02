@@ -235,6 +235,7 @@ ansiColor('xterm') {
                         }
                     }
 
+                    
                     OkapiUser mod_search_user = new OkapiUser(
                         username: "mod-search",
                         password: "Mod-search-1-0-0"
@@ -245,8 +246,7 @@ ansiColor('xterm') {
                     // user.createUser(tenant, mod_search_user)
                     def checkUser = user.getUser(tenant, mod_search_user)
                     mod_search_user.setUuid(checkUser.users[0].id)
-                    auth.deleteUserCredentials(tenant, mod_search_user)
-                    auth.createUserCredentials(tenant, mod_search_user)
+                    auth.resetUserPassword(tenant, mod_search_user)
                 }
 
                 stage("Deploy edge modules") {

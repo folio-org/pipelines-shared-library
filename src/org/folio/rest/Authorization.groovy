@@ -29,8 +29,6 @@ class Authorization extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
         def res = http.getRequest(url, headers)
-        logger.info("DEBUG ${res} ")
-        logger.info("DEBUG ${res.status} ")
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
         } else {
@@ -66,36 +64,6 @@ class Authorization extends GeneralParameters {
             }
         } else {
             logger.info("${user.username} credentials already set")
-        }
-    }
-
-    /**
-     * Create credentials entry for user
-     * @param tenant
-     * @param user
-     */
-    void deleteUserCredentials(OkapiTenant tenant, OkapiUser user) {
-        if (!user.uuid) {
-            throw new AbortException("${user.username} uuid does not specified")
-        }
-        getOkapiToken(tenant, tenant.getAdminUser())
-        String url = okapi_url + "/authn/credentials"
-        ArrayList headers = [
-            [name: 'Content-type', value: "application/json"],
-            [name: 'X-Okapi-Tenant', value: tenant.getId()],
-            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
-        ]
-        if (getUserCredentials(tenant, user).credentialsExist) {
-            logger.info("Deleting credentials from ${user.username} user")
-            String body = JsonOutput.toJson([userId  : user.uuid])
-            def res = http.deleteRequest(url, body, headers)
-            if (res.status == HttpURLConnection.HTTP_NO_CONTENT) {
-                logger.info("${user.username} credentials successfully deleted")
-            } else {
-                throw new AbortException("Can not delete credentials for ${user.username}." + http.buildHttpErrorMessage(res))
-            }
-        } else {
-            logger.info("No credentials set to ${user.username} user")
         }
     }
 
@@ -152,5 +120,33 @@ class Authorization extends GeneralParameters {
     void adminUserLogin(OkapiTenant tenant, OkapiUser admin_user){
         admin_user.setToken(getOkapiToken(tenant, admin_user))
         tenant.setAdminUser(admin_user)
+    }
+
+    void resetUserPassword(OkapiTenant tenant, OkapiUser user){
+        getOkapiToken(tenant, tenant.getAdminUser())
+        String passResetActionUrl = okapi_url + "/authn/password-reset-action"
+        String resetPassUrl = okapi_url + "/authn/reset-password"
+        String passwordResetActionId = UUID.randomUUID().toString()
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+
+        logger.info("${user.username} does not have credentials. Creating...")
+        String passResetActionBody = JsonOutput.toJson([userId  : user.uuid,
+                                        id : passwordResetActionId,
+                                        expirationTime : 200])
+        def res = http.postRequest(passResetActionUrl, passResetActionBody, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            logger.info("${user.username} credentials successfully set")
+        } else {
+            throw new AbortException("Can not set credentials for ${user.username}." + http.buildHttpErrorMessage(res))
+        }
+
+        String resetPassBody = JsonOutput.toJson([passwordResetActionId  : passwordResetActionId,
+                                                newPassword : user.password])
+        http.postRequest(resetPassUrl, resetPassBody, headers)
+
     }
 }
