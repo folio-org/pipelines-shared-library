@@ -142,19 +142,22 @@ class Users extends GeneralParameters {
             [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
         ]
 
-        logger.info("${user.username} does not have credentials. Creating...")
         String passResetActionBody = JsonOutput.toJson([userId  : user.uuid,
                                         id : passwordResetActionId,
                                         expirationTime : 200])
-        def res = http.postRequest(passResetActionUrl, passResetActionBody, headers)
-        if (res.status == HttpURLConnection.HTTP_CREATED) {
-            logger.info("${user.username} credentials successfully set")
-        } else {
-            throw new AbortException("Can not set credentials for ${user.username}." + http.buildHttpErrorMessage(res))
-        }
-
         String resetPassBody = JsonOutput.toJson([passwordResetActionId  : passwordResetActionId,
                                                 newPassword : user.password])
-        http.postRequest(resetPassUrl, resetPassBody, headers)
+                                                
+        logger.info("Reseting password for ${user.username} user...")
+        // Set password rest action ID
+        http.postRequest(passResetActionUrl, passResetActionBody, headers)
+
+        logger.info("Changing password for ${user.username} user...")
+        def res = http.postRequest(resetPassUrl, resetPassBody, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            logger.info("${user.username} password successfully changed")
+        } else {
+            throw new AbortException("Password for ${user.username} user not changed." + http.buildHttpErrorMessage(res))
+        }
     }
 }
