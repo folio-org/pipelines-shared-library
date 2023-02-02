@@ -41,9 +41,6 @@ class Users extends GeneralParameters {
         String url = okapi_url + "/users?query=username%3d%3d" + user.username
         ArrayList headers = [[name: 'X-Okapi-Tenant', value: tenant.getId()],
                              [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]]
-        logger.info("DEBUG ${tenant.getAdminUser()} ")
-        logger.info("DEBUG ${tenant.getAdminUser().getToken()} ")
-        logger.info("DEBUG ${headers} ")
         def res = http.getRequest(url, headers)
         if (res.status == HttpURLConnection.HTTP_OK) {
             return tools.jsonParse(res.content)
