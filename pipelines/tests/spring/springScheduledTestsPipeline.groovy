@@ -11,7 +11,7 @@ def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 def prototypeTenant = "diku"
 
 pipeline {
-    agent { label 'jenkins-agent-java11' }
+    agent { label 'rancher' }
 
     triggers {
         cron('H 20 * * *')
