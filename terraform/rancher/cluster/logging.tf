@@ -167,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.15.1-debian-11-r11
+      tag: 1.15.1-debian-11-r10
     aggregator:
       enabled: true
       configMap: elasticsearch-output
