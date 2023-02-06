@@ -94,7 +94,7 @@ static List devEnvironmentsList() {
             'folijet',
             'folijet-lotus',
             'metadata',
-            'nest-obj-es',
+            'nest-es',
             'prokopovych',
             'scout',
             'spanish',
