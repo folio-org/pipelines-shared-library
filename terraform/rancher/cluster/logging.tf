@@ -167,7 +167,7 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.14.1-debian-10-r28
+      tag: 1.15.1-debian-11-r11
     aggregator:
       enabled: true
       configMap: elasticsearch-output
@@ -176,6 +176,10 @@ resource "rancher2_app_v2" "fluentd" {
           value: "elasticsearch-master"
         - name: ELASTICSEARCH_PORT
           value: "9200"
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
 
   EOT
 }
