@@ -4,6 +4,8 @@
 import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.Edge
+import org.folio.rest.Users
+import org.folio.rest.Authorization
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.LdpConfig
@@ -93,6 +95,11 @@ Project project_config = new Project(
 
 Map tf = [working_dir: 'terraform/rancher/project',
           variables  : '']
+
+OkapiUser mod_search_user = new OkapiUser(
+    username: "mod-search",
+    password: "Mod-search-1-0-0"
+)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -227,6 +234,8 @@ ansiColor('xterm') {
                             if (project_config.getRestoreFromBackup()) {
                                 deployment.cleanup()
                                 deployment.update()
+                                Users user = new Users(this, "https://${project_config.getDomains().okapi}")
+                                user.resetUserPassword(tenant, mod_search_user)
                             } else {
                                 deployment.main()
                             }
