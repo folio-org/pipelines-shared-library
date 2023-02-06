@@ -33,7 +33,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   name          = "elasticsearch"
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
-  chart_version = "18.2.6" #"19.1.4"
+  chart_version = "19.1.4" #"19.1.4"
   values        = <<-EOT
     global:
       kibanaEnabled: true
@@ -167,16 +167,16 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.15.1-debian-11-r10
+      tag: 1.14.1-debian-10-r28
     aggregator:
+      enabled: true
       configMap: elasticsearch-output
       extraEnvVars:
         - name: ELASTICSEARCH_HOST
           value: "elasticsearch-master"
         - name: ELASTICSEARCH_PORT
           value: "9200"
-        - name: K8S_NODE_NAME
-          value: "${rancher2_namespace.logging[0].name}"
+
   EOT
 }
 
