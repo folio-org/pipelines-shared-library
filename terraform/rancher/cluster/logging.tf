@@ -130,7 +130,7 @@ data:
 
     # Send the logs to the standard output
     <match **>
-      @type elasticsearch_dynamic
+      @type elasticsearch
       include_tag_key true
       host "#{ENV['ELASTICSEARCH_HOST']}"
       port "#{ENV['ELASTICSEARCH_PORT']}"
