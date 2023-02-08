@@ -176,7 +176,7 @@ resource "rancher2_app_v2" "fluentd" {
       configMap: elasticsearch-output
       extraEnvVars:
         - name: ELASTICSEARCH_HOST
-          value: "elasticsearch-master"
+          value: "elasticsearch-master-hl"
         - name: ELASTICSEARCH_PORT
           value: "9200"
         - name: K8S_NODE_NAME
