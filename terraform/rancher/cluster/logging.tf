@@ -105,9 +105,12 @@ data:
   fluentd.conf: |
 
     # Ignore fluentd own events
-    <match fluent.**>
-      @type null
-    </match>
+    <label @FLUENT_LOG>
+      <match fluent.**>
+        @type null
+        @id ignore_fluent_logs
+      </match>
+    </label>
 
     # TCP input to receive logs from the forwarders
     <source>
@@ -167,7 +170,7 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.15.1-debian-11-r10
+      tag: 1.15.1-debian-11-r11
     aggregator:
       enabled: true
       configMap: elasticsearch-output
