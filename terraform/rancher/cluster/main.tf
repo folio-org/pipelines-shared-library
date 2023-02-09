@@ -21,6 +21,9 @@ resource "rancher2_cluster" "this" {
     region              = var.aws_region
     imported            = true
   }
+  timeouts {
+    create = "60m"
+  }
 }
 
 #Syncing the cluster with Rancher.
