@@ -125,4 +125,39 @@ class Users extends GeneralParameters {
             throw new AbortException("Can not get patron groups." + http.buildHttpErrorMessage(res))
         }
     }
+
+    void resetUserPassword(OkapiTenant tenant, OkapiUser user){
+        if (!user.uuid) {
+            def checkUser = getUser(tenant, user)
+            user.setUuid(checkUser.users[0].id)
+        }
+
+        auth.getOkapiToken(tenant, tenant.getAdminUser())
+        String passResetActionUrl = okapi_url + "/authn/password-reset-action"
+        String resetPassUrl = okapi_url + "/authn/reset-password"
+        String passwordResetActionId = UUID.randomUUID().toString()
+        ArrayList headers = [
+            [name: 'Content-type', value: "application/json"],
+            [name: 'X-Okapi-Tenant', value: tenant.getId()],
+            [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+        ]
+
+        String passResetActionBody = JsonOutput.toJson([userId  : user.uuid,
+                                        id : passwordResetActionId,
+                                        expirationTime : 200])
+        String resetPassBody = JsonOutput.toJson([passwordResetActionId  : passwordResetActionId,
+                                                newPassword : user.password])
+                                                
+        logger.info("Reseting password for ${user.username} user...")
+        // Set password rest action ID
+        http.postRequest(passResetActionUrl, passResetActionBody, headers)
+
+        logger.info("Changing password for ${user.username} user...")
+        def res = http.postRequest(resetPassUrl, resetPassBody, headers)
+        if (res.status == HttpURLConnection.HTTP_CREATED) {
+            logger.info("${user.username} password successfully changed")
+        } else {
+            throw new AbortException("Password for ${user.username} user not changed." + http.buildHttpErrorMessage(res))
+        }
+    }
 }

@@ -90,6 +90,7 @@ class Constants {
                                     "scout"        : ["scout"],
                                     "spanish"      : ["unam"],
                                     "spitfire"     : ["spitfire"],
+                                    "nest-es"      : ["spitfire"],
                                     "sprint"       : [],
                                     "stripes-force": ["stripes-force"],
                                     "tamu"         : [],

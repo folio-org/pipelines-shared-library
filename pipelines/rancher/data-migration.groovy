@@ -39,7 +39,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('jenkins-agent-java11') {
+    node('rancher') {
         try {
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,

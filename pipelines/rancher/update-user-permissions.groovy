@@ -56,7 +56,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node(params.agent) {
+    node('rancher||jenkins-agent-java11') {
         try {
             stage("Update user permissions") {
                 Deployment deployment = new Deployment(
