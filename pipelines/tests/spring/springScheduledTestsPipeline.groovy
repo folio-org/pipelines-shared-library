@@ -40,9 +40,7 @@ pipeline {
                         password         : 'admin',
                         cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
                         customBuildName  : JOB_BASE_NAME,
-                        timeout          : '6',
-                        testrailProjectID: '14',
-                        testrailRunID    : '2108'
+                        timeout          : '6'
                     ]
                     cypressStages(jobParameters)
                 }
