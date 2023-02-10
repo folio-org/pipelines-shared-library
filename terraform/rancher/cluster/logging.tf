@@ -51,6 +51,7 @@ resource "rancher2_app_v2" "elasticsearch" {
       enabled: true
       hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
       path: "/*"
+      serviceName: "elasticsearch-master-hl"
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
