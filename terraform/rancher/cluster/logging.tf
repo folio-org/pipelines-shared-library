@@ -178,11 +178,6 @@ resource "rancher2_app_v2" "fluentd" {
           value: "elasticsearch-master-hl"
         - name: ELASTICSEARCH_PORT
           value: "9200"
-        - name: K8S_NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-
   EOT
 }
 
