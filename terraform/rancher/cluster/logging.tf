@@ -133,7 +133,7 @@ data:
 
     # Send the logs to the standard output
     <match **>
-      @type elasticsearch
+      @type elasticsearch_dynamic
       include_tag_key true
       host "#{ENV['ELASTICSEARCH_HOST']}"
       port "#{ENV['ELASTICSEARCH_PORT']}"
@@ -172,7 +172,6 @@ resource "rancher2_app_v2" "fluentd" {
     image:
       tag: 1.15.1-debian-11-r11
     aggregator:
-      enabled: true
       configMap: elasticsearch-output
       extraEnvVars:
         - name: ELASTICSEARCH_HOST
