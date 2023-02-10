@@ -49,9 +49,11 @@ resource "rancher2_app_v2" "elasticsearch" {
         type: NodePort
     ingress:
       enabled: true
-      hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
       path: "/*"
-      serviceName: "elasticsearch-master-hl"
+      hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
+      extraPaths:
+        - hosts:
+            - "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
