@@ -33,7 +33,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   name          = "elasticsearch"
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
-  chart_version = "19.1.4" #"19.1.4"
+  chart_version = "19.1.0" #"19.1.4"
   values        = <<-EOT
     global:
       kibanaEnabled: true
