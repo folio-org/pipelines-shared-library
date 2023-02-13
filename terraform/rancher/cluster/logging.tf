@@ -7,7 +7,7 @@ resource "rancher2_project" "logging" {
   cluster_id                = rancher2_cluster_sync.this[0].cluster_id
   enable_project_monitoring = false
   container_resource_limit {
-    limits_memory   = "512Mi"
+    limits_memory   = "1024Mi"
     requests_memory = "256Mi"
   }
 }
@@ -19,7 +19,7 @@ resource "rancher2_namespace" "logging" {
   project_id  = rancher2_project.logging[0].id
   description = "Project logging namespace"
   container_resource_limit {
-    limits_memory   = "512Mi"
+    limits_memory   = "1024Mi"
     requests_memory = "256Mi"
   }
 }
@@ -37,14 +37,17 @@ resource "rancher2_app_v2" "elasticsearch" {
   values        = <<-EOT
     global:
       kibanaEnabled: true
+    extraConfig:
+      http:
+        max_content_length: 200mb
     master:
-      heapSize: 1024m
+      heapSize: 2560m
       replicas: 2
       resources:
         requests:
           memory: 512Mi
         limits:
-          memory: 2048Mi
+          memory: 3096Mi
       service:
         type: NodePort
       ingress:
@@ -60,13 +63,14 @@ resource "rancher2_app_v2" "elasticsearch" {
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
     data:
+      heapSize: 1536m
       persistence:
         size: 100Gi
       resources:
         requests:
           memory: 1536Mi
         limits:
-          memory: 2048Mi
+          memory: 2560Mi
     kibana:
       resources:
         requests:
@@ -137,6 +141,10 @@ data:
       scheme http
       logstash_format true
       suppress_type_name true
+      reconnect_on_error true
+      reload_on_failure true
+      reload_connections false
+      request_timeout 120s
       logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
       <buffer>
         @type file
@@ -144,12 +152,10 @@ data:
         retry_max_times 3
         retry_wait 10
         retry_max_interval 300
-        reconnect_on_error true
-        reload_on_failure true
-        reload_connections false
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 8
-        flush_interval 5s
+        flush_thread_count 4
+        flush_interval 15s
+        chunk_limit_size 80M
       </buffer>
     </match>
   YAML
@@ -168,7 +174,55 @@ resource "rancher2_app_v2" "fluentd" {
   values        = <<-EOT
     image:
       tag: 1.14.1-debian-10-r28
+    forwarder:
+      fluentd-output.conf: |
+        # Throw the healthcheck to the standard output instead of forwarding it
+        <match fluentd.healthcheck>
+          @type stdout
+        </match>
+        {{- if .Values.aggregator.enabled }}
+        # Forward all logs to the aggregators
+        <match **>
+          @type forward
+          {{- if .Values.tls.enabled }}
+          transport tls
+          tls_cert_path /opt/bitnami/fluentd/certs/out_forward/ca.crt
+          tls_client_cert_path /opt/bitnami/fluentd/certs/out_forward/tls.crt
+          tls_client_private_key_path /opt/bitnami/fluentd/certs/out_forward/tls.key
+          {{- end }}
+          {{- $fullName := (include "common.names.fullname" .) }}
+          {{- $global := . }}
+          {{- $domain := default "cluster.local" .Values.clusterDomain }}
+          {{- $port := .Values.aggregator.port | int }}
+          {{- range $i, $e := until (.Values.aggregator.replicaCount | int) }}
+          <server>
+            {{ printf "host %s-%d.%s-headless.%s.svc.%s" $fullName $i $fullName $global.Release.Namespace $domain }}
+            {{ printf "port %d" $port }}
+            {{- if ne $i 0 }}
+            standby
+            {{- end }}
+          </server>
+          {{- end }}
+          <buffer>
+            @type file
+            path /opt/bitnami/fluentd/logs/buffers/logs.buffer
+            flush_thread_count 2
+            flush_interval 5s
+            chunk_limit_size 80M
+          </buffer>
+        </match>
+        {{- else }}
+        # Send the logs to the standard output
+        <match **>
+          @type stdout
+        </match>
+        {{- end }}
     aggregator:
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 2048Mi
       configMap: elasticsearch-output
       extraEnvVars:
         - name: ELASTICSEARCH_HOST
