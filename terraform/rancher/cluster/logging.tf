@@ -1,28 +1,28 @@
-#Creating a new project in Rancher.
-resource "rancher2_project" "logging" {
-  depends_on                = [time_sleep.wait_300_seconds]
-  count                     = var.register_in_rancher ? 1 : 0
-  provider                  = rancher2
-  name                      = "logging"
-  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
-  enable_project_monitoring = false
-  container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
-  }
-}
-
-# Create a new rancher2 Namespace assigned to cluster project
-resource "rancher2_namespace" "logging" {
-  count       = var.register_in_rancher ? 1 : 0
-  name        = "logging"
-  project_id  = rancher2_project.logging[0].id
-  description = "Project logging namespace"
-  container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
-  }
-}
+##Creating a new project in Rancher.
+#resource "rancher2_project" "logging" {
+#  depends_on                = [time_sleep.wait_300_seconds]
+#  count                     = var.register_in_rancher ? 1 : 0
+#  provider                  = rancher2
+#  name                      = "logging"
+#  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
+#  enable_project_monitoring = false
+#  container_resource_limit {
+#    limits_memory   = "512Mi"
+#    requests_memory = "256Mi"
+#  }
+#}
+#
+## Create a new rancher2 Namespace assigned to cluster project
+#resource "rancher2_namespace" "logging" {
+#  count       = var.register_in_rancher ? 1 : 0
+#  name        = "logging"
+#  project_id  = rancher2_project.logging[0].id
+#  description = "Project logging namespace"
+#  container_resource_limit {
+#    limits_memory   = "512Mi"
+#    requests_memory = "256Mi"
+#  }
+#}
 #
 ## Create rancher2 Elasticsearch app in logging namespace
 #resource "rancher2_app_v2" "elasticsearch" {
@@ -157,59 +157,59 @@ resource "rancher2_namespace" "logging" {
 #    </match>
 #  YAML
 #}
-
+#
 # Create rancher2 Elasticsearch app in logging namespace
-resource "rancher2_app_v2" "fluentd" {
-  depends_on    = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output]
-  count         = var.register_in_rancher ? 1 : 0
-  cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.logging[0].name
-  name          = "fluentd"
-  repo_name     = "bitnami"
-  chart_name    = "fluentd"
-  chart_version = "5.3.0"
-  values        = <<-EOT
-    image:
-      tag: 1.15.1-debian-11-r11
-    aggregator:
-      configMap: elasticsearch-output
-      extraEnvVars:
-        - name: ELASTICSEARCH_HOST
-          value: "elasticsearch-master-hl"
-        - name: ELASTICSEARCH_PORT
-          value: "9200"
-  EOT
-}
-
-// Create an index lifecycle policy
-resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
-  depends_on = [rancher2_app_v2.elasticsearch]
-  count      = var.register_in_rancher ? 1 : 0
-  name       = var.index_policy_name
-
-  hot {
-    min_age = "0ms"
-    set_priority {
-      priority = 100
-    }
-  }
-
-  delete {
-    min_age = "7d"
-    delete {}
-  }
-
-}
-
-// Create an index template for the policy
-resource "elasticstack_elasticsearch_index_template" "index_template" {
-  count          = var.register_in_rancher ? 1 : 0
-  name           = var.index_template_name
-  index_patterns = ["logstash*"]
-
-  template {
-    settings = jsonencode({
-      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy[0].name
-    })
-  }
-}
+#resource "rancher2_app_v2" "fluentd" {
+#  depends_on    = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output]
+#  count         = var.register_in_rancher ? 1 : 0
+#  cluster_id    = rancher2_cluster_sync.this[0].cluster_id
+#  namespace     = rancher2_namespace.logging[0].name
+#  name          = "fluentd"
+#  repo_name     = "bitnami"
+#  chart_name    = "fluentd"
+#  chart_version = "5.3.0"
+#  values        = <<-EOT
+#    image:
+#      tag: 1.15.1-debian-11-r11
+#    aggregator:
+#      configMap: elasticsearch-output
+#      extraEnvVars:
+#        - name: ELASTICSEARCH_HOST
+#          value: "elasticsearch-master-hl"
+#        - name: ELASTICSEARCH_PORT
+#          value: "9200"
+#  EOT
+#}
+#
+#// Create an index lifecycle policy
+#resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
+#  depends_on = [rancher2_app_v2.elasticsearch]
+#  count      = var.register_in_rancher ? 1 : 0
+#  name       = var.index_policy_name
+#
+#  hot {
+#    min_age = "0ms"
+#    set_priority {
+#      priority = 100
+#    }
+#  }
+#
+#  delete {
+#    min_age = "7d"
+#    delete {}
+#  }
+#
+#}
+#
+#// Create an index template for the policy
+#resource "elasticstack_elasticsearch_index_template" "index_template" {
+#  count          = var.register_in_rancher ? 1 : 0
+#  name           = var.index_template_name
+#  index_patterns = ["logstash*"]
+#
+#  template {
+#    settings = jsonencode({
+#      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy[0].name
+#    })
+#  }
+#}
