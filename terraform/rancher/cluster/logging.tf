@@ -45,8 +45,8 @@ resource "rancher2_app_v2" "elasticsearch" {
           memory: 512Mi
         limits:
           memory: 2048Mi
-      service:
-        type: NodePort
+    service:
+      type: NodePort
     ingress:
       enabled: true
       path: "/*"
