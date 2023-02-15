@@ -116,6 +116,7 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
+                CYPRESS_API_URL = "https://folio-testing-sc-api.ci.folio.org"
             }
             steps {
                 script {
@@ -130,10 +131,10 @@ pipeline {
                                     env.CYPRESS_allureReuseAfterSpec = "true"
                                     println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                        sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                        sh "cypress run --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                     }
                                 } else {
-                                    sh "cypress run --headless --browser ${browserName} ${params.cypressParameters}"
+                                    sh "cypress run --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                 }
                             }
                         }
