@@ -131,10 +131,10 @@ pipeline {
                                     env.CYPRESS_allureReuseAfterSpec = "true"
                                     println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                        sh "cypress run --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
+                                        sh "cypress run --config projectId=stripes --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                     }
                                 } else {
-                                    sh "cypress run --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
+                                    sh "cypress run --config projectId=stripes --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                 }
                             }
                         }
