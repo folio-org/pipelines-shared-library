@@ -116,7 +116,7 @@ pipeline {
                 CYPRESS_OKAPI_TENANT = "${params.tenant}"
                 CYPRESS_diku_login = "${params.user}"
                 CYPRESS_diku_password = "${params.password}"
-                CYPRESS_API_URL = "https://folio-testing-sc-director.ci.folio.org/api"
+                CYPRESS_API_URL = "https://folio-testing-sc-api.ci.folio.org/api"
             }
             steps {
                 script {
