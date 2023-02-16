@@ -119,7 +119,6 @@ pipeline {
                 CYPRESS_diku_password = "${params.password}"
                 CYPRESS_API_URL = "https://folio-testing-sc-director.ci.folio.org/"
                 AWS_DEFAULT_REGION = "us-west-2"
-                DEBUG = "cypress:* cypress open"
             }
             steps {
                 script {
