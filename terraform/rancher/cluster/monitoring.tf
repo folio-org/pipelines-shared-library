@@ -61,7 +61,7 @@ resource "rancher2_app_v2" "prometheus" {
     prometheus:
       server:
         global:
-          scrape_interval: 30s
+          scrape_interval: 120s
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
@@ -69,14 +69,14 @@ resource "rancher2_app_v2" "prometheus" {
           requests:
             memory: 1024Mi
           limits:
-            memory: 4096Mi
+            memory: 5120Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
               storageClassName: gp2
               resources:
                requests:
-                 storage: 20Gi
+                 storage: 100Gi
         additionalScrapeConfigs:
         - job_name: kubecost
           honor_labels: true
