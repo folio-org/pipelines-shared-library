@@ -547,13 +547,13 @@ mod-inn-reach:
       memory: '512Mi'
 mod-inventory:
   dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
+  javaOptions: '-XX:MaxRAMPercentage=85.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '853Mi'
+      memory: '2048Mi'
     requests:
       memory: '683Mi'
 mod-inventory-storage:
@@ -778,7 +778,7 @@ mod-permissions:
     requests:
       memory: '683Mi'
 mod-pubsub:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:+HeapDumpOnOutOfMemoryError'
+  javaOptions: '-XX:MaxRAMPercentage=85.0 -XX:+HeapDumpOnOutOfMemoryError'
   postJob:
     enabled: false
   replicaCount: 1
