@@ -124,18 +124,23 @@ pipeline {
                     ansiColor('xterm') {
                         timeout(time: "${params.timeout}", unit: 'HOURS') {
                             catchError (buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                                if (params.testrailRunID && params.testrailProjectID) {
-                                    // Run with TesTrail Integration
-                                    env.TESTRAIL_HOST = "https://foliotest.testrail.io"
-                                    env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
-                                    env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
-                                    env.CYPRESS_allureReuseAfterSpec = "true"
-                                    println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
-                                    withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                                withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                                  credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                                    if (params.testrailRunID && params.testrailProjectID) {
+                                        // Run with TesTrail Integration
+                                        env.TESTRAIL_HOST = "https://foliotest.testrail.io"
+                                        env.TESTRAIL_PROJECTID = "${params.testrailProjectID}"
+                                        env.TESTRAIL_RUN_ID = "${params.testrailRunID}"
+                                        env.CYPRESS_allureReuseAfterSpec = "true"
+                                        println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
+                                        withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                                            sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
+                                        }
+                                    } else {
                                         sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                     }
-                                } else {
-                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --parallel --record --key somekey --ci-build-id ${BUILD_NUMBER} --browser ${browserName} ${params.cypressParameters}"
                                 }
                             }
                         }
