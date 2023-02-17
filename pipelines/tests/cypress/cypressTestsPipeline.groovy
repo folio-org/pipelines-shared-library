@@ -50,4 +50,6 @@ properties([
     ])
 ])
 
-cypressStages(params)
+node {
+    cypressStages(params)
+}
