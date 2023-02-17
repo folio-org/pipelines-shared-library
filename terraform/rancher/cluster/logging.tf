@@ -33,7 +33,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   name          = "elasticsearch"
   repo_name     = "bitnami"
   chart_name    = "elasticsearch"
-  chart_version = "17.9.29" #"19.1.4"
+  chart_version = "19.1.4" #"19.1.4"
   values        = <<-EOT
     global:
       kibanaEnabled: true
@@ -48,20 +48,20 @@ resource "rancher2_app_v2" "elasticsearch" {
           memory: 512Mi
         limits:
           memory: 3096Mi
-      service:
-        type: NodePort
-      ingress:
-        enabled: true
-        hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
-        path: "/*"
-        annotations:
-          kubernetes.io/ingress.class: alb
-          alb.ingress.kubernetes.io/scheme: internet-facing
-          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
-          alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-          alb.ingress.kubernetes.io/success-codes: 200-399
-          alb.ingress.kubernetes.io/healthcheck-path: /
-          alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+    service:
+      type: NodePort
+    ingress:
+      enabled: true
+      hostname: "${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}"
+      path: "/*"
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/healthcheck-path: /
+        alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
     data:
       heapSize: 1536m
       persistence:
@@ -109,9 +109,12 @@ data:
   fluentd.conf: |
 
     # Ignore fluentd own events
-    <match fluent.**>
-      @type null
-    </match>
+    <label @FLUENT_LOG>
+      <match fluent.**>
+        @type null
+        @id ignore_fluent_logs
+      </match>
+    </label>
 
     # TCP input to receive logs from the forwarders
     <source>
@@ -173,7 +176,7 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.3.0"
   values        = <<-EOT
     image:
-      tag: 1.14.1-debian-10-r28
+      tag: 1.15.1-debian-11-r11
     forwarder:
       fluentd-output.conf: |
         # Throw the healthcheck to the standard output instead of forwarding it
@@ -226,7 +229,7 @@ resource "rancher2_app_v2" "fluentd" {
       configMap: elasticsearch-output
       extraEnvVars:
         - name: ELASTICSEARCH_HOST
-          value: "elasticsearch-master"
+          value: "elasticsearch-master-hl"
         - name: ELASTICSEARCH_PORT
           value: "9200"
   EOT
