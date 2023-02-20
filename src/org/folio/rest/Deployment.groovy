@@ -27,6 +27,8 @@ class Deployment extends GeneralParameters {
 
     private OkapiUser testing_admin = new OkapiUser(username: 'testing_admin', password: 'admin')
 
+    private OkapiUser mod_search_user = new OkapiUser(username: "mod-search", password: "Mod-search-1-0-0")
+
     private Okapi okapi = new Okapi(steps, okapi_url, super_admin)
 
     private Authorization auth = new Authorization(steps, okapi_url)
@@ -37,7 +39,9 @@ class Deployment extends GeneralParameters {
 
     private TenantService tenantService = new TenantService(steps, okapi_url, super_admin)
 
-    Deployment(Object steps, String okapi_url, String stripes_url, List install_json, Map install_map, OkapiTenant tenant, OkapiUser admin_user, OkapiUser super_admin, Email email) {
+    private boolean restore_from_backup
+
+    Deployment(Object steps, String okapi_url, String stripes_url, List install_json, Map install_map, OkapiTenant tenant, OkapiUser admin_user, OkapiUser super_admin, Email email, boolean restore_from_backup = false) {
         super(steps, okapi_url)
         this.stripes_url = stripes_url
         this.install_json = install_json
@@ -47,6 +51,7 @@ class Deployment extends GeneralParameters {
         this.super_admin = super_admin
         this.email = email
         this.tenant.setAdminUser(admin_user)
+        this.restore_from_backup = restore_from_backup
     }
 
     void main() {
@@ -73,6 +78,10 @@ class Deployment extends GeneralParameters {
             okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
             okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 900000)
+            if (restore_from_backup) {
+                Users user = new Users(steps, okapi_url)
+                user.resetUserPassword(tenant, mod_search_user)
+            }
             if (tenant.index.reindex) {
                 def job_id = okapi.reindexElasticsearch(tenant, admin_user)
                 okapi.checkReindex(tenant, job_id)
