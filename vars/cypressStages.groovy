@@ -11,9 +11,10 @@ def call(params) {
     buildName customBuildName
     def cypressWorkers = [:]
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
-    for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
-        cypressWorkers["CypressWorker№${workerNumber}"] = {
+    for (int i = 1; i <= numberOfWorkers; i++) {
+        cypressWorkers["CypressWorker№${i}"] = {
             node(params.agent) {
+                int workerNumber = i
                 stage('Checkout Cypress repo') {
                     script {
                         sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
