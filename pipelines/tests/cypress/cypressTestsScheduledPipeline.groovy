@@ -12,13 +12,11 @@ def folio_branch = "snapshot"
 def tenant = "diku"
 def uiUrl = "https://${clusterName}-${projectName}-${tenant}.ci.folio.org"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
-
+def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
-def cypressTestsJobName = "/Testing/Cypress tests"
-def cypressTestsJob
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -71,73 +69,35 @@ pipeline {
             steps {
                 script {
                     def jobParameters = [
-                        string(name: 'branch', value: params.branch),
-                        string(name: 'uiUrl', value: uiUrl),
-                        string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
-                        string(name: 'user', value: 'diku_admin'),
-                        password(name: 'password', value: 'admin'),
-                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
-                        string(name: 'customBuildName', value: JOB_BASE_NAME),
-                        string(name: 'timeout', value: '6'),
-                        string(name: 'testrailProjectID', value: '14'),
-                        string(name: 'testrailRunID', value: '2108')
+                        branch           : params.branch,
+                        uiUrl            : uiUrl,
+                        okapiUrl         : okapiUrl,
+                        tenant           : tenant,
+                        user             : 'diku_admin',
+                        password         : 'admin',
+                        cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
+                        customBuildName  : JOB_BASE_NAME,
+                        timeout          : '6',
+                        testrailProjectID: '14',
+                        testrailRunID    : '2108'
                     ]
-
-                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
+                    cypressStages(jobParameters)
                 }
             }
         }
 
-        stage("Parallel") {
-            parallel {
-                stage("Collect test results") {
-                   when {
-                       expression {
-                           spinUpEnvironmentJob.result == 'SUCCESS'
-                       }
-                   }
-                    stages {
-                        stage("Copy downstream job artifacts") {
-                            steps {
-                                script {
-                                    def jobNumber = cypressTestsJob.number
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
-
-                                    unzip zipFile: "allure-results.zip", dir: "."
-                                }
-                            }
-                        }
-
-                        stage('Publish tests report') {
-                            steps {
-                                allure([
-                                    includeProperties: false,
-                                    jdk              : '',
-                                    commandline      : allureVersion,
-                                    properties       : [],
-                                    reportBuildPolicy: 'ALWAYS',
-                                    results          : [[path: 'allure-results']]
-                                ])
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-       stage("Set job execution result") {
-           when {
-               expression {
-                   spinUpEnvironmentJob.result != 'SUCCESS'
-               }
-           }
-           steps {
-               script {
-                   currentBuild.result = 'FAILURE'
-               }
-           }
-       }
+    //    stage("Set job execution result") {
+    //        when {
+    //            expression {
+    //                spinUpEnvironmentJob.result != 'SUCCESS'
+    //            }
+    //        }
+    //        steps {
+    //            script {
+    //                currentBuild.result = 'FAILURE'
+    //            }
+    //        }
+    //    }
     }
 }
 
