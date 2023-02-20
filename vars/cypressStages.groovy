@@ -112,7 +112,7 @@ def call(params) {
                     unzip zipFile: "${path.path}.zip", dir: path.path
                 }
                 def allure_home = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-                sh "${allure_home}/bin/allure generate --clean ${resultPaths.collect{ result -> result.path }.join(" ")}"
+                sh "${allure_home}/bin/allure generate --clean ${resultPaths.collect{ result -> "${result.path}/allure-results" }.join(" ")}"
             }
         }
 
@@ -124,7 +124,7 @@ def call(params) {
                     commandline      : Constants.CYPRESS_ALLURE_VERSION,
                     properties       : [],
                     reportBuildPolicy: 'ALWAYS',
-                    results          : resultPaths
+                    results          : resultPaths.collect{ result -> [path:"${result.path}/allure-results"] }
                 ])
             }
         }
