@@ -11,10 +11,10 @@ def call(params) {
     buildName customBuildName
     def cypressWorkers = [:]
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
-    for (int i = 1; i <= numberOfWorkers; i++) {
-        cypressWorkers["CypressWorker№${i}"] = {
+    def resultPaths = []
+    for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
+        cypressWorkers["CypressWorker№${workerNumber}"] = {
             node(params.agent) {
-                int workerNumber = i
                 stage('Checkout Cypress repo') {
                     script {
                         sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
@@ -92,9 +92,10 @@ def call(params) {
 
                 stage('Archive artifacts') {
                     script {
-                        zip zipFile: "allure-results-${workerNumber}.zip", glob: "allure-results/*"
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${workerNumber}.zip", fingerprint: true, defaultExcludes: false
-                        stash name: "allure-results-${workerNumber}", includes: "allure-results-${workerNumber}.zip"
+                        zip zipFile: "allure-results-${env.NODE_NAME}.zip", glob: "allure-results/*"
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${env.NODE_NAME}.zip", fingerprint: true, defaultExcludes: false
+                        stash name: "allure-results-${env.NODE_NAME}", includes: "allure-results-${env.NODE_NAME}.zip"
+                        resultPaths.add([path: "allure-results-${env.NODE_NAME}"])
                     }
                 }
             }
@@ -103,14 +104,12 @@ def call(params) {
 
     parallel(cypressWorkers)
 
-    def resultPaths = []
     node(params.agent) {
         stage('Generate tests report') {
             script {
-                for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
-                    unstash name: "allure-results-${workerNumber}"
-                    unzip zipFile: "allure-results-${workerNumber}.zip", dir: "allure-results-${workerNumber}"
-                    resultPaths.add([path: "allure-results-${workerNumber}"])
+                for(path in resultPaths) {
+                    unstash name: path.path
+                    unzip zipFile: "${path.path}.zip", dir: path.path
                 }
                 def allure_home = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
                 sh "${allure_home}/bin/allure generate --clean ${resultPaths.collect{ result -> result.path }.join(" ")}"
