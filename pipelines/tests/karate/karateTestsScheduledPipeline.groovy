@@ -85,7 +85,7 @@ pipeline {
                         prototypeTenant: prototypeTenant
                     ]
 
-                    sleep time: 60, unit: 'MINUTES'
+                    sleep time: 1, unit: 'MINUTES'
                     karateStages(jobParameters)
                 }
             }
