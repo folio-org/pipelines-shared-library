@@ -131,6 +131,12 @@ variable "deploy_kubecost" {
   description = "Deploy Kubecost tool if true"
 }
 
+variable "deploy_sorry_cypress" {
+  type        = bool
+  default     = false
+  description = "Deploy Sorry Cypress tool if true"
+}
+
 variable "projectID" {
   type        = string
   description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
