@@ -19,7 +19,8 @@ properties([
         string(name: 'eks_max_size', defaultValue: '8', description: 'Maximum size of node group for eks cluster', trim: true),
         string(name: 'vpc_name', defaultValue: 'folio-rancher-vpc', description: 'Name of the target VPC', trim: true),
         booleanParam(name: 'register_in_rancher', defaultValue: true, description: 'Set to false if eks cluster should not be registered in rancher'),
-        booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost')
+        booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost'),
+        booleanParam(name: 'deploy_sorry_cypress', defaultValue: false, description: 'Deploy Sorry Cypress')
     ])
 ])
 
@@ -50,6 +51,7 @@ ansiColor('xterm') {
                 tfVars += terraform.generateTfVar('register_in_rancher', params.register_in_rancher)
                 tfVars += terraform.generateTfVar('admin_users', Constants.AWS_ADMIN_USERS)
                 tfVars += terraform.generateTfVar('deploy_kubecost', params.deploy_kubecost)
+                tfVars += terraform.generateTfVar('deploy_sorry_cypress', params.deploy_sorry_cypress)
                 tfVars += terraform.generateTfVar('projectID', Constants.AWS_PROJECT_ID)
                 if (!params.vpc_name.isEmpty()) {
                     tfVars += terraform.generateTfVar('vpc_name', params.vpc_name)
