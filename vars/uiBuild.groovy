@@ -10,6 +10,7 @@ import groovy.transform.Field
 
 @Field OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
 
+@NonCPS
 @Field Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -23,13 +24,12 @@ import groovy.transform.Field
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
 
-ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
-ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
-
 String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
 
 def call(params) {
     stage('Build and Push') {
+        ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
+        ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
         buildName ui_bundle.getTag() + '.' + env.BUILD_ID
         buildDescription "repository: ${params.folio_repository}\n" +
             "branch: ${params.folio_branch}\n" +

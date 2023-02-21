@@ -49,13 +49,13 @@ ansiColor("xterm") {
                 stage("Build UI bundle") {
 
                     def jobParameters = [
-                        folio_repository : params.folio_repository,
-                        folio_branch     : params.folio_branch,
+                        folio_repository    : params.folio_repository,
+                        folio_branch        : params.folio_branch,
                         rancher_cluster_name: project_config.getClusterName(),
                         rancher_project_name: project_config.getProjectName(),
-                        tenant_id             : tenant.getId(),
+                        tenant_id           : tenant.getId(),
                         custom_hash         : project_config.getHash(),
-                        custom_tag: project_config.getUiBundleTag()
+                        custom_tag          : project_config.getUiBundleTag()
                     ]
                     uiBuild(jobParameters)
                 
