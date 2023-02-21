@@ -47,7 +47,6 @@ ansiColor("xterm") {
 
             if (params.ui_bundle_build) {
                 stage("Build UI bundle") {
-
                     def jobParameters = [
                         folio_repository    : params.folio_repository,
                         folio_branch        : params.folio_branch,
