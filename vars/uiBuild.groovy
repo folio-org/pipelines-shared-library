@@ -5,6 +5,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
+import com.cloudbees.groovy.cps.NonCPS
 
 @Library('pipelines-shared-library') _
 
