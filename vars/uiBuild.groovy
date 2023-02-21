@@ -27,8 +27,6 @@ ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:
 
 String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
 
-@Field def cypressImageVersion
-
 def call(params) {
     stage('Build and Push') {
         buildName ui_bundle.getTag() + '.' + env.BUILD_ID
