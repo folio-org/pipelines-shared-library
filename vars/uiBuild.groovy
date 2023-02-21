@@ -4,6 +4,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.transform.Field
 
 @Library('pipelines-shared-library') _
 
