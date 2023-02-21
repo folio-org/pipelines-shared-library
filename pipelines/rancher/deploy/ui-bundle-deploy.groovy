@@ -61,10 +61,10 @@ ansiColor("xterm") {
                 }
             }
 
-            // stage("Deploy UI bundle") {
-            //     folioDeploy.uiBundle(tenant.getId(),
-            //         project_config)
-            // }
+            stage("Deploy UI bundle") {
+                folioDeploy.uiBundle(tenant.getId(),
+                    project_config)
+            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
