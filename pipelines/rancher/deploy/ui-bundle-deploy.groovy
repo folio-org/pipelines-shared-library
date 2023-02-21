@@ -3,7 +3,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-626') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -36,7 +36,7 @@ project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClust
 
 ansiColor("xterm") {
     common.refreshBuidParameters(params.refresh_parameters)
-    node("jenkins-agent-java11") {
+    node("rancher||jenkins-agent-java11") {
         try {
             stage("Checkout") {
                 checkout scm
@@ -47,22 +47,35 @@ ansiColor("xterm") {
 
             if (params.ui_bundle_build) {
                 stage("Build UI bundle") {
-                    build job: 'Rancher/UI-Build',
-                        parameters: [
-                            string(name: 'folio_repository', value: params.folio_repository),
-                            string(name: 'folio_branch', value: params.folio_branch),
-                            string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
-                            string(name: 'rancher_project_name', value: project_config.getProjectName()),
-                            string(name: 'tenant_id', value: tenant.getId()),
-                            string(name: 'custom_hash', value: project_config.getHash()),
-                            string(name: 'custom_tag', value: project_config.getUiBundleTag())]
+
+                    def jobParameters = [
+                        folio_repository : params.folio_repository,
+                        folio_branch     : params.folio_branch,
+                        rancher_cluster_name: project_config.getClusterName(),
+                        rancher_project_name: roject_config.getProjectName(),
+                        tenant_id             : tenant.getId(),
+                        custom_hash         : project_config.getHash(),
+                        custom_tag: project_config.getUiBundleTag()
+                    ]
+                    uiBuild(jobParameters)
+                
+
+                    // build job: 'Rancher/UI-Build',
+                    //     parameters: [
+                    //         string(name: 'folio_repository', value: params.folio_repository),
+                    //         string(name: 'folio_branch', value: params.folio_branch),
+                    //         string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                    //         string(name: 'rancher_project_name', value: project_config.getProjectName()),
+                    //         string(name: 'tenant_id', value: tenant.getId()),
+                    //         string(name: 'custom_hash', value: project_config.getHash()),
+                    //         string(name: 'custom_tag', value: project_config.getUiBundleTag())]
                 }
             }
 
-            stage("Deploy UI bundle") {
-                folioDeploy.uiBundle(tenant.getId(),
-                    project_config)
-            }
+            // stage("Deploy UI bundle") {
+            //     folioDeploy.uiBundle(tenant.getId(),
+            //         project_config)
+            // }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
