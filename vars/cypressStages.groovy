@@ -77,10 +77,10 @@ def call(params) {
                                                 env.CYPRESS_allureReuseAfterSpec = "true"
                                                 println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                                 withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --key somekey --parallel --record --ci-build-id ${BUILD_NUMBER} --headless --browser ${browserName} ${params.cypressParameters}"
+                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --key somekey --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${params.cypressParameters}"
                                                 }
                                             } else {
-                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --key somekey --parallel --record --ci-build-id ${BUILD_NUMBER} --headless --browser ${browserName} ${params.cypressParameters}"
+                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=stripes --key somekey --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${params.cypressParameters}"
                                             }
                                         }
                                     }

@@ -81,7 +81,9 @@ pipeline {
                         string(name: 'customBuildName', value: JOB_BASE_NAME),
                         string(name: 'timeout', value: '6'),
                         string(name: 'testrailProjectID', value: '14'),
-                        string(name: 'testrailRunID', value: '2108')
+                        string(name: 'testrailRunID', value: '2108'),
+                        string(name: 'numberOfWorkers', value: '4'),
+                        string(name: 'agent', value: 'rancher||jenkins-agent-java11')
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
