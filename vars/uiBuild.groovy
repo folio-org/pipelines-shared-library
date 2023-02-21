@@ -9,26 +9,25 @@ import com.cloudbees.groovy.cps.NonCPS
 
 @Library('pipelines-shared-library') _
 
-@Field OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
-
-@NonCPS
-@Field Project project_config = new Project(
-    clusterName: params.rancher_cluster_name,
-    projectName: params.rancher_project_name,
-    domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
-              okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
-              edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)]
-)
-
-@Field Module ui_bundle = new Module(
-    name: "ui-bundle",
-    hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
-)
-
-String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
-
 def call(params) {
     stage('Build and Push') {
+        OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+
+        Project project_config = new Project(
+            clusterName: params.rancher_cluster_name,
+            projectName: params.rancher_project_name,
+            domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+                    okapi: common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN),
+                    edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)]
+        )
+
+        Module ui_bundle = new Module(
+            name: "ui-bundle",
+            hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
+        )
+
+        String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
+
         ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
         ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
         buildName ui_bundle.getTag() + '.' + env.BUILD_ID
