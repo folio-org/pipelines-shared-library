@@ -58,17 +58,6 @@ ansiColor("xterm") {
                         custom_tag          : project_config.getUiBundleTag()
                     ]
                     uiBuild(jobParameters)
-                
-
-                    // build job: 'Rancher/UI-Build',
-                    //     parameters: [
-                    //         string(name: 'folio_repository', value: params.folio_repository),
-                    //         string(name: 'folio_branch', value: params.folio_branch),
-                    //         string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
-                    //         string(name: 'rancher_project_name', value: project_config.getProjectName()),
-                    //         string(name: 'tenant_id', value: tenant.getId()),
-                    //         string(name: 'custom_hash', value: project_config.getHash()),
-                    //         string(name: 'custom_tag', value: project_config.getUiBundleTag())]
                 }
             }
 
