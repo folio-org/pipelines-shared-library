@@ -7,9 +7,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+@Field OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
 
-Project project_config = new Project(
+@Field Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
     domains: [ui   : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, tenant.getId(), Constants.CI_ROOT_DOMAIN),
@@ -17,7 +17,7 @@ Project project_config = new Project(
               edge : common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'edge', Constants.CI_ROOT_DOMAIN)]
 )
 
-Module ui_bundle = new Module(
+@Field Module ui_bundle = new Module(
     name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
 )
