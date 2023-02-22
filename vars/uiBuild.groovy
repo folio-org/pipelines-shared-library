@@ -38,6 +38,5 @@ def call(params) {
     }
     stage('Cleanup') {
         common.removeImage(ui_bundle.getImageName())
-        cleanWs notFailBuild: true
     }
 }
