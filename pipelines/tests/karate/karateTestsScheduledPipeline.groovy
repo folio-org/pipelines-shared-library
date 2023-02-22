@@ -65,7 +65,7 @@ pipeline {
             }
         }
 
-        stage("Run karate tests") {
+        stage("Start tests") {
             when {
                 expression {
                     spinUpEnvironmentJob.result == 'SUCCESS'
