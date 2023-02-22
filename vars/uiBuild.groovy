@@ -25,10 +25,6 @@ def call(params) {
     ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
     
     stage('Build and Push') { 
-        buildName ui_bundle.getTag() + '.' + env.BUILD_ID
-        buildDescription "repository: ${params.folio_repository}\n" +
-            "branch: ${params.folio_branch}\n" +
-            "hash: ${ui_bundle.getHash()}"
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
             def image = docker.build(
                 ui_bundle.getImageName(),
