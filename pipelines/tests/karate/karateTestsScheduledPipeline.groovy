@@ -119,38 +119,38 @@ pipeline {
                             }
                         }
 
-                        // stage("Sync jira tickets") {
-                        //     steps {
-                        //         script {
-                        //             karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                        //         }
-                        //     }
-                        // }
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
 
-                        // stage("Send slack notifications") {
-                        //     steps {
-                        //         script {
-                        //             karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                        //         }
-                        //     }
-                        // }
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // stage("Set job execution result") {
-        //     when {
-        //         expression {
-        //             spinUpEnvironmentJob.result != 'SUCCESS'
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             currentBuild.result = 'FAILURE'
-        //         }
-        //     }
-        // }
+        stage("Set job execution result") {
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+            }
+            steps {
+                script {
+                    currentBuild.result = 'FAILURE'
+                }
+            }
+        }
     }
 }
 
