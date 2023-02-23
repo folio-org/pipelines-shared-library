@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-642') _
 
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def allureVersion = "2.17.2"
 
 def clusterName = "folio-testing"
-def projectName = "cypress"
+def projectName = "spring"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def tenant = "diku"
@@ -90,8 +90,8 @@ def jobParameters = [
     cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
-    testrailProjectID: '14',
-    testrailRunID: '2108',
+    //testrailProjectID: '14',
+    //testrailRunID: '2108',
     numberOfWorkers: '4',
     agent: 'rancher||jenkins-agent-java11'
 ]
