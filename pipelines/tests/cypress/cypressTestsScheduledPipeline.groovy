@@ -52,9 +52,6 @@ properties([
     parameters([
         string(name: 'branch', defaultValue: 'master', description: 'Cypress tests repository branch to checkout')
     ]),
-    triggers([
-        cron('H 0 * * 1-6')
-    ])
 ])
 
 node('rancher') {
