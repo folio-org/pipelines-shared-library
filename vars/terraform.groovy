@@ -40,6 +40,14 @@ def tfDestroy(String path, String opts) {
     }
 }
 
+def tfRemoveElastic(String path) {
+    stage('TF remove elastic policy') {
+        dir(path) {
+            sh "terraform state rm elasticstack_elasticsearch_index_lifecycle.index_policy"
+        }
+    }
+}
+
 def tfStatePull(String path) {
     stage('TF state pull') {
         dir(path) {
@@ -137,5 +145,6 @@ void tfDestroyFlow(Closure body) {
     tfInit(config.working_dir)
     tfWorkspaceSelect(config.working_dir, config.workspace_name)
     tfStatePull(config.working_dir)
+    tfRemoveElastic(config.working_dir)
     tfDestroy(config.working_dir, config.tf_vars)
 }
