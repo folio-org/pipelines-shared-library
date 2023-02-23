@@ -145,6 +145,5 @@ void tfDestroyFlow(Closure body) {
     tfInit(config.working_dir)
     tfWorkspaceSelect(config.working_dir, config.workspace_name)
     tfStatePull(config.working_dir)
-    tfRemoveElastic(config.working_dir)
     tfDestroy(config.working_dir, config.tf_vars)
 }
