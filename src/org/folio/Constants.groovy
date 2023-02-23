@@ -105,6 +105,8 @@ class Constants {
     static String CYPRESS_REPOSITORY_URL ="${FOLIO_GITHUB_URL}/stripes-testing.git"
     static String CYPRESS_ALLURE_VERSION ="2.17.2"
     static String CYPRESS_SC_URL = "https://folio-testing-sc-director.ci.folio.org"
+    static String CYPRESS_SC_KEY = "secretCypressKey"
+    static String CYPRESS_PROJECT = "stripes"
 
     //RDS
     static String BUGFEST_SNAPSHOT_DBNAME = "folio"
