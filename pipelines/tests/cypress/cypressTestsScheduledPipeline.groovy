@@ -17,8 +17,6 @@ def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def spinUpEnvironmentJobName = "/Rancher/Project"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
-def cypressTestsJobName = "/Testing/Cypress tests"
-def cypressTestsJob
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -90,4 +88,6 @@ def jobParameters = [
     agent: 'rancher||jenkins-agent-java11'
 ]
 
-cypressStages(jobParameters)
+node {
+    cypressStages(jobParameters)
+}
