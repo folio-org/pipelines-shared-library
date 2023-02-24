@@ -84,7 +84,7 @@ def jobParameters = [
     timeout: '6',
     //testrailProjectID: '14',
     //testrailRunID: '2108',
-    numberOfWorkers: '5',
+    numberOfWorkers: '4',
     agent: 'rancher||jenkins-agent-java11'
 ]
 
