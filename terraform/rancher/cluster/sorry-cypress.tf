@@ -72,7 +72,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           cpu: 100m
           memory: 128Mi
       environmentVariables:
-        graphQlSchemaUrl: "${module.eks_cluster.cluster_id}-sc-api.${var.root_domain}"
+        graphQlSchemaUrl: "https://${module.eks_cluster.cluster_id}-sc-api.${var.root_domain}"
       service:
         port: 8080
         type: NodePort
