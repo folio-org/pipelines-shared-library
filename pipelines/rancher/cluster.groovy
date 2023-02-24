@@ -1,5 +1,4 @@
 #!groovy
-
 @Library('pipelines-shared-library') _
 
 import org.folio.Constants
