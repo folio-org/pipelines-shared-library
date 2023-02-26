@@ -108,5 +108,5 @@ class Constants {
     //RDS
     static String BUGFEST_SNAPSHOT_DBNAME = "folio"
 
-    static Map JMX_METRICS_AVAILABLE = ["mod-audit" : "2.7.0"]
+    static Map JMX_METRICS_AVAILABLE = ["mod-audit" : "2.6.0"]
 }
