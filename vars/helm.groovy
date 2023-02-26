@@ -65,7 +65,7 @@ String generateModuleValues(String module_name, String module_version, Project p
         println Constants.JMX_METRICS_AVAILABLE[module_name]
         def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[module_name], module_version)
         if(action == "upgrade" || action == "equal") {
-            config[(module_name)]['javaOptions'] += ["-javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:/jvm/jvm-config.yml"]
+            config[(module_name)]['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:/jvm/jvm-config.yml"
         }
 
         println "DEBUG $action"
