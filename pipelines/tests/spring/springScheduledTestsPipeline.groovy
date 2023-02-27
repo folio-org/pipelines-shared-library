@@ -61,7 +61,7 @@ pipeline {
                         adminPassword  : 'admin',
                         prototypeTenant: prototypeTenant
                     ]
-                    karateStages(jobParameters)
+                    karateFlow(jobParameters)
                 }
             }
         }
