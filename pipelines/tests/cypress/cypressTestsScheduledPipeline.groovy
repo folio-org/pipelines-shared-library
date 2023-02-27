@@ -82,8 +82,8 @@ def jobParameters = [
     cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
-    //testrailProjectID: '14',
-    //testrailRunID: '2108',
+    testrailProjectID: '14',
+    testrailRunID: '2108',
     numberOfWorkers: '4',
     agent: 'rancher||jenkins-agent-java11'
 ]
