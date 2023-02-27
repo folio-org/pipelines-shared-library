@@ -86,7 +86,7 @@ pipeline {
                     ]
 
                     sleep time: 60, unit: 'MINUTES'
-                    karateStages(jobParameters)
+                    karateFlow(jobParameters)
                 }
             }
         }
