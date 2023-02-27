@@ -42,7 +42,7 @@ pipeline {
                         customBuildName  : JOB_BASE_NAME,
                         timeout          : '6'
                     ]
-                    cypressStages(jobParameters)
+                    cypressFlow(jobParameters)
                 }
             }
         }
