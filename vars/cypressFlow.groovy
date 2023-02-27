@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
 
-@Library('pipelines-shared-library@RANCHER-642') _
+@Library('pipelines-shared-library') _
 
 @Field def cypressImageVersion
 
@@ -13,7 +13,7 @@ def call(params) {
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
     def resultPaths = []
     for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
-        cypressWorkers["CypressWorker№${workerNumber}"] = {
+        cypressWorkers["CypressWorker#${workerNumber}"] = {
             node(params.agent) {
                 stage('Checkout Cypress repo') {
                     script {

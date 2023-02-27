@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-642') _
+@Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 def allureVersion = "2.17.2"
 
 def clusterName = "folio-testing"
-def projectName = "spring"
+def projectName = "cypress"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def tenant = "diku"
@@ -89,5 +89,5 @@ def jobParameters = [
 ]
 
 node {
-    cypressStages(jobParameters)
+    cypressFlow(jobParameters)
 }
