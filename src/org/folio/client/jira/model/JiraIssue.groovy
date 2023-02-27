@@ -12,4 +12,8 @@ class JiraIssue {
 
     String status
 
+    String project
+
+    String fixVersions
+
 }
