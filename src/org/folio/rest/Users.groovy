@@ -147,7 +147,7 @@ class Users extends GeneralParameters {
                                         expirationTime : 200])
         String resetPassBody = JsonOutput.toJson([passwordResetActionId  : passwordResetActionId,
                                                 newPassword : user.password])
-                                                
+
         logger.info("Reseting password for ${user.username} user...")
         // Set password rest action ID
         http.postRequest(passResetActionUrl, passResetActionBody, headers)

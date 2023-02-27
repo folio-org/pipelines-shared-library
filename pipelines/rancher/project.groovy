@@ -4,8 +4,6 @@
 import org.folio.Constants
 import org.folio.rest.Deployment
 import org.folio.rest.Edge
-import org.folio.rest.Users
-import org.folio.rest.Authorization
 import org.folio.rest.GitHubUtility
 import org.folio.rest.model.Email
 import org.folio.rest.model.LdpConfig
@@ -65,8 +63,8 @@ OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
                        loadSample   : params.load_sample],
     queryParameters: [reinstall: params.reinstall],
     okapiVersion: params.okapi_version,
-    index: [reindex : params.restore_from_backup ? 'true' : params.reindex_elastic_search,
-            recreate: params.restore_from_backup ? 'true' : params.recreate_elastic_search_index])
+    index: [reindex : params.reindex_elastic_search,
+            recreate: params.recreate_elastic_search_index])
 
 OkapiUser admin_user = okapiSettings.adminUser(username: params.admin_username,
     password: params.admin_password)
@@ -95,11 +93,6 @@ Project project_config = new Project(
 
 Map tf = [working_dir: 'terraform/rancher/project',
           variables  : '']
-
-OkapiUser mod_search_user = new OkapiUser(
-    username: "mod-search",
-    password: "Mod-search-1-0-0"
-)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -230,13 +223,12 @@ ansiColor('xterm') {
                                 tenant,
                                 admin_user,
                                 superadmin_user,
-                                email
+                                email,
+                                project_config.getRestoreFromBackup()
                             )
                             if (project_config.getRestoreFromBackup()) {
                                 deployment.cleanup()
                                 deployment.update()
-                                Users user = new Users(this, "https://${project_config.getDomains().okapi}")
-                                user.resetUserPassword(tenant, mod_search_user)
                             } else {
                                 deployment.main()
                             }
