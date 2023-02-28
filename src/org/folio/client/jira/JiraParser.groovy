@@ -24,6 +24,14 @@ class JiraParser {
             status: json.fields.status?.name)
     }
 
+    JiraIssue parseIssueKarateTest(def json) {
+        new JiraIssue(id: json.id,
+            key: json.key,
+            summary: json.fields.summary,
+            description: json.fields.description,
+            status: json.fields.status?.name)
+    }
+
     JiraIssueType parseIssueType(def json) {
         new JiraIssueType(id: json.id, name: json.name, description: json.description, subtask: json.subtask)
     }
