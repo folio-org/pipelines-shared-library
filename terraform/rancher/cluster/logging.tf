@@ -178,49 +178,72 @@ resource "rancher2_app_v2" "fluentd" {
     image:
       tag: 1.15.1-debian-11-r11
     forwarder:
-      fluentd-output.conf: |
-        # Throw the healthcheck to the standard output instead of forwarding it
-        <match fluentd.healthcheck>
-          @type stdout
-        </match>
-        {{- if .Values.aggregator.enabled }}
-        # Forward all logs to the aggregators
-        <match **>
-          @type forward
-          {{- if .Values.tls.enabled }}
-          transport tls
-          tls_cert_path /opt/bitnami/fluentd/certs/out_forward/ca.crt
-          tls_client_cert_path /opt/bitnami/fluentd/certs/out_forward/tls.crt
-          tls_client_private_key_path /opt/bitnami/fluentd/certs/out_forward/tls.key
-          {{- end }}
-          {{- $fullName := (include "common.names.fullname" .) }}
-          {{- $global := . }}
-          {{- $domain := default "cluster.local" .Values.clusterDomain }}
-          {{- $port := .Values.aggregator.port | int }}
-          {{- range $i, $e := until (.Values.aggregator.replicaCount | int) }}
-          <server>
-            {{ printf "host %s-%d.%s-headless.%s.svc.%s" $fullName $i $fullName $global.Release.Namespace $domain }}
-            {{ printf "port %d" $port }}
-            {{- if ne $i 0 }}
-            standby
+      startupProbe:
+        enabled: true
+        initialDelaySeconds: 60
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 24
+        successThreshold: 1
+      livenessProbe:
+        enabled: true
+        initialDelaySeconds: 60
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 8
+        successThreshold: 1
+      readinessProbe:
+        enabled: true
+        initialDelaySeconds: 5
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 8
+        successThreshold: 1
+      configMapFiles:
+        fluentd-output.conf: |
+          # Throw the healthcheck to the standard output instead of forwarding it
+          <match fluentd.healthcheck>
+            @type stdout
+          </match>
+          {{- if .Values.aggregator.enabled }}
+          # Forward all logs to the aggregators
+          <match **>
+            @type forward
+            {{- if .Values.tls.enabled }}
+            transport tls
+            tls_cert_path /opt/bitnami/fluentd/certs/out_forward/ca.crt
+            tls_client_cert_path /opt/bitnami/fluentd/certs/out_forward/tls.crt
+            tls_client_private_key_path /opt/bitnami/fluentd/certs/out_forward/tls.key
             {{- end }}
-          </server>
+            {{- $fullName := (include "common.names.fullname" .) }}
+            {{- $global := . }}
+            {{- $domain := default "cluster.local" .Values.clusterDomain }}
+            {{- $port := .Values.aggregator.port | int }}
+            {{- range $i, $e := until (.Values.aggregator.replicaCount | int) }}
+            <server>
+              {{ printf "host %s-%d.%s-headless.%s.svc.%s" $fullName $i $fullName $global.Release.Namespace $domain }}
+              {{ printf "port %d" $port }}
+              {{- if ne $i 0 }}
+              standby
+              {{- end }}
+            </server>
+            {{- end }}
+            <buffer>
+              @type file
+              path /opt/bitnami/fluentd/logs/buffers/logs.buffer
+              flush_thread_count 1
+              flush_interval 10s
+              chunk_limit_size 80M
+            </buffer>
+          </match>
+          {{- else }}
+          # Send the logs to the standard output
+          <match **>
+            @type stdout
+          </match>
           {{- end }}
-          <buffer>
-            @type file
-            path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-            flush_thread_count 2
-            flush_interval 5s
-            chunk_limit_size 80M
-          </buffer>
-        </match>
-        {{- else }}
-        # Send the logs to the standard output
-        <match **>
-          @type stdout
-        </match>
-        {{- end }}
     aggregator:
+      replicaCount: 2
       resources:
         requests:
           memory: 512Mi
