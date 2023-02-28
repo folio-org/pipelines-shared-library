@@ -175,6 +175,26 @@ class JiraClient {
     }
 
 
+    List<JiraIssue> searchIssuesKarate(String jql, List<String> fields) {
+        String endpoint = "${JiraResources.SEARCH}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
+        if (fields) {
+            endpoint += "&fields=${fields.join(',')}"
+        }
+
+        def retVal = []
+        withPagedResponse(endpoint,
+            { response, body ->
+                body.issues.each { issue ->
+                    retVal.add(parser.parseIssueKarateTest(issue))
+                }
+
+            },
+            "Unable to get execute search for jql '${jql}' and fields '${fields}'"
+        )
+
+        retVal
+    }
+
     List<JiraIssue> searchIssues(String jql, List<String> fields) {
         String endpoint = "${JiraResources.SEARCH}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
         if (fields) {

@@ -184,7 +184,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     JiraClient jiraClient = getJiraClient()
 
     // find existing karate issues
-    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    List<JiraIssue> issues = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
         def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
@@ -305,7 +305,7 @@ private JiraClient getJiraClient() {
 
 String getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = ""
-    List<JiraIssue> issuesByTeam = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
+    List<JiraIssue> issuesByTeam = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
     issuesByTeam.each { issue ->
         ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
     }
