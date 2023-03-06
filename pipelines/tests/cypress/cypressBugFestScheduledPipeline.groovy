@@ -4,8 +4,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def allureVersion = "2.17.2"
 
-def uiUrl = "https://bugfest-nolana-aqa.int.aws.folio.org"
-def okapiUrl = "https://okapi-bugfest-nolana-aqa.int.aws.folio.org"
+def uiUrl = "https://bugfest-orchid-aqa.int.aws.folio.org"
+def okapiUrl = "https://okapi-bugfest-orchid-aqa.int.aws.folio.org"
 def tenant = "fs09000003"
 
 def cypressTestsJobName = "/Testing/Cypress tests"
@@ -14,17 +14,17 @@ def cypressTestsJob
 pipeline {
     agent { label 'jenkins-agent-java11' }
 
-    // Stopped by https://issues.folio.org/browse/RANCHER-591
-    // triggers {
-    //     cron('H 1 * * 1-6')
-    // }
+    Stopped by https://issues.folio.org/browse/RANCHER-591
+    triggers {
+        cron('H 1 * * 1-6')
+    }
 
     options {
         disableConcurrentBuilds()
     }
 
     parameters {
-        string(name: 'branch', defaultValue: 'nolana', description: 'Cypress tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'orchid', description: 'Cypress tests repository branch to checkout')
     }
 
     stages {
@@ -42,7 +42,8 @@ pipeline {
                         string(name: 'customBuildName', value: JOB_BASE_NAME),
                         string(name: 'timeout', value: '8'),
                         string(name: 'testrailProjectID', value: '14'),
-                        string(name: 'testrailRunID', value: '2099')
+                        string(name: 'testrailRunID', value: '2151'),
+                        string(name: 'numberOfWorkers', value: '4')
                     ]
 
                     cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
