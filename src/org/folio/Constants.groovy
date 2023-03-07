@@ -86,6 +86,7 @@ class Constants {
                                     "folijet-lotus": ["folijet"],
                                     "karate"       : [],
                                     "metadata"     : ["spitfire"],
+                                    "nla"          : [],
                                     "prokopovych"  : ["core-functional"],
                                     "scout"        : ["scout"],
                                     "spanish"      : ["unam"],
