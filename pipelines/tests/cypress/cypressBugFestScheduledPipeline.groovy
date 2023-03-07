@@ -31,5 +31,5 @@ def jobParameters = [
 ]
 
 node {
-    //cypressFlow(jobParameters)
+    cypressFlow(jobParameters)
 }
