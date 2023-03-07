@@ -2,84 +2,34 @@
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
-def allureVersion = "2.17.2"
-
 def uiUrl = "https://bugfest-orchid-aqa.int.aws.folio.org"
 def okapiUrl = "https://okapi-bugfest-orchid-aqa.int.aws.folio.org"
 def tenant = "fs09000003"
 
-def cypressTestsJobName = "/Testing/Cypress tests"
-def cypressTestsJob
-
-pipeline {
-    agent { label 'jenkins-agent-java11' }
-
-    triggers {
-        cron('H 1 * * 1-6')
-    }
-
-    options {
-        disableConcurrentBuilds()
-    }
-
-    parameters {
+properties([
+    disableConcurrentBuilds(),
+    pipelineTriggers([cron('H 2 * * 1-6')]),
+    parameters([
         string(name: 'branch', defaultValue: 'orchid', description: 'Cypress tests repository branch to checkout')
-    }
+    ]),
+])
 
-    stages {
-        stage("Run cypress tests") {
-            steps {
-                script {
-                    def jobParameters = [
-                        string(name: 'branch', value: params.branch),
-                        string(name: 'uiUrl', value: uiUrl),
-                        string(name: 'okapiUrl', value: okapiUrl),
-                        string(name: 'tenant', value: tenant),
-                        string(name: 'user', value: 'folio-aqa'),
-                        password(name: 'password', value: 'Folio-aqa1'),
-                        string(name: 'cypressParameters', value: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true"),
-                        string(name: 'customBuildName', value: JOB_BASE_NAME),
-                        string(name: 'timeout', value: '8'),
-                        string(name: 'testrailProjectID', value: '14'),
-                        string(name: 'testrailRunID', value: '2151'),
-                        string(name: 'numberOfWorkers', value: '4')
-                    ]
+def jobParameters = [
+    branch: params.branch,
+    uiUrl: uiUrl,
+    okapiUrl: okapiUrl,
+    tenant: tenant,
+    user: 'folio-aqa',
+    password: 'Folio-aqa1',
+    cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
+    customBuildName: JOB_BASE_NAME,
+    timeout: '6',
+    testrailProjectID: '14',
+    testrailRunID: '2151',
+    numberOfWorkers: '4',
+    agent: 'rancher||jenkins-agent-java11'
+]
 
-                    cypressTestsJob = build job: cypressTestsJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
-
-        stage("Parallel") {
-            parallel {
-                stage("Collect test results") {
-                    stages {
-                        stage("Copy downstream job artifacts") {
-                            steps {
-                                script {
-                                    def jobNumber = cypressTestsJob.number
-                                    copyArtifacts(projectName: cypressTestsJobName, selector: specific("${jobNumber}"), filter: "allure-results.zip")
-
-                                    unzip zipFile: "allure-results.zip", dir: "."
-                                }
-                            }
-                        }
-
-                        stage('Publish tests report') {
-                            steps {
-                                allure([
-                                    includeProperties: false,
-                                    jdk              : '',
-                                    commandline      : allureVersion,
-                                    properties       : [],
-                                    reportBuildPolicy: 'ALWAYS',
-                                    results          : [[path: 'allure-results']]
-                                ])
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+node {
+    cypressFlow(jobParameters)
 }
