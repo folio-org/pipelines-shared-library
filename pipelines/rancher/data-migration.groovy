@@ -1,6 +1,6 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest.model.Tenant
+import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
 @Library('pipelines-shared-library') _
@@ -111,7 +111,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Generate Data Migration Time report') {
-                def results = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
+                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
                 
                 def tenants = []
                 result.hits.hits.each {
@@ -129,7 +129,7 @@ ansiColor('xterm') {
                                       moduleInfo: [moduleName: parsedMigrationInfo[1], 
                                                     execTime: time]]
                 
-                    tenants += new Tenant(bindingMap)
+                    tenants += new DataMigrationTenant(bindingMap)
                 }
 
                 def uniqTenants = tenants.tenantName.unique()
