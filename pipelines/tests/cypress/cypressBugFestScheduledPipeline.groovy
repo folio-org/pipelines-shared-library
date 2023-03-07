@@ -21,7 +21,7 @@ def jobParameters = [
     tenant: tenant,
     user: 'folio-aqa',
     password: 'Folio-aqa1',
-    cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
+    cypressParameters: "--env grepTags=\"smoke criticalPth extendedPath\",grepFilterSpecs=true",
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
     testrailProjectID: '14',
