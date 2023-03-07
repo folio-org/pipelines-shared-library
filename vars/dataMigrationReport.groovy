@@ -4,15 +4,6 @@ import groovy.xml.MarkupBuilder
 import java.util.concurrent.*
 import java.util.Date
 
-class Tenant {
-    String tenantName
-    Module moduleInfo
-}
-class Module {
-    String moduleName
-    String execTime
-}
-
 def getESLogs(cluster, indexPattern, startDate) {
     def elasticRequestBody = """
     {
@@ -120,7 +111,7 @@ def getESLogs(cluster, indexPattern, startDate) {
     """
     def response = httpRequest httpMode: 'GET', url: "https://${cluster}-elasticsearch.ci.folio.org/${indexPattern}*/_search", validResponseCodes: '100:599', requestBody: elasticRequestBody, contentType: "APPLICATION_JSON"
     def result = new JsonSlurperClassic().parseText(response.content)
-    
+
     return result
 }
 

@@ -1,5 +1,6 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest.model.Tenant
 import java.time.*
 
 @Library('pipelines-shared-library') _
