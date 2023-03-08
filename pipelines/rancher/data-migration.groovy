@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-352') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
