@@ -44,72 +44,72 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
-            // stage('Destroy data-migration project') {
-            //     build job: Constants.JENKINS_JOB_PROJECT,
-            //         parameters: [
-            //             string(name: 'action', value: 'destroy'),
-            //             string(name: 'folio_repository', value: params.folio_repository),
-            //             string(name: 'folio_branch', value: params.folio_branch_src),
-            //             string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-            //             string(name: 'rancher_project_name', value: rancher_project_name),
-            //             string(name: 'config_type', value: config_type),
-            //             booleanParam(name: 'pg_embedded', value: false),
-            //             booleanParam(name: 'kafka_embedded', value: false),
-            //             booleanParam(name: 'es_embedded', value: false),
-            //             booleanParam(name: 's3_embedded', value: false),
-            //             booleanParam(name: 'opensearch_dashboards', value: false)
-            //         ]
-            // }
-            // stage('Restore data-migration project from backup') {
-            //     build job: Constants.JENKINS_JOB_PROJECT,
-            //         parameters: [
-            //             string(name: 'action', value: 'apply'),
-            //             string(name: 'folio_repository', value: params.folio_repository),
-            //             string(name: 'folio_branch', value: params.folio_branch_src),
-            //             string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-            //             string(name: 'rancher_project_name', value: rancher_project_name),
-            //             string(name: 'config_type', value: config_type),
-            //             booleanParam(name: 'restore_from_backup', value: true),
-            //             string(name: 'backup_type', value: 'rds'),
-            //             string(name: 'backup_name', value: params.backup_name),
-            //             string(name: 'tenant_id', value: "fs09000000"),
-            //             string(name: 'admin_username', value: "folio"),
-            //             string(name: 'admin_password', value: "folio"),
-            //             booleanParam(name: 'pg_embedded', value: false),
-            //             booleanParam(name: 'kafka_embedded', value: false),
-            //             booleanParam(name: 'es_embedded', value: false),
-            //             booleanParam(name: 's3_embedded', value: false),
-            //             booleanParam(name: 'opensearch_dashboards', value: false)
-            //         ]
-            // }
-            // stage('Update with src release versions') {
-            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-            //         parameters: [
-            //             string(name: 'folio_repository', value: params.folio_repository),
-            //             string(name: 'folio_branch', value: params.folio_branch_src),
-            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-            //             string(name: 'rancher_project_name', value: rancher_project_name),
-            //             string(name: 'config_type', value: config_type),
-            //             string(name: 'tenant_id', value: "fs09000000"),
-            //             string(name: 'admin_username', value: "folio"),
-            //             string(name: 'admin_password', value: "folio")
-            //         ]
-            // }
-            // stage('Update with dst release versions') {
-            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-            //         parameters: [
-            //             string(name: 'folio_repository', value: params.folio_repository),
-            //             string(name: 'folio_branch', value: params.folio_branch_dst),
-            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-            //             string(name: 'rancher_project_name', value: rancher_project_name),
-            //             string(name: 'config_type', value: config_type),
-            //             string(name: 'tenant_id', value: "fs09000000"),
-            //             string(name: 'admin_username', value: "folio"),
-            //             string(name: 'admin_password', value: "folio")
-            //         ]
-            // }
+            stage('Destroy data-migration project') {
+                build job: Constants.JENKINS_JOB_PROJECT,
+                    parameters: [
+                        string(name: 'action', value: 'destroy'),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_src),
+                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        booleanParam(name: 'pg_embedded', value: false),
+                        booleanParam(name: 'kafka_embedded', value: false),
+                        booleanParam(name: 'es_embedded', value: false),
+                        booleanParam(name: 's3_embedded', value: false),
+                        booleanParam(name: 'opensearch_dashboards', value: false)
+                    ]
+            }
+            stage('Restore data-migration project from backup') {
+                build job: Constants.JENKINS_JOB_PROJECT,
+                    parameters: [
+                        string(name: 'action', value: 'apply'),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_src),
+                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        booleanParam(name: 'restore_from_backup', value: true),
+                        string(name: 'backup_type', value: 'rds'),
+                        string(name: 'backup_name', value: params.backup_name),
+                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'admin_username', value: "folio"),
+                        string(name: 'admin_password', value: "folio"),
+                        booleanParam(name: 'pg_embedded', value: false),
+                        booleanParam(name: 'kafka_embedded', value: false),
+                        booleanParam(name: 'es_embedded', value: false),
+                        booleanParam(name: 's3_embedded', value: false),
+                        booleanParam(name: 'opensearch_dashboards', value: false)
+                    ]
+            }
+            stage('Update with src release versions') {
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                    parameters: [
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_src),
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'admin_username', value: "folio"),
+                        string(name: 'admin_password', value: "folio")
+                    ]
+            }
+            stage('Update with dst release versions') {
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                    parameters: [
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_dst),
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'admin_username', value: "folio"),
+                        string(name: 'admin_password', value: "folio")
+                    ]
+            }
             stage('Generate Data Migration Time report') {
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
                 
