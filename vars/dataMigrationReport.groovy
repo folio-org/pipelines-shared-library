@@ -117,35 +117,46 @@ def getESLogs(cluster, indexPattern, startDate) {
 
 @NonCPS
 def createHtmlReport(tenantName, tenants) {
-    def groupByTenant = tenants.groupBy({ it.tenantName })
+    def sortedList = tenants.sort {
+        try  {
+            it.moduleInfo.execTime.toInteger()
+        } catch (NumberFormatException ex) {
+            println "Activation of module $it failed"
+        }
+    }
+     
+    def groupByTenant = sortedList.reverse().groupBy({
+        it.tenantName
+    })
     int totalTime = 0
     def writer = new StringWriter()
     def markup = new groovy.xml.MarkupBuilder(writer)
-    markup.html{
+    markup.html {
         markup.table(style: "border-collapse: collapse;") {
-        markup.thead(style: "padding: 5px; border: solid 1px #777;"){
-            markup.tr {
-                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title:"Field #1", "Tenant name")
-                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title:"Field #2", "Module name")
-                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title:"Field #3", "Time(ms)")
-            }
-        }
-        markup.tbody{
-            groupByTenant[tenantName].each { tenantInfo ->
-                totalTime += tenantInfo.moduleInfo.execTime.isNumber() ? tenantInfo.moduleInfo.execTime as Integer : 0
-                markup.tr(style: "padding: 5px; border: solid 1px #777;"){
-                    markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
-                    markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.moduleInfo.moduleName)
-                    markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.moduleInfo.execTime)
+            markup.thead(style: "padding: 5px; border: solid 1px #777;") {
+                markup.tr {
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #2", "Module name")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Time(ms)")
                 }
             }
-            markup.tr(style: "padding: 5px; border: solid 1px #777;"){
-                markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-                markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-                markup.td(style: "padding: 5px; border: solid 1px #777;", TimeUnit.MILLISECONDS.toSeconds(totalTime.toInteger()) + ' s')
-            }  
+            markup.tbody {
+                groupByTenant[tenantName].each { tenantInfo -> 
+                    totalTime += tenantInfo.moduleInfo.execTime.isNumber() ? tenantInfo.moduleInfo.execTime as Integer: 0
+                    markup.tr(style: "padding: 5px; border: solid 1px #777;") {
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.moduleInfo.moduleName)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.moduleInfo.execTime)
+                    }
+                }
+                markup.tr(style: "padding: 5px; border: solid 1px #777;") {
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", TimeUnit.MILLISECONDS.toMinutes(totalTime.toInteger()) 
+                        + ' min')
+                }
+            }
         }
     }
-   }
     return writer.toString()
 }

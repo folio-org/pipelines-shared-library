@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
-@Library('pipelines-shared-library@RANCHER-352') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -111,8 +111,9 @@ ansiColor('xterm') {
                     ]
             }
             stage('Generate Data Migration Time report') {
-                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
+                sleep time: 3, unit: 'MINUTES'
                 
+                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
                     def logField = it.fields.log[0]
