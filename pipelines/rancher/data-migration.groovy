@@ -1,5 +1,7 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest.model.DataMigrationTenant
+import java.time.*
 
 @Library('pipelines-shared-library') _
 
@@ -32,6 +34,7 @@ properties([
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
+def startMigrationTime = LocalDateTime.now()
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -106,6 +109,45 @@ ansiColor('xterm') {
                         string(name: 'admin_username', value: "folio"),
                         string(name: 'admin_password', value: "folio")
                     ]
+            }
+            stage('Generate Data Migration Time report') {
+                sleep time: 3, unit: 'MINUTES'
+                
+                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
+                def tenants = []
+                result.hits.hits.each {
+                    def logField = it.fields.log[0]
+                    def parsedMigrationInfo= logField.split("'")
+                    def time
+                    try {
+                      def parsedTime = logField.split("completed successfully in ")
+                      time = parsedTime[1].minus("ms").trim()
+                    } catch (ArrayIndexOutOfBoundsException exception) {
+                      time = "failed"
+                    }
+                
+                    def bindingMap = [tenantName: parsedMigrationInfo[3], 
+                                      moduleInfo: [moduleName: parsedMigrationInfo[1], 
+                                                    execTime: time]]
+                
+                    tenants += new DataMigrationTenant(bindingMap)
+                }
+
+                def uniqTenants = tenants.tenantName.unique()
+                uniqTenants.each { tenantName ->
+                    writeFile file: "${tenantName}.html", text: dataMigrationReport.createHtmlReport(tenantName, tenants)
+                }
+                
+                if(uniqTenants){
+                    def htmlFiles = findFiles glob: '*.html'
+                    publishHTML([
+                            reportDir: '',
+                            reportFiles: htmlFiles.join(','),
+                            reportName: 'Data Migration Time',
+                            allowMissing: true,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true])
+                }             
             }
 
         } catch (exception) {
