@@ -3,6 +3,7 @@ import groovy.json.*
 import groovy.xml.MarkupBuilder
 import java.util.concurrent.*
 import java.util.Date
+import groovy.text.GStringTemplateEngine
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "es.json.template"
