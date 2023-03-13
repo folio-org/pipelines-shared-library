@@ -7,7 +7,7 @@ import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
 
 def getESLogs(cluster, indexPattern, startDate) {
-    def template = "es.json.template"
+    def template = "get-logs-ES.json.template"
     def binding = [
         cluster     : cluster,
         indexPattern: indexPattern,
