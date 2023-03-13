@@ -14,6 +14,7 @@ def getESLogs(cluster, indexPattern, startDate) {
         startDate   : startDate
     ]
 
+    Tools tools = new Tools(this)
     tools.copyResourceFileToWorkspace("dataMigration/$template")
     def content = steps.readFile template
     String elasticRequestBody = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
