@@ -135,7 +135,7 @@ void convertTime(int ms) {
     long minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % TimeUnit.HOURS.toMinutes(1);
     long seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % TimeUnit.MINUTES.toSeconds(1);
 
-    String format = String.format("%02d:%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds));
+    String format = String.format("%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds));
     
     return format
 }
