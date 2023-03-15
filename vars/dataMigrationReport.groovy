@@ -68,7 +68,7 @@ def createHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                groupByTenant[tenantName].each { tenantInfo -> 
+                groupByModule[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
 
