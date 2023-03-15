@@ -65,7 +65,8 @@ def createHtmlReport(tenantName, tenants) {
                     }
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
-                    } else if(execTime.isNumber() ? execTime as Integer: 0 > 300000){
+                    } else if((execTime.isNumber() ? execTime as Integer: 0) >= 300000){
+                        println "[DEBUG] $execTime"
                         modulesLongMigrationTime.put(moduleName, execTime)
                     }
                 }
