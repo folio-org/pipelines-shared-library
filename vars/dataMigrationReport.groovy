@@ -68,7 +68,7 @@ def createHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                groupByModule[tenantName].each { tenantInfo -> 
+                groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
 
@@ -76,7 +76,7 @@ def createHtmlReport(tenantName, tenants) {
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", execTime)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime))
                     }
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
@@ -128,4 +128,14 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
         println("Unable to send slack notification to channel '${slackChannel}'")
         e.printStackTrace()
     }
+}
+
+void convertTime(int ms) {
+    long hours = TimeUnit.MILLISECONDS.toHours(ms);
+    long minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % TimeUnit.HOURS.toMinutes(1);
+    long seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % TimeUnit.MINUTES.toSeconds(1);
+
+    String format = String.format("%02d:%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds));
+    
+    return format
 }
