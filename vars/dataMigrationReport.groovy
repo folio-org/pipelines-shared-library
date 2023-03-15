@@ -76,7 +76,7 @@ def createHtmlReport(tenantName, tenants) {
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime))
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
                     }
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
