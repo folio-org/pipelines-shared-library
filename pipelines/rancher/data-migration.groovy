@@ -128,12 +128,14 @@ ansiColor('xterm') {
                     } catch (ArrayIndexOutOfBoundsException exception) {
                       time = "failed"
                     }
-                
-                    def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                      moduleInfo: [moduleName: parsedMigrationInfo[1], 
-                                                    execTime: time]]
-                
-                    tenants += new DataMigrationTenant(bindingMap)
+
+                    if(parsedMigrationInfo[1].startsWith("mod-"))){
+                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
+                                        moduleInfo: [moduleName: parsedMigrationInfo[1], 
+                                                        execTime: time]]
+                    
+                        tenants += new DataMigrationTenant(bindingMap)
+                    }
                 }
 
                 def uniqTenants = tenants.tenantName.unique()
