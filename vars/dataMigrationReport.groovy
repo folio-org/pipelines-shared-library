@@ -66,17 +66,14 @@ def createHtmlReport(tenantName, tenants) {
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
-                    println execTime
                     def moduleTime 
                     if(execTime == "failed") {
-                        println "failed"
                         modulesMigrationFailed += moduleName
                         moduleTime = "failed"
-                    } else if(execTime.isNumber() ? execTime as Integer : 0) {
+                    } else if(execTime.isNumber()) {
                         totalTime += execTime.toInteger()
-                        println totalTime
                         moduleTime = convertTime(execTime.toInteger())
-                        if(execTime >= 300000) {
+                        if(execTime.toInteger() >= 300000) {
                             modulesLongMigrationTime.put(moduleName, execTime)
                         }
                     }
