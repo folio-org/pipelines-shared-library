@@ -108,6 +108,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
 
     try {
         println message
+        println karateTestUtils.getSlackColor(buildStatus)s
         // slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
