@@ -154,7 +154,7 @@ ansiColor('xterm') {
                             allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true])
-                }             
+                }         
             }
             // stage('Send Slack notification') {
                 
