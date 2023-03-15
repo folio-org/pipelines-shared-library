@@ -46,11 +46,6 @@ def createHtmlReport(tenantName, tenants) {
     def groupByModule = sortedList1.groupBy({
         it.tenantName
     })
-    println "******************************"
-    println sortedList1
-    println "******************************"
-    println groupByModule
-    println "******************************"
 
 // 
     int totalTime = 0
@@ -72,11 +67,14 @@ def createHtmlReport(tenantName, tenants) {
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
 
+                    println execTime
+                    println execTime.getClass()
+                    println convertTime(execTime.toInteger())
                     totalTime += execTime.isNumber() ? execTime as Integer: 0
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", execTime)
                     }
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
