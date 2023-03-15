@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-353') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -29,12 +29,15 @@ properties([
         jobsParameters.repository(),
         jobsParameters.branch('folio_repository', 'folio_branch_src'),
         jobsParameters.branch('folio_repository', 'folio_branch_dst'),
-        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true)])])
+        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
+        string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report', trim: true)])])
 
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
 def startMigrationTime = LocalDateTime.now()
+Integer totalTimeInHours = 0
+LinkedHashMap modulesLongMigrationTime = [:]
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -135,7 +138,11 @@ ansiColor('xterm') {
 
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->
-                    writeFile file: "${tenantName}.html", text: dataMigrationReport.createHtmlReport(tenantName, tenants)
+                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
+                    totalTimeInHours += totalTime
+                    modulesLongMigrationTime += modulesLongMigrationTime
+                    modulesMigrationFailed += modulesMigrationFailed
+                    writeFile file: "${tenantName}.html", text: htmlData
                 }
                 
                 if(uniqTenants){
@@ -149,6 +156,9 @@ ansiColor('xterm') {
                             keepAll: true])
                 }             
             }
+            // stage('Send Slack notification') {
+                
+            // }            
 
         } catch (exception) {
             println(exception)
