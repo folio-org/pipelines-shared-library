@@ -64,7 +64,7 @@ def createHtmlReport(tenantName, tenants) {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", execTime)
                     }
-                    if(execTime = "failed") {
+                    if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
                     } else if(execTime.isNumber() ? execTime as Integer: 0 > 300000){
                         modulesLongMigrationTime.put(moduleName, execTime)
