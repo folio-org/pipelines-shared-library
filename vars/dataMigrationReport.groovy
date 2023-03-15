@@ -86,7 +86,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
     def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
-    if(totalTimeInHours >= 3 ) {
+    if(totalTimeInHours >= 1) {
         message += "Please check: Data Migration takes $totalTimeInHours hours!\n"
     }
 
@@ -94,7 +94,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
         message += "List of modules with activation time is bigger than 5 minutes:\n"
         modulesLongMigrationTime.each { moduleName ->
             def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleName.value.toInteger())
-            message += "${moduleName.key} takes $moduleTimeMinutes\n"
+            message += "${moduleName.key} takes $moduleTimeMinutes minutes\n"
         }
     }
 
