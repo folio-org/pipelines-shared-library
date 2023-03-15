@@ -67,7 +67,7 @@ def createHtmlReport(tenantName, tenants) {
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
 
-                    totalTime += execTime.isNumber() ? execTime as Integer: 0
+                    totalTime += execTime.isNumber() ? execTime as Integer : 0
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
@@ -78,15 +78,14 @@ def createHtmlReport(tenantName, tenants) {
                             markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
                         }
                     }
-                    if((execTime.isNumber() ? execTime as Integer: 0) >= 300000){
+                    if((execTime.isNumber() ? execTime as Integer : 0) >= 300000){
                         modulesLongMigrationTime.put(moduleName, execTime)
                     }
                 }
                 markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-                    markup.td(style: "padding: 5px; border: solid 1px #777;", TimeUnit.MILLISECONDS.toMinutes(totalTime.toInteger()) 
-                        + ' min')
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(totalTime.toInteger()))
                 }
             }
         }
