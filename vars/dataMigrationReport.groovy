@@ -66,20 +66,24 @@ def createHtmlReport(tenantName, tenants) {
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
+                    def moduleTime 
+                    if(execTime == "failed") {
+                        modulesMigrationFailed += moduleName
+                        moduleTime = "failed"
+                    } else if(execTime.isNumber() ? execTime as Integer : 0) {
+                        totalTime += execTime
+                        moduleTime = convertTime(execTime)
+                        if(execTime >= 300000) {
+                            modulesLongMigrationTime.put(moduleName, execTime)
+                        }
+                    }
 
-                    totalTime += execTime.isNumber() ? execTime as Integer : 0
+
+                    // totalTime += execTime.isNumber() ? execTime as Integer : 0
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        if(execTime == "failed") {
-                            modulesMigrationFailed += moduleName
-                            markup.td(style: "padding: 5px; border: solid 1px #777;", execTime)
-                        } else {
-                            markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
-                        }
-                    }
-                    if((execTime.isNumber() ? execTime as Integer : 0) >= 300000){
-                        modulesLongMigrationTime.put(moduleName, execTime)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleTime)
                     }
                 }
                 markup.tr(style: "padding: 5px; border: solid 1px #777;") {
