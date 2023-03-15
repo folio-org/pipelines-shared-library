@@ -36,7 +36,7 @@ def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
 def startMigrationTime = LocalDateTime.now()
-Integer totalTimeInHours = 0
+Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTime = [:]
 
 ansiColor('xterm') {
@@ -139,7 +139,7 @@ ansiColor('xterm') {
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->
                     (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
-                    totalTimeInHours += totalTime
+                    totalTimeInMs += totalTime
                     modulesLongMigrationTime += modulesLongMigrationTime
                     modulesMigrationFailed += modulesMigrationFailed
                     writeFile file: "${tenantName}.html", text: htmlData
@@ -156,9 +156,9 @@ ansiColor('xterm') {
                             keepAll: true])
                 }         
             }
-            // stage('Send Slack notification') {
-                
-            // }            
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification(slackChannel, totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
+            }            
 
         } catch (exception) {
             println(exception)
