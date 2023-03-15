@@ -66,7 +66,6 @@ def createHtmlReport(tenantName, tenants) {
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
                     } else if((execTime.isNumber() ? execTime as Integer: 0) >= 43166){
-                        println "[DEBUG] $execTime"
                         modulesLongMigrationTime.put(moduleName, execTime)
                     }
                 }
@@ -82,7 +81,7 @@ def createHtmlReport(tenantName, tenants) {
     return [writer.toString(), totalTime, modulesLongMigrationTime, modulesMigrationFailed]
 }
 
-void sendSlackNotification(String slackChannel, Integer totalTimeInHours = null, LinkedHashMap modulesLongMigrationTime = [:]) {
+void sendSlackNotification(String slackChannel, Integer totalTimeInHours = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
     def buildStatus = currentBuild.result
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
@@ -93,13 +92,21 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInHours = null,
     if(modulesLongMigrationTime) {
         message += "List of modules with activation time is bigger than 5 minutes:\n"
         modulesLongMigrationTime.each { moduleName ->
+            message += "${moduleName.key} takes ${moduleName.value}\n"
+        }
+    }
+
+    if(modulesMigrationFailed) {
+        message += "Modules with failed activation:\n"
+        modulesMigrationFailed.each { moduleName ->
             message += "$moduleName\n"
         }
     }
     message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
 
     try {
-        slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
+        println message
+        // slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
         e.printStackTrace()
