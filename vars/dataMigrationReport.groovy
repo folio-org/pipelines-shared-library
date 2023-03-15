@@ -128,6 +128,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     }
 }
 
+@NonCPS
 void convertTime(int ms) {
     long hours = TimeUnit.MILLISECONDS.toHours(ms);
     long minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % TimeUnit.HOURS.toMinutes(1);
