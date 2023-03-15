@@ -63,7 +63,7 @@ def createHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                groupByTenant[tenantName].each { tenantInfo -> 
+                groupByModule[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
@@ -78,8 +78,6 @@ def createHtmlReport(tenantName, tenants) {
                         }
                     }
 
-
-                    // totalTime += execTime.isNumber() ? execTime as Integer : 0
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
