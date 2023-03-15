@@ -71,11 +71,14 @@ def createHtmlReport(tenantName, tenants) {
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
+                        if(execTime == "failed") {
+                            modulesMigrationFailed += moduleName
+                            markup.td(style: "padding: 5px; border: solid 1px #777;", execTime)
+                        } else {
+                            markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(execTime.toInteger()))
+                        }
                     }
-                    if(execTime == "failed") {
-                        modulesMigrationFailed += moduleName
-                    } else if((execTime.isNumber() ? execTime as Integer: 0) >= 300000){
+                    if((execTime.isNumber() ? execTime as Integer: 0) >= 300000){
                         modulesLongMigrationTime.put(moduleName, execTime)
                     }
                 }
