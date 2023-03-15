@@ -83,7 +83,7 @@ def createHtmlReport(tenantName, tenants) {
 
 void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
     def buildStatus = currentBuild.result
-    def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+    def message = "${currentResult}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
     def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
     if(totalTimeInHours >= 1) {
