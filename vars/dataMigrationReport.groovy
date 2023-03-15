@@ -28,7 +28,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 @NonCPS
 def createHtmlReport(tenantName, tenants) {
     def sortedList = tenants.sort {
-        try  {
+        try {
             it.moduleInfo.execTime.toInteger()
         } catch (NumberFormatException ex) {
             println "Activation of module $it failed"
@@ -38,6 +38,21 @@ def createHtmlReport(tenantName, tenants) {
     def groupByTenant = sortedList.reverse().groupBy({
         it.tenantName
     })
+
+// 
+    def sortedList1 = tenants.sort {
+        it.moduleInfo.moduleName
+    }
+    def groupByModule = sortedList1.groupBy({
+        it.tenantName
+    })
+    println "******************************"
+    println sortedList1
+    println "******************************"
+    println groupByModule
+    println "******************************"
+
+// 
     int totalTime = 0
     def modulesLongMigrationTime = [:]
     def modulesMigrationFailed = []
@@ -108,7 +123,6 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
 
     try {
         println message
-        println karateTestUtils.getSlackColor(buildStatus)s
         // slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
