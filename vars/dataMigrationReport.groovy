@@ -65,7 +65,7 @@ def createHtmlReport(tenantName, tenants) {
                     }
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
-                    } else if((execTime.isNumber() ? execTime as Integer: 0) >= 43166){
+                    } else if((execTime.isNumber() ? execTime as Integer: 0) >= 300000){
                         modulesLongMigrationTime.put(moduleName, execTime)
                     }
                 }
@@ -86,7 +86,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
     def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
-    if(totalTimeInHours >= 1) {
+    if(totalTimeInHours >= 3) {
         message += "Please check: Data Migration takes $totalTimeInHours hours!\n"
     }
 
