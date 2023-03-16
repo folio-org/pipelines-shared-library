@@ -129,7 +129,7 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if(parsedMigrationInfo[1].startsWith("mod-"))){
+                    if(parsedMigrationInfo[1].startsWith("mod-")){
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                         moduleInfo: [moduleName: parsedMigrationInfo[1], 
                                                         execTime: time]]
@@ -159,7 +159,7 @@ ansiColor('xterm') {
                 }         
             }
             stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification(slackChannel, totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
+                dataMigrationReport.sendSlackNotification("#$slackChannel", totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
             }            
 
         } catch (exception) {

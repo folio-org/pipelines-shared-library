@@ -105,7 +105,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     }
 
     if(modulesLongMigrationTime) {
-        message += "List of modules with activation time is bigger than 5 minutes:\n"
+        message += "List of modules with activation time bigger than 5 minutes:\n"
         modulesLongMigrationTime.each { moduleName ->
             def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleName.value.toInteger())
             message += "${moduleName.key} takes $moduleTimeMinutes minutes\n"
