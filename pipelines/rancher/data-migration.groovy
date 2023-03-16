@@ -159,7 +159,7 @@ ansiColor('xterm') {
                 }         
             }
             stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#$slackChannel", totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
             }            
 
         } catch (exception) {
