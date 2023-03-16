@@ -30,7 +30,7 @@ properties([
         jobsParameters.branch('folio_repository', 'folio_branch_src'),
         jobsParameters.branch('folio_repository', 'folio_branch_dst'),
         string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
-        string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report', trim: true)])])
+        string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
 
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
