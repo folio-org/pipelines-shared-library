@@ -304,6 +304,16 @@ mod-configuration:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-consortia:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '427Mi'
+    requests:
+      memory: '341Mi'
 # mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
 mod-codex-mux:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
