@@ -53,7 +53,7 @@ String generateModuleValues(String module_name, String module_version, Project p
         String repository
         if (custom_module || module_name == 'ui-bundle') {
             repository = Constants.ECR_FOLIO_REPOSITORY
-        } else if (module_name == 'mod-graphql' && module_version.contains("\\d{1,3}\\.\\d{1,3}\\.\\d{3,10}/")) {
+        } else if (module_name == 'mod-graphql' && module_version ==~ /\d{1,2}.\d{1,3}.\d{3,10}/) {
             repository = "folioci"
         } else {
             repository = module_version.contains('SNAPSHOT') ? "folioci" : "folioorg"
