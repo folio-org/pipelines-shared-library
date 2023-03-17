@@ -37,7 +37,8 @@ def rancher_project_name = 'data-migration'
 def config_type = 'performance'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
-LinkedHashMap modulesLongMigrationTime = [:]
+LinkedHashMap modulesLongMigrationTimeSlack = [:]
+List modulesMigrationFailedSlack = []
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -142,8 +143,8 @@ ansiColor('xterm') {
                 uniqTenants.each { tenantName ->
                     (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
                     totalTimeInMs += totalTime
-                    modulesLongMigrationTime += modulesLongMigrationTime
-                    modulesMigrationFailed += modulesMigrationFailed
+                    modulesLongMigrationTimeSlack += modulesLongMigrationTime
+                    modulesMigrationFailedSlack += modulesMigrationFailed
                     writeFile file: "${tenantName}.html", text: htmlData
                 }
                 
@@ -159,7 +160,7 @@ ansiColor('xterm') {
                 }         
             }
             stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTime, modulesMigrationFailed)
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }            
 
         } catch (exception) {
