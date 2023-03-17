@@ -39,15 +39,6 @@ def createHtmlReport(tenantName, tenants) {
         it.tenantName
     })
 
-// 
-    def sortedList1 = tenants.sort {
-        it.moduleInfo.moduleName
-    }
-    def groupByModule = sortedList1.groupBy({
-        it.tenantName
-    })
-
-// 
     int totalTime = 0
     def modulesLongMigrationTime = [:]
     def modulesMigrationFailed = []
@@ -63,7 +54,7 @@ def createHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                groupByModule[tenantName].each { tenantInfo -> 
+                groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
