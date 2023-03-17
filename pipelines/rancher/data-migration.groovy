@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-691') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -35,7 +35,7 @@ properties([
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
-def startMigrationTime = LocalDateTime.now()
+def startMigrationTime
 Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
@@ -102,6 +102,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with dst release versions') {
+                startMigrationTime = LocalDateTime.now()
                 build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
