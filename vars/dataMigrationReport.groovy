@@ -47,7 +47,7 @@ def createHtmlReport(tenantName, tenants) {
     markup.html {
         markup.table(class: "sortable", style: "border-collapse: collapse;") {
             markup.thead{
-                script(type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js'),
+                script(type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js')
                 style: "padding: 5px; border: solid 1px #777;"
                 } {
                 markup.tr {
