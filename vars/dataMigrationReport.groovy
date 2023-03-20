@@ -49,7 +49,6 @@ def createHtmlReport(tenantName, tenants) {
             markup.thead{
                 script( '', type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js')
                 style: "padding: 5px; border: solid 1px #777;"
-                class: "sortable"
                 } {
                 markup.tr {
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
