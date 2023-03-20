@@ -45,9 +45,11 @@ def createHtmlReport(tenantName, tenants) {
     def writer = new StringWriter()
     def markup = new groovy.xml.MarkupBuilder(writer)
     markup.html {
-        script(type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js')
         markup.table(class: "sortable", style: "border-collapse: collapse;") {
-            markup.thead(style: "padding: 5px; border: solid 1px #777;") {
+            markup.thead{
+                script(type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js'),
+                style: "padding: 5px; border: solid 1px #777;"
+                } {
                 markup.tr {
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #2", "Module name")
