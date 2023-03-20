@@ -45,9 +45,9 @@ def createHtmlReport(tenantName, tenants) {
     def writer = new StringWriter()
     def markup = new groovy.xml.MarkupBuilder(writer)
     markup.html {
+        script( type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js')
         markup.table(class: "sortable", style: "border-collapse: collapse;") {
             markup.thead{
-                script( '', type:'text/javascript', src:'https://www.kryogenix.org/code/browser/sorttable/sorttable.js')
                 style: "padding: 5px; border: solid 1px #777;"
                 } {
                 markup.tr {
@@ -57,7 +57,6 @@ def createHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                class: "sortable"
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def execTime = tenantInfo.moduleInfo.execTime
