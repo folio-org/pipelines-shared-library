@@ -118,6 +118,7 @@ ansiColor('xterm') {
             stage('Generate Data Migration Time report') {
                 sleep time: 3, unit: 'MINUTES'
                 
+                def backend_modules_list = getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
@@ -131,7 +132,7 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if(parsedMigrationInfo[1].startsWith("mod-")){
+                    if(backend_modules_list.contains(parsedMigrationInfo[1])){
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                         moduleInfo: [moduleName: parsedMigrationInfo[1], 
                                                         execTime: time]]
@@ -172,5 +173,17 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
+    }
+}
+
+List getBackendModulesList(String repoName, String branchName){
+    def installJson = new URL("https://raw.githubusercontent.com/folio-org/${repoName}/${branchName}/install.json").openConnection()
+    if (installJson.getResponseCode().equals(200)) {
+        List modules_list = ['okapi']
+        new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
+            println value
+            modules_list.add(value)
+        }
+        return modules_list.sort()
     }
 }
