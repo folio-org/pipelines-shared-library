@@ -117,7 +117,7 @@ ansiColor('xterm') {
             }
             stage('Generate Data Migration Time report') {
                 sleep time: 3, unit: 'MINUTES'
-                
+
                 def backend_modules_list = getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
@@ -181,7 +181,6 @@ List getBackendModulesList(String repoName, String branchName){
     if (installJson.getResponseCode().equals(200)) {
         List modules_list = ['okapi']
         new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
-            println value
             modules_list.add(value)
         }
         return modules_list.sort()
