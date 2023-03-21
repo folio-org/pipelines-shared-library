@@ -35,7 +35,7 @@ properties([
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
-def startMigrationTime
+def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
@@ -102,7 +102,6 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with dst release versions') {
-                startMigrationTime = LocalDateTime.now()
                 build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
@@ -116,9 +115,9 @@ ansiColor('xterm') {
                     ]
             }
             stage('Generate Data Migration Time report') {
-                sleep time: 3, unit: 'MINUTES'
+                sleep time: 5, unit: 'MINUTES'
 
-                def backend_modules_list = getBackendModulesList(params.folio_repository, params.folio_branch_dst)
+                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
@@ -173,16 +172,5 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
-    }
-}
-
-List getBackendModulesList(String repoName, String branchName){
-    def installJson = new URL("https://raw.githubusercontent.com/folio-org/${repoName}/${branchName}/install.json").openConnection()
-    if (installJson.getResponseCode().equals(200)) {
-        List modules_list = ['okapi']
-        new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
-            modules_list.add(value)
-        }
-        return modules_list.sort()
     }
 }
