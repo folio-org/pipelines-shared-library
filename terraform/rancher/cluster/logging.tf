@@ -24,6 +24,32 @@ resource "rancher2_namespace" "logging" {
   }
 }
 
+# Create Cognito user pool and client for authentication
+resource "aws_cognito_user_pool" "kibana_user_pool" {
+  name = "${module.eks_cluster.cluster_id}-kibana-user-pool"
+
+  password_policy {
+    minimum_length = 8
+  }
+}
+
+resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
+  depends_on                           = [aws_cognito_user_pool.kibana_user_pool]
+  name                                 = "${module.eks_cluster.cluster_id}-kibana"
+  user_pool_id                         = "${aws_cognito_user_pool.kibana_user_pool.id}"
+  generate_secret                      = true
+  callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kibana.${var.root_domain}/oauth2/idpresponse"]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_flows                  = ["code"]
+  allowed_oauth_scopes                 = ["openid"]
+  supported_identity_providers         = ["COGNITO"]
+}
+
+resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
+  domain       = "${module.eks_cluster.cluster_id}-kibana"
+  user_pool_id = "${aws_cognito_user_pool.kibana_user_pool.id}"
+}
+
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "elasticsearch" {
   depends_on    = [rancher2_catalog_v2.bitnami]
@@ -91,6 +117,12 @@ resource "rancher2_app_v2" "elasticsearch" {
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+          alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_id}-kibana"}'
+          alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
+          alb.ingress.kubernetes.io/auth-scope: openid
+          alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
+          alb.ingress.kubernetes.io/auth-session-timeout: "3600"
+          alb.ingress.kubernetes.io/auth-type: cognito
   EOT
 }
 
