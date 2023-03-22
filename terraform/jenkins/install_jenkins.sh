@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#Wait for the volume to be attached
 sleep 300
 #EBS volume mounting
 DEVICE='/dev/xvdb'
