@@ -115,8 +115,9 @@ ansiColor('xterm') {
                     ]
             }
             stage('Generate Data Migration Time report') {
-                sleep time: 3, unit: 'MINUTES'
-                
+                sleep time: 5, unit: 'MINUTES'
+
+                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
@@ -130,7 +131,7 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if(parsedMigrationInfo[1].startsWith("mod-")){
+                    if(backend_modules_list.contains(parsedMigrationInfo[1])){
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                         moduleInfo: [moduleName: parsedMigrationInfo[1], 
                                                         execTime: time]]

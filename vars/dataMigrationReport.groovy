@@ -130,3 +130,14 @@ def convertTime(int ms) {
     
     return format
 }
+
+def getBackendModulesList(String repoName, String branchName){
+    def installJson = new URL("https://raw.githubusercontent.com/folio-org/${repoName}/${branchName}/install.json").openConnection()
+    if (installJson.getResponseCode().equals(200)) {
+        List modules_list = ['okapi']
+        new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
+            modules_list.add(value)
+        }
+        return modules_list.sort()
+    }
+}
