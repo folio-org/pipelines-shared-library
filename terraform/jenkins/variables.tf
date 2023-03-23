@@ -77,3 +77,9 @@ variable "route53_zone_id" {
   default     = "Z3T7T50VQ846GQ"
   description = "Route53 zone id to create record in"
 }
+
+variable "jenkins_version" {
+  type        = string
+  default     = "2.387.1-1.1"
+  description = "Version of Jenkins server to install"
+}

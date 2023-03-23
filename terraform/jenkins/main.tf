@@ -38,7 +38,7 @@ resource "aws_instance" "jenkins_server" {
 
   key_name = var.ssh_key_name
 
-  user_data = file("${path.module}/install_jenkins.sh")
+  user_data = templatefile("${path.module}/install_jenkins.sh", { jenkins_version = var.jenkins_version })
 
   tags = merge(var.tags,
     {
