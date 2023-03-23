@@ -29,12 +29,16 @@ properties([
         jobsParameters.repository(),
         jobsParameters.branch('folio_repository', 'folio_branch_src'),
         jobsParameters.branch('folio_repository', 'folio_branch_dst'),
-        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true)])])
+        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
+        string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
 
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
 def startMigrationTime = LocalDateTime.now()
+Integer totalTimeInMs = 0
+LinkedHashMap modulesLongMigrationTimeSlack = [:]
+List modulesMigrationFailedSlack = []
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -111,8 +115,9 @@ ansiColor('xterm') {
                     ]
             }
             stage('Generate Data Migration Time report') {
-                sleep time: 3, unit: 'MINUTES'
-                
+                sleep time: 5, unit: 'MINUTES'
+
+                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
@@ -125,17 +130,23 @@ ansiColor('xterm') {
                     } catch (ArrayIndexOutOfBoundsException exception) {
                       time = "failed"
                     }
-                
-                    def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                      moduleInfo: [moduleName: parsedMigrationInfo[1], 
-                                                    execTime: time]]
-                
-                    tenants += new DataMigrationTenant(bindingMap)
+
+                    if(backend_modules_list.contains(parsedMigrationInfo[1])){
+                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
+                                        moduleInfo: [moduleName: parsedMigrationInfo[1], 
+                                                        execTime: time]]
+                    
+                        tenants += new DataMigrationTenant(bindingMap)
+                    }
                 }
 
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->
-                    writeFile file: "${tenantName}.html", text: dataMigrationReport.createHtmlReport(tenantName, tenants)
+                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
+                    totalTimeInMs += totalTime
+                    modulesLongMigrationTimeSlack += modulesLongMigrationTime
+                    modulesMigrationFailedSlack += modulesMigrationFailed
+                    writeFile file: "${tenantName}.html", text: htmlData
                 }
                 
                 if(uniqTenants){
@@ -147,8 +158,11 @@ ansiColor('xterm') {
                             allowMissing: true,
                             alwaysLinkToLastBuild: true,
                             keepAll: true])
-                }             
+                }         
             }
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            }            
 
         } catch (exception) {
             println(exception)
