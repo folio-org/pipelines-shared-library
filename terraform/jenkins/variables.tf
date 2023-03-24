@@ -17,7 +17,7 @@ variable "vpc_cidr_block" {
 
 variable "jenkins_home_size" {
   type        = number
-  default     = 2000
+  default     = 500
   description = "Size of the volume to mount /home/jenkins directory"
 }
 
