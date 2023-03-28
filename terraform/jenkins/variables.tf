@@ -83,3 +83,27 @@ variable "jenkins_version" {
   default     = "2.387.1-1.1"
   description = "Version of Jenkins server to install"
 }
+
+variable "agent_ami" {
+  type        = string
+  default     = "ami-0688ba7eeeeefe3cd"
+  description = "AMI to run Jenkins agent on"
+}
+
+variable "agent_instance_type" {
+  type        = string
+  default     = "m5.2xlarge"
+  description = "Instance type for Jenkins agents"
+}
+
+variable "agents_count" {
+  type        = number
+  default     = 1
+  description = "Count of the Jenkins agents to run"
+}
+
+variable "route53_internal_zone_id" {
+  type        = string
+  default     = "Z02587693OFIQ4WPDRZ5S"
+  description = "Route53 zone id to create record in for agents"
+}
