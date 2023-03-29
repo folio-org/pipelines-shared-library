@@ -13,8 +13,8 @@ def call(params) {
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
     def resultPaths = []
     for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
+        def currentNumber = workerNumber
         cypressWorkers["CypressWorker#${workerNumber}"] = {
-            def currentNumber = workerNumber
             node(params.agent) {
                 stage('Test') {
                     script {
