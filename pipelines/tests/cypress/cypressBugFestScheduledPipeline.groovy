@@ -31,7 +31,7 @@ def jobParameters = [
 ]
 
 node {
-    timeout(time: 4, unit: 'HOURS') {
+    timeout(time: 5, unit: 'HOURS') {
         cypressFlow(jobParameters)
     }
 }
