@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@BF-475') _
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -21,7 +21,7 @@ def jobParameters = [
     tenant: tenant,
     user: 'folio-aqa',
     password: 'Folio-aqa1',
-    cypressParameters: "--env grepTags=\"smoke criticalPth extendedPath\",grepFilterSpecs=true",
+    cypressParameters: ["--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"folijet\",grepFilterSpecs=true"],
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
     testrailProjectID: '14',
