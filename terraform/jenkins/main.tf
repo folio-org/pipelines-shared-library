@@ -32,6 +32,8 @@ resource "aws_instance" "jenkins_server" {
 
   vpc_security_group_ids = [aws_security_group.jenkins_master.id]
 
+  iam_instance_profile = aws_iam_instance_profile.jenkins_ec2_profile.name
+
   root_block_device {
     volume_size = 15
   }
@@ -58,4 +60,7 @@ resource "aws_volume_attachment" "jenkins_home" {
   instance_id = aws_instance.jenkins_server.id
 }
 
-
+resource "aws_iam_instance_profile" "jenkins_ec2_profile" {
+  name = "jenkins_ec2_profile"
+  role = var.iam_jenkins_role
+}

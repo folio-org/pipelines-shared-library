@@ -107,3 +107,9 @@ variable "route53_internal_zone_id" {
   default     = "Z02587693OFIQ4WPDRZ5S"
   description = "Route53 zone id to create record in for agents"
 }
+
+variable "iam_jenkins_role" {
+  type        = string
+  default     = "JenkinsRole"
+  description = "IAM role name to be assigned to the Jenkins instance"
+}
