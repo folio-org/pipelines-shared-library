@@ -10,7 +10,7 @@ properties([
     disableConcurrentBuilds(),
     pipelineTriggers([cron('H 2 * * 1-6')]),
     parameters([
-        string(name: 'branch', defaultValue: 'orchid', description: 'Cypress tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'orchid-parallel', description: 'Cypress tests repository branch to checkout')
     ]),
 ])
 
@@ -21,7 +21,7 @@ def jobParameters = [
     tenant: tenant,
     user: 'folio-aqa',
     password: 'Folio-aqa1',
-    cypressParameters: ["--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"firebird vega spitfire thunderjet prokopovych\",grepFilterSpecs=true", "--env grepTags=\"folijet\",grepFilterSpecs=true"],
+    cypressParameters: ["--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group nonParallelTests --spec 'cypress/e2e/parallel/**/*'"],
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
     testrailProjectID: '14',
