@@ -54,14 +54,13 @@ variable "eks_nodes_type" {
   description = "Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT"
 }
 
-variable "eks_node_group_size" {
+variable "eks_nodes_group_size" {
   type = object({
     min_size : number,
     max_size : number,
-    desired_size : number
   })
-  default     = { "min_size" : 4, "max_size" : 8, "desired_size" : 4 }
-  description = "Minimum, maximum, and desired number of instances/nodes"
+  default     = { "min_size" : 2, "max_size" : 4 }
+  description = "Minimum and maximum number of instances/nodes"
 }
 
 variable "asg_instance_types" {
