@@ -30,6 +30,9 @@ locals {
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
   version = "18.30.2"
+  # Switch off cloudwatch log group
+  create_cloudwatch_log_group = false
+  cluster_enabled_log_types = []
 
   cluster_name      = terraform.workspace
   cluster_version   = "1.21" //For kube-poxy metrics 1.22 version needed
