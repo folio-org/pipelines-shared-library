@@ -98,7 +98,13 @@ ansiColor('xterm') {
                         terraform.tfApply(tfWorkDir)
                     } else if (params.action == 'destroy') {
                         input message: "Are you shure that you want to destroy ${cluster_name} cluster?"
-                        terraform.tfRemoveElastic(tfWorkDir)
+                        try {
+                            terraform.tfRemoveElastic(tfWorkDir)
+                        }
+                        catch (exception)
+                        {
+                            println(exception)
+                        }
                         terraform.tfDestroy(tfWorkDir, tfVars)
                     }
                 }
