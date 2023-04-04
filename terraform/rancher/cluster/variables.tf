@@ -50,8 +50,8 @@ variable "vpc_name" {
 
 variable "eks_nodes_type" {
   type        = string
-  default     = "SPOT"
-  description = "Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT"
+  default     = "ON_DEMAND"
+  description = "Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT(for testing purposes only)"
 }
 
 variable "eks_nodes_group_size" {
