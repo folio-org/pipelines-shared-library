@@ -119,5 +119,9 @@ module "eks_cluster" {
 
   aws_auth_users = local.admin_users_map
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    {
+      kubernetes_cluster = terraform.workspace
+  })
 }
