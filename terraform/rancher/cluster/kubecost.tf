@@ -53,7 +53,7 @@ resource "rancher2_app_v2" "kubecost" {
   name          = "kubecost"
   repo_name     = "cost-analyzer"
   chart_name    = "cost-analyzer"
-  chart_version = "1.98.0"
+  chart_version = "1.101.3"
   values        = <<-EOT
     kubecostModel:
       resources:
