@@ -9,6 +9,10 @@ data "aws_vpc" "this" {
 
 data "aws_subnets" "private" {
   filter {
+    name   = "availability-zone"
+    values = ["${var.aws_region}a", "${var.aws_region}b"]
+  }
+  filter {
     name   = "vpc-id"
     values = [data.aws_vpc.this.id]
   }
