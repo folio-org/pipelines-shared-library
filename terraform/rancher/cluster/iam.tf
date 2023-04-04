@@ -1,6 +1,6 @@
 module "load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "5.16.0"
 
   role_name                              = join("-", [terraform.workspace, "load-balancer-controller-role"])
   attach_load_balancer_controller_policy = true
@@ -22,7 +22,7 @@ module "load_balancer_controller_irsa_role" {
 
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "5.16.0"
 
   role_name             = join("-", [terraform.workspace, "ebs-csi-role"])
   attach_ebs_csi_policy = true
@@ -44,7 +44,7 @@ module "ebs_csi_irsa_role" {
 
 module "external_dns_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "5.16.0"
 
   role_name                     = join("-", [terraform.workspace, "external-dns-role"])
   attach_external_dns_policy    = true
@@ -67,11 +67,11 @@ module "external_dns_irsa_role" {
 
 module "cluster_autoscaler_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "5.16.0"
 
   role_name                        = join("-", [terraform.workspace, "cluster-autoscaler"])
   attach_cluster_autoscaler_policy = true
-  cluster_autoscaler_cluster_ids   = [module.eks_cluster.cluster_id]
+  cluster_autoscaler_cluster_ids   = [module.eks_cluster.cluster_name]
 
   oidc_providers = {
     main = {

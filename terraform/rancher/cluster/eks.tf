@@ -33,88 +33,48 @@ locals {
 
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "18.30.2"
+  version = "19.12.0"
   # Switch off cloudwatch log group
   create_cloudwatch_log_group = false
   cluster_enabled_log_types = []
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.21" //For kube-poxy metrics 1.22 version needed
+  cluster_version   = "1.23" //Highest version 1.24 or 1.25 need to be tested before applying
   cluster_ip_family = "ipv4"
 
   vpc_id     = data.aws_vpc.this.id
   subnet_ids = data.aws_subnets.private.ids
 
   cluster_addons = {
-    coredns    = {}
-    kube-proxy = {}
-    vpc-cni    = {}
-  }
-
-  # Extend cluster security group rules
-  cluster_security_group_additional_rules = {
-    egress_nodes_ephemeral_ports_tcp = {
-      description                = "To node 1025-65535"
-      protocol                   = "tcp"
-      from_port                  = 1025
-      to_port                    = 65535
-      type                       = "egress"
-      source_node_security_group = true
+    preserve    = true
+    most_recent = true
+    timeouts = {
+      create = "25m"
+      delete = "10m"
     }
-  }
-
-  # Extend node-to-node security group rules
-  node_security_group_additional_rules = {
-    ingress_allow_access_from_control_plane = {
-      type                          = "ingress"
-      protocol                      = "tcp"
-      from_port                     = 9443
-      to_port                       = 9443
-      source_cluster_security_group = true
-      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
-    }
-    ingress_cluster_metrics_server = {
-      type                          = "ingress"
-      protocol                      = "tcp"
-      from_port                     = 4443
-      to_port                       = 4443
-      source_cluster_security_group = true
-      description                   = "metrics-server"
-    }
-    ingress_self_all = {
-      type        = "ingress"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      self        = true
-      description = "Node to node all ports/protocols"
-    }
-    egress_all = {
-      type        = "egress"
-      protocol    = "-1"
-      from_port   = 0
-      to_port     = 0
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Node all egress"
-    }
+    coredns            = {}
+    kube-proxy         = {}
+    vpc-cni            = {}
+    aws-ebs-csi-driver = {}
   }
 
   eks_managed_node_groups = {
     eks_node_group = {
-      name     = terraform.workspace
-      ami_type = "AL2_x86_64"
+      name        = terraform.workspace
+      description = "EKS managed node group"
+      ami_type    = "AL2_x86_64"
 
       capacity_type  = var.eks_nodes_type
       disk_size      = 50
       instance_types = var.asg_instance_types
 
-      min_size     = var.eks_node_group_size.min_size
-      max_size     = var.eks_node_group_size.max_size
-      desired_size = var.eks_node_group_size.desired_size
+      enable_monitoring = false
 
-      update_config = {
-        max_unavailable_percentage = 75
-      }
+      min_size     = var.eks_nodes_group_size.min_size
+      max_size     = var.eks_nodes_group_size.max_size
+      desired_size = var.eks_nodes_group_size.min_size
+
+      # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
   }
 

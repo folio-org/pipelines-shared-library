@@ -59,7 +59,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
         hosts:
-          - host: "${module.eks_cluster.cluster_id}-sc-api.${var.root_domain}"
+          - host: "${module.eks_cluster.cluster_name}-sc-api.${var.root_domain}"
             path: /
     dashboard:
       replicas: 2
@@ -72,7 +72,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           cpu: 100m
           memory: 128Mi
       environmentVariables:
-        graphQlSchemaUrl: "https://${module.eks_cluster.cluster_id}-sc-api.${var.root_domain}"
+        graphQlSchemaUrl: "https://${module.eks_cluster.cluster_name}-sc-api.${var.root_domain}"
       service:
         port: 8080
         type: NodePort
@@ -88,7 +88,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
         hosts:
-          - host: "${module.eks_cluster.cluster_id}-sc-dashboard.${var.root_domain}"
+          - host: "${module.eks_cluster.cluster_name}-sc-dashboard.${var.root_domain}"
             path: /
     director:
       serviceAccount:
@@ -104,7 +104,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           cpu: 100m
           memory: 128Mi
       environmentVariables:
-        dashboardUrl: "${module.eks_cluster.cluster_id}-sc-dashboard.${var.root_domain}"
+        dashboardUrl: "${module.eks_cluster.cluster_name}-sc-dashboard.${var.root_domain}"
         executionDriver: "../execution/mongo/driver"
         screenshotsDriver: "../screenshots/s3.driver"
         allowedKeys: "secretCypressKey"
@@ -123,7 +123,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           alb.ingress.kubernetes.io/healthcheck-path: /
           alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
         hosts:
-          - host: "${module.eks_cluster.cluster_id}-sc-director.${var.root_domain}"
+          - host: "${module.eks_cluster.cluster_name}-sc-director.${var.root_domain}"
             path: /
     mongodb:
       internal_db:
