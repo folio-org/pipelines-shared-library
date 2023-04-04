@@ -21,7 +21,7 @@ def jobParameters = [
     tenant: tenant,
     user: 'folio-aqa',
     password: 'Folio-aqa1',
-    cypressParameters: ["--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group parallelTests --spec 'cypress/e2e/nonParallel/**/*'", "--group nonParallelTests --spec 'cypress/e2e/parallel/**/*'"],
+    cypressParameters: ["--group parallelTests --spec 'cypress/e2e/parallel/**/*'", "--group parallelTests --spec 'cypress/e2e/parallel/**/*'", "--group parallelTests --spec 'cypress/e2e/parallel/**/*'", "--group nonParallelTests --spec 'cypress/e2e/nonParallel/**/*'"],
     customBuildName: JOB_BASE_NAME,
     timeout: '6',
     testrailProjectID: '14',
