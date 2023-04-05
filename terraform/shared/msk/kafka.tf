@@ -1,5 +1,5 @@
 resource "aws_security_group" "kafka" {
-  name        = "allow-${local.domain_name}"
+  name        = "allow-${var.service_name}"
   description = "Allow connection to Kafka"
   vpc_id      = data.aws_vpc.rancher_vpc.id
 
@@ -27,7 +27,7 @@ resource "aws_security_group" "kafka" {
 
 resource "aws_msk_configuration" "this" {
   kafka_versions    = [var.kafka_version]
-  name              = "${local.domain_name}-configuration"
+  name              = "${var.service_name}-configuration"
   description       = "Shared Kafka configuration which is used for rancher envs"
   server_properties = <<PROPERTIES
 auto.create.topics.enable = true
@@ -35,7 +35,7 @@ PROPERTIES
 }
 
 resource "aws_msk_cluster" "this" {
-  cluster_name           = local.domain_name
+  cluster_name           = var.service_name
   kafka_version          = var.kafka_version
   number_of_broker_nodes = var.kafka_number_of_broker_nodes
 
@@ -65,21 +65,21 @@ resource "aws_msk_cluster" "this" {
     var.tags,
     {
       service               = "Kafka"
-      name                  = local.domain_name
+      name                  = var.service_name
       version               = var.kafka_version
       kubernetes_service    = "Folio-MSK-Cluster"
   })
 }
 
 resource "aws_ssm_parameter" "kafka" {
-  name  = local.domain_name
+  name  = var.service_name
   type  = "String"
   value = local.data
 
   tags = merge(
     var.tags,
     {
-      Name = "${local.domain_name}-parameters"
+      Name = "${var.service_name}-parameters"
     }
   )
 }

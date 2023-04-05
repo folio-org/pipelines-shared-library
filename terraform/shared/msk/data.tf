@@ -20,7 +20,6 @@ data "aws_subnets" "private" {
 }
 
 locals {
-  domain_name = "folio-kafka"
   broker_urls = split(",", aws_msk_cluster.this.bootstrap_brokers)
   data        = jsonencode({
     KAFKA_HOST = element(split(":", local.broker_urls[0]), 0)

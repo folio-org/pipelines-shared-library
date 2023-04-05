@@ -5,6 +5,12 @@ variable "aws_region" {
   description = "Rancher AWS region for S3 buckets"
 }
 
+variable "service_name" {
+  type        = string
+  default     = "folio-kafka"
+  description = "Name of MSK cluster"
+}
+
 variable "tags" {
   type = map(any)
   default = {
