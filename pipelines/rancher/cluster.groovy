@@ -13,7 +13,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.agents(),
         string(name: 'custom_cluster_name', defaultValue: '', description: 'Custom cluster name (Will override rancher_cluster_name)', trim: true),
-        choice(name: 'eks_nodes_type', choices: ['SPOT', 'ON_DEMAND'], description: 'Select capacity associated with the EKS Node Group'),
+        choice(name: 'eks_nodes_type', choices: ['ON_DEMAND', 'SPOT'], description: 'Select capacity associated with the EKS Node Group. (SPOT-for testing purposes only)'),
         string(name: 'asg_instance_types', defaultValue: 'm5.xlarge,m5a.xlarge,m5d.xlarge,m5ad.xlarge', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
         string(name: 'eks_min_size', defaultValue: '4', description: 'Minimum size of node group for eks cluster', trim: true),
         string(name: 'eks_max_size', defaultValue: '8', description: 'Maximum size of node group for eks cluster', trim: true),
