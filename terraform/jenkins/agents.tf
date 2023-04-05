@@ -45,7 +45,7 @@ resource "aws_instance" "jenkins_agent" {
   tags = merge(var.tags,
     {
       Name = "folio-jenkins-agent-${count.index + 1}"
-    })
+  })
 }
 
 resource "aws_route53_zone_association" "folio_jenkins_vpc" {
@@ -54,7 +54,7 @@ resource "aws_route53_zone_association" "folio_jenkins_vpc" {
 }
 
 resource "aws_route53_record" "jenkins_agent" {
-  count = var.agents_count
+  count   = var.agents_count
   zone_id = var.route53_internal_zone_id
   name    = "folio-jenkins-agent-${count.index + 1}.folio.internal"
   type    = "A"

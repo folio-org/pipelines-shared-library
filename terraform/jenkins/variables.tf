@@ -24,9 +24,10 @@ variable "jenkins_home_size" {
 variable "tags" {
   type = map(any)
   default = {
-    Terraform = "true"
-    Project   = "folio"
-    Team      = "kitfox"
+    Terraform          = "true"
+    Project            = "folio"
+    Team               = "kitfox"
+    kubernetes_service = "Folio-Jenkins"
   }
   description = "Default tags"
 }
