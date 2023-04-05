@@ -149,16 +149,10 @@ variable "kafka_ui" {
 }
 
 # Elasticsearch variables
-variable "es_embedded" {
+variable "os_embedded" {
   type        = bool
   default     = true
   description = "Embedded Elasticsearch if true and AWS OpenSearch if false"
-}
-
-variable "es_version" {
-  type        = string
-  default     = "7.10"
-  description = "Elasticsearch version"
 }
 
 variable "opensearch_dashboards" {
