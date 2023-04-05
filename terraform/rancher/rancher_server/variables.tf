@@ -6,13 +6,13 @@ variable "aws_region" {
 
 variable "rancher_version" {
   type        = string
-  default     = "2.6.6"
+  default     = "2.7.1"
   description = "Rancher version"
 }
 
 variable "rancher_cluster_name" {
   type        = string
-  default     = "rancher"
+  default     = "folio-rancher"
   description = "Rancher cluster name"
 }
 
