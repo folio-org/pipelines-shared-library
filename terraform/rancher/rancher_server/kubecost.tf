@@ -19,7 +19,7 @@ resource "helm_release" "kubecost" {
   name             = "kubecost"
   repository       = "https://kubecost.github.io/cost-analyzer"
   chart            = "cost-analyzer"
-  version          = "1.98.0"
+  version          = "1.101.3"
   namespace        = "kubecost"
   create_namespace = true
   values           = [<<EOF
