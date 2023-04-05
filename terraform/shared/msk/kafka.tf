@@ -1,7 +1,7 @@
 resource "aws_security_group" "kafka" {
   name        = "allow-${var.service_name}"
   description = "Allow connection to Kafka"
-  vpc_id      = data.aws_vpc.rancher_vpc.id
+  vpc_id      = data.aws_vpc.this.id
 
   ingress {
     description = "Allow 9092 port"
