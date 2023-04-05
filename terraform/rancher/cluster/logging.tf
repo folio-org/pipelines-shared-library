@@ -68,7 +68,7 @@ resource "rancher2_app_v2" "elasticsearch" {
         max_content_length: 200mb
     master:
       heapSize: 2560m
-      replicas: 2
+      replicaCount: 2
       resources:
         requests:
           memory: 512Mi
@@ -205,10 +205,10 @@ resource "rancher2_app_v2" "fluentd" {
   name          = "fluentd"
   repo_name     = "bitnami"
   chart_name    = "fluentd"
-  chart_version = "5.3.0"
+  chart_version = "5.6.3"
   values        = <<-EOT
     image:
-      tag: 1.15.1-debian-11-r11
+      tag: 1.16.0-debian-11-r1
     forwarder:
       startupProbe:
         enabled: true
