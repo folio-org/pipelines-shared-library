@@ -17,11 +17,11 @@ resource "rancher2_secret" "db-connect-modules" {
     DB_QUERYTIMEOUT        = base64encode("60000")
     KAFKA_HOST             = base64encode(var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0))
     KAFKA_PORT             = base64encode("9092")
-    ELASTICSEARCH_URL      = base64encode(var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443")
-    ELASTICSEARCH_HOST     = base64encode(var.es_embedded ? "" : module.aws_es[0].endpoint)
-    ELASTICSEARCH_PORT     = base64encode(var.es_embedded ? "9200" : "443")
-    ELASTICSEARCH_USERNAME = base64encode(var.es_embedded ? "admin" : var.es_username)
-    ELASTICSEARCH_PASSWORD = base64encode(var.es_embedded ? "admin" : random_password.es_password[0].result)
+    ELASTICSEARCH_URL      = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200" )
+    ELASTICSEARCH_HOST     = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_HOST"]) : "" )
+    ELASTICSEARCH_PORT     = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_PORT"]) : "9200" )
+    ELASTICSEARCH_USERNAME = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_USERNAME"]) : "admin" )
+    ELASTICSEARCH_PASSWORD = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_PASSWORD"]) : "admin" )
   }
 }
 

@@ -21,6 +21,7 @@ resource "random_password" "os_password" {
   min_numeric = 1
   min_special = 1
   min_upper   = 1
+  override_special = "@$%-+=?"
 }
 
 resource "aws_security_group" "opensearch" {
@@ -80,7 +81,7 @@ module "aws_opensearch" {
     internal_user_database_enabled = true
     master_user_options = {
       master_user_name     = var.os_username
-      master_user_password = random_password.os_password.result
+      master_user_password = local.os_password
     }
   }
 
