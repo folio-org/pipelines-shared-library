@@ -17,7 +17,7 @@ LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
                           "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org"
                     ] as LinkedHashMap
-ArrayList<String> Bugfest_envs = ["Nolana", "Orchid", "Pre-Orchid", "Morning-Glory"]
+ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Morning-Glory"]
 String tenant="fs09000000"
 
 properties([
@@ -30,7 +30,7 @@ properties([
         string(name: 'Release', defaultValue: 'Nolana (R3 2022)', description: 'Name of current Release', trim: true),
         string(name: 'JiraTaskStatus', defaultValue: 'Awaiting deployment', description: 'Current status of jira task', trim: true),
         string(name: 'NextJiraTaskStatus', defaultValue: 'In bugfix review', description: 'Future status of jira task', trim: true),
-        string(name: 'Comment', defaultValue: 'Moved status to ${NextJiraTaskStatus} from status ${JiraTaskStatus}', description: 'Comment for jira task', trim: true),
+        string(name: 'Comment', defaultValue: 'Deployed to the ${BugfestEnv} bf env. Moved status to ${NextJiraTaskStatus} from status ${JiraTaskStatus}. Please proceed with the verification.', description: 'Comment for jira task', trim: true),
     ])
 ])
 

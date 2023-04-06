@@ -1,8 +1,8 @@
 #Creating a cloud credential in Rancher.
 resource "rancher2_cloud_credential" "aws" {
-  depends_on  = [helm_release.alb_controller, helm_release.aws_cluster_autoscaler, helm_release.aws_ebs_csi, helm_release.external_dns]
+  depends_on  = [helm_release.alb_controller, helm_release.aws_cluster_autoscaler, helm_release.external_dns]
   count       = var.register_in_rancher ? 1 : 0
-  name        = module.eks_cluster.cluster_id
+  name        = module.eks_cluster.cluster_name
   description = "AWS EKS Cluster"
   amazonec2_credential_config {
     access_key = var.aws_access_key_id
@@ -13,11 +13,11 @@ resource "rancher2_cloud_credential" "aws" {
 #Creating a Rancher2 cluster object.
 resource "rancher2_cluster" "this" {
   count       = var.register_in_rancher ? 1 : 0
-  name        = module.eks_cluster.cluster_id
+  name        = module.eks_cluster.cluster_name
   description = "Terraform EKS Cluster"
   eks_config_v2 {
     cloud_credential_id = rancher2_cloud_credential.aws[0].id
-    name                = module.eks_cluster.cluster_id
+    name                = module.eks_cluster.cluster_name
     region              = var.aws_region
     imported            = true
   }
