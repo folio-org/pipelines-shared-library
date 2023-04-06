@@ -45,7 +45,7 @@ resource "rancher2_app_v2" "prometheus" {
   name          = "kube-prometheus-stack"
   repo_name     = "prometheus-community"
   chart_name    = "kube-prometheus-stack"
-  chart_version = "41.7.3"
+  chart_version = "45.8.0"
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
