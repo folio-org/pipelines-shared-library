@@ -121,6 +121,12 @@ variable "kafka_embedded" {
   description = "Embedded Kafka if true and AWS Kafka if false"
 }
 
+variable "kafka_shared_name" {
+  type        = string
+  default     = "folio-kafka"
+  description = "Name of shared MSK cluster"
+}
+
 variable "kafka_version" {
   type        = string
   default     = "2.8.0"
@@ -153,6 +159,12 @@ variable "os_embedded" {
   type        = bool
   default     = true
   description = "Embedded Elasticsearch if true and AWS OpenSearch if false"
+}
+
+variable "opensearch_shared_name" {
+  type        = string
+  default     = "folio-opensearch"
+  description = "Name of shared OpenSearch cluster"
 }
 
 variable "opensearch_dashboards" {
