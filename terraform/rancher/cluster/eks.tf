@@ -33,29 +33,63 @@ locals {
 
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.12.0"
-  # Switch off cloudwatch log group
-  create_cloudwatch_log_group = false
-  cluster_enabled_log_types = []
+  version = "~>19.12.0"
 
   cluster_name      = terraform.workspace
   cluster_version   = "1.23" //Highest version 1.24 or 1.25 need to be tested before applying
   cluster_ip_family = "ipv4"
 
+  cluster_endpoint_public_access = true
+
   vpc_id     = data.aws_vpc.this.id
   subnet_ids = data.aws_subnets.private.ids
 
   cluster_addons = {
-    preserve    = true
-    most_recent = true
-    timeouts = {
-      create = "25m"
-      delete = "10m"
+    coredns = {
+      most_recent = true
     }
-    coredns            = {}
-    kube-proxy         = {}
-    vpc-cni            = {}
-    aws-ebs-csi-driver = {}
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent              = true
+      before_compute           = true
+      service_account_role_arn = module.vpc_cni_irsa_role.iam_role_arn
+    }
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
+    }
+  }
+
+  # Switch off cloudwatch log group
+  create_cloudwatch_log_group = false
+  cluster_enabled_log_types   = []
+  # aws-auth configmap
+  manage_aws_auth_configmap = true
+  aws_auth_users            = local.admin_users_map
+
+  cluster_security_group_additional_rules = {
+    ingress_nodes_ephemeral_ports_tcp = {
+      description                = "Nodes on ephemeral ports"
+      protocol                   = "tcp"
+      from_port                  = 1025
+      to_port                    = 65535
+      type                       = "ingress"
+      source_node_security_group = true
+    }
+  }
+
+  # Extend node-to-node security group rules
+  node_security_group_additional_rules = {
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
   }
 
   eks_managed_node_groups = {
@@ -77,11 +111,6 @@ module "eks_cluster" {
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
   }
-
-  # aws-auth configmap
-  manage_aws_auth_configmap = true
-
-  aws_auth_users = local.admin_users_map
 
   tags = merge(
     var.tags,
