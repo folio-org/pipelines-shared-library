@@ -50,6 +50,26 @@ resource "rancher2_app_v2" "prometheus" {
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['job', 'alertname', 'priority']
+          group_wait: 10s
+          group_interval: 1m
+          routes:
+          - match:
+              alertname: Watchdog
+            receiver: 'null'
+          - receiver: 'slack-notifications'
+            continue: true
+        receivers:
+        - name: 'slack-notifications'
+          slack-configs:
+          - slack_api_url: <url here>
+            title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
+            text: '<!channel> {{ .CommonAnnotations.summary }}'
+            channel: '#folio_rancher_prometheus_watchdog_alarm'
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
