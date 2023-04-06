@@ -15,13 +15,13 @@ resource "rancher2_secret" "db-connect-modules" {
     DB_MAXPOOLSIZE         = base64encode("5")
     DB_CHARSET             = base64encode("UTF-8")
     DB_QUERYTIMEOUT        = base64encode("60000")
-    KAFKA_HOST             = base64encode(var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0))
+    KAFKA_HOST             = base64encode(var.kafka_embedded ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
     KAFKA_PORT             = base64encode("9092")
-    ELASTICSEARCH_URL      = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200" )
-    ELASTICSEARCH_HOST     = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_HOST"]) : "" )
-    ELASTICSEARCH_PORT     = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_PORT"]) : "9200" )
-    ELASTICSEARCH_USERNAME = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_USERNAME"]) : "admin" )
-    ELASTICSEARCH_PASSWORD = base64encode(var.os_embedded ? base64decode(local.value["ELASTICSEARCH_PASSWORD"]) : "admin" )
+    ELASTICSEARCH_URL      = base64encode(var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200" )
+    ELASTICSEARCH_HOST     = base64encode(var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_HOST"]) : "" )
+    ELASTICSEARCH_PORT     = base64encode(var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_PORT"]) : "9200" )
+    ELASTICSEARCH_USERNAME = base64encode(var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_USERNAME"]) : "admin" )
+    ELASTICSEARCH_PASSWORD = base64encode(var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_PASSWORD"]) : "admin" )
   }
 }
 

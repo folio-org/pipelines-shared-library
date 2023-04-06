@@ -40,13 +40,21 @@ data "aws_subnets" "database" {
 }
 
 data "aws_ssm_parameter" "opensearch" {
-  name = "folio-opensearch"
+  count = var.os_embedded ? 1 : 0
+  name = var.opensearch_shared_name
+}
+
+data "aws_ssm_parameter" "msk" {
+  count = var.kafka_embedded ? 1 : 0
+  name = var.kafka_shared_name
 }
 
 # Creating local variables that are used in the rest of the terraform file.
 locals {
   #local.value["ELASTICSEARCH_HOST"]
-  value = nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch.value))
+
+  opensearch_value = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch[*].value)),"")
+  msk_value = try(nonsensitive(jsondecode(data.aws_ssm_parameter.msk[*].value)),"")
 
   env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
   group_name        = join(".", [data.rancher2_cluster.this.name, var.rancher_project_name])

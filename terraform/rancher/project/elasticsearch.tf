@@ -125,16 +125,16 @@ resource "rancher2_app_v2" "opensearch-dashboards" {
     clusterName: "opensearch-${var.rancher_project_name}"
     masterService: "opensearch-${var.rancher_project_name}"
     replicas: 1
-    opensearchHosts: ${var.os_embedded ? base64decode(local.value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200"}
+    opensearchHosts: ${var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200"}
     extraEnvs:
       - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
         value: "true"
       - name: OPENSEARCH_SSL_VERIFICATIONMODE
         value: ${var.os_embedded ? "full" : "none"}
       - name: OPENSEARCH_USERNAME
-        value: ${var.os_embedded ? base64decode(local.value["ELASTICSEARCH_USERNAME"]) : "admin" }
+        value: ${var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_USERNAME"]) : "admin" }
       - name: OPENSEARCH_PASSWORD
-        value: ${var.os_embedded ? base64decode(local.value["ELASTICSEARCH_PASSWORD"]) : "admin" }
+        value: ${var.os_embedded ? base64decode(local.opensearch_value["ELASTICSEARCH_PASSWORD"]) : "admin" }
     resources:
       requests:
         memory: 2048Mi
