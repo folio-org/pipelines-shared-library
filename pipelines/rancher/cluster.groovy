@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-704') _
 
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
