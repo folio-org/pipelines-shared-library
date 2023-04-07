@@ -1,32 +1,37 @@
-data "aws_ssm_parameter" "kafka_parameter" {
-  name = "folio-kafka"
+data "aws_ssm_parameter" "kafka_parameters" {
+  name = var.kafka_shared_name
   ignore_errors = true
 }
 
-data "aws_ssm_parameter" "opensearch_parameter" {
-  name = "folio-opensearch"
+data "aws_ssm_parameter" "opensearch_parameters" {
+  name = var.opensearch_shared_name
   ignore_errors = true
-}
-
-output "my_parameter_value" {
-  value = data.aws_ssm_parameter.my_parameter.value
 }
 
 locals {
-  kafka_parameters = jsondecode(data.aws_ssm_parameter.kafka_parameter.value)
-  opensearch_parameters = jsondecode(data.aws_ssm_parameter.opensearch_parameter.value)
+  create_kafka_ui = can(data.aws_ssm_parameter.kafka_parameters)
+  create_opensearch_dashboard = can(data.aws_ssm_parameter.opensearch_parameters)
 
-  kafka_port = local.kafka_parameters.KAFKA_PORT
-  kafka_host = local.kafka_parameters.KAFKA_HOST
+  kafka_parameter = nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.value))
+  opensearch_parameter = nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.value))
 
-  opensearch_port = local.opensearch_parameters.ELASTICSEARCH_PORT
-  opensearch_host = local.opensearch_parameters.ELASTICSEARCH_HOST
-  opensearch_username = local.opensearch_parameters.ELASTICSEARCH_USERNAME
-  opensearch_password = local.opensearch_parameters.ELASTICSEARCH_PASSWORD
+  # kafka_parameter = jsondecode(coalesce(data.aws_ssm_parameter.kafka_parameters.value, "{}"))
+  # opensearch_parameter = jsondecode(coalesce(data.aws_ssm_parameter.opensearch_parameters.value, "{}"))
+  
+  # kafka_host = coalesce(local.kafka_parameters.KAFKA_HOST, "localhost")
+  # kafka_port = coalesce(local.kafka_parameters.KAFKA_PORT, "9092")
+  # # kafka_port = local.kafka_parameters.KAFKA_PORT
+  # # kafka_host = local.kafka_parameters.KAFKA_HOST
+
+  # opensearch_port = local.opensearch_parameters.ELASTICSEARCH_PORT
+  # opensearch_host = local.opensearch_parameters.ELASTICSEARCH_HOST
+  # opensearch_username = local.opensearch_parameters.ELASTICSEARCH_USERNAME
+  # opensearch_password = local.opensearch_parameters.ELASTICSEARCH_PASSWORD
 }
 
-# Install Kafka UI
+# Only create Kafka UI if data.aws_ssm_parameter.kafka_parameters exists
 resource "helm_release" "kafka-ui" {
+  count            = local.create_kafka_ui ? 1 : 0
   name             = "kafka-ui"
   repository       = "https://provectus.github.io/kafka-ui"
   chart            = "kafka-ui"
@@ -50,7 +55,7 @@ resource "helm_release" "kafka-ui" {
       kafka:
         clusters:
           - name: "shared-kafka"
-            bootstrapServers: ${var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+            bootstrapServers: "${local.kafka_parameter["KAFKA_HOST"]}:${local.kafka_parameter["KAFKA_PORT"]}"
       auth:
         type: disabled
       management:
@@ -61,8 +66,9 @@ resource "helm_release" "kafka-ui" {
   ]
 }
 
-# Install Opensearch dashboard
+# Only create Opensearch Dashboard if data.aws_ssm_parameter.opensearch_parameters exists
 resource "helm_release" "opensearch-dashboards" {
+  count            = local.create_opensearch_dashboard ? 1 : 0
   name             = "opensearch-dashboards"
   repository       = "https://opensearch-project.github.io/helm-charts"
   chart            = "opensearch-dashboards"
@@ -75,16 +81,16 @@ resource "helm_release" "opensearch-dashboards" {
     clusterName: "shared-opensearch"
     masterService: "shared-opensearch"
     replicas: 1
-    opensearchHosts: ${var.es_embedded ? "http://opensearch-${var.rancher_project_name}:9200" : "https://${module.aws_es[0].endpoint}:443"}
+    opensearchHosts: "${base64decode(local.opensearch_parameter["ELASTICSEARCH_URL"])}"
     extraEnvs:
       - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
         value: "true"
       - name: OPENSEARCH_SSL_VERIFICATIONMODE
         value: "full"
       - name: OPENSEARCH_USERNAME
-        value: ${var.es_embedded ? "admin" : var.es_username}
+        value: "${base64decode(local.opensearch_parameter["ELASTICSEARCH_USERNAME"])}"
       - name: OPENSEARCH_PASSWORD
-        value: ${var.es_embedded ? "admin" : random_password.es_password[0].result}
+        value: "${base64decode(local.opensearch_parameter["ELASTICSEARCH_PASSWORD"])}"
     resources:
       requests:
         memory: 2048Mi
@@ -93,7 +99,7 @@ resource "helm_release" "opensearch-dashboards" {
     ingress:
       enabled: true
       hosts:
-        - host: "folio-opensearch.${var.root_domain}"
+        - host: "folio-opensearch-dashboards.${var.root_domain}"
           paths:
             - path: /
       annotations:

@@ -53,3 +53,15 @@ variable "projectID" {
   default     = "732722833398"
   description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
 }
+
+variable "opensearch_shared_name" {
+  type        = string
+  default     = "folio-opensearch"
+  description = "Name of shared OpenSearch cluster"
+}
+
+variable "kafka_shared_name" {
+  type        = string
+  default     = "folio-kafka"
+  description = "Name of shared MSK cluster"
+}
