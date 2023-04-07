@@ -142,12 +142,6 @@ variable "kafka_ebs_volume_size" {
   default = 50
 }
 
-variable "kafka_ui" {
-  type        = bool
-  default     = true
-  description = "Deploy kafka-ui tool if true"
-}
-
 # Elasticsearch variables
 variable "es_embedded" {
   type        = bool

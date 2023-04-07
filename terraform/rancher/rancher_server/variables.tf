@@ -54,25 +54,16 @@ variable "projectID" {
   description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
 }
 
+# Set name of parameter if want to deploy Opensearch Dashboard (ex. folio-opensearch)
 variable "opensearch_shared_name" {
   type        = string
-  default     = "folio-opensearch"
+  default     = ""
   description = "Name of shared OpenSearch cluster"
 }
 
+# Set name of parameter if want to deploy Kafka UI (ex. folio-kafka)
 variable "kafka_shared_name" {
   type        = string
+  default     = ""
   description = "Name of shared MSK cluster"
-}
-
-variable "deploy_kafka_ui" {
-  type        = string
-  default     = "true"
-  description = "Deploy Kafka UI"
-}
-
-variable "deploy_os_dashboard" {
-  type        = string
-  default     = true
-  description = "Deploy Opensearch Dashboard"
 }

@@ -1,21 +1,21 @@
 data "aws_ssm_parameter" "kafka_parameters" {
-  count = var.deploy_kafka_ui ? 1 : 0
+  count = var.kafka_shared_name != "" ? 1 : 0
   name = var.kafka_shared_name
 }
 
 data "aws_ssm_parameter" "opensearch_parameters" {
-  count = var.deploy_os_dashboard ? 1 : 0
+  count = var.opensearch_shared_name != "" ? 1 : 0
   name = var.opensearch_shared_name
 }
 
 locals {
-  kafka_parameter = var.deploy_kafka_ui ? nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.0.value)) : null
-  opensearch_parameter = var.deploy_os_dashboard ? nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.0.value)) : null
+  kafka_parameter = try(nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.0.value)),"")
+  opensearch_parameter = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.0.value)),"")
 }
 
-# Only create Kafka UI if deploy_kafka_ui set to true
+# Only create Kafka UI if kafka_shared_name set
 resource "helm_release" "kafka-ui" {
-  count            = var.deploy_kafka_ui ? 1 : 0
+  count            = var.kafka_shared_name != "" ? 1 : 0
   name             = "kafka-ui"
   repository       = "https://provectus.github.io/kafka-ui"
   chart            = "kafka-ui"
@@ -50,9 +50,9 @@ resource "helm_release" "kafka-ui" {
   ]
 }
 
-# Only create Opensearch Dashboard if deploy_os_dashboard set to true
+# Only create Opensearch Dashboard if opensearch_shared_name set
 resource "helm_release" "opensearch-dashboards" {
-  count            = var.deploy_os_dashboard ? 1 : 0
+  count            = var.opensearch_shared_name != "" ? 1 : 0
   name             = "opensearch-dashboards"
   repository       = "https://opensearch-project.github.io/helm-charts"
   chart            = "opensearch-dashboards"

@@ -130,7 +130,7 @@ resource "aws_msk_cluster" "this" {
   })
 }
 resource "rancher2_app_v2" "kafka_ui" {
-  count         = var.kafka_ui ? 1 : 0
+  count         = var.kafka_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "kafka-ui"
@@ -156,7 +156,7 @@ resource "rancher2_app_v2" "kafka_ui" {
       kafka:
         clusters:
           - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
-            bootstrapServers: ${var.kafka_embedded ? "kafka-${var.rancher_project_name}" : element(split(":", aws_msk_cluster.this[0].bootstrap_brokers), 0)}:9092
+            bootstrapServers: "kafka-${var.rancher_project_name}:9092"
       auth:
         type: disabled
       management:

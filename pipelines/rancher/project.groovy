@@ -52,7 +52,6 @@ properties([
         booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
-        booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
         booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
         booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
 
@@ -151,7 +150,6 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('es_embedded', params.es_embedded)
                 tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
-                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
                 tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
                 tf.variables += terraform.generateTfVar('pg_ldp_user_password', "${jobsParameters.pgLdpUserDefaultPassword()}")
 
