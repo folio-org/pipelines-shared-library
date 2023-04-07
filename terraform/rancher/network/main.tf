@@ -1,10 +1,14 @@
-#Get all available AZs in our region
-data "aws_availability_zones" "azs" {
+# Get 2 available AZs in our region
+data "aws_availability_zones" "this" {
   state = "available"
+  filter {
+    name   = "zone-name"
+    values = ["${var.aws_region}a", "${var.aws_region}b"]
+  }
 }
 
-# reserve Elastic IP to be used in our NAT gateway
-resource "aws_eip" "nat_gw_elastic_ip" {
+# Reserve Elastic IP to be used in our NAT gateway
+resource "aws_eip" "this" {
   vpc = true
   tags = merge(
     {
@@ -16,14 +20,14 @@ resource "aws_eip" "nat_gw_elastic_ip" {
 
 # Create VPC using the official AWS module
 module "vpc" {
-  depends_on = [data.aws_availability_zones.azs, aws_eip.nat_gw_elastic_ip]
+  depends_on = [data.aws_availability_zones.this, aws_eip.this]
 
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.14.0"
+  version = "3.19.0"
 
   name = var.vpc_name
   cidr = var.vpc_cidr_block
-  azs  = data.aws_availability_zones.azs.names
+  azs  = data.aws_availability_zones.this.names
 
   # enable single NAT Gateway to save some money
   # WARNING: this could create a single point of failure, since we are creating a NAT Gateway in one AZ only
@@ -35,7 +39,7 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   reuse_nat_ips        = true
-  external_nat_ip_ids  = [aws_eip.nat_gw_elastic_ip.id]
+  external_nat_ip_ids  = [aws_eip.this.id]
 
   public_subnets = local.public_subnets
 
@@ -60,7 +64,7 @@ module "vpc" {
   database_subnet_tags = merge(
     local.clusters_tags,
     {
-      Type   = "database"
+      Type = "database"
     }
   )
 }

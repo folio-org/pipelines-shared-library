@@ -24,11 +24,13 @@ data "aws_caller_identity" "current" {}
 
 # Creating local variables that are used in the rest of the terraform file.
 locals {
+
+  os_password = random_password.os_password.result
   connection_config        = jsonencode({
     ELASTICSEARCH_URL      = base64encode("https://${module.aws_opensearch.endpoint}:443")
     ELASTICSEARCH_HOST     = base64encode(module.aws_opensearch.endpoint)
     ELASTICSEARCH_PORT     = base64encode("443")
     ELASTICSEARCH_USERNAME = base64encode(var.os_username)
-    ELASTICSEARCH_PASSWORD = base64encode(random_password.os_password.result)
+    ELASTICSEARCH_PASSWORD = base64encode(local.os_password)
   })
 }

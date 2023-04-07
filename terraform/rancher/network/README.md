@@ -5,6 +5,7 @@ This terraform scripts aimed to provision AWS VPC for rancher clusters infrastru
 
 ```shell
 terraform init
+terraform workspace new <name> || terraform workspace select <name>
 terraform state pull
 terraform plan -input=false -out tfplan
 terraform apply -input=false tfplan

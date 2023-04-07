@@ -59,7 +59,7 @@ ansiColor('xterm') {
                     error('VPC name not specified!!!')
                 }
                 if (params.eks_min_size.toInteger() <= params.eks_max_size.toInteger()) {
-                    tfVars += terraform.generateTfVar('eks_node_group_size', "{ \"min_size\" : ${params.eks_min_size}, \"max_size\" : ${params.eks_max_size}, \"desired_size\" : ${params.eks_min_size} }")
+                    tfVars += terraform.generateTfVar('eks_nodes_group_size', "{ \"min_size\" : ${params.eks_min_size}, \"max_size\" : ${params.eks_max_size}, \"desired_size\" : ${params.eks_min_size} }")
                 } else {
                     error('eks_max_size: (' + params.eks_max_size + ') is less or equal then eks_min_size: (' + params.eks_min_size + ')')
                 }
