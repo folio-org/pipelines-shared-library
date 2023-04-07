@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@BF-475') _
+@Library('pipelines-shared-library') _
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
