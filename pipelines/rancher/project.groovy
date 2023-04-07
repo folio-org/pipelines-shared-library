@@ -52,8 +52,7 @@ properties([
         booleanParam(name: 'os_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
-        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
-        booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -150,7 +149,6 @@ ansiColor('xterm') {
                 tf.variables += terraform.generateTfVar('os_embedded', params.os_embedded)
                 tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
                 tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
-                tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
                 tf.variables += terraform.generateTfVar('pg_ldp_user_password', "${jobsParameters.pgLdpUserDefaultPassword()}")
 
 

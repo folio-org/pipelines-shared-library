@@ -161,12 +161,6 @@ variable "opensearch_shared_name" {
   description = "Name of shared OpenSearch cluster"
 }
 
-variable "opensearch_dashboards" {
-  type        = bool
-  default     = true
-  description = "Deploy opensearch-dashboards tool if true"
-}
-
 variable "es_create_service_link_role" {
   type    = bool
   default = false

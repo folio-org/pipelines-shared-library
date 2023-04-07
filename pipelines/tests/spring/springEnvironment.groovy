@@ -56,8 +56,7 @@ ansiColor("xterm") {
                         booleanParam(name: 'es_embedded', value: true),
                         booleanParam(name: 's3_embedded', value: true),
                         booleanParam(name: 'pgadmin4', value: true),
-                        booleanParam(name: 'greenmail_server', value: true),
-                        booleanParam(name: 'opensearch_dashboards', value: true)
+                        booleanParam(name: 'greenmail_server', value: true)
                     ]
             }
         } catch (exception) {
