@@ -77,8 +77,8 @@ resource "rancher2_app_v2" "prometheus" {
             spec:
               storageClassName: gp2
               resources:
-               requests:
-                 storage: 10Gi
+                requests:
+                  storage: 10Gi
     prometheus:
       server:
         global:
