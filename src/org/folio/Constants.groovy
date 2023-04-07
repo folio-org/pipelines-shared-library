@@ -62,7 +62,7 @@ class Constants {
     static String JENKINS_JOB_RESTORE_PG_BACKUP = "Rancher/Create-Restore-PosgreSQL-DB-backup"
     static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = "/Rancher/Update/backend-modules-deploy-branch"
 
-    static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:0.15.0"
+    static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:1.0.0"
 
     //PostgreSQL
     static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
