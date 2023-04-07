@@ -1,37 +1,21 @@
 data "aws_ssm_parameter" "kafka_parameters" {
+  count = var.deploy_kafka_ui ? 1 : 0
   name = var.kafka_shared_name
-  ignore_errors = true
 }
 
 data "aws_ssm_parameter" "opensearch_parameters" {
+  count = var.deploy_os_dashboard ? 1 : 0
   name = var.opensearch_shared_name
-  ignore_errors = true
 }
 
 locals {
-  create_kafka_ui = can(data.aws_ssm_parameter.kafka_parameters)
-  create_opensearch_dashboard = can(data.aws_ssm_parameter.opensearch_parameters)
-
-  kafka_parameter = nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.value))
-  opensearch_parameter = nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.value))
-
-  # kafka_parameter = jsondecode(coalesce(data.aws_ssm_parameter.kafka_parameters.value, "{}"))
-  # opensearch_parameter = jsondecode(coalesce(data.aws_ssm_parameter.opensearch_parameters.value, "{}"))
-  
-  # kafka_host = coalesce(local.kafka_parameters.KAFKA_HOST, "localhost")
-  # kafka_port = coalesce(local.kafka_parameters.KAFKA_PORT, "9092")
-  # # kafka_port = local.kafka_parameters.KAFKA_PORT
-  # # kafka_host = local.kafka_parameters.KAFKA_HOST
-
-  # opensearch_port = local.opensearch_parameters.ELASTICSEARCH_PORT
-  # opensearch_host = local.opensearch_parameters.ELASTICSEARCH_HOST
-  # opensearch_username = local.opensearch_parameters.ELASTICSEARCH_USERNAME
-  # opensearch_password = local.opensearch_parameters.ELASTICSEARCH_PASSWORD
+  kafka_parameter = var.deploy_kafka_ui ? nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.0.value)) : null
+  opensearch_parameter = var.deploy_os_dashboard ? nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.0.value)) : null
 }
 
-# Only create Kafka UI if data.aws_ssm_parameter.kafka_parameters exists
+# Only create Kafka UI if deploy_kafka_ui set to true
 resource "helm_release" "kafka-ui" {
-  count            = local.create_kafka_ui ? 1 : 0
+  count            = var.deploy_kafka_ui ? 1 : 0
   name             = "kafka-ui"
   repository       = "https://provectus.github.io/kafka-ui"
   chart            = "kafka-ui"
@@ -66,9 +50,9 @@ resource "helm_release" "kafka-ui" {
   ]
 }
 
-# Only create Opensearch Dashboard if data.aws_ssm_parameter.opensearch_parameters exists
+# Only create Opensearch Dashboard if deploy_os_dashboard set to true
 resource "helm_release" "opensearch-dashboards" {
-  count            = local.create_opensearch_dashboard ? 1 : 0
+  count            = var.deploy_os_dashboard ? 1 : 0
   name             = "opensearch-dashboards"
   repository       = "https://opensearch-project.github.io/helm-charts"
   chart            = "opensearch-dashboards"

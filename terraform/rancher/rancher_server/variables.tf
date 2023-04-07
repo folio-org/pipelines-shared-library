@@ -62,6 +62,17 @@ variable "opensearch_shared_name" {
 
 variable "kafka_shared_name" {
   type        = string
-  default     = "folio-kafka"
   description = "Name of shared MSK cluster"
+}
+
+variable "deploy_kafka_ui" {
+  type        = string
+  default     = "true"
+  description = "Deploy Kafka UI"
+}
+
+variable "deploy_os_dashboard" {
+  type        = string
+  default     = true
+  description = "Deploy Opensearch Dashboard"
 }
