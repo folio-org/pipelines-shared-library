@@ -54,19 +54,20 @@ resource "rancher2_app_v2" "prometheus" {
         global:
           resolve_timeout: 5m
         route:
-          group_by: ['job', 'alertname', 'priority']
+          group_by: 'namespace'
           group_wait: 10s
           group_interval: 1m
+          repeat_interval: 10m
           routes:
-          - match:
-              alertname: Watchdog
-            receiver: 'null'
           - receiver: 'slack-notifications'
+            matchers:
+              - alertname: Watchdog
             continue: true
         receivers:
         - name: 'slack-notifications'
           slack-configs:
-          - slack_api_url: <url here>
+          - slack_api_url: "https://slack.com/api/chat.postMessage"
+
             title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
             text: '<!channel> {{ .CommonAnnotations.summary }}'
             channel: '#folio_rancher_prometheus_watchdog_alarm'
