@@ -84,3 +84,9 @@ void checkEcrRepoExistence(String repo_name) {
         }
     }
 }
+
+void throwErrorIfStringIsEmpty(def variable, String error_message="Variable is emty"){
+    if (variable.isEmpty()) {
+        error(error_message)
+    }
+}

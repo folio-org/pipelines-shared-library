@@ -34,6 +34,7 @@ variable "rancher_server_url" {
 
 variable "rancher_token_key" {
   type        = string
+  default     = ""
   description = "Rancher token key"
 }
 
@@ -114,16 +115,6 @@ variable "kubecost_licence_key" {
   description = "Apply business or enterprise product license key"
 }
 
-variable "aws_kubecost_access_key_id" {
-  type        = string
-  description = "ACCESS KEY ID for Kubecost user"
-}
-
-variable "aws_kubecost_secret_access_key" {
-  type        = string
-  description = "SECRET KEY ID for Kubecost user"
-}
-
 variable "deploy_kubecost" {
   type        = bool
   default     = true
@@ -135,9 +126,3 @@ variable "deploy_sorry_cypress" {
   default     = false
   description = "Deploy Sorry Cypress tool if true"
 }
-
-variable "projectID" {
-  type        = string
-  description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
-}
-
