@@ -12,7 +12,6 @@ class Constants {
     //Kubecost
     static String KUBECOST_AWS_CREDENTIALS_ID = "kubecost_athena_aws_user"
     static String KUBECOST_LICENSE_KEY = "kubecost_license_key"
-    static String AWS_PROJECT_ID = "732722833398"
 
     //Helm
     static String HELM_MODULES_CONFIG_PATH = "resources/helm"
@@ -62,7 +61,7 @@ class Constants {
     static String JENKINS_JOB_RESTORE_PG_BACKUP = "Rancher/Create-Restore-PosgreSQL-DB-backup"
     static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = "/Rancher/Update/backend-modules-deploy-branch"
 
-    static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:1.0.0"
+    static String TERRAFORM_DOCKER_CLIENT = "hashicorp/terraform:1.4"
 
     //PostgreSQL
     static String PSQL_DUMP_HELM_CHART_NAME = "psql-dump"
