@@ -23,6 +23,11 @@ resource "helm_release" "rancher" {
   }
 
   set {
+    name  = "ingress.extraAnnotations.alb\\.ingress\\.kubernetes\\.io/group\\.name"
+    value = var.rancher_cluster_name
+  }
+
+  set {
     name  = "ingress.extraAnnotations.alb\\.ingress\\.kubernetes\\.io/success-codes"
     value = "200\\,404\\,301\\,302"
   }

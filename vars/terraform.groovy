@@ -123,7 +123,7 @@ void tfApplyFlow(Closure body) {
     }
     retry(2) {
         sleep(60)
-        tfPlan(config.working_dir, config.tf_vars)
+        tfPlan(config.working_dir, config.vars)
         tfApply(config.working_dir)
     }
     if (config.postAction) {
@@ -142,5 +142,5 @@ void tfDestroyFlow(Closure body) {
     tfInit(config.working_dir)
     tfWorkspaceSelect(config.working_dir, config.workspace_name)
     tfStatePull(config.working_dir)
-    tfDestroy(config.working_dir, config.tf_vars)
+    tfDestroy(config.working_dir, config.vars)
 }

@@ -26,7 +26,7 @@ data "aws_caller_identity" "current" {}
 locals {
 
   os_password = random_password.os_password.result
-  connection_config        = jsonencode({
+  connection_config = jsonencode({
     ELASTICSEARCH_URL      = base64encode("https://${module.aws_opensearch.endpoint}:443")
     ELASTICSEARCH_HOST     = base64encode(module.aws_opensearch.endpoint)
     ELASTICSEARCH_PORT     = base64encode("443")

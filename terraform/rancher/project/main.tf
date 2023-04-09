@@ -4,8 +4,8 @@ resource "rancher2_project" "this" {
   cluster_id                = data.rancher2_cluster.this.id
   enable_project_monitoring = false
   container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
+    limits_memory   = "256Mi"
+    requests_memory = "128Mi"
   }
 }
 
@@ -24,8 +24,8 @@ resource "rancher2_namespace" "this" {
   project_id  = rancher2_project.this.id
   description = "${var.rancher_project_name} project namespace"
   container_resource_limit {
-    limits_memory   = "512Mi"
-    requests_memory = "256Mi"
+    limits_memory   = "256Mi"
+    requests_memory = "128Mi"
   }
   labels = {
     team = var.rancher_project_name
