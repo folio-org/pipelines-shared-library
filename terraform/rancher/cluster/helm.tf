@@ -57,7 +57,7 @@ resource "helm_release" "alb_controller" {
 #    value = module.ebs_csi_irsa_role.iam_role_arn
 #  }
 #}
-#
+
 #Add External DNS
 resource "helm_release" "external_dns" {
   depends_on = [module.eks_cluster, module.external_dns_irsa_role]

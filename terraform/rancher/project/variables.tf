@@ -230,6 +230,6 @@ variable "s3_postgres_backups_secret_key" {
 }
 
 variable "pg_ldp_user_password" {
-  type    = string
+  type        = string
   description = "Postgresql password for ldp user"
 }

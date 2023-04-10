@@ -48,12 +48,6 @@ variable "aws_kubecost_secret_access_key" {
   description = "SECRET KEY ID for Kubecost user"
 }
 
-variable "projectID" {
-  type        = string
-  default     = "732722833398"
-  description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
-}
-
 # Set name of parameter if want to deploy Opensearch Dashboard (ex. folio-opensearch)
 variable "opensearch_shared_name" {
   type        = string
