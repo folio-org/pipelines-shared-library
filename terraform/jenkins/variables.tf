@@ -114,3 +114,29 @@ variable "iam_jenkins_role" {
   default     = "JenkinsRole"
   description = "IAM role name to be assigned to the Jenkins instance"
 }
+
+variable "dlm_times" {
+  type        = list(string)
+  default     = ["23:45"]
+  description = "List of times when snapshot must be created"
+}
+
+variable "dlm_interval" {
+  type        = number
+  default     = 24
+  description = "Interval between snapshot creating"
+}
+
+variable "dlm_retain_count" {
+  type        = number
+  default     = 14
+  description = "Count of the Jenkins snapshot to retain"
+}
+
+variable "dlm_tags" {
+  type = map(any)
+  default = {
+    Snapshot = "true"
+  }
+  description = "Tags for volume to create snapshots"
+}
