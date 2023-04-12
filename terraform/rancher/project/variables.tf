@@ -115,27 +115,16 @@ variable "pg_rds_snapshot_name" {
 }
 
 # Kafka variables
-variable "kafka_embedded" {
+variable "kafka_shared" {
   type        = bool
   default     = true
-  description = "Embedded Kafka if true and AWS Kafka if false"
+  description = "Shared AWS MSK if true and embedded kafka if false"
 }
 
 variable "kafka_shared_name" {
   type        = string
   default     = "folio-kafka"
   description = "Name of shared MSK cluster"
-}
-
-variable "kafka_version" {
-  type        = string
-  default     = "2.8.0"
-  description = "Postgres version"
-}
-
-variable "kafka_instance_type" {
-  type    = string
-  default = "kafka.m5.large"
 }
 
 variable "kafka_number_of_broker_nodes" {
@@ -148,17 +137,11 @@ variable "kafka_ebs_volume_size" {
   default = 50
 }
 
-variable "kafka_ui" {
-  type        = bool
-  default     = true
-  description = "Deploy kafka-ui tool if true"
-}
-
 # Elasticsearch variables
-variable "os_embedded" {
+variable "opensearch_shared" {
   type        = bool
   default     = true
-  description = "Embedded Elasticsearch if true and AWS OpenSearch if false"
+  description = "Shared AWS OpenSearch if true and embedded OpenSearch if false"
 }
 
 variable "opensearch_shared_name" {
@@ -167,39 +150,9 @@ variable "opensearch_shared_name" {
   description = "Name of shared OpenSearch cluster"
 }
 
-variable "opensearch_dashboards" {
-  type        = bool
-  default     = true
-  description = "Deploy opensearch-dashboards tool if true"
-}
-
-variable "es_create_service_link_role" {
-  type    = bool
-  default = false
-}
-
-variable "es_dedicated_master" {
-  type    = bool
-  default = false
-}
-
-variable "es_instance_count" {
-  type    = number
-  default = 2
-}
-
-variable "es_instance_type" {
-  type    = string
-  default = "m5.xlarge.elasticsearch"
-}
-
 variable "es_ebs_volume_size" {
   type    = number
   default = 100
-}
-
-variable "es_username" {
-  default = "esadmin"
 }
 
 # Minio variables
