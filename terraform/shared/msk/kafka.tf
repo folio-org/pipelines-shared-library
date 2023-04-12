@@ -46,7 +46,7 @@ resource "aws_msk_cluster" "this" {
   }
 
   broker_node_group_info {
-    instance_type = var.kafka_instance_type
+    instance_type   = var.kafka_instance_type
     client_subnets  = data.aws_subnets.private.ids
     security_groups = [aws_security_group.kafka.id]
     storage_info {
@@ -64,10 +64,10 @@ resource "aws_msk_cluster" "this" {
   tags = merge(
     var.tags,
     {
-      service               = "Kafka"
-      name                  = var.service_name
-      version               = var.kafka_version
-      kubernetes_service    = "Folio-MSK-Cluster"
+      service            = "Kafka"
+      name               = var.service_name
+      version            = var.kafka_version
+      kubernetes_service = "Folio-MSK-Cluster"
   })
 }
 
