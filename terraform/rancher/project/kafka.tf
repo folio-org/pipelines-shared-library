@@ -1,6 +1,6 @@
 # Rancher2 Project App Kafka
 resource "rancher2_app_v2" "kafka" {
-  count         = var.kafka_embedded ? 0 : 1
+  count         = var.kafka_shared ? 0 : 1
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "kafka-${var.rancher_project_name}"
@@ -54,7 +54,7 @@ resource "rancher2_app_v2" "kafka" {
 }
 
 resource "rancher2_app_v2" "kafka_ui" {
-  count         = var.kafka_embedded ? 0 : 1
+  count         = var.kafka_shared ? 0 : 1
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
   name          = "kafka-ui"

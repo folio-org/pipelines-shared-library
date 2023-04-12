@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
@@ -44,6 +45,13 @@ void healthCheck(String url, String status_codes='200,403'){
 static String getOkapiVersion(List install_json){
     if(install_json*.id.find{it ==~ /okapi-.*/}) {
         return install_json*.id.find { it ==~ /okapi-.*/ } - 'okapi-'
+    }
+}
+
+def getOkapiLatestSnapshotVersion(String okapi_version){
+    def dockerHub = new URL('https://hub.docker.com/v2/repositories/folioci/okapi/tags?page_size=100&ordering=last_updated').openConnection()
+    if (dockerHub.getResponseCode().equals(200)) {
+        return new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name.findAll {it.matches(/${okapi_version}.*/)}.sort().last()
     }
 }
 

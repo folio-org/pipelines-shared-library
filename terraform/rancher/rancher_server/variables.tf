@@ -12,8 +12,14 @@ variable "rancher_version" {
 
 variable "rancher_cluster_name" {
   type        = string
-  default     = "folio-rancher"
+  default     = "rancher"
   description = "Rancher cluster name"
+}
+
+variable "root_domain" {
+  type        = string
+  default     = "ci.folio.org"
+  description = "Root domain name for Route53"
 }
 
 variable "rancher_hostname" {
@@ -30,12 +36,6 @@ variable "rancher_token_key" {
 variable "kubecost_licence_key" {
   type        = string
   description = "Apply business or enterprise product license key"
-}
-
-variable "root_domain" {
-  type        = string
-  default     = "ci.folio.org"
-  description = "Root domain name for Route53"
 }
 
 variable "aws_kubecost_access_key_id" {

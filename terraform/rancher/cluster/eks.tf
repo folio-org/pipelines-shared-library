@@ -39,7 +39,8 @@ module "eks_cluster" {
   cluster_version   = "1.23" //Highest version 1.24 or 1.25 need to be tested before applying
   cluster_ip_family = "ipv4"
 
-  cluster_endpoint_public_access = true
+  cluster_endpoint_private_access = false
+  cluster_endpoint_public_access  = true
 
   vpc_id     = data.aws_vpc.this.id
   subnet_ids = data.aws_subnets.private.ids
@@ -55,6 +56,13 @@ module "eks_cluster" {
       most_recent              = true
       before_compute           = true
       service_account_role_arn = module.vpc_cni_irsa_role.iam_role_arn
+      configuration_values = jsonencode({
+        env = {
+          # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
     aws-ebs-csi-driver = {
       most_recent              = true
@@ -76,6 +84,14 @@ module "eks_cluster" {
       from_port                  = 1025
       to_port                    = 65535
       type                       = "ingress"
+      source_node_security_group = true
+    }
+    egress_nodes_ephemeral_ports_tcp = {
+      description                = "To node 1025-65535"
+      protocol                   = "tcp"
+      from_port                  = 1025
+      to_port                    = 65535
+      type                       = "egress"
       source_node_security_group = true
     }
   }

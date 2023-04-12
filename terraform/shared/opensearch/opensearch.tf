@@ -12,15 +12,15 @@ resource "aws_ssm_parameter" "opensearch" {
 }
 
 resource "random_password" "os_password" {
-  length      = 16
-  special     = true
-  numeric     = true
-  upper       = true
-  lower       = true
-  min_lower   = 1
-  min_numeric = 1
-  min_special = 1
-  min_upper   = 1
+  length           = 16
+  special          = true
+  numeric          = true
+  upper            = true
+  lower            = true
+  min_lower        = 1
+  min_numeric      = 1
+  min_special      = 1
+  min_upper        = 1
   override_special = "@$%-+=?"
 }
 
@@ -104,9 +104,9 @@ module "aws_opensearch" {
   tags = merge(
     var.tags,
     {
-      service               = "OpenSearch"
-      name                  = var.service_name
-      version               = var.os_version
-      kubernetes_service    = "Folio-OpenSearch-Cluster"
+      service            = "OpenSearch"
+      name               = var.service_name
+      version            = var.os_version
+      kubernetes_service = "Folio-OpenSearch-Cluster"
   })
 }

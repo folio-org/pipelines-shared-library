@@ -135,28 +135,54 @@ resource "aws_rds_cluster_parameter_group" "aurora_cluster_postgres_parameter_gr
 
 #Module for AWS RDS instance creation
 module "rds" {
-  count                           = var.pg_embedded ? 0 : 1
-  source                          = "terraform-aws-modules/rds-aurora/aws"
-  version                         = "~> 3.0"
-  name                            = "rds-${local.env_name}"
-  engine                          = "aurora-postgresql"
-  engine_version                  = var.pg_version
+  count          = var.pg_embedded ? 0 : 1
+  source         = "terraform-aws-modules/rds-aurora/aws"
+  version        = "~>8.0"
+  name           = "rds-${local.env_name}"
+  engine         = "aurora-postgresql"
+  engine_version = var.pg_version
+
+  instances = {
+    1 = {
+      instance_class      = var.pg_instance_type
+      publicly_accessible = true
+    }
+  }
+
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
-  replica_count                   = 1
+  db_subnet_group_name            = "folio-rancher-vpc"
   database_name                   = var.pg_dbname
-  username                        = var.pg_username
-  password                        = local.pg_password
-  instance_type                   = var.pg_instance_type
+  master_username                 = var.pg_username
+  master_password                 = local.pg_password
+  manage_master_user_password     = false
   storage_encrypted               = true
   apply_immediately               = true
   vpc_security_group_ids          = [aws_security_group.allow_rds[count.index].id]
   db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
   snapshot_identifier             = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
-  create_random_password          = false
-  publicly_accessible             = true
-  skip_final_snapshot             = true
+  #  publicly_accessible             = true
+  skip_final_snapshot = true
+
+  #  vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
+  #  subnets                         = data.aws_subnets.database.ids
+  #  replica_count       = 1
+  #  database_name                   = var.pg_dbname
+  #  username                        = var.pg_username
+  #  password                        = local.pg_password
+  #  instance_type       = var.pg_instance_type
+  #  storage_encrypted               = true
+  #  apply_immediately               = true
+  #  vpc_security_group_ids          = [aws_security_group.allow_rds[count.index].id]
+  #  db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
+  #  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
+  #  snapshot_identifier = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
+  #  create_random_password          = false
+  #  publicly_accessible = true
+  #  skip_final_snapshot = true
+
+
 
   tags = merge(
     var.tags,
@@ -211,8 +237,8 @@ resource "rancher2_app_v2" "pgadmin4" {
           Name: ${var.rancher_project_name}
           Group: Servers
           Port: 5432
-          Username: ${var.pg_embedded ? var.pg_username : module.rds[0].this_rds_cluster_master_username}
-          Host: ${var.pg_embedded ? join("-", ["postgresql", var.rancher_project_name]) : module.rds[0].this_rds_cluster_endpoint}
+          Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
+          Host: ${var.pg_embedded ? join("-", ["postgresql", var.rancher_project_name]) : module.rds[0].cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT

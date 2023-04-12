@@ -21,7 +21,7 @@ data "aws_subnets" "private" {
 
 locals {
   broker_urls = split(",", aws_msk_cluster.this.bootstrap_brokers)
-  data        = jsonencode({
+  data = jsonencode({
     KAFKA_HOST = element(split(":", local.broker_urls[0]), 0)
     KAFKA_PORT = element(split(":", local.broker_urls[0]), 1)
   })
