@@ -34,6 +34,7 @@ resource "helm_release" "kafka-ui" {
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/group.name: ${var.rancher_cluster_name}
 
     yamlApplicationConfig:
       kafka:
@@ -60,6 +61,8 @@ resource "helm_release" "opensearch-dashboards" {
   namespace        = "shared-dashboards"
   create_namespace = true
   values           = [<<EOF
+    image:
+      tag: "1.3.2"
     service:
       type: NodePort
     clusterName: "shared-opensearch"
@@ -86,11 +89,14 @@ resource "helm_release" "opensearch-dashboards" {
         - host: "folio-opensearch-dashboards.${var.root_domain}"
           paths:
             - path: /
+              backend:
+                servicePort: 5601
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/group.name: ${var.rancher_cluster_name}
   EOF 
   ]
 }
