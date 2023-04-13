@@ -59,8 +59,8 @@ ansiColor('xterm') {
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
                         booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_embedded', value: false),
-                        booleanParam(name: 'es_embedded', value: false),
+                        booleanParam(name: 'kafka_shared', value: false),
+                        booleanParam(name: 'opensearch_shared', value: false),
                         booleanParam(name: 's3_embedded', value: false)
                     ]
             }
@@ -81,8 +81,8 @@ ansiColor('xterm') {
                         string(name: 'admin_username', value: "folio"),
                         string(name: 'admin_password', value: "folio"),
                         booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_embedded', value: false),
-                        booleanParam(name: 'es_embedded', value: false),
+                        booleanParam(name: 'kafka_shared', value: true),
+                        booleanParam(name: 'opensearch_shared', value: true),
                         booleanParam(name: 's3_embedded', value: false)
                     ]
             }
