@@ -47,3 +47,17 @@ variable "aws_kubecost_secret_access_key" {
   type        = string
   description = "SECRET KEY ID for Kubecost user"
 }
+
+# Set name of parameter if want to deploy Opensearch Dashboard (ex. folio-opensearch). Left empty "" if not deploy
+variable "opensearch_shared_name" {
+  type        = string
+  default     = "folio-opensearch"
+  description = "Name of shared OpenSearch cluster"
+}
+
+# Set name of parameter if want to deploy Kafka UI (ex. folio-kafka). Left empty "" if not deploy
+variable "kafka_shared_name" {
+  type        = string
+  default     = "folio-kafka"
+  description = "Name of shared MSK cluster"
+}
