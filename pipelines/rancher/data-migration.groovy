@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-676-Costs-optimisation') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -99,68 +99,76 @@ ansiColor('xterm') {
                         string(name: 'admin_password', value: "folio")
                     ]
             }
-            stage('Update with dst release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                    parameters: [
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_dst),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        string(name: 'tenant_id', value: "fs09000000"),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
-                    ]
-            }
-            stage('Generate Data Migration Time report') {
-                sleep time: 5, unit: 'MINUTES'
+            // stage('Create PSQL client pod') {
+            //     helm.k8sClient {
+            //         awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
+            //             sh 'kubectl run psql-client --image=postgres --env="PGPASSWORD=postgres_password_123!" --rm -it -- psql -h <your_db_host> -d testDB'
+            //             sh 'kubectl run psql-client --image=postgres --env="PGPASSWORD=<your_db_password>" --rm -it -- psql -h <your_db_host> -d testDB'
+            //     }
+            
+            // }
+            // stage('Update with dst release versions') {
+            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+            //         parameters: [
+            //             string(name: 'folio_repository', value: params.folio_repository),
+            //             string(name: 'folio_branch', value: params.folio_branch_dst),
+            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+            //             string(name: 'rancher_project_name', value: rancher_project_name),
+            //             string(name: 'config_type', value: config_type),
+            //             string(name: 'tenant_id', value: "fs09000000"),
+            //             string(name: 'admin_username', value: "folio"),
+            //             string(name: 'admin_password', value: "folio")
+            //         ]
+            // }
+            // stage('Generate Data Migration Time report') {
+            //     sleep time: 5, unit: 'MINUTES'
 
-                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
-                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
-                def tenants = []
-                result.hits.hits.each {
-                    def logField = it.fields.log[0]
-                    def parsedMigrationInfo= logField.split("'")
-                    def time
-                    try {
-                      def parsedTime = logField.split("completed successfully in ")
-                      time = parsedTime[1].minus("ms").trim()
-                    } catch (ArrayIndexOutOfBoundsException exception) {
-                      time = "failed"
-                    }
+            //     def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
+            //     def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
+            //     def tenants = []
+            //     result.hits.hits.each {
+            //         def logField = it.fields.log[0]
+            //         def parsedMigrationInfo= logField.split("'")
+            //         def time
+            //         try {
+            //           def parsedTime = logField.split("completed successfully in ")
+            //           time = parsedTime[1].minus("ms").trim()
+            //         } catch (ArrayIndexOutOfBoundsException exception) {
+            //           time = "failed"
+            //         }
 
-                    if(backend_modules_list.contains(parsedMigrationInfo[1])){
-                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                        moduleInfo: [moduleName: parsedMigrationInfo[1], 
-                                                        execTime: time]]
+            //         if(backend_modules_list.contains(parsedMigrationInfo[1])){
+            //             def bindingMap = [tenantName: parsedMigrationInfo[3], 
+            //                             moduleInfo: [moduleName: parsedMigrationInfo[1], 
+            //                                             execTime: time]]
                     
-                        tenants += new DataMigrationTenant(bindingMap)
-                    }
-                }
+            //             tenants += new DataMigrationTenant(bindingMap)
+            //         }
+            //     }
 
-                def uniqTenants = tenants.tenantName.unique()
-                uniqTenants.each { tenantName ->
-                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
-                    totalTimeInMs += totalTime
-                    modulesLongMigrationTimeSlack += modulesLongMigrationTime
-                    modulesMigrationFailedSlack += modulesMigrationFailed
-                    writeFile file: "${tenantName}.html", text: htmlData
-                }
+            //     def uniqTenants = tenants.tenantName.unique()
+            //     uniqTenants.each { tenantName ->
+            //         (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
+            //         totalTimeInMs += totalTime
+            //         modulesLongMigrationTimeSlack += modulesLongMigrationTime
+            //         modulesMigrationFailedSlack += modulesMigrationFailed
+            //         writeFile file: "${tenantName}.html", text: htmlData
+            //     }
                 
-                if(uniqTenants){
-                    def htmlFiles = findFiles glob: '*.html'
-                    publishHTML([
-                            reportDir: '',
-                            reportFiles: htmlFiles.join(','),
-                            reportName: 'Data Migration Time',
-                            allowMissing: true,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true])
-                }         
-            }
-            stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }            
+            //     if(uniqTenants){
+            //         def htmlFiles = findFiles glob: '*.html'
+            //         publishHTML([
+            //                 reportDir: '',
+            //                 reportFiles: htmlFiles.join(','),
+            //                 reportName: 'Data Migration Time',
+            //                 allowMissing: true,
+            //                 alwaysLinkToLastBuild: true,
+            //                 keepAll: true])
+            //     }         
+            // }
+            // stage('Send Slack notification') {
+            //     dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            // }            
 
         } catch (exception) {
             println(exception)
