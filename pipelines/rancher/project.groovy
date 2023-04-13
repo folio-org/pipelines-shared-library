@@ -272,13 +272,6 @@ ansiColor('xterm') {
         } finally {
             stage('Cleanup') {
                 cleanWs notFailBuild: true
-                if (project_config.getAction() == 'destroy') {
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                        folioTools.deleteOpenSearchIndices(project_config.getClusterName(), project_config.getProjectName())
-                        folioTools.deleteKafkaTopics(project_config.getClusterName(), project_config.getProjectName())
-                    }
-                }
             }
         }
     }
