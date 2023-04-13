@@ -52,8 +52,8 @@ ansiColor("xterm") {
                         booleanParam(name: 'load_sample', value: true),
                         string(name: 'github_teams', value: params.github_teams),
                         booleanParam(name: 'pg_embedded', value: true),
-                        booleanParam(name: 'kafka_embedded', value: true),
-                        booleanParam(name: 'es_embedded', value: true),
+                        booleanParam(name: 'kafka_shared', value: true),
+                        booleanParam(name: 'opensearch_shared', value: true),
                         booleanParam(name: 's3_embedded', value: true),
                         booleanParam(name: 'pgadmin4', value: true),
                         booleanParam(name: 'greenmail_server', value: true)
