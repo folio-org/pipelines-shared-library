@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
@@ -47,6 +48,13 @@ static String getOkapiVersion(List install_json){
     }
 }
 
+def getOkapiLatestSnapshotVersion(String okapi_version){
+    def dockerHub = new URL('https://hub.docker.com/v2/repositories/folioci/okapi/tags?page_size=100&ordering=last_updated').openConnection()
+    if (dockerHub.getResponseCode().equals(200)) {
+        return new JsonSlurperClassic().parseText(dockerHub.getInputStream().getText()).results*.name.findAll {it.matches(/${okapi_version}.*/)}.sort().last()
+    }
+}
+
 // Removing the image from the local machine.
 void removeImage(String image_name){
     String image_id = sh returnStdout: true, script: "docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep '${image_name}' | cut -d' ' -f1"
@@ -82,5 +90,11 @@ void checkEcrRepoExistence(String repo_name) {
             println("ECR repo for ${repo_name} doesn't exist, starting creating...")
             awscli.createEcrRepo(Constants.AWS_REGION, repo_name)
         }
+    }
+}
+
+void throwErrorIfStringIsEmpty(def variable, String error_message="Variable is emty"){
+    if (variable.isEmpty()) {
+        error(error_message)
     }
 }

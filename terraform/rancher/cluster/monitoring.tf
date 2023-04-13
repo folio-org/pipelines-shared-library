@@ -45,7 +45,7 @@ resource "rancher2_app_v2" "prometheus" {
   name          = "kube-prometheus-stack"
   repo_name     = "prometheus-community"
   chart_name    = "kube-prometheus-stack"
-  chart_version = "41.7.3"
+  chart_version = "45.8.0"
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
@@ -59,9 +59,6 @@ resource "rancher2_app_v2" "prometheus" {
                requests:
                  storage: 10Gi
     prometheus:
-      server:
-        global:
-          scrape_interval: 120s
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
@@ -94,13 +91,13 @@ resource "rancher2_app_v2" "prometheus" {
       ingress:
         enabled: true
         hosts:
-        - ${module.eks_cluster.cluster_id}-grafana.${var.root_domain}
+        - ${module.eks_cluster.cluster_name}-grafana.${var.root_domain}
         path: /*
         pathType: ImplementationSpecific
         annotations:
           kubernetes.io/ingress.class: alb
           alb.ingress.kubernetes.io/scheme: internet-facing
-          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
+          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
           alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /
@@ -111,7 +108,7 @@ resource "rancher2_app_v2" "prometheus" {
         GF_FEATURE_TOGGLES_ENABLE: "ngalert"
       grafana.ini:
         server:
-          root_url: https://${module.eks_cluster.cluster_id}-grafana.${var.root_domain}
+          root_url: https://${module.eks_cluster.cluster_name}-grafana.${var.root_domain}
         auth.github:
           enabled: ${var.github_client_id != "" && var.github_client_secret != "" ? true : false}
           allow_sign_up: false

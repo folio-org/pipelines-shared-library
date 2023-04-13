@@ -13,8 +13,18 @@ resource "helm_release" "rancher" {
   }
 
   set {
+    name  = "ingress.includeDefaultExtraAnnotations"
+    value = false
+  }
+
+  set {
     name  = "ingress.extraAnnotations.alb\\.ingress\\.kubernetes\\.io/scheme"
     value = "internet-facing"
+  }
+
+  set {
+    name  = "ingress.extraAnnotations.alb\\.ingress\\.kubernetes\\.io/group\\.name"
+    value = var.rancher_cluster_name
   }
 
   set {
@@ -34,8 +44,9 @@ resource "helm_release" "rancher" {
 
   set {
     name  = "replicas"
-    value = 3
+    value = 2
   }
+
   set {
     name  = "tls"
     value = "external"
