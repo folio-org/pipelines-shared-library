@@ -33,7 +33,7 @@ def call(params) {
     stage('Run karate tests') {
         script {
             def karateEnvironment = "folio-testing-karate"
-            withMaven(jdk: 'openjdk-17-jenkins-slave-all',
+            withMaven(jdk: 'openjdk-11-jenkins-slave-all',
                 maven: 'maven3-jenkins-slave-all',
                 mavenSettingsConfig: 'folioci-maven-settings') {
                 def modules = ""
@@ -41,6 +41,7 @@ def call(params) {
                     modules = "-pl common,testrail-integration," + params.modules
                 }
                 sh 'echo JAVA_HOME=${JAVA_HOME}'
+                sh 'ls ${JAVA_HOME}/bin'
                 sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
             }
         }
