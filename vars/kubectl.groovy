@@ -76,3 +76,14 @@ void deletePod(String namespace = 'default', String pod_name) {
         println(e.getMessage())
     }
 }
+
+void waitPodIsRunning(String namespace = 'default', String pod_name) {
+    timeout(5) {
+        waitUntil(quiet: true) {
+            def status = sh(script: "kubectl get pods --namespace=${namespace} ${pod_name} -o jsonpath='{.status.phase}'",
+                returnStdout: true).trim()
+            return status == 'Running'
+        }
+        println("Pod ${pod_name} is now running.")
+    }
+}
