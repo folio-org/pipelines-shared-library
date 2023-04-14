@@ -49,7 +49,7 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
     }
 }
 
-void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 10m') {
+void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
     try {
         sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} --command -- ${command}"
     } catch (Exception e) {
