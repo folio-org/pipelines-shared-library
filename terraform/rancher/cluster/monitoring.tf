@@ -53,8 +53,9 @@ resource "rancher2_app_v2" "prometheus" {
       config:
         global:
           resolve_timeout: 5m
+          slack_api_url: "https://hooks.slack.com/services/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"
         route:
-          group_by: 'namespace'
+          group_by: ['cluster', 'alertname']
           group_wait: 10s
           group_interval: 1m
           repeat_interval: 10m
@@ -66,11 +67,10 @@ resource "rancher2_app_v2" "prometheus" {
         receivers:
         - name: 'slack-notifications'
           slack-configs:
-          - slack_api_url: "https://slack.com/api/chat.postMessage"
-
-            title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
+          - title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
             text: '<!channel> {{ .CommonAnnotations.summary }}'
-            channel: '#folio_rancher_prometheus_watchdog_alarm'
+            channel: '#testing-prometheus'
+            username: 'Prometheus_WatchDog'
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
