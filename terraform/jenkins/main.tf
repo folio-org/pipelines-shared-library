@@ -51,7 +51,7 @@ resource "aws_instance" "jenkins_server" {
 resource "aws_ebs_volume" "jenkins_home" {
   availability_zone = var.vpc_azs[0]
   size              = var.jenkins_home_size
-  tags              = var.tags
+  tags              = merge(var.tags, var.dlm_tags, { Name = "Jenkins_Home" })
 }
 
 resource "aws_volume_attachment" "jenkins_home" {

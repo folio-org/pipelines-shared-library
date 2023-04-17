@@ -2,17 +2,19 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@BF-475') _
 
 @Field def cypressImageVersion
 
 def call(params) {
     def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
     buildName customBuildName
+    def cypressParameters = (params.cypressParameters instanceof String) ? (1..params.numberOfWorkers).collect {params.cypressParameters } : params.cypressParameters
     def cypressWorkers = [:]
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
     def resultPaths = []
     for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
+        def currentNumber = workerNumber-1
         cypressWorkers["CypressWorker#${workerNumber}"] = {
             node(params.agent) {
                 stage('Checkout Cypress repo') {
@@ -77,10 +79,10 @@ def call(params) {
                                                 env.CYPRESS_allureReuseAfterSpec = "true"
                                                 println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                                 withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${params.cypressParameters}"
+                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                 }
                                             } else {
-                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${params.cypressParameters}"
+                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                             }
                                         }
                                     }

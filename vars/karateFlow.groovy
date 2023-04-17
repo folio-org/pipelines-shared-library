@@ -40,6 +40,8 @@ def call(params) {
                 if (params.modules) {
                     modules = "-pl common,testrail-integration," + params.modules
                 }
+                sh 'echo JAVA_HOME=${JAVA_HOME}'
+                sh 'ls ${JAVA_HOME}/bin'
                 sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
             }
         }
