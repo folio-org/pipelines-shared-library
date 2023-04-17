@@ -50,15 +50,16 @@ resource "rancher2_app_v2" "prometheus" {
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
+      enabled: true
       config:
         global:
           resolve_timeout: 5m
           slack_api_url: "https://hooks.slack.com/services/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"
         route:
-          group_by: ['cluster', 'alertname']
-          group_wait: 10s
-          group_interval: 1m
-          repeat_interval: 10m
+          group_by: ['namespace', 'cluster', 'alertname']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 20m
           routes:
           - receiver: 'slack-notifications'
             matchers:
