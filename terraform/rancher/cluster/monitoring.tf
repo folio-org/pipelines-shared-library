@@ -45,33 +45,32 @@ resource "rancher2_app_v2" "prometheus" {
   name          = "kube-prometheus-stack"
   repo_name     = "prometheus-community"
   chart_name    = "kube-prometheus-stack"
-  chart_version = "45.8.0"
+  chart_version = "41.7.3"
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
-      enabled: true
-      config:
-        global:
-          resolve_timeout: 5m
-          slack_api_url: "https://hooks.slack.com/services/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"
-        route:
-          group_by: ['namespace', 'cluster', 'alertname']
-          group_wait: 30s
-          group_interval: 5m
-          repeat_interval: 20m
-          routes:
-          - receiver: 'slack-notifications'
-            matchers:
-              - alertname: Watchdog
-            continue: true
-        receivers:
-        - name: 'slack-notifications'
-          slack-configs:
-          - title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
-            text: '<!channel> {{ .CommonAnnotations.summary }}'
-            channel: '#testing-prometheus'
-            username: 'Prometheus_WatchDog'
+#      config:
+#        global:
+#          resolve_timeout: 5m
+#          slack_api_url: "https://hooks.slack.com/services/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"
+#        route:
+#          group_by: ['namespace', 'cluster', 'alertname']
+#          group_wait: 30s
+#          group_interval: 5m
+#          repeat_interval: 20m
+#          routes:
+#          - receiver: 'slack-notifications'
+#            matchers:
+#              - alertname: Watchdog
+#            continue: true
+#        receivers:
+#        - name: 'slack-notifications'
+#          slack-configs:
+#          - title: '{{ .Status }} ({{ .Alerts.Firing | len }}): {{ .GroupLabels.SortedPairs.Values | join " " }}'
+#            text: '<!channel> {{ .CommonAnnotations.summary }}'
+#            channel: '#testing-prometheus'
+#            username: 'Prometheus_WatchDog'
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
