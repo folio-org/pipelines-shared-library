@@ -59,10 +59,11 @@ resource "rancher2_app_v2" "prometheus" {
 #          group_wait: 30s
 #          group_interval: 5m
 #          repeat_interval: 20m
+#          receiver: null
 #          routes:
 #          - receiver: 'slack-notifications'
-#            matchers:
-#              - alertname: Watchdog
+#            match:
+#              alertname: Watchdog
 #            continue: true
 #        receivers:
 #        - name: 'slack-notifications'
