@@ -7,41 +7,70 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
 
-void project(Project project_config, OkapiTenant tenant, Map tf) {
+void project(Project project_config, OkapiTenant tenant, String tf_work_dir, String tf_vars) {
     switch (project_config.getAction()) {
         case "apply":
-            terraform.tfWrapper {
-                terraform.tfApplyFlow {
-                    working_dir = tf.working_dir
-                    tf_vars = tf.variables
-                    workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
-                    if (project_config.getRestoreFromBackup() && project_config.getBackupType() == 'postgresql') {
-                        if (project_config.getBackupName()?.trim()) {
-                            preAction = {
-                                stage('Restore DB') {
-                                    terraform.tfPostgreSQLPlan(tf.working_dir, tf.variables ?: '')
-                                    terraform.tfApply(tf.working_dir)
-                                    build job: Constants.JENKINS_JOB_RESTORE_PG_BACKUP,
-                                        parameters: [string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
-                                                     string(name: 'rancher_project_name', value: project_config.getProjectName()),
-                                                     string(name: 'tenant_id_to_backup_modules_versions', value: tenant.getId()),
-                                                     booleanParam(name: 'restore_from_backup', value: project_config.getRestoreFromBackup()),
-                                                     string(name: 'backup_name', value: project_config.getBackupName())]
+            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_secret_key'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_POSTGRES_BACKUPS,
+                              accessKeyVariable: 'TF_VAR_s3_postgres_backups_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_postgres_backups_secret_key'],
+                             usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID,
+                                 passwordVariable: 'TF_VAR_folio_docker_registry_password',
+                                 usernameVariable: 'TF_VAR_folio_docker_registry_username')]) {
+                terraform.tfWrapper {
+                    terraform.tfApplyFlow {
+                        working_dir = tf_work_dir
+                        vars = tf_vars
+                        workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
+                        if (project_config.getRestoreFromBackup() && project_config.getBackupType() == 'postgresql') {
+                            if (project_config.getBackupName()?.trim()) {
+                                preAction = {
+                                    stage('Restore DB') {
+                                        terraform.tfPostgreSQLPlan(tf_work_dir, tf_vars ?: '')
+                                        terraform.tfApply(tf_work_dir)
+                                        build job: Constants.JENKINS_JOB_RESTORE_PG_BACKUP,
+                                            parameters: [string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                                                         string(name: 'rancher_project_name', value: project_config.getProjectName()),
+                                                         string(name: 'tenant_id_to_backup_modules_versions', value: tenant.getId()),
+                                                         booleanParam(name: 'restore_from_backup', value: project_config.getRestoreFromBackup()),
+                                                         string(name: 'backup_name', value: project_config.getBackupName())]
+                                    }
                                 }
+                            } else {
+                                new Logger(this, "folioDeploy").error("You've tried to restore PostgreSQL DB state from backup but didn't provide path/name of it.\nPlease, provide correct DB backup path/name and try again.")
                             }
-                        } else {
-                            new Logger(this, "folioDeploy").error("You've tried to restore PostgreSQL DB state from backup but didn't provide path/name of it.\nPlease, provide correct DB backup path/name and try again.")
                         }
                     }
                 }
             }
             break
         case "destroy":
-            terraform.tfWrapper {
-                terraform.tfDestroyFlow {
-                    working_dir = tf.working_dir
-                    tf_vars = tf.variables ?: ''
-                    workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
+            helm.k8sClient {
+                awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                folioTools.deleteOpenSearchIndices(project_config.getClusterName(), project_config.getProjectName())
+                folioTools.deleteKafkaTopics(project_config.getClusterName(), project_config.getProjectName())
+            }
+            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                              accessKeyVariable: 'TF_VAR_s3_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_secret_key'],
+                             [$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_POSTGRES_BACKUPS,
+                              accessKeyVariable: 'TF_VAR_s3_postgres_backups_access_key',
+                              secretKeyVariable: 'TF_VAR_s3_postgres_backups_secret_key'],
+                             usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID,
+                                 passwordVariable: 'TF_VAR_folio_docker_registry_password',
+                                 usernameVariable: 'TF_VAR_folio_docker_registry_username')]) {
+                terraform.tfWrapper {
+                    terraform.tfDestroyFlow {
+                        working_dir = tf_work_dir
+                        vars = tf_vars ?: ''
+                        workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
+                    }
                 }
             }
             break

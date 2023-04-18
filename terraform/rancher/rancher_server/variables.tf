@@ -6,7 +6,7 @@ variable "aws_region" {
 
 variable "rancher_version" {
   type        = string
-  default     = "2.6.6"
+  default     = "2.7.1"
   description = "Rancher version"
 }
 
@@ -14,6 +14,12 @@ variable "rancher_cluster_name" {
   type        = string
   default     = "rancher"
   description = "Rancher cluster name"
+}
+
+variable "root_domain" {
+  type        = string
+  default     = "ci.folio.org"
+  description = "Root domain name for Route53"
 }
 
 variable "rancher_hostname" {
@@ -32,12 +38,6 @@ variable "kubecost_licence_key" {
   description = "Apply business or enterprise product license key"
 }
 
-variable "root_domain" {
-  type        = string
-  default     = "ci.folio.org"
-  description = "Root domain name for Route53"
-}
-
 variable "aws_kubecost_access_key_id" {
   type        = string
   description = "ACCESS KEY ID for Kubecost user"
@@ -48,8 +48,16 @@ variable "aws_kubecost_secret_access_key" {
   description = "SECRET KEY ID for Kubecost user"
 }
 
-variable "projectID" {
+# Set name of parameter if want to deploy Opensearch Dashboard (ex. folio-opensearch). Left empty "" if not deploy
+variable "opensearch_shared_name" {
   type        = string
-  default     = "732722833398"
-  description = "The AWS AccountID where the Athena CUR is. Generally your masterpayer account"
+  default     = "folio-opensearch"
+  description = "Name of shared OpenSearch cluster"
+}
+
+# Set name of parameter if want to deploy Kafka UI (ex. folio-kafka). Left empty "" if not deploy
+variable "kafka_shared_name" {
+  type        = string
+  default     = "folio-kafka"
+  description = "Name of shared MSK cluster"
 }

@@ -1,5 +1,5 @@
-## Rancher network
-This terraform scripts aimed to provision AWS VPC for rancher clusters infrastructure
+## Folio Kafka
+This terraform scripts aimed to provision shared AWS Kafka service for rancher clusters
 
 ### Install 
 
@@ -12,6 +12,7 @@ terraform apply -input=false tfplan
 
 ### Destroy
 ```shell
+terraform init
 terraform destroy -auto-approve
 ```
 

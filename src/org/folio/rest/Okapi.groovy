@@ -509,6 +509,15 @@ class Okapi extends GeneralParameters {
 
     void unsecure() {
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        //TODO temporary solution (required when supertenant on env have not actual versions)
+//        def updateModules = ['mod-users'      : buildInstallJsonByModuleName('mod-users', 'enable'),
+//                               'mod-permissions': buildInstallJsonByModuleName('mod-permissions', 'enable'),
+//                               'mod-login'      : buildInstallJsonByModuleName('mod-login', 'enable'),
+//                               'mod-authtoken'  : buildInstallJsonByModuleName('mod-authtoken', 'enable')]
+//        enableDisableUpgradeModulesForTenant(supertenant, updateModules['mod-authtoken'])
+//        enableDisableUpgradeModulesForTenant(supertenant, updateModules['mod-login'])
+//        enableDisableUpgradeModulesForTenant(supertenant, updateModules['mod-permissions'])
+//        enableDisableUpgradeModulesForTenant(supertenant, updateModules['mod-users'])
         def requiredModules = ['mod-users'      : buildInstallJsonByModuleName('mod-users', 'disable'),
                                'mod-permissions': buildInstallJsonByModuleName('mod-permissions', 'disable'),
                                'mod-login'      : buildInstallJsonByModuleName('mod-login', 'disable'),

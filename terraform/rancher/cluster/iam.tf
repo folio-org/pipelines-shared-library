@@ -1,6 +1,6 @@
 module "load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "~>5.16.0"
 
   role_name                              = join("-", [terraform.workspace, "load-balancer-controller-role"])
   attach_load_balancer_controller_policy = true
@@ -20,9 +20,32 @@ module "load_balancer_controller_irsa_role" {
   )
 }
 
+module "vpc_cni_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~>5.16.0"
+
+  role_name             = join("-", [terraform.workspace, "vpc-cni-role"])
+  attach_vpc_cni_policy = true
+  vpc_cni_enable_ipv4   = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks_cluster.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+
+  tags = merge(
+    {
+      Name = "vpc-cni-role"
+    },
+    var.tags
+  )
+}
+
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "~>5.16.0"
 
   role_name             = join("-", [terraform.workspace, "ebs-csi-role"])
   attach_ebs_csi_policy = true
@@ -30,7 +53,7 @@ module "ebs_csi_irsa_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.eks_cluster.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-ebs-csi-driver"]
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
     }
   }
 
@@ -44,7 +67,7 @@ module "ebs_csi_irsa_role" {
 
 module "external_dns_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "~>5.16.0"
 
   role_name                     = join("-", [terraform.workspace, "external-dns-role"])
   attach_external_dns_policy    = true
@@ -67,11 +90,11 @@ module "external_dns_irsa_role" {
 
 module "cluster_autoscaler_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "4.24.1"
+  version = "~>5.16.0"
 
   role_name                        = join("-", [terraform.workspace, "cluster-autoscaler"])
   attach_cluster_autoscaler_policy = true
-  cluster_autoscaler_cluster_ids   = [module.eks_cluster.cluster_id]
+  cluster_autoscaler_cluster_ids   = [module.eks_cluster.cluster_name]
 
   oidc_providers = {
     main = {

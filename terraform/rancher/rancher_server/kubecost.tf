@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_cognito_user_pools" "pool" {
   name = "Kubecost"
 }
@@ -5,7 +7,7 @@ data "aws_cognito_user_pools" "pool" {
 resource "aws_cognito_user_pool_client" "userpool_client" {
   depends_on                           = [data.aws_cognito_user_pools.pool]
   name                                 = "folio-kubecost"
-  user_pool_id                         = "${tolist(data.aws_cognito_user_pools.pool.ids)[0]}"
+  user_pool_id                         = tolist(data.aws_cognito_user_pools.pool.ids)[0]
   generate_secret                      = true
   callback_urls                        = ["https://folio-kubecost.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
@@ -19,22 +21,23 @@ resource "helm_release" "kubecost" {
   name             = "kubecost"
   repository       = "https://kubecost.github.io/cost-analyzer"
   chart            = "cost-analyzer"
-  version          = "1.98.0"
+  version          = "1.101.3"
   namespace        = "kubecost"
   create_namespace = true
-  values           = [<<EOF
+  values = [<<EOF
     kubecostModel:
       resources:
         limits:
           memory: "4096Mi"
     ingress:
       enabled: true
-      hosts: 
+      hosts:
           - "folio-kubecost.${var.root_domain}"
       paths: ["/*"]
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${var.rancher_cluster_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
@@ -56,7 +59,7 @@ resource "helm_release" "kubecost" {
         - name: folio-perf
           address: "https://folio-perf-kubecost.ci.folio.org"
       currencyCode: "USD"
-      clusterName: "kubecost-main" 
+      clusterName: "kubecost-main"
       labelMappingConfigs:
         enabled: true
         owner_label: "owner"
@@ -80,7 +83,7 @@ resource "helm_release" "kubecost" {
       productKey:
         key: "${var.kubecost_licence_key}"
         enabled: true
-      athenaProjectID: "${var.projectID}"
+      athenaProjectID: "${data.aws_caller_identity.current.account_id}"
       athenaBucketName: "s3://aws-athena-query-results-kubecost-folio/reports"
       athenaRegion: "${var.aws_region}"
       athenaDatabase: "athenacurcfn_aws_kubecost"
@@ -89,6 +92,6 @@ resource "helm_release" "kubecost" {
       awsServiceKeyName: "${var.aws_kubecost_access_key_id}"
       awsServiceKeyPassword: "${var.aws_kubecost_secret_access_key}"
       createServiceKeySecret: true
-  EOF 
+  EOF
   ]
 }

@@ -1,13 +1,45 @@
-data "aws_eks_cluster" "cluster" {
-  name = module.eks_cluster.cluster_id
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks_cluster.cluster_id
-}
-
 provider "aws" {
   region = var.aws_region
+}
+
+provider "kubernetes" {
+  host                   = module.eks_cluster.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks_cluster.cluster_certificate_authority_data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1"
+    command     = "aws"
+    # This requires the awscli to be installed locally where Terraform is executed
+    args = ["eks", "get-token", "--cluster-name", module.eks_cluster.cluster_name]
+  }
+}
+
+provider "kubectl" {
+  apply_retry_count      = 5
+  host                   = module.eks_cluster.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks_cluster.cluster_certificate_authority_data)
+  load_config_file       = false
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    # This requires the awscli to be installed locally where Terraform is executed
+    args = ["eks", "get-token", "--cluster-name", module.eks_cluster.cluster_name]
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks_cluster.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks_cluster.cluster_certificate_authority_data)
+
+    exec {
+      api_version = "client.authentication.k8s.io/v1"
+      command     = "aws"
+      # This requires the awscli to be installed locally where Terraform is executed
+      args = ["eks", "get-token", "--cluster-name", module.eks_cluster.cluster_name]
+    }
+  }
 }
 
 provider "rancher2" {
@@ -15,29 +47,8 @@ provider "rancher2" {
   token_key = var.rancher_token_key
 }
 
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-    token                  = data.aws_eks_cluster_auth.cluster.token
-  }
-}
-
-provider "kubectl" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
-}
-
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
-
 provider "elasticstack" {
   elasticsearch {
-    endpoints = ["https://${module.eks_cluster.cluster_id}-elasticsearch.${var.root_domain}:443"]
+    endpoints = ["https://${module.eks_cluster.cluster_name}-elasticsearch.${var.root_domain}:443"]
   }
 }

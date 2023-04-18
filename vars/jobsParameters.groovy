@@ -51,7 +51,6 @@ static List repositoriesList() {
 static List clustersList() {
     return ['folio-testing',
             'folio-dev',
-            'folio-scratch', //Deprecated
             'folio-perf',
             'folio-tmp']
 }
@@ -78,8 +77,7 @@ static List configTypeList() {
 static List testingEnvironmentsList() {
     return ['karate',
             'cypress',
-            'sprint',
-            'spring']
+            'sprint']
 }
 
 @NonCPS
@@ -89,7 +87,6 @@ static List devEnvironmentsList() {
             'concorde',
             'core-platform',
             'data-migration',
-            'ebsco-core',
             'falcon',
             'firebird',
             'folijet',
@@ -125,7 +122,6 @@ static List testEnvironmentsList() {
 static String generateProjectNamesMap() {
     return JsonOutput.toJson(['folio-testing': testingEnvironmentsList().sort(),
                               'folio-dev'    : devEnvironmentsList().sort(),
-                              'folio-scratch': devEnvironmentsList().sort(),
                               'folio-perf'   : perfEnvironmentsList().sort(),
                               'folio-tmp'    : testEnvironmentsList().sort()])
 }
@@ -266,15 +262,15 @@ def agents() {
 }
 
 def clusterName() {
-    return _paramChoice('rancher_cluster_name', clustersList(), 'Select cluster')
+    return _paramChoice('rancher_cluster_name', clustersList(), '(Required) Select target cluster')
 }
 
 def projectName() {
-    return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), 'Select project to operate')
+    return _paramExtended('rancher_project_name', 'rancher_cluster_name', getProjectNames(), '(Required) Select target project')
 }
 
 def projectDevName() {
-    return _paramChoice('rancher_project_name', devEnvironmentsList().sort(), 'Select project to operate')
+    return _paramChoice('rancher_project_name', devEnvironmentsList().sort(), '(Required) Select target project')
 }
 
 def repository() {

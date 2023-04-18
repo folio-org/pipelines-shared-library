@@ -18,19 +18,17 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-        jobsParameters.refreshParameters(),
         choice(name: 'action', choices: ['apply', 'destroy', 'nothing'], description: '(Required) Choose what should be done with cluster'),
-        booleanParam(name: 'namespace_only', defaultValue: false, description: 'Apply only namespace creation stages'),
+        jobsParameters.clusterName(),
+        jobsParameters.projectName(),
+        booleanParam(name: 'namespace_only', defaultValue: false, description: '(Optional) Deploy only namespace and default resources'),
         jobsParameters.repository(),
         jobsParameters.branch(),
         jobsParameters.okapiVersion(),
-        jobsParameters.clusterName(),
-        jobsParameters.projectName(),
         jobsParameters.uiBundleBuild(),
         jobsParameters.uiBundleTag(),
-        jobsParameters.configType(),
         jobsParameters.enableModules(),
-        jobsParameters.agents(),
+        jobsParameters.configType(),
         jobsParameters.tenantId(),
         jobsParameters.tenantName(),
         jobsParameters.tenantDescription(),
@@ -43,18 +41,18 @@ properties([
         jobsParameters.adminPassword(),
         jobsParameters.pgPassword(),
         jobsParameters.pgAdminPassword(),
-        string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project'),
+        string(name: 'github_teams', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need access to project'),
         jobsParameters.restoreFromBackup(),
         jobsParameters.backupType(),
         jobsParameters.backupName(),
-        booleanParam(name: 'pg_embedded', defaultValue: true, description: 'Embedded PostgreSQL or AWS RDS'),
-        booleanParam(name: 'kafka_embedded', defaultValue: true, description: 'Embedded Kafka or AWS MSK'),
-        booleanParam(name: 'es_embedded', defaultValue: true, description: 'Embedded ElasticSearch or AWS OpenSearch'),
-        booleanParam(name: 's3_embedded', defaultValue: true, description: 'Embedded Minio or AWS S3'),
-        booleanParam(name: 'pgadmin4', defaultValue: true, description: 'Deploy pgadmin4'),
-        booleanParam(name: 'kafka_ui', defaultValue: true, description: 'Deploy kafka-ui'),
-        booleanParam(name: 'greenmail_server', defaultValue: false, description: 'Deploy greenmail server'),
-        booleanParam(name: 'opensearch_dashboards', defaultValue: true, description: 'Deploy opensearch-dashboards')])])
+        booleanParam(name: 'pg_embedded', defaultValue: true, description: '(Optional) Embedded PostgreSQL or AWS RDS'),
+        booleanParam(name: 'kafka_shared', defaultValue: true, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
+        booleanParam(name: 'opensearch_shared', defaultValue: true, description: '(Optional) Use shared AWS OpenSearch service or embedded OpenSearch'),
+        booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
+        booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
+        booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
+        jobsParameters.agents(),
+        jobsParameters.refreshParameters()])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     name: params.tenant_name,
@@ -91,8 +89,11 @@ Project project_config = new Project(
     backupName: params.backup_name,
     tenant: tenant)
 
-Map tf = [working_dir: 'terraform/rancher/project',
-          variables  : '']
+Map context = [
+    tf_work_dir: 'terraform/rancher/project',
+    tf_vars    : ''
+]
+context.putAll(params)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -141,46 +142,49 @@ ansiColor('xterm') {
             }
 
             stage('TF vars') {
-                tf.variables += terraform.generateTfVar('rancher_cluster_name', project_config.getClusterName())
-                tf.variables += terraform.generateTfVar('rancher_project_name', project_config.getProjectName())
-                tf.variables += terraform.generateTfVar('tenant_id', tenant.getId())
-                tf.variables += terraform.generateTfVar('pg_password', params.pg_password)
-                tf.variables += terraform.generateTfVar('pgadmin_password', params.pgadmin_password)
-                tf.variables += terraform.generateTfVar('pg_embedded', params.pg_embedded)
-                tf.variables += terraform.generateTfVar('kafka_embedded', params.kafka_embedded)
-                tf.variables += terraform.generateTfVar('es_embedded', params.es_embedded)
-                tf.variables += terraform.generateTfVar('s3_embedded', params.s3_embedded)
-                tf.variables += terraform.generateTfVar('pgadmin4', params.pgadmin4)
-                tf.variables += terraform.generateTfVar('kafka_ui', params.kafka_ui)
-                tf.variables += terraform.generateTfVar('opensearch_dashboards', params.opensearch_dashboards)
-                tf.variables += terraform.generateTfVar('pg_ldp_user_password', "${jobsParameters.pgLdpUserDefaultPassword()}")
+                Map tf_vars_map = [
+                    rancher_cluster_name: project_config.getClusterName(),
+                    rancher_project_name: project_config.getProjectName(),
+                    tenant_id           : tenant.getId(),
+                    pg_password         : params.pg_password,
+                    pgadmin_password    : params.pgadmin_password,
+                    pg_embedded         : params.pg_embedded,
+                    kafka_shared        : params.kafka_shared,
+                    opensearch_shared   : params.opensearch_shared,
+                    s3_embedded         : params.s3_embedded,
+                    pgadmin4            : params.pgadmin4,
+                    pg_ldp_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}",
+                    github_team_ids     : new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' },
+                ]
 
-
-                tf.variables += terraform.generateTfVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' })
                 if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
                     if (project_config.getBackupName()?.trim()) {
                         helm.k8sClient {
                             project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
                             project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
                         }
-                        tf.variables += terraform.generateTfVar('pg_rds_snapshot_name', project_config.getBackupName())
-                        tf.variables += terraform.generateTfVar('pg_version', project_config.getBackupEngineVersion())
+                        tf_vars_map.put("pg_rds_snapshot_name", project_config.getBackupName())
+                        tf_vars_map.put("pg_version", project_config.getBackupEngineVersion())
                         //It works only with bugfests snapshots.
-                        tf.variables += terraform.generateTfVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
-                        tf.variables += terraform.generateTfVar('pg_username', project_config.getBackupMasterUsername())
+                        tf_vars_map.put("pg_dbname", Constants.BUGFEST_SNAPSHOT_DBNAME)
+                        tf_vars_map.put("pg_username", project_config.getBackupMasterUsername())
                     } else {
                         new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
                     }
                 }
+                context.tf_vars = terraform.generateTfVars(tf_vars_map)
             }
 
             stage('Project') {
-                folioDeploy.project(project_config, tenant, tf)
+                folioDeploy.project(project_config, tenant, context.tf_work_dir, context.tf_vars)
             }
 
             if (project_config.getAction() == 'apply' && !params.namespace_only) {
                 stage("Generate install map") {
                     project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
+                    if (project_config.installMap?.okapi?.contains('SNAPSHOT')) {
+                        tenant.okapiVersion = common.getOkapiLatestSnapshotVersion(project_config.installMap.okapi)
+                    }
                 }
 
                 stage("Deploy okapi") {
@@ -194,7 +198,7 @@ ansiColor('xterm') {
                     }
                 }
 
-                if (params.greenmail_server){
+                if (params.greenmail_server) {
                     stage("Deploy greenmail") {
                         folioDeploy.greenmail(project_config)
                     }
@@ -242,7 +246,7 @@ ansiColor('xterm') {
                         new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                            install_edge_map.each {name, version ->
+                            install_edge_map.each { name, version ->
                                 kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
                             }
                         }

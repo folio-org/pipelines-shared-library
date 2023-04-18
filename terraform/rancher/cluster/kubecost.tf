@@ -7,10 +7,10 @@
 
 # resource "aws_cognito_user_pool_client" "userpool_client" {
 #   depends_on                           = [data.aws_cognito_user_pools.pool]
-#   name                                 = module.eks_cluster.cluster_id
+#   name                                 = module.eks_cluster.cluster_name
 #   user_pool_id                         = tolist(data.aws_cognito_user_pools.pool.ids)[0]
 #   generate_secret                      = true
-#   callback_urls                        = ["https://${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}/oauth2/idpresponse"]
+#   callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kubecost.${var.root_domain}/oauth2/idpresponse"]
 #   allowed_oauth_flows_user_pool_client = true
 #   allowed_oauth_flows                  = ["code"]
 #   allowed_oauth_scopes                 = ["openid"]
@@ -53,7 +53,7 @@ resource "rancher2_app_v2" "kubecost" {
   name          = "kubecost"
   repo_name     = "cost-analyzer"
   chart_name    = "cost-analyzer"
-  chart_version = "1.98.0"
+  chart_version = "1.101.3"
   values        = <<-EOT
     kubecostModel:
       resources:
@@ -62,12 +62,12 @@ resource "rancher2_app_v2" "kubecost" {
     ingress:
       enabled: true
       hosts:
-        - "${module.eks_cluster.cluster_id}-kubecost.${var.root_domain}"
+        - "${module.eks_cluster.cluster_name}-kubecost.${var.root_domain}"
       paths: ["/*"]
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_id}
+        alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
@@ -76,7 +76,7 @@ resource "rancher2_app_v2" "kubecost" {
       type: NodePort
     kubecostProductConfigs:
       currencyCode: "USD"
-      clusterName: ${module.eks_cluster.cluster_id}
+      clusterName: ${module.eks_cluster.cluster_name}
       labelMappingConfigs:
         enabled: true
         owner_label: "owner"

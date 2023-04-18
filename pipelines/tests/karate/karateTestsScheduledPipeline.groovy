@@ -172,8 +172,8 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         booleanParam(name: 'load_reference', value: true),
         booleanParam(name: 'load_sample', value: true),
         booleanParam(name: 'pg_embedded', value: true),
-        booleanParam(name: 'kafka_embedded', value: true),
-        booleanParam(name: 'es_embedded', value: true),
+        booleanParam(name: 'kafka_shared', value: true),
+        booleanParam(name: 'opensearch_shared', value: true),
         booleanParam(name: 's3_embedded', value: true),
         booleanParam(name: 'greenmail_server', value: true)
     ]

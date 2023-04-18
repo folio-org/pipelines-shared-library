@@ -3,6 +3,7 @@ variable "aws_region" {
   default     = "us-west-2"
   description = "AWS region for resources provision"
 }
+
 variable "vpc_name" {
   type        = string
   default     = "folio-rancher-vpc"
@@ -17,13 +18,13 @@ variable "vpc_cidr_block" {
 
 variable "subnet_prefix_extension" {
   type        = number
-  default     = 4
+  default     = 3
   description = "CIDR block bits extension to calculate CIDR blocks of each subnetwork."
 }
 
 variable "clusters" {
   type        = list(string)
-  default     = ["folio-testing", "folio-dev", "folio-perf", "folio-tmp"]
+  default     = ["rancher", "folio-testing", "folio-dev", "folio-perf", "folio-tmp"]
   description = "List of EKS clusters names expected to be provisioned in VPC"
 }
 
