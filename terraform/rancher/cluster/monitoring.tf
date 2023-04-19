@@ -49,6 +49,7 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
+    alertmanager:
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
