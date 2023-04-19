@@ -106,7 +106,9 @@ resource "helm_release" "aws_cluster_autoscaler" {
   namespace  = "kube-system"
   repository = "https://kubernetes.github.io/autoscaler"
   chart      = "cluster-autoscaler"
-  version    = "9.27.0"
+  # https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler#releases
+  # https://artifacthub.io/packages/helm/cluster-autoscaler/cluster-autoscaler
+  version = "9.24.0"
   set {
     name  = "cloudProvider"
     value = "aws"
