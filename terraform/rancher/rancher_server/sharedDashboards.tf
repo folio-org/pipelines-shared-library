@@ -1,16 +1,16 @@
 data "aws_ssm_parameter" "kafka_parameters" {
   count = var.kafka_shared_name != "" ? 1 : 0
-  name = var.kafka_shared_name
+  name  = var.kafka_shared_name
 }
 
 data "aws_ssm_parameter" "opensearch_parameters" {
   count = var.opensearch_shared_name != "" ? 1 : 0
-  name = var.opensearch_shared_name
+  name  = var.opensearch_shared_name
 }
 
 locals {
-  kafka_parameter = try(nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.0.value)),"")
-  opensearch_parameter = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.0.value)),"")
+  kafka_parameter      = try(nonsensitive(jsondecode(data.aws_ssm_parameter.kafka_parameters.0.value)), "")
+  opensearch_parameter = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch_parameters.0.value)), "")
 }
 
 # Only create Kafka UI if kafka_shared_name set
@@ -22,7 +22,7 @@ resource "helm_release" "kafka-ui" {
   version          = "0.6.1"
   namespace        = "shared-dashboards"
   create_namespace = true
-  values           = [<<EOF
+  values = [<<EOF
     service:
       type: NodePort
     ingress:
@@ -60,7 +60,7 @@ resource "helm_release" "opensearch-dashboards" {
   version          = "2.9.2"
   namespace        = "shared-dashboards"
   create_namespace = true
-  values           = [<<EOF
+  values = [<<EOF
     image:
       tag: "1.3.2"
     service:

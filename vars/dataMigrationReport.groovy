@@ -141,3 +141,71 @@ def getBackendModulesList(String repoName, String branchName){
         return modules_list.sort()
     }
 }
+
+@NonCPS
+def createDiffHtmlReport(diff, pgadminURL) {
+    def writer = new StringWriter()
+    def builder = new MarkupBuilder(writer)
+
+    builder.html {
+        builder.head {
+            builder.style("""
+                body {
+                    font-family: Arial, sans-serif;
+                }
+                nav ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                nav ul li {
+                    display: inline-block;
+                    margin-right: 20px;
+                }
+                section {
+                    margin-top: 40px;
+                    border-top: 1px solid #ccc;
+                }
+                h2 {
+                    display: inline-block;
+                    font-size: 24px;
+                    margin-bottom: 10px;
+                    margin-right: 20px;
+                }
+                p {
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin-bottom: 20px;
+                }
+            """)
+        }
+        builder.body {
+            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/6.18/schema_diff.html", target: "_blank") {
+                builder.h2("Documentation")
+            }
+            builder.a(href: pgadminURL, target: "_blank") {
+                builder.h2("pgAdmin")
+            }
+            builder.nav {
+                builder.ul {
+                    diff.each { resp ->
+                        builder.li {
+                            builder.a(href: "#" + resp.key) {
+                                builder.h4(resp.key)
+                            }
+                        }
+                    }
+                }
+            }
+            diff.each { resp ->
+                builder.section(id: resp.key) {
+                    builder.h2(resp.key)
+                    builder.p(style: "white-space: pre-line", resp.value)
+                }
+            }
+        }
+    }
+
+    // Write diff.html file to the Jenkins workspace
+    writeFile file: "reportSchemas/diff.html", text: writer.toString()
+}

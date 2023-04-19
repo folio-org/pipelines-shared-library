@@ -46,5 +46,5 @@ variable "kafka_number_of_broker_nodes" {
 
 variable "kafka_ebs_volume_size" {
   type    = number
-  default = 100
+  default = 150
 }

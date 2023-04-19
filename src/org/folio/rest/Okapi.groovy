@@ -559,4 +559,19 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
         }
     }
+
+    def getTenantList(){
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        String url = okapi_url + "/_/proxy/tenants"
+        ArrayList headers = [[name: 'Content-type', value: "application/json"],
+                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+        def res = http.getRequest(url, headers)
+        if (res.status == HttpURLConnection.HTTP_OK) {
+            def test = tools.jsonParse(res.content)
+            return test.id
+        } else {
+            throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
+        }
+    }
 }

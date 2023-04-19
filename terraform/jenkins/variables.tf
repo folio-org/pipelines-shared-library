@@ -24,9 +24,10 @@ variable "jenkins_home_size" {
 variable "tags" {
   type = map(any)
   default = {
-    Terraform = "true"
-    Project   = "folio"
-    Team      = "kitfox"
+    Terraform          = "true"
+    Project            = "folio"
+    Team               = "kitfox"
+    kubernetes_service = "Folio-Jenkins"
   }
   description = "Default tags"
 }
@@ -82,4 +83,60 @@ variable "jenkins_version" {
   type        = string
   default     = "2.387.1-1.1"
   description = "Version of Jenkins server to install"
+}
+
+variable "agent_ami" {
+  type        = string
+  default     = "ami-0688ba7eeeeefe3cd"
+  description = "AMI to run Jenkins agent on"
+}
+
+variable "agent_instance_type" {
+  type        = string
+  default     = "m5.2xlarge"
+  description = "Instance type for Jenkins agents"
+}
+
+variable "agents_count" {
+  type        = number
+  default     = 1
+  description = "Count of the Jenkins agents to run"
+}
+
+variable "route53_internal_zone_id" {
+  type        = string
+  default     = "Z02587693OFIQ4WPDRZ5S"
+  description = "Route53 zone id to create record in for agents"
+}
+
+variable "iam_jenkins_role" {
+  type        = string
+  default     = "JenkinsRole"
+  description = "IAM role name to be assigned to the Jenkins instance"
+}
+
+variable "dlm_times" {
+  type        = list(string)
+  default     = ["23:45"]
+  description = "List of times when snapshot must be created"
+}
+
+variable "dlm_interval" {
+  type        = number
+  default     = 24
+  description = "Interval between snapshot creating"
+}
+
+variable "dlm_retain_count" {
+  type        = number
+  default     = 14
+  description = "Count of the Jenkins snapshot to retain"
+}
+
+variable "dlm_tags" {
+  type = map(any)
+  default = {
+    Snapshot = "true"
+  }
+  description = "Tags for volume to create snapshots"
 }
