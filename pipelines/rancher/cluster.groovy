@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@RANCHER-676-Costs-optimisation') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 
