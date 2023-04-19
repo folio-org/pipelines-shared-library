@@ -50,6 +50,54 @@ resource "rancher2_app_v2" "prometheus" {
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
+      config:
+        global:
+          resolve_timeout: 5m
+          slack_api_url: "https://hooks.slack.com/services/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"
+        inhibit_rules:
+          - source_matchers:
+              - 'severity = critical'
+            target_matchers:
+              - 'severity =~ warning|info'
+            equal:
+              - 'namespace'
+              - 'alertname'
+          - source_matchers:
+              - 'severity = warning'
+            target_matchers:
+              - 'severity = info'
+            equal:
+              - 'namespace'
+              - 'alertname'
+          - source_matchers:
+              - 'alertname = InfoInhibitor'
+            target_matchers:
+              - 'severity = info'
+            equal:
+              - 'namespace'
+        route:
+          group_by: ['namespace']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 12h
+          receiver: 'null'
+          routes:
+          - receiver: 'null'
+            matchers:
+              - alertname = "InfoInhibitor"
+          - receiver: 'slack-notifications'
+            matchers:
+              - alertname = "Watchdog"
+        receivers:
+        - name: 'null'
+        - name: 'slack-notifications'
+          slack-configs:
+          - channel: '#testing-prometheus'
+            username: 'Prometheus_WatchDog'
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Test Alertmanager'
+            text: '{{ template "slack.default.text" . }}'
+        templates:
+        - '/etc/alertmanager/config/*.tmpl'
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
