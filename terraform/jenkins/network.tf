@@ -52,9 +52,15 @@ data "aws_vpc" "rancher" {
   }
 }
 
-data "aws_route_tables" "rancher" {
+data "aws_route_table" "rancher_private" {
   tags = {
-    Name = "folio-rancher-vpc"
+    Name = "folio-rancher-vpc-private"
+  }
+}
+
+data "aws_route_table" "rancher_public" {
+  tags = {
+    Name = "folio-rancher-vpc-public"
   }
 }
 
@@ -66,14 +72,26 @@ resource "aws_vpc_peering_connection" "jenkins_rancher" {
   tags = var.tags
 }
 
-resource "aws_route" "jenkins_to_rancher" {
+resource "aws_route" "jenkins_to_rancher_private" {
   route_table_id = module.vpc.private_route_table_ids[0]
   destination_cidr_block = data.aws_vpc.rancher.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
 
-resource "aws_route" "rancher_to_jenkins" {
-  route_table_id = data.aws_vpc.rancher.main_route_table_id
+resource "aws_route" "jenkins_to_rancher_public" {
+  route_table_id = module.vpc.public_route_table_ids[0]
+  destination_cidr_block = data.aws_vpc.rancher.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
+}
+
+resource "aws_route" "rancher_to_jenkins_private" {
+  route_table_id = data.aws_route_table.rancher_private.id
+  destination_cidr_block = var.vpc_cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
+}
+
+resource "aws_route" "rancher_to_jenkins_public" {
+  route_table_id = data.aws_route_table.rancher_public.id
   destination_cidr_block = var.vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
