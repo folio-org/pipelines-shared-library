@@ -52,7 +52,7 @@ void deleteEcrImage(String region, String repo_name, String image_tag){
     sh(script: "aws ecr batch-delete-image --region ${region} --repository-name ${repo_name} --image-ids imageTag=${image_tag}")
 }
 
-List getDeploymentsList(String namespace){
+def getDeploymentsList(String namespace){
     sh(script: "kubectl get deployments -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStatus: true)
 }
 
