@@ -35,9 +35,9 @@ ansiColor('xterm') {
                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                     def deployments_list = awscli.getDeploymentsList(params.rancher_project_name)
                     println(deployments_list)
-//                    deployments_list.each {deployment ->
-//                        awscli.setDeploymentCount(deployment.toString(), params.rancher_project_name, 0)
-//                    }
+                    deployments_list.each {deployment ->
+                        awscli.setDeploymentCount(deployment.toString(), params.rancher_project_name, 0)
+                    }
                 }
             }
         } catch (exception) {
