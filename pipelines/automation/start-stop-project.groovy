@@ -37,7 +37,7 @@ ansiColor('xterm') {
                     println("x")
                     println(deployments_list)
                     println("y")
-                    deployments_list.each {deployment ->
+                    deployments_list.forEach {deployment ->
                         awscli.setDeploymentCount(deployment.toString(), params.rancher_project_name, 0)
                     }
                 }
