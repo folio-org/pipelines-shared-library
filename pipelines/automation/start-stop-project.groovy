@@ -33,7 +33,7 @@ ansiColor('xterm') {
             stage("Downscale namespace replicas") {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                    def deployments_list = awscli.getDeploymentsList(params.rancher_project_name)
+                    def deployments_list = awscli.getDeploymentsList(params.rancher_project_name) as ArrayList
                     println("x")
                     println(deployments_list)
                     println("y")
