@@ -42,7 +42,7 @@ def call(params) {
             podTemplate(inheritFrom: params.agent, containers: [
                 containerTemplate(name: 'cypress', image: 'cypress/included:${cypressImageVersion}')
             ]) {
-                node(params.agent) {
+                node(POD_LABEL) {
                     stage('Checkout Cypress repo') {
                         script {
                             sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
@@ -63,12 +63,14 @@ def call(params) {
 
                     stage('Build tests') {
                         script {
-                            env.HOME = "${pwd()}/cache"
-                            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                            sh "yarn add -D cypress-testrail-simple"
-                            sh "yarn global add cy2@latest"
-                            sh "yarn install"
+                            container('cypress') {
+                                env.HOME = "${pwd()}/cache"
+                                env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+                                sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                                sh "yarn add -D cypress-testrail-simple"
+                                sh "yarn global add cy2@latest"
+                                sh "yarn install"
+                            }
                         }
                     }
 
