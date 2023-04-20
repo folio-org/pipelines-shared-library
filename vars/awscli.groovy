@@ -53,7 +53,7 @@ void deleteEcrImage(String region, String repo_name, String image_tag){
 }
 
 def getDeploymentsList(String namespace){
-    return sh(script: "kubectl get deployments -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).trim()
+    return sh(script: "kubectl get deployments -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
 }
 
 void setDeploymentCount(String deployment_name, String namespace, int replica_count){
