@@ -58,7 +58,7 @@ ansiColor('xterm') {
                         core_modules_list.each { deployment ->
                             awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                             //common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
-                            sleep 60000
+                            sleep 60
                         }
                         deployments_list.each { deployment ->
                             awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
