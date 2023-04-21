@@ -30,22 +30,33 @@ ansiColor('xterm') {
     }
     node('rancher||jenkins-agent-java11') {
         try {
-            stage("Downscale namespace replicas") {
-                if (params.action == 'stop') {
+            if (params.action == 'stop') {
+                stage("Downscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        def deployments_list = awscli.getDeploymentsList(params.rancher_project_name)
+                        def deployments_list = awscli.getKubernetesResourceList('deployment', params.rancher_project_name)
+                        def statefulset_list = awscli.getKubernetesResourceList('statefulset', params.rancher_project_name)
                         deployments_list.each { deployment ->
-                            awscli.setDeploymentCount(deployment.toString(), params.rancher_project_name, 0)
+                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
+                        }
+                        statefulset_list.each { deployment ->
+                            awscli.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 0)
                         }
                     }
                 }
-                else {
+            }
+            else if (params.action == 'start') {
+                stage("Upscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        def deployments_list = awscli.getDeploymentsList(params.rancher_project_name)
+                        def deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
+                        def statefulset_list = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name)
+                        statefulset_list.each { deployment ->
+                            awscli.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 1)
+                            common.waitKubernetesResourceStableState('statefulset', deployment.toString(), params.rancher_project_name, 1, 600)
+                        }
                         deployments_list.each { deployment ->
-                            awscli.setDeploymentCount(deployment.toString(), params.rancher_project_name, 1)
+                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
                     }
                 }
