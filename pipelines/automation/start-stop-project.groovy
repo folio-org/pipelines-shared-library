@@ -55,10 +55,10 @@ ansiColor('xterm') {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
                         println(deployments_list)
-                        def services_list = deployments_list.findAll(!it.key.startsWith("mod-") && !it.key.contains("edge-"))
-                        def backend_module_list = deployments_list.findAll(it.key.startsWith("mod-"))
-                        def edge_module_list = deployments_list.findAll(it.key.startsWith("edge-"))
-                        def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll(it.key.startsWith("postgresql-"))
+                        def services_list = deployments_list.findAll {!it.key.startsWith("mod-") && !it.key.contains("edge-")}
+                        def backend_module_list = deployments_list.findAll{it.key.startsWith("mod-")}
+                        def edge_module_list = deployments_list.findAll{it.key.startsWith("edge-")}
+                        def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.key.startsWith("postgresql-")}
                         postgresql.each { statefulset ->
                             awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
                             common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
