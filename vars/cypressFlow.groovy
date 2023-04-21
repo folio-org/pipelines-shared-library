@@ -40,7 +40,7 @@ def call(params) {
         def currentNumber = workerNumber-1
         cypressWorkers["CypressWorker#${workerNumber}"] = {
             podTemplate(inheritFrom: params.agent, containers: [
-                containerTemplate(name: 'cypress', image: "cypress/included:${cypressImageVersion}")
+                containerTemplate(name: 'cypress', image: "cypress/included:${cypressImageVersion}", command: "sleep", args: "99999999")
             ]) {
                 node(POD_LABEL) {
                     stage('Checkout Cypress repo') {
