@@ -19,8 +19,8 @@ properties([
         jobsParameters.refreshParameters()])
 ])
 
-def core_modules = [okapi,mod-permissions,mod-users,mod-users-bl,mod-authtoken]
-def core_modules_list = core_modules.map { it.id }
+String core_modules = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken"
+List core_modules_list = core_modules.split(", ")
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
