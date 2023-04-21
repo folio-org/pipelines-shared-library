@@ -17,10 +17,10 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.refreshParameters()]),
-    pipelineTriggers([
-        parameterizedCron('''
-        */5 * * * * %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=unam
-    ''')
+//    pipelineTriggers([
+//        parameterizedCron('''
+//        */5 * * * * %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=unam
+//    ''')
     ])
 ])
 
