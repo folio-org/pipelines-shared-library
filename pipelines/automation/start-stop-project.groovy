@@ -19,8 +19,8 @@ properties([
         jobsParameters.refreshParameters()])
 ])
 
-//String core_modules = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken"
-//List core_modules_list = core_modules.split(", ")
+String core_modules = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken"
+List core_modules_list = core_modules.split(", ")
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
