@@ -24,7 +24,7 @@ properties([
 //    ])
 ])
 
-List core_modules = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
+List core_modules_list = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
