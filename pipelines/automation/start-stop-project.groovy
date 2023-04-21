@@ -54,6 +54,7 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
+                        println(deployments_list)
                         def services_list = deployments_list.findAll(!it.key.startsWith("mod-") && !it.key.contains("edge-"))
                         def backend_module_list = deployments_list.findAll(it.key.startsWith("mod-"))
                         def edge_module_list = deployments_list.findAll(it.key.startsWith("edge-"))
