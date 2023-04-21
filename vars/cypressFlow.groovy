@@ -105,6 +105,7 @@ def call(params) {
                                                         sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                     }
                                                 } else {
+                                                    sh "pwd && ls -ltra && env"
                                                     sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                 }
                                             }
