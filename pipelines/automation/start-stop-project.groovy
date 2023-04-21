@@ -16,12 +16,13 @@ properties([
         choice(name: 'action', choices: ['start', 'stop'], description: '(Required) Choose what should be done with project'),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
-        jobsParameters.refreshParameters()])
-//    pipelineTriggers([
-//        parameterizedCron('''
-//        */5 * * * * %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=unam
-//    ''')
-//    ])
+        jobsParameters.refreshParameters()]),
+    pipelineTriggers([
+        parameterizedCron('''
+        0 20 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
+        0 20 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
+    ''')
+    ])
 ])
 
 List core_modules_list = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
