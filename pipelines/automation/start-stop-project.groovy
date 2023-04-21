@@ -57,26 +57,26 @@ ansiColor('xterm') {
                         def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
-                        def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
+                        def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("xxx-")}
                         postgresql.each { statefulset ->
                             awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
                             common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
-                        services_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                            sleep 30
-                        }
-                        core_modules_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                            //common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
-                            sleep 60
-                        }
-                        backend_module_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                        }
-                        edge_module_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                        }
+//                        services_list.each { deployment ->
+//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                            sleep 30
+//                        }
+//                        core_modules_list.each { deployment ->
+//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                            //common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
+//                            sleep 60
+//                        }
+//                        backend_module_list.each { deployment ->
+//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                        }
+//                        edge_module_list.each { deployment ->
+//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                        }
                     }
                 }
             }
