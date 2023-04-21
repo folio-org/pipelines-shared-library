@@ -54,7 +54,7 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
-                        def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-")}
+                        def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
                         def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
