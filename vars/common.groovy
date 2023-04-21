@@ -100,5 +100,5 @@ void throwErrorIfStringIsEmpty(def variable, String error_message="Variable is e
 }
 
 boolean waitKubernetesResourceStableState(String resource_type, String resource_name, String namespace, int replica_count, int max_wait_time){
-    sh(script: "start_time=\$(date +%s); while [[ \$(kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.status.availableReplicas}') -ne ${replica_count} ]]; do current_time=\$(date +%s); if [[ \$((current_time - start_time)) -gt ${max_wait_time} ]]; then echo \"Deployment did not become stable within ${max_wait_time} seconds.\"; exit 1; fi; sleep 10s; done\n")
+    sh(script: "start_time=\$(date +%s); while [[ \$(kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.status.availableReplicas}') -ne ${replica_count} ]]; do current_time=\$(date +%s); if [[ \$((current_time - start_time)) -gt ${max_wait_time} ]]; then echo \"Deployment did not become stable within ${max_wait_time} seconds.\"; exit 1; fi; sleep 20s; done\n")
 }

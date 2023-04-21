@@ -3,7 +3,6 @@
 @Library('pipelines-shared-library@RANCHER-750') _
 
 import org.folio.Constants
-import org.folio.utilities.Tools
 import groovy.json.JsonSlurperClassic
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -20,7 +19,7 @@ properties([
         jobsParameters.refreshParameters()])
 ])
 
-
+def core_modules_list = [okapi,mod-permissions,mod-users,mod-users-bl,mod-authtoken]
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -51,9 +50,13 @@ ansiColor('xterm') {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
                         def statefulset_list = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name)
-                        statefulset_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 1)
-                            common.waitKubernetesResourceStableState('statefulset', deployment.toString(), params.rancher_project_name, 1, 600)
+                        statefulset_list.each { statefulset ->
+                            awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
+                            common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, 1, 600)
+                        }
+                        core_modules_list.each { deployment ->
+                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, 1, 600)
                         }
                         deployments_list.each { deployment ->
                             awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
