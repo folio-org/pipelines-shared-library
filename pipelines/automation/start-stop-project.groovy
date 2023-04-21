@@ -55,10 +55,10 @@ ansiColor('xterm') {
                             awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
                             common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
-//                        core_modules_list.each { deployment ->
-//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                            common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, 1, 600)
-//                        }
+                        core_modules_list.each { deployment ->
+                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
+                        }
                         deployments_list.each { deployment ->
                             awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
