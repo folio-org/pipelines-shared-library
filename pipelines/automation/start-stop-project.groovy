@@ -53,7 +53,7 @@ ansiColor('xterm') {
                         def statefulset_list = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name)
                         statefulset_list.each { statefulset ->
                             awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
-                            common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, 1, 600)
+                            common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
 //                        core_modules_list.each { deployment ->
 //                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
