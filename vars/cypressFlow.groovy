@@ -9,7 +9,7 @@ import groovy.transform.Field
 def call(params) {
     def customBuildName = params.customBuildName?.trim() ? params.customBuildName + '.' + env.BUILD_ID : env.BUILD_ID
     buildName customBuildName
-    def cypressParameters = (params.cypressParameters instanceof String) ? (1..params.numberOfWorkers).collect {params.cypressParameters } : params.cypressParameters
+    def cypressParameters = (params.cypressParameters instanceof String) ? (1..params.numberOfWorkers).collect { params.cypressParameters } : params.cypressParameters
     def cypressWorkers = [:]
     int numberOfWorkers = params.numberOfWorkers as int ?: 1
     def resultPaths = []
@@ -37,7 +37,7 @@ def call(params) {
         }
     }
     for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
-        def currentNumber = workerNumber-1
+        def currentNumber = workerNumber - 1
         cypressWorkers["CypressWorker#${workerNumber}"] = {
             podTemplate(inheritFrom: params.agent, containers: [
                 containerTemplate(name: 'cypress', image: "cypress/included:${cypressImageVersion}", command: "sleep", args: "99999999")
@@ -61,9 +61,9 @@ def call(params) {
                         }
                     }
 
-                    stage('Build tests') {
-                        script {
-                            container('cypress') {
+                    container('cypress') {
+                        stage('Build tests') {
+                            script {
                                 env.HOME = "${pwd()}/cache"
                                 env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
                                 sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
@@ -72,11 +72,9 @@ def call(params) {
                                 sh "yarn install"
                             }
                         }
-                    }
 
-                    stage('Cypress tests execution') {
-                        script {
-                            container('cypress') {
+                        stage('Cypress tests execution') {
+                            script {
                                 env.HOME = "${pwd()}/cache"
                                 env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
                                 env.CYPRESS_BASE_URL = "${params.uiUrl}"
@@ -102,11 +100,11 @@ def call(params) {
                                                     env.CYPRESS_allureReuseAfterSpec = "true"
                                                     println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                                     withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                                        sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
+                                                        sh "cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                     }
                                                 } else {
                                                     sh "pwd && ls -ltra && env"
-                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
+                                                    sh "cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                 }
                                             }
                                         }
