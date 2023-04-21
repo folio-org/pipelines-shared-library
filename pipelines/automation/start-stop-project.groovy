@@ -19,7 +19,7 @@ properties([
         jobsParameters.refreshParameters()])
 ])
 
-def core_modules_list = [okapi,mod-permissions,mod-users,mod-users-bl,mod-authtoken]
+def core_modules_list = ['okapi','mod-permissions','mod-users','mod-users-bl','mod-authtoken']
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
