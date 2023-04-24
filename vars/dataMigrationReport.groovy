@@ -110,6 +110,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
         }
     }
     message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
+    message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
 
     try {
         println message
@@ -180,27 +181,28 @@ def createDiffHtmlReport(diff, pgadminURL) {
             """)
         }
         builder.body {
-            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/6.18/schema_diff.html", target: "_blank") {
-                builder.h2("Documentation")
-            }
             builder.a(href: pgadminURL, target: "_blank") {
                 builder.h2("pgAdmin")
             }
+            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/6.18/schema_diff.html", target: "_blank") {
+                builder.h2("Documentation")
+            }
+            // Make navigation tab
             builder.nav {
                 builder.ul {
-                    diff.each { resp ->
+                    diff.each { schema ->
                         builder.li {
-                            builder.a(href: "#" + resp.key) {
-                                builder.h4(resp.key)
+                            builder.a(href: "#" + schema.key) {
+                                builder.h4(schema.key)
                             }
                         }
                     }
                 }
             }
-            diff.each { resp ->
-                builder.section(id: resp.key) {
-                    builder.h2(resp.key)
-                    builder.p(style: "white-space: pre-line", resp.value)
+            diff.each { schema ->
+                builder.section(id: schema.key) {
+                    builder.h2(schema.key)
+                    builder.p(style: "white-space: pre-line", schema.value)
                 }
             }
         }

@@ -43,6 +43,7 @@ Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
 def diff = [:]
+def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -182,14 +183,20 @@ ansiColor('xterm') {
                             port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')                                    
                         ]
 
-                        // Preparation steps
-                        sh "kubectl create deployment -n $rancher_project_name atlas --image=arigaio/atlas:0.10.1-alpine -- /bin/sh -c 'while true; do sleep 86400; done'"
+                        // Preparation steps, creating Atlas and psql clien pods
+                        // sh "kubectl create deployment -n $rancher_project_name atlas --image=arigaio/atlas:0.10.1-alpine -- /bin/sh -c 'while true; do sleep 86400; done'"
+                        // def atlasPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=atlas -o=jsonpath='{.items[0].metadata.name}'").trim()
+                        // def psqlPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=psql-client -o=jsonpath='{.items[0].metadata.name}'").trim()                                
+
+                        def atlasPod = "atlas"
+                        kubectl.runPodWithCommand(rancher_project_name, atlasPod, 'arigaio/atlas:0.10.1-alpine')
                         
-                        def atlasPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=atlas -o=jsonpath='{.items[0].metadata.name}'").trim()
-                        def psqlPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=psql-client -o=jsonpath='{.items[0].metadata.name}'").trim()                                
+                        def psqlPod = "psql-client"
+                        kubectl.runPodWithCommand(rancher_project_name, psqlPod, 'andreswebs/postgresql-client')
                         
-                        def srcSchemasList = getSchemaTenantList(tenant_id, psqlPod, rancher_project_name)
-                        def dstSchemasList = getSchemaTenantList(tenant_id_clean, psqlPod, rancher_project_name)
+                        // Getting list of schemas for fs09000000 and clean tenants
+                        def srcSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id, psqlConnection)
+                        def dstSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id_clean, psqlConnection)
 
                         def groupedValues = [:]
                         def uniqueValues = []
@@ -225,7 +232,9 @@ ansiColor('xterm') {
                         println "Unique values: $uniqueValues"
                         groupedValues.each {
                             try {
-                                def currentDiff =  sh(returnStdout: true, script: "kubectl exec ${atlasPod} -n $rancher_project_name -- ./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'").trim()
+                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
+                                def currentDiff = kubectl.execCommand(rancher_project_name, atlasPod, getDiffCommand)
+                                // def currentDiff =  sh(returnStdout: true, script: "set +xv; kubectl exec ${atlasPod} -n $rancher_project_name -- ./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'").trim()
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
@@ -238,7 +247,7 @@ ansiColor('xterm') {
                         }
 
                         if(diff) {
-                            dataMigrationReport.createDiffHtmlReport(diff)
+                            dataMigrationReport.createDiffHtmlReport(diff,)
                             jobStatus = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
@@ -283,13 +292,12 @@ ansiColor('xterm') {
     }
 }
 
-def getSchemaTenantList(tenantId, psqlPod, namespace) {
-  println("Getting schemas list for $tenantId tenant")
-
-  return sh(
-      script: """
-        kubectl exec ${psqlPod} -n $namespace -- psql --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"
-        """,
-      returnStdout: true
-      ).split('\n').collect({it.trim()})
+def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
+    println("Getting schemas list for $tenantId tenant")
+    def getSchemasListCommand = """
+        /bin/sh -c 'PGPASSWORD="${dbParams.password}" psql -U ${dbParams.user} -d ${dbParams.db} -h ${dbParams.host} --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"'
+        """
+    
+    kubectl.waitPodIsRunning(namespace, psqlPod)
+    kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
 }
