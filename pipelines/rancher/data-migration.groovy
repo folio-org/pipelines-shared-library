@@ -74,7 +74,6 @@ ansiColor('xterm') {
             }
             stage('Restore data-migration project from backup') {
                 build job: Constants.JENKINS_JOB_PROJECT,
-                    propagate: false,
                     parameters: [
                         string(name: 'action', value: 'apply'),
                         string(name: 'folio_repository', value: params.folio_repository),
