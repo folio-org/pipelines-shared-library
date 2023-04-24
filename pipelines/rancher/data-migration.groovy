@@ -226,12 +226,15 @@ ansiColor('xterm') {
                             }
                         }
                         
-                        println "Grouped values: $groupedValues"
-                        println "Unique values: $uniqueValues"
+                        // Make list with unique schemas 
+                        if (uniqueValues) {
+                            diff.put("Unique schemas", "Please check list of unique Schemas:\n $uniqueValues")
+                        }
+                        
                         groupedValues.each {
                             try {
                                 def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
-                                def currentDiff = kubectl.execCommand(rancher_project_name, atlasPod, getDiffCommand)
+                                def currentDiff =  sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPod} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
 
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
@@ -245,7 +248,7 @@ ansiColor('xterm') {
                         }
 
                         def diffHtmlData
-                        if(diff) {
+                        if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
                             jobStatus = 'UNSTABLE'
                         } else {
@@ -293,8 +296,9 @@ ansiColor('xterm') {
 // Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS. Need to rewrite
 def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     println("Getting schemas list for $tenantId tenant")
-    def getSchemasListCommand = """/bin/sh -c "PGPASSWORD=${dbParams.password} psql -U ${dbParams.user} -d ${dbParams.db} -h ${dbParams.host} --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"" """
+    def getSchemasListCommand = """psql 'postgres://${dbParams.user}:${dbParams.password}@${dbParams.host}:${dbParams.port}/${dbParams.db}' --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}_%'\""""
     
     kubectl.waitPodIsRunning(namespace, psqlPod)
-    kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
+    def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
+    return schemasList.split('\n').collect({it.trim()})
 }
