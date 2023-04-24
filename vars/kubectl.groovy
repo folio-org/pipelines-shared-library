@@ -60,7 +60,7 @@ void runPodWithCommand(String namespace = 'default', String pod_name, String pod
 
 void execCommand(String namespace = 'default', String pod_name, String command) {
     try {
-        return sh(script: "kubectl exec --namespace=${namespace} ${pod_name} -- ${command}",
+        return sh(script: "set +x && kubectl exec --namespace=${namespace} ${pod_name} -- ${command}",
             returnStdout: true).trim()
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'

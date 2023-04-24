@@ -262,17 +262,15 @@ ansiColor('xterm') {
             stage('Publish HTML Reports') {
                 publishHTML([
                     reportDir: 'reportSchemas',
-                    reportFiles: 'diff.html',
+                    reportFiles: '*.html',
                     reportName: 'Schemas Diff',
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true ])
 
-
-                def htmlFiles = findFiles glob: 'reportTime/*.html'
                 publishHTML([
                     reportDir: 'reportTime',
-                    reportFiles: htmlFiles.join(','),
+                    reportFiles: '*.html',
                     reportName: 'Data Migration Time',
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
