@@ -2,9 +2,8 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
-import groovy.xml.MarkupBuilder
 
-@Library('pipelines-shared-library@RANCHER-385') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -231,7 +230,7 @@ ansiColor('xterm') {
                             try {
                                 def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
                                 def currentDiff = kubectl.execCommand(rancher_project_name, atlasPod, getDiffCommand)
-                                
+
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
@@ -289,6 +288,7 @@ ansiColor('xterm') {
     }
 }
 
+// Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS. Need to rewrite
 def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     println("Getting schemas list for $tenantId tenant")
     def getSchemasListCommand = """/bin/sh -c "PGPASSWORD=${dbParams.password} psql -U ${dbParams.user} -d ${dbParams.db} -h ${dbParams.host} --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"" """
