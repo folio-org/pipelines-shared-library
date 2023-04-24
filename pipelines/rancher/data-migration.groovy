@@ -247,11 +247,11 @@ ansiColor('xterm') {
                         }
 
                         if(diff) {
-                            dataMigrationReport.createDiffHtmlReport(diff,)
+                            dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
                             jobStatus = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
-                            dataMigrationReport.createDiffHtmlReport(diff)
+                            dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
                             jobStatus = 'SUCCESS'
                         } 
                 }                
