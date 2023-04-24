@@ -54,6 +54,7 @@ ansiColor('xterm') {
         try {
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,
+                    propagate: false,
                     parameters: [
                         string(name: 'action', value: 'destroy'),
                         string(name: 'folio_repository', value: params.folio_repository),
@@ -70,6 +71,7 @@ ansiColor('xterm') {
             }
             stage('Restore data-migration project from backup') {
                 build job: Constants.JENKINS_JOB_PROJECT,
+                    propagate: false,
                     parameters: [
                         string(name: 'action', value: 'apply'),
                         string(name: 'folio_repository', value: params.folio_repository),
@@ -171,12 +173,6 @@ ansiColor('xterm') {
             stage('Get schemas difference') {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
-                        // Preparation steps
-                        sh "kubectl create deployment -n $rancher_project_name atlas --image=arigaio/atlas:0.10.1-alpine -- /bin/sh -c 'while true; do sleep 86400; done'"
-                        
-                        def atlasPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=atlas -o=jsonpath='{.items[0].metadata.name}'").trim()
-                        def psqlPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=psql-client -o=jsonpath='{.items[0].metadata.name}'").trim()                                
-                        
                         // Get psql connection parameters
                         Map psqlConnection = [
                             password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
@@ -185,6 +181,13 @@ ansiColor('xterm') {
                             db       : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_DATABASE'),
                             port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')                                    
                         ]
+
+                        // Preparation steps
+                        sh "kubectl create deployment -n $rancher_project_name atlas --image=arigaio/atlas:0.10.1-alpine -- /bin/sh -c 'while true; do sleep 86400; done'"
+                        
+                        def atlasPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=atlas -o=jsonpath='{.items[0].metadata.name}'").trim()
+                        def psqlPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=psql-client -o=jsonpath='{.items[0].metadata.name}'").trim()                                
+                        
                         def srcSchemasList = getSchemaTenantList(tenant_id, psqlPod, rancher_project_name)
                         def dstSchemasList = getSchemaTenantList(tenant_id_clean, psqlPod, rancher_project_name)
 
@@ -230,7 +233,7 @@ ansiColor('xterm') {
                                 }
                             } catch(exception) {
                                 println exception
-                                diff.put(it.key, "Changes were found in this scheme, but cannot be processed. \n Please compare ${it.key} and ${it.value} in pgadmin Schema Diff UI")
+                                diff.put(it.key, "Changes were found in this scheme, but cannot be processed. \n Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI")
                             }
                         }
 
@@ -263,7 +266,6 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-                
             }
 
             stage('Send Slack notification') {
@@ -283,6 +285,7 @@ ansiColor('xterm') {
 
 def getSchemaTenantList(tenantId, psqlPod, namespace) {
   println("Getting schemas list for $tenantId tenant")
+
   return sh(
       script: """
         kubectl exec ${psqlPod} -n $namespace -- psql --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"
