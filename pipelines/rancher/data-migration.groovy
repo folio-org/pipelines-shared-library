@@ -52,6 +52,9 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
+            stage('Init'){
+                buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+            }
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,
                     propagate: false,
