@@ -246,14 +246,16 @@ ansiColor('xterm') {
                             }
                         }
 
+                        def diffHtmlData
                         if(diff) {
-                            dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
+                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
                             jobStatus = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
-                            dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
+                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
                             jobStatus = 'SUCCESS'
                         } 
+                        writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }                
             }
 
@@ -294,9 +296,7 @@ ansiColor('xterm') {
 
 def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     println("Getting schemas list for $tenantId tenant")
-    def getSchemasListCommand = """
-        /bin/sh -c 'PGPASSWORD="${dbParams.password}" psql -U ${dbParams.user} -d ${dbParams.db} -h ${dbParams.host} --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"'
-        """
+    def getSchemasListCommand = """/bin/sh -c "PGPASSWORD=${dbParams.password} psql -U ${dbParams.user} -d ${dbParams.db} -h ${dbParams.host} --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}\\_%'\"" """
     
     kubectl.waitPodIsRunning(namespace, psqlPod)
     kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
