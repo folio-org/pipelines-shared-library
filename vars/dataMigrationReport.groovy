@@ -207,8 +207,6 @@ def createDiffHtmlReport(diff, pgadminURL) {
             }
         }
     }
-    
+
     return writer.toString()
-    // Write diff.html file to the Jenkins workspace
-    // writeFile file: "reportSchemas/diff.html", text: writer.toString()
 }

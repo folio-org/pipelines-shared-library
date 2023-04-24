@@ -184,13 +184,10 @@ ansiColor('xterm') {
                         ]
 
                         // Preparation steps, creating Atlas and psql clien pods
-                        // sh "kubectl create deployment -n $rancher_project_name atlas --image=arigaio/atlas:0.10.1-alpine -- /bin/sh -c 'while true; do sleep 86400; done'"
-                        // def atlasPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=atlas -o=jsonpath='{.items[0].metadata.name}'").trim()
-                        // def psqlPod = sh(returnStdout: true, script: "kubectl get pods -n $rancher_project_name --selector=app=psql-client -o=jsonpath='{.items[0].metadata.name}'").trim()                                
-
                         def atlasPod = "atlas"
                         kubectl.runPodWithCommand(rancher_project_name, atlasPod, 'arigaio/atlas:0.10.1-alpine')
                         
+                        // Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS
                         def psqlPod = "psql-client"
                         kubectl.runPodWithCommand(rancher_project_name, psqlPod, 'andreswebs/postgresql-client')
                         
@@ -234,7 +231,7 @@ ansiColor('xterm') {
                             try {
                                 def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
                                 def currentDiff = kubectl.execCommand(rancher_project_name, atlasPod, getDiffCommand)
-                                // def currentDiff =  sh(returnStdout: true, script: "set +xv; kubectl exec ${atlasPod} -n $rancher_project_name -- ./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'").trim()
+                                
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
