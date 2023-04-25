@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
 
-@Library('pipelines-shared-library@RANCHER-733') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 @Field def cypressImageVersion
 

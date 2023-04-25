@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.Constants
 
@@ -35,69 +35,75 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    node(params.agent) {
-        try {
-            stage('Ini') {
-                buildName context.cluster_name + '.' + env.BUILD_ID
-                buildDescription "action: ${context.action}\n" +
-                    "eks_nodes_type: ${context.eks_nodes_type}\n" +
-                    "vpc_name: ${context.vpc_name}"
-            }
-            stage('TF vars') {
-                common.throwErrorIfStringIsEmpty(context.vpc_name, 'VPC name not specified')
-                common.throwErrorIfStringIsEmpty(context.asg_instance_types, 'At least one asg_instance_type should be specified')
-                if (context.eks_min_size.toInteger() >= context.eks_max_size.toInteger()) {
-                    error('eks_max_size: (' + context.eks_max_size + ') is less or equal then eks_min_size: (' + context.eks_min_size + ')')
+    podTemplate(inheritFrom: params.agent, containers: [
+        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999")
+    ]) {
+        node(POD_LABEL) {
+            try {
+                stage('Ini') {
+                    buildName context.cluster_name + '.' + env.BUILD_ID
+                    buildDescription "action: ${context.action}\n" +
+                        "eks_nodes_type: ${context.eks_nodes_type}\n" +
+                        "vpc_name: ${context.vpc_name}"
                 }
-                String eks_nodes_group_size = writeJSON returnText: true, json: [min_size: context.eks_min_size, max_size: context.eks_max_size]
-                Map tf_vars_map = [
-                    admin_users         : Constants.AWS_ADMIN_USERS,
-                    register_in_rancher : context.register_in_rancher,
-                    vpc_name            : context.vpc_name,
-                    eks_nodes_type      : context.eks_nodes_type,
-                    eks_nodes_group_size: eks_nodes_group_size,
-                    asg_instance_types  : context.asg_instance_types.trim().split(',').collect { "\"$it\"" },
-                    deploy_kubecost     : context.deploy_kubecost,
-                    deploy_sorry_cypress: context.deploy_sorry_cypress,
-                ]
-                context.tf_vars = terraform.generateTfVars(tf_vars_map)
-            }
-            stage('Checkout') {
-                checkout scm
-            }
-            withCredentials([
-                [$class           : 'AmazonWebServicesCredentialsBinding',
-                 credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                 accessKeyVariable: 'TF_VAR_aws_access_key_id',
-                 secretKeyVariable: 'TF_VAR_aws_secret_access_key'],
-                string(credentialsId: Constants.KUBECOST_LICENSE_KEY, variable: 'TF_VAR_kubecost_licence_key')
-            ]) {
-                terraform.tfWrapper {
-                    terraform.tfInit(context.tf_work_dir, '')
-                    terraform.tfWorkspaceSelect(context.tf_work_dir, context.cluster_name)
-                    terraform.tfStatePull(context.tf_work_dir)
-                    if (context.action == 'apply') {
-                        terraform.tfPlan(context.tf_work_dir, context.tf_vars)
-                        terraform.tfPlanApprove(context.tf_work_dir)
-                        terraform.tfApply(context.tf_work_dir)
-                    } else if (context.action == 'destroy') {
-                        input message: "Are you shure that you want to destroy ${context.cluster_name} cluster?"
-                        try {
-                            terraform.tfRemoveElastic(context.tf_work_dir)
+                stage('TF vars') {
+                    common.throwErrorIfStringIsEmpty(context.vpc_name, 'VPC name not specified')
+                    common.throwErrorIfStringIsEmpty(context.asg_instance_types, 'At least one asg_instance_type should be specified')
+                    if (context.eks_min_size.toInteger() >= context.eks_max_size.toInteger()) {
+                        error('eks_max_size: (' + context.eks_max_size + ') is less or equal then eks_min_size: (' + context.eks_min_size + ')')
+                    }
+                    String eks_nodes_group_size = writeJSON returnText: true, json: [min_size: context.eks_min_size, max_size: context.eks_max_size]
+                    Map tf_vars_map = [
+                        admin_users         : Constants.AWS_ADMIN_USERS,
+                        register_in_rancher : context.register_in_rancher,
+                        vpc_name            : context.vpc_name,
+                        eks_nodes_type      : context.eks_nodes_type,
+                        eks_nodes_group_size: eks_nodes_group_size,
+                        asg_instance_types  : context.asg_instance_types.trim().split(',').collect { "\"$it\"" },
+                        deploy_kubecost     : context.deploy_kubecost,
+                        deploy_sorry_cypress: context.deploy_sorry_cypress,
+                    ]
+                    context.tf_vars = terraform.generateTfVars(tf_vars_map)
+                }
+                stage('Checkout') {
+                    checkout scm
+                }
+                container('terraform') {
+                    withCredentials([
+                        [$class           : 'AmazonWebServicesCredentialsBinding',
+                         credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                         accessKeyVariable: 'TF_VAR_aws_access_key_id',
+                         secretKeyVariable: 'TF_VAR_aws_secret_access_key'],
+                        string(credentialsId: Constants.KUBECOST_LICENSE_KEY, variable: 'TF_VAR_kubecost_licence_key')
+                    ]) {
+                        terraform.tfWrapper {
+                            terraform.tfInit(context.tf_work_dir, '')
+                            terraform.tfWorkspaceSelect(context.tf_work_dir, context.cluster_name)
+                            terraform.tfStatePull(context.tf_work_dir)
+                            if (context.action == 'apply') {
+                                terraform.tfPlan(context.tf_work_dir, context.tf_vars)
+                                terraform.tfPlanApprove(context.tf_work_dir)
+                                terraform.tfApply(context.tf_work_dir)
+                            } else if (context.action == 'destroy') {
+                                input message: "Are you shure that you want to destroy ${context.cluster_name} cluster?"
+                                try {
+                                    terraform.tfRemoveElastic(context.tf_work_dir)
+                                }
+                                catch (exception) {
+                                    println(exception)
+                                }
+                                terraform.tfDestroy(context.tf_work_dir, context.tf_vars)
+                            }
                         }
-                        catch (exception) {
-                            println(exception)
-                        }
-                        terraform.tfDestroy(context.tf_work_dir, context.tf_vars)
                     }
                 }
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
+                }
             }
         }
     }

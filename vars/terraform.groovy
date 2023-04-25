@@ -93,7 +93,6 @@ void tfWrapper(Closure body) {
                       accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                       secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
                      string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')]) {
-        docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
             /*Temporary solution*/
             sh '''
                 apk add --no-cache python3 py3-pip
@@ -103,7 +102,6 @@ void tfWrapper(Closure body) {
                 aws --version
             '''
             body()
-        }
     }
 }
 
