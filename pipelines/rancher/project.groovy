@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -101,177 +101,196 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node(params.agent) {
-        try {
-            stage('Checkout') {
-                checkout scm
-            }
+    podTemplate(inheritFrom: params.agent, containers: [
+        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
+        containerTemplate(name: 'k8sClient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
+        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999")
+    ]) {
+        node(POD_LABEL) {
+            try {
+                stage('Checkout') {
+                    checkout scm
+                }
 
-            stage('Ini') {
-                buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
-                buildDescription "action: ${project_config.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_config.getConfigType()}"
-                project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
-                project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
-            }
+                stage('Ini') {
+                    buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
+                    buildDescription "action: ${project_config.getAction()}\n" + "tenant: ${tenant.getId()}\n" + "config_type: ${project_config.getConfigType()}"
+                    project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
+                    project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.ui_bundle_tag
+                }
 
-            stage('Restore preparation') {
-                if (project_config.getRestoreFromBackup()) {
-                    helm.k8sClient {
-                        project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
-                        project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
-                        project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
-                        tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
+                stage('Restore preparation') {
+                    if (project_config.getRestoreFromBackup()) {
+                        container('k8sClient') {
+                            project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
+                            project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
+                            project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
+                            tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
+                        }
                     }
                 }
-            }
 
-            stage('UI Build') {
-                if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
-                    def jobParameters = [
-                        folio_repository    : params.folio_repository,
-                        folio_branch        : params.folio_branch,
+                stage('UI Build') {
+                    if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
+                        def jobParameters = [
+                            folio_repository    : params.folio_repository,
+                            folio_branch        : params.folio_branch,
+                            rancher_cluster_name: project_config.getClusterName(),
+                            rancher_project_name: project_config.getProjectName(),
+                            tenant_id           : tenant.getId(),
+                            custom_hash         : project_config.getHash(),
+                            custom_url          : "https://${project_config.getDomains().okapi}",
+                            custom_tag          : project_config.getUiBundleTag()
+                        ]
+                        container('dind') {
+                            uiBuild(jobParameters)
+                        }
+                    }
+                }
+
+                stage('TF vars') {
+                    Map tf_vars_map = [
                         rancher_cluster_name: project_config.getClusterName(),
                         rancher_project_name: project_config.getProjectName(),
                         tenant_id           : tenant.getId(),
-                        custom_hash         : project_config.getHash(),
-                        custom_url          : "https://${project_config.getDomains().okapi}",
-                        custom_tag          : project_config.getUiBundleTag()
+                        pg_password         : params.pg_password,
+                        pgadmin_password    : params.pgadmin_password,
+                        pg_embedded         : params.pg_embedded,
+                        kafka_shared        : params.kafka_shared,
+                        opensearch_shared   : params.opensearch_shared,
+                        s3_embedded         : params.s3_embedded,
+                        pgadmin4            : params.pgadmin4,
+                        pg_ldp_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}",
+                        github_team_ids     : new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' },
                     ]
-                    uiBuild(jobParameters)
-                }
-            }
 
-            stage('TF vars') {
-                Map tf_vars_map = [
-                    rancher_cluster_name: project_config.getClusterName(),
-                    rancher_project_name: project_config.getProjectName(),
-                    tenant_id           : tenant.getId(),
-                    pg_password         : params.pg_password,
-                    pgadmin_password    : params.pgadmin_password,
-                    pg_embedded         : params.pg_embedded,
-                    kafka_shared        : params.kafka_shared,
-                    opensearch_shared   : params.opensearch_shared,
-                    s3_embedded         : params.s3_embedded,
-                    pgadmin4            : params.pgadmin4,
-                    pg_ldp_user_password: "${jobsParameters.pgLdpUserDefaultPassword()}",
-                    github_team_ids     : new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[params.rancher_project_name] + params.github_teams - null).collect { '"' + it + '"' },
-                ]
-
-                if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
-                    if (project_config.getBackupName()?.trim()) {
-                        helm.k8sClient {
-                            project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
-                            project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
-                        }
-                        tf_vars_map.put("pg_rds_snapshot_name", project_config.getBackupName())
-                        tf_vars_map.put("pg_version", project_config.getBackupEngineVersion())
-                        //It works only with bugfests snapshots.
-                        tf_vars_map.put("pg_dbname", Constants.BUGFEST_SNAPSHOT_DBNAME)
-                        tf_vars_map.put("pg_username", project_config.getBackupMasterUsername())
-                    } else {
-                        new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
-                    }
-                }
-                context.tf_vars = terraform.generateTfVars(tf_vars_map)
-            }
-
-            stage('Project') {
-                folioDeploy.project(project_config, tenant, context.tf_work_dir, context.tf_vars)
-            }
-
-            if (project_config.getAction() == 'apply' && !params.namespace_only) {
-                stage("Generate install map") {
-                    project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
-                    if (project_config.installMap?.okapi?.contains('SNAPSHOT')) {
-                        tenant.okapiVersion = common.getOkapiLatestSnapshotVersion(project_config.installMap.okapi)
-                    }
-                }
-
-                stage("Deploy okapi") {
-                    folioDeploy.okapi(project_config)
-                }
-
-                stage("Deploy backend modules") {
-                    Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                    if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
-                    }
-                }
-
-                if (params.greenmail_server) {
-                    stage("Deploy greenmail") {
-                        folioDeploy.greenmail(project_config)
-                    }
-                }
-
-                stage("Pause") {
-                    // Wait for dns flush.
-                    sleep time: 5, unit: 'MINUTES'
-                }
-
-                stage("Health check") {
-                    // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-                }
-
-                stage("Enable backend modules") {
-                    if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
-                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                            tenant.kb_api_key = cypress_api_key_apidvcorp
-                            Deployment deployment = new Deployment(
-                                this,
-                                "https://${project_config.getDomains().okapi}",
-                                "https://${project_config.getDomains().ui}",
-                                project_config.getInstallJson(),
-                                project_config.getInstallMap(),
-                                tenant,
-                                admin_user,
-                                superadmin_user,
-                                email,
-                                project_config.getRestoreFromBackup()
-                            )
-                            if (project_config.getRestoreFromBackup()) {
-                                deployment.cleanup()
-                                deployment.update()
-                            } else {
-                                deployment.main()
+                    if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
+                        if (project_config.getBackupName()?.trim()) {
+                            container('k8sClient') {
+                                project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
+                                project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
                             }
+                            tf_vars_map.put("pg_rds_snapshot_name", project_config.getBackupName())
+                            tf_vars_map.put("pg_version", project_config.getBackupEngineVersion())
+                            //It works only with bugfests snapshots.
+                            tf_vars_map.put("pg_dbname", Constants.BUGFEST_SNAPSHOT_DBNAME)
+                            tf_vars_map.put("pg_username", project_config.getBackupMasterUsername())
+                        } else {
+                            new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
                         }
                     }
+                    context.tf_vars = terraform.generateTfVars(tf_vars_map)
                 }
 
-                stage("Deploy edge modules") {
-                    Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                    if (install_edge_map) {
-                        new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                        helm.k8sClient {
+                if (project_config.getAction() == 'destroy') {
+                    stage('Remove indexes and topics') {
+                        container('k8sClient') {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                            install_edge_map.each { name, version ->
-                                kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+
+                        }
+                    }
+                }
+
+                stage('Project') {
+                    container('terraform') {
+                        folioDeploy.project(project_config, tenant, context.tf_work_dir, context.tf_vars)
+                    }
+                }
+
+                container('k8sClient') {
+                    if (project_config.getAction() == 'apply' && !params.namespace_only) {
+                        stage("Generate install map") {
+                            project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
+                            if (project_config.installMap?.okapi?.contains('SNAPSHOT')) {
+                                tenant.okapiVersion = common.getOkapiLatestSnapshotVersion(project_config.installMap.okapi)
                             }
                         }
-                        new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                        folioDeploy.edge(install_edge_map, project_config)
+
+                        stage("Deploy okapi") {
+                            folioDeploy.okapi(project_config)
+                        }
+
+                        stage("Deploy backend modules") {
+                            Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                            if (install_backend_map) {
+                                folioDeploy.backend(install_backend_map, project_config)
+                            }
+                        }
+
+                        if (params.greenmail_server) {
+                            stage("Deploy greenmail") {
+                                folioDeploy.greenmail(project_config)
+                            }
+                        }
+
+                        stage("Pause") {
+                            // Wait for dns flush.
+                            sleep time: 5, unit: 'MINUTES'
+                        }
+
+                        stage("Health check") {
+                            // Checking the health of the Okapi service.
+                            common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+                        }
+
+                        stage("Enable backend modules") {
+                            if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
+                                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                                    tenant.kb_api_key = cypress_api_key_apidvcorp
+                                    Deployment deployment = new Deployment(
+                                        this,
+                                        "https://${project_config.getDomains().okapi}",
+                                        "https://${project_config.getDomains().ui}",
+                                        project_config.getInstallJson(),
+                                        project_config.getInstallMap(),
+                                        tenant,
+                                        admin_user,
+                                        superadmin_user,
+                                        email,
+                                        project_config.getRestoreFromBackup()
+                                    )
+                                    if (project_config.getRestoreFromBackup()) {
+                                        deployment.cleanup()
+                                        deployment.update()
+                                    } else {
+                                        deployment.main()
+                                    }
+                                }
+                            }
+                        }
+
+                        stage("Deploy edge modules") {
+                            Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                            if (install_edge_map) {
+                                new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                                    install_edge_map.each { name, version ->
+                                        kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                                    }
+                                new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                                folioDeploy.edge(install_edge_map, project_config)
+                            }
+                        }
+
+                        if (!project_config.getRestoreFromBackup()) {
+                            stage("Post deploy stage") {
+                                folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
+                                    "postgresql-${project_config.getProjectName()}", params.pg_password)
+                            }
+                        }
+
+                        stage("Deploy UI bundle") {
+                            folioDeploy.uiBundle(tenant.getId(), project_config)
+                        }
                     }
                 }
-
-                if (!project_config.getRestoreFromBackup()) {
-                    stage("Post deploy stage") {
-                        folioDeploy.ldp_server(tenant, project_config, admin_user, superadmin_user, ldpConfig,
-                            "postgresql-${project_config.getProjectName()}", params.pg_password)
-                    }
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
                 }
-
-                stage("Deploy UI bundle") {
-                    folioDeploy.uiBundle(tenant.getId(), project_config)
-                }
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
             }
         }
     }
