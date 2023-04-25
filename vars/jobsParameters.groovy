@@ -56,7 +56,7 @@ static List clustersList() {
 }
 
 static List jenkinsAgentsList() {
-    return ['rancher-kub',
+    return ['rancher-kube',
             'rancher',
             'jenkins-agent-java11',
             'jenkins-agent-java11-test',
