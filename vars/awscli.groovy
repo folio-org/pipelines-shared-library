@@ -51,11 +51,3 @@ String listEcrImages(String region, String repo_name) {
 void deleteEcrImage(String region, String repo_name, String image_tag){
     sh(script: "aws ecr batch-delete-image --region ${region} --repository-name ${repo_name} --image-ids imageTag=${image_tag}")
 }
-
-def getKubernetesResourceList(String resource_type, String namespace){
-    return sh(script: "kubectl get ${resource_type} -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
-}
-
-void setKubernetesResourceCount(String resource_type, String deployment_name, String namespace, int replica_count){
-    sh(script: "kubectl scale ${resource_type} ${deployment_name} -n ${namespace} --replicas=${replica_count}")
-}

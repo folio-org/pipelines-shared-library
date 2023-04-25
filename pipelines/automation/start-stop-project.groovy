@@ -18,8 +18,6 @@ properties([
         jobsParameters.refreshParameters()]),
     pipelineTriggers([
         parameterizedCron('''
-        55 20 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
-        55 20 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
@@ -58,13 +56,13 @@ ansiColor('xterm') {
                 stage("Downscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        def deployments_list = awscli.getKubernetesResourceList('deployment', params.rancher_project_name)
-                        def statefulset_list = awscli.getKubernetesResourceList('statefulset', params.rancher_project_name)
+                        def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
+                        def statefulset_list = kubectl.getKubernetesResourceList('statefulset', params.rancher_project_name)
                         deployments_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
                         }
                         statefulset_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 0)
+                            kubectl.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 0)
                         }
                     }
                 }
@@ -73,29 +71,29 @@ ansiColor('xterm') {
                 stage("Upscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        List deployments_list = awscli.getKubernetesResourceList('deployment',params.rancher_project_name)
+                        List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
                         def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
-                        def postgresql = awscli.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
+                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
                         postgresql.each { statefulset ->
-                            awscli.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
                             common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
-//                        services_list.each { deployment ->
-//                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                            sleep 30
-//                        }
+                        services_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            sleep 30
+                        }
                         core_modules_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                             //common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
                             sleep 60
                         }
                         backend_module_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
                         edge_module_list.each { deployment ->
-                            awscli.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
                     }
                 }
