@@ -42,8 +42,6 @@ properties([
     ])
 ])
 
-List core_modules_list = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
-
 ansiColor('xterm') {
     if (params.refresh_parameters) {
         currentBuild.result = 'ABORTED'
@@ -72,29 +70,30 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
+                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
                         def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
+                        List core_modules_list = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
-                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
                         postgresql.each { statefulset ->
                             kubectl.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
-                            common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
+                            kubectl.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
-//                        services_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                            sleep 30
-//                        }
+                        services_list.each { deployment ->
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 15
+                        }
                         core_modules_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                            common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
-                            //sleep 60
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 15
                         }
-//                        backend_module_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                        }
-//                        edge_module_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                        }
+                        backend_module_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        }
+                        edge_module_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        }
                     }
                 }
             }
