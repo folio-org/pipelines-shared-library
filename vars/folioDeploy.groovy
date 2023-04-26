@@ -49,11 +49,6 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
             }
             break
         case "destroy":
-            helm.k8sClient {
-                awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                folioTools.deleteOpenSearchIndices(project_config.getClusterName(), project_config.getProjectName())
-                folioTools.deleteKafkaTopics(project_config.getClusterName(), project_config.getProjectName())
-            }
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                               credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                               accessKeyVariable: 'TF_VAR_s3_access_key',

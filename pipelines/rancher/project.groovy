@@ -104,7 +104,8 @@ ansiColor('xterm') {
     podTemplate(inheritFrom: params.agent, containers: [
         containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
         containerTemplate(name: 'k8sClient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
-        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999")
+        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
+        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")
     ]) {
         node(POD_LABEL) {
             try {
@@ -184,9 +185,30 @@ ansiColor('xterm') {
 
                 if (project_config.getAction() == 'destroy') {
                     stage('Remove indexes and topics') {
+                        String delete_topic_command
                         container('k8sClient') {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-
+                            String opensearch_url = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'ELASTICSEARCH_URL')
+                            String opensearch_username = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'ELASTICSEARCH_USERNAME')
+                            String opensearch_password = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'ELASTICSEARCH_PASSWORD')
+                            try {
+                                String opensearch_basic_auth = "${opensearch_username}:${opensearch_password}".bytes.encodeBase64().toString()
+                                httpRequest url: "${opensearch_url}/${project_config.getClusterName()}-${project_config.getProjectName()}_*",
+                                    httpMode: "DELETE",
+                                    customHeaders: [[name: 'Authorization', value: "Basic ${opensearch_basic_auth}"]]
+                            } catch(exception) {
+                                println(exception)
+                            }
+                            String kafka_host = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'KAFKA_HOST')
+                            String kafka_port = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'KAFKA_PORT')
+                            delete_topic_command = "kafka-topics.sh --bootstrap-server ${kafka_host}:${kafka_port} --delete --topic ${project_config.getClusterName()}-${project_config.getProjectName()}.*"
+                        }
+                        container('kafka') {
+                            try {
+                                sh delete_topic_command
+                            } catch(exception) {
+                                println(exception)
+                            }
                         }
                     }
                 }
