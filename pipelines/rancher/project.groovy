@@ -101,12 +101,45 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    podTemplate(inheritFrom: params.agent, containers: [
-        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
-        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
-        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
-        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")
-    ]) {
+    podTemplate(inheritFrom: params.agent,
+        yaml: '''
+apiVersion: "v1"
+kind: "Pod"
+spec:
+  containers:
+  - args:
+    - "99999999"
+    command:
+    - "sleep"
+    image: "docker:dind"
+    name: "dind"
+    securityContext:
+      privilege: true
+  - args:
+    - "99999999"
+    command:
+    - "sleep"
+    image: "bitnami/kafka:2.8.0"
+    name: "kafka"
+  - args:
+    - "99999999"
+    command:
+    - "sleep"
+    image: "hashicorp/terraform:1.4"
+    name: "terraform"
+  - args:
+    - "99999999"
+    command:
+    - "sleep"
+    image: "alpine/k8s:1.22.9"
+    name: "k8sclient"
+'''
+//        containers: [
+//        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
+//        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
+//        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
+//        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")]
+        ) {
         node(POD_LABEL) {
             try {
                 stage('Checkout') {
