@@ -80,21 +80,21 @@ ansiColor('xterm') {
                             kubectl.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
                             common.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
-                        services_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                            sleep 30
-                        }
+//                        services_list.each { deployment ->
+//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                            sleep 30
+//                        }
                         core_modules_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                            //common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
-                            sleep 60
+                            common.waitKubernetesResourceStableState('deployment', deployment.toString(), params.rancher_project_name, '1', '600')
+                            //sleep 60
                         }
-                        backend_module_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                        }
-                        edge_module_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-                        }
+//                        backend_module_list.each { deployment ->
+//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                        }
+//                        edge_module_list.each { deployment ->
+//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+//                        }
                     }
                 }
             }
