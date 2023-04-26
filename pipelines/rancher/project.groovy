@@ -103,7 +103,7 @@ ansiColor('xterm') {
     }
     podTemplate(inheritFrom: params.agent, containers: [
         containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
-        containerTemplate(name: 'k8sClient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
         containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
         containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")
     ]) {
@@ -122,7 +122,7 @@ ansiColor('xterm') {
 
                 stage('Restore preparation') {
                     if (project_config.getRestoreFromBackup()) {
-                        container('k8sClient') {
+                        container('k8sclient') {
                             project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
                             project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
                             project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
@@ -167,7 +167,7 @@ ansiColor('xterm') {
 
                     if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
                         if (project_config.getBackupName()?.trim()) {
-                            container('k8sClient') {
+                            container('k8sclient') {
                                 project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
                                 project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
                             }
@@ -186,7 +186,7 @@ ansiColor('xterm') {
                 if (project_config.getAction() == 'destroy') {
                     stage('Remove indexes and topics') {
                         String delete_topic_command
-                        container('k8sClient') {
+                        container('k8sclient') {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                             String opensearch_url = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'ELASTICSEARCH_URL')
                             String opensearch_username = kubectl.getSecretValue(project_config.getProjectName(), 'db-connect-modules', 'ELASTICSEARCH_USERNAME')
@@ -219,7 +219,7 @@ ansiColor('xterm') {
                     }
                 }
 
-                container('k8sClient') {
+                container('k8sclient') {
                     if (project_config.getAction() == 'apply' && !params.namespace_only) {
                         stage("Generate install map") {
                             project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
