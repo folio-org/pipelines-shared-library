@@ -101,44 +101,11 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    podTemplate(inheritFrom: params.agent,
-        yaml: '''
-apiVersion: "v1"
-kind: "Pod"
-spec:
-  containers:
-  - args:
-    - "99999999"
-    command:
-    - "sleep"
-    image: "docker:dind"
-    name: "dind"
-    securityContext:
-      privilege: true
-  - args:
-    - "99999999"
-    command:
-    - "sleep"
-    image: "bitnami/kafka:2.8.0"
-    name: "kafka"
-  - args:
-    - "99999999"
-    command:
-    - "sleep"
-    image: "hashicorp/terraform:1.4"
-    name: "terraform"
-  - args:
-    - "99999999"
-    command:
-    - "sleep"
-    image: "alpine/k8s:1.22.9"
-    name: "k8sclient"
-'''
-//        containers: [
-//        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
-//        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
-//        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
-//        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")]
+    podTemplate(inheritFrom: params.agent, containers: [
+        containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
+        containerTemplate(name: 'dind', image: 'docker:dind', command: "sleep", args: "99999999"),
+        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")]
         ) {
         node(POD_LABEL) {
             try {
@@ -166,19 +133,16 @@ spec:
 
                 stage('UI Build') {
                     if (params.ui_bundle_build && project_config.getAction() == 'apply' && !project_config.getRestoreFromBackup() && !params.namespace_only) {
-                        def jobParameters = [
-                            folio_repository    : params.folio_repository,
-                            folio_branch        : params.folio_branch,
-                            rancher_cluster_name: project_config.getClusterName(),
-                            rancher_project_name: project_config.getProjectName(),
-                            tenant_id           : tenant.getId(),
-                            custom_hash         : project_config.getHash(),
-                            custom_url          : "https://${project_config.getDomains().okapi}",
-                            custom_tag          : project_config.getUiBundleTag()
-                        ]
-                        container('dind') {
-                            uiBuild(jobParameters)
-                        }
+                        build job: 'Rancher/UI-Build',
+                            parameters: [
+                                string(name: 'folio_repository', value: params.folio_repository),
+                                string(name: 'folio_branch', value: params.folio_branch),
+                                string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
+                                string(name: 'rancher_project_name', value: project_config.getProjectName()),
+                                string(name: 'tenant_id', value: tenant.getId()),
+                                string(name: 'custom_hash', value: project_config.getHash()),
+                                string(name: 'custom_url', value: "https://${project_config.getDomains().okapi}"),
+                                string(name: 'custom_tag', value: project_config.getUiBundleTag())]
                     }
                 }
 
