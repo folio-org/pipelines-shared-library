@@ -106,7 +106,7 @@ static List devEnvironmentsList() {
             'vega',
             'volaris',
             'volaris-2nd',
-            'test']
+            'test-xxx']
 }
 
 @NonCPS
