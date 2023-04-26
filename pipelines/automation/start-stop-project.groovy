@@ -80,6 +80,7 @@ ansiColor('xterm') {
                             kubectl.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
                         }
                         services_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                             kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
                             sleep 15
                         }
