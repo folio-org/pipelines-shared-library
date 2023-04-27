@@ -48,6 +48,16 @@ String listEcrImages(String region, String repo_name) {
     return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output json", returnStdout: true)
 }
 
-void deleteEcrImage(String region, String repo_name, String image_tag){
-    sh(script: "aws ecr batch-delete-image --region ${region} --repository-name ${repo_name} --image-ids imageTag=${image_tag}")
+void startRdsCluster(String cluster_name, String region) {
+    sh(script: "aws rds start-db-cluster --db-cluster-identifier ${cluster_name} --region ${region} > /dev/null")
 }
+
+void stopRdsCluster(String cluster_name, String region) {
+    sh(script: "aws rds stop-db-cluster --db-cluster-identifier ${cluster_name} --region ${region} > /dev/null")
+}
+
+void waitRdsClusterAvailable(String cluster_name, String region) {
+    sh(script: "aws rds wait db-cluster-available --db-cluster-identifier ${cluster_name} --region ${region}")
+}
+
+

@@ -55,11 +55,12 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
-                        def statefulset_list = kubectl.getKubernetesResourceList('statefulset', params.rancher_project_name)
+                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
                         deployments_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
                         }
-                        statefulset_list.each { deployment ->
+//                        if ()
+                        postgresql.each { deployment ->
                             kubectl.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 0)
                         }
                     }
