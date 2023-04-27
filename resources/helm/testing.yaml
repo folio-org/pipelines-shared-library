@@ -311,9 +311,9 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: '427Mi'
+      memory: '640Mi'
     requests:
-      memory: '341Mi'
+      memory: '512Mi'
 # mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
 mod-codex-mux:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
