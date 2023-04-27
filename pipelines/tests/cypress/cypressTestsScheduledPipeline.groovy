@@ -40,8 +40,8 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         booleanParam(name: 'load_reference', value: true),
         booleanParam(name: 'load_sample', value: true),
         booleanParam(name: 'pg_embedded', value: true),
-        booleanParam(name: 'kafka_shared', value: true),
-        booleanParam(name: 'opensearch_shared', value: true),
+        booleanParam(name: 'kafka_shared', value: false),
+        booleanParam(name: 'opensearch_shared', value: false),
         booleanParam(name: 's3_embedded', value: true)
     ]
 }
@@ -81,7 +81,7 @@ def jobParameters = [
     password: 'admin',
     cypressParameters: "--env grepTags=\"smoke criticalPth\",grepFilterSpecs=true",
     customBuildName: JOB_BASE_NAME,
-    timeout: '6',
+    timeout: '4',
     testrailProjectID: '14',
     testrailRunID: '2108',
     numberOfWorkers: '4',
