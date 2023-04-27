@@ -212,7 +212,7 @@ ansiColor('xterm') {
                                 }
                             }
                             container('kafka') {
-                                sh delete_topic_command
+                                sh script: delete_topic_command
                             }
                         } catch(exception) {
                             println(exception)
