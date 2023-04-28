@@ -18,6 +18,8 @@ properties([
         jobsParameters.refreshParameters()]),
     pipelineTriggers([
         parameterizedCron('''
+        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
+        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
@@ -38,6 +40,8 @@ properties([
         15 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=vega
         30 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris
         30 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
+        35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
+        35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
     ''')
     ])
 ])
