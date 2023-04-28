@@ -85,17 +85,17 @@ ansiColor('xterm') {
                         else {
                             awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
-                            sleep 30
+                            sleep 20
                         }
                         services_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                             kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-                            sleep 15
+                            sleep 10
                         }
                         core_modules_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                             kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-                            sleep 15
+                            sleep 10
                         }
                         backend_module_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
