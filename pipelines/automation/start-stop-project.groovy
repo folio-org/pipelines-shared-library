@@ -56,9 +56,9 @@ ansiColor('xterm') {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
                         def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
-//                        deployments_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
-//                        }
+                        deployments_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
+                        }
                         if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
                             kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 0)
                         }
@@ -73,7 +73,6 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
-                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
                         def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
                         List core_modules_list = "okapi, mod-users, mod-users-bl, mod-login, mod-permissions, mod-authtoken".split(", ")
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
@@ -85,23 +84,24 @@ ansiColor('xterm') {
                         else {
                             awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                            sleep 30
                         }
-//                        services_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-//                            sleep 15
-//                        }
-//                        core_modules_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-//                            sleep 15
-//                        }
-//                        backend_module_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                        }
-//                        edge_module_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
-//                        }
+                        services_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 15
+                        }
+                        core_modules_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 15
+                        }
+                        backend_module_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        }
+                        edge_module_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        }
                     }
                 }
             }
