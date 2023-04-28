@@ -73,10 +73,11 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
-                        def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
+                        def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi") && !it.startsWith("ldp-server") && !it.contains("ui-bundle")}
                         List core_modules_list = "okapi, mod-users, mod-users-bl, mod-login, mod-permissions, mod-authtoken".split(", ")
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
+                        def ui_bundle_list = deployments_list.findAll{it.contains("ui-bundle")}
                         if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
                             kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 1)
                             kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
@@ -100,6 +101,9 @@ ansiColor('xterm') {
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
                         edge_module_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        }
+                        ui_bundle_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         }
                     }
