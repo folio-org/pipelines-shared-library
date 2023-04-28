@@ -96,8 +96,8 @@ def getKubernetesResourceList(String resource_type, String namespace){
     return sh(script: "kubectl get ${resource_type} -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
 }
 
-void setKubernetesResourceCount(String resource_type, String deployment_name, String namespace, int replica_count){
-    sh(script: "kubectl scale ${resource_type} ${deployment_name} -n ${namespace} --replicas=${replica_count}")
+void setKubernetesResourceCount(String resource_type, String resource_name, String namespace, int replica_count){
+    sh(script: "kubectl scale ${resource_type} ${resource_name} -n ${namespace} --replicas=${replica_count}")
 }
 
 boolean checkKubernetesResourceExist(String resource_type, String resource_name, String namespace){

@@ -55,19 +55,16 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
-                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
-//                        deployments_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
-//                        }
+                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
+                        deployments_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
+                        }
                         if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-                            println("exist")
+                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 0)
                         }
                         else {
-                            println("NOT EXIST")
+                            awscli.stopRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}")
                         }
-//                        postgresql.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('statefulset', deployment.toString(), params.rancher_project_name, 0)
-//                        }
                     }
                 }
             }
@@ -76,14 +73,18 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
-                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-")}
+                        def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
                         def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi")}
-                        List core_modules_list = "okapi, mod-permissions, mod-users, mod-users-bl, mod-authtoken".split(", ")
+                        List core_modules_list = "okapi, mod-users, mod-users-bl, mod-login, mod-permissions, mod-authtoken".split(", ")
                         def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
                         def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
-                        postgresql.each { statefulset ->
-                            kubectl.setKubernetesResourceCount('statefulset', statefulset.toString(), params.rancher_project_name, 1)
-                            kubectl.waitKubernetesResourceStableState('statefulset', statefulset.toString(), params.rancher_project_name, '1', '600')
+                        if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
+                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 1)
+                            kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
+                        }
+                        else {
+                            awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}")
+                            awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}")
                         }
                         services_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
