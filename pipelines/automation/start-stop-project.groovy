@@ -59,7 +59,7 @@ ansiColor('xterm') {
 //                        deployments_list.each { deployment ->
 //                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
 //                        }
-                        if (kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
+                        if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
                             println("exist")
                         }
                         else {
