@@ -22,7 +22,8 @@ class HttpClient {
             customHeaders: headers,
             requestBody: body,
             timeout: timeout,
-            validResponseCodes: "100:599"
+            validResponseCodes: "100:599",
+            useSystemProperties: true
     }
 
     void putRequest(String url, String body, ArrayList headers = []) {
