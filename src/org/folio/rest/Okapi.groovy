@@ -378,7 +378,10 @@ class Okapi extends GeneralParameters {
 //        String url = okapi_url + "/_/proxy/tenants/" + tenant.id + "/install" + tenantParameters + '&reinstall=true'
         ArrayList headers = [[name: 'Content-type', value: "application/json"],
                              [name: 'X-Okapi-Tenant', value: supertenant.getId()],
-                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
+                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true],
+                             [name: 'Connection', value: 'Keep-Alive'],
+                             [name: 'Keep-Alive', value: 'timeout=1800']
+        ]
         String body = JsonOutput.toJson(modulesList)
         logger.info("Install operation for tenant ${tenant.id} started")
         def res = http.postRequest(url, body, headers, true, timeout)
