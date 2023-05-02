@@ -351,11 +351,11 @@ class Okapi extends GeneralParameters {
             tenant.getQueryParameters().eachWithIndex { it, i ->
                 queryParameters += it.key + '=' + it.value
                 if (i != tenant.getQueryParameters().size() - 1) {
-                    queryParameters += '&'
+                    queryParameters += '\\&'
                 }
             }
             if (parameters?.trim()) {
-                parameters += '&' + queryParameters
+                parameters += '\\&' + queryParameters
             } else {
                 parameters = '?' + queryParameters
             }
