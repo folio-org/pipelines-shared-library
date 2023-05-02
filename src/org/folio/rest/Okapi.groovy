@@ -383,14 +383,17 @@ class Okapi extends GeneralParameters {
                              [name: 'Keep-Alive', value: 'timeout=1800']
         ]
         String body = JsonOutput.toJson(modulesList)
+        String curl_headers = "--header 'Content-type: application/json' --header 'X-Okapi-Tenant: ${supertenant.getId()}'--header 'X-Okapi-Token: ${supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : ''}'"
+        String curl = "curl --request POST ${url} ${curl_headers} --data-raw '${body}'"
         logger.info("Install operation for tenant ${tenant.id} started")
-        def res = http.postRequest(url, body, headers, true, timeout)
-        if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
-            return tools.jsonParse(res.content)
-        } else {
-            throw new AbortException("Install operation failed. ${url}" + http.buildHttpErrorMessage(res))
-        }
+        //def res = http.postRequest(url, body, headers, true, timeout)
+        def res = steps.sh(script: curl, returnStdout: true)
+        //if (res.status == HttpURLConnection.HTTP_OK) {
+            logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res)}")
+            return tools.jsonParse(res)
+        //} else {
+        //    throw new AbortException("Install operation failed. ${url}" + http.buildHttpErrorMessage(res))
+        //}
     }
 
     /**
