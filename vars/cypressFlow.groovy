@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.transform.Field
 
-@Library('pipelines-shared-library@BF-475') _
+@Library('pipelines-shared-library') _
 
 @Field def cypressImageVersion
 
@@ -40,16 +40,6 @@ def call(params) {
                         cypressImageVersion = packageJson.dependencies.cypress
                     }
                 }
-                stage('Build tests') {
-                    script {
-                        env.HOME = "${pwd()}/cache"
-                        env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                        sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                        sh "yarn add -D cypress-testrail-simple"
-                        sh "yarn global add cy2@latest"
-                        sh "yarn install"
-                    }
-                }
 
                 stage('Cypress tests execution') {
                     script {
@@ -71,6 +61,10 @@ def call(params) {
                                                           credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                                                           accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                                           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                                            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                                            sh "yarn add -D cypress-testrail-simple"
+                                            sh "yarn global add cy2@latest"
+                                            sh "yarn install"
                                             if (params.testrailRunID && params.testrailProjectID) {
                                                 // Run with TesTrail Integration
                                                 env.TESTRAIL_HOST = "https://foliotest.testrail.io"
