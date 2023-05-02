@@ -383,7 +383,8 @@ class Okapi extends GeneralParameters {
                              [name: 'Keep-Alive', value: 'timeout=1800']
         ]
         String body = JsonOutput.toJson(modulesList)
-        String curl_headers = "--header 'Content-type: application/json' --header 'X-Okapi-Tenant: ${supertenant.getId()}'--header 'X-Okapi-Token: ${supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : ''}'"
+        String okapi_token = supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : ''
+        String curl_headers = "--header 'Content-type: application/json' --header 'X-Okapi-Tenant: ${supertenant.getId()}' --header 'X-Okapi-Token: ${okapi_token}'"
         String curl = "curl --request POST ${url} ${curl_headers} --data-raw '${body}'"
         logger.info("Install operation for tenant ${tenant.id} started")
         //def res = http.postRequest(url, body, headers, true, timeout)
