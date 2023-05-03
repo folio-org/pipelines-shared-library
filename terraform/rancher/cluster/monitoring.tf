@@ -49,6 +49,9 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
+    kube-state-metrics:
+      selfMonitor:
+        enabled: true
     alertmanager:
       config:
         global:
@@ -63,13 +66,10 @@ resource "rancher2_app_v2" "prometheus" {
           routes:
           - match:
               alertname: 'Watchdog'
-          - receiver: 'slack-notifications'
-          - match:
-              alertname: 'InfoInhibitor'
-            receiver: 'null'
+          - receiver: 'slack'
             continue: true
         receivers:
-        - name: 'slack-notifications'
+        - name: 'slack'
           slack-configs:
           - title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Test Alertmanager'
             text: >-
