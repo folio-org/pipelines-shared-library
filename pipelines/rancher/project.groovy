@@ -104,7 +104,7 @@ ansiColor('xterm') {
     podTemplate(inheritFrom: params.agent, containers: [
         containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
         containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
-        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999")]
+        containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999", runAsUser: '1000')]
         ) {
         node(POD_LABEL) {
             try {

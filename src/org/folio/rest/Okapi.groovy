@@ -373,28 +373,16 @@ class Okapi extends GeneralParameters {
     def enableDisableUpgradeModulesForTenant(OkapiTenant tenant, ArrayList modulesList, Integer timeout = 0) {
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String tenantParameters = buildTenantQueryParameters(tenant)
-        //TODO move reinstall to options
         String url = okapi_url + "/_/proxy/tenants/" + tenant.id + "/install" + tenantParameters
-//        String url = okapi_url + "/_/proxy/tenants/" + tenant.id + "/install" + tenantParameters + '&reinstall=true'
-        ArrayList headers = [[name: 'Content-type', value: "application/json"],
-                             [name: 'X-Okapi-Tenant', value: supertenant.getId()],
-                             [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true],
-                             [name: 'Connection', value: 'Keep-Alive'],
-                             [name: 'Keep-Alive', value: 'timeout=1800']
-        ]
         String body = JsonOutput.toJson(modulesList)
         String okapi_token = supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : ''
         String curl_headers = "--header 'Content-type: application/json' --header 'X-Okapi-Tenant: ${supertenant.getId()}' --header 'X-Okapi-Token: ${okapi_token}'"
-        String curl = "curl --request POST ${url} ${curl_headers} --data-raw '${body}'"
+        String curl = "set +x && curl --request POST ${url} ${curl_headers} --data-raw '${body}'"
         logger.info("Install operation for tenant ${tenant.id} started")
-        //def res = http.postRequest(url, body, headers, true, timeout)
+        //TODO refactor to use some of java http library (not httprequest plugin)
         def res = steps.sh(script: curl, returnStdout: true)
-        //if (res.status == HttpURLConnection.HTTP_OK) {
-            logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res)}")
-            return tools.jsonParse(res)
-        //} else {
-        //    throw new AbortException("Install operation failed. ${url}" + http.buildHttpErrorMessage(res))
-        //}
+        logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res)}")
+        return tools.jsonParse(res)
     }
 
     /**
