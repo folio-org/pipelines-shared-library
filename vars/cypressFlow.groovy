@@ -39,7 +39,7 @@ def call(params) {
     for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
         def currentNumber = workerNumber - 1
         cypressWorkers["CypressWorker#${workerNumber}"] = {
-            podTemplate(inheritFrom: params.agent, containers: [
+            podTemplate(inheritFrom: 'rancher-kube', containers: [
                 containerTemplate(name: 'cypress', image: "cypress/included:${cypressImageVersion}", command: "sleep", args: "99999999")
             ]) {
                 node(POD_LABEL) {

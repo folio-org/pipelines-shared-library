@@ -10,7 +10,6 @@ properties([
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration'),
         choice(name: 'action', choices: ['apply', 'destroy'], description: '(Required) Choose what should be done with cluster'),
         jobsParameters.repository(),
-        jobsParameters.agents(),
         jobsParameters.branch(),
         jobsParameters.okapiVersion(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
@@ -28,7 +27,7 @@ ansiColor("xterm") {
         currentBuild.result = "ABORTED"
         error("DRY RUN BUILD, NO STAGE IS ACTIVE!")
     }
-    node(params.agent) {
+    node('rancher-kube') {
         try {
             stage("Create environment") {
                 build job: Constants.JENKINS_JOB_PROJECT,

@@ -39,7 +39,6 @@ properties([
         string(name: 'tenant', defaultValue: "diku", description: 'Tenant name'),
         string(name: 'user', defaultValue: "diku_admin", description: 'User name'),
         password(name: 'password', defaultValueAsSecret: Secret.fromString('admin'), description: 'User password'),
-        jobsParameters.agents(),
         //string(name: 'cypressParameters', defaultValue: "--spec cypress/integration/finance/funds/funds.search.spec.js", description: 'Cypress execution parameters'),
         string(name: 'cypressParameters', defaultValue: "--env grepTags=\"smoke criticalPth extendedPath\",grepFilterSpecs=true", description: 'Cypress execution parameters'),
         string(name: 'customBuildName', defaultValue: "", description: 'Custom name for build'),
@@ -50,6 +49,6 @@ properties([
     ])
 ])
 
-node(params.agent) {
+node('rancher-kube') {
     cypressFlow(params)
 }

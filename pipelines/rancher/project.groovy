@@ -51,7 +51,6 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
         booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
-        jobsParameters.agents(),
         jobsParameters.refreshParameters()])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
@@ -101,7 +100,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    podTemplate(inheritFrom: params.agent, containers: [
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
         containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999"),
         containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999"),
         containerTemplate(name: 'kafka', image: 'bitnami/kafka:2.8.0', command: "sleep", args: "99999999", runAsUser: '1000')]

@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -52,7 +52,7 @@ properties([
     ]),
 ])
 
-node('rancher') {
+node('rancher-kube') {
     stage("Destroy environment") {
         script {
             def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
@@ -84,8 +84,7 @@ def jobParameters = [
     timeout: '4',
     testrailProjectID: '14',
     testrailRunID: '2108',
-    numberOfWorkers: '4',
-    agent: 'rancher||jenkins-agent-java11'
+    numberOfWorkers: '4'
 ]
 
 node {

@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -27,7 +27,6 @@ def jobParameters = [
     testrailProjectID: '14',
     testrailRunID: '2151',
     numberOfWorkers: '4',
-    agent: 'rancher||jenkins-agent-java11'
 ]
 
 node {

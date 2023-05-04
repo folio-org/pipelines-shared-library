@@ -18,7 +18,6 @@ properties([
         booleanParam(name: 'register_in_rancher', defaultValue: true, description: 'Register in Rancher'),
         booleanParam(name: 'deploy_kubecost', defaultValue: true, description: 'Deploy Kubecost'),
         booleanParam(name: 'deploy_sorry_cypress', defaultValue: false, description: 'Deploy Sorry Cypress'),
-        jobsParameters.agents(),
         booleanParam(name: 'refreshParameters', defaultValue: false, description: 'Do a dry run and refresh pipeline configuration')
     ])
 ])
@@ -35,7 +34,7 @@ ansiColor('xterm') {
         currentBuild.result = 'ABORTED'
         error('DRY RUN BUILD, NO STAGE IS ACTIVE!')
     }
-    podTemplate(inheritFrom: params.agent, containers: [
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
         containerTemplate(name: 'terraform', image: Constants.TERRAFORM_DOCKER_CLIENT, command: "sleep", args: "99999999")
     ]) {
         node(POD_LABEL) {
