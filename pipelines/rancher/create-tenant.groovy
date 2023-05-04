@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -88,27 +88,37 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            stage("Create tenant") {
-                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                    tenant.kb_api_key = cypress_api_key_apidvcorp
-                    Deployment deployment = new Deployment(
-                        this,
-                        "https://${project_config.getDomains().okapi}",
-                        "https://${project_config.getDomains().ui}",
-                        project_config.getInstallJson(),
-                        project_config.getInstallMap(),
-                        tenant,
-                        admin_user,
-                        superadmin_user,
-                        email
-                    )
-                    deployment.createTenant()
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999")]
+    ) {
+        node(POD_LABEL) {
+            try {
+                stage("Create tenant") {
+                    container('k8sclient') {
+                        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                          credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                                tenant.kb_api_key = cypress_api_key_apidvcorp
+                                Deployment deployment = new Deployment(
+                                    this,
+                                    "https://${project_config.getDomains().okapi}",
+                                    "https://${project_config.getDomains().ui}",
+                                    project_config.getInstallJson(),
+                                    project_config.getInstallMap(),
+                                    tenant,
+                                    admin_user,
+                                    superadmin_user,
+                                    email
+                                )
+                                deployment.createTenant()
+                            }
+                        }
+                    }
                 }
-            }
-            if (params.deploy_ui) {
-                stage("UI bundle deploy") {
+                if (params.deploy_ui) {
+                    stage("UI bundle deploy") {
                         build job: 'Rancher/Update/ui-bundle-deploy',
                             parameters: [
                                 string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
@@ -117,15 +127,16 @@ ansiColor('xterm') {
                                 string(name: 'folio_repository', value: params.folio_repository),
                                 string(name: 'folio_branch', value: params.folio_branch),
                                 string(name: 'ui_bundle_build', value: params.deploy_ui.toString())]
+                    }
+                    println("Get the application URL by running these commands: \n https://${project_config.getDomains().ui}")
                 }
-                println("Get the application URL by running these commands: \n https://${project_config.getDomains().ui}")
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
+                }
             }
         }
     }
