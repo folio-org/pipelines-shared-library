@@ -60,10 +60,11 @@ resource "rancher2_app_v2" "prometheus" {
           repeat_interval: 20m
           receiver: 'null'
           routes:
-          - matchers:
-            - alertname: 'Watchdog'
-            receiver: 'slack'
+          - receiver: 'slack'
+            matchers:
+              - alertname: 'Watchdog'
         receivers:
+        - name: 'null'
         - name: 'slack'
           slack_configs:
           - title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Test Alertmanager'
@@ -73,8 +74,6 @@ resource "rancher2_app_v2" "prometheus" {
               {{ end }}
             channel: '#testing-prometheus'
             username: 'Prometheus_WatchDog'
-        templates:
-        - '/etc/alertmanager/config/*.tmpl'
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
