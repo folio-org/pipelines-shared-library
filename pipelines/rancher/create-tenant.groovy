@@ -88,33 +88,24 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    podTemplate(inheritFrom: 'rancher-kube', containers: [
-        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999")]
-    ) {
+    podTemplate(inheritFrom: 'rancher-kube') {
         node(POD_LABEL) {
             try {
                 stage("Create tenant") {
-                    container('k8sclient') {
-                        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                                          credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                                tenant.kb_api_key = cypress_api_key_apidvcorp
-                                Deployment deployment = new Deployment(
-                                    this,
-                                    "https://${project_config.getDomains().okapi}",
-                                    "https://${project_config.getDomains().ui}",
-                                    project_config.getInstallJson(),
-                                    project_config.getInstallMap(),
-                                    tenant,
-                                    admin_user,
-                                    superadmin_user,
-                                    email
-                                )
-                                deployment.createTenant()
-                            }
-                        }
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        tenant.kb_api_key = cypress_api_key_apidvcorp
+                        Deployment deployment = new Deployment(
+                            this,
+                            "https://${project_config.getDomains().okapi}",
+                            "https://${project_config.getDomains().ui}",
+                            project_config.getInstallJson(),
+                            project_config.getInstallMap(),
+                            tenant,
+                            admin_user,
+                            superadmin_user,
+                            email
+                        )
+                        deployment.createTenant()
                     }
                 }
                 if (params.deploy_ui) {

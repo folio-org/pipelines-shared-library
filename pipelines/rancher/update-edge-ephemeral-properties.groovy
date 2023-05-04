@@ -62,79 +62,85 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            if (params.create_tenant) {
-                stage("Create tenant") {
-                    def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
-                    def config = steps.readYaml file: file_path
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999")]
+    ) {
+        node(POD_LABEL) {
+            try {
+                if (params.create_tenant) {
+                    stage("Create tenant") {
+                        def file_path = tools.copyResourceFileToWorkspace('edge/config.yaml')
+                        def config = steps.readYaml file: file_path
 
-                    retry(2) {
-                        OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
-                            password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
-                        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                            tenant.kb_api_key = cypress_api_key_apidvcorp
-                            Deployment deployment = new Deployment(
-                                this,
-                                "https://${project_config.getDomains().okapi}",
-                                "https://${project_config.getDomains().ui}",
-                                project_config.getInstallJson(),
-                                project_config.getInstallMap(),
-                                tenant,
-                                edge_user,
-                                superadmin_user,
-                                email
-                            )
-                            deployment.createTenant()
-                        }
-                    }
-                    println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
-                }
-            }
-            stage("Recreate ephemeral-properties") {
-                String configMapName = "${params.edge_module}-ephemeral-properties"
-                String contentOfNewConfigMap = ""
-                boolean existsTenant
-
-                helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    // Get data from existing ConfigMap
-                    def existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
-
-                    existingConfigMap.readLines().each {
-                        if(it.split("=").size() == 2) {
-                            def keyValue = it.split("=")
-                            if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
-                                keyValue[1] += ",${params.tenant_name}"
-                            } else if (keyValue[0] == params.tenant_name && keyValue[1].contains(params.admin_username)) {
-                                existsTenant = true
+                        retry(2) {
+                            OkapiUser edge_user = okapiSettings.edgeUser(username: params.admin_username,
+                                password: params.admin_password, permissions: config[(params.edge_module)].permissions + "perms.all")
+                            withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                                tenant.kb_api_key = cypress_api_key_apidvcorp
+                                Deployment deployment = new Deployment(
+                                    this,
+                                    "https://${project_config.getDomains().okapi}",
+                                    "https://${project_config.getDomains().ui}",
+                                    project_config.getInstallJson(),
+                                    project_config.getInstallMap(),
+                                    tenant,
+                                    edge_user,
+                                    superadmin_user,
+                                    email
+                                )
+                                deployment.createTenant()
                             }
-                            contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n"
-                        } else {
-                            contentOfNewConfigMap += "$it\n"
+                        }
+                        println("Tenant ${params.tenant_name} for ${params.edge_module} was created successfully")
+                    }
+                }
+                container('k8sclient') {
+                    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        stage("Recreate ephemeral-properties") {
+                            String configMapName = "${params.edge_module}-ephemeral-properties"
+                            String contentOfNewConfigMap = ""
+                            boolean existsTenant
+                            awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                            // Get data from existing ConfigMap
+                            def existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
+
+                            existingConfigMap.readLines().each {
+                                if (it.split("=").size() == 2) {
+                                    def keyValue = it.split("=")
+                                    if (keyValue[0] == "tenants" && !keyValue[1].contains(params.tenant_name)) {
+                                        keyValue[1] += ",${params.tenant_name}"
+                                    } else if (keyValue[0] == params.tenant_name && keyValue[1].contains(params.admin_username)) {
+                                        existsTenant = true
+                                    }
+                                    contentOfNewConfigMap += "${keyValue[0]}=${keyValue[1]}\n"
+                                } else {
+                                    contentOfNewConfigMap += "$it\n"
+                                }
+                            }
+
+                            if (!existsTenant) {
+                                contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
+                            }
+                            // Recreate existing ConfigMap with a new values
+                            writeFile file: configMapName, text: contentOfNewConfigMap
+                            kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")
+                        }
+                        stage("Rollout Deployment") {
+                            awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                            kubectl.rolloutDeployment(params.edge_module, project_config.getProjectName())
                         }
                     }
-
-                    if (!existsTenant) {
-                        contentOfNewConfigMap += "${params.tenant_name}=${params.admin_username},${params.admin_password}\n"
-                    }
-                    // Recreate existing ConfigMap with a new values
-                    writeFile file: configMapName, text: contentOfNewConfigMap
-                    kubectl.recreateConfigMap(configMapName, project_config.getProjectName(), "./${configMapName}")
                 }
-            }
-            stage("Rollout Deployment") {
-                helm.k8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                    kubectl.rolloutDeployment(params.edge_module, project_config.getProjectName())
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
                 }
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
             }
         }
     }
