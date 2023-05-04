@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -12,7 +12,6 @@ properties([
         jobsParameters.repository(),
         jobsParameters.branch(),
         jobsParameters.okapiVersion(),
-        jobsParameters.agents(),
         string(name: 'github_teams', defaultValue: '', description: 'Coma separated list of GitHub teams who need access to project')
     ])
 ])
@@ -28,7 +27,7 @@ ansiColor("xterm") {
         currentBuild.result = "ABORTED"
         error("DRY RUN BUILD, NO STAGE IS ACTIVE!")
     }
-    node(params.agent) {
+    node('rancher-kube') {
         try {
             stage("Create environment") {
                 build job: Constants.JENKINS_JOB_PROJECT,
