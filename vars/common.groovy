@@ -3,6 +3,8 @@ import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 
 
 // A function that returns the last commit hash of a given repository and branch.
@@ -98,3 +100,5 @@ void throwErrorIfStringIsEmpty(def variable, String error_message="Variable is e
         error(error_message)
     }
 }
+
+void createJsonFile(String file_name){}

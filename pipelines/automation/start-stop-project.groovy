@@ -1,10 +1,12 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-754') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.json.JsonBuilder
 
 def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.generateProjectNamesMap())
 assert cluster_project_map instanceof Map
@@ -60,11 +62,19 @@ ansiColor('xterm') {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
                         def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
+                        kubectl.deleteConfigMap('deployments-replica-count-table', params.rancher_project_name)
+                        def deployments_replica_count_table = [:]
                         deployments_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 0)
+                            deployments_replica_count_table.put(deployment, kubectl.getKubernetesResourceCount('deployment', deployment, params.rancher_project_name))
+                        }
+                        def jsonString = new JsonBuilder(deployments_replica_count_table).toString()
+                        new Tools(this).createFileFromString('deployments_replica_count_table_val',jsonString)
+                        kubectl.createConfigMap('deployments-replica-count-table', params.rancher_project_name, './deployments_replica_count_table_val')
+                        deployments_list.each { deployment ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '0')
                         }
                         if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 0)
+                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '0')
                         }
                         else {
                             awscli.stopRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
@@ -76,14 +86,16 @@ ansiColor('xterm') {
                 stage("Upscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        List deployments_list = kubectl.getKubernetesResourceList('deployment',params.rancher_project_name)
-                        def services_list = deployments_list.findAll {!it.startsWith("mod-") && !it.startsWith("edge-") && !it.startsWith("okapi") && !it.startsWith("ldp-server") && !it.contains("ui-bundle")}
-                        List core_modules_list = "okapi, mod-users, mod-users-bl, mod-login, mod-permissions, mod-authtoken".split(", ")
-                        def backend_module_list = deployments_list.findAll{it.startsWith("mod-")}
-                        def edge_module_list = deployments_list.findAll{it.startsWith("edge-")}
-                        def ui_bundle_list = deployments_list.findAll{it.contains("ui-bundle")}
+                        String text = kubectl.getConfigMap('deployments-replica-count-table', params.rancher_project_name, 'deployments_replica_count_table_val')
+                        def deployments_list = new groovy.json.JsonSlurperClassic().parseText(text)
+                        def services_list = deployments_list.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
+                        def core_modules_list = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                        def core_modules_list_map = deployments_list.findAll { key, value -> core_modules_list.any { prefix -> key.startsWith(prefix) } }
+                        def backend_module_list = deployments_list.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
+                        def edge_module_list = deployments_list.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
+                        def ui_bundle_list = deployments_list.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
                         if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1')
                             kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
                         }
                         else {
@@ -91,21 +103,23 @@ ansiColor('xterm') {
                             awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             sleep 20
                         }
-                        services_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        println(services_list)
+
+                        services_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                             kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
                             sleep 10
                         }
-                        core_modules_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        core_modules_list_map.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                             kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
                             sleep 10
                         }
-                        backend_module_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        backend_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                         }
-                        edge_module_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        edge_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                         }
                         ui_bundle_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
