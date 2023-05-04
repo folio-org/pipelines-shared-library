@@ -54,26 +54,17 @@ resource "rancher2_app_v2" "prometheus" {
         global:
           slack_api_url: "https://hooks.slack.com/services/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"
         route:
-          group_by: ['namespace']
-          group_wait: 30s
-          group_interval: 5m
-          repeat_interval: 20m
-          receiver: 'null'
           routes:
           - receiver: 'slack'
             matchers:
-              - alertname: 'Watchdog'
+              - alertname =~ "InfoInhibitor|Watchdog"
         receivers:
         - name: 'null'
         - name: 'slack'
           slack_configs:
-          - title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Test Alertmanager'
-            text: >-
-              {{ range .Alerts }}
-                *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
-              {{ end }}
-            channel: '#testing-prometheus'
-            username: 'Prometheus_WatchDog'
+          - channel: "#testing-prometheus"
+            username: "Prometheus_WatchDog"
+            send_resolved: true
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
