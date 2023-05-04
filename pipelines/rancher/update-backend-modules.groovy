@@ -9,7 +9,7 @@ import org.folio.rest.model.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
@@ -70,84 +70,93 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            stage('Ini') {
-                buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
-                buildDescription "tenant: ${tenant.getId()}\n" +
-                    "config_type: ${project_config.getConfigType()}"
-            }
-
-            stage('Checkout') {
-                checkout scm
-                tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
-                project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
-                project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
-            }
-
-            if(tenant.getOkapiVersion()?.trim()) {
-                stage("Deploy okapi") {
-                    folioDeploy.okapi(project_config)
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999")]
+    ) {
+        node(POD_LABEL) {
+            try {
+                stage('Ini') {
+                    buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
+                    buildDescription "tenant: ${tenant.getId()}\n" +
+                        "config_type: ${project_config.getConfigType()}"
                 }
-            }
 
-            stage("Deploy backend modules") {
-                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                if (install_backend_map) {
-                    folioDeploy.backend(install_backend_map,
-                        project_config)
+                stage('Checkout') {
+                    checkout scm
+                    tenant.okapiVersion = common.getOkapiVersion(project_config.getInstallJson())
+                    project_config.installMap = new GitHubUtility(this).getModulesVersionsMap(project_config.getInstallJson())
+                    project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
                 }
-            }
 
-            stage("Pause") {
-                // Wait for dns flush.
-                sleep time: 3, unit: 'MINUTES'
-            }
+                container('k8sclient') {
+                    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        if (tenant.getOkapiVersion()?.trim()) {
+                            stage("Deploy okapi") {
+                                folioDeploy.okapi(project_config)
+                            }
+                        }
 
-            stage("Health check") {
-                // Checking the health of the Okapi service.
-                common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
-            }
+                        stage("Deploy backend modules") {
+                            Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+                            if (install_backend_map) {
+                                folioDeploy.backend(install_backend_map,
+                                    project_config)
+                            }
+                        }
 
-            stage("Enable backend modules") {
-                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                    tenant.kb_api_key = cypress_api_key_apidvcorp
-                    Deployment deployment = new Deployment(
-                        this,
-                        "https://${project_config.getDomains().okapi}",
-                        "https://${project_config.getDomains().ui}",
-                        project_config.getInstallJson(),
-                        project_config.getInstallMap(),
-                        tenant,
-                        admin_user,
-                        superadmin_user,
-                        email
-                    )
-                    deployment.update()
-                }
-            }
+                        stage("Pause") {
+                            // Wait for dns flush.
+                            sleep time: 3, unit: 'MINUTES'
+                        }
 
-            stage("Deploy edge modules") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                if (install_edge_map) {
-                    new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                        install_edge_map.each {name, version ->
-                            kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                        stage("Health check") {
+                            // Checking the health of the Okapi service.
+                            common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+                        }
+
+                        stage("Enable backend modules") {
+                            withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                                tenant.kb_api_key = cypress_api_key_apidvcorp
+                                Deployment deployment = new Deployment(
+                                    this,
+                                    "https://${project_config.getDomains().okapi}",
+                                    "https://${project_config.getDomains().ui}",
+                                    project_config.getInstallJson(),
+                                    project_config.getInstallMap(),
+                                    tenant,
+                                    admin_user,
+                                    superadmin_user,
+                                    email
+                                )
+                                deployment.update()
+                            }
+                        }
+
+                        stage("Deploy edge modules") {
+                            Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+                            if (install_edge_map) {
+                                new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+                                awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+                                install_edge_map.each { name, version ->
+                                    kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+                                }
+                                new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+                                folioDeploy.edge(install_edge_map,
+                                    project_config)
+                            }
                         }
                     }
-                    new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                    folioDeploy.edge(install_edge_map,
-                        project_config)
                 }
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
+                }
             }
         }
     }
