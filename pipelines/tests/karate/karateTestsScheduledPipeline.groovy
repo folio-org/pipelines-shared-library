@@ -1,6 +1,8 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+import org.folio.Constants
+
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -27,7 +29,21 @@ List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_re
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
 
 pipeline {
-    agent { label 'rancher' }
+    agent {
+        kubernetes {
+            inheritFrom 'rancher-kube'
+            yaml """
+                spec:
+                  containers:
+                  - name: java
+                    image: folioci/jenkins-slave-all:java-11
+                    command:
+                    - sleep
+                    args:
+                    - 99d
+            """
+        }
+    }
 
     triggers {
         cron('H 3 * * *')
@@ -76,7 +92,9 @@ pipeline {
 
                     // Disable temporary, check tests results without sleep
                     // sleep time: 60, unit: 'MINUTES'
-                    karateFlow(jobParameters)
+                    container('java') {
+                        karateFlow(jobParameters)
+                    }
                 }
             }
         }
@@ -93,7 +111,7 @@ pipeline {
                         }
                     }
                 }
-                
+
                 stage("Collect test results") {
                     when {
                         expression {
