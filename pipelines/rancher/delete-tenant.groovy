@@ -34,17 +34,19 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            stage("Delete tenant") {
-                okapi.deleteTenant(tenant)
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
+    podTemplate(inheritFrom: 'rancher-kube') {
+        node(POD_LABEL) {
+            try {
+                stage("Delete tenant") {
+                    okapi.deleteTenant(tenant)
+                }
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
+                }
             }
         }
     }
