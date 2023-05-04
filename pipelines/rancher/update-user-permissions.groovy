@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.rest.Deployment
 import org.folio.rest.model.Email
@@ -56,28 +56,30 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            stage("Update user permissions") {
-                Deployment deployment = new Deployment(
-                    this,
-                    "https://${project_config.getDomains().okapi}",
-                    "https://${project_config.getDomains().ui}",
-                    project_config.getInstallJson(),
-                    project_config.getInstallMap(),
-                    tenant,
-                    admin_user,
-                    superadmin_user,
-                    email
-                )
-                deployment.updatePermissionsAll()
+    podTemplate(inheritFrom: 'rancher-kube') {
+        node(POD_LABEL) {
+            try {
+                stage("Update user permissions") {
+                    Deployment deployment = new Deployment(
+                        this,
+                        "https://${project_config.getDomains().okapi}",
+                        "https://${project_config.getDomains().ui}",
+                        project_config.getInstallJson(),
+                        project_config.getInstallMap(),
+                        tenant,
+                        admin_user,
+                        superadmin_user,
+                        email
+                    )
+                    deployment.updatePermissionsAll()
                 }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
+                }
             }
         }
     }
