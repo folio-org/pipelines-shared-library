@@ -4,7 +4,7 @@ import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
@@ -12,7 +12,27 @@ String projectName = params.okapiUrl.minus("https://").split("-")[2]
 List edgeModulesRollout = []
 
 pipeline {
-    agent { label 'rancher||jenkins-agent-java11' }
+    agent {
+        kubernetes {
+            inheritFrom 'rancher-kube'
+            yaml """
+                spec:
+                  containers:
+                  - name: k8sclient
+                    image: ${Constants.DOCKER_K8S_CLIENT_IMAGE}
+                    command:
+                    - sleep
+                    args:
+                    - 99d
+                  - name: java
+                    image: folioci/jenkins-slave-all:java-11
+                    command:
+                    - sleep
+                    args:
+                    - 99d
+            """
+        }
+    }
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
@@ -63,9 +83,14 @@ pipeline {
 
                         // Get existing ConfigMap
                         if (!fileExists(configMapName)) {
-                            helm.k8sClient {
-                                awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                                writeFile file: configMapName, text: kubectl.getConfigMap(configMapName, projectName, configMapName)
+                            container('k8sclient') {
+                                withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                                  credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                                    writeFile file: configMapName, text: kubectl.getConfigMap(configMapName, projectName, configMapName)
+                                }
                             }
                         }
                         // Trigger job for creating tenant and recreating configMap
@@ -104,16 +129,18 @@ pipeline {
         stage('Run karate tests') {
             steps {
                 script {
-                    withMaven(
-                        jdk: 'openjdk-11-jenkins-slave-all',
-                        maven: 'maven3-jenkins-slave-all',
-                        mavenSettingsConfig: 'folioci-maven-settings'
-                    ) {
-                        def modules = ""
-                        if (params.modules) {
-                            modules = "-pl common,testrail-integration," + params.modules
+                    container('java') {
+                        withMaven(
+                            jdk: 'openjdk-11-jenkins-slave-all',
+                            maven: 'maven3-jenkins-slave-all',
+                            mavenSettingsConfig: 'folioci-maven-settings'
+                        ) {
+                            def modules = ""
+                            if (params.modules) {
+                                modules = "-pl common,testrail-integration," + params.modules
+                            }
+                            sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                         }
-                        sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
                 }
             }
@@ -175,14 +202,19 @@ pipeline {
         always {
             script {
                 if (params.createCustomEdgeTenant) {
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                        findFiles(glob: "**/*-ephemeral-properties").each { file ->
-                            kubectl.recreateConfigMap(file.name, projectName, "./${file.name}")
-                        }
-                        if (edgeModulesRollout) {
-                            edgeModulesRollout.each { module ->
-                                kubectl.rolloutDeployment(module, projectName)
+                    container('k8sclient') {
+                        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                          credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+                            findFiles(glob: "**/*-ephemeral-properties").each { file ->
+                                kubectl.recreateConfigMap(file.name, projectName, "./${file.name}")
+                            }
+                            if (edgeModulesRollout) {
+                                edgeModulesRollout.each { module ->
+                                    kubectl.rolloutDeployment(module, projectName)
+                                }
                             }
                         }
                     }
