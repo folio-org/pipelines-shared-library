@@ -52,24 +52,24 @@ resource "rancher2_app_v2" "prometheus" {
     additionalPrometheusRulesMap:
       rule-name:
         groups:
-        - name: WatchdogProm
+        - name: Watchdog
           rules:
           - alert: Watchdog
             expr: vector(1)
             for: 1m
             labels:
-              severity: critical
+              severity: none
     alertmanager:
       config:
         global:
           slack_api_url: "https://hooks.slack.com/services/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"
         route:
+          receiver: 'slack'
           routes:
           - receiver: 'slack'
             matchers:
               - alertname = "Watchdog"
         receivers:
-        - name: 'null'
         - name: 'slack'
           slack_configs:
           - channel: "#testing-prometheus"
