@@ -49,6 +49,16 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
+    additionalPrometheusRulesMap:
+      rule-name:
+        groups:
+        - name: WatchdogProm
+          rules:
+          - alert: Watchdog
+            expr: vector(1)
+            for: 1m
+            labels:
+              severity: critical
     alertmanager:
       config:
         global:
@@ -57,7 +67,7 @@ resource "rancher2_app_v2" "prometheus" {
           routes:
           - receiver: 'slack'
             matchers:
-              - alertname =~ "Watchdog"
+              - alertname = "Watchdog"
         receivers:
         - name: 'null'
         - name: 'slack'
