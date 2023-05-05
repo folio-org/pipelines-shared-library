@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.folio.Constants
 import org.folio.utilities.Tools
@@ -40,50 +40,58 @@ ansiColor('xterm') {
         println('REFRESH CRON PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
-        try {
-            stage("Cleanup us-west-2 ui-bundle repo") {
-                helm.k8sClient {
-                    String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
-                    cluster_project_map.each {cluster, project ->
-                        project.each {value->
-                            List images_to_remove = []
-                            List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}\\.(.*?)..*")
-                            if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 2))
+    podTemplate(inheritFrom: 'rancher-kube', containers: [
+        containerTemplate(name: 'k8sclient', image: Constants.DOCKER_K8S_CLIENT_IMAGE, command: "sleep", args: "99999999")]
+    ) {
+        node(POD_LABEL) {
+            try {
+                container('k8sclient') {
+                    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        stage("Cleanup us-west-2 ui-bundle repo") {
+                            String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
+                            cluster_project_map.each { cluster, project ->
+                                project.each { value ->
+                                    List images_to_remove = []
+                                    List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}\\.(.*?)..*")
+                                    if (!images.isEmpty()) {
+                                        images_to_remove.addAll(images.take(images.size() - 2))
+                                    }
+                                    images_to_remove.each { image_tag ->
+                                        awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                                    }
+                                }
                             }
-                            images_to_remove.each { image_tag ->
-                                awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                        }
+                        stage("Cleanup us-west-2 mod-* and okapi repos") {
+                            def backend_modules_list = getBackendModulesList()
+                            backend_modules_list.each { module_repo ->
+                                if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
+                                    String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
+                                    List images = new JsonSlurperClassic().parseText(image_list)
+                                    List images_to_remove = []
+                                    if (!images.isEmpty()) {
+                                        images_to_remove.addAll(images.take(images.size() - 1))
+                                    }
+                                    images_to_remove.each { image_tag ->
+                                        awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
+                                    }
+                                } else {
+                                    println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")
+                                }
                             }
                         }
                     }
                 }
-            }
-            stage("Cleanup us-west-2 mod-* and okapi repos") {
-                def backend_modules_list = getBackendModulesList()
-                helm.k8sClient {
-                    backend_modules_list.each { module_repo ->
-                        if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
-                            String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
-                            List images = new JsonSlurperClassic().parseText(image_list)
-                            List images_to_remove = []
-                            if (!images.isEmpty()) {
-                                images_to_remove.addAll(images.take(images.size() - 1))
-                            }
-                            images_to_remove.each { image_tag ->
-                                awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
-                            }
-                        }
-                        else {println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")}
-                    }
+            } catch (exception) {
+                println(exception)
+                error(exception.getMessage())
+            } finally {
+                stage('Cleanup') {
+                    cleanWs notFailBuild: true
                 }
-            }
-        } catch (exception) {
-            println(exception)
-            error(exception.getMessage())
-        } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
             }
         }
     }
