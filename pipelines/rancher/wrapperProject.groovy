@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -19,7 +19,8 @@ properties([
 ])
 def rancher_clusters = "folio-dev"
 
-node('rancher') {
+podTemplate(inheritFrom: 'rancher-kube') {
+    node(POD_LABEL) {
         try {
             stage('Build project Job') {
                 if (params.action == 'apply' || params.action == 'destroy') {
@@ -47,4 +48,4 @@ node('rancher') {
             }
         }
     }
-
+}
