@@ -101,4 +101,3 @@ void throwErrorIfStringIsEmpty(def variable, String error_message="Variable is e
     }
 }
 
-void createJsonFile(String file_name){}
