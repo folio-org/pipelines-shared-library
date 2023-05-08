@@ -19,7 +19,7 @@ String getLastCommitHash(String repository, String branch) {
 }
 
 // A function that returns the Jenkins user id and group id.
-String jenkinsUidGid() {
+String getUserUidGid() {
     return sh(script: "id -u", returnStdout: true).trim() + ":" + sh(script: "id -g", returnStdout: true).trim()
 }
 

@@ -85,6 +85,7 @@ static List devEnvironmentsList() {
     return ['bama',
             'bulk-edit',
             'concorde',
+            'consortia',
             'core-platform',
             'data-migration',
             'falcon',
