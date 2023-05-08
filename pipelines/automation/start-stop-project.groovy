@@ -62,14 +62,14 @@ ansiColor('xterm') {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
                         def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
-                        kubectl.deleteConfigMap('deployments-replica-count-table', params.rancher_project_name)
+                        kubectl.deleteConfigMap('deployments-replica-count-json', params.rancher_project_name)
                         def deployments_replica_count_table = [:]
                         deployments_list.each { deployment ->
                             deployments_replica_count_table.put(deployment, kubectl.getKubernetesResourceCount('deployment', deployment, params.rancher_project_name))
                         }
                         def jsonString = new JsonBuilder(deployments_replica_count_table).toString()
-                        new Tools(this).createFileFromString('deployments_replica_count_table_val',jsonString)
-                        kubectl.createConfigMap('deployments-replica-count-table', params.rancher_project_name, './deployments_replica_count_table_val')
+                        new Tools(this).createFileFromString('deployments_replica_count_table_json',jsonString)
+                        kubectl.createConfigMap('deployments-replica-count-json', params.rancher_project_name, './deployments_replica_count_table_json')
                         deployments_list.each { deployment ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '0')
                         }
@@ -86,8 +86,8 @@ ansiColor('xterm') {
                 stage("Upscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                        String text = kubectl.getConfigMap('deployments-replica-count-table', params.rancher_project_name, 'deployments_replica_count_table_val')
-                        def deployments_list = new groovy.json.JsonSlurperClassic().parseText(text)
+                        String configMap = kubectl.getConfigMap('deployments-replica-count-json', params.rancher_project_name, 'deployments_replica_count_table_json')
+                        def deployments_list = new groovy.json.JsonSlurperClassic().parseText(configMap)
                         def services_list = deployments_list.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
                         def core_modules_list = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
                         def core_modules_list_map = deployments_list.findAll { key, value -> core_modules_list.any { prefix -> key.startsWith(prefix) } }
