@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-751_RANCHER-753_RANCHER-754') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
