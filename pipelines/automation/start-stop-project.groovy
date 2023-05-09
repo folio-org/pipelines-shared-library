@@ -20,30 +20,44 @@ properties([
         jobsParameters.refreshParameters()]),
     pipelineTriggers([
         parameterizedCron('''
-        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
-        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
-        0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
-        5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
-        5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
-        10 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
-        10 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
-        15 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
-        15 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=vega
-        20 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris
-        20 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
         30 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
+
+        0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         30 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
+
+        5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
         45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=folijet
+
+        5 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
         45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
+
+        10 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
         0 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
+
+        10 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
         0 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
+
+        15 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
         15 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
+
+        15 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=vega
         15 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=vega
+
+        20 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris
         30 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris
+
+        20 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
         30 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
+
+        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
         35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
+
+        55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
         35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
+
+        25 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consortia
+        40 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
     ''')
     ])
 ])
