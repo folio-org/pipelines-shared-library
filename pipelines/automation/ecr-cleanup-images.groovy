@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-768-adapt-for-kube') _
+@Library('pipelines-shared-library@RANCHER-797-adapt-for-kube') _
 
 import org.folio.Constants
 import org.folio.utilities.Tools
@@ -54,34 +54,55 @@ ansiColor('xterm') {
                             String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                             cluster_project_map.each { cluster, project ->
                                 project.each { value ->
-                                    List images_to_remove = []
+                                    //List images_to_remove = []
                                     List images = new Tools(this).findAllRegex(image_list, "${cluster}-${value}\\.(.*?)..*")
-                                    if (!images.isEmpty()) {
-                                        images_to_remove.addAll(images.take(images.size() - 2))
+                                    println(images.toString())
+//                                    if (!images.isEmpty()) {
+//                                        images_to_remove.addAll(images.take(images.size() - 2))
+//                                    }
+                                    def tenantList = []
+                                    images.each { image_tag ->
+                                        def tenantId = image_tag.split("\\.")
+                                        if (tenantId.size() > 1) {
+                                            tenantList.add(tenantId[1])
+                                        }
                                     }
+                                    tenantList = tenantList.unique()
+                                    def images_to_remove = []
+                                    tenantList.each { tenant_id ->
+                                        def tenantImages = images.findAll { image_tag -> image_tag.contains(tenant_id) }
+                                        if (tenantImages.size() > 2) {
+                                            tenantImages = tenantImages[0..-3]
+                                        } else {
+                                            tenantImages = []
+                                        }
+                                        images_to_remove.addAll(tenantImages)
+                                    }
+                                    println("==========================================================================================")
                                     images_to_remove.each { image_tag ->
-                                        awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                                        //awscli.deleteEcrImage(Constants.AWS_REGION, ui_bundle_repo_name, image_tag.toString())
+                                        println("WILL BE DELETED " + image_tag.toString())
                                     }
                                 }
                             }
                         }
                         stage("Cleanup us-west-2 mod-* and okapi repos") {
-                            def backend_modules_list = getBackendModulesList()
-                            backend_modules_list.each { module_repo ->
-                                if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
-                                    String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
-                                    List images = new JsonSlurperClassic().parseText(image_list)
-                                    List images_to_remove = []
-                                    if (!images.isEmpty()) {
-                                        images_to_remove.addAll(images.take(images.size() - 1))
-                                    }
-                                    images_to_remove.each { image_tag ->
-                                        awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
-                                    }
-                                } else {
-                                    println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")
-                                }
-                            }
+//                            def backend_modules_list = getBackendModulesList()
+//                            backend_modules_list.each { module_repo ->
+//                                if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
+//                                    String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
+//                                    List images = new JsonSlurperClassic().parseText(image_list)
+//                                    List images_to_remove = []
+//                                    if (!images.isEmpty()) {
+//                                        images_to_remove.addAll(images.take(images.size() - 1))
+//                                    }
+//                                    images_to_remove.each { image_tag ->
+//                                        awscli.deleteEcrImage(Constants.AWS_REGION, module_repo.toString(), image_tag.toString())
+//                                    }
+//                                } else {
+//                                    println("Repository ${module_repo.toString()} doesn't exist in ${Constants.AWS_REGION} region. Skip...")
+//                                }
+//                            }
                         }
                     }
                 }
