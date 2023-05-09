@@ -18,7 +18,7 @@ properties([
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
         jobsParameters.refreshParameters()]),
-/*    pipelineTriggers([
+    pipelineTriggers([
         parameterizedCron('''
         0 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         30 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
@@ -58,16 +58,6 @@ properties([
 
         25 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consortia
         40 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
-    ''')
-    ])*/
-
-    pipelineTriggers([
-        parameterizedCron('''
-
-        */5 * * * * %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=test
-
-        */10 * * * * %action=start;rancher_cluster_name=folio-dev;rancher_project_name=test
-
     ''')
     ])
 ])
