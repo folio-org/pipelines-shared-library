@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-751_RANCHER-753_RANCHER-754-adapt-for-kube') _
+@Library('pipelines-shared-libraryRANCHER-768-adapt-for-kube') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
