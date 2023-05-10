@@ -33,8 +33,6 @@ resource "rancher2_app_v2" "postgresql" {
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
-      secretKeys:
-        replicationPasswordKey: "postgres-password"
       database: ${var.pg_dbname}
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
