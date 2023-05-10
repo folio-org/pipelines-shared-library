@@ -16,7 +16,7 @@ locals {
 }
 
 # Rancher2 Project App Postgres
-resource "rancher2_app_v2" "postgresql-ha" {
+resource "rancher2_app_v2" "postgresql" {
   depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-connect-modules]
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
