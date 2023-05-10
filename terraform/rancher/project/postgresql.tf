@@ -39,6 +39,7 @@ resource "rancher2_app_v2" "postgresql" {
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
       replicationUsername: 'postgres'
+      usePasswordFiles: true
     primary:
       initdb:
         scripts:
