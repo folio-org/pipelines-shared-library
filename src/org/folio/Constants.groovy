@@ -113,4 +113,6 @@ class Constants {
     static String BUGFEST_SNAPSHOT_DBNAME = "folio"
 
     static Map JMX_METRICS_AVAILABLE = ["mod-bulk-operations": "2.0.0-SNAPSHOT.71"]
+
+    static List READ_WRITE_MODULES = ["mod-data-import", "mod-orders-storage", "mod-orders"]
 }

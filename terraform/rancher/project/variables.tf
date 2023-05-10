@@ -68,6 +68,23 @@ variable "github_team_ids" {
 }
 
 # PostgreSQL variables
+variable "pg_architecture" {
+  type        = bool
+  default     = "standalone"
+  description = "PostgreSQL architecture (standalone or replication)"
+}
+
+variable "pg_service_name" {
+  type        = bool
+  description = "Set service name for postgres"
+}
+
+variable "pg_service_reader" {
+  type        = bool
+  default     = ""
+  description = "Set service name for postgres"
+}
+
 variable "pgadmin4" {
   type        = bool
   default     = true

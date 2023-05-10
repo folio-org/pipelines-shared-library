@@ -27,7 +27,7 @@ resource "rancher2_app_v2" "postgresql" {
   chart_version = "12.4.3"
   force_upgrade = "true"
   values        = <<-EOT
-    architecture: replication
+    architecture: ${var.pg_architecture}
     readReplicas:
       replicaCount: 1
       extendedConfiguration: |-
@@ -50,7 +50,7 @@ resource "rancher2_app_v2" "postgresql" {
       database: ${var.pg_dbname}
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
-      replicationUsername: 'postgres'
+      replicationUsername: ${var.pg_username}
       usePasswordFiles: true
     primary:
       initdb:

@@ -51,6 +51,7 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
         booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
         jobsParameters.agents(),
         jobsParameters.refreshParameters()])])
 
@@ -172,6 +173,15 @@ ansiColor('xterm') {
                         new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
                     }
                 }
+
+                // Enable Read/Write split
+                if (params.enable_rw_split) {
+                    tf_vars_map.put("pg_architecture", "replication")
+                    tf_vars_map.put("pg_service_name", "postgresql-${params.rancher_project_name}-primary")
+                } else (
+                    tf_vars_map.put("pg_service_name", "postgresql-${params.rancher_project_name}")
+                )
+
                 context.tf_vars = terraform.generateTfVars(tf_vars_map)
             }
 
