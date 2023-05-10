@@ -62,7 +62,7 @@ resource "rancher2_app_v2" "prometheus" {
     alertmanager:
       config:
         global:
-          slack_api_url: "https://hooks.slack.com/services/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"
+          slack_api_url: "https://hooks.slack.com/services/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"
         route:
           receiver: 'slack'
           routes:
