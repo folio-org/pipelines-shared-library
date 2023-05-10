@@ -37,7 +37,7 @@ resource "rancher2_app_v2" "postgresql" {
       image:
         tag: ${join(".", [var.pg_version, "0"])}
       database: ${var.pg_dbname}
-      postgresPassword: ${var.pg_password}
+      password: ${var.pg_password}
       initdbScripts:
         init.sql: |
           CREATE DATABASE ldp;
