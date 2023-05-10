@@ -30,6 +30,20 @@ resource "rancher2_app_v2" "postgresql" {
     architecture: replication
     readReplicas:
       replicaCount: 1
+      extendedConfiguration: |-
+        shared_buffers = '2560MB'
+        max_connections = '1000'
+        listen_addresses = '0.0.0.0'
+        effective_cache_size = '7680MB'
+        maintenance_work_mem = '640MB'
+        checkpoint_completion_target = '0.9'
+        wal_buffers = '16MB'
+        default_statistics_target = '100'
+        random_page_cost = '1.1'
+        effective_io_concurrency = '200'
+        work_mem = '1310kB'
+        min_wal_size = '1GB'
+        max_wal_size = '4GB'
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
