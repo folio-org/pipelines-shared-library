@@ -70,8 +70,10 @@ ansiColor('xterm') {
                  credentialsId    : Constants.AWS_CREDENTIALS_ID,
                  accessKeyVariable: 'TF_VAR_aws_access_key_id',
                  secretKeyVariable: 'TF_VAR_aws_secret_access_key'],
-                string(credentialsId: Constants.KUBECOST_LICENSE_KEY, variable: 'TF_VAR_kubecost_licence_key')
-            ]) {
+                string(credentialsId: Constants.KUBECOST_LICENSE_KEY, variable: 'TF_VAR_kubecost_licence_key'),
+                string(credentialsId: Constants.SLACK_WEBHOOK_URL, variable: 'TF_VAR_slack_webhook_url')
+            ])
+                {
                 terraform.tfWrapper {
                     terraform.tfInit(context.tf_work_dir, '')
                     terraform.tfWorkspaceSelect(context.tf_work_dir, context.cluster_name)

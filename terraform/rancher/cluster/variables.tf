@@ -126,3 +126,8 @@ variable "deploy_sorry_cypress" {
   default     = false
   description = "Deploy Sorry Cypress tool if true"
 }
+
+variable "slack_webhook_url" {
+  type        = string
+  description = "Apply slack api url for slack webhook"
+}
