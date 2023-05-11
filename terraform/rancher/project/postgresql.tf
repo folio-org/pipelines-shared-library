@@ -163,11 +163,11 @@ module "rds" {
   engine_version = var.pg_version
 
   instances = {
-      1 = {
-        instance_class      = var.pg_instance_type
-        publicly_accessible = true
-      }
+    1 = {
+      instance_class      = var.pg_instance_type
+      publicly_accessible = true
     }
+  }
 
   autoscaling_enabled      = var.enable_rw_split
   autoscaling_min_capacity = 1
