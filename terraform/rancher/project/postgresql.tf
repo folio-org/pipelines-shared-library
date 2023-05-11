@@ -163,11 +163,11 @@ module "rds" {
   engine_version = var.pg_version
 
   instances = {
-      write = {
+      1 = {
         instance_class      = var.pg_instance_type
         publicly_accessible = true
       }
-      read = var.enable_rw_split ? {
+      2 = var.enable_rw_split ? {
         instance_class      = var.pg_instance_type
         publicly_accessible = true
       } : null

@@ -37,7 +37,8 @@ properties([
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateIndexElasticsearch()])])
+        jobsParameters.recreateIndexElasticsearch(),
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,

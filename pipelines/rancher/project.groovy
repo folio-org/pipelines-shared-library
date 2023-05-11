@@ -206,7 +206,10 @@ ansiColor('xterm') {
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config, false, params.enable_rw_split)
+                        folioDeploy.backend(install_backend_map, 
+                            project_config, 
+                            false, 
+                            params.enable_rw_split)
                     }
                     sh "cat ./values/mod-data-import.yaml"
                 }
