@@ -150,6 +150,7 @@ ansiColor('xterm') {
                     pg_password         : params.pg_password,
                     pgadmin_password    : params.pgadmin_password,
                     pg_embedded         : params.pg_embedded,
+                    enable_rw_split     : params.enable_rw_split,
                     kafka_shared        : params.kafka_shared,
                     opensearch_shared   : params.opensearch_shared,
                     s3_embedded         : params.s3_embedded,

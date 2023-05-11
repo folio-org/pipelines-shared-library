@@ -85,6 +85,12 @@ variable "pg_service_reader" {
   description = "Set service name for postgres"
 }
 
+variable "enable_rw_split" {
+  type        = bool
+  default     = false
+  description = "Enavle Read/Write split"
+}
+
 variable "pgadmin4" {
   type        = bool
   default     = true
