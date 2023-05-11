@@ -162,16 +162,25 @@ module "rds" {
   engine         = "aurora-postgresql"
   engine_version = var.pg_version
 
-  instances = {
-    1 = {
+  # instances = {
+  #   1 = {
+  #     instance_class      = var.pg_instance_type
+  #     publicly_accessible = true
+  #   }
+  # }
+
+  instances = var.enable_rw_split ? {
+    for i in ["write", "read1"] :
+    i => {
+      instance_class      = var.pg_instance_type
+      publicly_accessible = true
+    }
+  } : {
+    "write" = {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
     }
   }
-
-  autoscaling_enabled      = var.enable_rw_split
-  autoscaling_min_capacity = 1
-  autoscaling_max_capacity = 1
 
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
