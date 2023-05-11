@@ -46,7 +46,7 @@ def getS3ObjectBody(String bucketname, String filePathName) {
 }
 
 // Adding the image repository and tag to the module's values.yaml file.
-String generateModuleValues(String module_name, String module_version, Project project_config, String domain = '', Boolean custom_module = false) {
+String generateModuleValues(String module_name, String module_version, Project project_config, String domain = '', Boolean custom_module = false, Boolean enable_rw_split = false) {
     String values_path = "./values"
     Map config = project_config.getModulesConfig()
     if (config[(module_name)]) {
@@ -71,7 +71,7 @@ String generateModuleValues(String module_name, String module_version, Project p
         }
 
         // Enable R/W split
-        if (Constants.READ_WRITE_MODULES.contains(module_name)) {
+        if (enable_rw_split && Constants.READ_WRITE_MODULES.contains(module_name)) {
             config[(module_name)]['readWriteSplitEnabled'] += "true"
         }
 

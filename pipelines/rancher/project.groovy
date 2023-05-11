@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-764') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -205,8 +205,9 @@ ansiColor('xterm') {
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
+                        folioDeploy.backend(install_backend_map, project_config, false, params.enable_rw_split)
                     }
+                    sh "cat ./values/mod-data-import.yaml"
                 }
 
                 if (params.greenmail_server) {

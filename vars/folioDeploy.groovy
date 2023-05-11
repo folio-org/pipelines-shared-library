@@ -88,13 +88,13 @@ void okapi(Project project_config) {
     }
 }
 
-void backend(Map install_backend_map, Project project_config, Boolean custom_module = false) {
+void backend(Map install_backend_map, Project project_config, Boolean custom_module = false, Boolean enable_rw_split = false) {
     helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
         helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         install_backend_map.each { name, version ->
             if (name.startsWith("mod-")) {
-                String values_path = helm.generateModuleValues(name, version, project_config, '', custom_module)
+                String values_path = helm.generateModuleValues(name, version, project_config, '', custom_module, enable_rw_split)
                 helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not a backend module")
