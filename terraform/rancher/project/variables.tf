@@ -75,12 +75,12 @@ variable "pg_architecture" {
 }
 
 variable "pg_service_name" {
-  type        = bool
+  type        = string
   description = "Set service name for postgres"
 }
 
 variable "pg_service_reader" {
-  type        = bool
+  type        = string
   default     = ""
   description = "Set service name for postgres"
 }
