@@ -69,7 +69,7 @@ variable "github_team_ids" {
 
 # PostgreSQL variables
 variable "pg_architecture" {
-  type        = bool
+  type        = string
   default     = "standalone"
   description = "PostgreSQL architecture (standalone or replication)"
 }
