@@ -49,32 +49,23 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
-    additionalPrometheusRulesMap:
-      rule-name:
-        groups:
-        - name: Watchdog
-          rules:
-          - alert: Watchdog
-            expr: vector(1)
-            for: 1m
-            labels:
-              severity: none
     alertmanager:
       config:
         global:
+          resolve_timeout: 1m
           slack_api_url: "${var.slack_webhook_url}"
         route:
+          group_wait: 10s
+          group_interval: 10s
+          group_by: ['alertname', 'namespace']
+          repeat_interval: 1h
           receiver: 'slack'
           routes:
           - receiver: 'slack'
-            matchers:
-              - alertname = "Watchdog"
         receivers:
-        - name: 'null'
         - name: 'slack'
           slack_configs:
-          - channel: "#testing-prometheus"
-            username: "Prometheus_WatchDog"
+          - channel: "#prom-slack-notif"
             send_resolved: true
       alertmanagerSpec:
         storage:
