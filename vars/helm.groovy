@@ -72,7 +72,7 @@ String generateModuleValues(String module_name, String module_version, Project p
 
         // Enable R/W split
         if (enable_rw_split && Constants.READ_WRITE_MODULES.contains(module_name)) {
-            config[(module_name)]['readWriteSplitEnabled'] += "true"
+            config[(module_name)]['readWriteSplitEnabled'] << "true"
         }
 
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
