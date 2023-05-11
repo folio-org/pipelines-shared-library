@@ -410,7 +410,7 @@ class Okapi extends GeneralParameters {
         } else if (res.status == HttpURLConnection.HTTP_NOT_FOUND) {
             return false
         } else {
-            throw new AbortException("Can not able to check service ${serviceId} existence." + http.buildHttpErrorMessage(res))
+            throw new AbortException("Can not able to check service ${service['srvcId']} existence." + http.buildHttpErrorMessage(res))
         }
     }
 

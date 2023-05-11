@@ -30,9 +30,9 @@ def getConfigMap(String name, String namespace, String data) {
     }
 }
 
-def checkDeploymentStatus(String name, String namespace) {
+def checkDeploymentStatus(String name, String namespace, String timeout_seconds) {
     try {
-        sh "kubectl wait deploy/${name} --namespace=${namespace} --for condition=available --timeout=10s"
+        sh "kubectl wait deploy/${name} --namespace=${namespace} --for condition=available --timeout=${timeout_seconds}s"
     } catch (Exception e) {
         println("Deployment ${name} not ready!")
         println(e.getMessage())
@@ -86,4 +86,16 @@ void waitPodIsRunning(String namespace = 'default', String pod_name) {
         }
         println("Pod ${pod_name} is now running.")
     }
+}
+
+def waitKubernetesResourceStableState(String resource_type, String resource_name, String namespace, String replica_count, String max_wait_time){
+    return sh(script: "start_time=\$(date +%s); while [[ \$(kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.status.availableReplicas}') -ne ${replica_count} ]]; do current_time=\$(date +%s); if [[ \$((current_time - start_time)) -gt ${max_wait_time} ]]; then echo \"Deployment did not become stable within ${max_wait_time} seconds.\"; exit 1; fi; sleep 20s; done\n")
+}
+
+def getKubernetesResourceList(String resource_type, String namespace){
+    return sh(script: "kubectl get ${resource_type} -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
+}
+
+def setKubernetesResourceCount(String resource_type, String deployment_name, String namespace, int replica_count){
+    return sh(script: "kubectl scale ${resource_type} ${deployment_name} -n ${namespace} --replicas=${replica_count}")
 }

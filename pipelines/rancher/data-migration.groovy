@@ -35,10 +35,14 @@ properties([
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
+def tenant_id = 'fs09000000'
+def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
+def diff = [:]
+def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -48,8 +52,12 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
+            stage('Init'){
+                buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+            }
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,
+                    propagate: false,
                     parameters: [
                         string(name: 'action', value: 'destroy'),
                         string(name: 'folio_repository', value: params.folio_repository),
@@ -77,7 +85,7 @@ ansiColor('xterm') {
                         booleanParam(name: 'restore_from_backup', value: true),
                         string(name: 'backup_type', value: 'rds'),
                         string(name: 'backup_name', value: params.backup_name),
-                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
                         string(name: 'admin_password', value: "folio"),
                         booleanParam(name: 'pg_embedded', value: false),
@@ -94,7 +102,7 @@ ansiColor('xterm') {
                         string(name: 'rancher_cluster_name', value: rancher_cluster_name),
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
-                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
                         string(name: 'admin_password', value: "folio")
                     ]
@@ -107,7 +115,7 @@ ansiColor('xterm') {
                         string(name: 'rancher_cluster_name', value: rancher_cluster_name),
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
-                        string(name: 'tenant_id', value: "fs09000000"),
+                        string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
                         string(name: 'admin_password', value: "folio")
                     ]
@@ -144,20 +152,132 @@ ansiColor('xterm') {
                     totalTimeInMs += totalTime
                     modulesLongMigrationTimeSlack += modulesLongMigrationTime
                     modulesMigrationFailedSlack += modulesMigrationFailed
-                    writeFile file: "${tenantName}.html", text: htmlData
-                }
-                
-                if(uniqTenants){
-                    def htmlFiles = findFiles glob: '*.html'
-                    publishHTML([
-                            reportDir: '',
-                            reportFiles: htmlFiles.join(','),
-                            reportName: 'Data Migration Time',
-                            allowMissing: true,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true])
+                    writeFile file: "reportTime/${tenantName}.html", text: htmlData
                 }         
             }
+
+            stage('Create clean tenant') {
+                build job: "Rancher/Update/create-tenant",
+                    parameters: [
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'reference_tenant_id', value: tenant_id),
+                        string(name: 'tenant_id', value: tenant_id_clean),
+                        string(name: 'tenant_name', value: "Clean tenant"),
+                        string(name: 'admin_username', value: "folio"),
+                        string(name: 'admin_password', value: "folio"),
+                        booleanParam(name: 'deploy_ui', value: false),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_dst)
+                    ]
+            }
+
+            stage('Get schemas difference') {
+                helm.k8sClient {
+                    awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
+                        // Get psql connection parameters
+                        Map psqlConnection = [
+                            password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
+                            host     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_HOST'),
+                            user     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_USERNAME'),
+                            db       : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_DATABASE'),
+                            port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')                                    
+                        ]
+
+                        // Preparation steps, creating Atlas and psql clien pods
+                        def atlasPod = "atlas"
+                        kubectl.runPodWithCommand(rancher_project_name, atlasPod, 'arigaio/atlas:0.10.1-alpine')
+                        
+                        // Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS
+                        def psqlPod = "psql-client"
+                        kubectl.runPodWithCommand(rancher_project_name, psqlPod, 'andreswebs/postgresql-client')
+                        
+                        // Getting list of schemas for fs09000000 and clean tenants
+                        def srcSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id, psqlConnection)
+                        def dstSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id_clean, psqlConnection)
+
+                        def groupedValues = [:]
+                        def uniqueValues = []
+                        
+                        srcSchemasList.each { srcValue ->
+                            def currentSuffix = srcValue.split('_')[1..-1].join('_')
+                            dstSchemasList.each { dstValue ->
+                                def newSuffix = dstValue.split('_')[1..-1].join('_')
+                                if (currentSuffix == newSuffix) {
+                                    groupedValues[srcValue] = dstValue
+                                }
+                            }
+                            if (!groupedValues.containsKey(srcValue)) {
+                                uniqueValues.add(srcValue)
+                            }
+                        }
+                        
+                        dstSchemasList.each { dstValue ->
+                            def newSuffix = dstValue.split('_')[1..-1].join('_')
+                            def alreadyGrouped = false
+                            groupedValues.each { srcValue, existingValue ->
+                                def currentSuffix = srcValue.split('_')[1..-1].join('_')
+                                if (newSuffix == currentSuffix) {
+                                    alreadyGrouped = true
+                                }
+                            }
+                            if (!alreadyGrouped) {
+                                uniqueValues.add(dstValue)
+                            }
+                        }
+                        
+                        // Make list with unique schemas 
+                        if (uniqueValues) {
+                            diff.put("Unique schemas", "Please check list of unique Schemas:\n $uniqueValues")
+                        }
+                        
+                        groupedValues.each {
+                            try {
+                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
+                                def currentDiff =  sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPod} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
+
+                                if (currentDiff == "Schemas are synced, no changes to be made.") {
+                                    println "Schemas are synced, no changes to be made."
+                                } else {
+                                    diff.put(it.key, currentDiff)
+                                }
+                            } catch(exception) {
+                                println exception
+                                diff.put(it.key, "Changes were found in this scheme, but cannot be processed. \n Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI")
+                            }
+                        }
+
+                        def diffHtmlData
+                        if (diff) {
+                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
+                            jobStatus = 'UNSTABLE'
+                        } else {
+                            diff.put('All schemas', 'Schemas are synced, no changes to be made.')
+                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
+                            jobStatus = 'SUCCESS'
+                        } 
+                        writeFile file: "reportSchemas/diff.html", text: diffHtmlData
+                }                
+            }
+
+            stage('Publish HTML Reports') {
+                publishHTML([
+                    reportDir: 'reportSchemas',
+                    reportFiles: '*.html',
+                    reportName: 'Schemas Diff',
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true ])
+
+                publishHTML([
+                    reportDir: 'reportTime',
+                    reportFiles: '*.html',
+                    reportName: 'Data Migration Time',
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true])
+            }
+
             stage('Send Slack notification') {
                 dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }            
@@ -171,4 +291,14 @@ ansiColor('xterm') {
             }
         }
     }
+}
+
+// Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS. Need to rewrite
+def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
+    println("Getting schemas list for $tenantId tenant")
+    def getSchemasListCommand = """psql 'postgres://${dbParams.user}:${dbParams.password}@${dbParams.host}:${dbParams.port}/${dbParams.db}' --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}_%'\""""
+    
+    kubectl.waitPodIsRunning(namespace, psqlPod)
+    def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
+    return schemasList.split('\n').collect({it.trim()})
 }
