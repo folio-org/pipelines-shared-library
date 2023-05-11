@@ -74,7 +74,7 @@ variable "pg_architecture" {
   description = "PostgreSQL architecture (standalone or replication)"
 }
 
-variable "pg_service_name" {
+variable "pg_service_writer" {
   type        = string
   description = "Set service name for postgres"
 }

@@ -162,13 +162,6 @@ module "rds" {
   engine         = "aurora-postgresql"
   engine_version = var.pg_version
 
-  # instances = {
-  #   1 = {
-  #     instance_class      = var.pg_instance_type
-  #     publicly_accessible = true
-  #   }
-  # }
-
   instances = var.enable_rw_split ? {
     for i in ["read", "write"] :
     i => {
