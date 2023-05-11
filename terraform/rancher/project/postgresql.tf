@@ -167,12 +167,11 @@ module "rds" {
         instance_class      = var.pg_instance_type
         publicly_accessible = true
       }
-      2 = var.enable_rw_split ? {
-        instance_class      = var.pg_instance_type
-        publicly_accessible = true
-      } : null
     }
 
+  autoscaling_enabled      = var.enable_rw_split
+  autoscaling_min_capacity = 1
+  autoscaling_max_capacity = 1
 
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
@@ -206,8 +205,6 @@ module "rds" {
   #  create_random_password          = false
   #  publicly_accessible = true
   #  skip_final_snapshot = true
-
-
 
   tags = merge(
     var.tags,
