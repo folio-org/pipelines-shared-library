@@ -8,7 +8,7 @@ resource "rancher2_secret" "db-connect-modules" {
     OKAPI_HOST             = base64encode("okapi")
     OKAPI_PORT             = base64encode("9130")
     DB_HOST                = base64encode(var.pg_embedded ? var.pg_service_name : module.rds[0].cluster_endpoint)
-    DB_HOST_READER         = base64encode(var.pg_embedded ? var.pg_service_reader : module.rds[0].cluster_endpoint)
+    DB_HOST_READER         = base64encode(var.pg_embedded ? var.pg_service_reader : module.rds[0].cluster_reader_endpoint)
     DB_PORT                = base64encode("5432")
     DB_USERNAME            = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD            = base64encode(local.pg_password)
