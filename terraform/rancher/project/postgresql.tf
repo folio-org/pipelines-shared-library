@@ -170,7 +170,7 @@ module "rds" {
   # }
 
   instances = var.enable_rw_split ? {
-    for i in ["write", "read1"] :
+    for i in ["read", "write"] :
     i => {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
