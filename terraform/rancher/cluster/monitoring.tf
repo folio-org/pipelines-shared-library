@@ -70,6 +70,7 @@ resource "rancher2_app_v2" "prometheus" {
             matchers:
               - alertname = "Watchdog"
         receivers:
+        - name: 'null'
         - name: 'slack'
           slack_configs:
           - channel: "#testing-prometheus"
