@@ -56,8 +56,8 @@ resource "rancher2_app_v2" "prometheus" {
           slack_api_url: "${var.slack_webhook_url}"
         route:
           group_by: ['alertname', 'namespace']
-          group_wait: 10s
-          group_interval: 10s
+          group_wait: 30s
+          group_interval: 60s
           repeat_interval: 1h
           receiver: 'null'
           routes:
@@ -66,9 +66,20 @@ resource "rancher2_app_v2" "prometheus" {
               - alertname = 'Watchdog'
             continue: true
         receivers:
+        - name: 'null'
         - name: 'slack'
           slack_configs:
           - channel: "#prom-slack-notif"
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+            text: >-
+              {{ range .Alerts }}
+                *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                *Description:* {{ .Annotations.description }}
+                *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook }}|:spiral_note_pad:>
+                *Details:*
+                {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                {{ end }}
+              {{ end }}
             send_resolved: true
       alertmanagerSpec:
         storage:
