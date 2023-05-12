@@ -114,5 +114,30 @@ class Constants {
 
     static Map JMX_METRICS_AVAILABLE = ["mod-bulk-operations": "2.0.0-SNAPSHOT.71"]
 
-    static List READ_WRITE_MODULES = ["mod-data-import", "mod-orders-storage", "mod-orders"]
+    // List of modules that support R/W split
+    static List READ_WRITE_MODULES = ["mod-source-record-storage",
+                                      "mod-users",
+                                      "mod-erm-usage",
+                                      "mod-erm-usage-harvester",
+                                      "mod-invoice-storage",
+                                      "mod-organization-storage",
+                                      "mod-orders",
+                                      "mod-orders-storage",
+                                      "mod-event-config",
+                                      "mod-email",
+                                      "mod-template-engine",
+                                      "mod-notify",
+                                      "mod-oai-pmh",
+                                      "mod-audit",
+                                      "mod-kb-ebsco-java",
+                                      "mod-data-import",
+                                      "mod-di-converter-storage",
+                                      "mod-feesfines",
+                                      "mod-patron-block",
+                                      "mod-pubsub",
+                                      "mod-circulation-storage",
+                                      "mod-permissions",
+                                      "mod-authtoken"
+                                    ]
+
 }
