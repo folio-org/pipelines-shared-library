@@ -54,17 +54,27 @@ resource "rancher2_app_v2" "prometheus" {
         global:
           resolve_timeout: 1m
           slack_api_url: "${var.slack_webhook_url}"
+        inhibit_rules:
+          - source_matchers:
+              - alertname = 'Watchdog'
+            target_matchers:
+              - 'severity =~ critical|major|minor|warning|info|none'
+            equal:
+              - 'namespace'
+              - 'alertname'
         route:
           group_by: ['alertname', 'namespace']
           group_wait: 10s
           group_interval: 60s
           repeat_interval: 1h
+          receiver: 'null'
           routes:
           - receiver: 'slack'
             matchers:
-              - alertname='Watchdog'
-                severity='none'
-            continue: false
+              - alertname = 'Watchdog'
+          - receiver: 'null'
+            matchers:
+              - alertname = 'InfoInhibitor'
         receivers:
         - name: 'null'
         - name: 'slack'
