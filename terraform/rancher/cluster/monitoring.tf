@@ -56,12 +56,15 @@ resource "rancher2_app_v2" "prometheus" {
           slack_api_url: "${var.slack_webhook_url}"
         route:
           group_by: ['alertname', 'namespace']
-          group_wait: 30s
+          group_wait: 10s
           group_interval: 60s
           repeat_interval: 1h
-          receiver: 'slack'
           routes:
           - receiver: 'slack'
+            matchers:
+              - alertname='Watchdog'
+                severity='none'
+            continue: false
         receivers:
         - name: 'null'
         - name: 'slack'
