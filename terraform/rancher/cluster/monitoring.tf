@@ -58,16 +58,16 @@ resource "rancher2_app_v2" "prometheus" {
           - source_matchers:
               - alertname = 'Watchdog'
             target_matchers:
-              - 'severity =~ critical|major|minor|warning|info|none'
+              - 'severity =~ critical|major|minor|warning|info'
             equal:
               - 'namespace'
               - 'alertname'
         route:
-          group_by: ['alertname', 'namespace']
+          group_by: ['namespace']
           group_wait: 10s
           group_interval: 60s
           repeat_interval: 1h
-          receiver: 'null'
+          receiver: 'slack'
           routes:
           - receiver: 'slack'
             matchers:
