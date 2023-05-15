@@ -6,6 +6,14 @@ def createConfigMap(String name, String namespace, String file_path) {
     }
 }
 
+def deleteConfigMap(String name, String namespace) {
+    try {
+        sh "kubectl delete configmap ${name} --namespace=${namespace}"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
 def recreateConfigMap(String name, String namespace, String file_path) {
     try {
         sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path} -o yaml --dry-run | kubectl apply -f -"
@@ -24,7 +32,7 @@ def rolloutDeployment(String name, String namespace) {
 
 def getConfigMap(String name, String namespace, String data) {
     try {
-        sh(script: "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}'", returnStdout: true)
+        return sh(script: "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}'", returnStdout: true)
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -96,6 +104,14 @@ def getKubernetesResourceList(String resource_type, String namespace){
     return sh(script: "kubectl get ${resource_type} -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
 }
 
-def setKubernetesResourceCount(String resource_type, String deployment_name, String namespace, int replica_count){
-    return sh(script: "kubectl scale ${resource_type} ${deployment_name} -n ${namespace} --replicas=${replica_count}")
+def getKubernetesResourceCount(String resource_type, String resource_name, String namespace){
+    return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.spec.replicas}'", returnStdout: true)
+}
+
+void setKubernetesResourceCount(String resource_type, String resource_name, String namespace, String replica_count){
+    sh(script: "kubectl scale ${resource_type} ${resource_name} -n ${namespace} --replicas=${replica_count}")
+}
+
+boolean checkKubernetesResourceExist(String resource_type, String resource_name, String namespace){
+    return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
