@@ -211,7 +211,6 @@ ansiColor('xterm') {
                             false, 
                             params.enable_rw_split)
                     }
-                    sh "cat ./values/mod-data-import.yaml"
                 }
 
                 if (params.greenmail_server) {
