@@ -6,6 +6,14 @@ def createConfigMap(String name, String namespace, String file_path) {
     }
 }
 
+def deleteConfigMap(String name, String namespace) {
+    try {
+        sh "kubectl delete configmap ${name} --namespace=${namespace}"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
 def recreateConfigMap(String name, String namespace, String file_path) {
     try {
         sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path} -o yaml --dry-run | kubectl apply -f -"
@@ -24,15 +32,15 @@ def rolloutDeployment(String name, String namespace) {
 
 def getConfigMap(String name, String namespace, String data) {
     try {
-        sh(script: "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}'", returnStdout: true)
+        return sh(script: "kubectl get configmap ${name} --namespace=${namespace} -o jsonpath='{.data.${data}}'", returnStdout: true)
     } catch (Exception e) {
         println(e.getMessage())
     }
 }
 
-def checkDeploymentStatus(String name, String namespace) {
+def checkDeploymentStatus(String name, String namespace, String timeout_seconds) {
     try {
-        sh "kubectl wait deploy/${name} --namespace=${namespace} --for condition=available --timeout=10s"
+        sh "kubectl wait deploy/${name} --namespace=${namespace} --for condition=available --timeout=${timeout_seconds}s"
     } catch (Exception e) {
         println("Deployment ${name} not ready!")
         println(e.getMessage())
@@ -86,4 +94,24 @@ void waitPodIsRunning(String namespace = 'default', String pod_name) {
         }
         println("Pod ${pod_name} is now running.")
     }
+}
+
+def waitKubernetesResourceStableState(String resource_type, String resource_name, String namespace, String replica_count, String max_wait_time){
+    return sh(script: "start_time=\$(date +%s); while [[ \$(kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.status.availableReplicas}') -ne ${replica_count} ]]; do current_time=\$(date +%s); if [[ \$((current_time - start_time)) -gt ${max_wait_time} ]]; then echo \"Deployment did not become stable within ${max_wait_time} seconds.\"; exit 1; fi; sleep 20s; done\n")
+}
+
+def getKubernetesResourceList(String resource_type, String namespace){
+    return sh(script: "kubectl get ${resource_type} -n ${namespace} | awk '{if(NR>1)print \$1}'", returnStdout: true).split("\\s+")
+}
+
+def getKubernetesResourceCount(String resource_type, String resource_name, String namespace){
+    return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.spec.replicas}'", returnStdout: true)
+}
+
+void setKubernetesResourceCount(String resource_type, String resource_name, String namespace, String replica_count){
+    sh(script: "kubectl scale ${resource_type} ${resource_name} -n ${namespace} --replicas=${replica_count}")
+}
+
+boolean checkKubernetesResourceExist(String resource_type, String resource_name, String namespace){
+    return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }

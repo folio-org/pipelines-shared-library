@@ -43,7 +43,7 @@ class Constants {
     static String FOLIO_HELM_HOSTED_REPO_URL = "https://repository.folio.org/repository/helm-hosted/"
     static String FOLIO_NPM_REPO_URL = "https://repository.folio.org/repository/npm-folioci/"
 
-    static String FOLIO_HELM_V2_REPO_URL= "https://repository.folio.org/repository/folio-helm-v2/"
+    static String FOLIO_HELM_V2_REPO_URL = "https://repository.folio.org/repository/folio-helm-v2/"
     static String FOLIO_HELM_V2_REPO_NAME = "folio-helm-v2"
 
     // Docker
@@ -53,7 +53,7 @@ class Constants {
     static String DOCKER_FOLIO_REPOSITORY = "docker-folio.dev.folio.org"
     static String ECR_FOLIO_REPOSITORY = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
     static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = "aws-ecr-rw-credentials"
-    static String DOCKER_K8S_CLIENT_IMAGE = "alpine/k8s:1.22.9"
+    static String DOCKER_K8S_CLIENT_IMAGE = "alpine/k8s:1.22.15"
 
     //Jenkins
     static String JENKINS_MASTER_NODE = "master"
@@ -76,6 +76,7 @@ class Constants {
     //Teams
     static Map ENVS_MEMBERS_LIST = ["bama"         : ["Bama"],
                                     "concorde"     : ["concorde"],
+                                    "consortia"    : ["thunderjet"],
                                     "core-platform": ["core-platform"],
                                     "cypress"      : ["AQA"],
                                     "ebsco-core"   : ["ebsco-core"],
@@ -102,8 +103,8 @@ class Constants {
                                     "volaris-2nd"  : ["volaris"]]
 
     //Cypress
-    static String CYPRESS_REPOSITORY_URL ="${FOLIO_GITHUB_URL}/stripes-testing.git"
-    static String CYPRESS_ALLURE_VERSION ="2.17.2"
+    static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
+    static String CYPRESS_ALLURE_VERSION = "2.17.2"
     static String CYPRESS_SC_URL = "https://folio-testing-sc-director.ci.folio.org"
     static String CYPRESS_SC_KEY = "secretCypressKey"
     static String CYPRESS_PROJECT = "stripes"
@@ -111,5 +112,5 @@ class Constants {
     //RDS
     static String BUGFEST_SNAPSHOT_DBNAME = "folio"
 
-    static Map JMX_METRICS_AVAILABLE = ["mod-bulk-operations" : "2.0.0-SNAPSHOT.71"]
+    static Map JMX_METRICS_AVAILABLE = ["mod-bulk-operations": "2.0.0-SNAPSHOT.71"]
 }
