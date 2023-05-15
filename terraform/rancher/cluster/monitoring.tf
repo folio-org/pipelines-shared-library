@@ -58,12 +58,12 @@ resource "rancher2_app_v2" "prometheus" {
           group_by: ['alertname', 'namespace']
           group_wait: 30s
           group_interval: 5m
-          repeat_interval: 1h
+          repeat_interval: 10m
           receiver: 'null'
           routes:
           - receiver: 'slack'
             matchers:
-              - 'alertname=Watchdog'
+              - alertname =~ "InfoInhibitor|Watchdog"
         receivers:
         - name: 'null'
         - name: 'slack'
@@ -73,6 +73,7 @@ resource "rancher2_app_v2" "prometheus" {
             text: >-
               {{ range .Alerts }}
                 *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                *Instance:* {{ .Annotations.instance }} - `{{ .Labels.instance }}`
                 *Details:*
                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
                 {{ end }}
