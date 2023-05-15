@@ -54,27 +54,16 @@ resource "rancher2_app_v2" "prometheus" {
         global:
           resolve_timeout: 1m
           slack_api_url: "${var.slack_webhook_url}"
-        inhibit_rules:
-          - source_matchers:
-              - alertname = 'Watchdog'
-            target_matchers:
-              - 'severity =~ critical|major|minor|warning|info'
-            equal:
-              - 'namespace'
-              - 'alertname'
         route:
-          group_by: ['namespace']
-          group_wait: 10s
-          group_interval: 60s
+          group_by: ['alertname', 'namespace']
+          group_wait: 30s
+          group_interval: 5m
           repeat_interval: 1h
-          receiver: 'slack'
+          receiver: 'null'
           routes:
           - receiver: 'slack'
             matchers:
-              - alertname = 'Watchdog'
-          - receiver: 'null'
-            matchers:
-              - alertname = 'InfoInhibitor'
+              - 'alertname=Watchdog'
         receivers:
         - name: 'null'
         - name: 'slack'
@@ -84,8 +73,6 @@ resource "rancher2_app_v2" "prometheus" {
             text: >-
               {{ range .Alerts }}
                 *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
-                *Description:* {{ .Annotations.description }}
-                *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook }}|:spiral_note_pad:>
                 *Details:*
                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
                 {{ end }}
