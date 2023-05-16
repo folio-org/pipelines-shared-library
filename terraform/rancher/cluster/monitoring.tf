@@ -57,7 +57,7 @@ resource "rancher2_app_v2" "prometheus" {
         route:
           group_by: ['namespace']
           group_wait: 30s
-          group_interval: 5m
+          group_interval: 40s
           repeat_interval: 10m
           receiver: 'null'
           routes:
@@ -77,8 +77,6 @@ resource "rancher2_app_v2" "prometheus" {
                 *Details:*
                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
                 {{ end }}
-                *Instance1:* '{{ .commonLabels.instance }}'
-                *Instance2:* '{{ .groupLabels.instance }}'
               {{ end }}
             send_resolved: true
       alertmanagerSpec:
