@@ -134,7 +134,8 @@ class Constants {
                                       "mod-orders-storage", 
                                       "mod-patron-blocks", 
                                       "mod-permissions", 
-                                      "mod-pubsub", 
+                                      "mod-pubsub",
+                                      "mod-source-record-manager",
                                       "mod-source-record-storage", 
                                       "mod-template-engine", 
                                       "mod-users"]
