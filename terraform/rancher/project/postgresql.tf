@@ -30,6 +30,11 @@ resource "rancher2_app_v2" "postgresql" {
     architecture: ${var.pg_architecture}
     readReplicas:
       replicaCount: 1
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 10240Mi
       extendedConfiguration: |-
         shared_buffers = '2560MB'
         max_connections = '1000'
