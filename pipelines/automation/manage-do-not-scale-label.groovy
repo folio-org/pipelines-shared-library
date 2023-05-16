@@ -8,8 +8,7 @@ import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonBuilder
 
-def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.generateProjectNamesMap())
-assert cluster_project_map instanceof Map
+def labelKey = "do_not_scale_down"
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -47,22 +46,23 @@ ansiColor('xterm') {
                             println formattedLabels.toString()
                         }
                     }
+                    break
                 case 'add':
                     stage("Add do_not_scale_down label to project") {
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                    
-                            println "ADD"
+                            kubectl.addLabelToNamespace(params.rancher_project_name, labelKey, "true")
                         }
                     }
+                    break
                 case 'delete':
                     stage("Delete do_not_scale_down label to project") {
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                    
-                            println "Delete"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
                         }
                     }
+                    break
                 default:
                     throw new Exception("Action ${params.action} is unknown")
                     break
