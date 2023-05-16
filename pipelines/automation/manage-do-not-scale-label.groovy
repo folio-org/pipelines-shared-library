@@ -27,6 +27,10 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
+            stage('Init') {
+                buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
+                buildDescription "action: ${params.action} label\n"
+            }
             switch (params.action) {
                 case 'get':
                     stage("Get list of label in project") {
@@ -40,9 +44,10 @@ ansiColor('xterm') {
                             // Format the labels
                             StringBuilder formattedLabels = new StringBuilder()
                             labels.each { key, value ->
-                                formattedLabels.append("${key}: ${value}\n")
+                                formattedLabels.append("\u001B[32m${key}:\u001B[0m ${value}\n")
                             }
                             
+                            println "\u001B[1mLabels already set to project:\u001B[0m"
                             println formattedLabels.toString()
                         }
                     }
