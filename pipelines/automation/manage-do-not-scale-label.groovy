@@ -44,11 +44,16 @@ ansiColor('xterm') {
                             // Format the labels
                             StringBuilder formattedLabels = new StringBuilder()
                             labels.each { key, value ->
-                                formattedLabels.append("\u001B[32m${key}:\u001B[0m ${value}\n")
+                                formattedLabels.append("${key}:${value}\n")
+                                // Check if the label key is "do_not_scale_down"
+                                if (key == labelKey) {
+                                    currentBuild.description += "${key}: ${value}\n"
+                                }
                             }
                             
-                            println "\u001B[1mLabels already set to project:\u001B[0m"
+                            println "\u001B[32mLabels already set to project:\u001B[0m"
                             println formattedLabels.toString()
+
                         }
                     }
                     break
