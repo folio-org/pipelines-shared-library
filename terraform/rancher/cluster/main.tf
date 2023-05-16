@@ -22,7 +22,7 @@ resource "rancher2_cluster" "this" {
     imported            = true
   }
   timeouts {
-    create = "90m"
+    create = "120m"
   }
 }
 
