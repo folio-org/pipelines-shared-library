@@ -176,6 +176,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         booleanParam(name: 'kafka_shared', value: true),
         booleanParam(name: 'opensearch_shared', value: false),
         booleanParam(name: 's3_embedded', value: true),
-        booleanParam(name: 'greenmail_server', value: true)
+        booleanParam(name: 'greenmail_server', value: true),
+        booleanParam(name: 'enable_rw_split', value: true)
     ]
 }
