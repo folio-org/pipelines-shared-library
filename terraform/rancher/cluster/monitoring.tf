@@ -73,7 +73,8 @@ resource "rancher2_app_v2" "prometheus" {
             text: >-
               {{ range .Alerts }}
                 *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
-                *Instance:* '{{ .Labels.instance }}'
+                *Namespace:* '{{ .Labels.namespace }}'
+                *Pod:* '{{ .Labels.pod }}'
                 *Details:*
                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
                 {{ end }}
