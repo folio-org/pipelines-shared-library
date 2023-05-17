@@ -58,7 +58,7 @@ resource "rancher2_app_v2" "prometheus" {
           group_by: ['namespace']
           group_wait: 30s
           group_interval: 40s
-          repeat_interval: 30m
+          repeat_interval: 10m
           receiver: 'null'
           routes:
           - receiver: 'slack'
@@ -69,9 +69,15 @@ resource "rancher2_app_v2" "prometheus" {
         - name: 'slack'
           slack_configs:
           - channel: "#prom-slack-notif"
-            title: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}"
-            text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
-
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+            text: >-
+              {{ range .Alerts }}
+                *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                *Instance:* '{{ .Labels.instance }}'
+                *Details:*
+                {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                {{ end }}
+              {{ end }}
             send_resolved: true
       alertmanagerSpec:
         storage:
