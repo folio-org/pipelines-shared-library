@@ -21,18 +21,12 @@ resource "rancher2_cluster" "this" {
     region              = var.aws_region
     imported            = true
   }
-  timeouts {
-    create = "120m"
-  }
 }
 
 #Syncing the cluster with Rancher.
 resource "rancher2_cluster_sync" "this" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster.this[0].id
-  timeouts {
-    create = "90m"
-  }
 }
 
 #Waiting for the cluster to be synced with Rancher.
