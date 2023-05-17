@@ -63,7 +63,7 @@ resource "rancher2_app_v2" "prometheus" {
           routes:
           - receiver: 'slack'
             matchers:
-              - alertname =~ "InfoInhibitor|Watchdog"
+              - 'alertname=Watchdog'
         receivers:
         - name: 'null'
         - name: 'slack'
