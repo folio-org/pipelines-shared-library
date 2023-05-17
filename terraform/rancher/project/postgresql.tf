@@ -13,6 +13,9 @@ resource "random_password" "pg_password" {
 
 locals {
   pg_password = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
+  pg_architecture = var.enable_rw_split ? "replication" : "standalone"
+  pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
+  pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
 }
 
 # Rancher2 Project App Postgres
@@ -27,7 +30,7 @@ resource "rancher2_app_v2" "postgresql" {
   chart_version = "12.4.3"
   force_upgrade = "true"
   values        = <<-EOT
-    architecture: ${var.pg_architecture}
+    architecture: ${local.pg_architecture}
     readReplicas:
       replicaCount: 1
       resources:
@@ -267,7 +270,7 @@ resource "rancher2_app_v2" "pgadmin4" {
           Group: Servers
           Port: 5432
           Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
-          Host: ${var.pg_embedded ? var.pg_service_writer : module.rds[0].cluster_endpoint}
+          Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT

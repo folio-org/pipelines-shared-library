@@ -68,23 +68,6 @@ variable "github_team_ids" {
 }
 
 # PostgreSQL variables
-variable "pg_architecture" {
-  type        = string
-  default     = "standalone"
-  description = "PostgreSQL architecture (standalone or replication)"
-}
-
-variable "pg_service_writer" {
-  type        = string
-  description = "Set service name for postgres"
-}
-
-variable "pg_service_reader" {
-  type        = string
-  default     = ""
-  description = "Set service name for postgres"
-}
-
 variable "enable_rw_split" {
   type        = bool
   default     = false

@@ -175,15 +175,6 @@ ansiColor('xterm') {
                     }
                 }
 
-                // Enable Read/Write split
-                if (params.enable_rw_split) {
-                    tf_vars_map.put("pg_architecture", "replication")
-                    tf_vars_map.put("pg_service_writer", "postgresql-${params.rancher_project_name}-primary")
-                    tf_vars_map.put("pg_service_reader", "postgresql-${params.rancher_project_name}-read")
-                } else (
-                    tf_vars_map.put("pg_service_writer", "postgresql-${params.rancher_project_name}")
-                )
-
                 context.tf_vars = terraform.generateTfVars(tf_vars_map)
             }
 
