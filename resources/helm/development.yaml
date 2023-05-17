@@ -365,6 +365,7 @@ mod-courses:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+#TODO requested by Aliaksei Harbuz for testing purposes
 mod-data-export:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
@@ -372,9 +373,9 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
-      memory: '517Mi'
+      memory: '1024Mi'
     requests:
-      memory: '388Mi'
+      memory: '768Mi'
 mod-data-export-spring:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
