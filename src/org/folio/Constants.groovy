@@ -113,4 +113,31 @@ class Constants {
     static String BUGFEST_SNAPSHOT_DBNAME = "folio"
 
     static Map JMX_METRICS_AVAILABLE = ["mod-bulk-operations": "2.0.0-SNAPSHOT.71"]
+
+    // List of modules that support R/W split
+    static List READ_WRITE_MODULES = ["mod-audit", 
+                                      "mod-authtoken", 
+                                      "mod-circulation-storage", 
+                                      "mod-data-import", 
+                                      "mod-di-converter-storage", 
+                                      "mod-email", 
+                                      "mod-erm-usage",
+                                      "mod-erm-usage-harvester", 
+                                      "mod-event-config", 
+                                      "mod-feesfines", 
+                                      "mod-invoice-storage", 
+                                      "mod-kb-ebsco-java", 
+                                      "mod-notify", 
+                                      "mod-oai-pmh", 
+                                      "mod-organization-storage", 
+                                      "mod-orders", 
+                                      "mod-orders-storage", 
+                                      "mod-patron-blocks", 
+                                      "mod-permissions", 
+                                      "mod-pubsub",
+                                      "mod-source-record-manager",
+                                      "mod-source-record-storage", 
+                                      "mod-template-engine", 
+                                      "mod-users"]
+
 }

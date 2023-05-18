@@ -13,6 +13,9 @@ resource "random_password" "pg_password" {
 
 locals {
   pg_password = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
+  pg_architecture = var.enable_rw_split ? "replication" : "standalone"
+  pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
+  pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
 }
 
 # Rancher2 Project App Postgres
@@ -24,14 +27,39 @@ resource "rancher2_app_v2" "postgresql" {
   name          = "postgresql-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "postgresql"
-  chart_version = "11.6.2"
+  chart_version = "12.4.3"
   force_upgrade = "true"
   values        = <<-EOT
+    architecture: ${local.pg_architecture}
+    readReplicas:
+      replicaCount: 1
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 10240Mi
+      extendedConfiguration: |-
+        shared_buffers = '2560MB'
+        max_connections = '1000'
+        listen_addresses = '0.0.0.0'
+        effective_cache_size = '7680MB'
+        maintenance_work_mem = '640MB'
+        checkpoint_completion_target = '0.9'
+        wal_buffers = '16MB'
+        default_statistics_target = '100'
+        random_page_cost = '1.1'
+        effective_io_concurrency = '200'
+        work_mem = '1310kB'
+        min_wal_size = '1GB'
+        max_wal_size = '4GB'
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
       database: ${var.pg_dbname}
       postgresPassword: ${var.pg_password}
+      replicationPassword: ${var.pg_password}
+      replicationUsername: ${var.pg_username}
+      usePasswordFiles: true
     primary:
       initdb:
         scripts:
@@ -142,8 +170,14 @@ module "rds" {
   engine         = "aurora-postgresql"
   engine_version = var.pg_version
 
-  instances = {
-    1 = {
+  instances = var.enable_rw_split ? {
+    for i in ["read", "write"] :
+    i => {
+      instance_class      = var.pg_instance_type
+      publicly_accessible = true
+    }
+  } : {
+    "write" = {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
     }
@@ -181,8 +215,6 @@ module "rds" {
   #  create_random_password          = false
   #  publicly_accessible = true
   #  skip_final_snapshot = true
-
-
 
   tags = merge(
     var.tags,
@@ -238,7 +270,7 @@ resource "rancher2_app_v2" "pgadmin4" {
           Group: Servers
           Port: 5432
           Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
-          Host: ${var.pg_embedded ? join("-", ["postgresql", var.rancher_project_name]) : module.rds[0].cluster_endpoint}
+          Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
   EOT

@@ -51,6 +51,7 @@ properties([
         booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
         booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
         jobsParameters.agents(),
         jobsParameters.refreshParameters()])])
 
@@ -149,6 +150,7 @@ ansiColor('xterm') {
                     pg_password         : params.pg_password,
                     pgadmin_password    : params.pgadmin_password,
                     pg_embedded         : params.pg_embedded,
+                    enable_rw_split     : params.enable_rw_split,
                     kafka_shared        : params.kafka_shared,
                     opensearch_shared   : params.opensearch_shared,
                     s3_embedded         : params.s3_embedded,
@@ -172,6 +174,7 @@ ansiColor('xterm') {
                         new Logger(this, 'Project').error("backup_name parameter should not be empty if restore_from_backup parameter set to true")
                     }
                 }
+
                 context.tf_vars = terraform.generateTfVars(tf_vars_map)
             }
 
@@ -194,7 +197,10 @@ ansiColor('xterm') {
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, project_config)
+                        folioDeploy.backend(install_backend_map, 
+                            project_config, 
+                            false, 
+                            params.enable_rw_split)
                     }
                 }
 
