@@ -170,6 +170,7 @@ ansiColor('xterm') {
                             println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
                             kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
                         }
+                    }
                 }
             }
         } catch (exception) {
