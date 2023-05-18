@@ -96,7 +96,9 @@ ansiColor('xterm') {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 if (install_backend_map) {
                     folioDeploy.backend(install_backend_map,
-                        project_config)
+                        project_config,
+                        false, 
+                        params.enable_rw_split)
                 }
             }
 
