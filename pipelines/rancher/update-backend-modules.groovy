@@ -37,7 +37,8 @@ properties([
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateIndexElasticsearch()])])
+        jobsParameters.recreateIndexElasticsearch(),
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split')])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
@@ -95,7 +96,9 @@ ansiColor('xterm') {
                 Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 if (install_backend_map) {
                     folioDeploy.backend(install_backend_map,
-                        project_config)
+                        project_config,
+                        false, 
+                        params.enable_rw_split)
                 }
             }
 

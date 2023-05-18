@@ -35,7 +35,8 @@ properties([
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
-        jobsParameters.recreateIndexElasticsearch()])])
+        jobsParameters.recreateIndexElasticsearch(),
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split')])])
 
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
@@ -124,8 +125,10 @@ ansiColor('xterm') {
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
 
                 if (update_modules.updateMap) {
-                    folioDeploy.backend(update_modules.updateMap,
-                        project_config)
+                    folioDeploy.backend(update_modules.updateMap, 
+                        project_config, 
+                        false, 
+                        params.enable_rw_split)
                 }
             }
 

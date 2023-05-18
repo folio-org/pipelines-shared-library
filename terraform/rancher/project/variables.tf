@@ -68,6 +68,12 @@ variable "github_team_ids" {
 }
 
 # PostgreSQL variables
+variable "enable_rw_split" {
+  type        = bool
+  default     = false
+  description = "Enavle Read/Write split"
+}
+
 variable "pgadmin4" {
   type        = bool
   default     = true
