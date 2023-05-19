@@ -101,6 +101,7 @@ static List devEnvironmentsList() {
             'spitfire',
             'stripes-force',
             'tamu',
+            'task-force',
             'thor',
             'thunderjet',
             'unam',
