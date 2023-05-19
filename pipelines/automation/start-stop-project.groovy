@@ -7,9 +7,12 @@ import groovy.json.JsonSlurperClassic
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonBuilder
+import java.util.Calendar
 
 def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.generateProjectNamesMap())
 assert cluster_project_map instanceof Map
+def labelKey = "do_not_scale_down"
+def labelKeyExists = false
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -78,26 +81,45 @@ ansiColor('xterm') {
                                       credentialsId    : Constants.AWS_CREDENTIALS_ID,
                                       accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                       secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        stage('Init') {
+                            buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
+                            buildDescription "action: ${params.action} project\n"
+                            
+                            awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+                            String namespaceLabels = kubectl.getLabelsFromNamespace(params.rancher_project_name)
+                            def labels = new groovy.json.JsonSlurperClassic().parseText(namespaceLabels)
+                            labels.each { key, value ->
+                                // Check if the label key is "do_not_scale_down"
+                                if (key == labelKey) {
+                                    labelKeyExists = true
+                                }
+                            }
+                        }
                         if (params.action == 'stop') {
                             stage("Downscale namespace replicas") {
-                                awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                                def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
-                                def postgresql = kubectl.getKubernetesResourceList('statefulset', params.rancher_project_name).findAll { it.startsWith("postgresql-${params.rancher_project_name}") }
-                                kubectl.deleteConfigMap('deployments-replica-count-json', params.rancher_project_name)
-                                def deployments_replica_count_table = [:]
-                                deployments_list.each { deployment ->
-                                    deployments_replica_count_table.put(deployment, kubectl.getKubernetesResourceCount('deployment', deployment, params.rancher_project_name))
-                                }
-                                def jsonString = new JsonBuilder(deployments_replica_count_table).toString()
-                                new Tools(this).createFileFromString('deployments_replica_count_table_json', jsonString)
-                                kubectl.createConfigMap('deployments-replica-count-json', params.rancher_project_name, './deployments_replica_count_table_json')
-                                deployments_list.each { deployment ->
-                                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '0')
-                                }
-                                if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)) {
-                                    kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '0')
+                                if (labelKeyExists) {
+                                    println "\u001B[32mProject ${params.rancher_project_name} has label ${labelKey} and will not be disabled this time.\u001B[0m"
+                                    currentBuild.description += "Skip stop action"
                                 } else {
-                                    awscli.stopRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                                    awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+                                    def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
+                                    def postgresql = kubectl.getKubernetesResourceList('statefulset', params.rancher_project_name).findAll { it.startsWith("postgresql-${params.rancher_project_name}") }
+                                    kubectl.deleteConfigMap('deployments-replica-count-json', params.rancher_project_name)
+                                    def deployments_replica_count_table = [:]
+                                    deployments_list.each { deployment ->
+                                        deployments_replica_count_table.put(deployment, kubectl.getKubernetesResourceCount('deployment', deployment, params.rancher_project_name))
+                                    }
+                                    def jsonString = new JsonBuilder(deployments_replica_count_table).toString()
+                                    new Tools(this).createFileFromString('deployments_replica_count_table_json', jsonString)
+                                    kubectl.createConfigMap('deployments-replica-count-json', params.rancher_project_name, './deployments_replica_count_table_json')
+                                    deployments_list.each { deployment ->
+                                        kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '0')
+                                    }
+                                    if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)) {
+                                        kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '0')
+                                    } else {
+                                        awscli.stopRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                                    }
                                 }
                             }
                         } else if (params.action == 'start') {
@@ -139,6 +161,14 @@ ansiColor('xterm') {
                                 }
                                 ui_bundle_list.each { deployment ->
                                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                                }
+
+                                // Delete tag if Monday or Sunday
+                                Calendar calendar = Calendar.getInstance()
+                                int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+                                if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
+                                    println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
+                                    kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
                                 }
                             }
                         }
