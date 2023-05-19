@@ -35,14 +35,13 @@ ansiColor('xterm') {
                                       credentialsId    : Constants.AWS_CREDENTIALS_ID,
                                       accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                       secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    stage('Init') {
-                        buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
-                        buildDescription "action: ${params.action} label\n"
-                    }
-                    switch (params.action) {
-                        case 'get':
-                            stage("Get list of label in project") {
-                                helm.k8sClient {
+                        stage('Init') {
+                            buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
+                            buildDescription "action: ${params.action} label\n"
+                        }
+                        switch (params.action) {
+                            case 'get':
+                                stage("Get list of label in project") {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     String namespaceLabels = kubectl.getLabelsFromNamespace(params.rancher_project_name)
 
@@ -63,27 +62,22 @@ ansiColor('xterm') {
                                     println formattedLabels.toString()
 
                                 }
-                            }
-                            break
-                        case 'add':
-                            stage("Add do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                break
+                            case 'add':
+                                stage("Add do_not_scale_down label to project") {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.addLabelToNamespace(params.rancher_project_name, labelKey, "true")
                                 }
-                            }
-                            break
-                        case 'delete':
-                            stage("Delete do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                break
+                            case 'delete':
+                                stage("Delete do_not_scale_down label to project") {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
                                 }
-                            }
-                            break
-                        default:
-                            throw new Exception("Action ${params.action} is unknown")
-                            break
+                                break
+                            default:
+                                throw new Exception("Action ${params.action} is unknown")
+                                break
                         }
                     }
                 }
