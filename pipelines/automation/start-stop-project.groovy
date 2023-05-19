@@ -164,9 +164,10 @@ ansiColor('xterm') {
                         //     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
                         // }
 
-                        // Delete tag if Monday
+                        // Delete tag if Monday or Sunday
                         Calendar calendar = Calendar.getInstance()
-                        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY && labelKeyExists) {
+                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
                             println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
                             kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
                         }
