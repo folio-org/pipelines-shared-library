@@ -115,3 +115,27 @@ void setKubernetesResourceCount(String resource_type, String resource_name, Stri
 boolean checkKubernetesResourceExist(String resource_type, String resource_name, String namespace){
     return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
+
+def getLabelsFromNamespace(String namespace) {
+    try {
+        return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels}'", returnStdout: true).trim()
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
+def addLabelToNamespace(String namespace, String labelKey, String labelValue) {
+    try {
+        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue}")
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
+
+def deleteLabelFromNamespace(String namespace, String labelKey) {
+    try {
+        sh(script: "kubectl label namespace ${namespace} ${labelKey}-")
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
+}
