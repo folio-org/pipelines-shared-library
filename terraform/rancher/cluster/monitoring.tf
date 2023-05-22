@@ -50,14 +50,42 @@ resource "rancher2_app_v2" "prometheus" {
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
+      config:
+        global:
+          resolve_timeout: 1m
+          slack_api_url: "${var.slack_webhook_url}"
+        route:
+          group_by: ['alertname', 'namespace']
+          group_wait: 30s
+          group_interval: 40s
+          repeat_interval: 30m
+          receiver: 'null'
+          routes:
+          - receiver: 'slack'
+            matchers:
+              - alertname =~ "Watchdog|InfoInhibitor"
+        receivers:
+        - name: 'null'
+        - name: 'slack'
+          slack_configs:
+          - channel: "#prom-slack-notif"
+            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+            text: >-
+              {{ range .Alerts }}
+                *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                *Details:*
+                {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                {{ end }}
+              {{ end }}
+            send_resolved: true
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:
             spec:
               storageClassName: gp2
               resources:
-               requests:
-                 storage: 10Gi
+                requests:
+                  storage: 10Gi
     prometheus:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
