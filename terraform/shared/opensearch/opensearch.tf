@@ -65,6 +65,8 @@ module "aws_opensearch" {
 
   advanced_options = {
     "rest.action.multi.allow_explicit_index" = "true"
+    // Or need "number_of_replicas" = "1"? During recreating opensearch need to test it
+    "index.number_of_replicas" = "1"
   }
 
   cluster_config = {
@@ -88,6 +90,7 @@ module "aws_opensearch" {
   ebs_options = {
     ebs_enabled = var.os_ebs_volume_size > 0 ? "true" : "false"
     volume_size = var.os_ebs_volume_size
+    volume_type = "gp3"
   }
 
   vpc_options = {
