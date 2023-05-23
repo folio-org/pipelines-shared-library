@@ -159,7 +159,7 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if (resultMap.containsKey(moduleName) && resultMap[moduleName].dstVersion == moduleVersion) {
+                    if (moduleName.startsWith("mod-") && resultMap[moduleName].dstVersion == moduleVersion) {
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                             moduleInfo: [moduleName: moduleName,
                                                 moduleVersionDst: resultMap[moduleName].dstVersion,
