@@ -140,11 +140,11 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    def srcVersion = getModuleVersion(srcInstallJson, module_name)
-                    def dstVersion = getModuleVersion(dstInstallJson, module_name)
+                    def srcVersion = getModuleVersion(srcInstallJson, moduleName)
+                    def dstVersion = getModuleVersion(dstInstallJson, moduleName)
 
                     def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                    moduleInfo: [moduleName: moduleName
+                                    moduleInfo: [moduleName: moduleName,
                                                 moduleNameTo: dstVersion,
                                                 moduleNameFrom: srcVersion,
                                                 execTime: time]]
