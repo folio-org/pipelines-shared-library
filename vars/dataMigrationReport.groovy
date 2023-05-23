@@ -216,12 +216,12 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                 } else {
                     def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
                     println "[DEBUG] ---------- Updated schemaName: $moduleName --------------"
-                    // Find srcVersion and dstVersion for the given schemaName
+                    // Find srcVersion and dstVersion for the given schema name
                     def srcVersion = resultMap[moduleName]?.srcVersion
                     def dstVersion = resultMap[moduleName]?.dstVersion
                     builder.section(id: schema.key) {
                         builder.h2(schema.key)
-                        builder.h3("Migrated from $srcVersion to $dstVersion version for $moduleName module")
+                        builder.h4("Migrated from $srcVersion to $dstVersion version for $moduleName module")
                         builder.p(style: "white-space: pre-line", schema.value)
                     }
                 }
