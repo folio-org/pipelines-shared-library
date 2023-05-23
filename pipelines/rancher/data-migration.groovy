@@ -4,7 +4,7 @@ import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 import org.folio.rest.GitHubUtility
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-801') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -132,7 +132,6 @@ ansiColor('xterm') {
                 result.hits.hits.each {
                     def logField = it.fields.log[0]
                     def parsedMigrationInfo= logField.split("'")
-                    def (fullMosuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     def time
 
                     try {
@@ -142,10 +141,10 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    def srcVersion = getModuleVersion(srcInstallJson, moduleName)
-                    def dstVersion = getModuleVersion(dstInstallJson, moduleName)
-
                     if(backend_modules_list.contains(parsedMigrationInfo[1])) {
+                        def (fullMosuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
+                        def srcVersion = getModuleVersion(srcInstallJson, moduleName)
+                        def dstVersion = getModuleVersion(dstInstallJson, moduleName)
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                         moduleInfo: [moduleName: moduleName,
                                                     moduleVersionDst: dstVersion,
@@ -313,12 +312,9 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     return schemasList.split('\n').collect({it.trim()})
 }
 
-def getModuleVersion(map, moduleId) {
-  def moduleEntry = map.find { it.id.startsWith(moduleId) }
-  if (moduleEntry) {
-    def version = moduleEntry.id.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
+def getModuleVersion(installMap, moduleName) {
+    def version = installMap.find { it.id ==~ /${moduleName}-\d+\.\d+\.\d+/ }?.id?.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
+    println "{DEBUG}--------------------------------------------------------"
+    println version
     return version
-  } else {
-    return null
-  }
 }
