@@ -63,7 +63,7 @@ def createTimeHtmlReport(tenantName, tenants) {
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
                     if(execTime == "failed") {
-                        modulesMigrationFailed += moduleVersionDst
+                        modulesMigrationFailed += moduleName
                         moduleTime = "failed"
                     } else if(execTime.isNumber()) {
                         totalTime += execTime.toInteger()
