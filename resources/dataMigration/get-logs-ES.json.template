@@ -73,7 +73,7 @@
             "@timestamp": {
                 "format": "strict_date_optional_time",
                 "gte": "2023-05-23T11:36:07.147Z",
-                "lte": "2023-05-23T15:19:02.747Z"
+                "lte": "2023-05-23T15:49:02.747Z"
             }
             }
         },
