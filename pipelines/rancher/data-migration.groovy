@@ -123,12 +123,15 @@ ansiColor('xterm') {
             stage('Generate Data Migration Time report') {
                 sleep time: 5, unit: 'MINUTES'
 
-                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
+                def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
+                def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
+
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
                     def logField = it.fields.log[0]
                     def parsedMigrationInfo= logField.split("'")
+                    def (fullMosuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     def time
                     try {
                       def parsedTime = logField.split("completed successfully in ")
@@ -137,18 +140,22 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if(backend_modules_list.contains(parsedMigrationInfo[1])){
-                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                        moduleInfo: [moduleName: parsedMigrationInfo[1], 
-                                                        execTime: time]]
-                    
-                        tenants += new DataMigrationTenant(bindingMap)
-                    }
+                    def srcVersion = getModuleVersion(srcInstallJson, module_name)
+                    def dstVersion = getModuleVersion(dstInstallJson, module_name)
+
+                    def bindingMap = [tenantName: parsedMigrationInfo[3], 
+                                    moduleInfo: [moduleName: moduleName
+                                                moduleNameTo: dstVersion,
+                                                moduleNameFrom: srcVersion,
+                                                execTime: time]]
+                
+                    tenants += new DataMigrationTenant(bindingMap)
                 }
+            
 
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->
-                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createHtmlReport(tenantName, tenants)
+                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createTimeHtmlReport(tenantName, tenants)
                     totalTimeInMs += totalTime
                     modulesLongMigrationTimeSlack += modulesLongMigrationTime
                     modulesMigrationFailedSlack += modulesMigrationFailed
@@ -301,4 +308,14 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     kubectl.waitPodIsRunning(namespace, psqlPod)
     def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
     return schemasList.split('\n').collect({it.trim()})
+}
+
+def getModuleVersion(map, moduleId) {
+  def moduleEntry = map.find { it.id.startsWith(moduleId) }
+  if (moduleEntry) {
+    def version = moduleEntry.id.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
+    return version
+  } else {
+    return null
+  }
 }

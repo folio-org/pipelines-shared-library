@@ -26,7 +26,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 }
 
 @NonCPS
-def createHtmlReport(tenantName, tenants) {
+def createTimeHtmlReport(tenantName, tenants) {
     def sortedList = tenants.sort {
         try {
             it.moduleInfo.execTime.toInteger()
@@ -50,28 +50,34 @@ def createHtmlReport(tenantName, tenants) {
                 markup.tr {
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #2", "Module name")
-                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Time(HH:MM:SS)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Version (from)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #4", "Version (to)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #5", "Time(HH:MM:SS)")
                 }
             }
             markup.tbody {
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
+                    def moduleNameTo = tenantInfo.moduleInfo.moduleNameTo
+                    def moduleNameFrom = tenantInfo.moduleInfo.moduleNameFrom
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
                     if(execTime == "failed") {
-                        modulesMigrationFailed += moduleName
+                        modulesMigrationFailed += moduleNameTo
                         moduleTime = "failed"
                     } else if(execTime.isNumber()) {
                         totalTime += execTime.toInteger()
                         moduleTime = convertTime(execTime.toInteger())
                         if(execTime.toInteger() >= 300000) {
-                            modulesLongMigrationTime.put(moduleName, execTime)
+                            modulesLongMigrationTime.put(moduleNameTo, execTime)
                         }
                     }
 
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleNameFrom)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleNameTo)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleTime)
                     }
                 }
@@ -97,16 +103,16 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
 
     if(modulesLongMigrationTime) {
         message += "List of modules with activation time bigger than 5 minutes:\n"
-        modulesLongMigrationTime.each { moduleName ->
-            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleName.value.toInteger())
-            message += "${moduleName.key} takes $moduleTimeMinutes minutes\n"
+        modulesLongMigrationTime.each { moduleNameTo ->
+            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleNameTo.value.toInteger())
+            message += "${moduleNameTo.key} takes $moduleTimeMinutes minutes\n"
         }
     }
 
     if(modulesMigrationFailed) {
         message += "Modules with failed activation:\n"
-        modulesMigrationFailed.each { moduleName ->
-            message += "$moduleName\n"
+        modulesMigrationFailed.each { moduleNameTo ->
+            message += "$moduleNameTo\n"
         }
     }
     message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
