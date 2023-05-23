@@ -105,16 +105,16 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
 
     if(modulesLongMigrationTime) {
         message += "List of modules with activation time bigger than 5 minutes:\n"
-        modulesLongMigrationTime.each { moduleVersionDst ->
-            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleVersionDst.value.toInteger())
-            message += "${moduleVersionDst.key} takes $moduleTimeMinutes minutes\n"
+        modulesLongMigrationTime.each { moduleName ->
+            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleName.value.toInteger())
+            message += "${moduleName.key} takes $moduleTimeMinutes minutes\n"
         }
     }
 
     if(modulesMigrationFailed) {
         message += "Modules with failed activation:\n"
-        modulesMigrationFailed.each { moduleVersionDst ->
-            message += "$moduleVersionDst\n"
+        modulesMigrationFailed.each { moduleName ->
+            message += "$moduleName\n"
         }
     }
     message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
