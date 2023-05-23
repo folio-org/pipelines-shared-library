@@ -152,7 +152,7 @@ def getBackendModulesList(String repoName, String branchName){
 }
 
 @NonCPS
-def createDiffHtmlReport(diff, pgadminURL) {
+def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     def writer = new StringWriter()
     def builder = new MarkupBuilder(writer)
 
@@ -192,7 +192,7 @@ def createDiffHtmlReport(diff, pgadminURL) {
             builder.a(href: pgadminURL, target: "_blank") {
                 builder.h2("pgAdmin")
             }
-            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/6.18/schema_diff.html", target: "_blank") {
+            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/7.1/schema_diff.html", target: "_blank") {
                 builder.h2("Documentation")
             }
             // Make navigation tab
@@ -208,9 +208,22 @@ def createDiffHtmlReport(diff, pgadminURL) {
                 }
             }
             diff.each { schema ->
-                builder.section(id: schema.key) {
-                    builder.h2(schema.key)
-                    builder.p(style: "white-space: pre-line", schema.value)
+                if (schema.key == "Unique schemas") {
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }                    
+                } else {
+                    def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
+                    println "[DEBUG] ---------- Updated schemaName: $moduleName --------------"
+                    // Find srcVersion and dstVersion for the given schemaName
+                    def srcVersion = resultMap[schemaName]?.srcVersion
+                    def dstVersion = resultMap[schemaName]?.dstVersion
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.h3("Migrated from $srcVersion to $dstVersion version for $moduleName module")
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }
                 }
             }
         }

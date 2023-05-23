@@ -3,11 +3,10 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 import org.folio.rest.GitHubUtility
-
-@Library('pipelines-shared-library@RANCHER-801') _
-
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
+
+@Library('pipelines-shared-library@RANCHER-801') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -43,6 +42,7 @@ Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
 def diff = [:]
+def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
 
 ansiColor('xterm') {
@@ -53,8 +53,25 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
-            stage('Init'){
+            stage('Init') {
                 buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+
+                // Create map with moduleName, source and destination version for this module
+                // This map used for time migration and schemaDiff reports
+                def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
+                def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
+
+                srcInstallJson.each { item ->
+                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
+                    resultMap[moduleName] = [srcVersion: moduleVersion]
+                }
+
+                dstInstallJson.each { item ->
+                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
+                    resultMap.get(moduleName)?.put('dstVersion', moduleVersion)
+                }
+
+                println "[DEBUG] ---------------------$resultMap -------------------------"
             }
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,
@@ -124,14 +141,15 @@ ansiColor('xterm') {
             stage('Generate Data Migration Time report') {
                 sleep time: 5, unit: 'MINUTES'
 
-                def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
-                def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
-                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
+                // Get logs about activating modules from elasticseach
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
+                
+                // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
                 def tenants = []
                 result.hits.hits.each {
                     def logField = it.fields.log[0]
                     def parsedMigrationInfo= logField.split("'")
+                    def (fullModuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     def time
 
                     try {
@@ -141,20 +159,18 @@ ansiColor('xterm') {
                       time = "failed"
                     }
 
-                    if(backend_modules_list.contains(parsedMigrationInfo[1])) {
-                        def (fullMosuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                        def srcVersion = getModuleVersion(srcInstallJson, moduleName)
-                        def dstVersion = getModuleVersion(dstInstallJson, moduleName)
+                    if (resultMap.containsKey(moduleName) && resultMap[moduleName].dstVersion == moduleVersion) {
                         def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                        moduleInfo: [moduleName: moduleName,
-                                                    moduleVersionDst: dstVersion,
-                                                    moduleVersionSrc: srcVersion,
-                                                    execTime: time]]
+                                            moduleInfo: [moduleName: moduleName,
+                                                moduleVersionDst: resultMap[moduleName].dstVersion,
+                                                moduleVersionSrc: resultMap[moduleName].srcVersion,
+                                                execTime: time]]
                     
                         tenants += new DataMigrationTenant(bindingMap)
                     }
                 }
 
+                // Grouped modules by tenant name and generate HTML report
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->
                     (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createTimeHtmlReport(tenantName, tenants)
@@ -258,7 +274,7 @@ ansiColor('xterm') {
 
                         def diffHtmlData
                         if (diff) {
-                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
+                            diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
                             jobStatus = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
@@ -312,9 +328,9 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     return schemasList.split('\n').collect({it.trim()})
 }
 
-def getModuleVersion(installMap, moduleName) {
-    def version = installMap.find { it.id ==~ /${moduleName}-\d+\.\d+\.\d+/ }?.id?.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
-    println "{DEBUG}--------------------------------------------------------"
-    println version
-    return version
-}
+// def getModuleVersion(installMap, moduleName) {
+//     def version = installMap.find { it.id ==~ /${moduleName}-\d+\.\d+\.\d+/ }?.id?.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
+//     println "{DEBUG}--------------------------------------------------------"
+//     println version
+//     return version
+// }
