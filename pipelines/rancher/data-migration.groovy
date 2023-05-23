@@ -125,7 +125,7 @@ ansiColor('xterm') {
 
                 def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
                 def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
-
+                def backend_modules_list = dataMigrationReport.getBackendModulesList(params.folio_repository, params.folio_branch_dst)
                 def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
                 def tenants = []
                 result.hits.hits.each {
@@ -133,6 +133,7 @@ ansiColor('xterm') {
                     def parsedMigrationInfo= logField.split("'")
                     def (fullMosuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     def time
+
                     try {
                       def parsedTime = logField.split("completed successfully in ")
                       time = parsedTime[1].minus("ms").trim()
@@ -143,15 +144,16 @@ ansiColor('xterm') {
                     def srcVersion = getModuleVersion(srcInstallJson, moduleName)
                     def dstVersion = getModuleVersion(dstInstallJson, moduleName)
 
-                    def bindingMap = [tenantName: parsedMigrationInfo[3], 
-                                    moduleInfo: [moduleName: moduleName,
-                                                moduleNameTo: dstVersion,
-                                                moduleNameFrom: srcVersion,
-                                                execTime: time]]
-                
-                    tenants += new DataMigrationTenant(bindingMap)
+                    if(backend_modules_list.contains(parsedMigrationInfo[1])) {
+                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
+                                        moduleInfo: [moduleName: moduleName,
+                                                    moduleVersionDst: dstVersion,
+                                                    moduleVersionSrc: srcVersion,
+                                                    execTime: time]]
+                    
+                        tenants += new DataMigrationTenant(bindingMap)
+                    }
                 }
-            
 
                 def uniqTenants = tenants.tenantName.unique()
                 uniqTenants.each { tenantName ->

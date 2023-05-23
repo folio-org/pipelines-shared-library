@@ -58,30 +58,32 @@ def createTimeHtmlReport(tenantName, tenants) {
             markup.tbody {
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
-                    def moduleNameTo = tenantInfo.moduleInfo.moduleNameTo
-                    def moduleNameFrom = tenantInfo.moduleInfo.moduleNameFrom
+                    def moduleVersionDst = tenantInfo.moduleInfo.moduleVersionDst
+                    def moduleVersionSrc = tenantInfo.moduleInfo.moduleVersionSrc
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
                     if(execTime == "failed") {
-                        modulesMigrationFailed += moduleNameTo
+                        modulesMigrationFailed += moduleVersionDst
                         moduleTime = "failed"
                     } else if(execTime.isNumber()) {
                         totalTime += execTime.toInteger()
                         moduleTime = convertTime(execTime.toInteger())
                         if(execTime.toInteger() >= 300000) {
-                            modulesLongMigrationTime.put(moduleNameTo, execTime)
+                            modulesLongMigrationTime.put(moduleVersionDst, execTime)
                         }
                     }
 
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleNameFrom)
-                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleNameTo)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionSrc)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionDst)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleTime)
                     }
                 }
                 markup.tr(style: "padding: 5px; border: solid 1px #777;") {
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(totalTime.toInteger()))
@@ -103,16 +105,16 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
 
     if(modulesLongMigrationTime) {
         message += "List of modules with activation time bigger than 5 minutes:\n"
-        modulesLongMigrationTime.each { moduleNameTo ->
-            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleNameTo.value.toInteger())
-            message += "${moduleNameTo.key} takes $moduleTimeMinutes minutes\n"
+        modulesLongMigrationTime.each { moduleVersionDst ->
+            def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleVersionDst.value.toInteger())
+            message += "${moduleVersionDst.key} takes $moduleTimeMinutes minutes\n"
         }
     }
 
     if(modulesMigrationFailed) {
         message += "Modules with failed activation:\n"
-        modulesMigrationFailed.each { moduleNameTo ->
-            message += "$moduleNameTo\n"
+        modulesMigrationFailed.each { moduleVersionDst ->
+            message += "$moduleVersionDst\n"
         }
     }
     message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
