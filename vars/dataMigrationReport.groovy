@@ -217,8 +217,8 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                     def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
                     println "[DEBUG] ---------- Updated schemaName: $moduleName --------------"
                     // Find srcVersion and dstVersion for the given schemaName
-                    def srcVersion = resultMap[schemaName]?.srcVersion
-                    def dstVersion = resultMap[schemaName]?.dstVersion
+                    def srcVersion = resultMap[moduleName]?.srcVersion
+                    def dstVersion = resultMap[moduleName]?.dstVersion
                     builder.section(id: schema.key) {
                         builder.h2(schema.key)
                         builder.h3("Migrated from $srcVersion to $dstVersion version for $moduleName module")
