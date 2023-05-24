@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library@RANCHER-801') _
+@Library('pipelines-shared-library') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -115,8 +115,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with src release versions') {
-                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_src),
@@ -125,13 +124,11 @@ ansiColor('xterm') {
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
-                        string(name: 'timeout', value: "6")
+                        string(name: 'admin_password', value: "folio")
                     ]
             }
             stage('Update with dst release versions') {
-                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),
@@ -140,8 +137,7 @@ ansiColor('xterm') {
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
-                        string(name: 'timeout', value: "6")
+                        string(name: 'admin_password', value: "folio")
                     ]
             }
             stage('Generate Data Migration Time report') {
