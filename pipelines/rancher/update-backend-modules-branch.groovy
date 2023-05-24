@@ -159,7 +159,7 @@ ansiColor('xterm') {
                     deployment.update()
                 }
             }
-            
+
             stage("Deploy edge modules") {
                 Map github_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                 Map edge_installed_modules_map = new GitHubUtility(this).getEdgeModulesMap(installed_modules_map)
