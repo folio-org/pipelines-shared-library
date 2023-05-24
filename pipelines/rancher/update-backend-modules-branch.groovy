@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurperClassic
 
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-801') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
@@ -31,6 +31,7 @@ properties([
         jobsParameters.tenantId(),
         jobsParameters.adminUsername(),
         jobsParameters.adminPassword(),
+        string(name: 'timeout', defaultValue: "2", description: 'Custom timeout for enable modules. Set in hours'),
         jobsParameters.loadReference(),
         jobsParameters.loadSample(),
         jobsParameters.reinstall(),
@@ -142,21 +143,23 @@ ansiColor('xterm') {
                 common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
             }
 
-            stage("Enable backend modules") {
-                withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
-                    tenant.kb_api_key = cypress_api_key_apidvcorp
-                    Deployment deployment = new Deployment(
-                        this,
-                        "https://${project_config.getDomains().okapi}",
-                        "https://${project_config.getDomains().ui}",
-                        project_config.getInstallJson(),
-                        project_config.getInstallMap(),
-                        tenant,
-                        admin_user,
-                        superadmin_user,
-                        email
-                    )
-                    deployment.update()
+            timeout(time: "${params.timeout}", unit: 'HOURS') {
+                stage("Enable backend modules") {
+                    withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+                        tenant.kb_api_key = cypress_api_key_apidvcorp
+                        Deployment deployment = new Deployment(
+                            this,
+                            "https://${project_config.getDomains().okapi}",
+                            "https://${project_config.getDomains().ui}",
+                            project_config.getInstallJson(),
+                            project_config.getInstallMap(),
+                            tenant,
+                            admin_user,
+                            superadmin_user,
+                            email
+                        )
+                        deployment.update()
+                    }
                 }
             }
 

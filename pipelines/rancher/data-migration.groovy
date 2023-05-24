@@ -74,8 +74,6 @@ ansiColor('xterm') {
                     }
                     resultMap[moduleName]['dstVersion'] = moduleVersion
                 }
-
-                println "[DEBUG] ---------------------$resultMap -------------------------"
             }
             stage('Destroy data-migration project') {
                 build job: Constants.JENKINS_JOB_PROJECT,
@@ -117,7 +115,8 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with src release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_src),
@@ -126,11 +125,13 @@ ansiColor('xterm') {
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
+                        string(name: 'admin_password', value: "folio"),
+                        string(name: 'timeout', value: "6")
                     ]
             }
             stage('Update with dst release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),
@@ -139,7 +140,8 @@ ansiColor('xterm') {
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
                         string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
+                        string(name: 'admin_password', value: "folio"),
+                        string(name: 'timeout', value: "6")
                     ]
             }
             stage('Generate Data Migration Time report') {
