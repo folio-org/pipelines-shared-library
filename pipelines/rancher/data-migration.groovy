@@ -65,10 +65,14 @@ ansiColor('xterm') {
                     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
                     resultMap[moduleName] = [srcVersion: moduleVersion]
                 }
-
+                
                 dstInstallJson.each { item ->
                     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
-                    resultMap.get(moduleName)?.put('dstVersion', moduleVersion)
+                    if (!resultMap.containsKey(moduleName)) {
+                        // Create an empty map if it doesn't exist
+                        resultMap[moduleName] = [:] 
+                    }
+                    resultMap[moduleName]['dstVersion'] = moduleVersion
                 }
 
                 println "[DEBUG] ---------------------$resultMap -------------------------"
@@ -327,10 +331,3 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
     return schemasList.split('\n').collect({it.trim()})
 }
-
-// def getModuleVersion(installMap, moduleName) {
-//     def version = installMap.find { it.id ==~ /${moduleName}-\d+\.\d+\.\d+/ }?.id?.replaceAll(/.*-(\d+\.\d+\.\d+)$/, '$1')
-//     println "{DEBUG}--------------------------------------------------------"
-//     println version
-//     return version
-// }
