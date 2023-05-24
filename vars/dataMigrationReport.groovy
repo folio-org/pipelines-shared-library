@@ -69,7 +69,7 @@ def createTimeHtmlReport(tenantName, tenants) {
                         totalTime += execTime.toInteger()
                         moduleTime = convertTime(execTime.toInteger())
                         if(execTime.toInteger() >= 300000) {
-                            modulesLongMigrationTime.put(moduleVersionDst, execTime)
+                            modulesLongMigrationTime.put(moduleName, execTime)
                         }
                     }
 
