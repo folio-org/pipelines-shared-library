@@ -62,12 +62,12 @@ ansiColor('xterm') {
                 def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
 
                 srcInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
+                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     resultMap[moduleName] = [srcVersion: moduleVersion]
                 }
                 
                 dstInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d+\.\d+\.\d+)$/)[0]
+                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     if (!resultMap.containsKey(moduleName)) {
                         // Create an empty map if it doesn't exist
                         resultMap[moduleName] = [:] 
