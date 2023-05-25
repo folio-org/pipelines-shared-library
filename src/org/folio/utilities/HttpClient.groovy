@@ -22,7 +22,7 @@ class HttpClient {
             customHeaders: headers,
             requestBody: body,
             timeout: timeout,
-            responseHandle: "NONE",
+            responseHandle: "LEAVE_OPEN",
             validResponseCodes: "100:599"
     }
 
