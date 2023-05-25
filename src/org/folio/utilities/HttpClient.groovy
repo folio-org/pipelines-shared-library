@@ -22,6 +22,7 @@ class HttpClient {
             customHeaders: headers,
             requestBody: body,
             timeout: timeout,
+            responseHandle: "NONE",
             validResponseCodes: "100:599"
     }
 
