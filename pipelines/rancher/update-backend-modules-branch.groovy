@@ -157,7 +157,7 @@ ansiColor('xterm') {
                         email
                     )
                     println "-----------------------------Disabled timeout-------------------------"
-                    retry(2) {
+                    retry(5) {
                         deployment.update()
                     }
                 }
