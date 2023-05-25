@@ -16,7 +16,6 @@ class HttpClient {
     }
 
     void postRequest(String url, String body, ArrayList headers = [], Boolean quiet = true, Integer timeout = 0) {
-        headers.add(["Connection": "keep-alive"]) // Add the Connection header
         steps.httpRequest url: url,
             quiet: quiet,
             httpMode: "POST",
