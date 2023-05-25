@@ -77,7 +77,9 @@ class Deployment extends GeneralParameters {
             okapi.publishModulesDescriptors(okapi.composeModulesDescriptors(install_json))
             okapi.registerServices(discovery_list)
             okapi.enableDisableUpgradeModulesForTenant(tenant, okapi.buildInstallList(["okapi"], "enable"))
-            okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 0)
+            retry(2) {
+                okapi.enableDisableUpgradeModulesForTenant(tenant, install_json, 0)
+            }
             if (restore_from_backup) {
                 Users user = new Users(steps, okapi_url)
                 user.resetUserPassword(tenant, mod_search_user)
