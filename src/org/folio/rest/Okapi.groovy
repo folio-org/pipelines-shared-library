@@ -381,7 +381,7 @@ class Okapi extends GeneralParameters {
                              [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ? supertenant.getAdminUser().getToken() : '', maskValue: true]]
         String body = JsonOutput.toJson(modulesList)
         logger.info("Install operation for tenant ${tenant.id} started")
-        def res = http.postRequest(url, body, headers, true, timeout)
+        def res = http.postRequest(url, body, headers, false, timeout)
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
             return tools.jsonParse(res.content)
