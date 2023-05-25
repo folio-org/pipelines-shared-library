@@ -40,7 +40,7 @@ variable "os_instance_count" {
 
 variable "os_instance_type" {
   type    = string
-  default = "m5.xlarge.elasticsearch"
+  default = "r6g.xlarge.elasticsearch"
 }
 
 variable "os_ebs_volume_size" {
