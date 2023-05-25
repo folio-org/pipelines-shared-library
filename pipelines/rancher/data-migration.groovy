@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-824') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -115,7 +115,8 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with src release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_src),
@@ -128,7 +129,8 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with dst release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),

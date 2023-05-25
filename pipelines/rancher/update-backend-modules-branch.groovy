@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurperClassic
 
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-824') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
@@ -156,6 +156,7 @@ ansiColor('xterm') {
                         superadmin_user,
                         email
                     )
+                    println "-----------------------------Disabled timeout-------------------------"
                     deployment.update()
                 }
             }
