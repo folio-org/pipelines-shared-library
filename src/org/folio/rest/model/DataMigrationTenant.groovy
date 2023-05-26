@@ -1,8 +1,7 @@
 package org.folio.rest.model
-import groovy.transform.Field
 
 class DataMigrationTenant {
-    @Field String tenantName
+    String tenantName
     Module moduleInfo
 }
 
