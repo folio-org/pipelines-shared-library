@@ -156,8 +156,11 @@ ansiColor('xterm') {
                         superadmin_user,
                         email
                     )
-                    println "-----------------------------Disabled timeout-------------------------"
-                    retry(5) {
+                    if (params.rancher_project_name == "data-migration") {
+                        retry(5) {
+                            deployment.update()
+                        }
+                    } else {
                         deployment.update()
                     }
                 }
