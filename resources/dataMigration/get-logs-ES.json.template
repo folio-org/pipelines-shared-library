@@ -72,8 +72,8 @@
             "range": {
             "@timestamp": {
                 "format": "strict_date_optional_time",
-                "gte": "2023-05-25T19:30:38.644Z",
-                "lte": "2023-05-26T00:13:20.363Z"
+                "gte": "${startDate}",
+                "lte": "now"
             }
             }
         },
