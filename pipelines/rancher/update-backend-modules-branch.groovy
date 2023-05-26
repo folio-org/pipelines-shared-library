@@ -156,13 +156,7 @@ ansiColor('xterm') {
                         superadmin_user,
                         email
                     )
-                    if (params.rancher_project_name == "data-migration") {
-                        retry(5) {
-                            deployment.update()
-                        }
-                    } else {
-                        deployment.update()
-                    }
+                    deployment.update()
                 }
             }
 
