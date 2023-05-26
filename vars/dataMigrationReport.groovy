@@ -26,7 +26,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 }
 
 @NonCPS
-def createHtmlReport(tenantName, tenants) {
+def createTimeHtmlReport(tenantName, tenants) {
     def sortedList = tenants.sort {
         try {
             it.moduleInfo.execTime.toInteger()
@@ -50,12 +50,16 @@ def createHtmlReport(tenantName, tenants) {
                 markup.tr {
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
                     markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #2", "Module name")
-                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Time(HH:MM:SS)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Source version (from)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #4", "Destination version (to)")
+                    markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #5", "Time(HH:MM:SS)")
                 }
             }
             markup.tbody {
                 groupByTenant[tenantName].each { tenantInfo -> 
                     def moduleName = tenantInfo.moduleInfo.moduleName
+                    def moduleVersionDst = tenantInfo.moduleInfo.moduleVersionDst
+                    def moduleVersionSrc = tenantInfo.moduleInfo.moduleVersionSrc
                     def execTime = tenantInfo.moduleInfo.execTime
                     def moduleTime 
                     if(execTime == "failed") {
@@ -72,10 +76,14 @@ def createHtmlReport(tenantName, tenants) {
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionSrc)
+                        markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionDst)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleTime)
                     }
                 }
                 markup.tr(style: "padding: 5px; border: solid 1px #777;") {
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
+                    markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", "")
                     markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(totalTime.toInteger()))
@@ -144,7 +152,7 @@ def getBackendModulesList(String repoName, String branchName){
 }
 
 @NonCPS
-def createDiffHtmlReport(diff, pgadminURL) {
+def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     def writer = new StringWriter()
     def builder = new MarkupBuilder(writer)
 
@@ -184,7 +192,7 @@ def createDiffHtmlReport(diff, pgadminURL) {
             builder.a(href: pgadminURL, target: "_blank") {
                 builder.h2("pgAdmin")
             }
-            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/6.18/schema_diff.html", target: "_blank") {
+            builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/7.1/schema_diff.html", target: "_blank") {
                 builder.h2("Documentation")
             }
             // Make navigation tab
@@ -200,9 +208,21 @@ def createDiffHtmlReport(diff, pgadminURL) {
                 }
             }
             diff.each { schema ->
-                builder.section(id: schema.key) {
-                    builder.h2(schema.key)
-                    builder.p(style: "white-space: pre-line", schema.value)
+                if (schema.key == "Unique schemas") {
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }                    
+                } else {
+                    def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
+                    // Find srcVersion and dstVersion for the given schema name
+                    def srcVersion = resultMap[moduleName]?.srcVersion
+                    def dstVersion = resultMap[moduleName]?.dstVersion
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.h4("Migrated from $srcVersion to $dstVersion version for $moduleName module")
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }
                 }
             }
         }

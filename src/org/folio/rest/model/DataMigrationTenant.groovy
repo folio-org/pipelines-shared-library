@@ -7,5 +7,7 @@ class DataMigrationTenant {
 
 class Module {
     String moduleName
+    String moduleVersionDst
+    String moduleVersionSrc
     String execTime
 }
