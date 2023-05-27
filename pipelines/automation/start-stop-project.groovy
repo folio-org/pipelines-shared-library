@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@fix_start_stop_project') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
@@ -161,7 +161,7 @@ ansiColor('xterm') {
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                         }
                         ui_bundle_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '1')
                         }
 
                         // Delete tag if Monday or Sunday
