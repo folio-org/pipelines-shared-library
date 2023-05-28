@@ -132,49 +132,45 @@ ansiColor('xterm') {
                         def core_modules_list_map = deployments_list.findAll { key, value -> core_modules_list.any { prefix -> key.startsWith(prefix) } }
                         def backend_module_list = deployments_list.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
                         def edge_module_list = deployments_list.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
-                        println('edge list')
-                        println(edge_module_list)
                         def ui_bundle_list = deployments_list.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
-                        println('ui-bundle list')
-                        println(ui_bundle_list)
-//                        if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-//                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1')
-//                            kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
-//                        }
-//                        else {
-//                            awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
-//                            awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
-//                            sleep 20
-//                        }
-//                        println(services_list)
-//
-//                        services_list.each { deployment, replica_count ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-//                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-//                            sleep 10
-//                        }
-//                        core_modules_list_map.each { deployment, replica_count ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-//                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-//                            sleep 10
-//                        }
-//                        backend_module_list.each { deployment, replica_count ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-//                        }
-//                        edge_module_list.each { deployment, replica_count ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-//                        }
-//                        ui_bundle_list.each { deployment ->
-//                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '1')
-//                        }
-//
-//                        // Delete tag if Monday or Sunday
-//                        Calendar calendar = Calendar.getInstance()
-//                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-//                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
-//                            println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
-//                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
-//                        }
+                        if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
+                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1')
+                            kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
+                        }
+                        else {
+                            awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                            awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                            sleep 20
+                        }
+                        println(services_list)
+
+                        services_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 10
+                        }
+                        core_modules_list_map.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 10
+                        }
+                        backend_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
+                        edge_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
+                        ui_bundle_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
+
+                        // Delete tag if Monday or Sunday
+                        Calendar calendar = Calendar.getInstance()
+                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
+                            println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
+                        }
                     }
                 }
             }
