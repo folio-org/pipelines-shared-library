@@ -604,6 +604,7 @@ class Okapi extends GeneralParameters {
                             throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
                         } else if (module.action != 'enable' || module.action != 'disable') {
                             allActionsEnabled = false
+                            logger.info("${allActionsEnabled} [DEBUG]")
                         }
                     }
                 }
@@ -615,8 +616,8 @@ class Okapi extends GeneralParameters {
             } else {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
-
-            sleep(900000)  // Sleep for 15 minutes before the next request
+            logger.info("sleeep [DEBUG]")
+            sleep(10)  // Sleep for 15 minutes before the next request
         }
 
         throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
