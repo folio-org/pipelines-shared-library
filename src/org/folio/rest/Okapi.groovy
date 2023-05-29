@@ -578,7 +578,7 @@ class Okapi extends GeneralParameters {
 
     List checkInstalledModules(String tenantId, int timeout) {
         long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
-        println endTime
+        logger.info("${endTime} [DEBUG]")
         while (System.currentTimeMillis() < endTime) {
             auth.getOkapiToken(supertenant, supertenant.getAdminUser())
             String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
@@ -589,15 +589,17 @@ class Okapi extends GeneralParameters {
             ]
 
             def response = http.getRequest(url, headers)
-            println response
+            logger.info("${response} [DEBUG]")
 
             if (response.status == HttpURLConnection.HTTP_OK) {
                 def installedModules = tools.jsonParse(response.content)
-                println(installedModules)
+                logger.info("${installedModules} [DEBUG]")
 
                 boolean allActionsEnabled = true
                 installedModules.each { moduleGroup ->
                     moduleGroup.modules.each { module ->
+                        logger.info("${module}  ${module.action} [DEBUG]")
+
                         if (module.action == 'failed') {
                             throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
                         } else if (module.action != 'enable') {
