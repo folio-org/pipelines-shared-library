@@ -595,15 +595,15 @@ class Okapi extends GeneralParameters {
                 def installedModules = tools.jsonParse(response.content)
                 logger.info("${installedModules} [DEBUG]")
 
-                boolean allActionsEnabled = true
+                boolean allActionsEnabled = false
                 installedModules.each { moduleGroup ->
                     moduleGroup.modules.each { module ->
                         logger.info("${module}  ${module.action} [DEBUG]")
 
                         if (module.action == 'failed') {
                             throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
-                        } else if (module.action != 'enable' || module.action != 'disable') {
-                            allActionsEnabled = false
+                        } else if (module.action == 'enable' || module.action == 'disable') {
+                            allActionsEnabled = true
                             logger.info("${allActionsEnabled} [DEBUG]")
                         }
                     }
