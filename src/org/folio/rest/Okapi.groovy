@@ -578,10 +578,10 @@ class Okapi extends GeneralParameters {
 
     List checkInstalledModules(String tenantId, int timeout) {
         long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
-
+        println endTime
         while (System.currentTimeMillis() < endTime) {
             auth.getOkapiToken(supertenant, supertenant.getAdminUser())
-            String url = okapi_url + "/_/proxy/tenants/${tenantId}/modules"
+            String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
             ArrayList headers = [
                 [name: 'Content-type', value: 'application/json'],
                 [name: 'X-Okapi-Tenant', value: supertenant.getId()],
@@ -589,6 +589,7 @@ class Okapi extends GeneralParameters {
             ]
 
             def response = http.getRequest(url, headers)
+            println response
 
             if (response.status == HttpURLConnection.HTTP_OK) {
                 def installedModules = tools.jsonParse(response.content)
