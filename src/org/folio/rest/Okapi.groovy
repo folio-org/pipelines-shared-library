@@ -575,4 +575,47 @@ class Okapi extends GeneralParameters {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
         }
     }
+
+    List checkInstalledModules(String tenantId, int timeout) {
+        long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
+
+        while (System.currentTimeMillis() < endTime) {
+            auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+            String url = okapi_url + "/_/proxy/tenants/${tenantId}/modules"
+            ArrayList headers = [
+                [name: 'Content-type', value: 'application/json'],
+                [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+                [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ?: '', maskValue: true]
+            ]
+
+            def response = http.getRequest(url, headers)
+
+            if (response.status == HttpURLConnection.HTTP_OK) {
+                def installedModules = tools.jsonParse(response.content)
+                println(installedModules)
+
+                boolean allActionsEnabled = true
+                installedModules.each { moduleGroup ->
+                    moduleGroup.modules.each { module ->
+                        if (module.action == 'failed') {
+                            throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
+                        } else if (module.action != 'enable') {
+                            allActionsEnabled = false
+                        }
+                    }
+                }
+
+                if (allActionsEnabled) {
+                    return installedModules
+                }
+            } else {
+                throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
+            }
+
+            sleep(900000)  // Sleep for 15 minutes before the next request
+        }
+
+        throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
+    }
+
 }

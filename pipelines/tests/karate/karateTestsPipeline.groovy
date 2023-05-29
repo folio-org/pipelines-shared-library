@@ -12,7 +12,7 @@ String projectName = params.okapiUrl.minus("https://").split("-")[2]
 List edgeModulesRollout = []
 
 pipeline {
-    agent { label 'rancher||jenkins-agent-java11' }
+    agent { label 'jenkins-agent-java17' }
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
@@ -105,7 +105,7 @@ pipeline {
             steps {
                 script {
                     withMaven(
-                        jdk: 'openjdk-11-jenkins-slave-all',
+                        jdk: 'openjdk-17-jenkins-slave-all',
                         maven: 'maven3-jenkins-slave-all',
                         mavenSettingsConfig: 'folioci-maven-settings'
                     ) {
@@ -113,6 +113,8 @@ pipeline {
                         if (params.modules) {
                             modules = "-pl common,testrail-integration," + params.modules
                         }
+                        sh 'echo JAVA_HOME=${JAVA_HOME}'
+                        sh 'java -version'
                         sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                     }
                 }
