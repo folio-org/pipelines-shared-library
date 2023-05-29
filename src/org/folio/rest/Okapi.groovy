@@ -610,6 +610,7 @@ class Okapi extends GeneralParameters {
 
                 if (allActionsEnabled) {
                     return installedModules
+                    break
                 }
             } else {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
