@@ -602,7 +602,7 @@ class Okapi extends GeneralParameters {
 
                         if (module.action == 'failed') {
                             throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
-                        } else if (module.action != 'enable') {
+                        } else if (module.action != 'enable' || module.action != 'disable') {
                             allActionsEnabled = false
                         }
                     }
