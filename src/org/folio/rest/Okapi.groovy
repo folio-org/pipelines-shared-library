@@ -617,7 +617,7 @@ class Okapi extends GeneralParameters {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
             logger.info("sleeep [DEBUG]")
-            sleep(10)  // Sleep for 15 minutes before the next request
+            sleep(900000)  // Sleep for 15 minutes before the next request
         }
 
         throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
