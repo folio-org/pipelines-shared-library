@@ -74,7 +74,7 @@ ansiColor('xterm') {
     node('rancher') {
         try {
             stage('Init') {
-                buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
+                buildName "${params.rancher_cluster_name}-${params.rancher_project_name}.${params.action}"
                 buildDescription "action: ${params.action} project\n"
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
