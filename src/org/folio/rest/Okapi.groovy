@@ -600,8 +600,8 @@ class Okapi extends GeneralParameters {
                     moduleGroup.modules.each { module ->
                         logger.info("${module}  ${module.stage} [DEBUG]")
 
-                        if (module.stage == 'failed') {
-                            throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
+                        if (module.containsKey('message')) {
+                            throw new AbortException("Module '${module.id}' action failed. Stage: ${module.message}")
                         } else if (module.stage == 'invoke' || module.stage == 'pending') {
                             inprogressCount++
                             logger.info("${inprogressCount} [DEBUG]")
