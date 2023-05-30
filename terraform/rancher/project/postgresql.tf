@@ -12,6 +12,7 @@ resource "random_password" "pg_password" {
 }
 
 locals {
+  pg_autovacuum = var.rancher_project_name == "data-migration" ? false : true
   pg_password = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   pg_architecture = var.enable_rw_split ? "replication" : "standalone"
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
@@ -158,6 +159,12 @@ resource "aws_rds_cluster_parameter_group" "aurora_cluster_postgres_parameter_gr
   count  = var.pg_embedded ? 0 : 1
   name   = join("-", ["aurora-postgres-cluster-parameter-group", local.env_name])
   family = join("", ["aurora-postgresql", split(".", var.pg_version)[0]])
+
+  parameter {
+    name  = "autovacuum"
+    value = local.pg_autovacuum
+  }
+
   tags   = var.tags
 }
 
