@@ -579,15 +579,15 @@ class Okapi extends GeneralParameters {
     List checkInstalledModules(String tenantId, int timeout) {
         long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
         logger.info("${endTime} [DEBUG]")
-        while (System.currentTimeMillis() < endTime) {
-            auth.getOkapiToken(supertenant, supertenant.getAdminUser())
-            String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
-            ArrayList headers = [
-                [name: 'Content-type', value: 'application/json'],
-                [name: 'X-Okapi-Tenant', value: supertenant.getId()],
-                [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ?: '', maskValue: true]
-            ]
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
+        ArrayList headers = [
+            [name: 'Content-type', value: 'application/json'],
+            [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+            [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ?: '', maskValue: true]
+        ]
 
+        while (System.currentTimeMillis() < endTime) {
             def response = http.getRequest(url, headers)
             logger.info("${response} [DEBUG]")
 
@@ -595,29 +595,33 @@ class Okapi extends GeneralParameters {
                 def installedModules = tools.jsonParse(response.content)
                 logger.info("${installedModules} [DEBUG]")
 
-                boolean allActionsEnabled = false
+                def inprogressCount = 0
                 installedModules.each { moduleGroup ->
                     moduleGroup.modules.each { module ->
-                        logger.info("${module}  ${module.action} [DEBUG]")
+                        logger.info("${module}  ${module.stage} [DEBUG]")
 
-                        if (module.action == 'failed') {
+                        if (module.stage == 'failed') {
                             throw new AbortException("Module '${module.id}' action failed. Stage: ${module.stage}")
-                        } else if (module.action == 'enable' || module.action == 'disable') {
-                            allActionsEnabled = true
-                            logger.info("${allActionsEnabled} [DEBUG]")
+                        } else if (module.stage == 'invoke' || module.stage == 'pending') {
+                            inprogressCount++
+                            logger.info("${inprogressCount} [DEBUG]")
+                            logger.info("sleeep [DEBUG]")
+                            sleep(900000)  // Sleep for 15 minutes before the next request
                         }
                     }
                 }
 
-                if (allActionsEnabled) {
-                    return installedModules
-                    break
-                }
+                // if (inprogressCount == 0) {
+                //     logger.info("${inprogressCount} [DEBUG in if (inprogressCount  == 0)]")
+                //     return installedModules
+                //     break
+                // } else {
+                //     logger.info("sleeep [DEBUG]")
+                //     sleep(900000)  // Sleep for 15 minutes before the next request
+                // }
             } else {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
-            logger.info("sleeep [DEBUG]")
-            sleep(900000)  // Sleep for 15 minutes before the next request
         }
 
         throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
