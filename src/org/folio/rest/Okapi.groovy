@@ -605,20 +605,18 @@ class Okapi extends GeneralParameters {
                         } else if (module.stage == 'invoke' || module.stage == 'pending') {
                             inprogressCount++
                             logger.info("${inprogressCount} [DEBUG]")
-                            logger.info("sleeep [DEBUG]")
-                            sleep(900000)  // Sleep for 15 minutes before the next request
                         }
                     }
                 }
 
-                // if (inprogressCount == 0) {
-                //     logger.info("${inprogressCount} [DEBUG in if (inprogressCount  == 0)]")
-                //     return installedModules
-                //     break
-                // } else {
-                //     logger.info("sleeep [DEBUG]")
-                //     sleep(900000)  // Sleep for 15 minutes before the next request
-                // }
+                if (inprogressCount == 0) {
+                    logger.info("${inprogressCount} [DEBUG in if (inprogressCount  == 0)]")
+                    return installedModules
+                    break
+                } else {
+                    logger.info("sleeep [DEBUG]")
+                    sleep(900000)  // Sleep for 15 minutes before the next request
+                }
             } else {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
