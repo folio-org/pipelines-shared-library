@@ -282,11 +282,10 @@ ansiColor('xterm') {
                         def diffHtmlData
                         if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
-                            jobStatus = 'UNSTABLE'
+                            currentBuild.result = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
-                            jobStatus = 'SUCCESS'
                         } 
                         writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }                
