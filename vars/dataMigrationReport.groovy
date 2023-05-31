@@ -117,8 +117,13 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
             message += "$moduleName\n"
         }
     }
-    message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
-    message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
+
+    if (buildStatus == "FAILED") {
+        message += "Data Migration Failed. Please check logs in job."
+    } else {
+        message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
+        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"        
+    }
 
     try {
         println message

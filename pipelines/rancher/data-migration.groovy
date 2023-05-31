@@ -307,16 +307,16 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-            }
-
-            stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }            
+            }           
 
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
         } finally {
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            }
+            
             stage('Cleanup') {
                 cleanWs notFailBuild: true
             }
