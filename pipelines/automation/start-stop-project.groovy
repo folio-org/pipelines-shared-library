@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library@fix_start_stop_project') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
