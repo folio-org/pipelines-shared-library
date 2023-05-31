@@ -578,7 +578,6 @@ class Okapi extends GeneralParameters {
 
     List checkInstalledModules(String tenantId, int timeout) {
         long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
-        logger.info("${endTime} [DEBUG]")
         auth.getOkapiToken(supertenant, supertenant.getAdminUser())
         String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
         ArrayList headers = [
@@ -589,40 +588,32 @@ class Okapi extends GeneralParameters {
 
         while (System.currentTimeMillis() < endTime) {
             def response = http.getRequest(url, headers)
-            logger.info("${response} [DEBUG]")
 
             if (response.status == HttpURLConnection.HTTP_OK) {
                 def installedModules = tools.jsonParse(response.content)
-                logger.info("${installedModules} [DEBUG]")
-
-                def inprogressCount = 0
+                def inProgressCount = 0
                 installedModules.each { moduleGroup ->
                     moduleGroup.modules.each { module ->
-                        logger.info("${module}  ${module.stage} [DEBUG]")
-
                         if (module.containsKey('message')) {
-                            throw new AbortException("Module '${module.id}' action failed. Stage: ${module.message}")
+                            throw new AbortException("Module '${module.id}' failed. Error message: ${module.message}")
                         } else if (module.stage == 'invoke' || module.stage == 'pending') {
-                            inprogressCount++
-                            logger.info("${inprogressCount} [DEBUG]")
+                            inProgressCount++
+                            logger.info("${module.id} in ${module.stage} status")
                         }
                     }
                 }
 
-                if (inprogressCount == 0) {
-                    logger.info("${inprogressCount} [DEBUG in if (inprogressCount  == 0)]")
-                    return installedModules
+                if (inProgressCount == 0) {
+                    logger.info("All modules are enabled")
                     break
                 } else {
-                    logger.info("sleeep [DEBUG]")
-                    sleep(900000)  // Sleep for 15 minutes before the next request
+                    logger.info("Sleep for 15 minutes ..")
+                    sleep(900000)
                 }
             } else {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
         }
-
         throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
     }
-
 }
