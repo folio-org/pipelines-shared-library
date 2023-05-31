@@ -54,7 +54,7 @@ ansiColor('xterm') {
     node('rancher') {
         try {
             stage('Init') {
-                currentBuild.result = 'SUCCESS'
+                // currentBuild.result = 'SUCCESS'
                 buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
 
                 // Create map with moduleName, source and destination version for this module
@@ -310,8 +310,7 @@ ansiColor('xterm') {
             }           
 
         } catch (exception) {
-            println(exception)
-            currentBuild.result = 'FAILED'
+            currentBuild.result = 'FAILURE'
             error(exception.getMessage())
         } finally {
             stage('Send Slack notification') {
