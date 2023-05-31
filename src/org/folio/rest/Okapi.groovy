@@ -614,6 +614,9 @@ class Okapi extends GeneralParameters {
                 throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
             }
         }
-        throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
+        // Abort job if current time more
+        if (System.currentTimeMillis() > endTime) {
+            throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
+        }
     }
 }
