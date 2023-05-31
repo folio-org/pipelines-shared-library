@@ -607,7 +607,7 @@ class Okapi extends GeneralParameters {
                     logger.info("All modules are enabled")
                     break
                 } else {
-                    logger.info("Sleep for 15 minutes ..")
+                    logger.info("${inProgressCount} modules still are not enabled. Sleep for 15 minutes ..")
                     sleep(900000)
                 }
             } else {
