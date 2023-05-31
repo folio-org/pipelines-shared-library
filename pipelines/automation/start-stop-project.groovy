@@ -74,7 +74,7 @@ ansiColor('xterm') {
     node('rancher') {
         try {
             stage('Init') {
-                buildName "${params.rancher_cluster_name}-${params.rancher_project_name}"
+                buildName "${params.rancher_cluster_name}-${params.rancher_project_name}.${params.action}"
                 buildDescription "action: ${params.action} project\n"
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
@@ -160,8 +160,8 @@ ansiColor('xterm') {
                         edge_module_list.each { deployment, replica_count ->
                             kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                         }
-                        ui_bundle_list.each { deployment ->
-                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, 1)
+                        ui_bundle_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                         }
 
                         // Delete tag if Monday or Sunday
