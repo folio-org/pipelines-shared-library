@@ -118,7 +118,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
         }
     }
 
-    if (buildStatus == "FAILED") {
+    if (buildStatus == "FAILURE") {
         message += "Data Migration Failed. Please check logs in job."
     } else {
         message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
