@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library@RANCHER-824') _
+@Library('pipelines-shared-library') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -54,7 +54,7 @@ ansiColor('xterm') {
     node('rancher') {
         try {
             stage('Init') {
-                // currentBuild.result = 'SUCCESS'
+                currentBuild.result = 'SUCCESS'
                 buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
 
                 // Create map with moduleName, source and destination version for this module
@@ -77,8 +77,7 @@ ansiColor('xterm') {
                 }
             }
             stage('Destroy data-migration project') {
-                // build job: Constants.JENKINS_JOB_PROJECT,
-                build job: "/Rancher/Project(kd-test)",
+                build job: Constants.JENKINS_JOB_PROJECT,
                     propagate: false,
                     parameters: [
                         string(name: 'action', value: 'destroy'),
@@ -95,8 +94,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Restore data-migration project from backup') {
-                // build job: Constants.JENKINS_JOB_PROJECT,
-                build job: "/Rancher/Project(kd-test)",
+                build job: Constants.JENKINS_JOB_PROJECT,
                     parameters: [
                         string(name: 'action', value: 'apply'),
                         string(name: 'folio_repository', value: params.folio_repository),
@@ -118,8 +116,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with src release versions') {
-                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_src),
@@ -132,8 +129,7 @@ ansiColor('xterm') {
                     ]
             }
             stage('Update with dst release versions') {
-                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),
