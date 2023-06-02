@@ -382,6 +382,7 @@ class Okapi extends GeneralParameters {
         String body = JsonOutput.toJson(modulesList)
         logger.info("Install operation for tenant ${tenant.id} started")
         def res = http.postRequest(url, body, headers, true, timeout)
+        
         if (res.status == HttpURLConnection.HTTP_OK) {
             logger.info("Install operation for tenant ${tenant.id} finished successfully\n${JsonOutput.prettyPrint(res.content)}")
             return tools.jsonParse(res.content)
@@ -572,6 +573,50 @@ class Okapi extends GeneralParameters {
             return test.id
         } else {
             throw new AbortException("Unable to retrieve installed modules list." + http.buildHttpErrorMessage(res))
+        }
+    }
+
+    List checkInstalledModules(String tenantId, int timeout) {
+        long endTime = System.currentTimeMillis() + timeout * 60 * 60 * 1000
+        auth.getOkapiToken(supertenant, supertenant.getAdminUser())
+        String url = okapi_url + "/_/proxy/tenants/${tenantId}/install"
+        ArrayList headers = [
+            [name: 'Content-type', value: 'application/json'],
+            [name: 'X-Okapi-Tenant', value: supertenant.getId()],
+            [name: 'X-Okapi-Token', value: supertenant.getAdminUser().getToken() ?: '', maskValue: true]
+        ]
+
+        while (System.currentTimeMillis() < endTime) {
+            def response = http.getRequest(url, headers)
+
+            if (response.status == HttpURLConnection.HTTP_OK) {
+                def installedModules = tools.jsonParse(response.content)
+                def inProgressCount = 0
+                installedModules.each { moduleGroup ->
+                    moduleGroup.modules.each { module ->
+                        if (module.containsKey('message')) {
+                            throw new AbortException("Module '${module.id}' failed. Error message: ${module.message}")
+                        } else if (module.stage == 'invoke' || module.stage == 'pending') {
+                            inProgressCount++
+                            logger.info("${module.id} in ${module.stage} status")
+                        }
+                    }
+                }
+
+                if (inProgressCount == 0) {
+                    logger.info("All modules are enabled")
+                    break
+                } else {
+                    logger.info("${inProgressCount} modules still are not enabled. Sleep for 15 minutes ..")
+                    sleep(900000)
+                }
+            } else {
+                throw new AbortException("Unable to retrieve installed modules list. ${http.buildHttpErrorMessage(response)}")
+            }
+        }
+        // Abort job if current time more
+        if (System.currentTimeMillis() > endTime) {
+            throw new AbortException("Timeout: Unable to complete module actions within the specified time.")
         }
     }
 }

@@ -95,7 +95,7 @@ def createTimeHtmlReport(tenantName, tenants) {
 }
 
 void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
-    def buildStatus = currentBuild.currentResult
+    def buildStatus = currentBuild.result
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
     def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
@@ -117,11 +117,15 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
             message += "$moduleName\n"
         }
     }
-    message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
-    message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
+
+    if (buildStatus == "FAILURE") {
+        message += "Data Migration Failed. Please check logs in job."
+    } else {
+        message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
+        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"        
+    }
 
     try {
-        println message
         slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")

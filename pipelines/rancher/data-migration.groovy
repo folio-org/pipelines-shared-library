@@ -54,6 +54,7 @@ ansiColor('xterm') {
     node('rancher') {
         try {
             stage('Init') {
+                currentBuild.result = 'SUCCESS'
                 buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
 
                 // Create map with moduleName, source and destination version for this module
@@ -277,11 +278,10 @@ ansiColor('xterm') {
                         def diffHtmlData
                         if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
-                            jobStatus = 'UNSTABLE'
+                            currentBuild.result = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
-                            jobStatus = 'SUCCESS'
                         } 
                         writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }                
@@ -303,16 +303,16 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-            }
-
-            stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }            
+            }           
 
         } catch (exception) {
-            println(exception)
+            currentBuild.result = 'FAILURE'
             error(exception.getMessage())
         } finally {
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            }
+            
             stage('Cleanup') {
                 cleanWs notFailBuild: true
             }

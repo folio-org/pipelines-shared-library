@@ -156,7 +156,16 @@ ansiColor('xterm') {
                         superadmin_user,
                         email
                     )
-                    deployment.update()
+                    try {
+                        deployment.update()
+                    } catch (Exception e) {
+                        if (e.getMessage().contains("504 Gateway Time-out")) {
+                            println("Deployment update failed with a 504 Gateway Time-out. Check modules status with GET request..")
+                            okapi.checkInstalledModules(params.tenant_id, 5)
+                        } else {
+                            throw e
+                        }
+                    }
                 }
             }
 
