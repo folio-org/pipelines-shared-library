@@ -62,6 +62,7 @@ def call(params) {
                                                           accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                                                           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                                             sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                                            sh "yarn cache clean"
                                             sh "yarn add -D cypress-testrail-simple"
                                             sh "yarn global add cy2@latest"
                                             sh "yarn install"
