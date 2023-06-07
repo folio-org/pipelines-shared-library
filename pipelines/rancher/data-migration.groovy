@@ -44,6 +44,7 @@ List modulesMigrationFailedSlack = []
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
+def findedSchemaDiff = false
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -278,6 +279,7 @@ ansiColor('xterm') {
                         def diffHtmlData
                         if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
+                            findedSchemaDiff = true
                             currentBuild.result = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
@@ -303,7 +305,30 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-            }           
+            }
+
+            stage('Destroy data-migration project') {
+                if(findedSchemaDiff) {
+                    println "Waiting to destroy 6 hours"
+                    sleep time: 6, unit: 'HOURS'
+                }
+                
+                build job: Constants.JENKINS_JOB_PROJECT,
+                    propagate: false,
+                    parameters: [
+                        string(name: 'action', value: 'destroy'),
+                        string(name: 'folio_repository', value: params.folio_repository),
+                        string(name: 'folio_branch', value: params.folio_branch_src),
+                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
+                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                        string(name: 'rancher_project_name', value: rancher_project_name),
+                        string(name: 'config_type', value: config_type),
+                        booleanParam(name: 'pg_embedded', value: false),
+                        booleanParam(name: 'kafka_shared', value: false),
+                        booleanParam(name: 'opensearch_shared', value: false),
+                        booleanParam(name: 's3_embedded', value: false)
+                    ]
+            }          
 
         } catch (exception) {
             currentBuild.result = 'FAILURE'
