@@ -234,3 +234,53 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 
     return writer.toString()
 }
+
+void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
+    JiraClient jiraClient = getJiraClient()
+
+    def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
+    def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
+    def srcVersion = resultMap[moduleName]?.srcVersion
+    def dstVersion = resultMap[moduleName]?.dstVersion
+
+    String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
+
+    def fields = [
+        Summary    : summary,
+        Description: description,
+        Priority   : Constants.JIRA_ISSUE_PRIORITY,
+        Labels     : [Constants.ISSUE_LABEL]
+    ]
+
+    def teamName = "TEAM_MISSING"
+    def teamByModule = teamAssignment.getTeamsByModules()
+    def team = teamByModule[moduleName]
+    if (team) {
+        teamName = team
+        fields["Development Team"] = teamName
+    } else {
+        echo "Module ${moduleName} is not assigned to any team."
+    }
+
+    try {
+        echo "Create jira ticket for ${moduleName}, team '${teamName}'"
+        // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
+        echo "fields $fields"
+        echo "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+    } catch (e) {
+        echo("Unable to create Jira ticket. " + e.getMessage())
+        e.printStackTrace()
+    }
+}
+
+private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
+    def description =
+        "*Schema Name:* ${schemaName}\n" +
+        "*Schema diff:* ${schemaDiff}\n" +
+        "*Upgraded from:* ${srcVersion} *to* ${dstVersion} version\n" +
+        "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n"
+
+    description
+        .replaceAll("\\{", "&#123;")
+        .replaceAll("\\{", "&#125;")
+}

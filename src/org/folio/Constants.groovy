@@ -144,4 +144,10 @@ class Constants {
                                       "mod-template-engine",
                                       "mod-users"]
 
+    // Schema Diff
+    static String ISSUE_SUMMARY_PREFIX =  "Schema Difference:"
+    static String JIRA_ISSUE_PRIORITY  = "P2"
+    static String ISSUE_LABEL = "dataMigrationSchemaDiff"
+    static String JIRA_PROJECT = "FAT"
+    static String JIRA_ISSUE_TYPE = "Bug"
 }

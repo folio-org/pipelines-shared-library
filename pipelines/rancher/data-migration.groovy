@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-772') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -268,10 +268,17 @@ ansiColor('xterm') {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
                                     diff.put(it.key, currentDiff)
+                                    // create jira ticket
+                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap)
                                 }
                             } catch(exception) {
                                 println exception
-                                diff.put(it.key, "Changes were found in this scheme, but cannot be processed. \n Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI")
+                                def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
+                                                    "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n" +
+                                                    "Output from Atlas tool: $exception"
+                                diff.put(it.key, messageDiff)
+                                // create jira ticket
+                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap)
                             }
                         }
 
