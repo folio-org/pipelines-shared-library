@@ -305,6 +305,14 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
+            }        
+
+        } catch (exception) {
+            currentBuild.result = 'FAILURE'
+            error(exception.getMessage())
+        } finally {
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }
 
             stage('Destroy data-migration project') {
@@ -328,16 +336,8 @@ ansiColor('xterm') {
                         booleanParam(name: 'opensearch_shared', value: false),
                         booleanParam(name: 's3_embedded', value: false)
                     ]
-            }          
-
-        } catch (exception) {
-            currentBuild.result = 'FAILURE'
-            error(exception.getMessage())
-        } finally {
-            stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }
-            
+            }    
+                      
             stage('Cleanup') {
                 cleanWs notFailBuild: true
             }
