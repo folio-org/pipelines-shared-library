@@ -44,7 +44,7 @@ List modulesMigrationFailedSlack = []
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
-def findedSchemaDiff = false
+def foundSchemaDiff = false
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -279,7 +279,7 @@ ansiColor('xterm') {
                         def diffHtmlData
                         if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
-                            findedSchemaDiff = true
+                            foundSchemaDiff = true
                             currentBuild.result = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
@@ -316,7 +316,7 @@ ansiColor('xterm') {
             }
 
             stage('Destroy data-migration project') {
-                if(findedSchemaDiff) {
+                if(foundSchemaDiff) {
                     println "Waiting to destroy 6 hours"
                     sleep time: 6, unit: 'HOURS'
                 }
@@ -337,7 +337,7 @@ ansiColor('xterm') {
                         booleanParam(name: 's3_embedded', value: false)
                     ]
             }    
-                      
+
             stage('Cleanup') {
                 cleanWs notFailBuild: true
             }
