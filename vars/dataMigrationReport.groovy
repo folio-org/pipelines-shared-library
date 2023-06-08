@@ -7,6 +7,7 @@ import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
 import org.folio.client.jira.JiraClient
 import org.folio.Constants
+import org.folio.karate.teams.TeamAssignment
 
 
 def getESLogs(cluster, indexPattern, startDate) {
