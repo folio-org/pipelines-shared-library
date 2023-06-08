@@ -239,6 +239,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
+@NonCPS
 void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = karateTestUtils.getJiraClient()
 
