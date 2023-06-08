@@ -239,7 +239,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
-void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
+void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMapt, teamAssignment) {
     JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
@@ -256,14 +256,8 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
         Labels     : [Constants.ISSUE_LABEL]
     ]
 
-    Tools tools = new Tools(this)
-    tools.copyResourceFileToWorkspace("dataMigration/teams-assignment.json")
-    def jsonContents = readJSON file: "teams-assignment.json"
-    def teamAssignment = new TeamAssignment(jsonContents)
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
-    println "----------------------------------------"
-    println moduleName
     def team = teamByModule[moduleName]
     if (team) {
         teamName = team
@@ -293,4 +287,12 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
     description
         .replaceAll("\\{", "&#123;")
         .replaceAll("\\{", "&#125;")
+}
+
+private String getTeamAssignment() {
+    Tools tools = new Tools(this)
+    def assignmentPath = "teams-assignment.json"
+    tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
+    def jsonContents = readJSON file: assignmentPath
+    def teamAssignment = new TeamAssignment(jsonContents)
 }

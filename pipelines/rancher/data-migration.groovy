@@ -203,6 +203,9 @@ ansiColor('xterm') {
             stage('Get schemas difference') {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
+                        // Get team assigments
+                        def teamAssignment = dataMigrationReport.getTeamAssignment()
+
                         // Get psql connection parameters
                         Map psqlConnection = [
                             password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
@@ -269,7 +272,7 @@ ansiColor('xterm') {
                                 } else {
                                     diff.put(it.key, currentDiff)
                                     // create jira ticket
-                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap)
+                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap, teamAssignment)
                                 }
                             } catch(exception) {
                                 println exception
@@ -278,7 +281,7 @@ ansiColor('xterm') {
                                                     "Output from Atlas tool: $exception"
                                 diff.put(it.key, messageDiff)
                                 // create jira ticket
-                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap)
+                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
                             }
                         }
 
