@@ -255,7 +255,8 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
         Priority   : Constants.JIRA_ISSUE_PRIORITY,
         Labels     : [Constants.ISSUE_LABEL]
     ]
-
+    def jsonContents = readJSON file: "teams-assignment.json"
+    def teamAssignment = new TeamAssignment(jsonContents)
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
