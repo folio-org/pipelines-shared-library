@@ -295,6 +295,7 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         .replaceAll("\\{", "&#125;")
 }
 
+@NonCPS
 private JiraClient getJiraClient() {
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
