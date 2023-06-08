@@ -278,6 +278,7 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     }
 }
 
+@NonCPS
 private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
     def description =
         "*Schema Name:* ${schemaName}\n" +
@@ -290,6 +291,7 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
         .replaceAll("\\{", "&#125;")
 }
 
+@NonCPS
 private String getTeamAssignment() {
     Tools tools = new Tools(this)
     def assignmentPath = "teams-assignment.json"
