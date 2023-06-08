@@ -239,7 +239,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
-void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
+void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
@@ -255,8 +255,7 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
         Priority   : Constants.JIRA_ISSUE_PRIORITY,
         Labels     : [Constants.ISSUE_LABEL]
     ]
-    def jsonContents = readJSON file: "teams-assignment.json"
-    def teamAssignment = new TeamAssignment(jsonContents)
+
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
