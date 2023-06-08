@@ -262,6 +262,8 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
     def teamAssignment = new TeamAssignment(jsonContents)
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
+    println "----------------------------------------"
+    println moduleName
     def team = teamByModule[moduleName]
     if (team) {
         teamName = team
@@ -292,11 +294,3 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
         .replaceAll("\\{", "&#123;")
         .replaceAll("\\{", "&#125;")
 }
-
-// private JiraClient getJiraClient() {
-//     withCredentials([
-//         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-//     ]) {
-//         return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-//     }
-// }
