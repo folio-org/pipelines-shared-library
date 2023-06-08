@@ -258,7 +258,8 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
 
     Tools tools = new Tools(this)
     tools.copyResourceFileToWorkspace("dataMigration/teams-assignment.json")
-    def jsonContents = steps.readFile "teams-assignment.json"
+    // def jsonContents = steps.readFile "teams-assignment.json"
+    def jsonContents = readJSON file: "teams-assignment.json"
     println jsonContents
     def teamAssignment = new TeamAssignment(jsonContents)
     println "get teamAssignment"
