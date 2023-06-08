@@ -6,6 +6,8 @@ import java.util.Date
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
 import org.folio.client.jira.JiraClient
+import org.folio.Constants
+
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
