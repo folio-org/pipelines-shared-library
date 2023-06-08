@@ -285,3 +285,11 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
         .replaceAll("\\{", "&#123;")
         .replaceAll("\\{", "&#125;")
 }
+
+private JiraClient getJiraClient() {
+    withCredentials([
+        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
+    ]) {
+        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
+    }
+}
