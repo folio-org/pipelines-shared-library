@@ -278,7 +278,7 @@ ansiColor('xterm') {
                                 println exception
                                 def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
                                                     "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n" +
-                                                    "Output from Atlas tool: $exception"
+                                                    "Error output: $exception"
                                 diff.put(it.key, messageDiff)
                                 // create jira ticket
                                 dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
