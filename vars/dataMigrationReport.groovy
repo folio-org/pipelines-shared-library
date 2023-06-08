@@ -240,7 +240,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 }
 
 void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
-    JiraClient jiraClient = getJiraClient()
+    JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
@@ -258,16 +258,11 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
 
     Tools tools = new Tools(this)
     tools.copyResourceFileToWorkspace("dataMigration/teams-assignment.json")
-    // def jsonContents = steps.readFile "teams-assignment.json"
     def jsonContents = readJSON file: "teams-assignment.json"
-    println jsonContents
     def teamAssignment = new TeamAssignment(jsonContents)
-    println "get teamAssignment"
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
-    println "get teamByModule"
     def team = teamByModule[moduleName]
-    println "get team"
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
@@ -298,10 +293,10 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
         .replaceAll("\\{", "&#125;")
 }
 
-private JiraClient getJiraClient() {
-    withCredentials([
-        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-    }
-}
+// private JiraClient getJiraClient() {
+//     withCredentials([
+//         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
+//     ]) {
+//         return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
+//     }
+// }
