@@ -239,7 +239,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
-void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
+void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap) {
     JiraClient jiraClient = getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
@@ -256,6 +256,10 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
         Labels     : [Constants.ISSUE_LABEL]
     ]
 
+    Tools tools = new Tools(this)
+    tools.copyResourceFileToWorkspace("dataMigration/teams-assignment.json")
+    def jsonContents = steps.readFile "teams-assignment.json"
+    def teamAssignment = new TeamAssignment(jsonContents)
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
