@@ -57,7 +57,11 @@ ansiColor('xterm') {
         try {
             stage('Init') {
                 currentBuild.result = 'SUCCESS'
-                buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+                if (backup_name) {
+                    buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+                } else {
+                    buildName tenant_id + '.' + env.BUILD_ID
+                }
 
                 // Create map with moduleName, source and destination version for this module
                 // This map used for time migration and schemaDiff reports
