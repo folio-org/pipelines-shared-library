@@ -32,9 +32,9 @@ properties([
         string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
         string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
 
-def rancher_cluster_name = 'folio-perf'
-def rancher_project_name = 'data-migration'
-def config_type = 'performance'
+def rancher_cluster_name = 'folio-testing'
+def rancher_project_name = 'karate'
+def config_type = 'testing'
 def tenant_id = 'fs09000000'
 def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
