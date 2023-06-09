@@ -264,6 +264,7 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
+    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
