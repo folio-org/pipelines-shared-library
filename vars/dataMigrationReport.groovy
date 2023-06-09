@@ -221,6 +221,11 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                         builder.h2(schema.key)
                         builder.p(style: "white-space: pre-line", schema.value)
                     }                    
+                } else if (schema.key == "createDiffHtmlReport"){
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }
                 } else {
                     def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
                     // Find srcVersion and dstVersion for the given schema name
