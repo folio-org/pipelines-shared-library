@@ -245,7 +245,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 }
 
 void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-    JiraClient jiraClient = getJiraClient()
+    JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
@@ -301,12 +301,4 @@ private String getTeamAssignment() {
     def jsonContents = readJSON file: assignmentPath
     def teamAssignment = new TeamAssignment(jsonContents)
     return teamAssignment
-}
-
-private JiraClient getJiraClient() {
-    withCredentials([
-        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-    }
 }
