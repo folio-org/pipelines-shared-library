@@ -245,7 +245,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 }
 
 void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-    // JiraClient jiraClient = karateTestUtils.getJiraClient()
+    JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
