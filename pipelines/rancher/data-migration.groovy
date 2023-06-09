@@ -264,7 +264,7 @@ ansiColor('xterm') {
                         
                         groupedValues.each {
                             try {
-                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
+                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.value}'"
                                 def currentDiff =  sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPod} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
 
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
