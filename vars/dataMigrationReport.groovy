@@ -297,12 +297,11 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
 }
 
 @NonCPS
-def getTeamAssignment() {
+private String getTeamAssignment() {
     Tools tools = new Tools(this)
     def assignmentPath = "teams-assignment.json"
     tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
     def jsonContents = readJSON file: assignmentPath
-    println jsonContents
-    TeamAssignment teamAssignment = new TeamAssignment(jsonContents)
+    def teamAssignment = new TeamAssignment(jsonContents)
     return teamAssignment
 }
