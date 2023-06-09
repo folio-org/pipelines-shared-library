@@ -245,7 +245,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 }
 
 @NonCPS
-void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
+void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, TeamAssignment teamAssignment) {
     // JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
