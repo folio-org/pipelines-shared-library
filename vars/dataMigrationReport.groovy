@@ -267,9 +267,11 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
-        echo "$teamName"
+        new Logger(this, 'common').info('Can not detect required Java version')
+        // echo "$teamName"
     } else {
-        echo "Module ${moduleName} is not assigned to any team."
+        new Logger(this, 'common').info('Module ${moduleName} is not assigned to any team.')
+        // echo "Module ${moduleName} is not assigned to any team."
     }
 
     try {
