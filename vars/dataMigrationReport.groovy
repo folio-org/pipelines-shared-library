@@ -267,6 +267,7 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
+        logger.info "$teamName"
     } else {
         logger.info "Module ${moduleName} is not assigned to any team."
     }
