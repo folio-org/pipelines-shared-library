@@ -45,6 +45,7 @@ def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
 def foundSchemaDiff = false
+def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -78,57 +79,47 @@ ansiColor('xterm') {
                 }
             }
             stage('Destroy data-migration project') {
-                build job: Constants.JENKINS_JOB_PROJECT,
-                    propagate: false,
-                    parameters: [
-                        string(name: 'action', value: 'destroy'),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_shared', value: false),
-                        booleanParam(name: 'opensearch_shared', value: false),
-                        booleanParam(name: 's3_embedded', value: false)
-                    ]
+                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+                        rancher_project_name, params.folio_repository, params.folio_branch_src,
+                        okapiVersion, params.backup_name)
+
+                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }
+
             stage('Restore data-migration project from backup') {
-                build job: Constants.JENKINS_JOB_PROJECT,
-                    parameters: [
-                        string(name: 'action', value: 'apply'),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        booleanParam(name: 'restore_from_backup', value: true),
-                        string(name: 'backup_type', value: 'rds'),
-                        string(name: 'backup_name', value: params.backup_name),
-                        string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
-                        booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_shared', value: true),
-                        booleanParam(name: 'opensearch_shared', value: true),
-                        booleanParam(name: 's3_embedded', value: false)
-                    ]
+                if (params.backup_name) {
+                    def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
+                            rancher_project_name, params.folio_repository, params.folio_branch_src,
+                            okapiVersion, params.backup_name, true)
+
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
+                }
             }
-            stage('Update with src release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                    parameters: [
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
-                    ]
+
+            stage('Create data-migration project') {
+                if (!params.backup_name) {
+                    def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
+                            rancher_project_name, params.folio_repository, params.folio_branch_src,
+                            okapiVersion, params.backup_name, false, true, true)
+
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
+                }
             }
+
+            // stage('Update with src release versions') {
+            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+            //         parameters: [
+            //             string(name: 'folio_repository', value: params.folio_repository),
+            //             string(name: 'folio_branch', value: params.folio_branch_src),
+            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+            //             string(name: 'rancher_project_name', value: rancher_project_name),
+            //             string(name: 'config_type', value: config_type),
+            //             string(name: 'tenant_id', value: tenant_id),
+            //             string(name: 'admin_username', value: "folio"),
+            //             string(name: 'admin_password', value: "folio")
+            //         ]
+            // }
+
             stage('Update with dst release versions') {
                 build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
@@ -316,26 +307,16 @@ ansiColor('xterm') {
             }
 
             stage('Destroy data-migration project') {
-                if(foundSchemaDiff) {
+                if (foundSchemaDiff) {
                     println "Waiting to destroy 6 hours"
                     sleep time: 6, unit: 'HOURS'
                 }
                 
-                build job: Constants.JENKINS_JOB_PROJECT,
-                    propagate: false,
-                    parameters: [
-                        string(name: 'action', value: 'destroy'),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_shared', value: false),
-                        booleanParam(name: 'opensearch_shared', value: false),
-                        booleanParam(name: 's3_embedded', value: false)
-                    ]
+                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+                        rancher_project_name, params.folio_repository, params.folio_branch_src,
+                        okapiVersion, params.backup_name)
+
+                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }    
 
             stage('Cleanup') {
@@ -353,4 +334,31 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     kubectl.waitPodIsRunning(namespace, psqlPod)
     def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
     return schemasList.split('\n').collect({it.trim()})
+}
+
+private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository, 
+                                         String folio_branch, String okapiVersion, String backup_name, boolean restore_from_backup = false, 
+                                         boolean load_reference = false, boolean load_sample = false, boolean pg_embedded = false, 
+                                         boolean kafka_shared = true, boolean opensearch_shared = true, boolean s3_embedded = false) {
+    [
+        string(name: 'action', value: action),
+        string(name: 'rancher_cluster_name', value: clusterName),
+        string(name: 'rancher_project_name', value: projectName),
+        string(name: 'folio_repository', value: folio_repository),
+        string(name: 'folio_branch', value: folio_branch),
+        string(name: 'okapi_version', value: okapiVersion),
+        string(name: 'config_type', value: 'performance'),
+        string(name: 'tenant_id', value: 'fs09000000'),
+        string(name: 'admin_username', value: 'folio'),
+        string(name: 'admin_password', value: 'folio'),
+        string(name: 'backup_type', value: 'rds'),
+        string(name: 'backup_name', value: backup_name),
+        booleanParam(name: 'restore_from_backup', value: restore_from_backup),
+        booleanParam(name: 'load_reference', value: load_reference),
+        booleanParam(name: 'load_sample', value: load_sample),
+        booleanParam(name: 'pg_embedded', value: pg_embedded),
+        booleanParam(name: 'kafka_shared', value: kafka_shared),
+        booleanParam(name: 'opensearch_shared', value: opensearch_shared),
+        booleanParam(name: 's3_embedded', value: s3_embedded)
+    ]
 }
