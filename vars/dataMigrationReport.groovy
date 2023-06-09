@@ -244,7 +244,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
-void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
+def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = karateTestUtils.getJiraClient()
 
     def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
@@ -267,11 +267,9 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
-        new Logger(this, 'common').info('Can not detect required Java version')
-        // echo "$teamName"
+        echo "$teamName"
     } else {
-        new Logger(this, 'common').info('Module ${moduleName} is not assigned to any team.')
-        // echo "Module ${moduleName} is not assigned to any team."
+        echo "Module ${moduleName} is not assigned to any team."
     }
 
     try {
