@@ -264,20 +264,19 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
     def teamName = "TEAM_MISSING"
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
-    private Logger logger = new Logger(steps, this.getClass().getCanonicalName())
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
-        logger.info "$teamName"
+        logger.info("$teamName")
     } else {
-        logger.info "Module ${moduleName} is not assigned to any team."
+        logger.info("Module ${moduleName} is not assigned to any team.")
     }
 
     try {
-        logger.info "Create jira ticket for ${moduleName}, team '${teamName}'"
+        logger.info("Create jira ticket for ${moduleName}, team '${teamName}'")
         // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
-        logger.info "fields $fields"
-        logger.info "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+        logger.info("fields $fields")
+        // logger.info "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
     } catch (e) {
         // println("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
