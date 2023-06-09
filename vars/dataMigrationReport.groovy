@@ -304,6 +304,7 @@ private String getTeamAssignment() {
     return teamAssignment
 }
 
+@NonCPS
 private JiraClient getJiraClient() {
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
