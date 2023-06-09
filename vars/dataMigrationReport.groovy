@@ -8,7 +8,7 @@ import org.folio.utilities.Tools
 import org.folio.client.jira.JiraClient
 import org.folio.Constants
 import org.folio.karate.teams.TeamAssignment
-
+import java.util.logging.Logger
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
@@ -268,16 +268,16 @@ void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment
         teamName = team
         fields["Development Team"] = teamName
     } else {
-        println "Module ${moduleName} is not assigned to any team."
+        logger.info "Module ${moduleName} is not assigned to any team."
     }
 
     try {
-        println "Create jira ticket for ${moduleName}, team '${teamName}'"
+        logger.info "Create jira ticket for ${moduleName}, team '${teamName}'"
         // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
-        println "fields $fields"
-        println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+        logger.info "fields $fields"
+        logger.info "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
     } catch (e) {
-        println("Unable to create Jira ticket. " + e.getMessage())
+        // println("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
     }
 }
