@@ -221,7 +221,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                         builder.h2(schema.key)
                         builder.p(style: "white-space: pre-line", schema.value)
                     }                    
-                } else if (schema.key == "createDiffHtmlReport"){
+                } else if (schema.key == "All schemas"){
                     builder.section(id: schema.key) {
                         builder.h2(schema.key)
                         builder.p(style: "white-space: pre-line", schema.value)
