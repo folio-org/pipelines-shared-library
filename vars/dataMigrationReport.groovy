@@ -244,7 +244,6 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     return writer.toString()
 }
 
-@NonCPS
 void createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = getJiraClient()
 
@@ -304,7 +303,6 @@ private String getTeamAssignment() {
     return teamAssignment
 }
 
-@NonCPS
 private JiraClient getJiraClient() {
     withCredentials([
         usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
