@@ -297,6 +297,6 @@ private String getTeamAssignment() {
     def assignmentPath = "teams-assignment.json"
     tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
     def jsonContents = readJSON file: assignmentPath
-    def teamAssignment = new TeamAssignment(jsonContents)
+    TeamAssignment teamAssignment = new TeamAssignment(jsonContents)
     return teamAssignment
 }
