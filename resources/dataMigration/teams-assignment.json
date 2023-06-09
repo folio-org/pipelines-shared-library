@@ -34,7 +34,8 @@
       "mod-source-record-storage",
       "mod-source-record-manager",
       "mod-di-converter-storage",
-      "mod-copycat"
+      "mod-copycat",
+      "mod-licenses"
     ],
     "slackChannel": "#folijet"
   },

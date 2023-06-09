@@ -267,18 +267,18 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
-        echo "$teamName"
+        println "$teamName"
     } else {
-        echo "Module ${moduleName} is not assigned to any team."
+        println "Module ${moduleName} is not assigned to any team."
     }
 
     try {
-        // logger.info("Create jira ticket for ${moduleName}, team '${teamName}'")
+        println "Create jira ticket for ${moduleName}, team '${teamName}'"
         // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
-        echo "fields $fields"
-        // logger.info "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+        println "fields $fields"
+        println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
     } catch (e) {
-        // println("Unable to create Jira ticket. " + e.getMessage())
+        println("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
     }
 }
