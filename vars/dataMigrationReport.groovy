@@ -302,6 +302,7 @@ private TeamAssignment getTeamAssignment() {
     def assignmentPath = "teams-assignment.json"
     tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
     def jsonContents = readJSON file: assignmentPath
-    TeamAssignment teamAssignment = new TeamAssignment(jsonContents)
+    // TeamAssignment teamAssignment = new TeamAssignment(jsonContents)
+    def teamAssignment = new JsonSlurper().parseText(jsonContents) as TeamAssignment
     return teamAssignment
 }
