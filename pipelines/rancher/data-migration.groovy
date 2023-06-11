@@ -85,7 +85,7 @@ ansiColor('xterm') {
             stage('Destroy data-migration project') {
                 def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
-                        okapiVersion, params.backup_name)
+                        okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
 
                 build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }
@@ -94,7 +94,7 @@ ansiColor('xterm') {
                 if (params.backup_name) {
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
-                            okapiVersion, params.backup_name, true)
+                            okapiVersion, tenant_id, 'folio', 'folio', params.backup_name, true)
 
                     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
                 }
@@ -104,9 +104,23 @@ ansiColor('xterm') {
                 if (!params.backup_name) {
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
-                            okapiVersion, params.backup_name, false, true, true, true)
+                            okapiVersion,  tenant_id, 'diku', 'diku_admin', params.backup_name, false, true, true, true)
 
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false 
+                    
+                    build job: "Rancher/Update/create-tenant",
+                        parameters: [
+                            string(name: 'rancher_cluster_name', value: rancher_cluster_name),
+                            string(name: 'rancher_project_name', value: rancher_project_name),
+                            string(name: 'reference_tenant_id', value: 'diku'),
+                            string(name: 'tenant_id', value: tenant_id),
+                            string(name: 'tenant_name', value: "fs09000000 tenant"),
+                            string(name: 'admin_username', value: "folio"),
+                            string(name: 'admin_password', value: "folio"),
+                            booleanParam(name: 'deploy_ui', value: false),
+                            string(name: 'folio_repository', value: params.folio_repository),
+                            string(name: 'folio_branch', value: params.folio_branch_src)
+                        ]                   
                 }
             }
 
@@ -318,7 +332,7 @@ ansiColor('xterm') {
                 
                 def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
-                        okapiVersion, params.backup_name)
+                        okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
 
                 build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }    
@@ -341,7 +355,8 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
 }
 
 private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository, 
-                                         String folio_branch, String okapiVersion, String backup_name, boolean restore_from_backup = false, 
+                                         String folio_branch, String okapiVersion, String tenant_id, String admin_username,
+                                         String admin_password, String backup_name, boolean restore_from_backup = false, 
                                          boolean load_reference = false, boolean load_sample = false, boolean pg_embedded = false, 
                                          boolean kafka_shared = true, boolean opensearch_shared = true, boolean s3_embedded = false) {
     [
@@ -352,9 +367,9 @@ private List getEnvironmentJobParameters(String action, String clusterName, Stri
         string(name: 'folio_branch', value: folio_branch),
         string(name: 'okapi_version', value: okapiVersion),
         string(name: 'config_type', value: 'performance'),
-        string(name: 'tenant_id', value: 'fs09000000'),
-        string(name: 'admin_username', value: 'folio'),
-        string(name: 'admin_password', value: 'folio'),
+        string(name: 'tenant_id', value: tenant_id),
+        string(name: 'admin_username', value: admin_username),
+        string(name: 'admin_password', value: admin_password),
         string(name: 'backup_type', value: 'rds'),
         string(name: 'backup_name', value: backup_name),
         booleanParam(name: 'restore_from_backup', value: restore_from_backup),
