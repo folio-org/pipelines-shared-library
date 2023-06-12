@@ -5,6 +5,7 @@ class TeamAssignment {
     List<KarateTeam> teams = []
 
     TeamAssignment(def jsonContents) {
+        println "DEBUG in TeamAssignment"
         jsonContents.each { entry ->
             KarateTeam team = new KarateTeam(name: entry.team, slackChannel: entry.slackChannel)
             team.getModules().addAll(entry.modules)
@@ -14,8 +15,8 @@ class TeamAssignment {
 
     @NonCPS
     Map<String, KarateTeam> getTeamsByModules() {
-        Map<String, KarateTeam> retVal = [:]
         println "DEBUG in getTeamsByModules"
+        Map<String, KarateTeam> retVal = [:]
         teams.each {team ->
             println "$team team"
             team.modules.each {module ->
