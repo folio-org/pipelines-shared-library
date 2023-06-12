@@ -286,7 +286,8 @@ def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
         "*Schema Name:* ${schemaName}\n" +
         "*Schema diff:* ${schemaDiff}\n" +
         "*Upgraded from:* ${srcVersion} *to* ${dstVersion} module version\n" +
-        "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n"
+        "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
+        "*Schema Diff Report:* ${env.BUILD_URL}Schemas_20Diff/ \n"
 
     description
         .replaceAll("\\{", "&#123;")
