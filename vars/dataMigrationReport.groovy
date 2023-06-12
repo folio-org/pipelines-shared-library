@@ -250,12 +250,12 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
     def dstVersion = resultMap[moduleName]?.dstVersion
-    def summary = "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${schemaName} from ${srcVersion} to ${dstVersion} version"
+    def summary = "${schemaName} from ${srcVersion} to ${dstVersion} version"
 
     String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
 
     def fields = [
-        Summary    : summary,
+        Summary    : "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${summary}",
         Description: description,
         Priority   : Constants.DM_JIRA_ISSUE_PRIORITY,
         Labels     : [Constants.DM_ISSUE_LABEL]
@@ -278,14 +278,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
             [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
         }
 
-        issuesMap.each {
-            println it.key
-            println it.value
-        }
-        
-        def key = "${schemaName} from ${srcVersion} to ${dstVersion} version"
-        println key
-        if (issuesMap.containsKey(key.toString())) {
+        if (issuesMap.containsKey(summary.toString())) {
             JiraIssue issue = issuesMap[summary]
             println "Update jira ticket for ${moduleName}, team '${teamName}'"
             // jiraClient.addIssueComment(issue.id, description) 
