@@ -264,7 +264,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     def teamByModule = teamAssignment.getTeamsByModules()
     def team = teamByModule[moduleName]
     if (team) {
-        teamName = team
+        teamName = team.name
         fields["Development Team"] = teamName
     } else {
         println "Module ${moduleName} is not assigned to any team."
@@ -272,7 +272,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
 
     try {
         println "Create jira ticket for ${moduleName}, team '${teamName}'"
-        def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
+        // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
         println "fields $fields"
         println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
     } catch (e) {
