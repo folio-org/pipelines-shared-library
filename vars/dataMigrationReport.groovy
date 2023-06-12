@@ -264,12 +264,11 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     def teamName = "TEAM_MISSING"
     println "------------------------------------------------- 1"
     def teamByModule = teamAssignment.getTeamsByModules()
-    println teamByModule
     def team = teamByModule[moduleName]
     if (team) {
         teamName = team
         fields["Development Team"] = teamName
-        println "$teamName"
+        println "team name $teamName"
     } else {
         println "Module ${moduleName} is not assigned to any team."
     }
