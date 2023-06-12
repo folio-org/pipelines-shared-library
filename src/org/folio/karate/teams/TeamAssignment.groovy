@@ -1,6 +1,6 @@
 package org.folio.karate.teams
+import com.cloudbees.groovy.cps.NonCPS
 
-@NonCPS
 class TeamAssignment {
 
     List<KarateTeam> teams = []
