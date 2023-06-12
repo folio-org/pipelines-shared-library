@@ -285,10 +285,8 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
         } else {
             println "Create jira ticket for ${moduleName}, team '${teamName}'"
             def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
-            println "fields $fields"
             println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
         }
-        println issuesMap
     } catch (e) {
         println("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
