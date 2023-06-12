@@ -246,10 +246,10 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = karateTestUtils.getJiraClient()
 
-    def summary = "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${schemaName}"
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
     def dstVersion = resultMap[moduleName]?.dstVersion
+    def summary = "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${schemaName} from ${srcVersion} to ${dstVersion} version"
 
     String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
 
@@ -273,9 +273,13 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     try {
         List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
         Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-            def summary = toSearchableSummary(issue.summary)
-            [summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+            // def summary = toSearchableSummary(issue.summary)
+            [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
         }
+        // if (!issuesMap.containsKey(featureName)){
+
+        // }
+
         println issuesMap
         println "Create jira ticket for ${moduleName}, team '${teamName}'"
         // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
