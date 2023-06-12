@@ -270,22 +270,24 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     } else {
         println "Module ${moduleName} is not assigned to any team."
     }
-    List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
-    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        def issuesSummary = issue.summary
-        [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
-    }
-    println issuesMap
 
     try {
-
-        // if (!issuesMap.containsKey(featureName)){
-
-        // }
-        println "Create jira ticket for ${moduleName}, team '${teamName}'"
-        // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
-        println "fields $fields"
-        println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+            def issuesSummary = issue.summary
+            [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
+        }
+        if (!issuesMap.containsKey(summary)){
+            println "Create jira ticket for ${moduleName}, team '${teamName}'"
+            // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
+            println "fields $fields"
+            println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'" 
+        } else {
+            JiraIssue issue = issuesMap[summary]
+            println "Update jira ticket for ${moduleName}, team '${teamName}'"
+            // jiraClient.addIssueComment(issue.id, description)
+        }
+        println issuesMap
     } catch (e) {
         println("Unable to create Jira ticket. " + e.getMessage())
         e.printStackTrace()
