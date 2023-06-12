@@ -308,7 +308,7 @@ def getTeamAssignment() {
 def getTeamsByModules(teamAssignment) {
     Map retVal = [:]
     println "DEBUG in getTeamsByModules"
-    teams.each {team ->
+    teamAssignment.each {team ->
         println "$team team"
         team.modules.each {module ->
             println "$module module"
