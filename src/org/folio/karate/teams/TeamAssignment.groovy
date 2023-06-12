@@ -1,5 +1,6 @@
 package org.folio.karate.teams
 
+@NonCPS
 class TeamAssignment {
 
     List<KarateTeam> teams = []
