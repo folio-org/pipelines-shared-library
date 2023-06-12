@@ -35,7 +35,7 @@ properties([
 def rancher_cluster_name = 'folio-testing'
 def rancher_project_name = 'karate'
 def config_type = 'testing'
-def tenant_id = 'fs09000000'
+def tenant_id
 def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
@@ -92,6 +92,7 @@ ansiColor('xterm') {
 
             stage('Restore data-migration project from backup') {
                 if (params.backup_name) {
+                    tenant_id = 'fs09000000'
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, 'folio', 'folio', params.backup_name, true)
@@ -102,25 +103,12 @@ ansiColor('xterm') {
 
             stage('Create data-migration project') {
                 if (!params.backup_name) {
+                    tenant_id = 'diku'
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
-                            okapiVersion, 'diku', 'diku', 'diku_admin', params.backup_name, false, true, true, true)
+                            okapiVersion, tenant_id, 'diku', 'diku_admin', params.backup_name, false, true, true, true)
 
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false 
-                    
-                    build job: "Rancher/Update/create-tenant",
-                        parameters: [
-                            string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                            string(name: 'rancher_project_name', value: rancher_project_name),
-                            string(name: 'reference_tenant_id', value: 'diku'),
-                            string(name: 'tenant_id', value: tenant_id),
-                            string(name: 'tenant_name', value: "fs09000000 tenant"),
-                            string(name: 'admin_username', value: "folio"),
-                            string(name: 'admin_password', value: "folio"),
-                            booleanParam(name: 'deploy_ui', value: false),
-                            string(name: 'folio_repository', value: params.folio_repository),
-                            string(name: 'folio_branch', value: params.folio_branch_src)
-                        ]                   
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                  
                 }
             }
 
@@ -320,22 +308,22 @@ ansiColor('xterm') {
             currentBuild.result = 'FAILURE'
             error(exception.getMessage())
         } finally {
-            stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }
+            // stage('Send Slack notification') {
+            //     dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            // }
 
-            stage('Destroy data-migration project') {
-                if (foundSchemaDiff) {
-                    println "Waiting to destroy 6 hours"
-                    sleep time: 6, unit: 'HOURS'
-                }
+            // stage('Destroy data-migration project') {
+            //     if (foundSchemaDiff) {
+            //         println "Waiting to destroy 6 hours"
+            //         sleep time: 6, unit: 'HOURS'
+            //     }
                 
-                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
-                        rancher_project_name, params.folio_repository, params.folio_branch_src,
-                        okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
+            //     def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+            //             rancher_project_name, params.folio_repository, params.folio_branch_src,
+            //             okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
 
-                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-            }    
+            //     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+            // }    
 
             stage('Cleanup') {
                 cleanWs notFailBuild: true
