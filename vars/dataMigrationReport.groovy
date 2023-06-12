@@ -272,7 +272,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
     List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        def issuesSummary = toSearchableSummary(issue.summary)
+        def issuesSummary = issue.summary
         [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
     println issuesMap
