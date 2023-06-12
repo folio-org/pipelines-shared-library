@@ -283,7 +283,8 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
             println it.value
         }
         
-        if (!issuesMap.containsKey("${schemaName} from ${srcVersion} to ${dstVersion} version")) {
+        def key = "${schemaName} from ${srcVersion} to ${dstVersion} version"
+        if (!issuesMap.containsKey(key)) {
             println "Create jira ticket for ${moduleName}, team '${teamName}'"
             // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
             println "fields $fields"
