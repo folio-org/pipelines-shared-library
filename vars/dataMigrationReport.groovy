@@ -250,7 +250,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
     def dstVersion = resultMap[moduleName]?.dstVersion
-    def summary = "${schemaName} from ${srcVersion} to ${dstVersion} version"
+    def summary = "${moduleName} from ${srcVersion} to ${dstVersion} version"
 
     String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
 
