@@ -279,7 +279,8 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
         }
 
         issuesMap.each {
-            println it
+            println it.key
+            println it.value
         }
         
         if (!issuesMap.containsKey("${schemaName} from ${srcVersion} to ${dstVersion} version")) {
