@@ -284,7 +284,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
 }
 
-private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
+def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
     def description =
         "*Schema Name:* ${schemaName}\n" +
         "*Schema diff:* ${schemaDiff}\n" +
@@ -296,7 +296,7 @@ private String getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersio
         .replaceAll("\\{", "&#125;")
 }
 
-private String getTeamAssignment() {
+def getTeamAssignment() {
     Tools tools = new Tools(this)
     def assignmentPath = "teams-assignment.json"
     tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")

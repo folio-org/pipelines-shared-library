@@ -4,7 +4,6 @@ class TeamAssignment {
 
     List<KarateTeam> teams = []
 
-    @NonCPS
     TeamAssignment(def jsonContents) {
         jsonContents.each { entry ->
             KarateTeam team = new KarateTeam(name: entry.team, slackChannel: entry.slackChannel)
