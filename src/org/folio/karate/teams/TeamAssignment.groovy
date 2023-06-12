@@ -12,6 +12,7 @@ class TeamAssignment {
         }
     }
 
+    @NonCPS
     Map<String, KarateTeam> getTeamsByModules() {
         Map<String, KarateTeam> retVal = [:]
         println "DEBUG in getTeamsByModules"
