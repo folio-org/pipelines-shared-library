@@ -283,7 +283,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
             println it.value
         }
         
-        def key = "${schemaName} from ${srcVersion} to ${dstVersion} version"
+        def key = " ${schemaName} from ${srcVersion} to ${dstVersion} version"
         println key
         println issuesMap.containsKey(key)
         if (issuesMap.containsKey(key.trim())) {
