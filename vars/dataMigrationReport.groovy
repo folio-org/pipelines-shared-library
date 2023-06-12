@@ -246,7 +246,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
     JiraClient jiraClient = karateTestUtils.getJiraClient()
 
-    def summary = "${Constants.ISSUE_SUMMARY_PREFIX} ${schemaName}"
+    def summary = "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${schemaName}"
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
     def dstVersion = resultMap[moduleName]?.dstVersion
@@ -256,8 +256,8 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     def fields = [
         Summary    : summary,
         Description: description,
-        Priority   : Constants.JIRA_ISSUE_PRIORITY,
-        Labels     : [Constants.ISSUE_LABEL]
+        Priority   : Constants.DM_JIRA_ISSUE_PRIORITY,
+        Labels     : [Constants.DM_ISSUE_LABEL]
     ]
 
     def teamName = "TEAM_MISSING"
@@ -272,7 +272,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
 
     try {
         println "Create jira ticket for ${moduleName}, team '${teamName}'"
-        // def issueId = jiraClient.createJiraTicket Constants.JIRA_PROJECT, Constants.JIRA_ISSUE_TYPE, fields
+        // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
         println "fields $fields"
         println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
     } catch (e) {
@@ -285,7 +285,7 @@ def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
     def description =
         "*Schema Name:* ${schemaName}\n" +
         "*Schema diff:* ${schemaDiff}\n" +
-        "*Upgraded from:* ${srcVersion} *to* ${dstVersion} version\n" +
+        "*Upgraded from:* ${srcVersion} *to* ${dstVersion} module version\n" +
         "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n"
 
     description
