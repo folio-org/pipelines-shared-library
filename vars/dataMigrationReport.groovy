@@ -272,22 +272,16 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
     List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        // def summary = toSearchableSummary(issue.summary)
-        [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+        def issuesSummary = toSearchableSummary(issue.summary)
+        [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
+    println issuesMap
 
     try {
-        // List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
-        // Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-        //     // def summary = toSearchableSummary(issue.summary)
-        //     [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
-        // }
 
         // if (!issuesMap.containsKey(featureName)){
 
         // }
-
-        println issuesMap
         println "Create jira ticket for ${moduleName}, team '${teamName}'"
         // def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
         println "fields $fields"
