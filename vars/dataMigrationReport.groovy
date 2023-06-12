@@ -270,13 +270,19 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     } else {
         println "Module ${moduleName} is not assigned to any team."
     }
+    List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+        // def summary = toSearchableSummary(issue.summary)
+        [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+    }
 
     try {
-        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
-        Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-            // def summary = toSearchableSummary(issue.summary)
-            [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
-        }
+        // List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        // Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+        //     // def summary = toSearchableSummary(issue.summary)
+        //     [issue.summary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
+        // }
+
         // if (!issuesMap.containsKey(featureName)){
 
         // }
