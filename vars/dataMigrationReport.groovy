@@ -263,7 +263,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
 
     def teamName = "TEAM_MISSING"
     println "------------------------------------------------- 1"
-    def teamByModule = teamAssignment.getTeamsByModules()
+    def teamByModule = getTeamsByModules(teamAssignment)
     def team = teamByModule[moduleName]
     if (team) {
         teamName = team
@@ -303,4 +303,17 @@ def getTeamAssignment() {
     def jsonContents = readJSON file: assignmentPath
     def teamAssignment = new TeamAssignment(jsonContents)
     return teamAssignment
+}
+
+def getTeamsByModules(teamAssignment) {
+    Map retVal = [:]
+    println "DEBUG in getTeamsByModules"
+    teams.each {team ->
+        println "$team team"
+        team.modules.each {module ->
+            println "$module module"
+            retVal[module] = team
+        }
+    }
+    retVal
 }
