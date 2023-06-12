@@ -150,4 +150,5 @@ class Constants {
     static String DM_ISSUE_LABEL = "dataMigrationSchemaDiff"
     static String DM_JIRA_PROJECT = "FAT"
     static String DM_JIRA_ISSUE_TYPE = "Bug"
+    static String DM_ISSUES_JQL = "labels = dataMigrationSchemaDiff and status != Closed"
 }
