@@ -283,10 +283,9 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
             println it.value
         }
         
-        def key = " ${schemaName} from ${srcVersion} to ${dstVersion} version"
+        def key = "${schemaName} from ${srcVersion} to ${dstVersion} version"
         println key
-        println issuesMap.containsKey(key)
-        if (issuesMap.containsKey(key.trim())) {
+        if (issuesMap.containsKey(key.toString())) {
             JiraIssue issue = issuesMap[summary]
             println "Update jira ticket for ${moduleName}, team '${teamName}'"
             // jiraClient.addIssueComment(issue.id, description) 
