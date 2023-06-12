@@ -279,7 +279,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
         }
 
         issuesMap.each {
-            println it.summary
+            println it
         }
         
         if (!issuesMap.containsKey(summary)) {
