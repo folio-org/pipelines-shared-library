@@ -262,7 +262,9 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     ]
 
     def teamName = "TEAM_MISSING"
+    println "------------------------------------------------- 1"
     def teamByModule = teamAssignment.getTeamsByModules()
+    println teamByModule
     def team = teamByModule[moduleName]
     if (team) {
         teamName = team

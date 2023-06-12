@@ -2,7 +2,8 @@
   {
     "team": "Bama",
     "modules": [
-      "mod-calendar"
+      "mod-calendar",
+      "mod-inventory-storage"
     ],
     "slackChannel": "#bama"
   },
