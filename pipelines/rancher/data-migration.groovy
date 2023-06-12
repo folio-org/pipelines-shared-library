@@ -57,11 +57,6 @@ ansiColor('xterm') {
         try {
             stage('Init') {
                 currentBuild.result = 'SUCCESS'
-                if (backup_name) {
-                    buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
-                } else {
-                    buildName tenant_id + '.' + env.BUILD_ID
-                }
 
                 // Create map with moduleName, source and destination version for this module
                 // This map used for time migration and schemaDiff reports
@@ -93,6 +88,7 @@ ansiColor('xterm') {
             stage('Restore data-migration project from backup') {
                 if (params.backup_name) {
                     tenant_id = 'fs09000000'
+                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, 'folio', 'folio', params.backup_name, true)
@@ -104,6 +100,7 @@ ansiColor('xterm') {
             stage('Create data-migration project') {
                 if (!params.backup_name) {
                     tenant_id = 'diku'
+                    buildName tenant_id + '.' + env.BUILD_ID
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, 'diku', 'diku_admin', params.backup_name, false, true, true, true)
