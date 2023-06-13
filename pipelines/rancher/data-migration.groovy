@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library@RANCHER-772') _
+@Library('pipelines-shared-library') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
