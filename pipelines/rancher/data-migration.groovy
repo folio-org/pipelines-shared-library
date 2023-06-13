@@ -32,9 +32,9 @@ properties([
         string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
         string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
 
-def rancher_cluster_name = 'folio-testing'
-def rancher_project_name = 'karate'
-def config_type = 'testing'
+def rancher_cluster_name = 'folio-perf'
+def rancher_project_name = 'data-migration'
+def config_type = 'performance'
 def tenant_id
 def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
@@ -124,7 +124,8 @@ ansiColor('xterm') {
             // }
 
             stage('Update with dst release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
+                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),

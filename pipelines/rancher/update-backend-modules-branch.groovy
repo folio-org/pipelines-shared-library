@@ -157,6 +157,9 @@ ansiColor('xterm') {
                         email
                     )
                     try {
+                        if (params.rancher_project_name == "data-migration") {
+                            okapi.unsecure()
+                        }
                         deployment.update()
                     } catch (Exception e) {
                         if (e.getMessage().contains("504 Gateway Time-out")) {
