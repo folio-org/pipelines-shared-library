@@ -120,6 +120,11 @@ ansiColor('xterm') {
             }
 
             stage("Deploy backend modules") {
+                if (params.rancher_project_name == "data-migration") {
+                    println "Start unsecure"
+                    okapi.unsecure()
+                    println "Finish unsecure"
+                }
                 Map github_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                 Map backend_installed_modules_map = new GitHubUtility(this).getBackendModulesMap(installed_modules_map)
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
@@ -157,9 +162,6 @@ ansiColor('xterm') {
                         email
                     )
                     try {
-                        if (params.rancher_project_name == "data-migration") {
-                            okapi.unsecure()
-                        }
                         deployment.update()
                     } catch (Exception e) {
                         if (e.getMessage().contains("504 Gateway Time-out")) {
