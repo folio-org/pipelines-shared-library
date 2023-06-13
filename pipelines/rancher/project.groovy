@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-771') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
@@ -243,7 +243,7 @@ ansiColor('xterm') {
                                 deployment.main()
                                 if (params.rancher_project_name == "data-migration") {
                                     println "Start unsecure"
-                                    okapi.unsecure()
+                                    deployment.unsecure()
                                     println "Finish unsecure"
                                 }                                
                             }

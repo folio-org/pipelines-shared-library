@@ -71,6 +71,10 @@ class Deployment extends GeneralParameters {
         okapi.cleanupServicesRegistration()
     }
 
+    void unsecure() {
+       okapi.unsecure()
+    }
+
     void update() {
         if (tenant) {
             discovery_list = gitHubUtility.buildDiscoveryList(install_map)
