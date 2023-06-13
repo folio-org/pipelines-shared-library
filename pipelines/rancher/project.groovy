@@ -241,6 +241,11 @@ ansiColor('xterm') {
                                 deployment.update()
                             } else {
                                 deployment.main()
+                                if (params.rancher_project_name == "data-migration") {
+                                    println "Start unsecure"
+                                    okapi.unsecure()
+                                    println "Finish unsecure"
+                                }                                
                             }
                         }
                     }

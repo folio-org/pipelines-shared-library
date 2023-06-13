@@ -105,7 +105,7 @@ ansiColor('xterm') {
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, 'diku', 'diku_admin', params.backup_name, false, true, true, true)
 
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                  
+                    build job: "/Rancher/Project(kd-test)", parameters: jobParameters, wait: true, propagate: false                  
                 }
             }
 
