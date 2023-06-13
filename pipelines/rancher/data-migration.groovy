@@ -132,8 +132,8 @@ ansiColor('xterm') {
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
+                        string(name: 'admin_username', value: "diku"),
+                        string(name: 'admin_password', value: "diku_admin")
                     ]
             }
             stage('Generate Data Migration Time report') {
