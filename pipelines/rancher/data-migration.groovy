@@ -60,15 +60,15 @@ ansiColor('xterm') {
             stage('Init') {
                 currentBuild.result = 'SUCCESS'
                 if (params.backup_name) {
-                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                     tenant_id = 'fs09000000'
                     admin_username = 'folio'
                     admin_password = 'folio'
+                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                 } else {
-                    buildName tenant_id + '.' + 'without-restore' + env.BUILD_ID
                     tenant_id = 'diku'
                     admin_username = 'diku'
                     admin_password = 'diku_admin'
+                    buildName tenant_id + '.' + 'without-restore' + env.BUILD_ID
                 }
 
                 // Create map with moduleName, source and destination version for this module
