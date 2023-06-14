@@ -36,6 +36,8 @@ def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
 def tenant_id
+def admin_username
+def admin_password
 def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
@@ -57,6 +59,17 @@ ansiColor('xterm') {
         try {
             stage('Init') {
                 currentBuild.result = 'SUCCESS'
+                if (params.backup_name) {
+                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
+                    tenant_id = 'fs09000000'
+                    admin_username = 'folio'
+                    admin_password = 'folio'
+                } else {
+                    buildName tenant_id + '.' + 'without-restore' + env.BUILD_ID
+                    tenant_id = 'diku'
+                    admin_username = 'diku'
+                    admin_password = 'diku_admin'
+                }
 
                 // Create map with moduleName, source and destination version for this module
                 // This map used for time migration and schemaDiff reports
@@ -77,21 +90,20 @@ ansiColor('xterm') {
                     resultMap[moduleName]['dstVersion'] = moduleVersion
                 }
             }
+
             stage('Destroy data-migration project') {
                 def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
-                        okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
+                        okapiVersion, tenant_id, admin_username, admin_password, params.backup_name)
 
                 build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }
 
             stage('Restore data-migration project from backup') {
                 if (params.backup_name) {
-                    tenant_id = 'fs09000000'
-                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
-                            okapiVersion, tenant_id, 'folio', 'folio', params.backup_name, true)
+                            okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, true)
 
                     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
                 }
@@ -99,29 +111,13 @@ ansiColor('xterm') {
 
             stage('Create data-migration project') {
                 if (!params.backup_name) {
-                    tenant_id = 'diku'
-                    buildName tenant_id + '.' + env.BUILD_ID
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
-                            okapiVersion, tenant_id, 'diku', 'diku_admin', params.backup_name, false, true, true, true)
+                            okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
 
                     build job: "/Rancher/Project(kd-test)", parameters: jobParameters, wait: true, propagate: false                  
                 }
             }
-
-            // stage('Update with src release versions') {
-            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-            //         parameters: [
-            //             string(name: 'folio_repository', value: params.folio_repository),
-            //             string(name: 'folio_branch', value: params.folio_branch_src),
-            //             string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-            //             string(name: 'rancher_project_name', value: rancher_project_name),
-            //             string(name: 'config_type', value: config_type),
-            //             string(name: 'tenant_id', value: tenant_id),
-            //             string(name: 'admin_username', value: "folio"),
-            //             string(name: 'admin_password', value: "folio")
-            //         ]
-            // }
 
             stage('Update with dst release versions') {
                 build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
@@ -133,10 +129,11 @@ ansiColor('xterm') {
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "diku"),
-                        string(name: 'admin_password', value: "diku_admin")
+                        string(name: 'admin_username', value: admin_username),
+                        string(name: 'admin_password', value: admin_password)
                     ]
             }
+            
             stage('Generate Data Migration Time report') {
                 sleep time: 5, unit: 'MINUTES'
 
@@ -188,8 +185,8 @@ ansiColor('xterm') {
                         string(name: 'reference_tenant_id', value: tenant_id),
                         string(name: 'tenant_id', value: tenant_id_clean),
                         string(name: 'tenant_name', value: "Clean tenant"),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
+                        string(name: 'admin_username', value: admin_username),
+                        string(name: 'admin_password', value: admin_password),
                         booleanParam(name: 'deploy_ui', value: false),
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst)
