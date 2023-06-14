@@ -73,10 +73,10 @@ def call(params) {
                                                 env.CYPRESS_allureReuseAfterSpec = "true"
                                                 println "Test results will be send to TestRail. (ProjectID: ${params.testrailProjectID}, RunID: ${params.testrailRunID})"
                                                 withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replaceAll(/[^A-Za-z0-9\s]/, "").replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
+                                                    sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                                 }
                                             } else {
-                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replaceAll(/[^A-Za-z0-9\s]/, "").replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
+                                                sh "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} --parallel --record --ci-build-id ${customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')} --headless --browser ${browserName} ${cypressParameters[currentNumber]}"
                                             }
                                         }
                                     }
