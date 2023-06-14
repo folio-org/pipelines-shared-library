@@ -115,13 +115,12 @@ ansiColor('xterm') {
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
 
-                    build job: "/Rancher/Project(kd-test)", parameters: jobParameters, wait: true, propagate: false                  
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                  
                 }
             }
 
             stage('Update with dst release versions') {
-                build job: "/Rancher/Update/backend-modules-deploy-branch(kd-test)",
-                // build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst),
@@ -279,8 +278,12 @@ ansiColor('xterm') {
                         } 
                         writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }                
-            }
+            }       
 
+        } catch (exception) {
+            currentBuild.result = 'FAILURE'
+            error(exception.getMessage())
+        } finally {
             stage('Publish HTML Reports') {
                 publishHTML([
                     reportDir: 'reportSchemas',
@@ -297,28 +300,24 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-            }        
+            }
 
-        } catch (exception) {
-            currentBuild.result = 'FAILURE'
-            error(exception.getMessage())
-        } finally {
-            // stage('Send Slack notification') {
-            //     dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            // }
+            stage('Send Slack notification') {
+                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            }
 
-            // stage('Destroy data-migration project') {
-            //     if (foundSchemaDiff) {
-            //         println "Waiting to destroy 6 hours"
-            //         sleep time: 6, unit: 'HOURS'
-            //     }
+            stage('Destroy data-migration project') {
+                if (foundSchemaDiff) {
+                    println "Waiting to destroy 6 hours"
+                    sleep time: 6, unit: 'HOURS'
+                }
                 
-            //     def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
-            //             rancher_project_name, params.folio_repository, params.folio_branch_src,
-            //             okapiVersion, tenant_id, 'folio', 'folio', params.backup_name)
+                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+                        rancher_project_name, params.folio_repository, params.folio_branch_src,
+                        okapiVersion, tenant_id, admin_username, admin_password, params.backup_name)
 
-            //     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-            // }    
+                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+            }    
 
             stage('Cleanup') {
                 cleanWs notFailBuild: true
