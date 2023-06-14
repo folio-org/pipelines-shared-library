@@ -33,6 +33,7 @@ class KarateTeam {
         return result
     }
 
+    @NonCPS
     @Override
     public String toString() {
         return "KarateTeam{" +

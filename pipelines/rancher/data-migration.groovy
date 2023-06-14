@@ -203,6 +203,9 @@ ansiColor('xterm') {
             stage('Get schemas difference') {
                 helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
+                        // Get team assigments
+                        def teamAssignment = dataMigrationReport.getTeamAssignment()
+
                         // Get psql connection parameters
                         Map psqlConnection = [
                             password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
@@ -261,17 +264,21 @@ ansiColor('xterm') {
                         
                         groupedValues.each {
                             try {
-                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?search_path=${it.value}'"
+                                def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.value}'"
                                 def currentDiff =  sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPod} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
 
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
                                     diff.put(it.key, currentDiff)
+                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap, teamAssignment)
                                 }
                             } catch(exception) {
                                 println exception
-                                diff.put(it.key, "Changes were found in this scheme, but cannot be processed. \n Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI")
+                                def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
+                                                    "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n"
+                                diff.put(it.key, messageDiff)
+                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
                             }
                         }
 

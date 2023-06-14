@@ -5,6 +5,10 @@ import java.util.concurrent.*
 import java.util.Date
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
+import org.folio.client.jira.JiraClient
+import org.folio.client.jira.model.JiraIssue
+import org.folio.Constants
+import org.folio.karate.teams.TeamAssignment
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
@@ -217,6 +221,11 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                         builder.h2(schema.key)
                         builder.p(style: "white-space: pre-line", schema.value)
                     }                    
+                } else if (schema.key == "All schemas"){
+                    builder.section(id: schema.key) {
+                        builder.h2(schema.key)
+                        builder.p(style: "white-space: pre-line", schema.value)
+                    }
                 } else {
                     def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
                     // Find srcVersion and dstVersion for the given schema name
@@ -233,4 +242,75 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
     }
 
     return writer.toString()
+}
+
+def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
+    JiraClient jiraClient = karateTestUtils.getJiraClient()
+
+    def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
+    def srcVersion = resultMap[moduleName]?.srcVersion
+    def dstVersion = resultMap[moduleName]?.dstVersion
+    def summary = "${moduleName} from ${srcVersion} to ${dstVersion} version"
+
+    String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
+
+    def fields = [
+        Summary    : "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${summary}",
+        Description: description,
+        Priority   : Constants.DM_JIRA_ISSUE_PRIORITY,
+        Labels     : [Constants.DM_ISSUE_LABEL]
+    ]
+
+    def teamName = "TEAM_MISSING"
+    def teamByModule = teamAssignment.getTeamsByModules()
+    def team = teamByModule[moduleName]
+    if (team) {
+        teamName = team.name
+        fields["Development Team"] = teamName
+    } else {
+        println "Module ${moduleName} is not assigned to any team."
+    }
+
+    try {
+        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
+            def issuesSummary = issue.summary
+            [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
+        }
+
+        if (issuesMap.containsKey(summary.toString())) {
+            JiraIssue issue = issuesMap[summary]
+            println "Update jira ticket for ${moduleName}, team '${teamName}'"
+            jiraClient.addIssueComment(issue.id, description) 
+        } else {
+            println "Create jira ticket for ${moduleName}, team '${teamName}'"
+            def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
+            println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
+        }
+    } catch (e) {
+        println("Unable to create Jira ticket. " + e.getMessage())
+        e.printStackTrace()
+    }
+}
+
+def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
+    def description =
+        "*Schema Name:* ${schemaName}\n" +
+        "*Schema diff:* ${schemaDiff}\n" +
+        "*Upgraded from:* ${srcVersion} *to* ${dstVersion} module version\n" +
+        "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
+        "*Schema Diff Report:* ${env.BUILD_URL}Schemas_20Diff/ \n"
+
+    description
+        .replaceAll("\\{", "&#123;")
+        .replaceAll("\\{", "&#125;")
+}
+
+def getTeamAssignment() {
+    Tools tools = new Tools(this)
+    def assignmentPath = "teams-assignment.json"
+    tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
+    def jsonContents = readJSON file: assignmentPath
+    def teamAssignment = new TeamAssignment(jsonContents)
+    return teamAssignment
 }

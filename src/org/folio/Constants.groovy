@@ -144,4 +144,11 @@ class Constants {
                                       "mod-template-engine",
                                       "mod-users"]
 
+    // Data Migration Jira tickets (used for Schema Diff)
+    static String DM_ISSUE_SUMMARY_PREFIX =  "Schema Difference found after migration:"
+    static String DM_JIRA_ISSUE_PRIORITY  = "P2"
+    static String DM_ISSUE_LABEL = "dataMigrationSchemaDiff"
+    static String DM_JIRA_PROJECT = "FAT"
+    static String DM_JIRA_ISSUE_TYPE = "Bug"
+    static String DM_ISSUES_JQL = "labels = dataMigrationSchemaDiff and status != Closed"
 }
