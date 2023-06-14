@@ -68,7 +68,7 @@ ansiColor('xterm') {
                     tenant_id = 'diku'
                     admin_username = 'diku'
                     admin_password = 'diku_admin'
-                    buildName tenant_id + '.' + 'without-restore' + env.BUILD_ID
+                    buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
                 }
 
                 // Create map with moduleName, source and destination version for this module
