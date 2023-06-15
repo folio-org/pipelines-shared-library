@@ -563,7 +563,7 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: '2048Mi'
+      memory: '2548Mi'
     requests:
       memory: '683Mi'
 mod-inventory-storage:
