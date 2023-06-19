@@ -1,0 +1,188 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.models.InstallQueryParameters
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.Edge
+import org.folio.rest_v2.Main
+import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-778') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+    jobsParameters.clusterName(),
+    jobsParameters.projectName(),
+    jobsParameters.repository(),
+    jobsParameters.branch(),
+    jobsParameters.okapiVersion(),
+    jobsParameters.configType(),
+    jobsParameters.loadReference(),
+    jobsParameters.loadSample(),
+    booleanParam(name: 'pg_embedded', defaultValue: true, description: '(Optional) Embedded PostgreSQL or AWS RDS'),
+    booleanParam(name: 'kafka_shared', defaultValue: true, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
+    booleanParam(name: 'opensearch_shared', defaultValue: true, description: '(Optional) Use shared AWS OpenSearch service or embedded OpenSearch'),
+    booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
+    booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
+    booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
+    booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
+    booleanParam(name: 'enable_consortia', defaultValue: false, description: '(Optional) Enable Consortia'),
+    string(name: 'namespace_members', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
+    jobsParameters.agents(),
+    jobsParameters.refreshParameters()
+  ])
+])
+
+String commitHash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
+InstallQueryParameters installQueryParameters = new InstallQueryParameters()
+  .withTenantParameters("loadReference=${params.load_reference},loadSample=${params.load_sample}")
+
+RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.rancher_project_name)
+  .withDefaultTenant('diku')
+  .withInstallJson(new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch))
+  .withDeploymentConfigBranch('RANCHER-778')
+  .withDeploymentConfigType(params.config_type)
+  .withEnableRwSplit(params.enable_rw_split)
+  .withEnableConsortia(params.enable_consortia)
+
+ns.addTenant(ns.defaultTenantId, folioDefault.tenants()[ns.defaultTenantId]
+  .withOkapiVersion(params.okapi_version)
+  .withInstallJson(ns.modules.installJson)
+  .withIndex(true, true)
+  .withInstallQueryParameters(installQueryParameters)
+)
+ns.tenants[ns.defaultTenantId].withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
+
+if (params.enable_consortia) {
+  folioDefault.consortiaTenants(params.okapi_version, ns.modules.installJson, installQueryParameters).each { tenantId, tenant ->
+    ns.addTenant(tenantId, tenant)
+
+    if (tenant.isCentralConsortiaTenant) {
+      tenant.withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
+    }
+  }
+}
+
+//Generate terraform variables
+ns.addTerraformVar('rancher_cluster_name', ns.clusterName)
+ns.addTerraformVar('rancher_project_name', ns.namespaceName)
+ns.addTerraformVar('tenant_id', ns.defaultTenantId)
+ns.addTerraformVar('pg_password', jobsParameters.pgDefaultPassword())
+ns.addTerraformVar('pgadmin_password', jobsParameters.pgAdminDefaultPassword())
+ns.addTerraformVar('pg_embedded', params.pg_embedded)
+ns.addTerraformVar('kafka_shared', params.kafka_shared)
+ns.addTerraformVar('opensearch_shared', params.opensearch_shared)
+ns.addTerraformVar('s3_embedded', params.s3_embedded)
+ns.addTerraformVar('pgadmin4', params.pgadmin4)
+ns.addTerraformVar('enable_rw_split', ns.enableRwSplit)
+ns.addTerraformVar('pg_ldp_user_password', jobsParameters.pgLdpUserDefaultPassword())
+ns.addTerraformVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[ns.namespaceName] - null).collect { '"' + it + '"' })
+
+String terraformHomeDir = 'terraform/rancher/project'
+
+ansiColor('xterm') {
+  if (params.refresh_parameters) {
+    currentBuild.result = 'ABORTED'
+    println('REFRESH JOB PARAMETERS!')
+    return
+  }
+  node(params.agent) {
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+      stage('Ini') {
+        buildName "${ns.clusterName}.${ns.namespaceName}.${env.BUILD_ID}"
+        buildDescription "repository: ${params.folio_repository}\n" +
+          "branch: ${params.folio_branch}\n" +
+          "base_tenant: ${ns.tenants[ns.defaultTenantId].tenantId}\n" +
+          "config_type: ${ns.deploymentConfigType}"
+      }
+      stage('Create namespace') {
+        folioTerraform.createNamespace(ns.terraformWorkspace, terraformHomeDir, folioTerraform.generateTfVars(ns.terraformVars))
+      }
+      stage('Deploy folio modules') {
+        folioHelm.withKubeConfig(ns.clusterName) {
+          stage('Deploy okapi') {
+            folioHelm.deployFolioModule(ns, 'okapi', ns.tenants[ns.defaultTenantId].okapiVersion)
+            folioHelm.checkPodRunning(ns.namespaceName, 'okapi')
+          }
+          stage('Deploy backend modules') {
+            folioHelm.deployFolioModulesParallel(ns, ns.modules.backendModules)
+            folioHelm.checkAllPodsRunning(ns.namespaceName)
+          }
+        }
+      }
+      stage('Okapi healthcheck') {
+        sleep time: 3, unit: 'MINUTES'
+        common.healthCheck("https://${ns.superTenant.domains.okapi}/_/proxy/health")
+      }
+      stage('Install') {
+        withCredentials([string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'cypress_api_key_apidvcorp'),]) {
+          ns.tenants.each { tenantId, tenant ->
+            if (tenant.tenantUi) {
+              tenant.kbApiKey = cypress_api_key_apidvcorp
+            }
+          }
+        }
+        Main okapiInstall = new Main(this, ns.superTenant.domains.okapi, ns.superTenant)
+        okapiInstall.initializeFromScratch(ns.tenants, ns.modules.installJson, ns.modules.discoveryList, ns.enableConsortia)
+      }
+      stage('Deploy edge modules') {
+        Edge edge = new Edge(this, ns.superTenant.domains.okapi)
+        edge.renderEphemeralProperties(ns.tenants[ns.defaultTenantId])
+        edge.createEdgeUsers(ns.tenants[ns.defaultTenantId])
+        folioHelm.withKubeConfig(ns.clusterName) {
+          ns.modules.edgeModules.each { name, version ->
+            kubectl.createConfigMap("${name}-ephemeral-properties", ns.namespaceName, "./${name}-ephemeral-properties")
+          }
+          folioHelm.deployFolioModulesParallel(ns, ns.modules.edgeModules)
+        }
+      }
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        ns.tenants.each { tenantId, tenant ->
+          if (tenant.tenantUi) {
+            TenantUi tenantUi = tenant.tenantUi
+            branches[tenantId] = {
+              def jobParameters = [
+                tenant_id  : tenantUi.tenantId,
+                custom_hash: tenantUi.hash,
+                custom_url : "https://${tenant.domains.okapi}",
+                custom_tag : tenantUi.tag
+              ]
+              uiBuild(jobParameters)
+              folioHelm.withKubeConfig(ns.clusterName) {
+                folioHelm.deployFolioModule(ns, 'ui-bundle', tenantUi.tag, false, tenantUi.tenantId)
+              }
+            }
+          }
+        }
+        parallel branches
+      }
+      stage('Deploy ldp') {
+        println('LDP deployment')
+      }
+      if (params.greenmail_server) {
+        stage('Deploy greenmail') {
+          folioHelm.withKubeConfig(ns.clusterName) {
+            folioHelm.deployGreenmail(ns.namespaceName)
+          }
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+//        println(JsonOutput.prettyPrint(JsonOutput.toJson(ns)))
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
