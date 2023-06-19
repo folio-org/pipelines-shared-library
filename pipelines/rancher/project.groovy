@@ -1,3 +1,8 @@
+/*
+!!!DEPRECATED!!!
+Please avoid any significant logic changes. Only fixes allowed.
+Instead use new approach for pipelines creation/modification
+ */
 #!groovy
 @Library('pipelines-shared-library') _
 
@@ -175,7 +180,7 @@ ansiColor('xterm') {
                     }
                 }
 
-                context.tf_vars = terraform.generateTfVars(tf_vars_map)
+                context.tf_vars = folioTerraform.generateTfVars(tf_vars_map)
             }
 
             stage('Project') {

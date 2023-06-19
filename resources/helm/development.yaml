@@ -313,7 +313,7 @@ mod-consortia:
     limits:
       memory: '768Mi'
     requests:
-      memory: '384Mi'
+      memory: '576Mi'
 # mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
 mod-codex-mux:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
@@ -564,7 +564,7 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: '2548Mi'
+      memory: '2560Mi'
     requests:
       memory: '512Mi'
 mod-inventory-storage:

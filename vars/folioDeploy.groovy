@@ -7,6 +7,9 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
 
+/*
+Deprecated method. Use folioTerraform.groovy
+ */
 void project(Project project_config, OkapiTenant tenant, String tf_work_dir, String tf_vars) {
     switch (project_config.getAction()) {
         case "apply":
@@ -21,8 +24,8 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
                              usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID,
                                  passwordVariable: 'TF_VAR_folio_docker_registry_password',
                                  usernameVariable: 'TF_VAR_folio_docker_registry_username')]) {
-                terraform.tfWrapper {
-                    terraform.tfApplyFlow {
+                folioTerraform.withTerraformClient {
+                    folioTerraform.applyFlow {
                         working_dir = tf_work_dir
                         vars = tf_vars
                         workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"
@@ -30,8 +33,8 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
                             if (project_config.getBackupName()?.trim()) {
                                 preAction = {
                                     stage('Restore DB') {
-                                        terraform.tfPostgreSQLPlan(tf_work_dir, tf_vars ?: '')
-                                        terraform.tfApply(tf_work_dir)
+                                        folioTerraform.tfPostgreSQLPlan(tf_work_dir, tf_vars ?: '')
+                                        folioTerraform.tfApply(tf_work_dir)
                                         build job: Constants.JENKINS_JOB_RESTORE_PG_BACKUP,
                                             parameters: [string(name: 'rancher_cluster_name', value: project_config.getClusterName()),
                                                          string(name: 'rancher_project_name', value: project_config.getProjectName()),
@@ -65,8 +68,8 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
                              usernamePassword(credentialsId: Constants.DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID,
                                  passwordVariable: 'TF_VAR_folio_docker_registry_password',
                                  usernameVariable: 'TF_VAR_folio_docker_registry_username')]) {
-                terraform.tfWrapper {
-                    terraform.tfDestroyFlow {
+                folioTerraform.withTerraformClient {
+                    folioTerraform.destroyFlow {
                         working_dir = tf_work_dir
                         vars = tf_vars ?: ''
                         workspace_name = "${project_config.getClusterName()}-${project_config.getProjectName()}"

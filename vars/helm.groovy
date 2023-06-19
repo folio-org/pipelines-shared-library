@@ -4,6 +4,9 @@ import org.folio.utilities.model.Project
 import java.time.LocalDateTime
 
 // A function that is used to run the k8sClient inside a docker container.
+/*
+Deprecated. Use folioHelm.withK8sClient()
+ */
 def k8sClient(Closure body) {
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                       credentialsId    : Constants.AWS_CREDENTIALS_ID,
@@ -15,6 +18,9 @@ def k8sClient(Closure body) {
     }
 }
 
+/*
+Deprecated. Use folioHelm.addHelmRepository()
+ */
 // Adding a helm repo.
 def addRepo(String repo_name, String repo_url, Boolean use_Nexus_creds = false) {
     if (use_Nexus_creds) {
@@ -26,11 +32,17 @@ def addRepo(String repo_name, String repo_url, Boolean use_Nexus_creds = false) 
     }
 }
 
+/*
+Deprecated. Use folioHelm.install()
+ */
 // Installing a helm chart.
 def install(String name, String namespace, String values_path, String chart_repo, String chart_name) {
     sh "helm install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
 }
 
+/*
+Deprecated. Use folioHelm.upgrade()
+ */
 // Upgrading the helm chart.
 def upgrade(String name, String namespace, String values_path, String chart_repo, String chart_name) {
     sh "helm upgrade --install ${name} --namespace=${namespace} -f ${values_path} ${chart_repo}/${chart_name}"
