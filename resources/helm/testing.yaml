@@ -311,7 +311,7 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: '640Mi'
+      memory: '768Mi'
     requests:
       memory: '512Mi'
 # mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
