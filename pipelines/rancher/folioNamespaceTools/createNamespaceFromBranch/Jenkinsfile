@@ -10,7 +10,7 @@ import org.folio.rest_v2.Main
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-778') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -45,7 +45,7 @@ InstallQueryParameters installQueryParameters = new InstallQueryParameters()
 RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.rancher_project_name)
   .withDefaultTenant('diku')
   .withInstallJson(new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch))
-  .withDeploymentConfigBranch('RANCHER-778')
+  .withDeploymentConfigBranch('RANCHER-741-Jenkins-Enhancements')
   .withDeploymentConfigType(params.config_type)
   .withEnableRwSplit(params.enable_rw_split)
   .withEnableConsortia(params.enable_consortia)

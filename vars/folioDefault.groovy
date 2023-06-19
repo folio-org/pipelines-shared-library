@@ -41,7 +41,8 @@ Map<String, OkapiTenantConsortia> consortiaTenants(String okapiVersion, Object i
             .withTenantCode('UNI')
             .withConsortiaName('Mobius')
             .withOkapiVersion(okapiVersion)
-            .withInstallJson(installJson),
+            .withInstallJson(installJson)
+            .withInstallQueryParameters(installQueryParameters),
         college   : new OkapiTenantConsortia('college')
             .withTenantName('College')
             .withTenantDescription('College (created via Jenkins)')
@@ -49,6 +50,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(String okapiVersion, Object i
             .withConsortiaName('Mobius')
             .withOkapiVersion(okapiVersion)
             .withInstallJson(installJson)
+            .withInstallQueryParameters(installQueryParameters)
     ]
 }
 
@@ -66,12 +68,12 @@ Map<String, OkapiTenant> tenants() {
             .withTenantDescription('Danish Library Technology Institute')
             .withAdminUser(createAdminOkapiUser('diku_admin', 'admin'))
             .withOkapiSmtp(smtp),
-        aqa      : new OkapiTenant('aqa')
+        aqa       : new OkapiTenant('aqa')
             .withTenantName('AQA')
             .withTenantDescription('AQA (created via Jenkins)')
             .withAdminUser(createAdminOkapiUser('aqa_admin', 'admin'))
             .withOkapiSmtp(smtp),
-        qa      : new OkapiTenant('qa')
+        qa        : new OkapiTenant('qa')
             .withTenantName('QA')
             .withTenantDescription('QA (created via Jenkins)')
             .withAdminUser(createAdminOkapiUser('aqa_admin', 'admin'))
