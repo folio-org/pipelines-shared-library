@@ -241,6 +241,9 @@ ansiColor('xterm') {
                                 deployment.update()
                             } else {
                                 deployment.main()
+                                if (params.rancher_project_name == "data-migration") {
+                                    deployment.unsecure()
+                                }                                
                             }
                         }
                     }

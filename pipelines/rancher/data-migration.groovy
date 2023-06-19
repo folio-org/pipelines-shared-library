@@ -29,13 +29,15 @@ properties([
         jobsParameters.repository(),
         jobsParameters.branch('folio_repository', 'folio_branch_src'),
         jobsParameters.branch('folio_repository', 'folio_branch_dst'),
-        string(name: 'backup_name', defaultValue: '', description: 'RDS snapshot name', trim: true),
+        string(name: 'backup_name', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
         string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
 
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
 def config_type = 'performance'
-def tenant_id = 'fs09000000'
+def tenant_id
+def admin_username
+def admin_password
 def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
@@ -44,6 +46,8 @@ List modulesMigrationFailedSlack = []
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
+def foundSchemaDiff = false
+def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -55,7 +59,17 @@ ansiColor('xterm') {
         try {
             stage('Init') {
                 currentBuild.result = 'SUCCESS'
-                buildName tenant_id + '-' + backup_name + '.' + env.BUILD_ID
+                if (params.backup_name) {
+                    tenant_id = 'fs09000000'
+                    admin_username = 'folio'
+                    admin_password = 'folio'
+                    buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
+                } else {
+                    tenant_id = 'diku'
+                    admin_username = 'diku'
+                    admin_password = 'diku_admin'
+                    buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
+                }
 
                 // Create map with moduleName, source and destination version for this module
                 // This map used for time migration and schemaDiff reports
@@ -76,58 +90,35 @@ ansiColor('xterm') {
                     resultMap[moduleName]['dstVersion'] = moduleVersion
                 }
             }
+
             stage('Destroy data-migration project') {
-                build job: Constants.JENKINS_JOB_PROJECT,
-                    propagate: false,
-                    parameters: [
-                        string(name: 'action', value: 'destroy'),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_shared', value: false),
-                        booleanParam(name: 'opensearch_shared', value: false),
-                        booleanParam(name: 's3_embedded', value: false)
-                    ]
+                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+                        rancher_project_name, params.folio_repository, params.folio_branch_src,
+                        okapiVersion, tenant_id, admin_username, admin_password, params.backup_name)
+
+                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
             }
+
             stage('Restore data-migration project from backup') {
-                build job: Constants.JENKINS_JOB_PROJECT,
-                    parameters: [
-                        string(name: 'action', value: 'apply'),
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'okapi_version', value: getOkapiVersion(params.folio_repository, params.folio_branch_src)),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        booleanParam(name: 'restore_from_backup', value: true),
-                        string(name: 'backup_type', value: 'rds'),
-                        string(name: 'backup_name', value: params.backup_name),
-                        string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
-                        booleanParam(name: 'pg_embedded', value: false),
-                        booleanParam(name: 'kafka_shared', value: true),
-                        booleanParam(name: 'opensearch_shared', value: true),
-                        booleanParam(name: 's3_embedded', value: false)
-                    ]
+                if (params.backup_name) {
+                    def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
+                            rancher_project_name, params.folio_repository, params.folio_branch_src,
+                            okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, true)
+
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
+                }
             }
-            stage('Update with src release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                    parameters: [
-                        string(name: 'folio_repository', value: params.folio_repository),
-                        string(name: 'folio_branch', value: params.folio_branch_src),
-                        string(name: 'rancher_cluster_name', value: rancher_cluster_name),
-                        string(name: 'rancher_project_name', value: rancher_project_name),
-                        string(name: 'config_type', value: config_type),
-                        string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
-                    ]
+
+            stage('Create data-migration project') {
+                if (!params.backup_name) {
+                    def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
+                            rancher_project_name, params.folio_repository, params.folio_branch_src,
+                            okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
+
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                  
+                }
             }
+
             stage('Update with dst release versions') {
                 build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
                     parameters: [
@@ -137,10 +128,11 @@ ansiColor('xterm') {
                         string(name: 'rancher_project_name', value: rancher_project_name),
                         string(name: 'config_type', value: config_type),
                         string(name: 'tenant_id', value: tenant_id),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio")
+                        string(name: 'admin_username', value: admin_username),
+                        string(name: 'admin_password', value: admin_password)
                     ]
             }
+            
             stage('Generate Data Migration Time report') {
                 sleep time: 5, unit: 'MINUTES'
 
@@ -192,8 +184,8 @@ ansiColor('xterm') {
                         string(name: 'reference_tenant_id', value: tenant_id),
                         string(name: 'tenant_id', value: tenant_id_clean),
                         string(name: 'tenant_name', value: "Clean tenant"),
-                        string(name: 'admin_username', value: "folio"),
-                        string(name: 'admin_password', value: "folio"),
+                        string(name: 'admin_username', value: admin_username),
+                        string(name: 'admin_password', value: admin_password),
                         booleanParam(name: 'deploy_ui', value: false),
                         string(name: 'folio_repository', value: params.folio_repository),
                         string(name: 'folio_branch', value: params.folio_branch_dst)
@@ -285,6 +277,7 @@ ansiColor('xterm') {
                         def diffHtmlData
                         if (diff) {
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL, resultMap)
+                            foundSchemaDiff = true
                             currentBuild.result = 'UNSTABLE'
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
@@ -292,8 +285,12 @@ ansiColor('xterm') {
                         } 
                         writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }                
-            }
+            }       
 
+        } catch (exception) {
+            currentBuild.result = 'FAILURE'
+            error(exception.getMessage())
+        } finally {
             stage('Publish HTML Reports') {
                 publishHTML([
                     reportDir: 'reportSchemas',
@@ -310,16 +307,25 @@ ansiColor('xterm') {
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true])
-            }           
+            }
 
-        } catch (exception) {
-            currentBuild.result = 'FAILURE'
-            error(exception.getMessage())
-        } finally {
             stage('Send Slack notification') {
                 dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }
-            
+
+            stage('Destroy data-migration project') {
+                if (foundSchemaDiff) {
+                    println "Waiting to destroy 6 hours"
+                    sleep time: 6, unit: 'HOURS'
+                }
+                
+                def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
+                        rancher_project_name, params.folio_repository, params.folio_branch_src,
+                        okapiVersion, tenant_id, admin_username, admin_password, params.backup_name)
+
+                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+            }    
+
             stage('Cleanup') {
                 cleanWs notFailBuild: true
             }
@@ -335,4 +341,32 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     kubectl.waitPodIsRunning(namespace, psqlPod)
     def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
     return schemasList.split('\n').collect({it.trim()})
+}
+
+private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository, 
+                                         String folio_branch, String okapiVersion, String tenant_id, String admin_username,
+                                         String admin_password, String backup_name, boolean restore_from_backup = false, 
+                                         boolean load_reference = false, boolean load_sample = false, boolean pg_embedded = false, 
+                                         boolean kafka_shared = true, boolean opensearch_shared = true, boolean s3_embedded = false) {
+    [
+        string(name: 'action', value: action),
+        string(name: 'rancher_cluster_name', value: clusterName),
+        string(name: 'rancher_project_name', value: projectName),
+        string(name: 'folio_repository', value: folio_repository),
+        string(name: 'folio_branch', value: folio_branch),
+        string(name: 'okapi_version', value: okapiVersion),
+        string(name: 'config_type', value: 'performance'),
+        string(name: 'tenant_id', value: tenant_id),
+        string(name: 'admin_username', value: admin_username),
+        string(name: 'admin_password', value: admin_password),
+        string(name: 'backup_type', value: 'rds'),
+        string(name: 'backup_name', value: backup_name),
+        booleanParam(name: 'restore_from_backup', value: restore_from_backup),
+        booleanParam(name: 'load_reference', value: load_reference),
+        booleanParam(name: 'load_sample', value: load_sample),
+        booleanParam(name: 'pg_embedded', value: pg_embedded),
+        booleanParam(name: 'kafka_shared', value: kafka_shared),
+        booleanParam(name: 'opensearch_shared', value: opensearch_shared),
+        booleanParam(name: 's3_embedded', value: s3_embedded)
+    ]
 }
