@@ -1,3 +1,8 @@
+/*
+!!!DEPRECATED!!!
+Please avoid any significant logic changes. Only fixes allowed.
+Instead use new approach for pipelines creation/modification
+ */
 #!groovy
 @Library('pipelines-shared-library') _
 
@@ -175,7 +180,7 @@ ansiColor('xterm') {
                     }
                 }
 
-                context.tf_vars = terraform.generateTfVars(tf_vars_map)
+                context.tf_vars = folioTerraform.generateTfVars(tf_vars_map)
             }
 
             stage('Project') {
@@ -197,9 +202,9 @@ ansiColor('xterm') {
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, 
-                            project_config, 
-                            false, 
+                        folioDeploy.backend(install_backend_map,
+                            project_config,
+                            false,
                             params.enable_rw_split)
                     }
                 }

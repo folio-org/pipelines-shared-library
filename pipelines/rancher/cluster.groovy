@@ -60,7 +60,7 @@ ansiColor('xterm') {
                     deploy_kubecost     : context.deploy_kubecost,
                     deploy_sorry_cypress: context.deploy_sorry_cypress,
                 ]
-                context.tf_vars = terraform.generateTfVars(tf_vars_map)
+                context.tf_vars = folioTerraform.generateTfVars(tf_vars_map)
             }
             stage('Checkout') {
                 checkout scm
@@ -74,23 +74,23 @@ ansiColor('xterm') {
                 string(credentialsId: Constants.SLACK_WEBHOOK_URL, variable: 'TF_VAR_slack_webhook_url')
             ])
                 {
-                terraform.tfWrapper {
-                    terraform.tfInit(context.tf_work_dir, '')
-                    terraform.tfWorkspaceSelect(context.tf_work_dir, context.cluster_name)
-                    terraform.tfStatePull(context.tf_work_dir)
+                folioTerraform.withTerraformClient {
+                    folioTerraform.tfInit(context.tf_work_dir, '')
+                    folioTerraform.tfWorkspaceSelect(context.tf_work_dir, context.cluster_name)
+                    folioTerraform.tfStatePull(context.tf_work_dir)
                     if (context.action == 'apply') {
-                        terraform.tfPlan(context.tf_work_dir, context.tf_vars)
-                        terraform.tfPlanApprove(context.tf_work_dir)
-                        terraform.tfApply(context.tf_work_dir)
+                        folioTerraform.tfPlan(context.tf_work_dir, context.tf_vars)
+                        folioTerraform.tfPlanApprove(context.tf_work_dir)
+                        folioTerraform.tfApply(context.tf_work_dir)
                     } else if (context.action == 'destroy') {
                         input message: "Are you shure that you want to destroy ${context.cluster_name} cluster?"
                         try {
-                            terraform.tfRemoveElastic(context.tf_work_dir)
+                            folioTerraform.tfRemoveElastic(context.tf_work_dir)
                         }
                         catch (exception) {
                             println(exception)
                         }
-                        terraform.tfDestroy(context.tf_work_dir, context.tf_vars)
+                        folioTerraform.tfDestroy(context.tf_work_dir, context.tf_vars)
                     }
                 }
             }
