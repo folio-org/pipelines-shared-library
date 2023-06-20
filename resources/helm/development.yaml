@@ -547,7 +547,7 @@ mod-graphql:
     requests:
       memory: '288Mi'
 mod-inn-reach:
-  javaOptions: '-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://okapi:9130'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://okapi:9130'
   postJob:
     enabled: false
   replicaCount: 1
@@ -558,7 +558,7 @@ mod-inn-reach:
       memory: '683Mi'
 mod-inventory:
   dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=85.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
   postJob:
     enabled: false
   replicaCount: 1
@@ -789,7 +789,7 @@ mod-permissions:
     requests:
       memory: '512Mi'
 mod-pubsub:
-  javaOptions: '-XX:MaxRAMPercentage=85.0 -XX:+HeapDumpOnOutOfMemoryError'
+  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:+HeapDumpOnOutOfMemoryError'
   postJob:
     enabled: false
   replicaCount: 1
@@ -799,7 +799,7 @@ mod-pubsub:
     requests:
       memory: '768Mi'
 mod-quick-marc:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
