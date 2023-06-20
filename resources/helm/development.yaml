@@ -553,7 +553,7 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: '774Mi'
+      memory: '1024Mi'
     requests:
       memory: '683Mi'
 mod-inventory:
