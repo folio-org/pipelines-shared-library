@@ -103,7 +103,7 @@ resource "rancher2_catalog_v2" "provectus" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].cluster_id
   name       = "provectus"
-  url        = "https://provectus.github.io/kafka-ui"
+  url        = "https://provectus.github.io/kafka-ui-charts"
 }
 
 # Prometheus Community charts catalog, for prometheus

@@ -17,9 +17,9 @@ locals {
 resource "helm_release" "kafka-ui" {
   count            = var.kafka_shared_name != "" ? 1 : 0
   name             = "kafka-ui"
-  repository       = "https://provectus.github.io/kafka-ui"
+  repository       = "https://provectus.github.io/kafka-ui-charts"
   chart            = "kafka-ui"
-  version          = "0.6.1"
+  version          = "0.7.1"
   namespace        = "shared-dashboards"
   create_namespace = true
   values = [<<EOF
@@ -47,7 +47,7 @@ resource "helm_release" "kafka-ui" {
         health:
           ldap:
             enabled: false
-  EOF 
+  EOF
   ]
 }
 
@@ -97,6 +97,6 @@ resource "helm_release" "opensearch-dashboards" {
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/group.name: ${var.rancher_cluster_name}
-  EOF 
+  EOF
   ]
 }
