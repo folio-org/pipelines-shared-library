@@ -101,15 +101,15 @@ pipeline {
                         }
                     }
                     stages {
-                        stage("Collect execution results") {
-                            steps {
-                                script {
-                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                                }
-                            }
-                        }
+//                        stage("Collect execution results") {
+//                            steps {
+//                                script {
+//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+//
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                }
+//                            }
+//                        }
 
                         stage("Parse teams assignment") {
                             steps {
