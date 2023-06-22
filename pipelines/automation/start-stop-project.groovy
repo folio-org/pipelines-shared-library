@@ -13,6 +13,7 @@ def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.gene
 assert cluster_project_map instanceof Map
 def labelKey = "do_not_scale_down"
 def labelKeyExists = false
+def postgresqlResources
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -86,6 +87,7 @@ ansiColor('xterm') {
                                 labelKeyExists = true
                             }
                         }
+                        postgresqlResources = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
                 }
             }
             if (params.action == 'stop') {
@@ -99,7 +101,6 @@ ansiColor('xterm') {
                         } else {
                             println "Shutting down the project..."
                             def deployments_list = kubectl.getKubernetesResourceList('deployment', params.rancher_project_name)
-                            def postgresql = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
                             kubectl.deleteConfigMap('deployments-replica-count-json', params.rancher_project_name)
                             def deployments_replica_count_table = [:]
                             deployments_list.each { deployment ->
@@ -111,10 +112,12 @@ ansiColor('xterm') {
                             deployments_list.each { deployment ->
                                 kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, '0')
                             }
-                            if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-                                kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '0')
-                            }
-                            else {
+                            // Stop postgresql service
+                            if (postgresqlResources) {
+                                postgresqlResources.each { postgresqlName ->
+                                    kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '0')
+                                }
+                            } else {
                                 awscli.stopRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             }
                         }
@@ -133,9 +136,12 @@ ansiColor('xterm') {
                         def backend_module_list = deployments_list.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
                         def edge_module_list = deployments_list.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
                         def ui_bundle_list = deployments_list.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
-                        if (!kubectl.checkKubernetesResourceExist('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name)){
-                            kubectl.setKubernetesResourceCount('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1')
-                            kubectl.waitKubernetesResourceStableState('statefulset', "postgresql-${params.rancher_project_name}", params.rancher_project_name, '1', '600')
+                        // Start postgresql service
+                        if (postgresqlResources) {
+                            postgresqlResources.each { postgresqlName ->
+                                kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '1')
+                                kubectl.waitKubernetesResourceStableState('statefulset', postgresqlName, params.rancher_project_name, '1', '600')
+                            }
                         }
                         else {
                             awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
