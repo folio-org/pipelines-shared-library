@@ -106,7 +106,7 @@ pipeline {
                                 script {
                                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
 
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                                 }
                             }
                         }
