@@ -2,9 +2,13 @@ package org.folio.models
 
 import org.folio.rest_v2.Constants
 
+/**
+ * This class represents a TenantUi, providing various properties related to a tenant's user interface.
+ */
 class TenantUi {
     private static final String IMAGE_NAME = 'ui-bundle'
     String tenantId
+    String domain
     String branch
     String hash
     String tag
@@ -23,17 +27,14 @@ class TenantUi {
         return this
     }
 
-    TenantUi withBranch(String branch) {
-        this.branch = branch
+    TenantUi withDomain(String domain) {
+        this.domain = domain
         return this
     }
 
-    TenantUi withHash(String hash) {
-        this.hash = hash
-        updateTagAndImageName()
-        return this
-    }
-
+    /**
+     * Updates the tag and image name for this TenantUi.
+     */
     private void updateTagAndImageName() {
         if (tenantId && hash) {
             this.tag = "${workspace}.${tenantId}.${hash.take(7)}"

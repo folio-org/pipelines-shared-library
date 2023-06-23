@@ -47,16 +47,16 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     String chartName = moduleName
     switch (moduleName) {
         case "okapi":
-            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].domains["okapi"], customModule)
+            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
             break
         case ~/mod-.*/:
             valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
             break
         case ~/edge-.*/:
-            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].domains["edge"], customModule)
+            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule)
             break
         case ~/ui-bundle/:
-            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].domains["ui"], false, tenantId)
+            valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].tenantUi.domain, false, tenantId)
             releaseName = "${tenantId}-${moduleName}"
             chartName = "platform-complete"
             break
@@ -185,7 +185,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         switch (moduleName) {
             case 'edge-sip2':
                 edgeNlbDomain = common.generateDomain(ns.clusterName, ns.namespaceName, 'sip2', Constants.CI_ROOT_DOMAIN)
-                moduleConfig << [okapiUrl         : ns.tenants[ns.defaultTenantId].domains["okapi"],
+                moduleConfig << [okapiUrl         : ns.domains["okapi"],
                                  sip2TenantsConfig: """{
   "scTenants": [
     {

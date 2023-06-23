@@ -14,22 +14,40 @@ class Configurations extends Authorization {
         super(context, okapiDomain, debug)
     }
 
+    boolean isRmapiConfigExist(OkapiTenant tenant) {
+        String kbCredentialsId = '80898dee-449f-44dd-9c8e-37d5eb469b1d'
+        String url = generateUrl("/eholdings/kb-credentials/${kbCredentialsId}")
+        Map<String, String> headers = getAuthorizedHeaders(tenant)
+        try {
+            restClient.get(url, headers)
+            return true
+        } catch (RequestException e) {
+            logger.warning(e.getMessage())
+            return false
+        }
+    }
+
     /**
      * Sets the RMAPI configuration for the specified tenant.
      *
      * @param tenant The tenant for which the configuration is to be set.
      */
     void setRmapiConfig(OkapiTenant tenant) {
-        if (!tenant.kbApiKey) {
+        String kbCredentialsId = '80898dee-449f-44dd-9c8e-37d5eb469b1d'
+        if (!tenant.config?.kbApiKey) {
             logger.warning("KB Api key not set. Skipping.")
             return
         }
-        String url = generateUrl("/eholdings/kb-credentials/80898dee-449f-44dd-9c8e-37d5eb469b1d")
+        if (!isRmapiConfigExist(tenant)) {
+            logger.warning("KB Credentials configuration not exists")
+            return
+        }
+        String url = generateUrl("/eholdings/kb-credentials/${kbCredentialsId}")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
         headers["Content-Type"] = "application/vnd.api+json"
         Map body = [data: [type      : "kbCredentials",
                            attributes: [name      : "Knowledge Base",
-                                        apiKey    : tenant.kbApiKey,
+                                        apiKey    : tenant.config.kbApiKey,
                                         url       : Constants.KB_API_URL,
                                         customerId: Constants.KB_CUSTOMER_ID]
 
@@ -46,8 +64,8 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which to check the Worldcat availability.
      * @return boolean value indicating if Worldcat is available.
      */
-    boolean checkWorldcat(OkapiTenant tenant) {
-        String copycatProfileId = "f26df83c-aa25-40b6-876e-96852c3d4fd4"
+    boolean isWorldcatExists(OkapiTenant tenant) {
+        String copycatProfileId = 'f26df83c-aa25-40b6-876e-96852c3d4fd4'
         String url = generateUrl("/copycat/profiles/${copycatProfileId}")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
 
@@ -67,12 +85,13 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which the configuration is to be set.
      */
     void setWorldcat(OkapiTenant tenant) {
-        if (!checkWorldcat(tenant)) {
+        String copycatProfileId = 'f26df83c-aa25-40b6-876e-96852c3d4fd4'
+        if (!isWorldcatExists(tenant)) {
             logger.warning("Worldcat's id not exits, reference data not performed")
             return
         }
 
-        String url = generateUrl("/copycat/profiles/f26df83c-aa25-40b6-876e-96852c3d4fd4")
+        String url = generateUrl("/copycat/profiles/${copycatProfileId}")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
         Map body = Constants.WORLDCAT
 
@@ -86,17 +105,17 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which the SMTP settings are to be set.
      */
     void setSmtp(OkapiTenant tenant) {
-        if (!tenant.smtpConfig) {
+        if (!tenant.config?.smtp) {
             logger.warning("SMTP configuration not provided")
             return
         }
         String url = generateUrl("/configurations/entries")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
-        Map binding = [email_smtp_host: tenant.smtpConfig.host,
-                       email_smtp_port: tenant.smtpConfig.port,
-                       email_username : tenant.smtpConfig.username,
-                       email_password : tenant.smtpConfig.password,
-                       email_from     : tenant.smtpConfig.from]
+        Map binding = [email_smtp_host: tenant.config.smtp.host,
+                       email_smtp_port: tenant.config.smtp.port,
+                       email_username : tenant.config.smtp.username,
+                       email_password : tenant.config.smtp.password,
+                       email_from     : tenant.config.smtp.from]
         Constants.CONFIGURATIONS.smtpConfig.each {
             tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             def content = steps.readFile it
@@ -119,10 +138,14 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which to set reset password link.
      */
     void setResetPasswordLink(OkapiTenant tenant) {
+        if (!tenant.config?.resetPasswordLink) {
+            logger.warning("Reset password link configuration not provided")
+            return
+        }
         String url = generateUrl("/configurations/entries")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
 
-        Map binding = [stripes_url: tenant.domains["ui"]]
+        Map binding = [stripes_url: tenant.config.resetPasswordLink]
         Constants.CONFIGURATIONS.resetPassword.each {
             tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             def content = steps.readFile it
