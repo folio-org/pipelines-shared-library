@@ -43,16 +43,16 @@ pipeline {
     }
 
     stages {
-        stage("Create environment") {
-            steps {
-                script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                        projectName, prototypeTenant, folio_repository, folio_branch)
-
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
+//        stage("Create environment") {
+//            steps {
+//                script {
+//                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+//                        projectName, prototypeTenant, folio_repository, folio_branch)
+//
+//                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//            }
+//        }
 
         stage("Start tests") {
             when {
@@ -83,16 +83,16 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-                stage("Destroy environment") {
-                    steps {
-                        script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                                projectName, prototypeTenant, folio_repository, folio_branch)
-
-                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
+//                stage("Destroy environment") {
+//                    steps {
+//                        script {
+//                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+//                                projectName, prototypeTenant, folio_repository, folio_branch)
+//
+//                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                        }
+//                    }
+//                }
 
                 stage("Collect test results") {
                     when {
@@ -106,7 +106,7 @@ pipeline {
                                 script {
                                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
 
-//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                                 }
                             }
                         }
