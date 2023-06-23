@@ -54,14 +54,80 @@ properties([
         20 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
         30 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
 
+
+
         55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
         35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
 
         55 22 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
         35 00 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
 
+
+
         25 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consortia
         40 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
+
+        25 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=tamu
+        40 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=tamu
+
+        25 23 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+        45 00 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+
+
+
+
+
+
+
+
+        0 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
+        0 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
+
+        0 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
+        0 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
+
+        0 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
+        0 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=folijet
+
+        10 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
+        15 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
+
+        10 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
+        15 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
+
+        10 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
+        15 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
+
+        15 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
+        30 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
+
+        15 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=vega
+        30 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=vega
+
+        15 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris
+        30 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris
+
+        20 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
+        45 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
+
+
+
+        55 22 * * 1-4 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
+        45 06 * * 2-5 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
+
+        55 22 * * 1-4 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
+        45 06 * * 2-5 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
+
+
+
+        20 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consortia
+        00 07 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
+
+        20 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=tamu
+        00 07 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=tamu
+
+        25 23 * * 1-4 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+        00 07 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
     ''')
     ])
 ])
