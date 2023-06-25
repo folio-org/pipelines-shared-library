@@ -6,11 +6,11 @@ resource "rancher2_app_v2" "kafka" {
   name          = "kafka-${var.rancher_project_name}"
   repo_name     = "bitnami"
   chart_name    = "kafka"
-  chart_version = "17.2.3"
+  chart_version = "21.4.6"
   force_upgrade = "true"
   values        = <<-EOT
     image:
-      tag: 2.8.1-debian-10-r99
+      tag: 2.8
     metrics:
       kafka:
         enabled: true
@@ -27,15 +27,15 @@ resource "rancher2_app_v2" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 2048Mi
+        memory: 1024Mi
       limits:
         memory: 4096Mi
     zookeeper:
       image:
-        tag: 3.7.0-debian-10-r257
+        tag: 3.7
       enabled: true
       persistence:
-        size: 10Gi
+        size: 5Gi
       resources:
         requests:
           memory: 512Mi
@@ -46,7 +46,7 @@ resource "rancher2_app_v2" "kafka" {
     readinessProbe:
       enabled: false
     replicaCount: ${var.kafka_number_of_broker_nodes}
-    heapOpts: "-Xmx3277m -Xms1024m"
+    heapOpts: "-Xmx3072m -Xms768m"
     extraEnvVars:
       - name: KAFKA_DELETE_TOPIC_ENABLE
         value: "true"
