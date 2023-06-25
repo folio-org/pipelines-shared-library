@@ -135,12 +135,12 @@ variable "kafka_shared_name" {
 
 variable "kafka_number_of_broker_nodes" {
   type    = number
-  default = 2
+  default = 1
 }
 
 variable "kafka_ebs_volume_size" {
   type    = number
-  default = 50
+  default = 10
 }
 
 # Elasticsearch variables
