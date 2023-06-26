@@ -58,6 +58,7 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
 
 
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
+        println('test_Renat')
         println file
         println file.path
         def contents = readFile(file.path)
