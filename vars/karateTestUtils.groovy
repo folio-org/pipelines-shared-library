@@ -58,9 +58,6 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
 
 
     findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
-        println('test_Renat')
-        println file
-        println file.path
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
@@ -77,10 +74,9 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
                 false
             }
         }
-        if (feature) {
-            println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
-            feature.cucumberReportFile = file.name
-        }
+        println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
+        feature.cucumberReportFile = file.name
+
     }
 }
 
