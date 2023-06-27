@@ -1,5 +1,9 @@
 package org.folio.models
 
+/**
+ * OkapiTenant class representing a tenant configuration for Okapi.
+ * It provides chainable setter methods following builder pattern for ease of use.
+ */
 class OkapiTenant {
     String tenantId
     String tenantName
@@ -9,19 +13,14 @@ class OkapiTenant {
     Modules modules
     Index index
     InstallQueryParameters installQueryParameters
-    Map domains
+    OkapiConfig config
     TenantUi tenantUi
-    SmtpConfig smtpConfig
-    String kbApiKey
-
-    private static final List VALID_DOMAIN_KEYS = ['ui', 'okapi', 'edge']
 
     OkapiTenant(String tenantId) {
         this.tenantId = tenantId
-        this.index = new Index()
-        this.installQueryParameters = new InstallQueryParameters()
-        this.domains = [:]
         this.modules = new Modules()
+        this.installQueryParameters = new InstallQueryParameters()
+        this.config = new OkapiConfig()
     }
 
     // Chainable setters
@@ -45,64 +44,42 @@ class OkapiTenant {
         return this
     }
 
+    /**
+     * Chainable setter for install JSON.
+     * It removes 'mod-consortia' and 'folio_consortia-settings' modules.
+     * @param installJson The install JSON object.
+     * @return The OkapiTenant object.
+     */
     OkapiTenant withInstallJson(Object installJson) {
-        this.modules = new Modules().withInstallJson(installJson)
+        this.modules.setInstallJson(installJson)
         this.modules.removeModule('mod-consortia')
         this.modules.removeModule('folio_consortia-settings')
         return this
     }
 
-    OkapiTenant withIndex(boolean index, boolean recreate, boolean waitComplete = true) {
-        this.index = new Index(index, recreate, waitComplete)
+    OkapiTenant withIndex(boolean run, boolean recreate, boolean waitComplete = true) {
+        this.index = new Index(run, recreate, waitComplete)
         return this
     }
 
     OkapiTenant withInstallQueryParameters(InstallQueryParameters installQueryParameters) {
-        this.installQueryParameters = installQueryParameters
+        this.installQueryParameters = installQueryParameters.clone()
         return this
     }
 
-    OkapiTenant withDomains(Map domains) {
-        setDomains(domains)
-        return this
-    }
-
-    OkapiTenant withOkapiSmtp(SmtpConfig smtpConfig) {
-        this.smtpConfig = smtpConfig
-        return this
-    }
-
-    OkapiTenant withKbApiKey(String kbApiKey) {
-        this.kbApiKey = kbApiKey
+    /**
+     * Chainable setter for Okapi configuration.
+     * It performs a deep copy of the configuration object.
+     * @param config The OkapiConfig object.
+     * @return The OkapiTenant object.
+     */
+    OkapiTenant withConfiguration(OkapiConfig config) {
+        this.config = config
         return this
     }
 
     OkapiTenant withTenantUi(TenantUi tenantUi) {
         this.tenantUi = tenantUi.withTenantId(this.tenantId)
         return this
-    }
-
-    static void validateDomainKey(String key) {
-        if (!VALID_DOMAIN_KEYS.contains(key)) {
-            throw new IllegalArgumentException("Invalid key in domains map: ${key}")
-        }
-    }
-
-    void setDomains(Map domains) {
-        domains.each { key, value ->
-            validateDomainKey(key)
-        }
-        this.domains = domains
-    }
-
-    void addDomain(String key, String value) {
-        validateDomainKey(key)
-        this.domains[key] = value
-    }
-
-    void removeDomain(String key) {
-        if (this.domains.containsKey(key)) {
-            this.domains.remove(key)
-        }
     }
 }
