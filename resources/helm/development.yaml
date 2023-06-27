@@ -805,9 +805,9 @@ mod-quick-marc:
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: '640Mi'
     requests:
-      memory: '384Mi'
+      memory: '512Mi'
 mod-remote-storage:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:

@@ -46,7 +46,7 @@ properties([
         jobsParameters.backupType(),
         jobsParameters.backupName(),
         booleanParam(name: 'pg_embedded', defaultValue: true, description: '(Optional) Embedded PostgreSQL or AWS RDS'),
-        booleanParam(name: 'kafka_shared', defaultValue: true, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
+        booleanParam(name: 'kafka_shared', defaultValue: false, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
         booleanParam(name: 'opensearch_shared', defaultValue: true, description: '(Optional) Use shared AWS OpenSearch service or embedded OpenSearch'),
         booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
         booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
@@ -197,9 +197,9 @@ ansiColor('xterm') {
                 stage("Deploy backend modules") {
                     Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
                     if (install_backend_map) {
-                        folioDeploy.backend(install_backend_map, 
-                            project_config, 
-                            false, 
+                        folioDeploy.backend(install_backend_map,
+                            project_config,
+                            false,
                             params.enable_rw_split)
                     }
                 }
@@ -243,7 +243,7 @@ ansiColor('xterm') {
                                 deployment.main()
                                 if (params.rancher_project_name == "data-migration") {
                                     deployment.unsecure()
-                                }                                
+                                }
                             }
                         }
                     }

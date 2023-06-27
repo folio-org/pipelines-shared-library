@@ -54,11 +54,42 @@ resource "aws_msk_cluster" "this" {
         volume_size = var.kafka_ebs_volume_size
       }
     }
+    connectivity_info {
+      public_access {
+        type = "DISABLED"
+      }
+    }
   }
 
   configuration_info {
     arn      = aws_msk_configuration.this.arn
     revision = aws_msk_configuration.this.latest_revision
+  }
+
+  open_monitoring {
+    prometheus {
+      jmx_exporter {
+        enabled_in_broker = true
+      }
+      node_exporter {
+        enabled_in_broker = true
+      }
+    }
+  }
+
+  logging_info {
+    broker_logs {
+      cloudwatch_logs {
+        enabled   = true
+        log_group = "/aws/msk/folio-kafka"
+      }
+      firehose {
+        enabled = false
+      }
+      s3 {
+        enabled = false
+      }
+    }
   }
 
   tags = merge(
