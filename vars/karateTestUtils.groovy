@@ -61,8 +61,8 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         moduleSummary.features
     }.flatten()
 
-
-    findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
+    def buildNumber = env.BUILD_NUMBER
+    findFiles(glob: "**/${buildNumber}/cucumber-html-reports/report-feature*").each { file ->
         println("print-file")
         println file
         println file.path
@@ -83,9 +83,10 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
                 false
             }
         }
-        println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
-        feature.cucumberReportFile = file.name
-
+        if (feature) {
+            println "Cucumber report for '${feature.displayName} (${feature.name})' feature is '${file.name}'"
+            feature.cucumberReportFile = file.name
+        }
     }
 }
 
