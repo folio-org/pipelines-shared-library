@@ -53,7 +53,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 void attachCucumberReports(KarateTestsExecutionSummary summary) {
     copyCucumberReports()
     def BUILD_NUMBER = env.buildNumber
-    println ("build_number")
     println BUILD_NUMBER
     String jobname = System.getenv('JOB_NAME')
     println jobname
