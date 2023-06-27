@@ -18,10 +18,12 @@ class Main extends Okapi {
         this.consortia = new Consortia(context, okapiDomain, debug)
     }
 
-    void initializeFromScratch(Map<String, OkapiTenant> tenants, List installJson, List discoveryList, boolean enableConsortia) {
-        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
-        publishServiceDiscovery(discoveryList)
-        lockSuperTenant(superTenant)
+    void initializeFromScratch(Map<String, OkapiTenant> tenants, List completeInstallJson, List completeDiscoveryList, boolean enableConsortia) {
+        publishModulesDescriptors(getUnregisteredModuleDescriptors(completeInstallJson))
+        publishServiceDiscovery(completeDiscoveryList)
+        if(superTenant.adminUser) {
+            lockSuperTenant(superTenant)
+        }
         tenants.each { tenantId, tenant ->
             createTenant(tenant)
             tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
@@ -70,7 +72,7 @@ class Main extends Okapi {
         } else {
             logger.warning("Module (mod-kb-ebsco-java) not enabled for tenant ${tenant.tenantId}")
         }
-        if (tenant.index.index) {
+        if (tenant.index?.run) {
             runIndexInstance(tenant)
         }
     }
