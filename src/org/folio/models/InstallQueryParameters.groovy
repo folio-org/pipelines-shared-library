@@ -1,6 +1,9 @@
 package org.folio.models
 
-class InstallQueryParameters {
+/**
+ * This class defines the parameters required for installation query.
+ */
+class InstallQueryParameters implements Cloneable {
     boolean async
     boolean ignoreErrors
     boolean reinstall
@@ -32,19 +35,40 @@ class InstallQueryParameters {
         return this
     }
 
-    void addTenantParameter(String key, boolean value) {
-        if (this.tenantParameters?.isEmpty()) {
-            this.tenantParameters += "tenantParameters=" + encode("${key}=${value}")
-        } else {
-            this.tenantParameters += encode(",${key}=${value}")
+    InstallQueryParameters clone() {
+        try {
+            super.clone() as InstallQueryParameters
+        } catch(CloneNotSupportedException e) {
+            throw new AssertionError('This should not happen: ' + e)
         }
     }
 
+    /**
+     * Adds a tenant parameter.
+     *
+     * @param key The parameter key.
+     * @param value The parameter value.
+     */
+    void addTenantParameter(String key, boolean value) {
+        StringBuilder sb = new StringBuilder(this.tenantParameters)
+        if (this.tenantParameters?.isEmpty()) {
+            sb.append("tenantParameters=").append(encode("${key}=${value}"))
+        } else {
+            sb.append(encode(",${key}=${value}"))
+        }
+        this.tenantParameters = sb.toString()
+    }
+
+    /**
+     * Removes a tenant parameter.
+     *
+     * @param key The key of the tenant parameter to be removed.
+     */
     void removeTenantParameter(String key) {
         if (!this.tenantParameters?.isEmpty()) {
             String decodedParams = decode(this.tenantParameters.replace("tenantParameters=", ""))
             List<String> paramsList = decodedParams.split(",") as List<String>
-            paramsList.removeIf { it.startsWith(key) }
+            paramsList = paramsList.findAll { !it.startsWith(key) }
             if (paramsList.size() > 0) {
                 this.tenantParameters = "tenantParameters=" + encode(paramsList.join(","))
             } else {
@@ -53,6 +77,11 @@ class InstallQueryParameters {
         }
     }
 
+    /**
+     * Converts the parameters to a query string.
+     *
+     * @return A string representing the query parameters.
+     */
     String toQueryString() {
         def parameters = [:]
         def defaultValues = new InstallQueryParameters()
@@ -76,19 +105,33 @@ class InstallQueryParameters {
         return paramString
     }
 
+    /**
+     * Encodes a string value to UTF-8.
+     *
+     * @param value The string to be encoded.
+     * @return The encoded string.
+     * @throws RuntimeException If the encoding operation fails.
+     */
     private static String encode(String value) {
         try {
             return URLEncoder.encode(value, "UTF-8")
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e)
+            throw new RuntimeException("Failed to encode string to UTF-8: " + value, e)
         }
     }
 
+    /**
+     * Decodes a UTF-8 encoded string.
+     *
+     * @param value The encoded string.
+     * @return The decoded string.
+     * @throws RuntimeException If the decoding operation fails.
+     */
     private static String decode(String value) {
         try {
             return URLDecoder.decode(value, "UTF-8")
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e)
+            throw new RuntimeException("Failed to decode string from UTF-8: " + value, e)
         }
     }
 }
