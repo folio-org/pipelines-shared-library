@@ -46,23 +46,25 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
     retVal
 }
 
+//println ("build_number")
+//println env.buildNumber
+//String jobname = System.getenv('JOB_NAME')
+//println jobname
+//def build_number = build.properties.getProperty.
+//println build_number
+
 /**
  * Add cucumber reports feature report urls to karate tests execution statistics
  * @param summary karate tests execution statistics
  */
 void attachCucumberReports(KarateTestsExecutionSummary summary) {
     copyCucumberReports()
-    def BUILD_NUMBER = env.buildNumber
-    println ("build_number")
-    println BUILD_NUMBER
-    String jobname = System.getenv('JOB_NAME')
-    println jobname
-    def build_number2 = build.properties.environment.BUILD_NUMBER
-    println build_number2
+
     List<KarateFeatureExecutionSummary> features = summary.modulesExecutionSummary.collect { name, moduleSummary ->
         moduleSummary.features
     }.flatten()
-    findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
+    def build_number = currentBuild.getValue(BUILD_NUMBER)
+    findFiles(glob: "**/${build_number}/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
