@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library@RANCHER-780-Renat') _
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -29,9 +29,9 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 pipeline {
     agent { label 'jenkins-agent-java17' }
 
-//    triggers {
-//        cron('H 3 * * *')
-//    }
+    triggers {
+        cron('H 3 * * *')
+    }
 
     options {
         disableConcurrentBuilds()
@@ -105,7 +105,6 @@ pipeline {
                             steps {
                                 script {
                                     karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-
                                     karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                                 }
                             }
