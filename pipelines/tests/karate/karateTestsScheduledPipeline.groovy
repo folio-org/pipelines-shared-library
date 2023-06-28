@@ -43,23 +43,23 @@ pipeline {
     }
 
     stages {
-//        stage("Create environment") {
-//            steps {
-//                script {
-//                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-//                        projectName, prototypeTenant, folio_repository, folio_branch)
-//
-//                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
+        stage("Create environment") {
+            steps {
+                script {
+                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+                        projectName, prototypeTenant, folio_repository, folio_branch)
+
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
 
         stage("Start tests") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
-//                }
-//            }
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     def jobParameters = [
@@ -83,23 +83,23 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-//                stage("Destroy environment") {
-//                    steps {
-//                        script {
-//                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-//                                projectName, prototypeTenant, folio_repository, folio_branch)
-//
-//                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                        }
-//                    }
-//                }
+                stage("Destroy environment") {
+                    steps {
+                        script {
+                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
+                                projectName, prototypeTenant, folio_repository, folio_branch)
+
+                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
+                }
 
                 stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
-//                        }
-//                    }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
                     stages {
                         stage("Collect execution results") {
                             steps {
@@ -120,32 +120,32 @@ pipeline {
                             }
                         }
 //
-//                        stage("Sync jira tickets") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
 
-//                        stage("Send slack notifications") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
         stage("Set job execution result") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result != 'SUCCESS'
-//                }
-//            }
+            when {
+                expression {
+                    spinUpEnvironmentJob.result != 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     currentBuild.result = 'FAILURE'
@@ -155,28 +155,28 @@ pipeline {
     }
 }
 
-//private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
-//                                         folio_repository, folio_branch) {
-//    [
-//        string(name: 'action', value: action),
-//        string(name: 'config_type', value: "testing"),
-//        string(name: 'rancher_cluster_name', value: clusterName),
-//        string(name: 'rancher_project_name', value: projectName),
-//        string(name: 'okapi_version', value: okapiVersion),
-//        booleanParam(name: 'ui_bundle_build', value: true),
-//        booleanParam(name: 'enable_modules', value: true),
-//        string(name: 'folio_repository', value: folio_repository),
-//        string(name: 'folio_branch', value: folio_branch),
-//        string(name: 'tenant_id', value: tenant),
-//        string(name: 'tenant_name', value: "Karate tenant"),
-//        string(name: 'tenant_description', value: "Karate tests main tenant"),
-//        booleanParam(name: 'load_reference', value: true),
-//        booleanParam(name: 'load_sample', value: true),
-//        booleanParam(name: 'pg_embedded', value: true),
-//        booleanParam(name: 'kafka_shared', value: false),
-//        booleanParam(name: 'opensearch_shared', value: false),
-//        booleanParam(name: 's3_embedded', value: true),
-//        booleanParam(name: 'greenmail_server', value: true),
-//        booleanParam(name: 'enable_rw_split', value: true)
-//    ]
-//}
+private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
+                                         folio_repository, folio_branch) {
+    [
+        string(name: 'action', value: action),
+        string(name: 'config_type', value: "testing"),
+        string(name: 'rancher_cluster_name', value: clusterName),
+        string(name: 'rancher_project_name', value: projectName),
+        string(name: 'okapi_version', value: okapiVersion),
+        booleanParam(name: 'ui_bundle_build', value: true),
+        booleanParam(name: 'enable_modules', value: true),
+        string(name: 'folio_repository', value: folio_repository),
+        string(name: 'folio_branch', value: folio_branch),
+        string(name: 'tenant_id', value: tenant),
+        string(name: 'tenant_name', value: "Karate tenant"),
+        string(name: 'tenant_description', value: "Karate tests main tenant"),
+        booleanParam(name: 'load_reference', value: true),
+        booleanParam(name: 'load_sample', value: true),
+        booleanParam(name: 'pg_embedded', value: true),
+        booleanParam(name: 'kafka_shared', value: false),
+        booleanParam(name: 'opensearch_shared', value: false),
+        booleanParam(name: 's3_embedded', value: true),
+        booleanParam(name: 'greenmail_server', value: true),
+        booleanParam(name: 'enable_rw_split', value: true)
+    ]
+}
