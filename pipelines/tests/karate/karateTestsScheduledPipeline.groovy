@@ -119,7 +119,7 @@ pipeline {
                                 }
                             }
                         }
-//
+
                         stage("Sync jira tickets") {
                             steps {
                                 script {

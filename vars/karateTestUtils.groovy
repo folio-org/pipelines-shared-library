@@ -39,7 +39,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
             displayNames[nameSplit[nameSplit.size() - 1]] = displayName
         }
 
-
         retVal.addModuleResult(moduleName, contents, displayNames)
     }
 
