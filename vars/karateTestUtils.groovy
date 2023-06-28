@@ -30,8 +30,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         // find corresponding cucumber reports to get feature display name
         Map<String, String> displayNames = [:]
         def folder = path.substring(0, path.lastIndexOf("/"))
-        println folder
-        println('print-folder')
         findFiles(glob: "${folder}/*.json").each { report ->
             def reportContents = readJSON file: report.path
 
@@ -39,8 +37,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
             String[] nameSplit = displayName.split(" ")
 
             displayNames[nameSplit[nameSplit.size() - 1]] = displayName
-            println displayName
-            println("print-displayName")
         }
 
 
@@ -63,10 +59,6 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
 
     def buildNumber = env.BUILD_NUMBER
     findFiles(glob: "**/${buildNumber}/cucumber-html-reports/report-feature*").each { file ->
-        println("print-file")
-        println file
-        println file.path
-        println file.name
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
