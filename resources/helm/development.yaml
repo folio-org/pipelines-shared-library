@@ -124,15 +124,15 @@ edge-oai-pmh:
       - paths:
           - /oai*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=86400000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-oai-pmh-ephemeral-properties'
+  javaOptions: '-XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-oai-pmh-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: '1152Mi'
     requests:
-      memory: '192Mi'
+      memory: '864Mi'
   service:
     type: NodePort
 edge-orders:
