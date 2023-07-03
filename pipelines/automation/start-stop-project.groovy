@@ -148,17 +148,17 @@ ansiColor('xterm') {
                             ui_bundle_list.each { deployment, replica_count ->
                                 kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                             }
-                        }
 
-                        // Delete tag if Monday or Sunday
-                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
-                            println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
-                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
-                        }
-                        // Everyday delete tonight tag
-                        if (tonightLabelKeyExists) {
-                            println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
-                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
+                            // Delete tag if Monday or Sunday
+                            if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
+                                println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
+                                kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
+                            }
+                            // Everyday delete tonight tag
+                            if (tonightLabelKeyExists) {
+                                println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
+                                kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
+                            }
                         }
                     }
                 }
