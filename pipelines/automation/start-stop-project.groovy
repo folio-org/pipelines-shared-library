@@ -42,8 +42,8 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
-            def BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription
-            echo "BUILD_TRIGGER_BY: ${BUILD_TRIGGER_BY}"
+            Calendar calendar = Calendar.getInstance()
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
             stage('Init') {
                 buildName "${params.rancher_cluster_name}-${params.rancher_project_name}.${params.action}"
                 buildDescription "action: ${params.action} project\n"
@@ -98,9 +98,6 @@ ansiColor('xterm') {
                 }
             }
             else if (params.action == 'start') {
-                Calendar calendar = Calendar.getInstance()
-                int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-
                 stage("Upscale namespace replicas") {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
