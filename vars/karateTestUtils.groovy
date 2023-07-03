@@ -56,8 +56,7 @@ void attachCucumberReports(KarateTestsExecutionSummary summary) {
         moduleSummary.features
     }.flatten()
 
-
-    findFiles(glob: "**/cucumber-html-reports/report-feature*").each { file ->
+    findFiles(glob: "**/${env.BUILD_NUMBER}/cucumber-html-reports/report-feature*").each { file ->
         def contents = readFile(file.path)
         def feature = features.find { feature ->
             if (contents.contains(feature.displayName)) {
