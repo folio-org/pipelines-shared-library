@@ -698,15 +698,15 @@ mod-oa:
     requests:
       memory: '1024Mi'
 mod-oai-pmh:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '720Mi'
+      memory: '3096Mi'
     requests:
-      memory: '576Mi'
+      memory: '768Mi'
 mod-orders:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
