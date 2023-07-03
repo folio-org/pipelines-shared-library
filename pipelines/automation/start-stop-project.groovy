@@ -104,7 +104,7 @@ ansiColor('xterm') {
                 if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && BUILD_TRIGGER_BY.contains("Started by timer with parameters")) {
                     println("SKIPPED")
                 }
-                else
+                else {
                     stage("Upscale namespace replicas") {
                         helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
@@ -122,8 +122,7 @@ ansiColor('xterm') {
                                     kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '1')
                                     kubectl.waitKubernetesResourceStableState('statefulset', postgresqlName, params.rancher_project_name, '1', '600')
                                 }
-                            }
-                            else {
+                            } else {
                                 awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                                 awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                                 sleep 20
@@ -149,14 +148,20 @@ ansiColor('xterm') {
                             ui_bundle_list.each { deployment, replica_count ->
                                 kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
                             }
+                        }
 
-                            // Delete tag if Monday or Sunday
-                            if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
-                                println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
-                                kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
-                            }
+                        // Delete tag if Monday or Sunday
+                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
+                            println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
+                        }
+                        // Everyday delete tonight tag
+                        if (tonightLabelKeyExists) {
+                            println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
                         }
                     }
+                }
             }
     } catch (exception) {
             println(exception)
