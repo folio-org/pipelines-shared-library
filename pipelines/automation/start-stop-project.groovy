@@ -68,7 +68,7 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
 
-                        if (tonightLabelKeyExists == true || weekendsLabelKeyExists == true) {
+                        if (weekendsLabelKeyExists == true || (tonightLabelKeyExists == true && (dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.TUESDAY || dayOfWeek == Calendar.WEDNESDAY || dayOfWeek == Calendar.THURSDAY))) {
                             println "\u001B[32mProject ${params.rancher_project_name} has label ${labelKeyTonight}/${labelKeyUpToNextMonday} and will not be disabled this time.\u001B[0m"
                             currentBuild.description += "Skip stop action"
                         } else {
@@ -101,64 +101,59 @@ ansiColor('xterm') {
                 Calendar calendar = Calendar.getInstance()
                 int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-                if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && BUILD_TRIGGER_BY.contains("Started by timer with parameters")) {
-                    println("SKIPPED")
-                }
-                else {
-                    stage("Upscale namespace replicas") {
-                        helm.k8sClient {
-                            awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-                            String configMap = kubectl.getConfigMap('deployments-replica-count-json', params.rancher_project_name, 'deployments_replica_count_table_json')
-                            def deployments_list = new groovy.json.JsonSlurperClassic().parseText(configMap)
-                            def services_list = deployments_list.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
-                            def core_modules_list = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
-                            def core_modules_list_map = deployments_list.findAll { key, value -> core_modules_list.any { prefix -> key.startsWith(prefix) } }
-                            def backend_module_list = deployments_list.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
-                            def edge_module_list = deployments_list.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
-                            def ui_bundle_list = deployments_list.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
-                            // Start postgresql service
-                            if (postgresqlResources) {
-                                postgresqlResources.each { postgresqlName ->
-                                    kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '1')
-                                    kubectl.waitKubernetesResourceStableState('statefulset', postgresqlName, params.rancher_project_name, '1', '600')
-                                }
-                            } else {
-                                awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
-                                awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
-                                sleep 20
+                stage("Upscale namespace replicas") {
+                    helm.k8sClient {
+                        awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+                        String configMap = kubectl.getConfigMap('deployments-replica-count-json', params.rancher_project_name, 'deployments_replica_count_table_json')
+                        def deployments_list = new groovy.json.JsonSlurperClassic().parseText(configMap)
+                        def services_list = deployments_list.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
+                        def core_modules_list = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                        def core_modules_list_map = deployments_list.findAll { key, value -> core_modules_list.any { prefix -> key.startsWith(prefix) } }
+                        def backend_module_list = deployments_list.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
+                        def edge_module_list = deployments_list.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
+                        def ui_bundle_list = deployments_list.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
+                        // Start postgresql service
+                        if (postgresqlResources) {
+                            postgresqlResources.each { postgresqlName ->
+                                kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '1')
+                                kubectl.waitKubernetesResourceStableState('statefulset', postgresqlName, params.rancher_project_name, '1', '600')
                             }
-                            println(services_list)
+                        } else {
+                            awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                            awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
+                            sleep 20
+                        }
+                        println(services_list)
 
-                            services_list.each { deployment, replica_count ->
-                                kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-                                kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-                                sleep 10
-                            }
-                            core_modules_list_map.each { deployment, replica_count ->
-                                kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-                                kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
-                                sleep 10
-                            }
-                            backend_module_list.each { deployment, replica_count ->
-                                kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-                            }
-                            edge_module_list.each { deployment, replica_count ->
-                                kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-                            }
-                            ui_bundle_list.each { deployment, replica_count ->
-                                kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
-                            }
+                        services_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 10
+                        }
+                        core_modules_list_map.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                            kubectl.checkDeploymentStatus(deployment, params.rancher_project_name, "600")
+                            sleep 10
+                        }
+                        backend_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
+                        edge_module_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
+                        ui_bundle_list.each { deployment, replica_count ->
+                            kubectl.setKubernetesResourceCount('deployment', deployment.toString(), params.rancher_project_name, replica_count.toString())
+                        }
 
-                            // Delete tag if Monday or Sunday
-                            if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
-                                println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
-                                kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
-                            }
-                            // Everyday delete tonight tag
-                            if (tonightLabelKeyExists) {
-                                println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
-                                kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
-                            }
+                        // Delete tag if Monday or Sunday
+                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
+                            println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
+                        }
+                        // Everyday delete tonight tag
+                        if (tonightLabelKeyExists) {
+                            println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
                         }
                     }
                 }
