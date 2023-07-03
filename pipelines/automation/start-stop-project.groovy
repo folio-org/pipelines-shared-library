@@ -29,7 +29,7 @@ properties([
         0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
 
-
+        */5 * * * * %action=start;rancher_cluster_name=folio-dev;rancher_project_name=unam
     ''')
     ])
 ])
