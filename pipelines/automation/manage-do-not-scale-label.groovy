@@ -14,7 +14,7 @@ def labelKeyUpToNextMonday = "do_not_scale_down_up_to_next_monday"
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     parameters([
-        choice(name: 'timeline', choices: ['tonight', 'up_to_next_monday'], description: '(Required) Choose what time period your environment should be UP. tonight - this night only, up_to_next_monday - up to next Monday'),
+        choice(name: 'timeline', choices: ['tonight', 'up_to_next_monday'], description: '(Required) Choose what time period your environment should be UP. tonight - this night only(from Monday to Thursday), up_to_next_monday - up to next Monday(you could use it from any day of week)'),
         choice(name: 'action', choices: ['get', 'add', 'delete'], description: '(Required) Choose what should be done with do_not_scale_down label in project'),
         jobsParameters.clusterName(),
         jobsParameters.projectName(),
