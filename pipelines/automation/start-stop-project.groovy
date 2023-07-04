@@ -39,41 +39,41 @@ properties([
         45 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
 
         10 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
-        0 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
+        0 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
 
         10 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
-        0 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
+        0 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
 
         15 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
-        15 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
+        15 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
 
         15 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=vega
-        15 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=vega
+        15 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=vega
 
         20 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris
-        30 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris
+        30 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris
 
         20 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
-        30 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
+        30 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=volaris-2nd
 
 
 
         55 21 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=vega
-        35 23 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
+        35 23 * * 0 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=vega
 
         55 21 * * 5 %action=stop;rancher_cluster_name=folio-perf;rancher_project_name=folijet
-        35 23 * * 1 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
+        35 23 * * 0 %action=start;rancher_cluster_name=folio-perf;rancher_project_name=folijet
 
 
 
         25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consortia
-        40 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
+        40 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consortia
 
         25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=tamu
-        40 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=tamu
+        40 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=tamu
 
         25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
-        45 23 * * 1 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+        45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
 
 
 
