@@ -11,8 +11,10 @@ import java.util.Calendar
 
 def cluster_project_map = new JsonSlurperClassic().parseText(jobsParameters.generateProjectNamesMap())
 assert cluster_project_map instanceof Map
-def labelKey = "do_not_scale_down"
-def labelKeyExists = false
+def labelKeyTonight = "do_not_scale_down_tonight"
+def labelKeyUpToNextMonday = "do_not_scale_down_up_to_next_monday"
+def tonightLabelKeyExists = false
+def weekendsLabelKeyExists = false
 def postgresqlResources
 
 properties([
@@ -140,6 +142,8 @@ ansiColor('xterm') {
     }
     node('rancher') {
         try {
+            Calendar calendar = Calendar.getInstance()
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
             stage('Init') {
                 buildName "${params.rancher_cluster_name}-${params.rancher_project_name}.${params.action}"
                 buildDescription "action: ${params.action} project\n"
@@ -149,8 +153,11 @@ ansiColor('xterm') {
                         def labels = new groovy.json.JsonSlurperClassic().parseText(namespaceLabels)
                         labels.each { key, value ->
                             // Check if the label key is "do_not_scale_down"
-                            if (key == labelKey) {
-                                labelKeyExists = true
+                            if (key == labelKeyTonight) {
+                                tonightLabelKeyExists = true
+                            }
+                            if (key == labelKeyUpToNextMonday) {
+                                weekendsLabelKeyExists = true
                             }
                         }
                         postgresqlResources = kubectl.getKubernetesResourceList('statefulset',params.rancher_project_name).findAll{it.startsWith("postgresql-${params.rancher_project_name}")}
@@ -161,8 +168,8 @@ ansiColor('xterm') {
                     helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
 
-                        if (labelKeyExists) {
-                            println "\u001B[32mProject ${params.rancher_project_name} has label ${labelKey} and will not be disabled this time.\u001B[0m"
+                        if (weekendsLabelKeyExists == true || (tonightLabelKeyExists == true && (dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.TUESDAY || dayOfWeek == Calendar.WEDNESDAY || dayOfWeek == Calendar.THURSDAY))) {
+                            println "\u001B[32mProject ${params.rancher_project_name} has label ${labelKeyTonight}/${labelKeyUpToNextMonday} and will not be disabled this time.\u001B[0m"
                             currentBuild.description += "Skip stop action"
                         } else {
                             println "Shutting down the project..."
@@ -208,8 +215,7 @@ ansiColor('xterm') {
                                 kubectl.setKubernetesResourceCount('statefulset', postgresqlName, params.rancher_project_name, '1')
                                 kubectl.waitKubernetesResourceStableState('statefulset', postgresqlName, params.rancher_project_name, '1', '600')
                             }
-                        }
-                        else {
+                        } else {
                             awscli.startRdsCluster("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             awscli.waitRdsClusterAvailable("rds-${params.rancher_cluster_name}-${params.rancher_project_name}", Constants.AWS_REGION)
                             sleep 20
@@ -237,16 +243,19 @@ ansiColor('xterm') {
                         }
 
                         // Delete tag if Monday or Sunday
-                        Calendar calendar = Calendar.getInstance()
-                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && labelKeyExists) {
-                            println "Deleting ${labelKey} label from project ${params.rancher_project_name}"
-                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKey)
+                        if ((dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.SUNDAY) && weekendsLabelKeyExists) {
+                            println "Deleting ${labelKeyUpToNextMonday} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
+                        }
+                        // Everyday delete tonight tag
+                        if (tonightLabelKeyExists) {
+                            println "Deleting ${labelKeyTonight} label from project ${params.rancher_project_name}"
+                            kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
                         }
                     }
                 }
             }
-        } catch (exception) {
+    } catch (exception) {
             println(exception)
             error(exception.getMessage())
         } finally {
