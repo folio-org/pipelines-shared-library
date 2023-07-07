@@ -31,18 +31,36 @@ def call(params) {
     }
 
     stage('Run karate tests') {
-        script {
-            def karateEnvironment = "folio-testing-karate"
-            withMaven(jdk: 'openjdk-17-jenkins-slave-all',
-                maven: 'maven3-jenkins-slave-all',
-                mavenSettingsConfig: 'folioci-maven-settings') {
-                def modules = ""
-                if (params.modules) {
-                    modules = "-pl common,testrail-integration," + params.modules
+        steps{
+            script {
+                def karateEnvironment = "folio-testing-karate"
+                withMaven(jdk: 'openjdk-17-jenkins-slave-all',
+                    maven: 'maven3-jenkins-slave-all',
+                    mavenSettingsConfig: 'folioci-maven-settings') {
+                    def modules = ""
+                    if (params.modules) {
+                        modules = "-pl common,testrail-integration," + params.modules
+                    }
+                    sh 'echo JAVA_HOME=${JAVA_HOME}'
+                    sh 'ls ${JAVA_HOME}/bin'
+                    sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
                 }
-                sh 'echo JAVA_HOME=${JAVA_HOME}'
-                sh 'ls ${JAVA_HOME}/bin'
-                sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+            }
+        }
+        post {
+            always {
+                script {
+                    def karateTestResults = readJSON file: '**/target/karate-reports*/*.xml'
+                    def karateTotalTests = karateTestResults.total
+                    def karateFailedTests = karateTestResults.failures
+
+                    if (karateFailedTests > 0 || (karateFailedTests / karateTotalTests) < 0.5) {
+                        slackSend (
+                            color: 'danger',
+                            message: "Karate tests failed or success rate less than 50%: ${karateFailedTests} out of ${karateTotalTests} failed"
+                        )
+                    }
+                }
             }
         }
     }
