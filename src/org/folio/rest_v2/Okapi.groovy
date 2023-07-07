@@ -156,7 +156,7 @@ class Okapi extends Authorization {
 
 
     def tenantInstall(OkapiTenant tenant, List installJson, int connectionTimeout = 900000) {
-        String url = generateUrl("/_/proxy/tenants/${tenant.tenantId}/install${tenant.installQueryParameters.toQueryString()}")
+        String url = generateUrl("/_/proxy/tenants/${tenant.tenantId}/install${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
         Map<String, String> headers = getAuthorizedHeaders(superTenant)
 
         logger.info("Install operation for tenant ${tenant.tenantId} started.")
