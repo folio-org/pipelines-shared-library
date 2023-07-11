@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonSlurperClassic
 import org.folio.rest_v2.Constants
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
@@ -80,6 +81,7 @@ class RancherNamespace {
 
     RancherNamespace withEnableConsortia(boolean enableConsortia) {
         this.enableConsortia = enableConsortia
+        this.modules.addModules([this.getModuleVersion('mod-consortia'), this.getModuleVersion('folio_consortia-settings')])
         return this
     }
 
@@ -184,6 +186,16 @@ class RancherNamespace {
             if (!tenant.isCentralConsortiaTenant && centralConsortiaTenant) {
                 tenant.config.resetPasswordLink = centralConsortiaTenant.config.resetPasswordLink
             }
+        }
+    }
+
+    //TODO temporary solution should be revised
+    private String getModuleVersion(String moduleName) {
+        URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+        if (registry.getResponseCode().equals(200)) {
+            return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
+        } else {
+            throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
         }
     }
 }

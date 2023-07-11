@@ -52,8 +52,7 @@ class OkapiTenant {
      */
     OkapiTenant withInstallJson(Object installJson) {
         this.modules.setInstallJson(installJson)
-        this.modules.removeModule('mod-consortia')
-        this.modules.removeModule('folio_consortia-settings')
+        this.modules.removeModules(['mod-consortia', 'folio_consortia-settings'])
         return this
     }
 

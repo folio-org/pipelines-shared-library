@@ -65,8 +65,19 @@ class Modules {
      * @param moduleName the name of the module to be removed.
      */
     void removeModule(String moduleName) {
-//        this.installJson = this.installJson.findAll { !it.id.startsWith(moduleName) }
         this.installJson = this.installJson.findAll { it?.id?.startsWith(moduleName) != true }
+        setInstallJson(this.installJson)
+    }
+
+    /**
+     * Removes modules by its names.
+     *
+     * @param modulesNames the list of names of the modules to be removed.
+     */
+    void removeModules(List<String> modulesNames) {
+        modulesNames.each {moduleName->
+            this.installJson = this.installJson.findAll { it?.id?.startsWith(moduleName) != true }
+        }
         setInstallJson(this.installJson)
     }
 
@@ -79,5 +90,38 @@ class Modules {
      */
     static List<Map<String, String>> generateInstallJsonFromIds(List<String> moduleIds, String action) {
         return moduleIds.collect { moduleId -> [id: moduleId, action: action] }
+    }
+
+    /**
+     * Adds a new module to the installJson list.
+     * The module is represented as a map with an 'id' key (set to the moduleId argument)
+     * and an 'action' key (set to 'enable').
+     *
+     * @param moduleId the ID of the module to add
+     */
+    void addModule(String moduleId) {
+        Map<String, String> module = [
+            'id'    : moduleId,
+            'action': 'enable'
+        ]
+        this.installJson << module
+        this.setInstallJson(this.installJson)
+    }
+
+    /**
+     * Adds multiple new modules to the installJson list.
+     * It does this by calling the addModule method for each ID in the moduleIds argument.
+     *
+     * @param moduleIds the list of module IDs to add
+     */
+    void addModules(List<String> modulesIds) {
+        modulesIds.each { moduleId ->
+            Map<String, String> module = [
+                'id'    : moduleId,
+                'action': 'enable'
+            ]
+            this.installJson << module
+        }
+        this.setInstallJson(this.installJson)
     }
 }
