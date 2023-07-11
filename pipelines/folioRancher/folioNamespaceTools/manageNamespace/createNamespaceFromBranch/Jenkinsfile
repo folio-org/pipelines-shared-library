@@ -55,14 +55,14 @@ RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.r
   .withEnableConsortia(params.enable_consortia)
 
 ns.addTenant(folioDefault.tenants()[ns.defaultTenantId]
-  .withInstallJson(ns.modules.installJson)
+  .withInstallJson(ns.modules.installJson.collect())
   .withIndex(true, true)
   .withInstallQueryParameters(installQueryParameters)
   .withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
 )
 
 if (params.enable_consortia) {
-  folioDefault.consortiaTenants(ns.modules.installJson, installQueryParameters).each { tenantId, tenant ->
+  folioDefault.consortiaTenants(ns.modules.installJson.collect(), installQueryParameters).each { tenantId, tenant ->
     if (tenant.isCentralConsortiaTenant) {
       tenant.withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
     }
@@ -175,7 +175,7 @@ ansiColor('xterm') {
       error(exception.getMessage())
     } finally {
       stage('Cleanup') {
-        println(JsonOutput.prettyPrint(JsonOutput.toJson(ns)))
+//        println(JsonOutput.prettyPrint(JsonOutput.toJson(ns)))
         cleanWs notFailBuild: true
       }
     }
