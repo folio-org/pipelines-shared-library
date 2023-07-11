@@ -4,7 +4,7 @@ Please avoid any significant logic changes. Only fixes allowed.
 Instead use new approach for pipelines creation/modification
  */
 #!groovy
-@Library('pipelines-shared-library@RANCHER-891') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
