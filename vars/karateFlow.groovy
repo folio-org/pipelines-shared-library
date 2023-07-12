@@ -50,7 +50,7 @@ def call(params) {
         post {
             always {
                 script {
-                    def karateTestResults = readJSON file: '**/target/karate-reports*/*.xml'
+                    def karateTestResults = readJSON file: "**/target/karate-reports*/*.json"
                     def karateTotalTests = karateTestResults.total
                     def karateFailedTests = karateTestResults.failures
 
