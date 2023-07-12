@@ -29,6 +29,8 @@ class RancherNamespace {
     Map<String, String> terraformVars
     boolean enableRwSplit
     boolean enableConsortia
+    boolean addConsortiumEvnVariable
+    //boolean consortium_Enable
 
     RancherNamespace(String clusterName, String namespaceName) {
         this.clusterName = clusterName
@@ -42,6 +44,7 @@ class RancherNamespace {
         this.terraformVars = [:]
         this.enableRwSplit = false
         this.enableConsortia = false
+        this.addConsortiumEvnVariable = false
 
         DOMAINS_LIST.each {
             this.domains.put(it, "${this.clusterName}-${this.namespaceName}-${it}.${Constants.CI_ROOT_DOMAIN}")
@@ -76,6 +79,11 @@ class RancherNamespace {
 
     RancherNamespace withEnableRwSplit(boolean enableRwSplit) {
         this.enableRwSplit = enableRwSplit
+        return this
+    }
+
+    RancherNamespace withEnableConsortiumEnv(boolean addConsortiumEvnVariable) {
+        this.addConsortiumEvnVariable = addConsortiumEvnVariable
         return this
     }
 

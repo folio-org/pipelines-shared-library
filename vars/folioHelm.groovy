@@ -171,6 +171,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig << [readWriteSplitEnabled: "true"]
     }
 
+    //consortium_enabled env.variable
+    if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.addConsortiumEvnVariable){
+        moduleConfig << [CONSORTIUM_ENABLED: "true"]
+    }
+
+
+
     // Enable ingress
     boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
     if (enableIngress) {
