@@ -33,7 +33,6 @@ properties([
       booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
       booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
       booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
-      booleanParam(name: 'addConsortiumEvnVariable', defaultValue: false, description: '(Optional) Enable consortium_enabled env. variable'),
       booleanParam(name: 'enable_consortia', defaultValue: false, description: '(Optional) Enable Consortia'),
       string(name: 'namespace_members', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
       jobsParameters.agents(),
@@ -54,7 +53,6 @@ RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.r
   .withDeploymentConfigType(params.config_type)
   .withEnableRwSplit(params.enable_rw_split)
   .withEnableConsortia(params.enable_consortia)
-  .withEnableConsortiumEnv(params.addConsortiumEvnVariable)
 
 ns.addTenant(folioDefault.tenants()[ns.defaultTenantId]
   .withInstallJson(ns.modules.installJson.collect())
