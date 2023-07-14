@@ -94,6 +94,7 @@ class Constants {
                                     "scout"        : ["scout"],
                                     "spanish"      : ["unam"],
                                     "spitfire"     : ["spitfire"],
+                                    "spitfire-2nd" : ["spitfire"],
                                     "nest-es"      : ["spitfire"],
                                     "sprint"       : [],
                                     "stripes-force": ["stripes-force"],

@@ -44,6 +44,9 @@ properties([
         10 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
         0 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire
 
+        10 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spitfire-2nd
+        0 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spitfire-2nd
+
         15 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
         15 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=thunderjet
 
