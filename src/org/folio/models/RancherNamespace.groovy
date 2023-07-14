@@ -29,8 +29,6 @@ class RancherNamespace {
     Map<String, String> terraformVars
     boolean enableRwSplit
     boolean enableConsortia
-    boolean addConsortiumEvnVariable
-    //boolean consortium_Enable
 
     RancherNamespace(String clusterName, String namespaceName) {
         this.clusterName = clusterName
