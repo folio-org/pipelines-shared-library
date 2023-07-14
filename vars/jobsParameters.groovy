@@ -99,6 +99,7 @@ static List devEnvironmentsList() {
             'scout',
             'spanish',
             'spitfire',
+            'spitfire-2nd',
             'stripes-force',
             'tamu',
             'task-force',
