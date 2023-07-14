@@ -171,6 +171,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig << [readWriteSplitEnabled: "true"]
     }
 
+    //Enable extra env
+    if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
+        moduleConfig['extraEnv'] << "- name: CONSORTIUM_ENABLED\n  value: true"
+    }
+
     // Enable ingress
     boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
     if (enableIngress) {
