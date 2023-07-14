@@ -176,7 +176,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig['extraEnv'] << "- name: CONSORTIUM_ENABLED\n  value: true"
     }
 
-
     // Enable ingress
     boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
     if (enableIngress) {

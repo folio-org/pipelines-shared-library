@@ -70,7 +70,6 @@ if (params.enable_consortia) {
   }
 }
 
-
 //Generate terraform variables
 ns.addTerraformVar('rancher_cluster_name', ns.clusterName)
 ns.addTerraformVar('rancher_project_name', ns.namespaceName)
