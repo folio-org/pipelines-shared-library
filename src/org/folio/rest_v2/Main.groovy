@@ -30,6 +30,7 @@ class Main extends Okapi {
             tenantInstall(tenant, tenant.modules.installJson, 900000)
             if (tenant.adminUser) {
                 createAdminUser(tenant)
+                createAdminUser(tenant, new OkapiUser('service_admin', 'admin'))
                 configureTenant(tenant)
             }
         }
