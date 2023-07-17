@@ -74,18 +74,21 @@ def call(params) {
     }
     stage('send in slack test results notifications') {
         script {
-            def testResults = readJSON file: "**/target/karate-reports*/*.json"
-            def totalTests = testResults.totalCount
-            def failedTests = testResults.failCount
-            def passRate = ((totalTests - failedTests) * 100) / totalTests
-            // Check if the job is totally failed or pass rate < 50%
-            if (failedTests == totalTests || passRate < 50) {
-                // Send a notification to the custom Slack channel
-                slackSend (
-                    channel: '#rancher_karate_cypress_tests_notif',
-                    color: 'danger',
-                    message: "Karate Test Results: Total Tests: ${totalTests}, Failed Tests: ${failedTests}, Pass Rate: ${passRate}%"
-                )
+            def xmlFiles = findFiles(glob: '**/target/karate-reports*/*.xml')
+            xmlFiles.each { file ->
+                def testResults = readXML file: file.path
+                def totalTests = testResults.totalCount
+                def failedTests = testResults.failCount
+                def passRate = ((totalTests - failedTests) * 100) / totalTests
+                // Check if the job is totally failed or pass rate < 50%
+                if (failedTests == totalTests || passRate < 50) {
+                    // Send a notification to the custom Slack channel
+                    slackSend(
+                        channel: '#rancher_karate_cypress_tests_notif',
+                        color: 'danger',
+                        message: "Karate Test Results: Total Tests: ${totalTests}, Failed Tests: ${failedTests}, Pass Rate: ${passRate}%"
+                    )
+                }
             }
         }
     }
