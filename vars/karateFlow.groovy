@@ -72,9 +72,9 @@ def call(params) {
             }
         }
     }
-    stage('send slack notifications about test results') {
+    stage('send in slack test results notifications') {
         script {
-            def testResults = readJUnit '**/target/karate-reports*/*.xml'
+            def testResults = readJSON file: "**/target/karate-reports*/*.json"
             def totalTests = testResults.totalCount
             def failedTests = testResults.failCount
             def passRate = ((totalTests - failedTests) * 100) / totalTests
