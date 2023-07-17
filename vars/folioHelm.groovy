@@ -172,9 +172,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     }
 
     //Enable extra env
-    if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
-        moduleConfig['extraEnv'] << "- name: CONSORTIUM_ENABLED\n  value: true"
-    }
+//TODO Contains errors need to be fixed
+//    if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
+//        moduleConfig['extraEnv'] << "- name: CONSORTIUM_ENABLED\n  value: true"
+//    }
 
     // Enable ingress
     boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
