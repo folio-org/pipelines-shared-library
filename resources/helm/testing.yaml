@@ -829,7 +829,6 @@ mod-rtac:
       memory: '341Mi'
 mod-search:
   javaOptions: '-XX:MaxRAMPercentage=85.0'
-  CONSORTIUM_ENABLED: 'false'
   postJob:
     enabled: false
   replicaCount: 1
