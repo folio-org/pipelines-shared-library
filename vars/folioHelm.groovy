@@ -162,7 +162,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
         def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[moduleName], moduleVersion)
         if (action == "upgrade" || action == "equal") {
-            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
+            moduleConfig['m'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
         }
     }
 
@@ -173,7 +173,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     //Enable extra env
     if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
-        moduleConfig['CONSORTIUM_ENABLED'] += "true"
+        moduleConfig << ['consortiumEnabled': "true"]
     }
 
     // Enable ingress
