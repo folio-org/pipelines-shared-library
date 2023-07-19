@@ -172,7 +172,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     }
 
     //Enable extra env
-    if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
+    if (Constants.CONSORTIUM_ENABLED.contains(moduleName)){
         moduleConfig << [consortiumEnabled: "true"]
     }
 
