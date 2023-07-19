@@ -87,11 +87,6 @@ String generateModuleValues(String module_name, String module_version, Project p
             config[(module_name)] << [readWriteSplitEnabled: "true"]
         }
 
-        //Enable consortia env variable
-        if (Constants.CONSORTIUM_ENABLED.contains(module_name)){
-            config[(module_name)] << [consortiumEnabled: "true"]
-        }
-
         def kube_ingress = config[module_name].containsKey('ingress') ? config[module_name]['ingress']['enabled'] : null
         if (kube_ingress) {
             config[(module_name)]['ingress']['hosts'][0] += [host: domain]
