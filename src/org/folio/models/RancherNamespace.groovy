@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.error.YAMLException
  * Represents a Rancher namespace and its configuration.
  */
 class RancherNamespace {
-    private static final String CONFIG_BRANCH = "master"
+    private static final String CONFIG_BRANCH = "RANCHER-901"
     private static final List DOMAINS_LIST = ['okapi', 'edge']
 
     String clusterName
