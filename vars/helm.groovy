@@ -88,7 +88,6 @@ String generateModuleValues(String module_name, String module_version, Project p
         }
 
         //Enable consortia env variable
-
         if (Constants.CONSORTIUM_ENABLED.contains(module_name)){
             config[(module_name)] << [consortiumEnabled: "true"]
         }
