@@ -71,7 +71,7 @@ variable "github_team_ids" {
 variable "enable_rw_split" {
   type        = bool
   default     = false
-  description = "Enavle Read/Write split"
+  description = "Enable Read/Write split"
 }
 
 variable "pgadmin4" {
