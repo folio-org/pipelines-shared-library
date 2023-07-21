@@ -23,6 +23,7 @@ resource "rancher2_secret" "db-connect-modules" {
     ELASTICSEARCH_PORT     = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_PORT"]) : "9200")
     ELASTICSEARCH_USERNAME = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_USERNAME"]) : "admin")
     ELASTICSEARCH_PASSWORD = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_PASSWORD"]) : "admin")
+    SYSTEM_USER_PASSWORD   = base64encode(random_password.system_user_password.result)
   }
 }
 
@@ -110,4 +111,16 @@ resource "rancher2_secret" "s3-postgres-backups-credentials" {
     AWS_ACCESS_KEY_ID     = base64encode(var.s3_postgres_backups_access_key)
     AWS_SECRET_ACCESS_KEY = base64encode(var.s3_postgres_backups_secret_key)
   }
+}
+
+resource "random_password" "system_user_password" {
+  length      = 16
+  special     = true
+  numeric     = true
+  upper       = true
+  lower       = true
+  min_lower   = 1
+  min_numeric = 1
+  min_special = 1
+  min_upper   = 1
 }
