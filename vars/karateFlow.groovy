@@ -1,7 +1,8 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.util.XmlSlurper
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-859') _
 
 def call(params) {
     stage("Checkout") {
@@ -74,6 +75,19 @@ def call(params) {
     }
     stage('Send in slack test results notifications') {
         script {
+            def xmlContent = ( new File("**/target/karate-reports*/*.xml").getText() )
+            def testResults = new XmlSlurper().parseText(xmlContent)
+            def totalCount = testResults.properties.property.find { it.@builtStatus == 'builtStatus' }.@value.toInteger()
+            println("Total count: ${totalCount}")
+            
+            def bookxml = new XmlSlurper().parseText(bookXml)
+            def counter = 0
+            bookxml.Book.findAll { it.Profile }.each {
+                counter ++
+            }
+            println(counter)
+
+
             def files = findFiles(glob: '**/target/karate-reports*/*.xml')
             files.each { file ->
                 def testResults = readFile file: file.path
