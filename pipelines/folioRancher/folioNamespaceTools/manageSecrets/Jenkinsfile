@@ -39,10 +39,10 @@ ansiColor('xterm') {
         checkout scm
       }
      stage('Input'){
-       booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
        def key
        def value
-       input.userInput()
+       booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
+       input.userInput(),
        jobsParameters.secretOperations(),
       }
       if (params.JSON && params.operation_type == 'create') {
