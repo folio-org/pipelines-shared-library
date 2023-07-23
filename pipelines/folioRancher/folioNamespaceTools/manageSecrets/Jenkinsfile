@@ -39,10 +39,11 @@ ansiColor('xterm') {
         checkout scm
       }
      stage('Input'){
+          steps{
             def key
             def value
             requestInput()
-            jobsParameters.secretOperations()
+            jobsParameters.secretOperations()}
            }
       if (params.JSON && params.operation_type == 'create') {
            stage('Json secret create') {
