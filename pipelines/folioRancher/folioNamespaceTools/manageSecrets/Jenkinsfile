@@ -22,8 +22,8 @@ properties([
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
       booleanParam(defaultValue: false, description: '', name: 'Json'),
-      string(defaultValue: '', description: '', name: 'name'),
-      string(defaultValue: '', description: '', name: 'value'),
+      string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'name'),
+      string(defaultValue: '', description: '(Required for operations: create & update)', name: 'value'),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
   ])
