@@ -1,0 +1,57 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.models.InstallQueryParameters
+import org.folio.models.Modules
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.Edge
+import org.folio.rest_v2.Main
+import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
+
+LIB_BRANCH = 'RANCHER-834'
+@Library('pipelines-shared-library@RANCHER-834') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+      jobsParameters.clusterName(),
+      jobsParameters.projectName(),
+      jobsParameters.secretOperations(),
+      booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
+      jobsParameters.agents(),
+      jobsParameters.refreshParameters()
+  ])
+])
+
+//params.rancher_cluster_name, params.rancher_project_name
+
+ansiColor('xterm') {
+  if (params.refresh_parameters) {
+    currentBuild.result = 'ABORTED'
+    println('REFRESH JOB PARAMETERS!')
+    return
+  }
+  node(params.agent) {
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+      if (params.JSON) {
+        stage('Json secret') {
+          'sh "echo JSON!"'
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

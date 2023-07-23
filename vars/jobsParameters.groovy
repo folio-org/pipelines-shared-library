@@ -112,6 +112,11 @@ static List devEnvironmentsList() {
 }
 
 @NonCPS
+static List secretOperationsList () {
+    return ['create', 'delete', 'udapte']
+}
+
+@NonCPS
 static List perfEnvironmentsList() {
     return devEnvironmentsList()
 }
@@ -378,6 +383,10 @@ def backupName() {
 
 def tenantIdToBackupModulesVersions() {
     return _paramString('tenant_id_to_backup_modules_versions', defaultTenant().id, "Choose for which tenant you would like to save modules versions. Default is diku")
+}
+
+def secretOperations(){
+    return _paramChoice('operation type', secretOperationsList(), "Choose secret operation")
 }
 
 def mvnOptions(String options = '') {
