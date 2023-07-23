@@ -41,7 +41,7 @@ ansiColor('xterm') {
      stage('Input'){
        def key
        def value
-       booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
+       //booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
        input.userInput(),
        jobsParameters.secretOperations(),
       }
