@@ -26,8 +26,6 @@ properties([
       jobsParameters.secretOperations(),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
-      string(defaultValue: '', description: '', name: 'key'),
-      string(defaultValue: '', description: '', name: 'value')
   ])
 ])
 
