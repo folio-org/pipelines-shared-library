@@ -41,7 +41,7 @@ ansiColor('xterm') {
      stage('Input'){
             def key
             def value
-            requestInput.userInput()
+            requestInput()
             jobsParameters.secretOperations()
            }
       if (params.JSON && params.operation_type == 'create') {
