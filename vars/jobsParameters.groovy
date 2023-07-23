@@ -386,7 +386,7 @@ def tenantIdToBackupModulesVersions() {
 }
 
 def secretOperations(){
-    return _paramChoice('operation type', secretOperationsList(), "Choose secret operation")
+    return _paramChoice('operation_type', secretOperationsList(), "Choose secret operation")
 }
 
 def mvnOptions(String options = '') {

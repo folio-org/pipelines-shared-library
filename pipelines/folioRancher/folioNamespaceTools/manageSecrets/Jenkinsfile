@@ -20,8 +20,6 @@ properties([
   parameters([
       jobsParameters.clusterName(),
       jobsParameters.projectName(),
-      jobsParameters.secretOperations(),
-      booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
   ])
@@ -40,13 +38,21 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      if (params.JSON) {
-        stage('Json secret') {
-          echo 'JSON!'
-          awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-          kubectl.getSecretValue(params.rancher_project_name, 'minio', 'key')
-        }
+     stage('Input'){
+       booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
+       def key
+       def value
+       input.userInput()
+       jobsParameters.secretOperations(),
       }
+      if (params.JSON && params.operation_type == 'create') {
+           stage('Json secret create') {
+             echo 'JSON!'
+             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+             kubectl.createSecretWithJson(params.rancher_project_name, 'minio', 'key')
+          }
+        }
+
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
