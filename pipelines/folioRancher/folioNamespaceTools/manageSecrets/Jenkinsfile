@@ -21,7 +21,7 @@ properties([
       jobsParameters.clusterName(),
       jobsParameters.projectName(),
       string(defaultValue: '', description: '', name: 'key'),
-      string(defaultValue: '', description: '', name: 'value')
+      string(defaultValue: '', description: '', name: 'value'),
       booleanParam(defaultValue: false, description: '' name: 'Json'),
       jobsParameters.secretOperations(),
       jobsParameters.agents(),
