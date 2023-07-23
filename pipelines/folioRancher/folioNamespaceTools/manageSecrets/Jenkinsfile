@@ -38,13 +38,24 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-     stage('Input'){
-          steps{
-            def key
-            def value
-            requestInput()
-            jobsParameters.secretOperations()}
+     steps {
+           script {
+               def key
+               def value
+
+               def userInput = input(
+                       id: 'userInput', message: 'key and value',
+                       parameters: [
+                               string(defaultValue: '',
+                                       description: '',
+                                       name: 'key'),
+                               string(defaultValue: '',
+                                       description: '',
+                                       name: 'value'),
+                                       JobParameters.secretOperations()
+                       ])
            }
+       }
       if (params.JSON && params.operation_type == 'create') {
            stage('Json secret create') {
              echo 'JSON!'
