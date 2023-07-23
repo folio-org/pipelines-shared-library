@@ -20,8 +20,14 @@ properties([
   parameters([
       jobsParameters.clusterName(),
       jobsParameters.projectName(),
+      string(defaultValue: '', description: '', name: 'key'),
+      string(defaultValue: '', description: '', name: 'value')
+      boolean(defaultValue: false, description: '' name: 'Json'),
+      jobsParameters.secretOperations(),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
+      string(defaultValue: '', description: '', name: 'key'),
+      string(defaultValue: '', description: '', name: 'value')
   ])
 ])
 
@@ -38,24 +44,7 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-     steps {
-           script {
-               def key
-               def value
 
-               def userInput = input(
-                       id: 'userInput', message: 'key and value',
-                       parameters: [
-                               string(defaultValue: '',
-                                       description: '',
-                                       name: 'key'),
-                               string(defaultValue: '',
-                                       description: '',
-                                       name: 'value'),
-                                       JobParameters.secretOperations()
-                       ])
-           }
-       }
       if (params.JSON && params.operation_type == 'create') {
            stage('Json secret create') {
              echo 'JSON!'
