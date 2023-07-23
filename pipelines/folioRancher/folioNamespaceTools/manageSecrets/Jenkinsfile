@@ -47,7 +47,7 @@ ansiColor('xterm') {
            stage('Json secret create') {
              echo 'JSON!'
              awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-             kubectl.createSecretWithJson(params.rancher_project_name, 'minio', 'key')
+             kubectl.createSecretWithJson(params.rancher_project_name, "${key}", "${value}")
           }
         }
 
