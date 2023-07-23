@@ -43,6 +43,7 @@ ansiColor('xterm') {
       if (params.JSON) {
         stage('Json secret') {
           echo 'JSON!'
+          getSecretValue(params.projectName, 'minio', 'key')
         }
       }
     } catch (exception) {
