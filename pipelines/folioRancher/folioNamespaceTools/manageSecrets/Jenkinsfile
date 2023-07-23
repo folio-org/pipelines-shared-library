@@ -42,7 +42,7 @@ ansiColor('xterm') {
       }
       if (params.JSON) {
         stage('Json secret') {
-          'sh "echo JSON!"'
+          echo JSON!
         }
       }
     } catch (exception) {
