@@ -22,7 +22,7 @@ properties([
       jobsParameters.projectName(),
       string(defaultValue: '', description: '', name: 'key'),
       string(defaultValue: '', description: '', name: 'value'),
-      booleanParam(defaultValue: false, description: '' name: 'Json'),
+      booleanParam(defaultValue: false, description: '', name: 'Json'),
       jobsParameters.secretOperations(),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
