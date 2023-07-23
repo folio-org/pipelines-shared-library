@@ -8,4 +8,7 @@ def userInput = input(
         string(defaultValue: '',
             description: 'secret value',
             name: 'value'),
+        booleanParam(name: 'JSON',
+            defaultValue: false,
+            description: 'JSON type of secret')
     ])
