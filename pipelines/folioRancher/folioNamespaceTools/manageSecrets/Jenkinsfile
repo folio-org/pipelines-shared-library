@@ -43,10 +43,8 @@ ansiColor('xterm') {
       if (params.JSON) {
         stage('Json secret') {
           echo 'JSON!'
-          helm.k8sClient {
           awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
           kubectl.getSecretValue(params.rancher_project_name, 'minio', 'key')
-          }
         }
       }
     } catch (exception) {
