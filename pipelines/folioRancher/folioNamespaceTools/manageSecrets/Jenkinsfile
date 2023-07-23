@@ -22,8 +22,8 @@ properties([
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
       booleanParam(defaultValue: false, description: '', name: 'Json'),
-      string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'name'),
-      string(defaultValue: '', description: '(Required for operations: create & update)', name: 'value'),
+      string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'secret_name'),
+      string(defaultValue: '', description: '(Required for operations: create & update)', name: 'secret_value'),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
   ])
@@ -47,14 +47,14 @@ ansiColor('xterm') {
            stage('Json secret create') {
              echo 'JSON!'
              awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-             kubectl.createSecretWithJson(params.rancher_project_name, "${key}", "${value}")
+             kubectl.createSecretWithJson(params.rancher_project_name, "${secret_name}", "${secret_value}")
           }
         }
       if (params.operation_type == 'delete') {
            stage('secret delete') {
              println("Deleting secret: ${key}")
              awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-             kubectl.deleteSecret(params.rancher_project_name, "${key}")
+             kubectl.deleteSecret(params.rancher_project_name, "${secret_name}")
           }
         }
 
