@@ -59,15 +59,21 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
 
 String createSecretWithJson(String namespace, String secret_name, String Json) {
     try {
-        return sh(script: "set +x && kubectl create secrete generic ${secret_name} --namespace=${namespace} -o --from-literal=${Json}'", returnStdout: true)
+        return sh(script: "kubectl create secret generic ${secret_name} --namespace=${namespace} -o --from-literal=${Json}'", returnStdout: true)
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
     }
 }
 
-
-
+String deleteSecret(String namespace, String secret_name) {
+    try {
+        return sh(script: "kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
+    } catch (Exception e) {
+        currentBuild.result = 'UNSTABLE'
+        println(e.getMessage())
+    }
+}
 
 void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
     try {

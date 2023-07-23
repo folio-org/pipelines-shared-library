@@ -50,6 +50,13 @@ ansiColor('xterm') {
              kubectl.createSecretWithJson(params.rancher_project_name, "${key}", "${value}")
           }
         }
+      if (params.operation_type == 'delete') {
+           stage('secret delete') {
+             println("Deleting secret: ${key}")
+             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+             kubectl.deleteSecret(params.rancher_project_name, "${key}")
+          }
+        }
 
     } catch (exception) {
       println(exception)
