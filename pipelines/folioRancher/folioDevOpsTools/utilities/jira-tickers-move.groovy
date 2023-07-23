@@ -42,7 +42,7 @@ ansiColor('xterm') {
     }
     node(params.agent) {
         try {
-            stage('Check input') {
+            stage('Check requestInput') {
                 double_check=0
                 if ((Release!=null) && (Release!="")){
                     release_check="release = \"${Release}\""
@@ -56,7 +56,7 @@ ansiColor('xterm') {
                     search_pattern="${release_check} and ${jira_status_check}"
                 }
                 else {
-                    error("Error in input data")
+                    error("Error in requestInput data")
                 }
             }
             stage('Search Jira tasks') {

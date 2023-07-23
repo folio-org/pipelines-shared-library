@@ -42,7 +42,7 @@ ansiColor('xterm') {
        def key
        def value
        //booleanParam(name: 'JSON', defaultValue: false, description: 'JSON type of secret'),
-       input.userInput(),
+       requestInput.userInput(),
        jobsParameters.secretOperations(),
       }
       if (params.JSON && params.operation_type == 'create') {
