@@ -16,10 +16,8 @@ properties([
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
       booleanParam(defaultValue: false, description: '', name: 'json_value'),
-      string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'secret_name'),
-      string(defaultValue: '', description: '(Key name inside secret)', name: 'key_name'),
-      string(defaultValue: '', description: '(Required for operations: create & update)', name: 'secret_value'),
-      string(defaultValue: '', description: '(Value name inside secret)', name: 'value_name'),
+      string(defaultValue: '', description: '(Key/Value for name field inside secret, example: Username,Rocket)', name: 'key'),
+      string(defaultValue: '', description: '(Key/Value for value filed inside secret, example: Password,qwerty123)', name: 'value'),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
   ])
@@ -47,9 +45,11 @@ ansiColor('xterm') {
            }
          }
         else {
+            def (key_1, value_1) = key.split(',')
+            def (key_2, value_2) = value.split(',')
             echo "Operation type create secret with key/value pair in progress for secret: ${secret_name}"
             folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-            kubectl.createSecret(secret_name, key_name, key_name,value_name, secret_value, rancher_project_name)
+            kubectl.createSecret(secret_name, key_1, value_1, value_name, secret_value, rancher_project_name)
           }
         }
       break
