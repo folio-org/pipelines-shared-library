@@ -50,7 +50,7 @@ ansiColor('xterm') {
             def (key_2, value_2) = value.split(',')
             echo "Operation type create secret with key/value pair in progress for secret: ${secret_name}"
             folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-            kubectl.createSecret(secret_name, key_1, value_1, value_name, secret_value, rancher_project_name)
+            kubectl.createSecret(secret_name, key_1, value_1, key_2, value_2, rancher_project_name)
           }
         }
       break
