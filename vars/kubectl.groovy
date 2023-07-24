@@ -59,7 +59,7 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
 
 String createSecretWithJson(String secret_name, String json_value, String key_name, String namespace) {
     try {
-        sh(script: "kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${json_value}' --namespace=${namespace}")
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${json_value}' --namespace=${namespace}")
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
@@ -68,7 +68,7 @@ String createSecretWithJson(String secret_name, String json_value, String key_na
 
 String createSecret(String secret_name, String key_name, String key_name_value,String value_name, String secret_value, String namespace) {
     try {
-        sh(script: "kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
@@ -77,7 +77,7 @@ String createSecret(String secret_name, String key_name, String key_name_value,S
 
 String deleteSecret(String secret_name, String namespace) {
     try {
-        return sh(script: "kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
+        return sh(script: "set +x && kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
@@ -86,7 +86,7 @@ String deleteSecret(String secret_name, String namespace) {
 
 String patchSecret(String secret_name, String value_name, String secret_value, String namespace) {
     try {
-        sh(script: "kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
+        sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
