@@ -57,7 +57,8 @@ ansiColor('xterm') {
           }
         }
       break
-    }
+        }
+      }
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
