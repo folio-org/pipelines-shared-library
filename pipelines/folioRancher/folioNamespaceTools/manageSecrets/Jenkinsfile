@@ -16,6 +16,7 @@ properties([
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
       booleanParam(defaultValue: false, description: '', name: 'json_value'),
+      string(defaultValue: '', description: '(Secret key name to store value', name: 'key_name'),
       string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'secret_name'),
       string(defaultValue: '', description: '(Required for operations: create & update)', name: 'secret_value'),
       jobsParameters.agents(),
@@ -36,20 +37,27 @@ ansiColor('xterm') {
       }
 
   stage('manage secrets') {
-          if (params.operation_type == 'create' && params.json_value) {
+    switch (params.operation_type) {
+      case 'create':
+        if (params.json_value) {
              echo "Operation type crete secret with Json value in progress for secret: ${secret_name}"
              folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-             kubectl.createSecretWithJson(secret_name, secret_value, params.rancher_project_name)
+             kubectl.createSecretWithJson(secret_name, secret_value, key_name, params.rancher_project_name)
            }
          }
-         if (params.operation_type == 'delete') {
-            echo "Operation type delete secret in progress for secret: ${secret_name}"
-            folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-            kubectl.deleteSecret(secret_name, params.rancher_project_name)
-           }
-         }
-       }
+        else {
 
+        }
+      break
+      case 'delete':
+        if (params.operation_type == 'delete') {
+           echo "Operation type delete secret in progress for secret: ${secret_name}"
+           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+           kubectl.deleteSecret(secret_name, params.rancher_project_name)
+          }
+        }
+      break
+    }
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
