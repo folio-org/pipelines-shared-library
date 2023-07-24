@@ -41,6 +41,7 @@ ansiColor('xterm') {
            kubectl.createSecretWithJson("${params.rancher_project_name}", "${secret_name}", "${secret_value}")
           }
         }
+        return
       }
     } catch (exception) {
       println(exception)
