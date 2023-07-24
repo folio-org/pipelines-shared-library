@@ -63,6 +63,15 @@ ansiColor('xterm') {
           }
         }
       break
+      case 'update':
+        if (params.operation_type == 'update') {
+           def (key_2, value_2) = value.split(',')
+           echo "Operation type update secret in progress for secret: ${secret_name}"
+           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+           kubectl.patchSecret(secret_name, key_2, value_2, params.rancher_project_name)
+          }
+        }
+      break
         }
       }
     } catch (exception) {

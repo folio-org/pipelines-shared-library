@@ -84,6 +84,15 @@ String deleteSecret(String secret_name, String namespace) {
     }
 }
 
+String patchSecret(String secret_name, String value_name, String secret_value, String namespace) {
+    try {
+        sh(script: "kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
+    } catch (Exception e) {
+        currentBuild.result = 'UNSTABLE'
+        println(e.getMessage())
+    }
+}
+
 void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
     try {
         sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} --command -- ${command}"
