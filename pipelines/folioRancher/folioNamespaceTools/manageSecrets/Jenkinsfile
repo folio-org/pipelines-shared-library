@@ -37,17 +37,14 @@ ansiColor('xterm') {
 
 
   stage('manage secrets') {
-        steps {
           script {
             if (params.operation_type == 'create' && params.JSON) {
              echo 'creating secret with JSON value!'
              folioHelm.withKubeConfig("${params.rancher_cluster_name}")
              kubectl.createSecretWithJson("${params.rancher_project_name}", "${secret_name}", "${secret_value}")
        }
-      }
      }
-    }
-
+   }
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
