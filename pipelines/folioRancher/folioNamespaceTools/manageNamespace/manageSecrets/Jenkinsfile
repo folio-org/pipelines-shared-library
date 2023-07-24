@@ -1,0 +1,86 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.rest.GitHubUtility
+import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
+
+LIB_BRANCH = 'RANCHER-741'
+@Library('pipelines-shared-library@RANCHER-741') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+      jobsParameters.clusterName(),
+      jobsParameters.projectName(),
+      jobsParameters.secretOperations(),
+      string(defaultValue: '', description: '(Required: Secret name)', name: 'secret_name'),
+      booleanParam(defaultValue: false, description: '', name: 'json_value'),
+      string(defaultValue: '', description: '''(Key/Value for name field inside secret, example: Username,Rocket
+For JSON value, just paste entire string)''', name: 'Key'),
+      string(defaultValue: '', description: '(Key/Value for value filed inside secret, example: Password,qwerty123)', name: 'Value'),
+      jobsParameters.agents(),
+      jobsParameters.refreshParameters()
+  ])
+])
+
+ansiColor('xterm') {
+  if (params.refresh_parameters) {
+    currentBuild.result = 'ABORTED'
+    println('REFRESH JOB PARAMETERS!')
+    return
+  }
+  node(params.agent) {
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+
+  stage('manage secrets') {
+    switch (params.operation_type) {
+      case 'create':
+        if (params.json_value) {
+             echo "Operation type create secret with Json value in progress for secret: ${secret_name}"
+             folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+             kubectl.createSecretWithJson(secret_name, secret_value, key_name, params.rancher_project_name)
+           }
+         }
+        else {
+            def (key_1, value_1) = key.split(',')
+            def (key_2, value_2) = value.split(',')
+            echo "Operation type create secret with key/value pair in progress for secret: ${secret_name}"
+            folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.createSecret(secret_name, key_1, value_1, key_2, value_2, rancher_project_name)
+          }
+        }
+      break
+      case 'delete':
+        if (params.operation_type == 'delete') {
+           echo "Operation type delete secret in progress for secret: ${secret_name}"
+           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+           kubectl.deleteSecret(secret_name, params.rancher_project_name)
+          }
+        }
+      break
+      case 'update':
+        if (params.operation_type == 'update') {
+           def (key_2, value_2) = value.split(',')
+           echo "Operation type update secret in progress for secret: ${secret_name}"
+           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+           kubectl.patchSecret(secret_name, key_2, value_2, params.rancher_project_name)
+          }
+        }
+      break
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
