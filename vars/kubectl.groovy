@@ -57,7 +57,7 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
     }
 }
 
-String createSecretWithJson(String namespace, String secret_name, String json_value) {
+String createSecretWithJson(String secret_name, String json_value, String namespace) {
     try {
         return sh(script: "kubectl create secret generic ${secret_name} --from-literal='json'='${json_value}' --namespace=${namespace}", returnStdout: true)
     } catch (Exception e) {
