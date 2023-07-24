@@ -34,23 +34,15 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      if (params.JSON && params.operation_type == 'create') {
-           stage('Json secret create') {
-             echo 'creating secret with JSON value!'
-             folioHelm.withKubeconfig("${params.rancher_cluster_name}"){
-             //awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-             kubectl.createSecretWithJson(params.rancher_project_name, "${secret_name}", "${secret_value}")
-            }
+      stage('manage secrets') {
+         if (params.JSON && params.operation_type == 'create'){
+           echo 'creating secret with JSON value!'
+           folioHelm.withKubeconfig("${params.rancher_cluster_name}"){
+           //awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+           kubectl.createSecretWithJson(params.rancher_project_name, "${secret_name}", "${secret_value}")
           }
         }
-      if (params.operation_type == 'delete') {
-           stage('secret delete') {
-             println("Deleting secret: ${secret_name}")
-             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
-             kubectl.deleteSecret(params.rancher_project_name, "${secret_name}")
-          }
-        }
-
+      }
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
