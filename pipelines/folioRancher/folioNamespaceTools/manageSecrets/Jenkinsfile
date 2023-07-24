@@ -34,11 +34,12 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
+  if (params.operation_type == 'create' && params.JSON) {
       stage('manage secrets') {
-          if (params.operation_type == 'create' && params.JSON == true) {
            echo 'creating secret with JSON value!'
            folioHelm.withKubeConfig("${params.rancher_cluster_name}"){
            kubectl.createSecretWithJson("${params.rancher_project_name}", "${secret_name}", "${secret_value}")
+           }
           }
         }
       }
