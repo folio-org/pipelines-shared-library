@@ -113,7 +113,7 @@ static List devEnvironmentsList() {
 
 @NonCPS
 static List secretOperationsList () {
-    return ['create', 'delete', 'udapte']
+    return ['create', 'delete', 'update']
 }
 
 @NonCPS
