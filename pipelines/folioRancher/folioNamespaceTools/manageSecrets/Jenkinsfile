@@ -16,9 +16,10 @@ properties([
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
       booleanParam(defaultValue: false, description: '', name: 'json_value'),
-      string(defaultValue: '', description: '(Secret key name to store value', name: 'key_name'),
       string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'secret_name'),
+      string(defaultValue: '', description: '(Key name inside secret)', name: 'key_name'),
       string(defaultValue: '', description: '(Required for operations: create & update)', name: 'secret_value'),
+      string(defaultValue: '', description: '(Value name inside secret)', name: 'value_name'),
       jobsParameters.agents(),
       jobsParameters.refreshParameters()
   ])
@@ -40,13 +41,16 @@ ansiColor('xterm') {
     switch (params.operation_type) {
       case 'create':
         if (params.json_value) {
-             echo "Operation type crete secret with Json value in progress for secret: ${secret_name}"
+             echo "Operation type create secret with Json value in progress for secret: ${secret_name}"
              folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
              kubectl.createSecretWithJson(secret_name, secret_value, key_name, params.rancher_project_name)
            }
          }
         else {
-
+            echo "Operation type create secret with key/value pair in progress for secret: ${secret_name}"
+            folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.createSecret(secret_name, key_name, key_name,value_name, secret_value, rancher_project_name)
+          }
         }
       break
       case 'delete':
