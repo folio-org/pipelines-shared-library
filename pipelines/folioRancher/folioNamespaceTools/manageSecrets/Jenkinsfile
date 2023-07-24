@@ -37,8 +37,15 @@ ansiColor('xterm') {
 
   stage('manage secrets') {
           if (params.operation_type == 'create' && params.json_value) {
+             echo "Operation type crete secret with Json value in progress for secret: ${secret_name}"
              folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
              kubectl.createSecretWithJson(secret_name, secret_value, params.rancher_project_name)
+           }
+         }
+         if (params.operation_type == 'delete') {
+            echo "Operation type delete secret in progress for secret: ${secret_name}"
+            folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.deleteSecret(secret_name, params.rancher_project_name)
            }
          }
        }

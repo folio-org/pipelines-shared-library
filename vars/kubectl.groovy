@@ -59,14 +59,14 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
 
 String createSecretWithJson(String secret_name, String json_value, String namespace) {
     try {
-        return sh(script: "kubectl create secret generic ${secret_name} --from-literal='json'='${json_value}' --namespace=${namespace}", returnStdout: true)
+        return sh(script: "kubectl create secret generic ${secret_name} --from-literal='json'='${json_value}' --namespace=${namespace}", returnStdout: false)
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
     }
 }
 
-String deleteSecret(String namespace, String secret_name) {
+String deleteSecret(String secret_name, String namespace) {
     try {
         return sh(script: "kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
     } catch (Exception e) {
