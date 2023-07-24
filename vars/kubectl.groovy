@@ -59,7 +59,7 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
 
 String createSecretWithJson(String namespace, String secret_name, String json_value) {
     try {
-        return sh(script: "kubectl create secret generic ${secret_name} --from-literal='Json'='${json_value}' --namespace=${namespace}", returnStdout: true)
+        return sh(script: "kubectl create secret generic ${secret_name} --from-literal='json'='${json_value}' --namespace=${namespace}", returnStdout: true)
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
