@@ -68,7 +68,7 @@ String createSecretWithJson(String secret_name, String json_value, String key_na
 
 String createSecret(String secret_name, String key_name, String key_name_value,String value_name, String secret_value, String namespace) {
     try {
-        sh(script: "kubectl create secret generic ${secret_name} --from-literal='${key_name}='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
+        sh(script: "kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
         println(e.getMessage())
