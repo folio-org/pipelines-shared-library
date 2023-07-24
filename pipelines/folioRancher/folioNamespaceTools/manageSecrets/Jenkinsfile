@@ -38,8 +38,10 @@ ansiColor('xterm') {
       if (params.JSON && params.operation_type == 'create') {
            stage('Json secret create') {
              echo 'JSON!'
-             awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
+             withKubeCredentials(kubectlCredentials: [[clusterName: "${rancher_cluster_name}", credentialsId: Constants.AWS_CREDENTIALS_ID, namespace: "${rancher_project_name}", serverUrl: '']]) {
+             //awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
              kubectl.createSecretWithJson(params.rancher_project_name, "${secret_name}", "${secret_value}")
+             }
           }
         }
       if (params.operation_type == 'delete') {
