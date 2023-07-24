@@ -15,7 +15,7 @@ properties([
       jobsParameters.clusterName(),
       jobsParameters.projectName(),
       jobsParameters.secretOperations(),
-      booleanParam(defaultValue: false, description: '', name: 'Json'),
+      booleanParam(defaultValue: false, description: '', name: 'Json_value'),
       string(defaultValue: '', description: '(Required for all 3 operations: create, delete & update)', name: 'secret_name'),
       string(defaultValue: '', description: '(Required for operations: create & update)', name: 'secret_value'),
       jobsParameters.agents(),
@@ -35,16 +35,16 @@ ansiColor('xterm') {
         checkout scm
       }
 
-
   stage('manage secrets') {
           script {
-            if (params.operation_type == 'create' && params.JSON) {
+            if (params.operation_type == 'create' && params.Json_value) {
              echo 'creating secret with JSON value!'
              folioHelm.withKubeConfig("${params.rancher_cluster_name}")
              kubectl.createSecretWithJson("${params.rancher_project_name}", "${secret_name}", "${secret_value}")
        }
      }
    }
+
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
