@@ -57,6 +57,22 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
     }
 }
 
+String createSecretWithJson(String secret_name, String json_value, String key_name, String namespace) {
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${json_value}' --namespace=${namespace}")
+}
+
+String createSecret(String secret_name, String key_name, String key_name_value,String value_name, String secret_value, String namespace) {
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
+}
+
+String deleteSecret(String secret_name, String namespace) {
+        return sh(script: "set +x && kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
+}
+
+String patchSecret(String secret_name, String value_name, String secret_value, String namespace) {
+        sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
+}
+
 void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
     try {
         sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} --command -- ${command}"
