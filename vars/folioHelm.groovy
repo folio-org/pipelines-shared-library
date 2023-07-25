@@ -178,7 +178,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     //Enable cross tenant extra env
     if (Constants.CROSS_TENANT_ENABLED.contains(moduleName) && ns.enableConsortia){
-        moduleConfig['javaOptions'] += [" -allow.cross.tenant.requests: true"]
+        moduleConfig['javaOptions'] += " -allow.cross.tenant.requests: true"
+        moduleConfig << [testkey: "test"]
     }
 
     // Enable ingress
