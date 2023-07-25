@@ -73,12 +73,12 @@ def call(params) {
             }
         }
     }
-    stage('Send in slack test results notifications') {
-        script {
-            def xmlContent = ( new File("**/target/karate-reports*/*.xml").getText() )
-            def testResults = new XmlSlurper().parseText(xmlContent)
-            def totalCount = testResults.properties.property.find { it.@builtStatus == 'builtStatus' }.@value.toInteger()
-            println("Total count: ${totalCount}")
+//    stage('Send in slack test results notifications') {
+//        script {
+//            def xmlContent = ( new File("**/target/karate-reports*/*.xml").getText() )
+//            def testResults = new XmlSlurper().parseText(xmlContent)
+//            def totalCount = testResults.properties.property.find { it.@builtStatus == 'builtStatus' }.@value.toInteger()
+//            println("Total count: ${totalCount}")
 
 //            def bookxml = new XmlSlurper().parseText(bookXml)
 //            def counter = 0
@@ -105,6 +105,6 @@ def call(params) {
 //                }
 //            }
         }
-    }
-}
+//    }
+//}
 
