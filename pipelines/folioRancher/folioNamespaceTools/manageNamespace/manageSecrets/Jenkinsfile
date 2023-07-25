@@ -14,7 +14,7 @@ properties([
   parameters([
       jobsParameters.clusterName(),
       jobsParameters.projectName(),
-      jobsParameters.secretOperations(),
+      jobsParameters.crudOperations(),
       string(defaultValue: '', description: '(Required: Secret name)', name: 'secret_name'),
       booleanParam(defaultValue: false, description: '', name: 'json_value'),
       string(defaultValue: '', description: '''(Key/Value for name field inside secret, example: Username,Rocket
@@ -42,34 +42,58 @@ ansiColor('xterm') {
       case 'create':
         if (params.json_value) {
              echo "Operation type create secret with Json value in progress for secret: ${secret_name}"
-             folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-             kubectl.createSecretWithJson(secret_name, secret_value, key_name, params.rancher_project_name)
-           }
+        try {
+          folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.createSecretWithJson(secret_name, secret_value, key_name, params.rancher_project_name)
+          }
+        }
+        catch (exception) {
+          println(exception)
+          error(exception.getMessage())
+        }
          }
         else {
             def (key_1, value_1) = key.split(',')
             def (key_2, value_2) = value.split(',')
             echo "Operation type create secret with key/value pair in progress for secret: ${secret_name}"
-            folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+        try {
+          folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
             kubectl.createSecret(secret_name, key_1, value_1, key_2, value_2, rancher_project_name)
           }
+         }
+        catch (exception) {
+          println(exception)
+          error(exception.getMessage())
+         }
         }
       break
       case 'delete':
         if (params.operation_type == 'delete') {
            echo "Operation type delete secret in progress for secret: ${secret_name}"
-           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-           kubectl.deleteSecret(secret_name, params.rancher_project_name)
+        try {
+          folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.deleteSecret(secret_name, params.rancher_project_name)
           }
+         }
+        catch (exception) {
+          println(exception)
+          error(exception.getMessage())
+         }
         }
       break
       case 'update':
         if (params.operation_type == 'update') {
            def (key_2, value_2) = value.split(',')
            echo "Operation type update secret in progress for secret: ${secret_name}"
-           folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
-           kubectl.patchSecret(secret_name, key_2, value_2, params.rancher_project_name)
+        try {
+          folioHelm.withKubeConfig("${params.rancher_cluster_name}") {
+            kubectl.patchSecret(secret_name, key_2, value_2, params.rancher_project_name)
           }
+         }
+        catch (exception) {
+          println(exception)
+          error(exception.getMessage())
+         }
         }
       break
         }
