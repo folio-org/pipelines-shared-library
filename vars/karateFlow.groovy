@@ -79,31 +79,31 @@ def call(params) {
             def testResults = new XmlSlurper().parseText(xmlContent)
             def totalCount = testResults.properties.property.find { it.@builtStatus == 'builtStatus' }.@value.toInteger()
             println("Total count: ${totalCount}")
-            
-            def bookxml = new XmlSlurper().parseText(bookXml)
-            def counter = 0
-            bookxml.Book.findAll { it.Profile }.each {
-                counter ++
-            }
-            println(counter)
+
+//            def bookxml = new XmlSlurper().parseText(bookXml)
+//            def counter = 0
+//            bookxml.Book.findAll { it.Profile }.each {
+//                counter ++
+//            }
+//            println(counter)
 
 
-            def files = findFiles(glob: '**/target/karate-reports*/*.xml')
-            files.each { file ->
-                def testResults = readFile file: file.path
-                def totalTests = testResults.totalCount
-                def failedTests = testResults.failCount
-                def passRate = ((totalTests - failedTests) * 100) / totalTests
-                // Check if the job is totally failed or pass rate < 50%
-                if (failedTests == totalTests || passRate < 50) {
-                    // Send a notification to the custom Slack channel
-                    slackSend(
-                        channel: '#kitfox-shadow',
-                        color: 'danger',
-                        message: "Karate Test Results: Total Tests: ${totalTests}, Failed Tests: ${failedTests}, Pass Rate: ${passRate}%"
-                    )
-                }
-            }
+//            def files = findFiles(glob: '**/target/karate-reports*/*.xml')
+//            files.each { file ->
+//                def testResults = readFile file: file.path
+//                def totalTests = testResults.totalCount
+//                def failedTests = testResults.failCount
+//                def passRate = ((totalTests - failedTests) * 100) / totalTests
+//                // Check if the job is totally failed or pass rate < 50%
+//                if (failedTests == totalTests || passRate < 50) {
+//                    // Send a notification to the custom Slack channel
+//                    slackSend(
+//                        channel: '#kitfox-shadow',
+//                        color: 'danger',
+//                        message: "Karate Test Results: Total Tests: ${totalTests}, Failed Tests: ${failedTests}, Pass Rate: ${passRate}%"
+//                    )
+//                }
+//            }
         }
     }
 }
