@@ -1,6 +1,5 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
-import groovy.json.JsonSlurper
 
 @Library('pipelines-shared-library@RANCHER-859') _
 
@@ -73,35 +72,21 @@ def call(params) {
             }
         }
     }
-    stage('Send in slack test results notifications') {
-        script {
-//            def dir = new File('**/target/karate-reports*')
-            List files_list = findFiles excludes: '', glob: '**/target/karate-reports*/karate-summary-json.txt'
-//            def files = dir.listFiles()
-//            files.each { file ->
-//                if (file.name.contains('.json')){
-//                    files_list += file.name}
-//            }
-            def positive_counter = 0
-            def negative_counter = 0
-//            def totalTestCount = 0
-            files_list.each { test ->
-                def json = new JsonSlurper().parseText(new File('**/target/karate-reports*/karate-summary-json.txt').text)
-                def temp_result = json[0]['stats']['failed']
-                if (temp_result != 0 ){ negative_counter += temp_result }
-                def temp_result1= json[0]['stats']['passed']
-                if (temp_result1 !=0) {positive_counter += temp_result1 }
-            }
-            println ('Failed tests count: ' + negative_counter)
-            println ('Passed tests count: ' + positive_counter)
-            println ('Total tests count: ' + (positive_counter + negative_counter))
+    stage('Slack Notification Test PassRate') {
+            script {
+                def passedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"PASSED\"' **/target/karate-reports*/*.json | wc -l").trim().toInteger()
+                def failedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"FAILED\"' **/target/karate-reports*/*.json | wc -l").trim().toInteger()
+                def totalTests = passedTests + failedTests
+                def passRate = totalTests > 0 ? (passedTests * 100) / totalTests : 100
 
-            slackSend(
-                channel: '#kitfox-shadow',
-                color: 'danger',
-                message: "Karate Test Results: Passed tests: ${positive_counter}, Failed tests: ${negative_counter}"
-            )
+                echo "Passed tests: ${passedTests}"
+                echo "Failed tests: ${failedTests}"
+                echo "Total tests: ${totalTests}"
+                echo "Pass rate: ${passRate}%"
+
+                if (currentBuild.result == 'FAILURE' || passRate < 50) {
+                    slackSend(channel: "#kitfox-shadow", color: 'danger', message: "Karate tests results: Passed tests: ${passedTests}, Failed tests: ${failedTests}, Pass rate: ${passRate}%")
+            }
         }
     }
 }
-
