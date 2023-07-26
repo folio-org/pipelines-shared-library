@@ -74,8 +74,8 @@ def call(params) {
     }
     stage('Slack Notification Test PassRate') {
             script {
-                def passedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"PASSED\"' **/target/karate-reports*/*.json | wc -l").trim().toInteger()
-                def failedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"FAILED\"' **/target/karate-reports*/*.json | wc -l").trim().toInteger()
+                def passedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"PASSED\"' **/target/karate-reports*/karate-summary-json.txt | wc -l").trim().toInteger()
+                def failedTests = sh(returnStdout: true, script: "grep -Eo '\"status\":\"FAILED\"' **/target/karate-reports*/karate-summary-json.txt | wc -l").trim().toInteger()
                 def totalTests = passedTests + failedTests
                 def passRate = totalTests > 0 ? (passedTests * 100) / totalTests : 100
 
