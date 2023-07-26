@@ -11,11 +11,8 @@ import org.folio.rest_v2.Main
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//LIB_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
-//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-
-LIB_BRANCH = 'RANCHER-903'
-@Library('pipelines-shared-library@RANCHER-903') _
+LIB_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
