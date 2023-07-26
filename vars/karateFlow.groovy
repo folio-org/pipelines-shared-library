@@ -86,7 +86,7 @@ def call(params) {
             def negative_counter = 0
 //            def totalTestCount = 0
             files_list.each { test ->
-                def json = new JsonSlurper().parseText(new File('**/target/karate-reports*/karate-summary-json.txt').text)
+                def json = new JsonSlurper().parseText(new File(test).text)
                 def temp_result = json[0]['stats']['failed']
                 if (temp_result != 0 ){ negative_counter += temp_result }
                 def temp_result1= json[0]['stats']['passed']
