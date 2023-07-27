@@ -129,7 +129,7 @@ pipeline {
                     def passedTestsCount = 0
                     def failedTestsCount = 0
                     files_list.each { test ->
-                        def json = new JsonSlurper().parseText(new File(test.path as String).text)
+                        def json = new JsonSlurper().parseText(new File('./'+test.path).text)
                         echo "${json}"
                         echo "${WORKSPACE}"
                         def temp_result = json[0]['stats']['failed']
