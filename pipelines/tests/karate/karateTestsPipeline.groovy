@@ -128,9 +128,8 @@ pipeline {
                     def files_list = findFiles( excludes: '', glob: "**/target/karate-reports_*/karate-summary-json.txt")
                     def passedTestsCount = 0
                     def failedTestsCount = 0
-                    println("${files_list}")
-                    files_list.path.each { test ->
-                        def json = new JsonSlurper().parseText(new File("${test}").text)
+                    files_list.each { test ->
+                        def json = new JsonSlurper().parseText(new File("${test.path}").text)
                         println(json)
 //                        def temp_result = json['featuresFailed']
 //                        if (temp_result != 0 ){ failedTestsCount += temp_result }
