@@ -130,10 +130,10 @@ pipeline {
                     def failedTestsCount = 0
 
                     files_list.each { test ->
-                        def foo = sh(script: 'pwd', returnStdout: true)
-                        def foo1 = sh(script: 'find / -name karate-summary-json.txt', returnStdout: true)
-                        println(foo)
-                        println(foo1)
+//                        def foo = sh(script: 'pwd', returnStdout: true)
+//                        def foo1 = sh(script: 'find / -name karate-summary-json.txt', returnStdout: true)
+//                        println(foo)
+//                        println(foo1)
                         def temp_value = "${WORKSPACE}/" + test
                         println "cat ${temp_value}".execute().text
                         def json = new JsonSlurper().parseText(new File(temp_value).text)
