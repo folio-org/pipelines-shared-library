@@ -128,7 +128,7 @@ pipeline {
                     List files_list = findFiles excludes: '', glob: "**/target/karate-reports_*/karate-summary-json.txt"
                     def passedTestsCount = 0
                     def failedTestsCount = 0
-
+                    sleep(time: 5, unit: 'MINUTES')
                     files_list.each { test ->
 //                        def foo = sh(script: 'pwd', returnStdout: true)
 //                        def foo1 = sh(script: 'find / -name karate-summary-json.txt', returnStdout: true)
