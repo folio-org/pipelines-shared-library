@@ -125,12 +125,11 @@ pipeline {
         stage('Send in slack test results notifications') {
             steps {
                 script {
-                    List files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+                    def files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
                     def passedTestsCount = 0
                     def failedTestsCount = 0
-                    files_list.each { test ->
-                        def inputFile = new File(test)
-                        def json = new JsonSlurper().parseText(inputFile)
+                    files_list.path.each { test ->
+                        def json = new JsonSlurper().parseText(new File("${test}").text)
                         def temp_result = json[0]['stats']['failed']
                         if (temp_result != 0 ){ failedTestsCount += temp_result }
                         def temp_result1= json[0]['stats']['passed']
