@@ -151,28 +151,6 @@ pipeline {
                 }
             }
         }
-        stage("Delete tenants edge modules") {
-            when {
-                expression {
-                    params.createCustomEdgeTenant == true
-                }
-            }
-            steps {
-                script {
-                    def jsonContents = readJSON file: "edge-configuration.json"
-                    jsonContents.each {
-                        it.tenants.each {
-                            def jobParameters = [
-                                string(name: 'rancher_cluster_name', value: clusterName),
-                                string(name: 'rancher_project_name', value: projectName),
-                                string(name: 'tenant_id', value: it.name)
-                            ]
-                            build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
-            }
-        }
         stage('Send in slack test results notifications') {
             steps {
                 script {
@@ -198,6 +176,28 @@ pipeline {
                         color: 'danger',
                         message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
                     )
+                }
+            }
+        }
+        stage("Delete tenants edge modules") {
+            when {
+                expression {
+                    params.createCustomEdgeTenant == true
+                }
+            }
+            steps {
+                script {
+                    def jsonContents = readJSON file: "edge-configuration.json"
+                    jsonContents.each {
+                        it.tenants.each {
+                            def jobParameters = [
+                                string(name: 'rancher_cluster_name', value: clusterName),
+                                string(name: 'rancher_project_name', value: projectName),
+                                string(name: 'tenant_id', value: it.name)
+                            ]
+                            build job: "Rancher/Update/delete-tenant", parameters: jobParameters, wait: true, propagate: false
+                        }
+                    }
                 }
             }
         }
