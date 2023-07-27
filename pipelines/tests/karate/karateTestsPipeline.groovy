@@ -129,8 +129,6 @@ pipeline {
                     def passedTestsCount = 0
                     def failedTestsCount = 0
                     files_list.each { test ->
-                        sh("ls -la ${env.WORKSPACE}/mod-inventory")
-
                         def json = readJSON file: test.path
                         println(json)
                         def temp_result = json['featuresFailed']
