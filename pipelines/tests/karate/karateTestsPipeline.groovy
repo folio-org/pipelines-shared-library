@@ -135,6 +135,7 @@ pipeline {
                         println(foo)
                         println(foo1)
                         def temp_value = "${WORKSPACE}/" + test
+                        println "cat ${temp_value}".execute().text
                         def json = new JsonSlurper().parseText(new File(temp_value).text)
                         println(json)
                         def temp_result = json[0]['stats']['failed']
