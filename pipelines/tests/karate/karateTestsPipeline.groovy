@@ -132,8 +132,8 @@ pipeline {
 //                        def foo1 = sh(script: 'find / -name karate-summary-json.txt', returnStdout: true)
 //                        println(foo)
 //                        println(foo1)
-                        def temp_value = "${WORKSPACE}/" + test
-                        println "ls -la ${WORKSPACE}".execute().text
+                        def temp_value = "${WORKSPACE}/" + 'mod-inventory'
+                        println "ls -la ${temp_value}".execute().text
 //                      sleep(time: 5, unit: 'MINUTES')
                         def json = new JsonSlurper().parseText(new File(temp_value).text)
                         println(json)
