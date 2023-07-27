@@ -129,7 +129,7 @@ pipeline {
                     def passedTestsCount = 0
                     def failedTestsCount = 0
                     files_list.each { test ->
-                        def json = new JsonSlurper().parseText(new File("${test.path}").text)
+                        def json = new JsonSlurper().parseText(new File("${env.WORKSPACE}/${test.path}").text)
                         println(json)
 //                        def temp_result = json['featuresFailed']
 //                        if (temp_result != 0 ){ failedTestsCount += temp_result }
