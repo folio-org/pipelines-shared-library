@@ -122,35 +122,6 @@ pipeline {
             }
         }
 
-        stage('Publish tests report') {
-            steps {
-                script {
-                    cucumber buildStatus: "UNSTABLE",
-                        fileIncludePattern: "**/target/karate-reports*/*.json",
-                        sortingMethod: "ALPHABETICAL"
-
-                    junit testResults: '**/target/karate-reports*/*.xml'
-                }
-            }
-        }
-
-        stage('Archive artifacts') {
-            steps {
-                script {
-                    // archive artifacts for upstream job
-                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-                        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-                        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-                        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
-
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
-                        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
-                    }
-                }
-            }
-        }
         stage('Send in slack test results notifications') {
             steps {
                 script {
@@ -180,6 +151,37 @@ pipeline {
                 }
             }
         }
+
+        stage('Publish tests report') {
+            steps {
+                script {
+                    cucumber buildStatus: "UNSTABLE",
+                        fileIncludePattern: "**/target/karate-reports*/*.json",
+                        sortingMethod: "ALPHABETICAL"
+
+                    junit testResults: '**/target/karate-reports*/*.xml'
+                }
+            }
+        }
+
+        stage('Archive artifacts') {
+            steps {
+                script {
+                    // archive artifacts for upstream job
+                    if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
+                        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+                        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+                        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+                        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+                    }
+                }
+            }
+        }
+
         stage("Delete tenants edge modules") {
             when {
                 expression {
