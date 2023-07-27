@@ -74,29 +74,31 @@ def call(params) {
         }
     }
     stage('Send in slack test results notifications') {
-        script {
-            List files_list = findFiles excludes: '', glob: '**/target/karate-reports*/karate-summary-json.txt'
-            def passedTestsCount = 0
-            def failedTestsCount = 0
+        steps {
+            script {
+                def files_list = findFiles( excludes: '', glob: "**/target/karate-reports_*/karate-summary-json.txt")
+                def passedTestsCount = 0
+                def failedTestsCount = 0
+                files_list.each { test ->
+                    def json = readJSON file: test.path
+                    println(json)
+                    def temp_result = json['featuresFailed']
+                    if (temp_result != 0 ){ failedTestsCount += temp_result }
+                    def temp_result1= json['featuresPassed']
+                    if (temp_result1 !=0) {passedTestsCount += temp_result1 }
+                }
+                def totalTestsCount = passedTestsCount + failedTestsCount
+                def passRate = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+                println ('Failed tests count: ' + failedTestsCount)
+                println ('Passed tests count: ' + passedTestsCount)
+                println ('Total tests count: ' + totalTestsCount)
 
-            files_list.each { test ->
-                def json = new JsonSlurper().parseText(new File(test.path).text)
-                def temp_result = json[0]['stats']['failed']
-                if (temp_result != 0 ){ failedTestsCount += temp_result }
-                def temp_result1= json[0]['stats']['passed']
-                if (temp_result1 !=0) {passedTestsCount += temp_result1 }
+                slackSend(
+                    channel: '#kitfox-shadow',
+                    color: 'danger',
+                    message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
+                )
             }
-            def totalTestsCount = passedTestsCount + failedTestsCount
-            def passRate = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-            println ('Failed tests count: ' + failedTestsCount)
-            println ('Passed tests count: ' + passedTestsCount)
-            println ('Total tests count: ' + totalTestsCount)
-
-            slackSend(
-                channel: '#kitfox-shadow',
-                color: 'danger',
-                message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
-            )
         }
     }
 }
