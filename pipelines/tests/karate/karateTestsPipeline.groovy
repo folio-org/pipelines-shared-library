@@ -134,7 +134,8 @@ pipeline {
 //                        println(foo1)
                         def temp_value = "${WORKSPACE}/"
                         println "ls -la ${temp_value}".execute().text
-//                      sleep(time: 5, unit: 'MINUTES')
+                        println "tree -d ${temp_value}".execute().text
+                        sleep(time: 5, unit: 'MINUTES')
                         def json = new JsonSlurper().parseText(new File(temp_value).text)
                         println(json)
                         def temp_result = json[0]['stats']['failed']
