@@ -1,10 +1,11 @@
 package tests.karate
 
+import groovy.json.JsonSlurper
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-859') _
 
 def karateEnvironment = "folio-testing-karate"
 String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
@@ -170,6 +171,32 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+        stage('Send in slack test results notifications') {
+            script {
+                List files_list = findFiles excludes: '', glob: '**/target/karate-reports*/karate-summary-json.txt'
+                def passedTestsCount = 0
+                def failedTestsCount = 0
+
+                files_list.each { test ->
+                    def json = new JsonSlurper().parseText(new File(test.path).text)
+                    def temp_result = json[0]['stats']['failed']
+                    if (temp_result != 0 ){ failedTestsCount += temp_result }
+                    def temp_result1= json[0]['stats']['passed']
+                    if (temp_result1 !=0) {passedTestsCount += temp_result1 }
+                }
+                def totalTestsCount = passedTestsCount + failedTestsCount
+                def passRate = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+                println ('Failed tests count: ' + failedTestsCount)
+                println ('Passed tests count: ' + passedTestsCount)
+                println ('Total tests count: ' + totalTestsCount)
+
+                slackSend(
+                    channel: '#kitfox-shadow',
+                    color: 'danger',
+                    message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
+                )
             }
         }
     }
