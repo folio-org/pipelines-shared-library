@@ -131,6 +131,8 @@ pipeline {
                     files_list.each { test ->
                         sh("ls -la ${env.WORKSPACE}/mod-inventory")
                         input "test"
+                        def json_value = readJSON file: test.path
+                        println(json_value)
                         def json = new JsonSlurper().parseText(new File("${env.WORKSPACE}/${test.path}").text)
                         println(json)
 //                        def temp_result = json['featuresFailed']
