@@ -75,31 +75,24 @@ def call(params) {
     }
     stage('Send in slack test results notifications') {
         script {
-//            def dir = new File('**/target/karate-reports*')
             List files_list = findFiles excludes: '', glob: '**/target/karate-reports*/karate-summary-json.txt'
-//            def files = dir.listFiles()
-//            files.each { file ->
-//                if (file.name.contains('.json')){
-//                    files_list += file.name}
-//            }
-            def positive_counter = 0
-            def negative_counter = 0
-//            def totalTestCount = 0
+            def passedTests = 0
+            def failedTests = 0
             files_list.each { test ->
-                def json = new JsonSlurper().parseText(new File(test).text)
+                def json = new JsonSlurper().parseText(test.read().text)
                 def temp_result = json[0]['stats']['failed']
-                if (temp_result != 0 ){ negative_counter += temp_result }
+                if (temp_result != 0 ){ failedTests += temp_result }
                 def temp_result1= json[0]['stats']['passed']
-                if (temp_result1 !=0) {positive_counter += temp_result1 }
+                if (temp_result1 !=0) {passedTests += temp_result1 }
             }
-            println ('Failed tests count: ' + negative_counter)
-            println ('Passed tests count: ' + positive_counter)
-            println ('Total tests count: ' + (positive_counter + negative_counter))
+            println ('Failed tests count: ' + failedTests)
+            println ('Passed tests count: ' + passedTests)
+            println ('Total tests count: ' + (passedTests + failedTests))
 
             slackSend(
                 channel: '#kitfox-shadow',
                 color: 'danger',
-                message: "Karate Test Results: Passed tests: ${positive_counter}, Failed tests: ${negative_counter}"
+                message: "Karate Test Results: Passed tests: ${passedTests}, Failed tests: ${failedTests}"
             )
         }
     }
