@@ -129,6 +129,8 @@ pipeline {
                     def passedTestsCount = 0
                     def failedTestsCount = 0
                     files_list.each { test ->
+                        sh("ls -la ${env.WORKSPACE}/mod-inventory")
+                        input "test"
                         def json = new JsonSlurper().parseText(new File("${env.WORKSPACE}/${test.path}").text)
                         println(json)
 //                        def temp_result = json['featuresFailed']
