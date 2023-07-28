@@ -75,7 +75,7 @@ def call(params) {
     }
     stage('Send in slack test results notifications') {
         script {
-            def files_list = findFiles( excludes: '', glob: "**/target/karate-reports_*/karate-summary-json.txt")
+            def files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
             def passedTestsCount = 0
             def failedTestsCount = 0
             files_list.each { test ->
