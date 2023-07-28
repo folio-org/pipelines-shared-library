@@ -138,15 +138,12 @@ pipeline {
                     }
                     def totalTestsCount = passedTestsCount + failedTestsCount
                     def passRate = totalTestsCount > 0 ? String.format("%.1f", (passedTestsCount * 100) / totalTestsCount) : "100.0"
-//                    println ('Failed tests count: ' + failedTestsCount)
-//                    println ('Passed tests count: ' + passedTestsCount)
-//                    println ('Total tests count: ' + totalTestsCount)
-
-                    slackSend(
-                        channel: '#rancher_karate_cypress_tests_notif',
-                        color: 'danger',
-                        message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
-                    )
+                    if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
+                        slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'danger', message: "Karate tests results: Passed tests: ${passedTests}, Failed tests: ${failedTests}, Pass rate: ${passRate}%")
+                    }
+                    else {
+                        slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'good', message: "Karate tests results: Passed tests: ${passedTests}, Failed tests: ${failedTests}, Pass rate: ${passRate}%")
+                    }
                 }
             }
         }
