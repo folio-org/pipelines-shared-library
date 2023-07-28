@@ -83,19 +83,16 @@ def call(params) {
                 def featureFailed = json['featuresFailed']
                 if (featureFailed != 0 ){ failedTestsCount += featureFailed }
                 def featurePassed = json['featuresPassed']
-                if (featurePassed !=0) {passedTestsCount += featurePassed }
+                if (featurePassed !=0) { passedTestsCount += featurePassed }
             }
             def totalTestsCount = passedTestsCount + failedTestsCount
-//            def passRate = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-            def passRate = totalTestsCount > 0 ? String.format("%.1f", (passedTestsCount * 100) / totalTestsCount) : "100.0"
-            println ('Failed tests count: ' + failedTestsCount)
-            println ('Passed tests count: ' + passedTestsCount)
-            println ('Total tests count: ' + totalTestsCount)
+            def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+            def passRate = passRateInDecimal.intValue()
             if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-                slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'danger', message: "Karate tests results: Passed tests: ${passedTests}, Failed tests: ${failedTests}, Pass rate: ${passRate}%")
+                slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
             }
             else {
-                slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'good', message: "Karate tests results: Passed tests: ${passedTests}, Failed tests: ${failedTests}, Pass rate: ${passRate}%")
+                slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
             }
         }
     }

@@ -133,7 +133,7 @@ pipeline {
                         def featureFailed = json['featuresFailed']
                         if (featureFailed != 0 ){ failedTestsCount += featureFailed }
                         def featurePassed = json['featuresPassed']
-                        if (featurePassed !=0) {passedTestsCount += featurePassed }
+                        if (featurePassed !=0) { passedTestsCount += featurePassed }
                     }
                     def totalTestsCount = passedTestsCount + failedTestsCount
                     def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
