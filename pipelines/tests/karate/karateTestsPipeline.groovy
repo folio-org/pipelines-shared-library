@@ -130,20 +130,20 @@ pipeline {
                     def failedTestsCount = 0
                     files_list.each { test ->
                         def json = readJSON file: test.path
-                        println(json)
+//                        println(json)
                         def temp_result = json['featuresFailed']
                         if (temp_result != 0 ){ failedTestsCount += temp_result }
                         def temp_result1= json['featuresPassed']
                         if (temp_result1 !=0) {passedTestsCount += temp_result1 }
                     }
                     def totalTestsCount = passedTestsCount + failedTestsCount
-                    def passRate = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-                    println ('Failed tests count: ' + failedTestsCount)
-                    println ('Passed tests count: ' + passedTestsCount)
-                    println ('Total tests count: ' + totalTestsCount)
+                    def passRate = totalTestsCount > 0 ? String.format("%.1f", (passedTestsCount * 100) / totalTestsCount.toDouble()) : "100.0"
+//                    println ('Failed tests count: ' + failedTestsCount)
+//                    println ('Passed tests count: ' + passedTestsCount)
+//                    println ('Total tests count: ' + totalTestsCount)
 
                     slackSend(
-                        channel: '#kitfox-shadow',
+                        channel: '#rancher_karate_cypress_tests_notif',
                         color: 'danger',
                         message: "Karate Test Results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount} Pass rate: ${passRate}%"
                     )
