@@ -139,10 +139,10 @@ pipeline {
                     def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
                     def passRate = passRateInDecimal.intValue()
                     if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-                        slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
+                        slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
                     }
                     else {
-                        slackSend(channel: "#rancher_karate_cypress_tests_notif", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
+                        slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
                     }
                 }
             }
