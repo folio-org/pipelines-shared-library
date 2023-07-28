@@ -137,7 +137,7 @@ pipeline {
                         if (temp_result1 !=0) {passedTestsCount += temp_result1 }
                     }
                     def totalTestsCount = passedTestsCount + failedTestsCount
-                    def passRate = totalTestsCount > 0 ? String.format("%.1f", (passedTestsCount * 100) / totalTestsCount.toDouble()) : "100.0"
+                    def passRate = totalTestsCount > 0 ? String.format("%.1f", (passedTestsCount * 100) / totalTestsCount) : "100.0"
 //                    println ('Failed tests count: ' + failedTestsCount)
 //                    println ('Passed tests count: ' + passedTestsCount)
 //                    println ('Total tests count: ' + totalTestsCount)
