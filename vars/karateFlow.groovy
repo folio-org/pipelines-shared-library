@@ -72,4 +72,30 @@ def call(params) {
             }
         }
     }
+    
+    stage('Send in slack test results notifications') {
+        script {
+            // export and collect karate tests results
+            def files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+            def passedTestsCount = 0
+            def failedTestsCount = 0
+            files_list.each { test ->
+                def json = readJSON file: test.path
+                def featureFailed = json['featuresFailed']
+                if (featureFailed != 0 ){ failedTestsCount += featureFailed }
+                def featurePassed = json['featuresPassed']
+                if (featurePassed !=0) { passedTestsCount += featurePassed }
+            }
+            def totalTestsCount = passedTestsCount + failedTestsCount
+            def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+            def passRate = passRateInDecimal.intValue()
+            if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
+                slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
+            }
+            else {
+                slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
+            }
+        }
+    }
 }
+
