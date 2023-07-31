@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurper
 
-@Library('pipelines-shared-library@RANCHER-859') _
+@Library('pipelines-shared-library') _
 
 def call(params) {
     stage("Checkout") {
@@ -75,6 +75,7 @@ def call(params) {
     }
     stage('Send in slack test results notifications') {
         script {
+            // export and collect karate tests results
             def files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
             def passedTestsCount = 0
             def failedTestsCount = 0
