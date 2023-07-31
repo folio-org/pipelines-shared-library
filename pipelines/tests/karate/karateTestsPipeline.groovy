@@ -150,7 +150,6 @@ pipeline {
                 }
             }
         }
-
         stage("Delete tenants edge modules") {
             when {
                 expression {
