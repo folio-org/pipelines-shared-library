@@ -1,6 +1,5 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
-import groovy.json.JsonSlurper
 
 @Library('pipelines-shared-library') _
 
@@ -73,6 +72,7 @@ def call(params) {
             }
         }
     }
+    
     stage('Send in slack test results notifications') {
         script {
             // export and collect karate tests results
