@@ -87,7 +87,6 @@ class InstallRequestParams implements Cloneable {
         this.tenantParameters = sb.toString()
     }
 
-    // method overloading, to accept boolean and string values
     void addTenantParameter(String key, boolean value) {
         addTenantParameter(key, String.valueOf(value))
     }
