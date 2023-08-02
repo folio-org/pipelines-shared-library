@@ -42,7 +42,7 @@ ansiColor('xterm') {
                 checkout scm
             }
 
-            helm.k8sClient {
+            folioHelm.withK8sClient {
                 psqlDumpMethods.configureKubectl(Constants.AWS_REGION, params.rancher_cluster_name)
                 psqlDumpMethods.configureHelm(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL)
                 try {

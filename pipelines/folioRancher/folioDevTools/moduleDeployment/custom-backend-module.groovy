@@ -176,7 +176,7 @@ ansiColor('xterm') {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                        helm.k8sClient {
+                        folioHelm.withK8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                             install_edge_map.each {name, version ->
                                 kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
