@@ -1,80 +1,68 @@
 #!groovy
-import groovy.json.JsonOutput
-import org.folio.models.RancherNamespace
+import org.folio.Constants
+import org.folio.models.TerraformConfig
 import org.jenkinsci.plugins.workflow.libs.Library
 
+//TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  buildDiscarder(logRotator(numToKeepStr: '20')),
+  buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    jobsParameters.clusterName(),
-    jobsParameters.projectName(),
-//    jobsParameters.repository(),
-//    jobsParameters.branch(),
-//    jobsParameters.okapiVersion(),
-//    jobsParameters.configType(),
-//    jobsParameters.tenantId(),
-//    jobsParameters.loadReference(),
-//    jobsParameters.loadSample(),
-//    jobsParameters.adminUsername(),
-//    jobsParameters.adminPassword(),
-    booleanParam(name: 'pg_embedded', defaultValue: true, description: '(Optional) Embedded PostgreSQL or AWS RDS'),
-    booleanParam(name: 'kafka_shared', defaultValue: true, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
-    booleanParam(name: 'opensearch_shared', defaultValue: true, description: '(Optional) Use shared AWS OpenSearch service or embedded OpenSearch'),
-    booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
-    booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
-    booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
-//    booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
-//    booleanParam(name: 'enable_consortia', defaultValue: false, description: '(Optional) Enable Consortia'),
-//    string(name: 'namespace_members', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    jobsParameters.agents(),
-    jobsParameters.refreshParameters()
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
+    folioParameters.pgType(),
+    folioParameters.kafkaType(),
+    folioParameters.opensearchType(),
+    folioParameters.s3Type(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
   ])
 ])
 
-RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.rancher_project_name)
-ns.addTerraformVar("rancher_cluster_name", ns.clusterName)
-ns.addTerraformVar("rancher_project_name", ns.namespaceName)
-ns.addTerraformVar("pg_password", jobsParameters.pgDefaultPassword())
-ns.addTerraformVar("pgadmin_password", jobsParameters.pgAdminDefaultPassword())
-ns.addTerraformVar("pg_embedded", params.pg_embedded)
-ns.addTerraformVar("kafka_shared", params.kafka_shared)
-ns.addTerraformVar("opensearch_shared", params.opensearch_shared)
-ns.addTerraformVar("s3_embedded", params.s3_embedded)
-ns.addTerraformVar("pgadmin4", params.pgadmin4)
-ns.addTerraformVar("pg_ldp_user_password", jobsParameters.pgLdpUserDefaultPassword())
+String defaultTenantId = 'diku'
 
-String terraformHomeDir = "terraform/rancher/project"
+//Set terraform configuration
+TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+
+tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
+tfConfig.addVar('rancher_project_name', params.NAMESPACE)
+tfConfig.addVar('tenant_id', defaultTenantId)
+tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
+tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
+tfConfig.addVar('pgadmin4', 'true')
+tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
+tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
 ansiColor('xterm') {
-  if (params.refresh_parameters) {
+  if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
-    println('REFRESH JOB PARAMETERS!')
-    return
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
   }
-  node(params.agent) {
+  node(params.AGENT) {
     try {
+      stage('Ini') {
+        buildName "${tfConfig.getWorkspace()}.${env.BUILD_ID}"
+      }
+
       stage('Checkout') {
         checkout scm
       }
-      stage('Ini') {
-        buildName "${ns.clusterName}.${ns.namespaceName}.${env.BUILD_ID}"
-//        buildDescription "repository: ${params.folio_repository}\n" +
-//          "branch: ${params.folio_branch}\n" +
-//          "base_tenant: ${ns.tenants[ns.defaultTenant].tenantId}\n" +
-//          "config_type: ${ns.deploymentConfigType}"
-      }
-      stage('Destroy namespace') {
-        folioTerraform.deleteNamespace(terraformHomeDir, ns.terraformWorkspace, folioTerraform.generateTfVars(ns.terraformVars))
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
+
+      folioTerraformFlow.manageNamespace('destroy', tfConfig)
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
     } finally {
       stage('Cleanup') {
-        println(JsonOutput.prettyPrint(JsonOutput.toJson(ns)))
         cleanWs notFailBuild: true
       }
     }

@@ -1,61 +1,53 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonSlurperClassic
 import org.folio.rest_v2.Constants
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
 
 
 /**
- * Represents a Rancher namespace and its configuration.
- */
+ * Represents a Rancher namespace and its configuration.*/
 class RancherNamespace {
-    private static final String CONFIG_BRANCH = "master"
+    private static final String DEPLOYMENT_CONFIG_BRANCH = "master"
+
     private static final List DOMAINS_LIST = ['okapi', 'edge']
 
     String clusterName
+
     String namespaceName
-    String deploymentConfigBranch
+
     String deploymentConfigType
+
     Map deploymentConfig
+
     String okapiVersion
-    Modules modules
-    OkapiTenant superTenant
-    Map domains
+
+    Modules modules = new Modules()
+
+    OkapiTenant superTenant = new OkapiTenant("supertenant")
+
     String defaultTenantId
-    Map<String, OkapiTenant> tenants
-    String terraformWorkspace
-    Map<String, String> terraformVars
-    boolean enableRwSplit
-    boolean enableConsortia
+
+    Map<String, OkapiTenant> tenants = [:]
+
+    Map domains = [:]
+
+    boolean enableRwSplit = false
+
+    boolean enableConsortia = false
 
     RancherNamespace(String clusterName, String namespaceName) {
         this.clusterName = clusterName
         this.namespaceName = namespaceName
-        this.deploymentConfigBranch = CONFIG_BRANCH
-        this.modules = new Modules()
-        this.superTenant = new OkapiTenant("supertenant")
-        this.domains = [:]
-        this.tenants = [:]
-        this.terraformWorkspace = this.clusterName + "-" + this.namespaceName
-        this.terraformVars = [:]
-        this.enableRwSplit = false
-        this.enableConsortia = false
 
         DOMAINS_LIST.each {
             this.domains.put(it, "${this.clusterName}-${this.namespaceName}-${it}.${Constants.CI_ROOT_DOMAIN}")
         }
     }
 
-    RancherNamespace withDeploymentConfigBranch(String deploymentConfigBranch) {
-        this.deploymentConfigBranch = deploymentConfigBranch
-        return this
-    }
-
     RancherNamespace withDeploymentConfigType(String deploymentConfigType) {
         this.deploymentConfigType = deploymentConfigType
-        addDeploymentConfig()
         return this
     }
 
@@ -64,30 +56,20 @@ class RancherNamespace {
         return this
     }
 
-    RancherNamespace withInstallJson(Object installJson) {
-        this.modules.setInstallJson(installJson)
-        return this
-    }
-
-    RancherNamespace withDefaultTenant(String defaultTenant) {
-        this.defaultTenantId = defaultTenant
-        return this
-    }
-
-    RancherNamespace withEnableRwSplit(boolean enableRwSplit) {
-        this.enableRwSplit = enableRwSplit
-        return this
-    }
-
-    RancherNamespace withEnableConsortia(boolean enableConsortia) {
-        this.enableConsortia = enableConsortia
-        this.modules.addModules([this.getModuleVersion('mod-consortia'), this.getModuleVersion('folio_consortia-settings')])
+    RancherNamespace withDefaultTenant(String defaultTenantId) {
+        this.defaultTenantId = defaultTenantId
         return this
     }
 
     RancherNamespace withSuperTenantAdminUser(String username = 'super_admin', Object password = 'admin') {
         this.superTenant.setAdminUser(new OkapiUser(username, password))
         return this
+    }
+
+    void setEnableConsortia(boolean enableConsortia) {
+        this.modules.addModules([this.modules.getModuleVersion('mod-consortia'),
+                                 this.modules.getModuleVersion('folio_consortia-settings')])
+        this.enableConsortia = enableConsortia
     }
 
     /**
@@ -97,11 +79,11 @@ class RancherNamespace {
      */
     void addTenant(OkapiTenant tenant) {
         if (tenant.tenantId.toLowerCase() == "supertenant") {
-            throw new IllegalArgumentException("Cannot add 'supertenant' to tenant map.")
+            throw new IllegalArgumentException("Cannot add 'supertenant' to tenant map. As it is already exists")
         }
         if (tenant.tenantUi) {
-            tenant.tenantUi.withDomain(generateDomain(tenant.tenantId))
-            tenant.config.resetPasswordLink = "https://" + tenant.tenantUi.domain
+            tenant.tenantUi.domain = generateDomain(tenant.tenantId)
+            tenant.okapiConfig.resetPasswordLink = "https://" + tenant.tenantUi.domain
         }
         this.tenants.put(tenant.tenantId, tenant)
         updateConsortiaTenantsConfig()
@@ -140,9 +122,9 @@ class RancherNamespace {
      * @throws UncheckedIOException if there's an error reading from the YAML URL
      */
     @NonCPS
-    void addDeploymentConfig() {
+    void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH) {
         if (this.deploymentConfigType) {
-            String yamlUrl = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/${this.deploymentConfigBranch}/resources/helm/${this.deploymentConfigType}.yaml"
+            String yamlUrl = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/${branch}/resources/helm/${this.deploymentConfigType}.yaml"
             try {
                 String yamlString = new URL(yamlUrl).text
                 Yaml yamlParser = new Yaml()
@@ -158,44 +140,15 @@ class RancherNamespace {
     }
 
     /**
-     * Adds a Terraform variable to the RancherNamespace.
-     * @param varName the name of the variable
-     * @param varValue the value of the variable
-     */
-    void addTerraformVar(String varName, Object varValue) {
-        this.terraformVars.put(varName, varValue.toString())
-    }
-
-    /**
-     * Removes a Terraform variable from the RancherNamespace.
-     * @param varName the name of the variable to remove
-     * @return true if the variable was removed, false otherwise
-     */
-    boolean removeTerraformVar(String varName) {
-        return this.terraformVars.remove(varName) != null
-    }
-
-    /**
-     * Updates the configuration for consortia tenants in the RancherNamespace.
-     */
+     * Updates the configuration for consortia tenants in the RancherNamespace.*/
     private void updateConsortiaTenantsConfig() {
         this.tenants.values().findAll { it instanceof OkapiTenantConsortia }.each { OkapiTenantConsortia tenant ->
             OkapiTenantConsortia centralConsortiaTenant = this.tenants.values()
                 .findAll { it instanceof OkapiTenantConsortia }
                 .find { OkapiTenantConsortia it -> it.isCentralConsortiaTenant }
             if (!tenant.isCentralConsortiaTenant && centralConsortiaTenant) {
-                tenant.config.resetPasswordLink = centralConsortiaTenant.config.resetPasswordLink
+                tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
             }
-        }
-    }
-
-    //TODO temporary solution should be revised
-    private String getModuleVersion(String moduleName) {
-        URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
-        if (registry.getResponseCode().equals(200)) {
-            return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
-        } else {
-            throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
         }
     }
 }

@@ -1,7 +1,6 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
-
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
@@ -178,7 +177,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     //Enable cross tenant extra env
     if (moduleName == 'mod-authtoken' && ns.enableConsortia){
-       moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
+        moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
     }
 
     // Enable ingress

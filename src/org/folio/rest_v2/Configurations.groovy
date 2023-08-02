@@ -34,7 +34,7 @@ class Configurations extends Authorization {
      */
     void setRmapiConfig(OkapiTenant tenant) {
         String kbCredentialsId = '80898dee-449f-44dd-9c8e-37d5eb469b1d'
-        if (!tenant.config?.kbApiKey) {
+        if (!tenant.okapiConfig?.kbApiKey) {
             logger.warning("KB Api key not set. Skipping.")
             return
         }
@@ -47,7 +47,7 @@ class Configurations extends Authorization {
         headers["Content-Type"] = "application/vnd.api+json"
         Map body = [data: [type      : "kbCredentials",
                            attributes: [name      : "Knowledge Base",
-                                        apiKey    : tenant.config.kbApiKey,
+                                        apiKey    : tenant.okapiConfig.kbApiKey,
                                         url       : Constants.KB_API_URL,
                                         customerId: Constants.KB_CUSTOMER_ID]
 
@@ -105,17 +105,17 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which the SMTP settings are to be set.
      */
     void setSmtp(OkapiTenant tenant) {
-        if (!tenant.config?.smtp) {
+        if (!tenant.okapiConfig?.smtp) {
             logger.warning("SMTP configuration not provided")
             return
         }
         String url = generateUrl("/configurations/entries")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
-        Map binding = [email_smtp_host: tenant.config.smtp.host,
-                       email_smtp_port: tenant.config.smtp.port,
-                       email_username : tenant.config.smtp.username,
-                       email_password : tenant.config.smtp.password,
-                       email_from     : tenant.config.smtp.from]
+        Map binding = [email_smtp_host: tenant.okapiConfig.smtp.host,
+                       email_smtp_port: tenant.okapiConfig.smtp.port,
+                       email_username : tenant.okapiConfig.smtp.username,
+                       email_password : tenant.okapiConfig.smtp.password,
+                       email_from     : tenant.okapiConfig.smtp.from]
         Constants.CONFIGURATIONS.smtpConfig.each {
             tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             def content = steps.readFile it
@@ -138,14 +138,14 @@ class Configurations extends Authorization {
      * @param tenant The tenant for which to set reset password link.
      */
     void setResetPasswordLink(OkapiTenant tenant) {
-        if (!tenant.config?.resetPasswordLink) {
+        if (!tenant.okapiConfig?.resetPasswordLink) {
             logger.warning("Reset password link configuration not provided")
             return
         }
         String url = generateUrl("/configurations/entries")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
 
-        Map binding = [stripes_url: tenant.config.resetPasswordLink]
+        Map binding = [stripes_url: tenant.okapiConfig.resetPasswordLink]
         Constants.CONFIGURATIONS.resetPassword.each {
             tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             def content = steps.readFile it

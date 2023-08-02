@@ -38,7 +38,7 @@ ansiColor('xterm') {
                     switch (params.action) {
                         case 'get':
                             stage("Get list of label in project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     String namespaceLabels = kubectl.getLabelsFromNamespace(params.rancher_project_name)
 
@@ -63,7 +63,7 @@ ansiColor('xterm') {
                             break
                         case 'add':
                             stage("Add do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.addLabelToNamespace(params.rancher_project_name, labelKeyTonight, "true")
                                 }
@@ -71,7 +71,7 @@ ansiColor('xterm') {
                             break
                         case 'delete':
                             stage("Delete do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyTonight)
                                 }
@@ -86,7 +86,7 @@ ansiColor('xterm') {
                     switch (params.action) {
                         case 'get':
                             stage("Get list of label in project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     String namespaceLabels = kubectl.getLabelsFromNamespace(params.rancher_project_name)
 
@@ -111,7 +111,7 @@ ansiColor('xterm') {
                             break
                         case 'add':
                             stage("Add do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.addLabelToNamespace(params.rancher_project_name, labelKeyUpToNextMonday, "true")
                                 }
@@ -119,7 +119,7 @@ ansiColor('xterm') {
                             break
                         case 'delete':
                             stage("Delete do_not_scale_down label to project") {
-                                helm.k8sClient {
+                                folioHelm.withK8sClient {
                                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                                     kubectl.deleteLabelFromNamespace(params.rancher_project_name, labelKeyUpToNextMonday)
                                 }
