@@ -133,6 +133,17 @@ class Okapi extends Authorization {
         return response.collect { it.srvcId }
     }
 
+    void cleanServicesDiscovery() {
+        String url = generateUrl("/_/discovery/modules")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        logger.info("Okapi services discovery cleanup. Starting...")
+
+        restClient.delete(url, headers)
+
+        logger.info("Okapi discovery table cleanup finished successfully.")
+    }
+
     String getModuleId(String moduleName) {
         List<String> serviceDiscoveryIds = getServiceDiscoveryIds()
 

@@ -56,7 +56,7 @@ class Constants {
                                              'performance',
                                              'testing']
     //IMPORTANT! Do not change order without need
-    static List AWS_INTEGRATED_SERVICE_TYPE = ['built-in', 'shared']
+    static List AWS_INTEGRATED_SERVICE_TYPE = ['built-in', 'aws']
 
     //Kubecost
     static String KUBECOST_AWS_CREDENTIALS_ID = 'kubecost_athena_aws_user'
