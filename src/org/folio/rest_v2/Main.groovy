@@ -18,21 +18,48 @@ class Main extends Okapi {
         this.consortia = new Consortia(context, okapiDomain, debug)
     }
 
-    void initializeFromScratch(Map<String, OkapiTenant> tenants, List completeInstallJson, List completeDiscoveryList, boolean enableConsortia) {
-        publishModulesDescriptors(getUnregisteredModuleDescriptors(completeInstallJson))
-        publishServiceDiscovery(completeDiscoveryList)
-        if(superTenant.adminUser) {
+    void preInstall(List installJson, List discoveryList) {
+        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
+        publishServiceDiscovery(discoveryList)
+    }
+
+    void lockSuperTenant(OkapiTenant superTenant) {
+        if (superTenant.tenantId != 'supertenant') {
+            logger.error("${superTenant.tenantId} is not a supertenant")
+        }
+        Map modules = requiredModules()
+        superTenant.adminUser.setPermissions(Constants.OKAPI_SUPER_USER_PERMISSIONS)
+        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds([modules['mod-users'], modules['mod-permissions'], modules['mod-login']], 'enable'))
+        createOkapiUser(superTenant, superTenant.adminUser)
+        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds([modules['mod-authtoken']], 'enable'))
+        createOkapiUser(superTenant, new OkapiUser('testing_admin', 'admin')
+            .withPermissions(Constants.OKAPI_SUPER_USER_PERMISSIONS))
+    }
+
+    void unlockSuperTenant(OkapiTenant superTenant) {
+        if (superTenant.tenantId != 'supertenant') {
+            logger.error("${superTenant.tenantId} is not a supertenant")
+        }
+        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds(requiredModules().values().toList(), 'enable'))
+    }
+
+    void createTenantFlow(OkapiTenant tenant) {
+        createTenant(tenant)
+        tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
+        tenantInstall(tenant, tenant.modules.installJson, 900000)
+        if (tenant.adminUser) {
+            createAdminUser(tenant)
+            createAdminUser(tenant, new OkapiUser('service_admin', 'admin'))
+            configureTenant(tenant)
+        }
+    }
+
+    void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
+        if (superTenant.adminUser) {
             lockSuperTenant(superTenant)
         }
         tenants.each { tenantId, tenant ->
-            createTenant(tenant)
-            tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
-            tenantInstall(tenant, tenant.modules.installJson, 900000)
-            if (tenant.adminUser) {
-                createAdminUser(tenant)
-                createAdminUser(tenant, new OkapiUser('service_admin', 'admin'))
-                configureTenant(tenant)
-            }
+            createTenantFlow(tenant)
         }
         if (enableConsortia) {
             consortia.setUpConsortia(tenants.values().findAll { it instanceof OkapiTenantConsortia })
@@ -76,26 +103,6 @@ class Main extends Okapi {
         if (tenant.index?.run) {
             runIndexInstance(tenant)
         }
-    }
-
-    void lockSuperTenant(OkapiTenant superTenant) {
-        if (superTenant.tenantId != 'supertenant') {
-            logger.error("${superTenant.tenantId} is not a supertenant")
-        }
-        Map modules = requiredModules()
-        superTenant.adminUser.setPermissions(Constants.OKAPI_SUPER_USER_PERMISSIONS)
-        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds([modules['mod-users'], modules['mod-permissions'], modules['mod-login']], 'enable'))
-        createOkapiUser(superTenant, superTenant.adminUser)
-        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds([modules['mod-authtoken']], 'enable'))
-        createOkapiUser(superTenant, new OkapiUser('testing_admin', 'admin')
-            .withPermissions(Constants.OKAPI_SUPER_USER_PERMISSIONS))
-    }
-
-    void unlockSuperTenant(OkapiTenant superTenant) {
-        if (superTenant.tenantId != 'supertenant') {
-            logger.error("${superTenant.tenantId} is not a supertenant")
-        }
-        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds(requiredModules().values().toList(), 'enable'))
     }
 
     private Map requiredModules() {
