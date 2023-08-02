@@ -81,7 +81,7 @@ def jobParameters = [
     password: 'admin',
     cypressParameters: "--env grepTags=\"smoke criticalPth extendedPath\",grepFilterSpecs=true",
     customBuildName: JOB_BASE_NAME,
-    timeout: '4',
+    timeout: '6',
     testrailProjectID: '14',
     testrailRunID: '2108',
     numberOfWorkers: '4',
