@@ -150,7 +150,7 @@ ansiColor('xterm') {
             stage('Init') {
                 buildName "${params.rancher_cluster_name}-${params.rancher_project_name}.${params.action}"
                 buildDescription "action: ${params.action} project\n"
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         String namespaceLabels = kubectl.getLabelsFromNamespace(params.rancher_project_name)
                         def labels = new groovy.json.JsonSlurperClassic().parseText(namespaceLabels)
@@ -168,7 +168,7 @@ ansiColor('xterm') {
             }
             if (params.action == 'stop') {
                 stage("Downscale namespace replicas") {
-                    folioHelm.withK8sClient {
+                    helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
 
                         if (weekendsLabelKeyExists == true || (tonightLabelKeyExists == true && (dayOfWeek == Calendar.MONDAY || dayOfWeek == Calendar.TUESDAY || dayOfWeek == Calendar.WEDNESDAY || dayOfWeek == Calendar.THURSDAY))) {
@@ -202,7 +202,7 @@ ansiColor('xterm') {
             }
             else if (params.action == 'start') {
                 stage("Upscale namespace replicas") {
-                    folioHelm.withK8sClient {
+                    helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, params.rancher_cluster_name)
                         String configMap = kubectl.getConfigMap('deployments-replica-count-json', params.rancher_project_name, 'deployments_replica_count_table_json')
                         def deployments_list = new groovy.json.JsonSlurperClassic().parseText(configMap)

@@ -122,7 +122,7 @@ ansiColor('xterm') {
 
             stage('Restore preparation') {
                 if (project_config.getRestoreFromBackup()) {
-                    folioHelm.withK8sClient {
+                    helm.k8sClient {
                         project_config.backupFilesPath = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/${project_config.getBackupType()}/${project_config.getBackupName()}/${project_config.getBackupName()}"
                         project_config.installJson = new Tools(this).jsonParse(awscli.getS3FileContent("${project_config.getBackupFilesPath()}-install.json"))
                         project_config.uiBundleTag = awscli.getS3FileContent("${project_config.getBackupFilesPath()}-image-tag.txt")
@@ -166,7 +166,7 @@ ansiColor('xterm') {
 
                 if (!params.pg_embedded && project_config.getRestoreFromBackup() && project_config.getBackupType() == 'rds') {
                     if (project_config.getBackupName()?.trim()) {
-                        folioHelm.withK8sClient {
+                        helm.k8sClient {
                             project_config.backupEngineVersion = awscli.getRdsClusterSnapshotEngineVersion("us-west-2", project_config.getBackupName())
                             project_config.backupMasterUsername = awscli.getRdsClusterSnapshotMasterUsername("us-west-2", project_config.getBackupName())
                         }
@@ -258,7 +258,7 @@ ansiColor('xterm') {
                     Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
                     if (install_edge_map) {
                         new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                        folioHelm.withK8sClient {
+                        helm.k8sClient {
                             awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                             install_edge_map.each { name, version ->
                                 kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")

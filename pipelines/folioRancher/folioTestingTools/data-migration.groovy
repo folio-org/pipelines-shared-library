@@ -80,12 +80,12 @@ ansiColor('xterm') {
                     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     resultMap[moduleName] = [srcVersion: moduleVersion]
                 }
-
+                
                 dstInstallJson.each { item ->
                     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     if (!resultMap.containsKey(moduleName)) {
                         // Create an empty map if it doesn't exist
-                        resultMap[moduleName] = [:]
+                        resultMap[moduleName] = [:] 
                     }
                     resultMap[moduleName]['dstVersion'] = moduleVersion
                 }
@@ -105,7 +105,7 @@ ansiColor('xterm') {
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, true)
 
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                    
                 }
             }
 
@@ -115,7 +115,7 @@ ansiColor('xterm') {
                             rancher_project_name, params.folio_repository, params.folio_branch_src,
                             okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
 
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false                  
                 }
             }
 
@@ -132,13 +132,13 @@ ansiColor('xterm') {
                         string(name: 'admin_password', value: admin_password)
                     ]
             }
-
+            
             stage('Generate Data Migration Time report') {
                 sleep time: 5, unit: 'MINUTES'
 
                 // Get logs about activating modules from elasticseach
-                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
-
+                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime) 
+                
                 // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
                 def tenants = []
                 result.hits.hits.each {
@@ -155,12 +155,12 @@ ansiColor('xterm') {
                     }
 
                     if (moduleName.startsWith("mod-") && resultMap[moduleName].dstVersion == moduleVersion) {
-                        def bindingMap = [tenantName: parsedMigrationInfo[3],
+                        def bindingMap = [tenantName: parsedMigrationInfo[3], 
                                             moduleInfo: [moduleName: moduleName,
                                                 moduleVersionDst: resultMap[moduleName].dstVersion,
                                                 moduleVersionSrc: resultMap[moduleName].srcVersion,
                                                 execTime: time]]
-
+                    
                         tenants += new DataMigrationTenant(bindingMap)
                     }
                 }
@@ -173,7 +173,7 @@ ansiColor('xterm') {
                     modulesLongMigrationTimeSlack += modulesLongMigrationTime
                     modulesMigrationFailedSlack += modulesMigrationFailed
                     writeFile file: "reportTime/${tenantName}.html", text: htmlData
-                }
+                }         
             }
 
             stage('Create clean tenant') {
@@ -193,7 +193,7 @@ ansiColor('xterm') {
             }
 
             stage('Get schemas difference') {
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
                         // Get team assigments
                         def teamAssignment = dataMigrationReport.getTeamAssignment()
@@ -204,24 +204,24 @@ ansiColor('xterm') {
                             host     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_HOST'),
                             user     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_USERNAME'),
                             db       : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_DATABASE'),
-                            port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')
+                            port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')                                    
                         ]
 
                         // Preparation steps, creating Atlas and psql clien pods
                         def atlasPod = "atlas"
                         kubectl.runPodWithCommand(rancher_project_name, atlasPod, 'arigaio/atlas:0.10.1-alpine')
-
+                        
                         // Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS
                         def psqlPod = "psql-client"
                         kubectl.runPodWithCommand(rancher_project_name, psqlPod, 'andreswebs/postgresql-client')
-
+                        
                         // Getting list of schemas for fs09000000 and clean tenants
                         def srcSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id, psqlConnection)
                         def dstSchemasList = getSchemaTenantList(rancher_project_name, psqlPod, tenant_id_clean, psqlConnection)
 
                         def groupedValues = [:]
                         def uniqueValues = []
-
+                        
                         srcSchemasList.each { srcValue ->
                             def currentSuffix = srcValue.split('_')[1..-1].join('_')
                             dstSchemasList.each { dstValue ->
@@ -234,7 +234,7 @@ ansiColor('xterm') {
                                 uniqueValues.add(srcValue)
                             }
                         }
-
+                        
                         dstSchemasList.each { dstValue ->
                             def newSuffix = dstValue.split('_')[1..-1].join('_')
                             def alreadyGrouped = false
@@ -248,12 +248,12 @@ ansiColor('xterm') {
                                 uniqueValues.add(dstValue)
                             }
                         }
-
-                        // Make list with unique schemas
+                        
+                        // Make list with unique schemas 
                         if (uniqueValues) {
                             diff.put("Unique schemas", "Please check list of unique Schemas:\n $uniqueValues")
                         }
-
+                        
                         groupedValues.each {
                             try {
                                 def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.value}'"
@@ -282,10 +282,10 @@ ansiColor('xterm') {
                         } else {
                             diff.put('All schemas', 'Schemas are synced, no changes to be made.')
                             diffHtmlData = dataMigrationReport.createDiffHtmlReport(diff, pgadminURL)
-                        }
+                        } 
                         writeFile file: "reportSchemas/diff.html", text: diffHtmlData
-                }
-            }
+                }                
+            }       
 
         } catch (exception) {
             currentBuild.result = 'FAILURE'
@@ -318,13 +318,13 @@ ansiColor('xterm') {
                     println "Waiting to destroy 6 hours"
                     sleep time: 6, unit: 'HOURS'
                 }
-
+                
                 def jobParameters = getEnvironmentJobParameters('destroy', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
                         okapiVersion, tenant_id, admin_username, admin_password, params.backup_name)
 
                 build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-            }
+            }    
 
             stage('Cleanup') {
                 cleanWs notFailBuild: true
@@ -337,16 +337,16 @@ ansiColor('xterm') {
 def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     println("Getting schemas list for $tenantId tenant")
     def getSchemasListCommand = """psql 'postgres://${dbParams.user}:${dbParams.password}@${dbParams.host}:${dbParams.port}/${dbParams.db}' --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}_%'\""""
-
+    
     kubectl.waitPodIsRunning(namespace, psqlPod)
     def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
     return schemasList.split('\n').collect({it.trim()})
 }
 
-private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository,
+private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository, 
                                          String folio_branch, String okapiVersion, String tenant_id, String admin_username,
-                                         String admin_password, String backup_name, boolean restore_from_backup = false,
-                                         boolean load_reference = false, boolean load_sample = false, boolean pg_embedded = false,
+                                         String admin_password, String backup_name, boolean restore_from_backup = false, 
+                                         boolean load_reference = false, boolean load_sample = false, boolean pg_embedded = false, 
                                          boolean kafka_shared = true, boolean opensearch_shared = true, boolean s3_embedded = false) {
     [
         string(name: 'action', value: action),

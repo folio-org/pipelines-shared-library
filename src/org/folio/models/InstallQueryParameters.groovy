@@ -2,73 +2,45 @@ package org.folio.models
 
 /**
  * This class defines the parameters required for installation query.
- * It provides chainable setter methods following builder pattern for ease of use.
  */
-class InstallRequestParams implements Cloneable {
-
-    /** Asynchronous processing flag. */
+class InstallQueryParameters implements Cloneable {
     boolean async
-
-    /** Flag indicating if errors should be ignored. */
     boolean ignoreErrors
-
-    /** Flag indicating if reinstall is necessary. */
     boolean reinstall
-
-    /** Simulation mode flag. */
     boolean simulate
-
-    /** Additional tenant parameters for the install request. */
     String tenantParameters
 
-    /**
-     * Chainable setter for the async flag.
-     * @param async The new value for the async flag.
-     * @return The updated InstallRequestParams object.
-     */
-    InstallRequestParams withAsync(boolean async) {
+    InstallQueryParameters withAsync(boolean async) {
         this.async = async
         return this
     }
 
-    /**
-     * Chainable setter for the ignoreErrors flag.
-     * @param ignoreErrors The new value for the ignoreErrors flag.
-     * @return The updated InstallRequestParams object.
-     */
-    InstallRequestParams withIgnoreErrors(boolean ignoreErrors) {
+    InstallQueryParameters withIgnoreErrors(boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors
         return this
     }
 
-    /**
-     * Chainable setter for the reinstall flag.
-     * @param reinstall The new value for the reinstall flag.
-     * @return The updated InstallRequestParams object.
-     */
-    InstallRequestParams withReinstall(boolean reinstall) {
+    InstallQueryParameters withReinstall(boolean reinstall) {
         this.reinstall = reinstall
         return this
     }
 
-    /**
-     * Chainable setter for the simulate flag.
-     * @param simulate The new value for the simulate flag.
-     * @return The updated InstallRequestParams object.
-     */
-    InstallRequestParams withSimulate(boolean simulate) {
+    InstallQueryParameters withSimulate(boolean simulate) {
         this.simulate = simulate
         return this
     }
 
-    /**
-     * Chainable setter for the tenantParameters string.
-     * @param tenantParameters The new tenant parameters.
-     * @return The updated InstallRequestParams object.
-     */
-    InstallRequestParams withTenantParameters(String tenantParameters) {
+    InstallQueryParameters withTenantParameters(String tenantParameters) {
         this.tenantParameters = "tenantParameters=" + encode(tenantParameters)
         return this
+    }
+
+    InstallQueryParameters clone() {
+        try {
+            super.clone() as InstallQueryParameters
+        } catch(CloneNotSupportedException e) {
+            throw new AssertionError('This should not happen: ' + e)
+        }
     }
 
     /**
@@ -118,7 +90,7 @@ class InstallRequestParams implements Cloneable {
      */
     String toQueryString() {
         def parameters = [:]
-        def defaultValues = new InstallRequestParams()
+        def defaultValues = new InstallQueryParameters()
 
         this.properties.each { property ->
             if (!defaultValues.properties.containsKey(property.key) || this[property.key] != defaultValues[property.key]) {

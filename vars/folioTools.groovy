@@ -1,7 +1,3 @@
-import org.folio.Constants
-import org.folio.utilities.HttpClient
-import org.folio.utilities.RestClient
-
 void deleteOpenSearchIndices(String cluster, String namespace) {
     String opensearch_url = kubectl.getSecretValue(namespace, 'db-connect-modules', 'ELASTICSEARCH_URL')
     String opensearch_username = kubectl.getSecretValue(namespace, 'db-connect-modules', 'ELASTICSEARCH_USERNAME')
@@ -24,24 +20,4 @@ void deleteKafkaTopics(String cluster, String namespace) {
     kubectl.waitPodIsRunning('kafka')
     kubectl.execCommand('kafka', delete_topic_command)
     kubectl.deletePod('kafka')
-}
-
-List getGitHubTeamsIds(String teams) {
-    withCredentials([usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
-        String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
-        Map headers = ["Authorization": "Bearer ${token}"]
-        List response = new RestClient(this).get(url, headers).body
-
-        List ids = []
-        teams.replaceAll("\\s", "").tokenize(',').each { team ->
-            if (team != 'null') {
-                try {
-                    ids.add(response.find { it["name"] == team }["id"])
-                } catch (e) {
-                    println(e.getMessage())
-                }
-            }
-        }
-        return ids
-    }
 }

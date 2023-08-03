@@ -52,7 +52,7 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
             }
             break
         case "destroy":
-            folioHelm.withK8sClient {
+            helm.k8sClient {
                 awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                 folioTools.deleteOpenSearchIndices(project_config.getClusterName(), project_config.getProjectName())
                 folioTools.deleteKafkaTopics(project_config.getClusterName(), project_config.getProjectName())
@@ -83,22 +83,22 @@ void project(Project project_config, OkapiTenant tenant, String tf_work_dir, Str
 }
 
 void okapi(Project project_config) {
-    String values_path = folioHelm.generateModuleValues('okapi', project_config.getTenant().getOkapiVersion(), project_config, project_config.getDomains().okapi)
-    folioHelm.withK8sClient {
+    String values_path = helm.generateModuleValues('okapi', project_config.getTenant().getOkapiVersion(), project_config, project_config.getDomains().okapi)
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
-        folioHelm.upgrade('okapi', project_config.getProjectName(), "${values_path}/okapi.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'okapi')
+        helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        helm.upgrade('okapi', project_config.getProjectName(), "${values_path}/okapi.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'okapi')
     }
 }
 
 void backend(Map install_backend_map, Project project_config, Boolean custom_module = false, Boolean enable_rw_split = false) {
-    folioHelm.withK8sClient {
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         install_backend_map.each { name, version ->
             if (name.startsWith("mod-")) {
-                String values_path = folioHelm.generateModuleValues(name, version, project_config, '', custom_module, enable_rw_split)
-                folioHelm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, name)
+                String values_path = helm.generateModuleValues(name, version, project_config, '', custom_module, enable_rw_split)
+                helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not a backend module")
             }
@@ -107,13 +107,13 @@ void backend(Map install_backend_map, Project project_config, Boolean custom_mod
 }
 
 void edge(Map install_edge_map, Project project_config, Boolean custom_module = false) {
-    folioHelm.withK8sClient {
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
         install_edge_map.each { name, version ->
             if (name.startsWith("edge-")) {
-                String values_path = folioHelm.generateModuleValues(name, version, project_config, project_config.getDomains().edge, custom_module)
-                folioHelm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, name)
+                String values_path = helm.generateModuleValues(name, version, project_config, project_config.getDomains().edge, custom_module)
+                helm.upgrade(name, project_config.getProjectName(), "${values_path}/${name}.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, name)
             } else {
                 new Logger(this, "folioDeploy").warning("${name} is not an edge module")
             }
@@ -122,19 +122,19 @@ void edge(Map install_edge_map, Project project_config, Boolean custom_module = 
 }
 
 void uiBundle(String tenant_id, Project project_config) {
-    String values_path = folioHelm.generateModuleValues('ui-bundle', project_config.getUiBundleTag(), project_config, project_config.getDomains().ui)
-    folioHelm.withK8sClient {
+    String values_path = helm.generateModuleValues('ui-bundle', project_config.getUiBundleTag(), project_config, project_config.getDomains().ui)
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
-        folioHelm.upgrade("${tenant_id}-ui-bundle", project_config.getProjectName(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'platform-complete')
+        helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        helm.upgrade("${tenant_id}-ui-bundle", project_config.getProjectName(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'platform-complete')
     }
 }
 
 void greenmail(Project project_config) {
-    folioHelm.withK8sClient {
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, false)
-        folioHelm.upgrade("greenmail", project_config.getProjectName(), "''", Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")
+        helm.addRepo(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, false)
+        helm.upgrade("greenmail", project_config.getProjectName(), "''", Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")
     }
 }
 
@@ -145,14 +145,14 @@ void ldp_server(tenant, Project project_config, admin_user, superadmin_user, Ldp
     new Okapi(this, "https://${project_config.getDomains().okapi}", superadmin_user).configureLdpSavedQueryRepo(tenant, admin_user,
         new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_sqconfig.json.template", ldpConfig,
             db_host, "folio_modules", "postgres", folio_db_password))
-    folioHelm.withK8sClient {
+    helm.k8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
 
         new Tools(this).createFileFromString("ldpconf.json", new Tools(this).build_ldp_setting_json(project_config, admin_user as OkapiUser, "ldp_ldpconf.json.template", ldpConfig,
             db_host, "folio_modules", "postgres", folio_db_password))
         kubectl.createConfigMap("ldpconf", project_config.getProjectName(), "./ldpconf.json")
 
-        folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
-        folioHelm.upgrade("ldp-server", project_config.getProjectName(), "''", Constants.FOLIO_HELM_V2_REPO_NAME, "ldp-server")
+        helm.addRepo(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        helm.upgrade("ldp-server", project_config.getProjectName(), "''", Constants.FOLIO_HELM_V2_REPO_NAME, "ldp-server")
     }
 }

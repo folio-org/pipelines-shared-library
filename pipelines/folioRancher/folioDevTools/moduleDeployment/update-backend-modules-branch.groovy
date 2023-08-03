@@ -125,9 +125,9 @@ ansiColor('xterm') {
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
 
                 if (update_modules.updateMap) {
-                    folioDeploy.backend(update_modules.updateMap,
-                        project_config,
-                        false,
+                    folioDeploy.backend(update_modules.updateMap, 
+                        project_config, 
+                        false, 
                         params.enable_rw_split)
                 }
             }
@@ -176,7 +176,7 @@ ansiColor('xterm') {
 
                 if (update_modules.updateMap) {
                     new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(update_modules.updateMap, tenant, admin_user)
-                    folioHelm.withK8sClient {
+                    helm.k8sClient {
                         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                         update_modules.updateMap.each {name, version ->
                             kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")

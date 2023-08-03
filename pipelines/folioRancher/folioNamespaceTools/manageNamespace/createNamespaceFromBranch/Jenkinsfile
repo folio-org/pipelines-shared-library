@@ -1,198 +1,181 @@
 #!groovy
+import groovy.json.JsonOutput
 import org.folio.Constants
-import org.folio.models.Index
-import org.folio.models.InstallRequestParams
+import org.folio.models.InstallQueryParameters
+import org.folio.models.Modules
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
-import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Edge
 import org.folio.rest_v2.Main
+import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//TODO remove branch before merge to master
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+LIB_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  buildDiscarder(logRotator(numToKeepStr: '30')),
+  buildDiscarder(logRotator(numToKeepStr: '20')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
-    folioParameters.namespace(),
-    folioParameters.branch(),
-    folioParameters.okapiVersion(),
-    folioParameters.configType(),
-    folioParameters.loadReference(),
-    folioParameters.loadSample(),
-    booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
-    booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
-    booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
-    folioParameters.pgType(),
-    folioParameters.kafkaType(),
-    folioParameters.opensearchType(),
-    folioParameters.s3Type(),
-    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
+      jobsParameters.clusterName(),
+      jobsParameters.projectName(),
+      jobsParameters.repository(),
+      jobsParameters.branch(),
+      jobsParameters.okapiVersion(),
+      jobsParameters.configType(),
+      jobsParameters.loadReference(),
+      jobsParameters.loadSample(),
+      booleanParam(name: 'pg_embedded', defaultValue: true, description: '(Optional) Embedded PostgreSQL or AWS RDS'),
+      booleanParam(name: 'kafka_shared', defaultValue: false, description: '(Optional) Use shared AWS MSK service or embedded Kafka'),
+      booleanParam(name: 'opensearch_shared', defaultValue: true, description: '(Optional) Use shared AWS OpenSearch service or embedded OpenSearch'),
+      booleanParam(name: 's3_embedded', defaultValue: true, description: '(Optional) Use embedded Minio or AWS S3 service'),
+      booleanParam(name: 'pgadmin4', defaultValue: true, description: '(Optional) Deploy pgAdmin4 service'),
+      booleanParam(name: 'greenmail_server', defaultValue: false, description: '(Optional) Deploy greenmail server'),
+      booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
+      booleanParam(name: 'enable_consortia', defaultValue: false, description: '(Optional) Enable Consortia'),
+      string(name: 'namespace_members', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
+      jobsParameters.agents(),
+      jobsParameters.refreshParameters()
   ])
 ])
 
-String defaultTenantId = 'diku'
+String commitHash = common.getLastCommitHash(params.folio_repository, params.folio_branch)
+InstallQueryParameters installQueryParameters = new InstallQueryParameters()
+  .withTenantParameters("loadReference=${params.load_reference},loadSample=${params.load_sample}")
 
-//Set terraform configuration
-TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
-
-tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
-tfConfig.addVar('rancher_project_name', params.NAMESPACE)
-tfConfig.addVar('tenant_id', defaultTenantId)
-tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
-tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
-tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
-tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
-tfConfig.addVar('pgadmin4', 'true')
-tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
-tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
-
-//Set namespace configuration
-String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
-List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
-TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
-
-RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+RancherNamespace ns = new RancherNamespace(params.rancher_cluster_name, params.rancher_project_name)
   .withSuperTenantAdminUser()
-  .withOkapiVersion(params.OKAPI_VERSION)
-  .withDefaultTenant(defaultTenantId)
-  .withDeploymentConfigType(params.CONFIG_TYPE)
+  .withOkapiVersion(params.okapi_version)
+  .withInstallJson(new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch))
+  .withDefaultTenant('diku')
+  .withDeploymentConfigBranch(LIB_BRANCH)
+  .withDeploymentConfigType(params.config_type)
+  .withEnableRwSplit(params.enable_rw_split)
+  .withEnableConsortia(params.enable_consortia)
 
-namespace.setEnableRwSplit(params.RW_SPLIT)
-namespace.addDeploymentConfig(CONFIG_BRANCH)
-namespace.getModules().setInstallJson(installJson)
-
-namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-  .withInstallJson(namespace.getModules().getInstallJson().collect())
-  .withIndex(new Index(true, true))
-  .withInstallRequestParams(installRequestParams.clone())
-  .withTenantUi(tenantUi.clone())
+ns.addTenant(folioDefault.tenants()[ns.defaultTenantId]
+  .withInstallJson(ns.modules.installJson.collect())
+  .withIndex(true, true)
+  .withInstallQueryParameters(installQueryParameters)
+  .withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
 )
 
-if (params.CONSORTIA) {
-  namespace.setEnableConsortia(true)
-  folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-    if (tenant.getIsCentralConsortiaTenant()) {
-      tenant.withTenantUi(tenantUi.clone())
+if (params.enable_consortia) {
+  folioDefault.consortiaTenants(ns.modules.installJson.collect(), installQueryParameters).each { tenantId, tenant ->
+    if (tenant.isCentralConsortiaTenant) {
+      tenant.withTenantUi(new TenantUi(ns.terraformWorkspace, commitHash, params.folio_branch))
     }
-    namespace.addTenant(tenant)
+    ns.addTenant(tenant)
   }
 }
 
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-Edge edge = new Edge(this, namespace.getDomains()['okapi'])
+//Generate terraform variables
+ns.addTerraformVar('rancher_cluster_name', ns.clusterName)
+ns.addTerraformVar('rancher_project_name', ns.namespaceName)
+ns.addTerraformVar('tenant_id', ns.defaultTenantId)
+ns.addTerraformVar('pg_password', jobsParameters.pgDefaultPassword())
+ns.addTerraformVar('pgadmin_password', jobsParameters.pgAdminDefaultPassword())
+ns.addTerraformVar('pg_embedded', params.pg_embedded)
+ns.addTerraformVar('kafka_shared', params.kafka_shared)
+ns.addTerraformVar('opensearch_shared', params.opensearch_shared)
+ns.addTerraformVar('s3_embedded', params.s3_embedded)
+ns.addTerraformVar('pgadmin4', params.pgadmin4)
+ns.addTerraformVar('enable_rw_split', ns.enableRwSplit)
+ns.addTerraformVar('pg_ldp_user_password', jobsParameters.pgLdpUserDefaultPassword())
+ns.addTerraformVar('github_team_ids', new Tools(this).getGitHubTeamsIds([] + Constants.ENVS_MEMBERS_LIST[ns.namespaceName] - null).collect { '"' + it + '"' })
+
+String terraformHomeDir = 'terraform/rancher/project'
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
+  if (params.refresh_parameters) {
     currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+    println('REFRESH JOB PARAMETERS!')
+    return
   }
-  node(params.AGENT) {
+  node(params.agent) {
     try {
-      stage('Ini') {
-        buildName "${tfConfig.getWorkspace()}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\nRW split: ${params.RW_SPLIT}\nConsortia: ${params.CONSORTIA}"
-      }
-
       stage('Checkout') {
         checkout scm
       }
-
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-      if (params.GREENMAIL) {
-        stage('[Helm] Deploy greenmail') {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployGreenmail(namespace.getNamespaceName())
+      stage('Ini') {
+        buildName "${ns.clusterName}.${ns.namespaceName}.${env.BUILD_ID}"
+        buildDescription "repository: ${params.folio_repository}\n" +
+          "branch: ${params.folio_branch}\n" +
+          "base_tenant: ${ns.tenants[ns.defaultTenantId].tenantId}\n" +
+          "config_type: ${ns.deploymentConfigType}"
+      }
+      stage('Create namespace') {
+        folioTerraform.createNamespace(ns.terraformWorkspace, terraformHomeDir, folioTerraform.generateTfVars(ns.terraformVars))
+      }
+      stage('Deploy folio modules') {
+        folioHelm.withKubeConfig(ns.clusterName) {
+          stage('Deploy okapi') {
+            folioHelm.deployFolioModule(ns, 'okapi', ns.okapiVersion)
+            folioHelm.checkPodRunning(ns.namespaceName, 'okapi')
+          }
+          stage('Deploy backend modules') {
+            folioHelm.deployFolioModulesParallel(ns, ns.modules.backendModules)
+            folioHelm.checkAllPodsRunning(ns.namespaceName)
           }
         }
       }
-
-      stage('[Helm] Deploy Okapi') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-          folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
-        }
-      }
-
-      stage('[Rest] Okapi healthcheck') {
+      stage('Okapi healthcheck') {
         sleep time: 3, unit: 'MINUTES'
-        common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+        common.healthCheck("https://${ns.domains['okapi']}/_/proxy/health")
       }
-
-      stage('[Rest] Preinstall') {
-        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+      stage('Install') {
+        new Main(this, ns.domains['okapi'], ns.superTenant)
+          .initializeFromScratch(ns.tenants, ns.modules.installJson, ns.modules.discoveryList, ns.enableConsortia)
       }
-
-      stage('[Helm] Deploy backend') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-        }
-      }
-
-      stage('[Rest] Initialize') {
-        sleep time: 3, unit: 'MINUTES'
-        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-      }
-
-      stage('[Rest] Configure edge') {
-        edge.renderEphemeralProperties(namespace.getTenants()[namespace.getDefaultTenantId()])
-        edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
-      }
-
-      stage('[Helm] Deploy edge') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          namespace.getModules().getEdgeModules().each { name, version ->
-            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+      stage('Deploy edge modules') {
+        Edge edge = new Edge(this, ns.domains['okapi'])
+        edge.renderEphemeralProperties(ns.tenants[ns.defaultTenantId])
+        edge.createEdgeUsers(ns.tenants[ns.defaultTenantId])
+        folioHelm.withKubeConfig(ns.clusterName) {
+          ns.modules.edgeModules.each { name, version ->
+            kubectl.createConfigMap("${name}-ephemeral-properties", ns.namespaceName, "./${name}-ephemeral-properties")
           }
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+          folioHelm.deployFolioModulesParallel(ns, ns.modules.edgeModules)
         }
       }
-
       stage('Build and deploy UI') {
         Map branches = [:]
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
+        ns.tenants.each { tenantId, tenant ->
+          if (tenant.tenantUi) {
+            TenantUi tenantUi = tenant.tenantUi
             branches[tenantId] = {
               def jobParameters = [
-                tenant_id  : ui.getTenantId(),
-                custom_hash: ui.getHash(),
-                custom_url : "https://${namespace.getDomains()['okapi']}",
-                custom_tag : ui.getTag()
+                tenant_id  : tenantUi.tenantId,
+                custom_hash: tenantUi.hash,
+                custom_url : "https://${ns.domains['okapi']}",
+                custom_tag : tenantUi.tag
               ]
               uiBuild(jobParameters)
-              folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              folioHelm.withKubeConfig(ns.clusterName) {
+                folioHelm.deployFolioModule(ns, 'ui-bundle', tenantUi.tag, false, tenantUi.tenantId)
               }
             }
           }
         }
         parallel branches
       }
-
       stage('Deploy ldp') {
         println('LDP deployment')
       }
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
+      if (params.greenmail_server) {
+        stage('Deploy greenmail') {
+          folioHelm.withKubeConfig(ns.clusterName) {
+            folioHelm.deployGreenmail(ns.namespaceName)
+          }
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     } finally {
       stage('Cleanup') {
+//        println(JsonOutput.prettyPrint(JsonOutput.toJson(ns)))
         cleanWs notFailBuild: true
       }
     }

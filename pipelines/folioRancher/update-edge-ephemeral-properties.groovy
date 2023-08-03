@@ -96,7 +96,7 @@ ansiColor('xterm') {
                 String contentOfNewConfigMap = ""
                 boolean existsTenant
 
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                     // Get data from existing ConfigMap
                     def existingConfigMap = kubectl.getConfigMap(configMapName, params.rancher_project_name, configMapName)
@@ -124,7 +124,7 @@ ansiColor('xterm') {
                 }
             }
             stage("Rollout Deployment") {
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
                     kubectl.rolloutDeployment(params.edge_module, project_config.getProjectName())
                 }

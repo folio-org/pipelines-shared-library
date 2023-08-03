@@ -43,7 +43,7 @@ ansiColor('xterm') {
     node('rancher||jenkins-agent-java11') {
         try {
             stage("Cleanup us-west-2 ui-bundle repo") {
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     String image_list = awscli.listEcrImages(Constants.AWS_REGION, ui_bundle_repo_name)
                     cluster_project_map.each {cluster, project ->
                         project.each {value->
@@ -61,7 +61,7 @@ ansiColor('xterm') {
             }
             stage("Cleanup us-west-2 mod-* and okapi repos") {
                 def backend_modules_list = getBackendModulesList()
-                folioHelm.withK8sClient {
+                helm.k8sClient {
                     backend_modules_list.each { module_repo ->
                         if (!awscli.isEcrRepoExist(Constants.AWS_REGION, module_repo)) {
                             String image_list = awscli.listEcrImages(Constants.AWS_REGION, module_repo.toString())
