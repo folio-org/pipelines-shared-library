@@ -28,6 +28,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson, InstallRe
         smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
         kbApiKey = KB_API_KEY
     }
+    installQueryParameters.addTenantParameter('centralTenantId','consortium')
     return [
         consortium: new OkapiTenantConsortia('consortium', true)
             .withTenantName('Consortium')

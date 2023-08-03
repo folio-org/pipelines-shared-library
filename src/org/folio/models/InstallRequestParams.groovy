@@ -77,7 +77,7 @@ class InstallRequestParams implements Cloneable {
      * @param key The parameter key.
      * @param value The parameter value.
      */
-    void addTenantParameter(String key, boolean value) {
+    void addTenantParameter(String key, String value) {
         StringBuilder sb = new StringBuilder(this.tenantParameters)
         if (this.tenantParameters?.isEmpty()) {
             sb.append("tenantParameters=").append(encode("${key}=${value}"))
@@ -86,6 +86,12 @@ class InstallRequestParams implements Cloneable {
         }
         this.tenantParameters = sb.toString()
     }
+
+    // method overloading, to accept boolean and string values
+    void addTenantParameter(String key, boolean value) {
+        addTenantParameter(key, String.valueOf(value))
+    }
+
 
     /**
      * Removes a tenant parameter.
