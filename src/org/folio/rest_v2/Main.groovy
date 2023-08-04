@@ -23,6 +23,16 @@ class Main extends Okapi {
         publishServiceDiscovery(discoveryList)
     }
 
+    void simulateInstall (OkapiTenant tenant, Object installJson){
+        if (!tenant.getInstallQueryParameters().getSimulate()) {
+            logger.warning("Simulation not requested!")
+            return
+        }
+        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
+        tenantInstall(tenant, installJson)
+        tenant.installQueryParameters.simulate = false
+    }
+
     void lockSuperTenant(OkapiTenant superTenant) {
         if (superTenant.tenantId != 'supertenant') {
             logger.error("${superTenant.tenantId} is not a supertenant")
