@@ -70,18 +70,18 @@ def configType() {
     return _paramChoice('CONFIG_TYPE', Constants.AWS_EKS_NAMESPACE_CONFIGS, 'Select deployment config type')
 }
 
-def pgType() {
-    return _paramChoice('POSTGRESQL', Constants.AWS_INTEGRATED_SERVICE_TYPE, 'Select build agent')
+def pgType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
+    return _paramChoice('POSTGRESQL', value, 'Select built-in PostgreSQL or AWS RDS')
 }
 
-def kafkaType() {
-    return _paramChoice('KAFKA', Constants.AWS_INTEGRATED_SERVICE_TYPE, 'Select build agent')
+def kafkaType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
+    return _paramChoice('KAFKA', value, 'Select built-in Kafka or AWS MSK')
 }
 
-def opensearchType() {
-    return _paramChoice('OPENSEARCH', Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse(), 'Select build agent')
+def opensearchType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse()) {
+    return _paramChoice('OPENSEARCH', value, 'Select built-in OpenSearch or AWS OpenSearch')
 }
 
-def s3Type() {
-    return _paramChoice('S3_BUCKET', Constants.AWS_INTEGRATED_SERVICE_TYPE, 'Select build agent')
+def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
+    return _paramChoice('S3_BUCKET', value, 'Select built-in Minio or AWS S3')
 }

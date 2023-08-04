@@ -66,6 +66,15 @@ class Main extends Okapi {
         }
     }
 
+    void update(Map<String, OkapiTenant> tenants){
+        tenants.each { tenantId, tenant ->
+            tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
+            tenantInstall(tenant, tenant.modules.installJson, 900000)
+            configureTenant(tenant)
+        }
+
+    }
+
     void createOkapiUser(OkapiTenant tenant, OkapiUser user) {
         users.createUser(tenant, user)
         permissions.createUserPermissions(tenant, user)
