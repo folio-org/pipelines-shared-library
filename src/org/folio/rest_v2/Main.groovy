@@ -54,6 +54,10 @@ class Main extends Okapi {
         }
     }
 
+    void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants){
+        consortia.setUpConsortia(consortiaTenants)
+    }
+
     void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
         if (superTenant.adminUser) {
             lockSuperTenant(superTenant)
@@ -62,7 +66,7 @@ class Main extends Okapi {
             createTenantFlow(tenant)
         }
         if (enableConsortia) {
-            consortia.setUpConsortia(tenants.values().findAll { it instanceof OkapiTenantConsortia })
+            setUpConsortia(tenants.values().findAll { it instanceof OkapiTenantConsortia })
         }
     }
 
@@ -82,7 +86,7 @@ class Main extends Okapi {
     }
 
     void createAdminUser(OkapiTenant tenant, OkapiUser adminUser = tenant.adminUser) {
-        List<Map> tmpDisableList = tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds([getModuleId('mod-authtoken')], 'disable'))
+        List<Map> tmpDisableList = tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds([getLatestModuleId('mod-authtoken')], 'disable'))
         adminUser.addPermissions(permissions.getAllPermissions(tenant))
         createOkapiUser(tenant, adminUser)
         tenantInstall(tenant, tmpDisableList.reverse().collect { [id: it.id, action: 'enable'] })
@@ -115,9 +119,9 @@ class Main extends Okapi {
     }
 
     private Map requiredModules() {
-        return ['mod-users'      : getModuleId('mod-users'),
-                'mod-permissions': getModuleId('mod-permissions'),
-                'mod-login'      : getModuleId('mod-login'),
-                'mod-authtoken'  : getModuleId('mod-authtoken')]
+        return ['mod-users'      : getLatestModuleId('mod-users'),
+                'mod-permissions': getLatestModuleId('mod-permissions'),
+                'mod-login'      : getLatestModuleId('mod-login'),
+                'mod-authtoken'  : getLatestModuleId('mod-authtoken')]
     }
 }

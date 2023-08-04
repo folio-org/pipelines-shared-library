@@ -156,6 +156,15 @@ class Okapi extends Authorization {
         return moduleId
     }
 
+    String getLatestModuleId(String moduleName) {
+        String url = generateUrl("/_/proxy/modules?filter=${moduleName}&latest=1")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        def response = restClient.get(url, headers).body
+
+        return response[0].id
+    }
+
     boolean isModuleEnabled(String tenantId, String moduleName) {
         String url = generateUrl("/_/proxy/tenants/${tenantId}/modules")
         Map<String, String> headers = getAuthorizedHeaders(superTenant)
@@ -163,6 +172,15 @@ class Okapi extends Authorization {
         def response = restClient.get(url, headers).body
 
         return response.any { it.id.startsWith(moduleName) }
+    }
+
+    List getInstallJson(String tenantId, String action = 'enable') {
+        String url = generateUrl("/_/proxy/tenants/${tenantId}/modules")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        def response = restClient.get(url, headers).body
+
+        return response.collect { it + ['action': action] }
     }
 
 
