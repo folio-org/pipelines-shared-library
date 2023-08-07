@@ -66,7 +66,7 @@ pipeline {
                     def jobParameters = [
                         branch         : params.branch,
                         threadsCount   : "4",
-                        modules        : "",
+                        modules        : "mod-data-export",
                         okapiUrl       : okapiUrl,
                         edgeUrl        : edgeUrl,
                         tenant         : 'supertenant',
