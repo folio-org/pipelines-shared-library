@@ -1,6 +1,6 @@
 package tests.karate
-//TODO switch to primary Library!
-@Library('pipelines-shared-library@RANCHER-916') _
+
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
