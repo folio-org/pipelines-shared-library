@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-916') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -13,9 +13,10 @@ def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
-def prototypeTenant = "diku"
+def prototypeTenant = "consortium"
 
-def spinUpEnvironmentJobName = "/Rancher/Project"
+def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch-916"
+def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
@@ -86,10 +87,9 @@ pipeline {
                 stage("Destroy environment") {
                     steps {
                         script {
-                            def jobParameters = getEnvironmentJobParameters('destroy', okapiVersion, clusterName,
-                                projectName, prototypeTenant, folio_repository, folio_branch)
+                            def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
 
-                            tearDownEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                            tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
                     }
                 }
@@ -157,25 +157,34 @@ pipeline {
 private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
     [
-        string(name: 'action', value: action),
-        string(name: 'config_type', value: "testing"),
-        string(name: 'rancher_cluster_name', value: clusterName),
-        string(name: 'rancher_project_name', value: projectName),
-        string(name: 'okapi_version', value: okapiVersion),
-        booleanParam(name: 'ui_bundle_build', value: true),
-        booleanParam(name: 'enable_modules', value: true),
-        string(name: 'folio_repository', value: folio_repository),
-        string(name: 'folio_branch', value: folio_branch),
-        string(name: 'tenant_id', value: tenant),
-        string(name: 'tenant_name', value: "Karate tenant"),
-        string(name: 'tenant_description', value: "Karate tests main tenant"),
-        booleanParam(name: 'load_reference', value: true),
-        booleanParam(name: 'load_sample', value: true),
-        booleanParam(name: 'pg_embedded', value: true),
-        booleanParam(name: 'kafka_shared', value: false),
-        booleanParam(name: 'opensearch_shared', value: false),
-        booleanParam(name: 's3_embedded', value: true),
-        booleanParam(name: 'greenmail_server', value: true),
-        booleanParam(name: 'enable_rw_split', value: true)
+        string(name: 'CLUSTER', value: clusterName),
+        string(name: 'NAMESPACE', value: projectName),
+        string(name: 'FOLIO_BRANCH', value: folio_branch),
+        string(name: 'OKAPI_VERSION', value: okapiVersion),
+        string(name: 'CONFIG_TYPE', value: "testing"),
+        booleanParam(name: 'LOAD_REFERENCE', value: true),
+        booleanParam(name: 'LOAD_SAMPLE', value: true),
+        booleanParam(name: 'CONSORTIA', value: true),
+        booleanParam(name: 'RW_SPLIT', value: true),
+        booleanParam(name: 'GREENMAIL', value: false),
+        string(name: 'POSTGRESQL', value: 'built-in'),
+        string(name: 'KAFKA', value: 'built-in'),
+        string(name: 'OPENSEARCH', value: 'built-in'),
+        string(name: 'S3_BUCKET', value: 'built-in'),
+        string(name: 'MEMBERS', value: ''),
+        string(name: 'AGENT', value: 'rancher'),
+        booleanParam(name: 'REFRESH_PARAMETERS', value: false)
     ]
+}
+private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
+    [
+        string(name: 'CLUSTER', value: clusterName),
+        string(name: 'NAMESPACE', value: projectName),
+        booleanParam(name: 'RW_SPLIT', value: true),
+        string(name: 'POSTGRESQL', value: 'built-in'),
+        string(name: 'KAFKA', value: 'built-in'),
+        string(name: 'OPENSEARCH', value: 'built-in'),
+        string(name: 'S3_BUCKET', value: 'built-in'),
+        string(name: 'AGENT', value: 'rancher'),
+        booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
