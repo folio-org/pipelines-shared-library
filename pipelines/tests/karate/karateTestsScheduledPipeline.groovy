@@ -1,5 +1,5 @@
 package tests.karate
-
+//TODO switch to primary Library!
 @Library('pipelines-shared-library@RANCHER-916') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
@@ -66,7 +66,7 @@ pipeline {
                     def jobParameters = [
                         branch         : params.branch,
                         threadsCount   : "4",
-                        modules        : "mod-data-export",
+                        modules        : "",
                         okapiUrl       : okapiUrl,
                         edgeUrl        : edgeUrl,
                         tenant         : 'supertenant',
