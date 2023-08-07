@@ -15,7 +15,7 @@ def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 def prototypeTenant = "consortium"
 
-def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch-916"
+def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
