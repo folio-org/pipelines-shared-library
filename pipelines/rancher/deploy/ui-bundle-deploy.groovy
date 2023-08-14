@@ -16,7 +16,8 @@ properties([
         jobsParameters.uiBundleBuild(),
         jobsParameters.repository(),
         jobsParameters.branch(),
-        jobsParameters.tenantId()
+        jobsParameters.tenantId(),
+        booleanParam(name: 'consortia_enabled', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
     ])
 ])
 
@@ -54,7 +55,8 @@ ansiColor("xterm") {
                         rancher_project_name: project_config.getProjectName(),
                         tenant_id           : tenant.getId(),
                         custom_hash         : project_config.getHash(),
-                        custom_tag          : project_config.getUiBundleTag()
+                        custom_tag          : project_config.getUiBundleTag(),
+                        consortia           : params.consortia_enabled
                     ]
                     uiBuild(jobParameters)
                 }
