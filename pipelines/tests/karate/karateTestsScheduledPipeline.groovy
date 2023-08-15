@@ -31,9 +31,9 @@ pipeline {
 
         agent { label 'jenkins-agent-java17' }
 
-        triggers {
-            //cron('H 3 * * *')
-        }
+//        triggers {
+//            cron('H 3 * * *')
+//        }
 
         options {
             disableConcurrentBuilds()
