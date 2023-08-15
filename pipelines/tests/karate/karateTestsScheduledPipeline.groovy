@@ -1,7 +1,5 @@
 package tests.karate
 
-import jdk.internal.org.objectweb.asm.tree.MethodInsnNode
-
 @Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
@@ -44,6 +42,13 @@ pipeline {
     }
 
     stages {
+        stage(destroy env test v1)
+            {
+                script {
+                    def jsonContents = readJSON file: "teams-assignment.json"
+                    teamAssignment = new TeamAssignment(jsonContents)
+                }
+            }
         stage("Create environment") {
             steps {
                 script {
