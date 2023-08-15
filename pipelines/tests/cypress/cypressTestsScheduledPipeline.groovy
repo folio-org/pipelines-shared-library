@@ -48,7 +48,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
 
 properties([
     parameters([
-        string(name: 'branch', defaultValue: 'master', description: 'Cypress tests repository branch to checkout')
+        string(name: 'branch', defaultValue: 'RANCHER-923', description: 'Cypress tests repository branch to checkout')
     ]),
 ])
 
@@ -84,7 +84,7 @@ def jobParameters = [
     timeout: '6',
     testrailProjectID: '14',
     testrailRunID: '2108',
-    numberOfWorkers: '4',
+    numberOfWorkers: '8',
     agent: 'rancher||jenkins-agent-java11'
 ]
 
