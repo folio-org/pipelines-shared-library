@@ -1,3 +1,5 @@
+package tests.cypress
+
 @Library('pipelines-shared-library@RANCHER-923') _
 
 import org.folio.utilities.Tools
