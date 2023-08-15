@@ -1,6 +1,8 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+import jdk.internal.org.objectweb.asm.tree.MethodInsnNode
+
+@Library('pipelines-shared-library@RANCHER-939') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -17,8 +19,6 @@ def prototypeTenant = "consortium"
 
 def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
-def spinUpEnvironmentJob
-def tearDownEnvironmentJob
 
 KarateTestsExecutionSummary karateTestsExecutionSummary
 def teamAssignment
@@ -30,9 +30,9 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 pipeline {
     agent { label 'jenkins-agent-java17' }
 
-    triggers {
-        cron('H 3 * * *')
-    }
+//    triggers {
+//        cron('H 3 * * *')
+//    }
 
     options {
         disableConcurrentBuilds()
@@ -49,8 +49,8 @@ pipeline {
                 script {
                     def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                         projectName, prototypeTenant, folio_repository, folio_branch)
-
                     spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    sleep(1800)
                 }
             }
         }
@@ -84,16 +84,6 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-                stage("Destroy environment") {
-                    steps {
-                        script {
-                            def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-
-                            tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
-
                 stage("Collect test results") {
                     when {
                         expression {
@@ -138,7 +128,16 @@ pipeline {
                 }
             }
         }
+        //RANCHER-934 test
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
 
+                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
         stage("Set job execution result") {
             when {
                 expression {
