@@ -2,7 +2,7 @@ package tests.karate
 
 import jdk.internal.org.objectweb.asm.tree.MethodInsnNode
 
-@Library('pipelines-shared-library@RANCHER-939') _
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
