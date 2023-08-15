@@ -28,7 +28,6 @@ List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_re
 String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionComparator(order: Order.DESC, preferredBranches: [VersionConstants.MASTER_BRANCH]))[0]
 
 pipeline {
-    try {
 
         agent { label 'jenkins-agent-java17' }
 
@@ -46,8 +45,8 @@ pipeline {
     }
 
     stages {
-        try {
         stage("Check environment") {
+        try {
             steps {
                 script {
                     def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
@@ -55,9 +54,9 @@ pipeline {
                     tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
+            } catch (Exception new_ex)
+        { println('Existing env: ' + new_ex) }
         }
-        } catch (Exception new_ex)
-                { println('Existing env: ' + new_ex) }
 
         stage("Create environment") {
             steps {
@@ -168,22 +167,6 @@ pipeline {
         }
     }
     }
-
-    catch (Exception ex) {
-        println("Error message:" + ex)
-    }
-    finally {
-        stage("Cleanup environment") {
-            steps {
-                script {
-                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-
-                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
-    }
-}
 private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
     [
