@@ -42,7 +42,7 @@ pipeline {
     }
 
     stages {
-        stage(destroy env test v1)
+        stage('destroy env test v1')
             {
                 script {
                     def jsonContents = readJSON file: "teams-assignment.json"
