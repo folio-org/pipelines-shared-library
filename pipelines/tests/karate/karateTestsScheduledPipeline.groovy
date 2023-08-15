@@ -46,17 +46,20 @@ pipeline {
 
     stages {
         stage("Check environment") {
-        try {
+
             steps {
                 script {
-                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-
-                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
+            try {
+                def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+                tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             }
-            } catch (Exception new_ex)
-        { println('Existing env: ' + new_ex) }
+            catch (Exception new_ex){
+                println('Existing env: ' + new_ex)
+            }
         }
+    }
+}
+
 
         stage("Create environment") {
             steps {
@@ -102,7 +105,6 @@ pipeline {
                     steps {
                         script {
                             def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-
                             tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                         }
                     }
