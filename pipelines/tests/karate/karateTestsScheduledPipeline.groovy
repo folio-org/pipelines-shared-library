@@ -42,15 +42,16 @@ pipeline {
     }
 
     stages {
-        stage('destroy env test v1')
-            {
-              steps {
-                  script {
-                      def jsonContents = readJSON file: "teams-assignment.json"
-                      teamAssignment = new TeamAssignment(jsonContents)
-                  }
-              }
+        //RANCHER-939 test
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+
+                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
             }
+        }
         stage("Create environment") {
             steps {
                 script {
@@ -135,16 +136,7 @@ pipeline {
                 }
             }
         }
-        //RANCHER-934 test
-        stage("Destroy environment") {
-            steps {
-                script {
-                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
 
-                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
         stage("Set job execution result") {
             when {
                 expression {
