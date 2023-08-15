@@ -44,10 +44,12 @@ pipeline {
     stages {
         stage('destroy env test v1')
             {
-                script {
-                    def jsonContents = readJSON file: "teams-assignment.json"
-                    teamAssignment = new TeamAssignment(jsonContents)
-                }
+              steps {
+                  script {
+                      def jsonContents = readJSON file: "teams-assignment.json"
+                      teamAssignment = new TeamAssignment(jsonContents)
+                  }
+              }
             }
         stage("Create environment") {
             steps {
