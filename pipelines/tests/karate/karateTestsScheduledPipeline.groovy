@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library@RANCHER-939') _
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -31,9 +31,9 @@ pipeline {
 
         agent { label 'jenkins-agent-java17' }
 
-//        triggers {
-//            cron('H 3 * * *')
-//        }
+        triggers {
+            cron('H 3 * * *')
+        }
 
         options {
             disableConcurrentBuilds()
@@ -46,7 +46,6 @@ pipeline {
 
     stages {
         stage("Check environment") {
-
             steps {
                 script {
             try {
@@ -60,14 +59,12 @@ pipeline {
     }
 }
 
-
         stage("Create environment") {
             steps {
                 script {
                     def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                         projectName, prototypeTenant, folio_repository, folio_branch)
-
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                        spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
