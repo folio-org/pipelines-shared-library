@@ -3,6 +3,7 @@ package org.folio.rest_v2
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.OkapiUser
 import org.folio.models.OkapiTenant
+import org.folio.utilities.RestClient
 
 class Main extends Okapi {
     private Users users
@@ -66,6 +67,15 @@ class Main extends Okapi {
 
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants){
         consortia.setUpConsortia(consortiaTenants)
+    }
+
+    //TODO draft RANCHER-938 variant.
+    void checkConsortiaStatus(OkapiTenant tenant, String url, List<OkapiTenantConsortia> consortiaTenants){
+        RestClient client = new RestClient(this, false, 10000)
+        consortiaTenants.each {it ->
+            url = generateUrl("consortia/${consortiumId}/tenants/${tenantId}")
+            client.get(url, getAuthorizedHeaders(tenant), 1000)
+        }
     }
 
     void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
