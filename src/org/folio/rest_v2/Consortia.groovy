@@ -100,11 +100,11 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        // Required sleep for 2 minutes because consorita async installation
+        // Required sleep for 2 minutes because consortia async installation
         sleep(1 * 60 * 1000)
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            // Required sleep for 2 minutes because consorita async installation
+            // Required sleep for 2 minutes because consortia async installation
             sleep(1 * 60 * 1000)
         }
     }
