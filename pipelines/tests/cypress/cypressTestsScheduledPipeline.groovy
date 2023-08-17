@@ -1,4 +1,3 @@
-package tests.cypress
 
 @Library('pipelines-shared-library') _
 
