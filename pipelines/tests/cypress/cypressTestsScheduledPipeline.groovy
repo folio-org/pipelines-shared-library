@@ -1,3 +1,4 @@
+
 @Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
@@ -84,7 +85,7 @@ def jobParameters = [
     timeout: '6',
     testrailProjectID: '14',
     testrailRunID: '2108',
-    numberOfWorkers: '4',
+    numberOfWorkers: '8',
     agent: 'rancher||jenkins-agent-java11'
 ]
 
