@@ -69,15 +69,6 @@ class Main extends Okapi {
         consortia.setUpConsortia(consortiaTenants)
     }
 
-    //TODO draft RANCHER-938 variant.
-    void checkConsortiaStatus(OkapiTenant tenant, String url, List<OkapiTenantConsortia> consortiaTenants){
-        RestClient client = new RestClient(this, false, 10000)
-        consortiaTenants.each {it ->
-            url = generateUrl("consortia/${consortiumId}/tenants/${tenantId}")
-            client.get(url, getAuthorizedHeaders(tenant), 1000)
-        }
-    }
-
     void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
         if (superTenant.adminUser) {
             lockSuperTenant(superTenant)

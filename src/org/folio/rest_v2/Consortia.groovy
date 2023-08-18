@@ -1,6 +1,8 @@
 package org.folio.rest_v2
 
+import org.folio.models.OkapiTenant
 import org.folio.models.OkapiTenantConsortia
+import org.folio.utilities.RestClient
 
 /**
  * Consortia is a class that extends the Authorization class.
@@ -100,12 +102,18 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        // Required sleep for 2 minutes because consortia async installation
-        sleep(1 * 60 * 1000)
+        checkConsortiaStatus(centralConsortiaTenant)
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            // Required sleep for 2 minutes because consortia async installation
-            sleep(1 * 60 * 1000)
+            checkConsortiaStatus(institutionalTenant)
         }
     }
-}
+
+    //TODO draft RANCHER-938 v2.
+    void checkConsortiaStatus(OkapiTenantConsortia tenant){
+        RestClient client = new RestClient(this, false, 10000)
+        url = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        client.get(url,getAuthorizedHeaders(tenant), 10000)
+        }
+    }
+
