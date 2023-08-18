@@ -112,7 +112,7 @@ class Consortia extends Authorization {
     //TODO draft RANCHER-938 v2.
     void checkConsortiaStatus(OkapiTenantConsortia tenant){
         RestClient client = new RestClient(this, false, 10000)
-        url = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        String url = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
         client.get(url,getAuthorizedHeaders(tenant), 10000)
         }
     }
