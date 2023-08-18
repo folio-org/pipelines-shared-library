@@ -102,17 +102,18 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        checkConsortiaStatus(centralConsortiaTenant)
+        checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}"))
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            checkConsortiaStatus(institutionalTenant)
+            checkConsortiaStatus(institutionalTenant,generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantName}"))
         }
     }
 
     //TODO draft RANCHER-938 v2.
-    void checkConsortiaStatus(OkapiTenantConsortia tenant){
-        String url = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
-        restClient.get(url,getAuthorizedHeaders(tenant), 10000)
+    void checkConsortiaStatus(OkapiTenantConsortia tenant, String url){
+        while(restClient.get(url,getAuthorizedHeaders(tenant), 5000).setupStatus != 'COMPLETED'){
+            println("Consortium tenant: ${tenant.tenantName} is not ready yet!")
+            sleep(10000)
+            }
         }
     }
-
