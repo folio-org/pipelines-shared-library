@@ -102,27 +102,18 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        try {
-            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
-            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"), AuthHeaders)
-        }
-        catch(Exception e) {
-            println(e)
-            sleep(10000)
-        }
-        finally {
-            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
-            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"), AuthHeaders)
-        }
+        checkConsortiaStatus(centralConsortiaTenant)
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
-            checkConsortiaStatus(institutionalTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), AuthHeaders)
+            checkConsortiaStatus(institutionalTenant)
         }
     }
 
-    void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint, Map AuthHeaders){
-        def response = restClient.get(endpoint, AuthHeaders, 5000)
+    void checkConsortiaStatus(OkapiTenantConsortia tenant){
+        OkapiTenantConsortia centralConsortiaTenant = new OkapiTenantConsortia('consortium', true)
+        Map headers = getAuthorizedHeaders(centralConsortiaTenant)
+        String endpoint = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        def response = restClient.get(endpoint, headers, 5000)
         println(response)
         switch (response.get('setupStatus')){
             case 'COMPLETED':
@@ -134,13 +125,13 @@ class Consortia extends Authorization {
             case 'FAILED':
                 println("Tenant : ${tenant.tenantId} add operation failed!")
                 if (response.get('setupStatus') == 'FAILED') {
-                    currentBuild.result = 'ABORTED'
+                    steps.currentBuild.result = 'ABORTED'
                 }
                 break
             case 'IN_PROGRESS':
                 println("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
-                checkConsortiaStatus(tenant, endpoint, AuthHeaders)
+                checkConsortiaStatus(tenant, headers)
                 break
             }
         }

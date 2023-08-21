@@ -95,7 +95,7 @@ if (params.CONSORTIA) {
   }
 }
 
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
 Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
