@@ -3,7 +3,6 @@ package org.folio.rest_v2
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.OkapiUser
 import org.folio.models.OkapiTenant
-import org.folio.utilities.RestClient
 
 class Main extends Okapi {
     private Users users

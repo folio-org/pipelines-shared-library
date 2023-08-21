@@ -122,7 +122,7 @@ class Consortia extends Authorization {
         String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
         def response = restClient.get(endpoint, headers, 5000)
         println(response)
-        switch (response.get('setupStatus')){
+        switch (response.body.get('setupStatus')){
             case 'COMPLETED':
                 println("Tenant : ${tenant.tenantId} added successfully")
                 break
