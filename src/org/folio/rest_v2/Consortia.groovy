@@ -102,17 +102,23 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        checkConsortiaStatus(centralConsortiaTenant)
+        checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            checkConsortiaStatus(institutionalTenant)
+            checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
         }
     }
 
-    void checkConsortiaStatus(OkapiTenantConsortia tenant){
-        OkapiTenantConsortia centralConsortiaTenant = new OkapiTenantConsortia('consortium', true)
+    /**
+     * Check consortia tenants status
+     *
+     * @param centralConsortiaTenant
+     * @param tenant
+     */
+
+    void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant){
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
-        String endpoint = generateUrl("/consortia/${tenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
         def response = restClient.get(endpoint, headers, 5000)
         println(response)
         switch (response.get('setupStatus')){
@@ -131,7 +137,7 @@ class Consortia extends Authorization {
             case 'IN_PROGRESS':
                 println("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
-                checkConsortiaStatus(tenant, headers)
+                checkConsortiaStatus(centralConsortiaTenant, tenant)
                 break
             }
         }
