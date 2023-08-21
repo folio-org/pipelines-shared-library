@@ -122,7 +122,7 @@ class Consortia extends Authorization {
                 break
             case 'FAILED':
                 println("Tenant : ${tenant.tenantId} add operation failed!")
-                if (readJSON(text: response.body)['setupStatus'] == 'FAILED') {
+                if (response.get('setupStatus') == 'FAILED') {
                     currentBuild.result = 'ABORTED'
                 }
                 break
