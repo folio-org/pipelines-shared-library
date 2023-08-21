@@ -110,12 +110,13 @@ class Consortia extends Authorization {
     }
 
     /**
-     * Check consortia tenants status
+     * Check consortia mapped tenants status
      *
      * @param centralConsortiaTenant
+     *
      * @param tenant
+     *
      */
-
     void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant){
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
         String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
