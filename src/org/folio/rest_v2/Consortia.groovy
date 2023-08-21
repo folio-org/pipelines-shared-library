@@ -105,32 +105,40 @@ class Consortia extends Authorization {
         checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            checkConsortiaStatus(institutionalTenant,generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"))
+            checkConsortiaStatus(institutionalTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"))
         }
     }
 
-    //TODO draft RANCHER-938 v3.
     void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint){
-        def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
-        println(response)
-        switch (response.get('setupStatus')){
-            case 'COMPLETED':
-                println("Tenant : ${tenant.tenantId} added successfully")
-                break
-            case 'COMPLETED_WITH_ERRORS':
-                println("Tenant : ${tenant.tenantId} added with errors!")
-                break
-            case 'FAILED':
-                println("Tenant : ${tenant.tenantId} add operation failed!")
-                if (response.get('setupStatus') == 'FAILED') {
-                    currentBuild.result = 'ABORTED'
+        try {
+            def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+        }
+        catch (Exception e) {
+            println(e)
+            sleep(10000)
+        }
+        finally {
+            def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+            println(response)
+            switch (response.get('setupStatus')){
+                case 'COMPLETED':
+                    println("Tenant : ${tenant.tenantId} added successfully")
+                    break
+                case 'COMPLETED_WITH_ERRORS':
+                    println("Tenant : ${tenant.tenantId} added with errors!")
+                    break
+                case 'FAILED':
+                    println("Tenant : ${tenant.tenantId} add operation failed!")
+                    if (response.get('setupStatus') == 'FAILED') {
+                        currentBuild.result = 'ABORTED'
+                    }
+                    break
+                case 'IN_PROGRESS':
+                    println("Tenant : ${tenant.tenantId} add operation is still in progress...")
+                    sleep(10000)
+                    checkConsortiaStatus(tenant, endpoint)
+                    break
                 }
-                break
-            case 'IN_PROGRESS':
-                println("Tenant : ${tenant.tenantId} add operation is still in progress...")
-                sleep(10000)
-                checkConsortiaStatus(tenant, endpoint)
-                break
             }
         }
     }
