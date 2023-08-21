@@ -121,6 +121,7 @@ class Consortia extends Authorization {
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
         String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
         def response = restClient.get(endpoint, headers, 5000)
+        println(response.body)
         switch (readJSON(response.body['setupStatus'])){
             case 'COMPLETED':
                 println("Tenant : ${tenant.tenantId} added successfully")
