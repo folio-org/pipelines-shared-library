@@ -112,6 +112,7 @@ class Consortia extends Authorization {
     //TODO draft RANCHER-938 v3.
     void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint){
         def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+        println(response)
         switch (response.get('setupStatus')){
             case 'COMPLETED':
                 println("Tenant : ${tenant.tenantId} added successfully")
