@@ -102,18 +102,33 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}"))
+        checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            checkConsortiaStatus(institutionalTenant,generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantName}"))
+            checkConsortiaStatus(institutionalTenant,generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"))
         }
     }
 
-    //TODO draft RANCHER-938 v2.
-    void checkConsortiaStatus(OkapiTenantConsortia tenant, String url){
-        while(restClient.get(url,getAuthorizedHeaders(tenant), 5000).setupStatus != 'COMPLETED'){
-            println("Consortium tenant: ${tenant.tenantName} is not ready yet!")
-            sleep(10000)
+    //TODO draft RANCHER-938 v3.
+    void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint){
+        def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+        switch (readJSON(text: response.body)['setupStatus']){
+            case 'COMPLETED':
+                println("Tenant : ${tenant} added successfully")
+                break
+            case 'COMPLETED_WITH_ERRORS':
+                println("Tenant : ${tenant} added with errors!")
+                break
+            case 'FAILED':
+                println("Tenant : ${tenant} add operation failed!")
+                if (readJSON(text: response.body)['setupStatus'] == 'FAILED') {
+                    currentBuild.result = 'ABORTED'
+                }
+                break
+            case 'IN_PROGRESS':
+                println("Tenant : ${tenant} add operation is still in progress...")
+                sleep(10000)
+                break
             }
         }
     }
