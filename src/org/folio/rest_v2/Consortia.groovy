@@ -103,23 +103,26 @@ class Consortia extends Authorization {
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
         try {
-            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
+            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
+            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"), AuthHeaders)
         }
         catch(Exception e) {
             println(e)
             sleep(10000)
         }
         finally {
-            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
+            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
+            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"), AuthHeaders)
         }
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            checkConsortiaStatus(institutionalTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"))
+            def AuthHeaders = getAuthorizedHeaders(centralConsortiaTenant)
+            checkConsortiaStatus(institutionalTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), AuthHeaders)
         }
     }
 
-    void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint){
-        def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+    void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint, Map AuthHeaders){
+        def response = restClient.get(endpoint, AuthHeaders, 5000)
         println(response)
         switch (response.get('setupStatus')){
             case 'COMPLETED':
@@ -137,7 +140,7 @@ class Consortia extends Authorization {
             case 'IN_PROGRESS':
                 println("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
-                checkConsortiaStatus(tenant, endpoint)
+                checkConsortiaStatus(tenant, endpoint, AuthHeaders)
                 break
             }
         }
