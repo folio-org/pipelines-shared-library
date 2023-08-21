@@ -129,6 +129,7 @@ class Consortia extends Authorization {
             case 'IN_PROGRESS':
                 println("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
+                checkConsortiaStatus(tenant, endpoint)
                 break
             }
         }
