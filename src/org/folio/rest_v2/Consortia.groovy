@@ -121,8 +121,7 @@ class Consortia extends Authorization {
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
         String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
         def response = restClient.get(endpoint, headers, 5000)
-        println(response)
-        switch (response.body.get('setupStatus')){
+        switch (readJSON(text: response.body['setupStatus'])){
             case 'COMPLETED':
                 println("Tenant : ${tenant.tenantId} added successfully")
                 break
@@ -131,7 +130,7 @@ class Consortia extends Authorization {
                 break
             case 'FAILED':
                 println("Tenant : ${tenant.tenantId} add operation failed!")
-                if (response.body.get('setupStatus') == 'FAILED') {
+                if (readJSON(text: response.body['setupStatus']) == 'FAILED') {
                     steps.currentBuild.result = 'ABORTED'
                 }
                 break
