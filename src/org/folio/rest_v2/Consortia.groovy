@@ -114,19 +114,19 @@ class Consortia extends Authorization {
         def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
         switch (readJSON(text: response.body)['setupStatus']){
             case 'COMPLETED':
-                println("Tenant : ${tenant} added successfully")
+                println("Tenant : ${tenant.tenantId} added successfully")
                 break
             case 'COMPLETED_WITH_ERRORS':
-                println("Tenant : ${tenant} added with errors!")
+                println("Tenant : ${tenant.tenantId} added with errors!")
                 break
             case 'FAILED':
-                println("Tenant : ${tenant} add operation failed!")
+                println("Tenant : ${tenant.tenantId} add operation failed!")
                 if (readJSON(text: response.body)['setupStatus'] == 'FAILED') {
                     currentBuild.result = 'ABORTED'
                 }
                 break
             case 'IN_PROGRESS':
-                println("Tenant : ${tenant} add operation is still in progress...")
+                println("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
                 break
             }
