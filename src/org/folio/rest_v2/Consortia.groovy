@@ -102,7 +102,16 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
+        try {
+            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
+        }
+        catch(Exception e) {
+            println(e)
+            sleep(10000)
+        }
+        finally {
+            checkConsortiaStatus(centralConsortiaTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/consortium"))
+        }
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
             checkConsortiaStatus(institutionalTenant, generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"))
@@ -110,35 +119,26 @@ class Consortia extends Authorization {
     }
 
     void checkConsortiaStatus(OkapiTenantConsortia tenant, String endpoint){
-        try {
-            def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
-        }
-        catch (Exception e) {
-            println(e)
-            sleep(10000)
-        }
-        finally {
-            def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
-            println(response)
-            switch (response.get('setupStatus')){
-                case 'COMPLETED':
-                    println("Tenant : ${tenant.tenantId} added successfully")
-                    break
-                case 'COMPLETED_WITH_ERRORS':
-                    println("Tenant : ${tenant.tenantId} added with errors!")
-                    break
-                case 'FAILED':
-                    println("Tenant : ${tenant.tenantId} add operation failed!")
-                    if (response.get('setupStatus') == 'FAILED') {
-                        currentBuild.result = 'ABORTED'
-                    }
-                    break
-                case 'IN_PROGRESS':
-                    println("Tenant : ${tenant.tenantId} add operation is still in progress...")
-                    sleep(10000)
-                    checkConsortiaStatus(tenant, endpoint)
-                    break
+        def response = restClient.get(endpoint, getAuthorizedHeaders(tenant), 5000)
+        println(response)
+        switch (response.get('setupStatus')){
+            case 'COMPLETED':
+                println("Tenant : ${tenant.tenantId} added successfully")
+                break
+            case 'COMPLETED_WITH_ERRORS':
+                println("Tenant : ${tenant.tenantId} added with errors!")
+                break
+            case 'FAILED':
+                println("Tenant : ${tenant.tenantId} add operation failed!")
+                if (response.get('setupStatus') == 'FAILED') {
+                    currentBuild.result = 'ABORTED'
                 }
+                break
+            case 'IN_PROGRESS':
+                println("Tenant : ${tenant.tenantId} add operation is still in progress...")
+                sleep(10000)
+                checkConsortiaStatus(tenant, endpoint)
+                break
             }
         }
     }
