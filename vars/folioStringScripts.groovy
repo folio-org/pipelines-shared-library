@@ -17,7 +17,8 @@ if (get.getResponseCode().equals(200)) {
 
 static String getOkapiVersions(){
     return """import groovy.json.JsonSlurperClassic
-def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json").openConnection()
+withCredentials([file(credentialsId: 'id-jenkins-github-personal-token', variable: 'accessToken')])
+def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json&access_token=${accessToken}").openConnection()
 if (installJson.getResponseCode().equals(200)) {
     String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
     if(okapi){
