@@ -45,8 +45,3 @@ List getGitHubTeamsIds(String teams) {
         return ids
     }
 }
-static GitHubToken() {
-    def credentialId = "id-jenkins-github-personal-token"
-    def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
-    return credential.getSecret().getPlainText()
-}
