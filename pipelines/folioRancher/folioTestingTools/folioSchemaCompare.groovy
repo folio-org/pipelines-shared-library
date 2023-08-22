@@ -112,7 +112,6 @@ ansiColor('xterm') {
 
             stage('Create data-migration project') {
                 if (!params.backup_name) {
-                    admin_password = password(name: 'password', defaultValueAsSecret: Secret.fromString('admin'), description: 'User password'),
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
                         okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
