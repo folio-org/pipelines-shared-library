@@ -11,7 +11,7 @@ static String getRepositoryBranches(String repository){
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secretText = credential.getSecret().getPlainText()
-def get = new URL('${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches?per_page=100&Authorization=${secretText}').openConnection()
+def get = new URL("${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches?per_page=100&Authorization=${secretText}").openConnection()
 if (get.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
