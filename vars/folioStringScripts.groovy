@@ -13,7 +13,7 @@ def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.get
 def secretText = credential.getSecret().getPlainText()
 def get = new URL("${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches?per_page=100")
 HttpURLConnection conn = (HttpURLConnection) get.openConnection()
-conn.setRequestProperty("Authorization","Bearer "+" ${secretText}");
+conn.setRequestProperty("Authorization","Bearer "+" secretText}");
 if(conn.responseCode.equals(200)){
   return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
 }
