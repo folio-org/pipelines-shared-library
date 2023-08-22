@@ -136,7 +136,7 @@ ansiColor('xterm') {
             }
 
             stage('Create clean tenant') {
-                build job: Constants:JENKINS_JOB_CREATE_TENANT,
+                build job: Constants.JENKINS_JOB_CREATE_TENANT,
                 parameters: [
                     string(name: 'rancher_cluster_name', value: rancher_cluster_name),
                     string(name: 'rancher_project_name', value: rancher_project_name),
