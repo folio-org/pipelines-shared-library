@@ -123,19 +123,19 @@ class Consortia extends Authorization {
         def response = restClient.get(endpoint, headers, 5000).body
         switch (response['setupStatus']){
             case 'COMPLETED':
-                println("Tenant : ${tenant.tenantId} added successfully")
+                logger.info("Tenant : ${tenant.tenantId} added successfully")
                 break
             case 'COMPLETED_WITH_ERRORS':
-                println("Tenant : ${tenant.tenantId} added with errors!")
+                logger.info("Tenant : ${tenant.tenantId} added with errors!")
                 break
             case 'FAILED':
-                println("Tenant : ${tenant.tenantId} add operation failed!")
+                logger.info("Tenant : ${tenant.tenantId} add operation failed!")
                 if (response['setupStatus'] == 'FAILED') {
                     steps.currentBuild.result = 'ABORTED'
                 }
                 break
             case 'IN_PROGRESS':
-                println("Tenant : ${tenant.tenantId} add operation is still in progress...")
+                logger.info("Tenant : ${tenant.tenantId} add operation is still in progress...")
                 sleep(10000)
                 checkConsortiaStatus(centralConsortiaTenant, tenant)
                 break
