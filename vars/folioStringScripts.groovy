@@ -1,4 +1,5 @@
 import org.folio.Constants
+import groovy.json.JsonSlurperClassic
 
 static String getNamespaces() {
     return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
@@ -7,7 +8,6 @@ return namespacesList[CLUSTER]
 }
 
 static String getRepositoryBranches(String repository){
-    return """import groovy.json.JsonSlurperClassic
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
@@ -16,8 +16,7 @@ HttpURLConnection conn = (HttpURLConnection) get.openConnection()
 conn.setRequestProperty("Authorization","Bearer "+" ${secret_value}");
 if(conn.responseCode.equals(200)){
   return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
-}
-"""
+    }
 }
 
 static String getOkapiVersions(){
