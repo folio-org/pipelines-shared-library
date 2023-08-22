@@ -17,8 +17,11 @@ if (get.getResponseCode().equals(200)) {
 
 static String getOkapiVersions(){
     return """import groovy.json.JsonSlurperClassic
-withCredentials([file(credentialsId: 'id-jenkins-github-personal-token', variable: 'accessToken')])
-def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json&access_token=${accessToken}").openConnection()
+import groovy.json.JsonSlurperClassic
+def credentialId = "id-jenkins-github-personal-token"
+def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+def secretText = credential.getSecret().getPlainText()
+def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json&Authorization=${secretText}").openConnection()
 if (installJson.getResponseCode().equals(200)) {
     String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
     if(okapi){
