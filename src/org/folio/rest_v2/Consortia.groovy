@@ -120,8 +120,8 @@ class Consortia extends Authorization {
     void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant){
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
         String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
-        def response = restClient.get(endpoint, headers, 5000)c
-        switch (response.body['setupStatus']){
+        def response = restClient.get(endpoint, headers, 5000).body
+        switch (response['setupStatus']){
             case 'COMPLETED':
                 println("Tenant : ${tenant.tenantId} added successfully")
                 break
@@ -130,7 +130,7 @@ class Consortia extends Authorization {
                 break
             case 'FAILED':
                 println("Tenant : ${tenant.tenantId} add operation failed!")
-                if (response.body['setupStatus'] == 'FAILED') {
+                if (response['setupStatus'] == 'FAILED') {
                     steps.currentBuild.result = 'ABORTED'
                 }
                 break
