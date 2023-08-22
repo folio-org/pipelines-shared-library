@@ -1,4 +1,5 @@
 #!groovy
+import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
@@ -62,12 +63,12 @@ ansiColor('xterm') {
                 if (params.backup_name) {
                     tenant_id = 'fs09000000'
                     admin_username = 'folio'
-                    admin_password = 'folio'
+                    admin_password = Secret.fromString('folio')
                     buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                 } else {
                     tenant_id = 'diku'
                     admin_username = 'diku'
-                    admin_password = 'diku_admin'
+                    admin_password = Secret.fromString('diku_admin')
                     buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
                 }
 
@@ -111,6 +112,7 @@ ansiColor('xterm') {
 
             stage('Create data-migration project') {
                 if (!params.backup_name) {
+                    admin_password = password(name: 'password', defaultValueAsSecret: Secret.fromString('admin'), description: 'User password'),
                     def jobParameters = getEnvironmentJobParameters('apply', rancher_cluster_name,
                         rancher_project_name, params.folio_repository, params.folio_branch_src,
                         okapiVersion, tenant_id, admin_username, admin_password, params.backup_name, false, true, true, true)
