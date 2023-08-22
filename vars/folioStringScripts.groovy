@@ -10,10 +10,9 @@ static String getRepositoryBranches(String repository){
     return """import groovy.json.JsonSlurperClassic
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
-def secretText = credential.getSecret().getPlainText()
 def get = new URL("${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches?per_page=100")
 HttpURLConnection conn = (HttpURLConnection) get.openConnection()
-conn.setRequestProperty("Authorization","Bearer "+" secretText}");
+conn.setRequestProperty("Authorization","Bearer "+" credential.getSecret().getPlainText()");
 if(conn.responseCode.equals(200)){
   return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
 }
