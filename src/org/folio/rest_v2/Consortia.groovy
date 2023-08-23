@@ -127,8 +127,8 @@ class Consortia extends Authorization {
                 logger.warning("Tenant : ${tenant.tenantId} added with errors!")
                 break
             case 'FAILED':
+                steps.currentBuild.result = 'ABORTED'
                 logger.error("Tenant : ${tenant.tenantId} add operation failed!\nAborting current execution!")
-                    steps.currentBuild.result = 'ABORTED'
                 break
             case 'IN_PROGRESS':
                 logger.info("Tenant : ${tenant.tenantId} add operation is still in progress...")
