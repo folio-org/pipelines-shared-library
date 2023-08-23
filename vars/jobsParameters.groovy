@@ -131,14 +131,9 @@ static String generateProjectNamesMap() {
 
 static String getRepositoryBranches(String repository) {
     return """import groovy.json.JsonSlurperClassic
-def credentialId = "id-jenkins-github-personal-token"
-def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
-def secret_value = credential.getSecret().getPlainText()
-def get = new URL('https://api.github.com/repos/folio-org/' + ${repository} + '/branches?per_page=100')
-HttpURLConnection conn = (HttpURLConnection) get.openConnection()
-conn.setRequestProperty("Authorization","Bearer "+" \${secret_value}");
-if(conn.responseCode.equals(200)){
-  return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
+def get = new URL('https://api.github.com/repos/folio-org/' + ${repository} + '/branches?per_page=100').openConnection()
+if (get.getResponseCode().equals(200)) {
+    return new JsonSlurperClassic().parseText(get.getInputStream().getText()).name
 }
 """
 }
