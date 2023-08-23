@@ -1,8 +1,6 @@
 package org.folio.rest_v2
 
-import org.folio.models.OkapiTenant
 import org.folio.models.OkapiTenantConsortia
-import org.folio.utilities.RestClient
 
 /**
  * Consortia is a class that extends the Authorization class.
@@ -119,20 +117,18 @@ class Consortia extends Authorization {
      */
     void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant){
         Map headers = getAuthorizedHeaders(centralConsortiaTenant)
-        String endpoint = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
-        def response = restClient.get(endpoint, headers, 5000).body
+        String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        def response = restClient.get(url, headers, 5000).body
         switch (response['setupStatus']){
             case 'COMPLETED':
                 logger.info("Tenant : ${tenant.tenantId} added successfully")
                 break
             case 'COMPLETED_WITH_ERRORS':
-                logger.info("Tenant : ${tenant.tenantId} added with errors!")
+                logger.warning("Tenant : ${tenant.tenantId} added with errors!")
                 break
             case 'FAILED':
                 logger.error("Tenant : ${tenant.tenantId} add operation failed!\nAborting current execution!")
-                if (response['setupStatus'] == 'FAILED') {
                     steps.currentBuild.result = 'ABORTED'
-                }
                 break
             case 'IN_PROGRESS':
                 logger.info("Tenant : ${tenant.tenantId} add operation is still in progress...")
