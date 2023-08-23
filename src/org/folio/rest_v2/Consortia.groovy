@@ -100,12 +100,41 @@ class Consortia extends Authorization {
         OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
         createConsortia(centralConsortiaTenant)
         addCentralConsortiaTenant(centralConsortiaTenant)
-        // Required sleep for 2 minutes because consorita async installation
-        sleep(1 * 60 * 1000)
+        checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
         consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
             addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-            // Required sleep for 2 minutes because consorita async installation
-            sleep(1 * 60 * 1000)
+            checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
         }
     }
-}
+
+    /**
+     * Check consortia mapped tenants status
+     *
+     * @param centralConsortiaTenant
+     *
+     * @param tenant
+     *
+     */
+    void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant){
+        Map headers = getAuthorizedHeaders(centralConsortiaTenant)
+        String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
+        def response = restClient.get(url, headers, 5000).body
+        switch (response['setupStatus']){
+            case 'COMPLETED':
+                logger.info("Tenant : ${tenant.tenantId} added successfully")
+                break
+            case 'COMPLETED_WITH_ERRORS':
+                logger.warning("Tenant : ${tenant.tenantId} added with errors!")
+                break
+            case 'FAILED':
+                steps.currentBuild.result = 'ABORTED'
+                logger.error("Tenant : ${tenant.tenantId} add operation failed!\nAborting current execution!")
+                break
+            case 'IN_PROGRESS':
+                logger.info("Tenant : ${tenant.tenantId} add operation is still in progress...")
+                sleep(10000)
+                checkConsortiaStatus(centralConsortiaTenant, tenant)
+                break
+            }
+        }
+    }
