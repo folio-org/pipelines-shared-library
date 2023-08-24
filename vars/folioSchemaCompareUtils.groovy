@@ -6,8 +6,8 @@ import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 
-void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgadminURL, resultMap) {
-    def diff = [:]
+void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgadminURL, resultMap, diff) {
+    //def diff = [:]
 
             Map psqlConnection = [
                 password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),

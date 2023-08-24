@@ -39,14 +39,9 @@ def tenant_id
 def admin_username
 def admin_password
 def tenant_id_clean ='clean'
-def startMigrationTime = LocalDateTime.now()
-Integer totalTimeInMs = 0
-LinkedHashMap modulesLongMigrationTimeSlack = [:]
-List modulesMigrationFailedSlack = []
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
-def foundSchemaDiff = false
 def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
 
 ansiColor('xterm') {
@@ -72,7 +67,7 @@ ansiColor('xterm') {
                 }
 
                 // Create map with moduleName, source and destination version for this module
-                // This map used for time migration and schemaDiff reports
+                // This map used for schemaDiff reports
                 def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
                 def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
 
@@ -158,6 +153,7 @@ ansiColor('xterm') {
                         tenant_id_clean,
                         pgadminURL,
                         resultMap,
+                        diff
                         )
 
                 }
