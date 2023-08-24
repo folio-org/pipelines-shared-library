@@ -172,7 +172,6 @@ class Permissions extends Authorization {
  * source: RANCHER-895
  * @param tenant The tenant in which the user is located.
  * @param user The user to whom the permission is added.
- * @param permissionName The permission to add.
  */
     void addUserMissingPermission(OkapiTenant tenant, OkapiUser user) {
         def allPermissions = getAllPermissions(tenant)
