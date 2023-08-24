@@ -1,7 +1,6 @@
 #!groovy
 import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest.model.DataMigrationTenant
 import java.time.*
 import org.folio.rest.GitHubUtility
 import org.folio.Constants
@@ -153,98 +152,17 @@ ansiColor('xterm') {
             stage('Get schemas difference') {
                 folioHelm.withK8sClient {
                     awscli.getKubeConfig(Constants.AWS_REGION, rancher_cluster_name)
-                    // Get team assigments
-                    def teamAssignment = folioSchemaCompareUtils.getTeamAssignment()
+                    folioSchemaCompareUtils.getSchemasDifference(
+                        rancher_project_name,
+                        tenant_id,
+                        tenant_id_clean,
+                        pgadminURL,
+                        resultMap,
+                        foundSchemaDiff
+                        )
 
-                    // Get psql connection parameters
-                    Map psqlConnection = [
-                        password : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
-                        host     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_HOST'),
-                        user     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_USERNAME'),
-                        db       : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_DATABASE'),
-                        port     : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')
-                    ]
-
-                    // Preparation steps, creating Atlas and psql clien pods
-                    def atlasPod = "atlas"
-                    kubectl.runPodWithCommand(rancher_project_name, atlasPod, 'arigaio/atlas:0.10.1-alpine')
-
-                    // Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS
-                    def psqlPod = "psql-client"
-                    kubectl.runPodWithCommand(rancher_project_name, psqlPod, 'andreswebs/postgresql-client')
-
-                    // Getting list of schemas for fs09000000 and clean tenants
-                    def srcSchemasList = folioSchemaCompareUtils.getSchemaTenantList(rancher_project_name, psqlPod, tenant_id, psqlConnection)
-                    def dstSchemasList = folioSchemaCompareUtils.getSchemaTenantList(rancher_project_name, psqlPod, tenant_id_clean, psqlConnection)
-
-                    def groupedValues = [:]
-                    def uniqueValues = []
-
-                    srcSchemasList.each { srcValue ->
-                        def currentSuffix = srcValue.split('_')[1..-1].join('_')
-                        dstSchemasList.each { dstValue ->
-                            def newSuffix = dstValue.split('_')[1..-1].join('_')
-                            if (currentSuffix == newSuffix) {
-                                groupedValues[srcValue] = dstValue
-                            }
-                        }
-                        if (!groupedValues.containsKey(srcValue)) {
-                            uniqueValues.add(srcValue)
-                        }
-                    }
-
-                    dstSchemasList.each { dstValue ->
-                        def newSuffix = dstValue.split('_')[1..-1].join('_')
-                        def alreadyGrouped = false
-                        groupedValues.each { srcValue, existingValue ->
-                            def currentSuffix = srcValue.split('_')[1..-1].join('_')
-                            if (newSuffix == currentSuffix) {
-                                alreadyGrouped = true
-                            }
-                        }
-                        if (!alreadyGrouped) {
-                            uniqueValues.add(dstValue)
-                        }
-                    }
-
-                    // Make list with unique schemas
-                    if (uniqueValues) {
-                        diff.put("Unique schemas", "Please check list of unique Schemas:\n $uniqueValues")
-                    }
-
-                    groupedValues.each {
-                        try {
-                            def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.key}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${it.value}'"
-                            def currentDiff =  sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPod} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
-
-                            if (currentDiff == "Schemas are synced, no changes to be made.") {
-                                println "Schemas are synced, no changes to be made."
-                            } else {
-                                diff.put(it.key, currentDiff)
-                                folioSchemaCompareUtils.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap, teamAssignment)
-                            }
-                        } catch(exception) {
-                            println exception
-                            def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
-                                "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n"
-                            diff.put(it.key, messageDiff)
-                            folioSchemaCompareUtils.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
-                        }
-                    }
-
-                    def diffHtmlData
-                    if (diff) {
-                        diffHtmlData = folioSchemaCompareUtils.createDiffHtmlReport(diff, pgadminURL, resultMap)
-                        foundSchemaDiff = true
-                        currentBuild.result = 'UNSTABLE'
-                    } else {
-                        diff.put('All schemas', 'Schemas are synced, no changes to be made.')
-                        diffHtmlData = folioSchemaCompareUtils.createDiffHtmlReport(diff, pgadminURL)
-                    }
-                    writeFile file: "reportSchemas/diff.html", text: diffHtmlData
                 }
             }
-
         } catch (exception) {
             currentBuild.result = 'FAILURE'
             error(exception.getMessage())
@@ -278,16 +196,6 @@ ansiColor('xterm') {
         }
     }
 }
-
-// Temporary solution. After migartion to New Jenkins we can connect from jenkins to RDS. Need to rewrite
-/*def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
-    println("Getting schemas list for $tenantId tenant")
-    def getSchemasListCommand = """psql 'postgres://${dbParams.user}:${dbParams.password}@${dbParams.host}:${dbParams.port}/${dbParams.db}' --tuples-only -c \"SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE '${tenantId}_%'\""""
-
-    kubectl.waitPodIsRunning(namespace, psqlPod)
-    def schemasList = kubectl.execCommand(namespace, psqlPod, getSchemasListCommand)
-    return schemasList.split('\n').collect({it.trim()})
-}*/
 
 private List getEnvironmentJobParameters(String action, String clusterName, String projectName, String folio_repository,
                                          String folio_branch, String okapiVersion, String tenant_id, String admin_username,
