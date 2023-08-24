@@ -166,4 +166,29 @@ class Permissions extends Authorization {
         logger.info("Wait a minute for permissions cache update")
         sleep(60000)
     }
+
+/**
+ * Adds a missing permission to a user.
+ * source: RANCHER-895
+ * @param tenant The tenant in which the user is located.
+ * @param user The user to whom the permission is added.
+ * @param permissionName The permission to add.
+ */
+    void addUserMissingPermission(OkapiTenant tenant, OkapiUser user) {
+        def allPermissions = getAllPermissions(tenant)
+        def existingPermissions = getUserPermissions(tenant, user)
+        allPermissions.each { permissionName ->
+            if ( existingPermissions.contains(permissionName) ) {
+                logger.info("User: ${user} already has permission: ${permissionName}")
+            }
+            else {
+                try {
+                    addUserPermission(tenant, user, permissionName as String)
+                }
+                catch (e){
+                    logger.warning("Add permission operation: ${permissionName} failed with error: ${e.getMessage()}")
+                }
+            }
+        }
+    }
 }
