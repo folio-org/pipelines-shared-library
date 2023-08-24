@@ -158,7 +158,6 @@ ansiColor('xterm') {
                         tenant_id_clean,
                         pgadminURL,
                         resultMap,
-                        foundSchemaDiff
                         )
 
                 }

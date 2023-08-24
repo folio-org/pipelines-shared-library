@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.xml.MarkupBuilder
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
@@ -5,7 +6,7 @@ import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 
-void getSchemasDifference(String rancher_project_name, String tenant_id, String tenant_id_clean, String pgadminURL) {
+void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgadminURL, resultMap) {
     def diff = [:]
 
             Map psqlConnection = [
