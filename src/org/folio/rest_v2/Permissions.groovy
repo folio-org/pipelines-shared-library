@@ -174,8 +174,8 @@ class Permissions extends Authorization {
  * @param user The user to whom the permission is added.
  */
     void addUserMissingPermission(OkapiTenant tenant, OkapiUser user) {
-        def allPermissions = getAllPermissions(tenant)
-        def existingPermissions = getUserPermissions(tenant, user)
+        List allPermissions = getAllPermissions(tenant)
+        List existingPermissions = getUserPermissions(tenant, user)
         allPermissions.each { permissionName ->
             if ( existingPermissions.contains(permissionName) ) {
                 logger.info("User: ${user} already has permission: ${permissionName}")
