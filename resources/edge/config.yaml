@@ -8,6 +8,7 @@ edge-oai-pmh:
     password: test
   permissions:
   - oai-pmh.all
+  - user-tenants.collection.get
 edge-patron:
   permissions:
   - patron.all
