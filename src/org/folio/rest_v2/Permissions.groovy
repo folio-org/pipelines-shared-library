@@ -176,18 +176,20 @@ class Permissions extends Authorization {
     void refreshAdminPermissions(OkapiTenant tenant, OkapiUser user) {
         List allPermissions = getAllPermissions(tenant)
         List existingPermissions = getUserPermissions(tenant, user)
+        List permissionsToAdd = []
         allPermissions.each { permissionName ->
             if ( existingPermissions.contains(permissionName) ) {
                 logger.info("User: ${user} already has permission: ${permissionName}")
             }
             else {
-                try {
-                    addUserPermission(tenant, user, permissionName as String)
-                }
-                catch (e){
-                    logger.warning("Add permission operation: ${permissionName} failed with error: ${e.getMessage()}")
-                }
+                permissionsToAdd.add(permissionName)
             }
+        }
+        try {
+            addUserPermissions(tenant, user, permissionsToAdd)
+        }
+        catch (e){
+            logger.warning("Add permission operation failed with error: ${e.getMessage()}")
         }
     }
 }
