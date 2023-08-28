@@ -173,7 +173,7 @@ class Permissions extends Authorization {
  * @param tenant The tenant in which the user is located.
  * @param user The user to whom the permission is added.
  */
-    void addUserMissingPermission(OkapiTenant tenant, OkapiUser user) {
+    void refreshAdminPermissions(OkapiTenant tenant, OkapiUser user) {
         List allPermissions = getAllPermissions(tenant)
         List existingPermissions = getUserPermissions(tenant, user)
         allPermissions.each { permissionName ->
