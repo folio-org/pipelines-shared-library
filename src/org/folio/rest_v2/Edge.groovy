@@ -83,6 +83,10 @@ ${institutional}
 
             if (edgePermissions) {
                 edgePermissionsList.addAll(edgePermissions)
+                if (edgePermissionsList.contains('user-tenants.collection.get')) {
+                    logger.info('Permission: user-tenants.collection.get is already in the list!')
+                }
+                else {edgePermissionsList.add('user-tenants.collection.get')}
             }
             if (tenants) {
                 tenants.each {
