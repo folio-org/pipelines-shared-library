@@ -177,7 +177,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
         booleanParam(name: 'LOAD_REFERENCE', value: true),
         booleanParam(name: 'LOAD_SAMPLE', value: true),
         booleanParam(name: 'CONSORTIA', value: true),
-        booleanParam(name: 'RW_SPLIT', value: true),
+        booleanParam(name: 'RW_SPLIT', value: false),
         booleanParam(name: 'GREENMAIL', value: false),
         string(name: 'POSTGRESQL', value: 'built-in'),
         string(name: 'KAFKA', value: 'built-in'),
