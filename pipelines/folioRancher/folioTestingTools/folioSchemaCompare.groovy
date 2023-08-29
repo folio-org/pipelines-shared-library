@@ -57,12 +57,12 @@ ansiColor('xterm') {
                 if (params.backup_name) {
                     tenant_id = 'fs09000000'
                     admin_username = 'folio'
-                    admin_password = Secret.fromString('folio')
+                    admin_password = 'folio'
                     buildName tenant_id + '-' + params.backup_name + '.' + env.BUILD_ID
                 } else {
                     tenant_id = 'diku'
                     admin_username = 'diku'
-                    admin_password = Secret.fromString('diku_admin')
+                    admin_password = 'diku_admin'
                     buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
                 }
 
