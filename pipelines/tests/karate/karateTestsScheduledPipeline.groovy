@@ -98,15 +98,6 @@ pipeline {
 
         stage("Parallel") {
             parallel {
-                stage("Destroy environment") {
-                    steps {
-                        script {
-                            def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                            tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                        }
-                    }
-                }
-
                 stage("Collect test results") {
                     when {
                         expression {
@@ -164,7 +155,16 @@ pipeline {
                 }
             }
         }
-    }
+
+        stage("Destroy environment") {
+            steps {
+                script {
+                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                }
+            }
+        }
+     }
     }
 private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
