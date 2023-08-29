@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-966') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
