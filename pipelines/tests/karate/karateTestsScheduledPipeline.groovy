@@ -29,15 +29,15 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 
 pipeline {
 
-        agent { label 'jenkins-agent-java17' }
+    agent { label 'jenkins-agent-java17' }
 
-        triggers {
-            cron('H 3 * * *')
-        }
+    triggers {
+        cron('H 3 * * *')
+    }
 
-        options {
-            disableConcurrentBuilds()
-        }
+    options {
+        disableConcurrentBuilds()
+    }
 
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
@@ -48,23 +48,22 @@ pipeline {
         stage("Check environment") {
             steps {
                 script {
-            try {
-                def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-            }
-            catch (Exception new_ex){
-                println('Existing env: ' + new_ex)
+                    try {
+                        def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+                        tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    } catch (Exception new_ex) {
+                        println('Existing env: ' + new_ex)
+                    }
+                }
             }
         }
-    }
-}
 
         stage("Create environment") {
             steps {
                 script {
                     def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                         projectName, prototypeTenant, folio_repository, folio_branch)
-                        spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
             }
         }
@@ -77,21 +76,19 @@ pipeline {
             }
             steps {
                 script {
-                    def jobParameters = [
-                        branch         : params.branch,
-                        threadsCount   : "4",
-                        modules        : "",
-                        okapiUrl       : okapiUrl,
-                        edgeUrl        : edgeUrl,
-                        tenant         : 'supertenant',
-                        adminUserName  : 'super_admin',
-                        adminPassword  : 'admin',
-                        prototypeTenant: prototypeTenant
-                    ]
+                    def jobParameters = [branch         : params.branch,
+                                         threadsCount   : "4",
+                                         modules        : "",
+                                         okapiUrl       : okapiUrl,
+                                         edgeUrl        : edgeUrl,
+                                         tenant         : 'supertenant',
+                                         adminUserName  : 'super_admin',
+                                         adminPassword  : 'admin',
+                                         prototypeTenant: prototypeTenant]
 
                     // Disable temporary, check tests results without sleep
                     // sleep time: 60, unit: 'MINUTES'
-                    // karateFlow(jobParameters)
+                    karateFlow(jobParameters)
                 }
             }
         }
@@ -105,15 +102,22 @@ pipeline {
                         }
                     }
                     stages {
-//                        stage("Collect execution results") {
-//                            steps {
-//                                script {
-//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-//                                }
-//                            }
-//                        }
-
+                        stage("Collect execution results") {
+                            steps {
+                                script {
+                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+                                }
+                            }
+                        }
+                        stage("Destroy environment") {
+                            steps {
+                                script {
+                                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+                                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                                }
+                            }
+                        }
                         stage("Parse teams assignment") {
                             steps {
                                 script {
@@ -123,21 +127,21 @@ pipeline {
                             }
                         }
 
-//                        stage("Sync jira tickets") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
+                        stage("Sync jira tickets") {
+                            steps {
+                                script {
+                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
 
-//                        stage("Send slack notifications") {
-//                            steps {
-//                                script {
-//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                                }
-//                            }
-//                        }
+                        stage("Send slack notifications") {
+                            steps {
+                                script {
+                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -155,48 +159,38 @@ pipeline {
                 }
             }
         }
-
-//        stage("Destroy environment") {
-//            steps {
-//                script {
-//                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-//                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//            }
-//        }
-     }
     }
+}
+
 private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
                                          folio_repository, folio_branch) {
-    [
-        string(name: 'CLUSTER', value: clusterName),
-        string(name: 'NAMESPACE', value: projectName),
-        string(name: 'FOLIO_BRANCH', value: folio_branch),
-        string(name: 'OKAPI_VERSION', value: okapiVersion),
-        string(name: 'CONFIG_TYPE', value: "testing"),
-        booleanParam(name: 'LOAD_REFERENCE', value: true),
-        booleanParam(name: 'LOAD_SAMPLE', value: true),
-        booleanParam(name: 'CONSORTIA', value: true),
-        booleanParam(name: 'RW_SPLIT', value: false),
-        booleanParam(name: 'GREENMAIL', value: false),
-        string(name: 'POSTGRESQL', value: 'built-in'),
-        string(name: 'KAFKA', value: 'built-in'),
-        string(name: 'OPENSEARCH', value: 'built-in'),
-        string(name: 'S3_BUCKET', value: 'built-in'),
-        string(name: 'MEMBERS', value: ''),
-        string(name: 'AGENT', value: 'rancher'),
-        booleanParam(name: 'REFRESH_PARAMETERS', value: false)
-    ]
+    [string(name: 'CLUSTER', value: clusterName),
+     string(name: 'NAMESPACE', value: projectName),
+     string(name: 'FOLIO_BRANCH', value: folio_branch),
+     string(name: 'OKAPI_VERSION', value: okapiVersion),
+     string(name: 'CONFIG_TYPE', value: "testing"),
+     booleanParam(name: 'LOAD_REFERENCE', value: true),
+     booleanParam(name: 'LOAD_SAMPLE', value: true),
+     booleanParam(name: 'CONSORTIA', value: true),
+     booleanParam(name: 'RW_SPLIT', value: false),
+     booleanParam(name: 'GREENMAIL', value: false),
+     string(name: 'POSTGRESQL', value: 'built-in'),
+     string(name: 'KAFKA', value: 'built-in'),
+     string(name: 'OPENSEARCH', value: 'built-in'),
+     string(name: 'S3_BUCKET', value: 'built-in'),
+     string(name: 'MEMBERS', value: ''),
+     string(name: 'AGENT', value: 'rancher'),
+     booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
+
 private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
-    [
-        string(name: 'CLUSTER', value: clusterName),
-        string(name: 'NAMESPACE', value: projectName),
-        booleanParam(name: 'RW_SPLIT', value: true),
-        string(name: 'POSTGRESQL', value: 'built-in'),
-        string(name: 'KAFKA', value: 'built-in'),
-        string(name: 'OPENSEARCH', value: 'built-in'),
-        string(name: 'S3_BUCKET', value: 'built-in'),
-        string(name: 'AGENT', value: 'rancher'),
-        booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+    [string(name: 'CLUSTER', value: clusterName),
+     string(name: 'NAMESPACE', value: projectName),
+     booleanParam(name: 'RW_SPLIT', value: true),
+     string(name: 'POSTGRESQL', value: 'built-in'),
+     string(name: 'KAFKA', value: 'built-in'),
+     string(name: 'OPENSEARCH', value: 'built-in'),
+     string(name: 'S3_BUCKET', value: 'built-in'),
+     string(name: 'AGENT', value: 'rancher'),
+     booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
