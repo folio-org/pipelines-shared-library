@@ -1,7 +1,6 @@
 // Getting the kubeconfig file from the AWS EKS cluster.
 String getKubeConfig(String region, String cluster_name) {
     sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name}"
-    sh "export TF_REGISTRY_CLIENT_TIMEOUT=20"
 }
 
 // Using the AWS CLI to get a list of RDS cluster snapshots.
