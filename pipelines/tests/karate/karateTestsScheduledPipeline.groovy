@@ -91,7 +91,7 @@ pipeline {
 
                     // Disable temporary, check tests results without sleep
                     // sleep time: 60, unit: 'MINUTES'
-                    karateFlow(jobParameters)
+                    // karateFlow(jobParameters)
                 }
             }
         }
@@ -105,14 +105,14 @@ pipeline {
                         }
                     }
                     stages {
-                        stage("Collect execution results") {
-                            steps {
-                                script {
-                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                                }
-                            }
-                        }
+//                        stage("Collect execution results") {
+//                            steps {
+//                                script {
+//                                    karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+//                                    karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                                }
+//                            }
+//                        }
 
                         stage("Parse teams assignment") {
                             steps {
@@ -123,21 +123,21 @@ pipeline {
                             }
                         }
 
-                        stage("Sync jira tickets") {
-                            steps {
-                                script {
-                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
+//                        stage("Sync jira tickets") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
 
-                        stage("Send slack notifications") {
-                            steps {
-                                script {
-                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                                }
-                            }
-                        }
+//                        stage("Send slack notifications") {
+//                            steps {
+//                                script {
+//                                    karateTestUtils.sendSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
@@ -156,14 +156,14 @@ pipeline {
             }
         }
 
-        stage("Destroy environment") {
-            steps {
-                script {
-                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-        }
+//        stage("Destroy environment") {
+//            steps {
+//                script {
+//                    def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//                    tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//            }
+//        }
      }
     }
 private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
