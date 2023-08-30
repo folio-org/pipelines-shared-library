@@ -8,29 +8,16 @@ import groovy.json.JsonSlurperClassic
 
 @Library('pipelines-shared-library@RANCHER-838') _
 
-String getOkapiVersion(folio_repository, folio_branch) {
-    def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
-    if (installJson.getResponseCode().equals(200)) {
-        String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
-        if(okapi){
-            return okapi - 'okapi-'
-        } else {
-            error("Can't get okapi version from install.json in ${folio_branch} branch of ${folio_repository} repository!" )
-        }
-    }
-    error("There is no install.json in ${folio_branch} branch of ${folio_repository} repository!" )
-}
-
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-        jobsParameters.refreshParameters(),
-        jobsParameters.repository(),
-        jobsParameters.branch('folio_repository', 'folio_branch_src'),
-        jobsParameters.branch('folio_repository', 'folio_branch_dst'),
+        folioParameters.repository(),
+        folioParameters.branch('folio_branch_src', 'folio_repository'),
+        folioParameters.branch('folio_branch_dst', 'folio_repository'),
         string(name: 'backup_name', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
         string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
+        folioParameters.refreshParameters()
 
 def rancher_cluster_name = 'folio-perf'
 def rancher_project_name = 'data-migration'
@@ -41,8 +28,8 @@ def admin_password
 def tenant_id_clean ='clean'
 def diff = [:]
 def resultMap = [:]
-def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
-def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
+def pgadminURL = "https://${rancher_cluster_name}-${rancher_project_name}-pgadmin.ci.folio.org/"
+def okapiVersion = folioCommon.getOkapiVersion(params.folio_repository, params.folio_branch_src)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {

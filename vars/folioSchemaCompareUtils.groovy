@@ -64,7 +64,8 @@ void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgad
 
             groupedValues.each { srcValue, dstValue ->
                 try {
-                    def getDiffCommand = "./atlas schema diff --from 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${srcValue}' --to 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path=${dstValue}'"
+                    def dbConnectionString = 'postgres://${psqlConnection.user}:${psqlConnection.password}@${psqlConnection.host}:${psqlConnection.port}/${psqlConnection.db}?sslmode=disable&search_path'
+                    def getDiffCommand = "./atlas schema diff --from '${dbConnectionString}=${srcValue}' --to '${dbConnectionString}=${dstValue}'"
                     def currentDiff = sh(returnStdout: true, script: "set +x && kubectl exec ${atlasPodName} -n ${rancher_project_name} -- ${getDiffCommand}").trim()
 
                     if (currentDiff == "Schemas are synced, no changes to be made.") {
