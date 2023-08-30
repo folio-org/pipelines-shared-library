@@ -13,8 +13,8 @@ properties([
     disableConcurrentBuilds(),
     parameters([
         folioParameters.repository(),
-        folioParameters.branch('folio_branch_src', 'platform_complete'),
-        folioParameters.branch('folio_branch_dst', 'platform_complete'),
+        folioParameters.branch(),
+        folioParameters.branch(),
         string(name: 'backup_name', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
         string(name: 'slackChannel', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
         folioParameters.refreshParameters()
