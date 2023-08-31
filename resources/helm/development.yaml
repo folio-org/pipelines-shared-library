@@ -809,6 +809,7 @@ mod-quick-marc:
     requests:
       memory: '512Mi'
 mod-remote-storage:
+  dbMaxPoolSize: '5'
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
