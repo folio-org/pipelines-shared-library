@@ -14,6 +14,7 @@ void client(Closure closure) {
                 pip3 install --no-cache-dir awscli
                 rm -rf /var/cache/apk/*
                 aws --version
+                export TF_REGISTRY_CLIENT_TIMEOUT=20
             '''
             closure.call()
         }
