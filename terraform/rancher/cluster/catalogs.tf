@@ -139,5 +139,5 @@ resource "rancher2_catalog_v2" "sorry-cypress" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].cluster_id
   name       = "mock-server"
-  url        = "https://github.com/mock-server/mockserver.git"
+  url        = "http://www.mock-server.com/"
 }
