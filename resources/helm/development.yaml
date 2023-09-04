@@ -64,30 +64,6 @@ edge-dematic:
       memory: '192Mi'
   service:
     type: NodePort
-edge-fqm:
-  ingress:
-    annotations:
-      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/success-codes: 200-399
-      kubernetes.io/ingress.class: alb
-    enabled: true
-    hosts:
-      - paths:
-          - /fqm*
-  javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '256Mi'
-    requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
 edge-inn-reach:
   ingress:
     annotations:
@@ -551,16 +527,6 @@ mod-finance-storage:
       memory: '341Mi'
     requests:
       memory: '256Mi'
-mod-fqm-manager:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
 mod-gobi:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
@@ -672,16 +638,6 @@ mod-licenses:
       memory: '768Mi'
     requests:
       memory: '576Mi'
-mod-lists:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
 mod-login:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
