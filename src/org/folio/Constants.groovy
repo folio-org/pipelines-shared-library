@@ -70,12 +70,14 @@ class Constants {
 
     static String FOLIO_ORG = 'folio-org'
     static String FOLIO_GITHUB_URL = 'https://github.com/folio-org'
+    static String FOLIO_SSH_GITHUB_URL = 'git@github.com:folio-org'
     static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
     static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
     static String FOLIO_JIRA_URL = 'https://issues.folio.org'
     static String CI_ROOT_DOMAIN = 'ci.folio.org'
 
     static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'
+    static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
     static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
     static String JIRA_CREDENTIALS_ID = 'jenkins-jira'
 
@@ -171,10 +173,12 @@ class Constants {
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
+    static String CYPRESS_SSH_REPOSITORY_URL = "${FOLIO_SSH_GITHUB_URL}/stripes-testing.git"
     static String CYPRESS_ALLURE_VERSION = '2.17.2'
     static String CYPRESS_SC_URL = 'https://folio-testing-sc-director.ci.folio.org'
     static String CYPRESS_SC_KEY = 'secretCypressKey'
     static String CYPRESS_PROJECT = 'stripes'
+    static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
     //RDS
     static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
@@ -217,4 +221,6 @@ class Constants {
     static String DM_JIRA_PROJECT = 'FAT'
     static String DM_JIRA_ISSUE_TYPE = 'Bug'
     static String DM_ISSUES_JQL = 'labels = dataMigrationSchemaDiff and status != Closed'
+
+    static String GLOBAL_BUILD_TIMEOUT = '4'
 }

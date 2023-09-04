@@ -19,11 +19,12 @@ properties([
     ])
 ])
 
+if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    return
+}
+
 ansiColor('xterm') {
-    if (params.REFRESH_PARAMETERS) {
-        currentBuild.result = 'ABORTED'
-        error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-    }
     node(params.AGENT) {
         stage('Ini') {
             buildName ""
