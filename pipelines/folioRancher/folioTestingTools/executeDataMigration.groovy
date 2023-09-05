@@ -40,14 +40,14 @@ def config_type = 'performance'
 def tenant_id
 def admin_username
 def admin_password
-def tenant_id_clean ='clean'
 def startMigrationTime = LocalDateTime.now()
 Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
 def resultMap = [:]
-def pgadminURL = "https://$rancher_cluster_name-$rancher_project_name-pgadmin.ci.folio.org/"
 def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
+def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
+def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -71,24 +71,7 @@ ansiColor('xterm') {
                     buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
                 }
 
-                // Create map with moduleName, source and destination version for this module
-                // This map used for time migration and schemaDiff reports
-                def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
-                def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
 
-                srcInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                    resultMap[moduleName] = [srcVersion: moduleVersion]
-                }
-
-                dstInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                    if (!resultMap.containsKey(moduleName)) {
-                        // Create an empty map if it doesn't exist
-                        resultMap[moduleName] = [:]
-                    }
-                    resultMap[moduleName]['dstVersion'] = moduleVersion
-                }
             }
 
             stage('Destroy data-migration project') {
@@ -133,47 +116,21 @@ ansiColor('xterm') {
                     ]
             }
 
+
             stage('Generate Data Migration Time report') {
-                sleep time: 5, unit: 'MINUTES'
+                //sleep time: 5, unit: 'MINUTES'
 
-                // Get logs about activating modules from elasticseach
-                def result = dataMigrationReport.getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
-
-                // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
-                def tenants = []
-                result.hits.hits.each {
-                    def logField = it.fields.log[0]
-                    def parsedMigrationInfo= logField.split("'")
-                    def (fullModuleName,moduleName,moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                    def time
-
-                    try {
-                        def parsedTime = logField.split("completed successfully in ")
-                        time = parsedTime[1].minus("ms").trim()
-                    } catch (ArrayIndexOutOfBoundsException exception) {
-                        time = "failed"
-                    }
-
-                    if (moduleName.startsWith("mod-") && resultMap[moduleName].dstVersion == moduleVersion) {
-                        def bindingMap = [tenantName: parsedMigrationInfo[3],
-                                          moduleInfo: [moduleName: moduleName,
-                                                       moduleVersionDst: resultMap[moduleName].dstVersion,
-                                                       moduleVersionSrc: resultMap[moduleName].srcVersion,
-                                                       execTime: time]]
-
-                        tenants += new DataMigrationTenant(bindingMap)
-                    }
-                }
-
-                // Grouped modules by tenant name and generate HTML report
-                def uniqTenants = tenants.tenantName.unique()
-                uniqTenants.each { tenantName ->
-                    (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = dataMigrationReport.createTimeHtmlReport(tenantName, tenants)
-                    totalTimeInMs += totalTime
-                    modulesLongMigrationTimeSlack += modulesLongMigrationTime
-                    modulesMigrationFailedSlack += modulesMigrationFailed
-                    writeFile file: "reportTime/${tenantName}.html", text: htmlData
-                }
+                folioexecuteDataMigrationUtils.getMigrationTime(
+                    rancher_cluster_name,
+                    rancher_project_name,
+                    resultMap,
+                    srcInstallJson,
+                    dstInstallJson,
+                    totalTimeInMs,
+                    modulesLongMigrationTimeSlack,
+                    modulesMigrationFailedSlack,
+                    startMigrationTime
+                )
             }
 
 
@@ -193,7 +150,7 @@ ansiColor('xterm') {
             }
 
             stage('Send Slack notification') {
-                dataMigrationReport.sendSlackNotification("#${params.slackChannel}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+                folioexecuteDataMigrationUtils.sendSlackNotification("#${params.slackChannel}")
             }
 
             stage('Destroy data-migration project') {
