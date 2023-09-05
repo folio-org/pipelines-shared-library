@@ -122,7 +122,7 @@ ansiColor('xterm') {
       if (params.GREENMAIL) {
         stage('[Helm] Deploy greenmail') {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployGreenmail(namespace.getNamespaceName())
+            folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
           }
         }
       }
@@ -130,7 +130,7 @@ ansiColor('xterm') {
       if (params.MOCK_SERVER) {
         stage('[Helm] Deploy mock-server') {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployMockServer(namespace.getNamespaceName())
+            folioHelmFlow.deployMockServer(namespace)
           }
         }
       }
