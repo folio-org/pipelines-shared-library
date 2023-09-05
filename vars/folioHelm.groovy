@@ -92,6 +92,34 @@ void deployGreenmail(String namespace) {
     upgrade("greenmail", namespace, '', Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")
 }
 
+void deployMockServer(RancherNamespace ns) {
+    String MOCK_SERVER_REPO_NAME = 'mockserver'
+    String MOCK_SERVER_REPO_URL = 'https://www.mock-server.com'
+    String configPath = '/config/mockserverInitialization.json'
+    String version = "5.15.0"
+    Map moduleConfig = [:]
+    String valuesFilePath = "./values/mockserver.yaml"
+    moduleConfig << [image         : [repository: "mockserver/mockserver",
+                                      tag       : version],
+                     podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""],
+                     extraEnv      : [[name  : "MOCKSERVER_WATCH_INITIALIZATION_JSON",
+                                       value : configPath],
+                                      [name  : "MOCKSERVER_PERSISTED_EXPECTATIONS_PATH",
+                                       value : configPath],
+                                      [name  : "MOCKSERVER_INITIALIZATION_JSON_PATH",
+                                       value : true],
+                                      [name  : "MOCKSERVER_PERSIST_EXPECTATIONS",
+                                       value : true]
+                                      ],
+                     ingress       : [enabled: true,
+                                      hosts: "${ns.clusterName}-${ns.namespaceName}-mockserver.ci.folio.org",
+                                      'alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]]
+    writeYaml file: valuesFilePath, data: moduleConfig
+    sh 'cat ./values/mockserver.yaml'
+//    addHelmRepository(MOCK_SERVER_REPO_NAME, MOCK_SERVER_REPO_URL, false)
+//    upgrade("mockserver", ns.namespaceName, valuesFilePath, MOCK_SERVER_REPO_NAME, "mockserver")
+}
+
 void checkPodRunning(String ns, String podName) {
     timeout(time: 5, unit: 'MINUTES') {
         def podNotRunning = true
