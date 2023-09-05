@@ -8,18 +8,7 @@ import groovy.json.JsonSlurperClassic
 
 @Library('pipelines-shared-library@RANCHER-907') _
 
-String getOkapiVersion(folio_repository, folio_branch) {
-    def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
-    if (installJson.getResponseCode().equals(200)) {
-        String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
-        if(okapi){
-            return okapi - 'okapi-'
-        } else {
-            error("Can't get okapi version from install.json in ${folio_branch} branch of ${folio_repository} repository!" )
-        }
-    }
-    error("There is no install.json in ${folio_branch} branch of ${folio_repository} repository!" )
-}
+
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -45,7 +34,7 @@ Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
 def resultMap = [:]
-def okapiVersion = getOkapiVersion(params.folio_repository, params.folio_branch_src)
+def okapiVersion = folioCommon.getOkapiVersion(params.folio_repository, params.folio_branch_src)
 def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
 def dstInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_dst)
 

@@ -50,6 +50,10 @@ def namespace() {
     return _paramExtendedSingleSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace')
 }
 
+def repository() {
+    return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
+}
+
 def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {
     return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
@@ -84,4 +88,9 @@ def opensearchType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse())
 
 def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
     return _paramChoice('S3_BUCKET', value, 'Select built-in Minio or AWS S3')
+}
+
+static List repositoriesList() {
+    return ['platform-complete',
+            'platform-core']
 }
