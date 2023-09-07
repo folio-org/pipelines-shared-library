@@ -12,9 +12,12 @@ import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 
+def Integer totalTimeInMs = 0
+def LinkedHashMap modulesLongMigrationTimeSlack = [:]
+def List modulesMigrationFailedSlack = []
 
 
-void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
+void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,startMigrationTime){
 
     srcInstallJson.each { item ->
         def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
@@ -162,9 +165,7 @@ def createTimeHtmlReport(tenantName, tenants) {
 }
 
 void sendSlackNotification(String slackChannel) {
-    Integer totalTimeInMs = null
-    LinkedHashMap modulesLongMigrationTime = [:]
-    modulesMigrationFailed = []
+
     def buildStatus = currentBuild.result
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
