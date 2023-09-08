@@ -30,6 +30,9 @@ def tenant_id
 def admin_username
 def admin_password
 def startMigrationTime = LocalDateTime.now()
+Integer totalTimeInMs = 0
+LinkedHashMap modulesLongMigrationTimeSlack = [:]
+List modulesMigrationFailedSlack = []
 def resultMap = [:]
 def okapiVersion = folioCommon.getOkapiVersion(params.folio_repository, params.folio_branch_src)
 def srcInstallJson = new GitHubUtility(this).getEnableList(params.folio_repository, params.folio_branch_src)
@@ -112,6 +115,9 @@ ansiColor('xterm') {
                     resultMap,
                     srcInstallJson,
                     dstInstallJson,
+                    totalTimeInMs,
+                    modulesLongMigrationTimeSlack,
+                    modulesMigrationFailedSlack,
                     startMigrationTime
                 )
             }
