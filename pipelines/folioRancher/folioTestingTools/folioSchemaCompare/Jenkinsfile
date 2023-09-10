@@ -29,7 +29,7 @@ def tenantdIdClean ='clean'
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://${clusterName}-${projectName}-pgadmin.ci.folio.org/"
-String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH_SRC': params.FOLIO_BRANCH_SRC])[0]
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH_SRC])[0]
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
