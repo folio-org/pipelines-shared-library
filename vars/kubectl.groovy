@@ -1,6 +1,17 @@
-def createConfigMap(String name, String namespace, String file_path) {
+def createConfigMap(String name, String namespace, files) {
     try {
-        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path}"
+        def fromFileArgs = []
+        switch (files) {
+            case String:
+                fromFileArgs.add("--from-file=${files}")
+                break
+            case List:
+                fromFileArgs = files.collect { "--from-file=${it}" }
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported argument type 'files'")
+        }
+        sh "kubectl create configmap ${name} --namespace=${namespace} ${fromFileArgs.join(' ')} --save-config"
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -71,6 +82,25 @@ String deleteSecret(String secret_name, String namespace) {
 
 String patchSecret(String secret_name, String value_name, String secret_value, String namespace) {
         sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
+}
+
+def patchConfigMap(String name, String namespace, files) {
+    try {
+        def fromFileArgs = []
+        switch (files) {
+            case String:
+                fromFileArgs.add("--from-file=${files}")
+                break
+            case List:
+                fromFileArgs = files.collect { "--from-file=${it}" }
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported argument type 'files'")
+        }
+        sh "kubectl create configmap ${name} --namespace=${namespace} ${fromFileArgs.join(' ')} -o json --dry-run=client | kubectl apply -f -"
+    } catch (Exception e) {
+        println(e.getMessage())
+    }
 }
 
 void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
