@@ -30,6 +30,7 @@ def tenantId
 def adminUsername
 def adminPassword
 def startMigrationTime = LocalDateTime.now()
+Integer totalTimeInMs = 0
 LinkedHashMap modulesLongMigrationTimeSlack = [:]
 List modulesMigrationFailedSlack = []
 def resultMap = [:]
@@ -141,6 +142,7 @@ ansiColor('xterm') {
                     resultMap,
                     srcInstallJson,
                     dstInstallJson,
+                    totalTimeInMs,
                     modulesLongMigrationTimeSlack,
                     modulesMigrationFailedSlack,
                     startMigrationTime
