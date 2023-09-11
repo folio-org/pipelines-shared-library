@@ -14,8 +14,9 @@ import org.folio.karate.teams.TeamAssignment
 
 
 
-void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
+void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
 
+    Integer totalTimeInMs = 0
     srcInstallJson.each { item ->
         def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
         resultMap[moduleName] = [srcVersion: moduleVersion]
