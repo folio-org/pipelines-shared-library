@@ -1,3 +1,4 @@
+package deprecated
 
 @Library('pipelines-shared-library') _
 
