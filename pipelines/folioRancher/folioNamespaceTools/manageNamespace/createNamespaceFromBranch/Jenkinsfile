@@ -13,9 +13,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
 
-@Library('pipelines-shared-library@RANCHER-971') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-971'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -31,7 +31,7 @@ properties([
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
-    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server server'),
+    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     folioParameters.pgType(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
