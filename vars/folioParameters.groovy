@@ -51,7 +51,7 @@ def namespace() {
 }
 
 def repository() {
-    return _paramChoice('folio_repository', repositoriesList(), 'Select source repository')
+    return _paramChoice('FOLIO_REPOSITORY', repositoriesList(), 'Select source repository')
 }
 
 def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {

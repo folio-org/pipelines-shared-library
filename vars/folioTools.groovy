@@ -45,3 +45,17 @@ List getGitHubTeamsIds(String teams) {
         return ids
     }
 }
+
+/**
+ * Evaluate groovy expression
+ * @param expression groovy expression
+ * @param parameters parameters
+ * @return result
+ */
+static def eval(String expression, Map<String, Object> parameters) {
+    Binding b = new Binding();
+    parameters.each { k, v -> b.setVariable(k, v);
+    }
+    GroovyShell sh = new GroovyShell(b);
+    return sh.evaluate(expression);
+}
