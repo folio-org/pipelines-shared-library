@@ -12,7 +12,8 @@ import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 
-void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
+def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
+
 
     srcInstallJson.each { item ->
         def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
@@ -67,7 +68,7 @@ void getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcIns
         modulesMigrationFailedSlack += modulesMigrationFailed
         writeFile file: "reportTime/${tenantName}.html", text: htmlData
     }
-
+    return [totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack]
 
 }
 
@@ -159,9 +160,7 @@ def createTimeHtmlReport(tenantName, tenants) {
     return [writer.toString(), totalTime, modulesLongMigrationTime, modulesMigrationFailed]
 }
 
-void sendSlackNotification(String slackChannel) {
-    LinkedHashMap modulesLongMigrationTime = [:]
-    modulesMigrationFailed = []
+void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
     def buildStatus = currentBuild.result
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 

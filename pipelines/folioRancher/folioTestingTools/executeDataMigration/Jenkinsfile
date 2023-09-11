@@ -136,7 +136,7 @@ ansiColor('xterm') {
 
 
             stage('Generate Data Migration Time report') {
-                folioexecuteDataMigrationUtils.getMigrationTime(
+                def result = folioexecuteDataMigrationUtils.getMigrationTime(
                     clusterName,
                     projectName,
                     resultMap,
@@ -147,6 +147,9 @@ ansiColor('xterm') {
                     modulesMigrationFailedSlack,
                     startMigrationTime
                 )
+              totalTimeInMs += result[0]
+              modulesLongMigrationTimeSlack += result[1]
+              modulesMigrationFailedSlack += result[2]
             }
 
 
@@ -166,7 +169,7 @@ ansiColor('xterm') {
             }
 
             stage('Send Slack notification') {
-                folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}")
+                folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }
 
           stage('Destroy data-migration project') {
