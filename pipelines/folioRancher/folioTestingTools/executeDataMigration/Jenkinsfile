@@ -135,8 +135,6 @@ ansiColor('xterm') {
 
 
             stage('Generate Data Migration Time report') {
-                sleep time: 5, unit: 'MINUTES'
-
                 folioexecuteDataMigrationUtils.getMigrationTime(
                     clusterName,
                     projectName,
