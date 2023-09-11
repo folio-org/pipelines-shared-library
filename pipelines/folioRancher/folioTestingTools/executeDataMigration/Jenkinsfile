@@ -52,12 +52,12 @@ ansiColor('xterm') {
                     tenantId = 'fs09000000'
                     adminUsername = 'folio'
                     adminPassword = 'folio'
-                    buildName tenant_id + '-' + params.BACKUP_NAME + '.' + env.BUILD_ID
+                    buildName tenantId + '-' + params.BACKUP_NAME + '.' + env.BUILD_ID
                 } else {
                     tenantId = 'diku'
                     adminUsername = 'diku'
                     adminPassword = 'diku_admin'
-                    buildName tenant_id + '.' + 'without-restore' + '.' + env.BUILD_ID
+                    buildName tenantId + '.' + 'without-restore' + '.' + env.BUILD_ID
                 }
 
 
