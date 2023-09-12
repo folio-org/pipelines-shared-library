@@ -207,6 +207,7 @@ String renderKarateConfig(String config){
         Map binding = [
             "baseUrl"                            : params.okapiUrl,
             "edgeUrl"                            : params.edgeUrl,
+            "centralServerUrl"                   : params.okapiUrl.replaceAll("okapi", "mockserver"),
             "admin"                              : [
                 tenant  : params.tenant,
                 name    : params.adminUserName,
