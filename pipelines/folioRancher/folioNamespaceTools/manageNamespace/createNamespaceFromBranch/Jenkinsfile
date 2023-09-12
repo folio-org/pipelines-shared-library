@@ -31,6 +31,7 @@ properties([
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
+    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     folioParameters.pgType(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
@@ -121,7 +122,15 @@ ansiColor('xterm') {
       if (params.GREENMAIL) {
         stage('[Helm] Deploy greenmail') {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployGreenmail(namespace.getNamespaceName())
+            folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+          }
+        }
+      }
+
+      if (params.MOCK_SERVER) {
+        stage('[Helm] Deploy mock-server') {
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            folioHelmFlow.deployMockServer(namespace)
           }
         }
       }

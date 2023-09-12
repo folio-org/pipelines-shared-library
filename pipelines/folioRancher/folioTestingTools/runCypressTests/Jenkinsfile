@@ -1,1 +1,62 @@
-//TBD
+#!groovy
+import hudson.util.Secret
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
+    string(name: 'TENANT_URL', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
+    string(name: 'OKAPI_URL', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
+    string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
+    string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
+    password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
+    string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
+    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8"]),
+    string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
+    string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
+    string(name: 'TESTRAIL_PROJECT_ID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
+    string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Map cypressFlowParameters = [
+  customBuildName         : params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME,
+  branch                  : params.CYPRESS_BRANCH,
+  tenantUrl               : params.TENANT_URL,
+  okapiUrl                : params.OKAPI_URL,
+  tenantId                : params.TENANT_ID,
+  adminUsername           : params.ADMIN_USERNAME,
+  adminPassword           : params.ADMIN_PASSWORD,
+  parallelExecParameters  : params.PARALLEL_EXEC_PARAMETERS,
+  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
+  testsTimeout            : params.TIMEOUT,
+  testrailProjectID       : params.TESTRAIL_PROJECT_ID,
+  testrailRunID           : params.TESTRAIL_RUN_ID,
+  numberOfWorkers         : params.NUMBER_OF_WORKERS,
+  agent                   : 'rancher||jenkins-agent-java11'
+]
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName env.BUILD_ID
+      buildDescription ""
+    }
+
+    stage('[Flow] Execute tests') {
+      folioCypressFlow(cypressFlowParameters)
+    }
+  }
+}

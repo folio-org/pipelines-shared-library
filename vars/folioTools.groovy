@@ -1,3 +1,4 @@
+import hudson.util.Secret
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.RestClient
@@ -46,6 +47,25 @@ List getGitHubTeamsIds(String teams) {
     }
 }
 
+/**
+ * Validate parameters map
+ * @param params
+ * @param excludeParams
+ */
+void validateParams(Map params, List excludeParams) {
+    params.each { key, value ->
+        def valToCheck
+        if (value instanceof Secret) {
+            valToCheck = value.getPlainText()
+        } else {
+            valToCheck = value
+        }
+
+        if (!excludeParams.contains(key) && (!valToCheck || valToCheck.trim() == '')) {
+            error("Value for key '${key}' is missing or empty.")
+        }
+    }
+}
 
 /**
  * Evaluate groovy expression
