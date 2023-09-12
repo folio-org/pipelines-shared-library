@@ -121,6 +121,7 @@ class Constants {
     static String JENKINS_MASTER_NODE = 'master'
     static String JENKINS_JOB_PROJECT = '/Rancher/Project'
     static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
+    static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'
     static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = '/Rancher/Update/backend-modules-deploy-branch'
     static List JENKINS_AGENTS = ['rancher',
                                   'jenkins-agent-java11',
