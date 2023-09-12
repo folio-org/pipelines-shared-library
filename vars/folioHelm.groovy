@@ -1,6 +1,8 @@
+import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
+
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
@@ -85,11 +87,6 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
         }
         parallel branches
     }
-}
-
-void deployGreenmail(String namespace) {
-    addHelmRepository(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, false)
-    upgrade("greenmail", namespace, '', Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")
 }
 
 void checkPodRunning(String ns, String podName) {

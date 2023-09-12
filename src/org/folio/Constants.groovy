@@ -8,7 +8,7 @@ class Constants {
     static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
     static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
     static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-    static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,kseniiadubniak,vitaliiustalu,volodymyrkartsev,vasilikapylou,renatsafiulin,tarasspashchenko,stanislav'
+    static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,kseniiadubniak,volodymyrkartsev,vasilikapylou,renatsafiulin,tarasspashchenko,stanislav,eldiiarduishenaliev,guramjalaghonia'
     static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
     static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2']
     static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'karate', 'snapshot', 'sprint']
@@ -47,7 +47,8 @@ class Constants {
                                           'unam',
                                           'vega',
                                           'volaris',
-                                          'volaris-2nd']
+                                          'volaris-2nd',
+                                          'rtr']
     static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                             'folio-dev'    : AWS_EKS_DEV_NAMESPACES,
                                             'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
@@ -70,12 +71,14 @@ class Constants {
 
     static String FOLIO_ORG = 'folio-org'
     static String FOLIO_GITHUB_URL = 'https://github.com/folio-org'
+    static String FOLIO_SSH_GITHUB_URL = 'git@github.com:folio-org'
     static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
     static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
     static String FOLIO_JIRA_URL = 'https://issues.folio.org'
     static String CI_ROOT_DOMAIN = 'ci.folio.org'
 
     static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'
+    static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
     static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
     static String JIRA_CREDENTIALS_ID = 'jenkins-jira'
 
@@ -168,14 +171,17 @@ class Constants {
                                     'unam'         : 'unam',
                                     'vega'         : 'vega',
                                     'volaris'      : 'volaris',
-                                    'volaris-2nd'  : 'volaris']
+                                    'volaris-2nd'  : 'volaris',
+                                    'rtr'          : 'volaris']
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
+    static String CYPRESS_SSH_REPOSITORY_URL = "${FOLIO_SSH_GITHUB_URL}/stripes-testing.git"
     static String CYPRESS_ALLURE_VERSION = '2.17.2'
     static String CYPRESS_SC_URL = 'https://folio-testing-sc-director.ci.folio.org'
     static String CYPRESS_SC_KEY = 'secretCypressKey'
     static String CYPRESS_PROJECT = 'stripes'
+    static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
     //RDS
     static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
@@ -218,4 +224,6 @@ class Constants {
     static String DM_JIRA_PROJECT = 'FAT'
     static String DM_JIRA_ISSUE_TYPE = 'Bug'
     static String DM_ISSUES_JQL = 'labels = dataMigrationSchemaDiff and status != Closed'
+
+    static String GLOBAL_BUILD_TIMEOUT = '4'
 }

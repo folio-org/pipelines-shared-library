@@ -66,7 +66,7 @@ ansiColor('xterm') {
       if (params.GREENMAIL) {
         stage('[Helm] Deploy greenmail') {
           folioHelm.withKubeConfig(params.CLUSTER) {
-            folioHelm.deployGreenmail(params.NAMESPACE)
+            folioHelmFlow.deployGreenmail(params.NAMESPACE)
           }
         }
       }
