@@ -105,7 +105,8 @@ class Constants {
                                     "unam"         : ["unam"],
                                     "vega"         : ["vega"],
                                     "volaris"      : ["volaris"],
-                                    "volaris-2nd"  : ["volaris"]]
+                                    "volaris-2nd"  : ["volaris"],
+                                    "rtr"          : ["volaris"]]
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
