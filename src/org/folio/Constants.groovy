@@ -47,7 +47,8 @@ class Constants {
                                           'unam',
                                           'vega',
                                           'volaris',
-                                          'volaris-2nd']
+                                          'volaris-2nd',
+                                          'rtr']
     static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                             'folio-dev'    : AWS_EKS_DEV_NAMESPACES,
                                             'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
@@ -169,7 +170,8 @@ class Constants {
                                     'unam'         : 'unam',
                                     'vega'         : 'vega',
                                     'volaris'      : 'volaris',
-                                    'volaris-2nd'  : 'volaris']
+                                    'volaris-2nd'  : 'volaris',
+                                    'rtr'          : 'volaris']
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
