@@ -206,6 +206,7 @@ def createScaleState(String cluster, String namespace) {
         String scale_state = Tools.removeLastChar("${scale_state_temp}")
         writeJSON file: 'schedule', json: "{ " + JsonOutput.prettyPrint(scale_state).toString() + " }"
         kubectl.createConfigMap("scale-state", namespace, "./schedule")
+        return scale_state
     }
 }
 
