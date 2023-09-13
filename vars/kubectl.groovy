@@ -2,6 +2,7 @@ def createConfigMap(String name, String namespace, files) {
     try {
         def fromFileArgs = []
         switch (files) {
+            case GString:
             case String:
                 fromFileArgs.add("--from-file=${files}")
                 break
@@ -88,6 +89,7 @@ def patchConfigMap(String name, String namespace, files) {
     try {
         def fromFileArgs = []
         switch (files) {
+            case GString:
             case String:
                 fromFileArgs.add("--from-file=${files}")
                 break
