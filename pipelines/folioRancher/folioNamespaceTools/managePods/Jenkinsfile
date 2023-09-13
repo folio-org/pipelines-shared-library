@@ -78,7 +78,7 @@ ansiColor('xterm') {
                     awscli.waitRdsClusterAvailable("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
                     sleep 30
                   }
-                  kafka.each { topic -> kubectl.setKubernetesResourceCount("StatefulSet", "${topic}", "${params.NAMESPACE}", "1")
+                  kafka.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1")
                   }
                   core.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
