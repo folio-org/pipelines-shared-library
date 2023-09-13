@@ -197,7 +197,7 @@ def collectDeploymentState (String namespace) {
 
 def scaleDownResources(String namespace, String resource_type) {
     try {
-        return sh (script: "kubectl scale ${resource_type} -n ${namespace} --replicas=0 --all", returnStdout: true)
+        return sh (script: "kubectl scale ${resource_type} -namespace ${namespace} --replicas=0 --all", returnStdout: true)
     }
     catch (Exception e) {
         println( e.getMessage() )
