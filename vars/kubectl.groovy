@@ -199,17 +199,6 @@ def collectDeploymentState (String namespace) {
     }
 }
 
-def createScaleState(String cluster, String namespace) {
-    folioHelm.withKubeConfig(cluster) {
-        awscli.getKubeConfig(Constants.AWS_REGION, cluster)
-        String scale_state_temp = kubectl.collectDeploymentState(namespace)
-        String scale_state = Tools.removeLastChar("${scale_state_temp}")
-        writeJSON file: 'schedule', json: "{ " + JsonOutput.prettyPrint(scale_state).toString() + " }"
-        kubectl.createConfigMap("scale-state", namespace, "./schedule")
-        return scale_state
-    }
-}
-
 def scaleDownResources(String namespace, String resource_type) {
     try {
         return sh (script: "kubectl scale ${resource_type} -n ${namespace} --replicas=0 --all", returnStdout: true)
