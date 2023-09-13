@@ -36,7 +36,7 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      if ("${params.SUSPEND}") {
+      if (params.SUSPEND) {
         stage("Exclude schedule apply") {
           folioHelm.withKubeConfig("${params.CLUSTER}") {
             awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
