@@ -68,6 +68,9 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         25 00 * * 1-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force
         00 06 * * 1-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force
 
+        25 00 * * 1-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
+        00 06 * * 1-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
+
         0 22 * * 1-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         15 06 * * 1-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
    ''')])])
