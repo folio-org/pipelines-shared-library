@@ -107,9 +107,9 @@ ansiColor('xterm') {
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText(check)
                 def scale_state = new Tools(this).removeLastChar(kubectl.collectDeploymentState("${params.NAMESPACE}"))
+                writeJSON file: 'schedule', json: "{${scale_state}}"
+                kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
                 def scale_state_start = new JsonSlurperClassic().parseText("{${scale_state}}")
-                println(scale_state_start)
-                input("test1")
                 postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
                 switch (status['shutdown-schedule']) {
                   case "night":
@@ -126,12 +126,12 @@ ansiColor('xterm') {
                     break
                   default:
                     if (postgresql) {
-                      kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
+                      kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                       kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
                     } else {
-                      kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
+                      kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                       kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
