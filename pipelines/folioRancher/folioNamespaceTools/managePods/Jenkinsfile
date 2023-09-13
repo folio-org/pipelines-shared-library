@@ -80,12 +80,12 @@ ansiColor('xterm') {
                   }
                   kafka.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1")
                   }
-                  core.each { deployment, replica_count ->
+                  services.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
-                  services.each { deployment, replica_count ->
+                  core.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
