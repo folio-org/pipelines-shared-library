@@ -101,11 +101,12 @@ ansiColor('xterm') {
               break
             case "stop":
               println("[Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}]\n[Checking...]")
-
               folioHelm.withK8sClient {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
+                println(status)
+                input("testing input!")
                 switch (status['shutdown-schedule']) {
                   case "night":
                     if (status['status'] == "running") {
