@@ -1,3 +1,7 @@
+import org.folio.utilities.Tools
+import groovy.json.JsonOutput
+import org.folio.Constants
+
 def createConfigMap(String name, String namespace, files) {
     try {
         def fromFileArgs = []
@@ -172,7 +176,7 @@ def getLabelsFromNamespace(String namespace) {
 
 def addLabelToNamespace(String namespace, String labelKey, String labelValue) {
     try {
-        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue}")
+        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue} --overwrite=true")
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -183,5 +187,33 @@ def deleteLabelFromNamespace(String namespace, String labelKey) {
         sh(script: "kubectl label namespace ${namespace} ${labelKey}-")
     } catch (Exception e) {
         println(e.getMessage())
+    }
+}
+def collectDeploymentState (String namespace) {
+    String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
+    try {
+        return sh (script: "kubectl get all ${jsonPath} --namespace ${namespace}", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
+    }
+}
+
+def createScaleState(String cluster, String namespace) {
+    folioHelm.withKubeConfig(cluster) {
+        awscli.getKubeConfig(Constants.AWS_REGION, cluster)
+        String scale_state_temp = kubectl.collectDeploymentState(namespace)
+        String scale_state = Tools.removeLastChar("${scale_state_temp}")
+        writeJSON file: 'schedule', json: "{ " + JsonOutput.prettyPrint(scale_state).toString() + " }"
+        kubectl.createConfigMap("scale-state", namespace, "./schedule")
+    }
+}
+
+def scaleDownResources(String namespace, String resource_type) {
+    try {
+        return sh (script: "kubectl scale ${resource_type} -n ${namespace} --replicas=0 --all", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
     }
 }
