@@ -117,7 +117,7 @@ void call(params) {
         script {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def pathList = resultPaths.collect{ path -> [path: "${path}/allure-results"] }
+            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
             for (pathObject in pathList) {
                 def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
 //                println(jsonFiles)
@@ -126,10 +126,9 @@ void call(params) {
                 totalTestStatuses.failed += testStatuses.failed
                 totalTestStatuses.broken += testStatuses.broken
             }
-        }
-                println "Total passed tests: ${totalTestStatuses.passed}"
-                println "Total failed tests: ${totalTestStatuses.failed}"
-                println "Total broken tests: ${totalTestStatuses.broken}"
+            println "Total passed tests: ${totalTestStatuses.passed}"
+            println "Total failed tests: ${totalTestStatuses.failed}"
+            println "Total broken tests: ${totalTestStatuses.broken}"
 
 //                def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
 //                def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
@@ -143,7 +142,8 @@ void call(params) {
 //                }
 //                else {
 //                    slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-//                }
+
+        }
     }
 }
 
