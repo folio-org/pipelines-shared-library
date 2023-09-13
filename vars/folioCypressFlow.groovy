@@ -108,11 +108,13 @@ void call(params) {
               reportBuildPolicy: 'ALWAYS',
               results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
             ])
+            println resultPaths
+
         }
     }
     stage('[Allure] Send to slack test results notifications') {
         script {
-            def pathList = resultPaths.collect{ result -> [path:"${result.path}/allure-results"]}
+            def pathList = resultPaths.collect{ path -> [path: "${path}/allure-results"] }
             for (path in pathList) {
                 println path.values()
             }
