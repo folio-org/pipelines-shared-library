@@ -50,7 +50,7 @@ ansiColor('xterm') {
           switch (params.ACTION) {
             case "start":
               println("[Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}]\n[Checking...]")
-              folioHelm.withK8sClient("${params.CLUSTER}") {
+              folioHelm.withK8sClient {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
@@ -100,7 +100,7 @@ ansiColor('xterm') {
               break
             case "stop":
               println("[Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}]\n[Checking...]")
-              folioHelm.withK8sClient("${params.CLUSTER}") {
+              folioHelm.withK8sClient {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
@@ -109,7 +109,7 @@ ansiColor('xterm') {
                     println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for tonight!")
                     kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                     break
-                  case ("weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7 ): // Saturday & Sunday included for future use.
+                  case ("weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7): // Saturday & Sunday included for future use.
                     println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
                     kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                     break
