@@ -55,7 +55,7 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText("${check}")
                 def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
                 def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-                postgresql = scale_state_start.findAll { it.startsWith("postgresql") }
+                postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
                 if (status['status'] == "stopped") {
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
                   def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
