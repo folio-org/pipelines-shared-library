@@ -82,7 +82,7 @@ ansiColor('xterm') {
                       kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                       kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
                       sleep 10
-                    } catch (Error e) {
+                    } catch (Exception e) {
                       println("${deployment} is not kind of k8s deploy ${e.getMessage()}")
                       kubectl.setKubernetesResourceCount("StatefulSet", "${deployment}", "${params.NAMESPACE}", "${replica_count}")
                     }
