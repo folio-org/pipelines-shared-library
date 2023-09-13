@@ -58,7 +58,7 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText("${check}")
                 def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
                 def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-                postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
+                postgresql = kubectl.getKubernetesResourceList('StatefulSet',"${params.NAMESPACE}").findAll{it.startsWith("postgresql")}
                 if (status['status'] == "stopped") {
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
                   List core_modules = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
@@ -115,7 +115,7 @@ ansiColor('xterm') {
                 writeJSON file: 'schedule', json: "{${scale_state}}"
                 kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
                 def scale_state_start = new JsonSlurperClassic().parseText("{${scale_state}}")
-                postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
+                postgresql = kubectl.getKubernetesResourceList('StatefulSet',"${params.NAMESPACE}").findAll{it.startsWith("postgresql")}
                 switch (status['shutdown-schedule']) {
                   case "night":
                     if (status['status'] == "running") {
