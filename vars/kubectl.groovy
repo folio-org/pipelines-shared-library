@@ -94,6 +94,9 @@ def patchConfigMap(String name, String namespace, files) {
             case String:
                 fromFileArgs.add("--from-file=${files}")
                 break
+            case GString:
+                fromFileArgs.add("--from-file=${files}")
+                break
             case List:
                 fromFileArgs = files.collect { "--from-file=${it}" }
                 break
