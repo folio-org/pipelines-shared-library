@@ -135,11 +135,13 @@ ansiColor('xterm') {
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                       kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
+                      kubectl.scaleDownResources("${params.NAMESPACE}", "StatefulSet")
                     } else {
                       kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
                       kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                       kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
+                      kubectl.scaleDownResources("${params.NAMESPACE}", "StatefulSet")
                       awscli.stopRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
                     }
                     break
