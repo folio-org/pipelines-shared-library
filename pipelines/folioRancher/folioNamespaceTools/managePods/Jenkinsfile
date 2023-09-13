@@ -81,7 +81,7 @@ ansiColor('xterm') {
                     try {
                       kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                       kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
-                      sleep 10
+                      sleep 5
                     } catch (Exception e) {
                       println(e.getMessage())
                       kubectl.setKubernetesResourceCount('StatefulSet', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
@@ -91,7 +91,7 @@ ansiColor('xterm') {
                   services.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
-                    sleep 10
+                    sleep 5
                   }
                   backend.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
