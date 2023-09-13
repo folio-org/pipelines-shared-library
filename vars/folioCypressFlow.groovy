@@ -110,7 +110,7 @@ void call(params) {
             ])
         }
     }
-    stage('Send to slack test results notifications') {
+    stage('[Allure] Send to slack test results notifications') {
         script {
             def pathList = resultPaths.collect{ result -> [path:"${result.path}/allure-results"]}
             for (path in pathList) {
