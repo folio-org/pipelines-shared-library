@@ -95,6 +95,7 @@ void call(params) {
             }
             def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
             sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+            sh "pwd ${resultPaths}"
         }
     }
 
