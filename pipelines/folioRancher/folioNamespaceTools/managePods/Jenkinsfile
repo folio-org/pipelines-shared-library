@@ -45,7 +45,9 @@ ansiColor('xterm') {
         }
       } else {
         stage('[Manage environment status & state]') {
-          switch ("${params.ACTION}") {
+          buildName "${params.CLUSTER}-${params.NAMESPACE}.${params.ACTION}"
+          buildDescription "action: ${params.ACTION} project"
+          switch (params.ACTION) {
             case { "start" }:
               folioHelm.withKubeConfig("${params.CLUSTER}") {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
@@ -134,5 +136,4 @@ ansiColor('xterm') {
       error(exception.getMessage())
     }
   }
-
 }
