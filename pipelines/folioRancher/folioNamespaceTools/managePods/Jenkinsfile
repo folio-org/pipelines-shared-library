@@ -105,8 +105,7 @@ ansiColor('xterm') {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
-                println(status)
-                input("testing input!")
+                println(status['shutdown-schedule'])
                 switch (status['shutdown-schedule']) {
                   case "night":
                     if (status['status'] == "running") {
