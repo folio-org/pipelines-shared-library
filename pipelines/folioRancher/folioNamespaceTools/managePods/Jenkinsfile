@@ -108,6 +108,8 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText(check)
                 def scale_state = new Tools(this).removeLastChar(kubectl.collectDeploymentState("${params.NAMESPACE}"))
                 def scale_state_start = new JsonSlurperClassic().parseText("{${scale_state}}")
+                println(scale_state_start)
+                input("test1")
                 postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
                 switch (status['shutdown-schedule']) {
                   case "night":
