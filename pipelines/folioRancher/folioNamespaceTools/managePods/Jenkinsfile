@@ -43,89 +43,90 @@ ansiColor('xterm') {
             kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "${params.PERIOD}")
           }
         }
-      }
-      stage('[Manage environment status & state]') {
-        switch ("${params.ACTION}") {
-          case { "start" }:
-            folioHelm.withKubeConfig("${params.CLUSTER}") {
-              awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
-              def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
-              def status = new JsonSlurperClassic().parseText("${check}")
-              def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
-              def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-              postgresql = scale_state_start.findAll { it.startsWith("postgresql") }
-              if (status['status'] == "stopped") {
-                kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
-                def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
-                List core_modules = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
-                def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
-                def backend = scale_state_start.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
-                def edge = scale_state_start.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
-                def ui = scale_state_start.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
-                if (postgresql) {
-                  postgresql.each { db ->
-                    kubectl.setKubernetesResourceCount("StatefulSet", "${db}", "${params.NAMESPACE}", "1")
-                    kubectl.waitKubernetesResourceStableState("StatefulSet", "${db}", "${params.NAMESPACE}", "1", '600')
-                  }
-                } else {
-                  awscli.startRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
-                  awscli.waitRdsClusterAvailable("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
-                  sleep 30
-                }
-                services.each { deployment, replica_count ->
-                  kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                  kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
-                  sleep 10
-                }
-                core.each { deployment, replica_count ->
-                  kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                  kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
-                  sleep 10
-                }
-                backend.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                }
-                edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                }
-                ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                }
-                kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
-              } else {
-                println("Target environment: ${params.CLUSTER} is already in running state!")
-                kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
-              }
-            }
-            break
-          case { "stop" }:
-            folioHelm.withKubeConfig("${params.CLUSTER}") {
-              awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
-              def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
-              def status = new JsonSlurperClassic().parseText("${check}")
-              switch (status['shutdown-schedule']) {
-                case { "night" && status['status'] == "running" }:
-                  println("The environment: ${params.NAMESPACE} has been excluded from shutdown for tonight!")
-                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
-                  break
-                case { "weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7 }: // Saturday & Sunday included for future use.
-                  println("The environment: ${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
-                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
-                  break
-                default:
+      } else {
+        stage('[Manage environment status & state]') {
+          switch ("${params.ACTION}") {
+            case { "start" }:
+              folioHelm.withKubeConfig("${params.CLUSTER}") {
+                awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
+                def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
+                def status = new JsonSlurperClassic().parseText("${check}")
+                def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
+                def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
+                postgresql = scale_state_start.findAll { it.startsWith("postgresql") }
+                if (status['status'] == "stopped") {
+                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
+                  def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
+                  List core_modules = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                  def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
+                  def backend = scale_state_start.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
+                  def edge = scale_state_start.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
+                  def ui = scale_state_start.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
                   if (postgresql) {
-                    kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
-                    kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
+                    postgresql.each { db ->
+                      kubectl.setKubernetesResourceCount("StatefulSet", "${db}", "${params.NAMESPACE}", "1")
+                      kubectl.waitKubernetesResourceStableState("StatefulSet", "${db}", "${params.NAMESPACE}", "1", '600')
+                    }
                   } else {
-                    kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
-                    kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
-                    awscli.stopRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
+                    awscli.startRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
+                    awscli.waitRdsClusterAvailable("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
+                    sleep 30
                   }
-                  break
+                  services.each { deployment, replica_count ->
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
+                    sleep 10
+                  }
+                  core.each { deployment, replica_count ->
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
+                    sleep 10
+                  }
+                  backend.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  }
+                  edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  }
+                  ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  }
+                  kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
+                } else {
+                  println("Target environment: ${params.CLUSTER} is already in running state!")
+                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                }
               }
-            }
-            break
+              break
+            case { "stop" }:
+              folioHelm.withKubeConfig("${params.CLUSTER}") {
+                awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
+                def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
+                def status = new JsonSlurperClassic().parseText("${check}")
+                switch (status['shutdown-schedule']) {
+                  case { "night" && status['status'] == "running" }:
+                    println("The environment: ${params.NAMESPACE} has been excluded from shutdown for tonight!")
+                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                    break
+                  case { "weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7 }: // Saturday & Sunday included for future use.
+                    println("The environment: ${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
+                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                    break
+                  default:
+                    if (postgresql) {
+                      kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                      kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
+                    } else {
+                      kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "stopped")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                      kubectl.scaleDownResources("${params.NAMESPACE}", "Deployment")
+                      awscli.stopRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
+                    }
+                    break
+                }
+              }
+              break
+          }
         }
       }
     } catch (exception) {
@@ -133,4 +134,6 @@ ansiColor('xterm') {
       error(exception.getMessage())
     }
   }
+
+}
 }
