@@ -1,4 +1,5 @@
 import org.folio.Constants
+import groovy.json.JsonSlurper
 
 /**
  * !Attention! This method should be called inside node block in parent
@@ -109,6 +110,44 @@ void call(params) {
             ])
         }
     }
+    stage('Send to slack test results notifications') {
+        script {
+            def pathList = resultPaths.collect{ result -> [path:"${result.path}/allure-results"]}
+            for (path in pathList) {
+                println path.values()
+            }
+        }
+//                def jsonFilePattern = "-result.json"
+//                def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
+//
+//                for (pathObject in pathList) {
+//                    def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
+//                    println(jsonFiles)
+//                    def testStatuses = countTestStatuses(jsonFiles)
+//
+//                    totalTestStatuses.passed += testStatuses.passed
+//                    totalTestStatuses.failed += testStatuses.failed
+//                    totalTestStatuses.broken += testStatuses.broken
+//                }
+//
+//                println "Total passed tests: ${totalTestStatuses.passed}"
+//                println "Total failed tests: ${totalTestStatuses.failed}"
+//                println "Total broken tests: ${totalTestStatuses.broken}"
+
+//                def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
+//                def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+//                def passRate = passRateInDecimal.intValue()
+//                println "Total passed tests: ${passedTestsCount}"
+//                println "Total failed tests: ${failedTestsCount}"
+//                println "Total broken tests: ${brokenTestsCount}"
+//
+//                if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
+//                    slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+//                }
+//                else {
+//                    slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+//                }
+    }
 }
 
 /* Functions */
@@ -189,4 +228,31 @@ String archiveTestResults(def id) {
             return "allure-results-${id}"
         }
     }
+}
+
+def parseJsonFiles(String dirPath, String jsonFilePattern) {
+    def files = []
+    def dir = new File(dirPath)
+    if (dir.isDirectory()) {
+        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+            files << file
+        }
+        dir.eachDir { subdir ->
+            files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
+        }
+    }
+    return files
+}
+
+def countTestStatuses(List<File> jsonFiles) {
+    def totalCount = [passed: 0, failed: 0, broken: 0]
+    def jsonSlurper = new JsonSlurper()
+
+    jsonFiles.each { file ->
+        def jsonContent = jsonSlurper.parse(file)
+        if (jsonContent.status in totalCount.keySet()) {
+            totalCount[jsonContent.status]++
+        }
+    }
+    return totalCount
 }
