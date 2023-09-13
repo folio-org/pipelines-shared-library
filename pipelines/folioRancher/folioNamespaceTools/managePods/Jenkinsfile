@@ -8,6 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-886') _
 
+
 def postgresql
 
 properties([buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -100,18 +101,23 @@ ansiColor('xterm') {
               break
             case "stop":
               println("[Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}]\n[Checking...]")
+
               folioHelm.withK8sClient {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
                 switch (status['shutdown-schedule']) {
-                  case {"night" && status['status'] == "running"}:
-                    println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for tonight!")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                  case "night":
+                    if (status['status'] == "running") {
+                      println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for tonight!")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                    }
                     break
-                  case {"weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7}: // Saturday & Sunday included for future use.
-                    println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
-                    kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                  case "weekend": // Saturday & Sunday included for future use.
+                    if (status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7) {
+                      println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
+                      kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
+                    }
                     break
                   default:
                     if (postgresql) {
