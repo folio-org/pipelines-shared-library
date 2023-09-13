@@ -49,7 +49,7 @@ ansiColor('xterm') {
           buildDescription "action: ${params.ACTION}"
           switch (params.ACTION) {
             case "start":
-              println("Action $params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}\nChecking...")
+              println("Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}\nChecking...")
               folioHelm.withKubeConfig("${params.CLUSTER}") {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
@@ -99,7 +99,7 @@ ansiColor('xterm') {
               }
               break
             case "stop":
-              println("Action $params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}\nChecking...")
+              println("Action ${params.ACTION} on ${params.CLUSTER}-${params.NAMESPACE}\nChecking...")
               folioHelm.withKubeConfig("${params.CLUSTER}") {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
