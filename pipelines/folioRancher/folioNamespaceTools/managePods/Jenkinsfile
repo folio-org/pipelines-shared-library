@@ -66,8 +66,8 @@ ansiColor('xterm') {
                   def ui = scale_state_start.findAll { key, value -> ["ui-bundle"].any { prefix -> key.contains(prefix) } }
                   if (postgresql) {
                     postgresql.each { db ->
-                      kubectl.setKubernetesResourceCount("StatefulSet", "${db}", "${params.NAMESPACE}", "1")
-                      kubectl.waitKubernetesResourceStableState("StatefulSet", "${db}", "${params.NAMESPACE}", "1", '600')
+                      kubectl.setKubernetesResourceCount("StatefulSet", "${db.key}", "${params.NAMESPACE}", "${db.value}")
+                      kubectl.waitKubernetesResourceStableState("StatefulSet", "${db.key}", "${params.NAMESPACE}", "${db.value}", '600')
                     }
                   } else {
                     awscli.startRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
