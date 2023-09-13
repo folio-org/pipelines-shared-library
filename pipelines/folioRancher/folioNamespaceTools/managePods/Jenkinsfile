@@ -61,7 +61,7 @@ ansiColor('xterm') {
                 postgresql = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("postgresql") }
                 if (status['status'] == "stopped") {
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
-                  List core_modules = ["kafka", "okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                  List core_modules = ["kafka-${NAMESPACE}", "kafka-${NAMESPACE}-zookeeper", "okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
                   def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
                   def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
                   def backend = scale_state_start.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
