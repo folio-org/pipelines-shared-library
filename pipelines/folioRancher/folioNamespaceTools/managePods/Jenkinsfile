@@ -58,11 +58,11 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText("${check}")
                 def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
                 def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-                postgresql = kubectl.getKubernetesResourceList('StatefulSet',"${params.NAMESPACE}").findAll{it.startsWith("postgresql")}
+                postgresql = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("postgresql") }
                 if (status['status'] == "stopped") {
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
-                  List core_modules = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
-                  def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle", "kafka-"].any { prefix -> key.startsWith(prefix) } }
+                  List core_modules = ["kafka", "okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                  def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
                   def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
                   def backend = scale_state_start.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
                   def edge = scale_state_start.findAll { key, value -> ["edge-"].any { prefix -> key.startsWith(prefix) } }
@@ -77,17 +77,18 @@ ansiColor('xterm') {
                     awscli.waitRdsClusterAvailable("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
                     sleep 30
                   }
-                  services.each { deployment, replica_count ->
+                  core.each { deployment, replica_count ->
                     try {
                       kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                       kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
                       sleep 10
                     } catch (Exception e) {
-                      println("${deployment} is not kind of k8s deploy ${e.getMessage()}")
-                      kubectl.setKubernetesResourceCount("StatefulSet", "${deployment}", "${params.NAMESPACE}", "${replica_count}")
+                      println(e.getMessage())
+                      kubectl.setKubernetesResourceCount('StatefulSet', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                      kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
                     }
                   }
-                  core.each { deployment, replica_count ->
+                  services.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "600")
                     sleep 10
@@ -114,7 +115,7 @@ ansiColor('xterm') {
                 def scale_state = new Tools(this).removeLastChar(kubectl.collectDeploymentState("${params.NAMESPACE}"))
                 writeJSON file: 'schedule', json: "{${scale_state}}"
                 kubectl.createConfigMap("scale-state", "${params.NAMESPACE}", './schedule')
-                postgresql = kubectl.getKubernetesResourceList('StatefulSet',"${params.NAMESPACE}").findAll{it.startsWith("postgresql")}
+                postgresql = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("postgresql") }
                 switch (status['shutdown-schedule']) {
                   case "night":
                     if (status['status'] == "running") {
