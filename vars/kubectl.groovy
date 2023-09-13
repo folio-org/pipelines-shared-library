@@ -2,10 +2,8 @@ def createConfigMap(String name, String namespace, files) {
     try {
         def fromFileArgs = []
         switch (files) {
-            case String:
-                fromFileArgs.add("--from-file=${files}")
-                break
             case GString:
+            case String:
                 fromFileArgs.add("--from-file=${files}")
                 break
             case List:
