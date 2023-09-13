@@ -105,8 +105,8 @@ ansiColor('xterm') {
                 awscli.getKubeConfig(Constants.AWS_REGION, "${params.CLUSTER}")
                 def check = kubectl.getLabelsFromNamespace("${params.NAMESPACE}")
                 def status = new JsonSlurperClassic().parseText("${check}")
-                kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
-                def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
+                def scale_state = kubectl.createScaleState("${params.CLUSTER}", "${params.NAMESPACE}")
+                def scale_state_start = new JsonSlurperClassic().parseText("{${scale_state}}")
                 postgresql = scale_state_start.findAll { it.key.startsWith("postgresql") }
                 switch (status['shutdown-schedule']) {
                   case "night":
