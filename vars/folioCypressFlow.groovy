@@ -95,7 +95,7 @@ void call(params) {
             }
             def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
             sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-            sh "pwd ${resultPaths}; ls -la ${resultPaths}"
+            sh "pwd ${resultPaths}"
         }
     }
 
@@ -115,27 +115,21 @@ void call(params) {
     }
     stage('[Allure] Send to slack test results notifications') {
         script {
+            def jsonFilePattern = "-result.json"
+            def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = resultPaths.collect{ path -> [path: "${path}/allure-results"] }
-            for (path in pathList) {
-                println path.values()
+            for (pathObject in pathList) {
+                def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
+//                println(jsonFiles)
+                def testStatuses = countTestStatuses(jsonFiles)
+                totalTestStatuses.passed += testStatuses.passed
+                totalTestStatuses.failed += testStatuses.failed
+                totalTestStatuses.broken += testStatuses.broken
             }
         }
-//                def jsonFilePattern = "-result.json"
-//                def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-//
-//                for (pathObject in pathList) {
-//                    def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
-//                    println(jsonFiles)
-//                    def testStatuses = countTestStatuses(jsonFiles)
-//
-//                    totalTestStatuses.passed += testStatuses.passed
-//                    totalTestStatuses.failed += testStatuses.failed
-//                    totalTestStatuses.broken += testStatuses.broken
-//                }
-//
-//                println "Total passed tests: ${totalTestStatuses.passed}"
-//                println "Total failed tests: ${totalTestStatuses.failed}"
-//                println "Total broken tests: ${totalTestStatuses.broken}"
+                println "Total passed tests: ${totalTestStatuses.passed}"
+                println "Total failed tests: ${totalTestStatuses.failed}"
+                println "Total broken tests: ${totalTestStatuses.broken}"
 
 //                def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
 //                def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
