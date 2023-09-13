@@ -92,7 +92,7 @@ ansiColor('xterm') {
                   }
                   kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
                 } else {
-                  println("Target environment: ${params.CLUSTER} is already in running state!")
+                  println("Target environment: ${params.CLUSTER}-${params.NAMESPACE} is already in running state!")
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                 }
               }
@@ -104,11 +104,11 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText("${check}")
                 switch (status['shutdown-schedule']) {
                   case ("night" && status['status'] == "running"):
-                    println("The environment: ${params.NAMESPACE} has been excluded from shutdown for tonight!")
+                    println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for tonight!")
                     kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                     break
                   case ("weekend" && status['status'] == "running" && calendar.get(Calendar.DAY_OF_WEEK) == 1 || 6 || 7 ): // Saturday & Sunday included for future use.
-                    println("The environment: ${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
+                    println("The environment: ${params.CLUSTER}-${params.NAMESPACE} has been excluded from shutdown for this weekend, skipped!")
                     kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
                     break
                   default:
