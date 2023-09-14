@@ -151,6 +151,7 @@ void call(params) {
 def parseJsonFiles(String dirPath, String jsonFilePattern) {
     def files = []
     def dir = new File(dirPath)
+    println dir
     if (dir.isDirectory()) {
         dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
             files << file
