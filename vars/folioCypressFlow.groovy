@@ -109,8 +109,6 @@ void call(params) {
               reportBuildPolicy: 'ALWAYS',
               results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
             ])
-            println resultPaths
-
         }
     }
     stage('[Allure] Send to slack test results notifications') {
@@ -149,6 +147,34 @@ void call(params) {
 }
 
 /* Functions */
+
+def parseJsonFiles(String dirPath, String jsonFilePattern) {
+    def files = []
+    def dir = new File(dirPath)
+    if (dir.isDirectory()) {
+        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+            files << file
+        }
+//        dir.eachDir { subdir ->
+//            files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
+//        }
+    }
+    return files
+}
+
+def countTestStatuses(List<File> jsonFiles) {
+    def totalCount = [passed: 0, failed: 0, broken: 0]
+    def jsonSlurper = new JsonSlurper()
+
+    jsonFiles.each { file ->
+        def jsonContent = jsonSlurper.parse(file)
+        if (jsonContent.status in totalCount.keySet()) {
+            totalCount[jsonContent.status]++
+        }
+    }
+    return totalCount
+}
+
 void cloneCypressRepo(String branch) {
     stage('Checkout Cypress repo') {
         script {
@@ -226,31 +252,4 @@ String archiveTestResults(def id) {
             return "allure-results-${id}"
         }
     }
-}
-
-def parseJsonFiles(String dirPath, String jsonFilePattern) {
-    def files = []
-    def dir = new File(dirPath)
-    if (dir.isDirectory()) {
-        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
-            files << file
-        }
-        dir.eachDir { subdir ->
-            files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
-        }
-    }
-    return files
-}
-
-def countTestStatuses(List<File> jsonFiles) {
-    def totalCount = [passed: 0, failed: 0, broken: 0]
-    def jsonSlurper = new JsonSlurper()
-
-    jsonFiles.each { file ->
-        def jsonContent = jsonSlurper.parse(file)
-        if (jsonContent.status in totalCount.keySet()) {
-            totalCount[jsonContent.status]++
-        }
-    }
-    return totalCount
 }
