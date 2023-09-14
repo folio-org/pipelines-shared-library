@@ -118,9 +118,10 @@ void call(params) {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            println pathList
             for (pathObject in pathList) {
                 def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
-//                println(jsonFiles)
+                println(jsonFiles)
                 def testStatuses = countTestStatuses(jsonFiles)
                 totalTestStatuses.passed += testStatuses.passed
                 totalTestStatuses.failed += testStatuses.failed
