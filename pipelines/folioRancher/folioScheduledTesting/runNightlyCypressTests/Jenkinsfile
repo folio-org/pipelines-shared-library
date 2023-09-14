@@ -9,7 +9,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])

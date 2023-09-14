@@ -124,11 +124,11 @@ class Constants {
     static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'
     static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = '/Rancher/Update/backend-modules-deploy-branch'
     static List JENKINS_AGENTS = ['rancher',
+                                  'rancher||jenkins-agent-java11',
                                   'jenkins-agent-java11',
                                   'jenkins-agent-java11-test',
                                   'jenkins-agent-java17',
-                                  'jenkins-agent-java17-test',
-                                  'rancher||jenkins-agent-java11']
+                                  'jenkins-agent-java17-test']
 
     static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
 
