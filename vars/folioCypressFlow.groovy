@@ -169,7 +169,9 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
                             env.CYPRESS_allureReuseAfterSpec = "true"
 
                             println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID})"
-                            sh execString
+                            withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                                sh execString
+                            }
                         } else {
                             sh execString
                         }
