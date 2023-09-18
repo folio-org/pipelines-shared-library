@@ -1,0 +1,14 @@
+[
+  {
+    "text": "Pipeline run status *SUCCESS* :white_check_mark: : `$JOBNAME` *#$BUILD_NUMBER*",
+    "fallback": "Formatted text",
+    "color": "good",
+    "actions": [
+        {
+            "type": "button",
+            "text": "*Check out the console output* :page_facing_up:",
+            "url": "$BUILD_URLconsole",
+        }
+    ]
+  }
+]

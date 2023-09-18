@@ -102,62 +102,6 @@ void copyCucumberReports() {
 }
 
 /**
- * Send slack notifications regarding karate tests execution results
- * @param karateTestsExecutionSummary karate tests execution statistics
- * @param teamAssignment teams assignment to modules
- */
-void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    // collect modules tests execution results by team
-    Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
-    def teamByModule = teamAssignment.getTeamsByModules()
-    karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
-        if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
-            def team = teamByModule.get(moduleExecutionSummary.getName())
-            if (!teamResults.containsKey(team)) {
-                teamResults[team] = []
-            }
-            teamResults[team].add(moduleExecutionSummary)
-            println "Module '${moduleExecutionSummary.name}' is assignned to '${team.name}' team"
-        } else {
-            println "Module '${moduleExecutionSummary.name}' is not assigned to any team"
-        }
-    }
-
-    // iterate over teams and send slack notifications
-    def buildStatus = currentBuild.result
-    teamResults.each { entry ->
-        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-        entry.value.each { moduleTestResult ->
-            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
-                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
-            }
-        }
-        try {
-            if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${entry.key.name} team have successful result\n"
-            }
-            // Existing tickets - created more than 1 hour ago
-            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -1h")
-            if (existingTickets) {
-                message += "Existing issues:\n"
-                message += existingTickets
-            }
-            // Created tickets by this run - Within the last 20 min
-            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -20m")
-            if (createdTickets) {
-                message += "Created issues by run:\n"
-                message += createdTickets
-            }
-
-            slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
-        } catch (Exception e) {
-            println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
-            e.printStackTrace()
-        }
-    }
-}
-
-/**
  * Get slack color by build status
  * @param buildStatus jenkins build status
  * @return color code
@@ -302,11 +246,11 @@ private JiraClient getJiraClient() {
     }
 }
 
-String getJiraIssuesByTeam(String team, String timeFilter) {
-    def ticketsByTeam = ""
+def getJiraIssuesByTeam(String team, String timeFilter) {
+    def ticketsByTeam = []
     List<JiraIssue> issuesByTeam = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
     issuesByTeam.each { issue ->
-        ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
+        ticketsByTeam += issue.key
     }
     return ticketsByTeam
 }
