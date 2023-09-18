@@ -1,0 +1,16 @@
+{
+  "attachments": [
+    {
+      "color": "good",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":white_check_mark: *Build Successful*"
+          }
+        }
+      ]
+    }
+  ]
+}

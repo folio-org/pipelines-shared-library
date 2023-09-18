@@ -1,0 +1,16 @@
+{
+  "attachments": [
+    {
+      "color": "danger",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":x: *Build Failed*"
+          }
+        }
+      ]
+    }
+  ]
+}
