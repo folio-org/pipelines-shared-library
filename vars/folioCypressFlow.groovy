@@ -95,7 +95,6 @@ void call(params) {
             }
             def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
             sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-            sh "pwd ${resultPaths}"
         }
     }
 
@@ -118,10 +117,12 @@ void call(params) {
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
             println pathList
             println resultPaths
+//            fullPathList = []
             sh "pwd ${resultPaths}"
             sh "pwd ${pathList}"
 
             for (pathObject in pathList) {
+//                fullPathList =+ sh "pwd ${pathObject.path}"
                 def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
                 println(pathObject.path)
                 def testStatuses = countTestStatuses(jsonFiles)
@@ -154,8 +155,8 @@ void call(params) {
 
 def parseJsonFiles(String dirPath, String jsonFilePattern) {
     def files = []
-    def dir = new File(dirPath)
-    println dir
+    def fullPath = sh "pwd ${dirPath}"
+    def dir = new File(fullPath)
     if (dir.isDirectory()) {
         dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
             files << file
