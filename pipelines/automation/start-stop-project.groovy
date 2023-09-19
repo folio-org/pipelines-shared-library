@@ -78,12 +78,8 @@ properties([
         25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
         45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
 
-
-
-
-
-
-
+        25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
+        45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
 
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
@@ -133,6 +129,9 @@ properties([
 
         25 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
         00 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+
+        25 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
+        00 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
     ''')
     ])
 ])
