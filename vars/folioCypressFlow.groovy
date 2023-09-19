@@ -118,6 +118,7 @@ void call(params) {
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
             println pathList
             println resultPaths
+            sh "pwd ${resultPaths}"
             for (pathObject in pathList) {
                 def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
                 println(jsonFiles)
