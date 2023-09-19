@@ -40,7 +40,7 @@ ansiColor('xterm') {
         println('REFRESH CRON PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
+    node('rancher||jenkins-agent-java17') {
         try {
             stage("Cleanup us-west-2 ui-bundle repo") {
                 helm.k8sClient {

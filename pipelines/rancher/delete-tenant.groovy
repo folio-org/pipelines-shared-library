@@ -34,7 +34,7 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
+    node('rancher') {
         try {
             stage("Delete tenant") {
                 okapi.deleteTenant(tenant)

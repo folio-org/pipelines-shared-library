@@ -27,7 +27,7 @@ def jobParameters = [
     testrailProjectID: '14',
     testrailRunID: '2151',
     numberOfWorkers: '4',
-    agent: 'rancher||jenkins-agent-java11'
+    agent: 'rancher'
 ]
 
 node {

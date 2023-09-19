@@ -62,7 +62,7 @@ ansiColor('xterm') {
         println('REFRESH PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
+    node('rancher') {
         try {
             if (params.create_tenant) {
                 stage("Create tenant") {
