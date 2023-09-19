@@ -119,9 +119,11 @@ void call(params) {
             println pathList
             println resultPaths
             sh "pwd ${resultPaths}"
+            sh "pwd ${pathList}"
+
             for (pathObject in pathList) {
                 def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
-                println(jsonFiles)
+                println(pathObject.path)
                 def testStatuses = countTestStatuses(jsonFiles)
                 totalTestStatuses.passed += testStatuses.passed
                 totalTestStatuses.failed += testStatuses.failed
