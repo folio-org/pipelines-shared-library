@@ -115,16 +115,15 @@ void call(params) {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
-            println pathList
-            println resultPaths
-//            fullPathList = []
-            sh "pwd ${resultPaths}"
-            sh "pwd ${pathList}"
+//            println pathList
+//            println resultPaths
+//            sh "pwd ${resultPaths}"
+//            sh "pwd ${pathList}"
+            def fullPathDir = ["/home/jenkins/workspace/folioRancher/folioTestingTools/CypressTests-Rancher-920/allure-results"]
 
             for (pathObject in pathList) {
-//                fullPathList =+ sh "pwd ${pathObject.path}"
-                def jsonFiles = parseJsonFiles(pathObject.path, jsonFilePattern)
-                println(pathObject.path)
+//                sh "pwd ${pathObject.path} >> ${fullPathDir}"
+                def jsonFiles = parseJsonFiles(fullPathDir, jsonFilePattern)
                 def testStatuses = countTestStatuses(jsonFiles)
                 totalTestStatuses.passed += testStatuses.passed
                 totalTestStatuses.failed += testStatuses.failed
@@ -155,8 +154,8 @@ void call(params) {
 
 def parseJsonFiles(String dirPath, String jsonFilePattern) {
     def files = []
-    def fullPath = sh "pwd ${dirPath}"
-    def dir = new File(fullPath)
+//    def fullPath = sh "pwd ${dirPath}"
+    def dir = new File(dirPath)
     if (dir.isDirectory()) {
         dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
             files << file
