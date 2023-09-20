@@ -38,7 +38,8 @@ properties([
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
         jobsParameters.recreateIndexElasticsearch(),
-        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split')])])
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
+        jobsParameters.agents()])])
 
 OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
     tenantParameters: [loadReference: params.load_reference,
@@ -71,7 +72,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('rancher') {
+    node(params.agent) {
         try {
             stage('Ini') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
@@ -97,7 +98,7 @@ ansiColor('xterm') {
                 if (install_backend_map) {
                     folioDeploy.backend(install_backend_map,
                         project_config,
-                        false, 
+                        false,
                         params.enable_rw_split)
                 }
             }
