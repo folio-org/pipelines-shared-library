@@ -115,15 +115,15 @@ void call(params) {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
-//            println pathList
-//            println resultPaths
-//            sh "pwd ${resultPaths}"
-//            sh "pwd ${pathList}"
-            def fullPathDir = ["/home/jenkins/workspace/folioRancher/folioTestingTools/CypressTests-Rancher-920/allure-results"]
-
-            for (pathObject in pathList) {
-//                sh "pwd ${pathObject.path} >> ${fullPathDir}"
-                def jsonFiles = parseJsonFiles(fullPathDir, jsonFilePattern)
+            def fullPathList = []
+            pathList.each { pathEntry ->
+                def path = pathEntry.value
+                def fullPath = sh(script: "pwd ${path}", returnStdout: true).trim()
+                fullPathList << fullPath
+            }
+            println "Full path list: ${fullPathList}"
+            for (pathObject in fullPathList) {
+                def jsonFiles = parseJsonFiles(pathObject, jsonFilePattern)
                 def testStatuses = countTestStatuses(jsonFiles)
                 totalTestStatuses.passed += testStatuses.passed
                 totalTestStatuses.failed += testStatuses.failed
