@@ -29,6 +29,9 @@ properties([
         0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
 
+        0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consair
+        30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consair
+
         0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
 
@@ -83,6 +86,9 @@ properties([
 
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
+
+        0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consair
+        0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consair
 
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
