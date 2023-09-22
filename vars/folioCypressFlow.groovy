@@ -118,7 +118,7 @@ void call(params) {
             def fullPathList = []
             pathList.each { pathEntry ->
                 def path = pathEntry.value
-                def fullPath = sh(script: "pwd ${path}", returnStdout: true).trim()
+                def fullPath = sh(script: "pwd ${path}/allure-results", returnStdout: true).trim()
                 fullPathList << fullPath
             }
             println "Full path list: ${fullPathList}"
