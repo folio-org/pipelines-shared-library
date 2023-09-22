@@ -90,8 +90,8 @@ properties([
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=folijet
 
-        30 22 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
-        30 07 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
+        30 07 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
+        30 22 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
 
         10 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
         15 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
