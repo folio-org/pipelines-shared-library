@@ -114,14 +114,14 @@ void call(params) {
         script {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            def pathList = "${WORKSPACE}/allure-results"
             def fullPathList = []
-            pathList.each { pathEntry ->
-                def path = pathEntry.value
-                def fullPath = sh(script: "pwd ${path}/allure-results", returnStdout: true).trim()
-                fullPathList << fullPath
-            }
-            println "Full path list: ${fullPathList}"
+//            pathList.each { pathEntry ->
+//                def path = pathEntry.value
+//                def fullPath = sh(script: "pwd ${path}/allure-results", returnStdout: true).trim()
+//                fullPathList << fullPath
+//            }
+            println "Full path list: ${pathList}"
             for (pathObject in fullPathList) {
                 def jsonFiles = parseJsonFiles(pathObject, jsonFilePattern)
                 def testStatuses = countTestStatuses(jsonFiles)
