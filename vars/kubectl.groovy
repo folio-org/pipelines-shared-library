@@ -174,7 +174,7 @@ def getLabelsFromNamespace(String namespace) {
 
 def addLabelToNamespace(String namespace, String labelKey, String labelValue) {
     try {
-        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue}")
+        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue} --overwrite=true")
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -185,5 +185,23 @@ def deleteLabelFromNamespace(String namespace, String labelKey) {
         sh(script: "kubectl label namespace ${namespace} ${labelKey}-")
     } catch (Exception e) {
         println(e.getMessage())
+    }
+}
+def collectDeploymentState (String namespace) {
+    String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
+    try {
+        return sh (script: "kubectl get all ${jsonPath} --namespace ${namespace}", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
+    }
+}
+
+def scaleDownResources(String namespace, String resource_type) {
+    try {
+        return sh (script: "kubectl scale ${resource_type} -namespace ${namespace} --replicas=0 --all", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
     }
 }
