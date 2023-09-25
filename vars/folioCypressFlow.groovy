@@ -115,7 +115,7 @@ void call(params) {
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
             def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def fullPath = sh(script: "ls -la ${pathList.path}", returnStdout: true).trim()
+            def fullPath = sh(script: "ls -la ${WORKSPACE}/${pathList.path}")
             println "Full path list: ${fullPath}"
             println pathList
             println pathList.getClass()
