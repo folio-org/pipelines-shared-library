@@ -157,7 +157,7 @@ void call(params) {
         if (dir.isDirectory()) {
             println dir
             } else {
-                dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+                dir.eachFileMatch(~/.$jsonFilePattern/) { file ->
                     files << file
             }
 //            dir.eachDir { subdir ->
