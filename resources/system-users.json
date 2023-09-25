@@ -1,0 +1,20 @@
+{
+  "mod-pubsub": {
+    "username": "pub-sub"
+  },
+  "mod-inn-reach": {
+    "username": "mod-innreach"
+  },
+  "mod-search": {
+    "username": "mod-search"
+  },
+  "mod-data-export-spring": {
+    "username": "data-export-system-user"
+  },
+  "mod-remote-storage": {
+    "username": "system-user"
+  },
+  "mod-consortia": {
+    "username": "consortia-system-user"
+  }
+}

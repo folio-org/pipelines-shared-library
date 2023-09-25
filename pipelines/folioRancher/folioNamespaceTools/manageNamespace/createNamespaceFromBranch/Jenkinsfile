@@ -166,7 +166,7 @@ ansiColor('xterm') {
       }
 
       stage('[Rest] Configure edge') {
-        folioEdge.renderEphemeralProperties(namespace.getTenants()[namespace.getDefaultTenantId()], namespace)
+        folioEdge.renderEphemeralProperties(namespace)
         edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
       }
 

@@ -167,29 +167,44 @@ class Permissions extends Authorization {
         sleep(60000)
     }
 
-/**
- * Adds a missing permission to a user.
- * source: RANCHER-895
- * @param tenant The tenant in which the user is located.
- * @param user The user to whom the permission is added.
- */
+    /**
+     * Adds a missing permission to a user.
+     * source: RANCHER-895
+     * @param tenant The tenant in which the user is located.
+     * @param user The user to whom the permission is added.
+     */
     void refreshAdminPermissions(OkapiTenant tenant, OkapiUser user) {
         List allPermissions = getAllPermissions(tenant)
         List existingPermissions = getUserPermissions(tenant, user)
         List permissionsToAdd = []
         allPermissions.each { permissionName ->
-            if ( existingPermissions.contains(permissionName) ) {
-                logger.info("User: ${user} already has permission: ${permissionName}")
-            }
-            else {
+            if (!existingPermissions.contains(permissionName)) {
                 permissionsToAdd.add(permissionName)
             }
         }
         try {
             addUserPermissions(tenant, user, permissionsToAdd)
+            logger.info("${permissionsToAdd.size()} permissions added to user ${user.getUsername()}")
         }
-        catch (e){
+        catch (e) {
             logger.warning("Add permission operation failed with error: ${e.getMessage()}")
         }
+    }
+
+    /**
+     * Purges deprecated permissions for a given Okapi tenant.
+     *
+     * Sends a POST request to "/perms/purge-deprecated" to clear deprecated permissions
+     * and logs the names of the purged permissions.
+     *
+     * @param tenant The Okapi tenant whose deprecated permissions are to be purged.
+     */
+    void purgeDeprecatedPermissions(OkapiTenant tenant) {
+        String url = generateUrl("/perms/purge-deprecated")
+        Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+        Map response = restClient.post(url, null, headers).body
+
+        logger.info("Purged permissions: ${response.permissionNames.size()}")
     }
 }
