@@ -152,13 +152,15 @@ def parseJsonFiles(String dirPath, String jsonFilePattern) {
         println "true: directory ${jsonFilePattern}"
 //        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
 //            files << file
-//        }
-//        dir.eachDir { subdir ->
-//            files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
-//        }
+        }
+    else {
+        printlb("false: file ${jsonFilePattern}")
+
+        }
+
     }
 //    return files
-}
+//}
 
 def countTestStatuses(List<File> jsonFiles) {
     def totalCount = [passed: 0, failed: 0, broken: 0]
