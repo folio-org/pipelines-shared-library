@@ -110,11 +110,11 @@ void call(params) {
             ])
         }
     }
-    stage('[Allure] Send to slack test results notifications') {
+    stage('[Allure] Send slack notifications') {
         script {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def pathList = "${WORKSPACE}/allure-results"
+            def pathList = "${WORKSPACE}/allure-results-5/allure-results"
             def fullPathList = []
 //            pathList.each { pathEntry ->
 //                def path = pathEntry.value
