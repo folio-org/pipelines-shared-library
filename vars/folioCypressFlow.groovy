@@ -115,19 +115,12 @@ void call(params) {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = "${WORKSPACE}/allure-results-5/allure-results"
-//            def fullPathList = []
-//            pathList.each { pathEntry ->
-//                def path = pathEntry.value
-//            def fullPath = sh(script: "ls -la ${pathList}", returnStdout: true).trim()
-//                fullPathList << fullPath
-//            }
-//            println "Full path list: ${fullPath}"
-//            for (pathObject in pathList) {
-                def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
-                def testStatuses = countTestStatuses(jsonFiles)
-                totalTestStatuses.passed += testStatuses.passed
-                totalTestStatuses.failed += testStatuses.failed
-                totalTestStatuses.broken += testStatuses.broken
+
+            def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
+            def testStatuses = countTestStatuses(jsonFiles)
+            totalTestStatuses.passed += testStatuses.passed
+            totalTestStatuses.failed += testStatuses.failed
+            totalTestStatuses.broken += testStatuses.broken
 //            }
             println "Total passed tests: ${totalTestStatuses.passed}"
             println "Total failed tests: ${totalTestStatuses.failed}"
@@ -153,18 +146,18 @@ void call(params) {
 /* Functions */
 
 def parseJsonFiles(String dirPath, String jsonFilePattern) {
-    def files = []
-//    def fullPath = sh "pwd ${dirPath}"
+//    def files = []
     def dir = new File(dirPath)
     if (dir.isDirectory()) {
-        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
-            files << file
-        }
+        println "true: directory ${jsonFilePattern}"
+//        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+//            files << file
+//        }
 //        dir.eachDir { subdir ->
 //            files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
 //        }
     }
-    return files
+//    return files
 }
 
 def countTestStatuses(List<File> jsonFiles) {
