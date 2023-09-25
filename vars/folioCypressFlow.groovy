@@ -118,10 +118,10 @@ void call(params) {
             def fullPathList = []
 //            pathList.each { pathEntry ->
 //                def path = pathEntry.value
-//                def fullPath = sh(script: "pwd ${path}/allure-results", returnStdout: true).trim()
+            def fullPath = sh(script: "ls -la ${pathList}")
 //                fullPathList << fullPath
 //            }
-            println "Full path list: ${pathList}"
+            println "Full path list: ${fullPath}"
             for (pathObject in fullPathList) {
                 def jsonFiles = parseJsonFiles(pathObject, jsonFilePattern)
                 def testStatuses = countTestStatuses(jsonFiles)
