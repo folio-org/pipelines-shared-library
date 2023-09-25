@@ -117,13 +117,13 @@ void call(params) {
             def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def fullPath = ${WORKSPACE}/${path}
-            println "Full path list: ${fullPath}"
-            println pathList
-            println pathList.getClass()
+//            println "Full path list: ${fullPath}"
+//            println pathList
+//            println pathList.getClass()
 //            println resultPaths
 //            println resultPaths.getClass()
 
-            def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
+            def jsonFiles = parseJsonFiles(fullPath, jsonFilePattern)
             def testStatuses = countTestStatus(jsonFiles)
             totalTestStatuses.passed += testStatuses.passed
             totalTestStatuses.failed += testStatuses.failed
@@ -153,10 +153,12 @@ void call(params) {
 
     def parseJsonFiles(String dirPath, String jsonFilePattern) {
         def files = []
-        def dir = new File(${WORKSPACE}/dirPath)
+        def dir = new File(dirPath)
         if (dir.isDirectory()) {
-            dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
-                files << file
+            println dir
+            } else {
+                dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+                    files << file
             }
 //            dir.eachDir { subdir ->
 //                files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
