@@ -95,5 +95,4 @@ Map<String, OkapiTenant> tenants() {
             .withAdminUser(adminOkapiUser('folio', 'folio'))
             .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
     ]
-
 }

@@ -62,12 +62,24 @@ def okapiVersion() {
     return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Select okapi version')
 }
 
-def loadReference(boolean value = true) {
+def loadReference(boolean value = false) {
     return _paramBoolean('LOAD_REFERENCE', value, 'Set to true to load reference data during install')
 }
 
-def loadSample(boolean value = true) {
+def loadSample(boolean value = false) {
     return _paramBoolean('LOAD_SAMPLE', value, 'Set to true to load sample data during install')
+}
+
+def simulate(boolean value = false) {
+    return _paramBoolean('SIMULATE', value, 'Set to true to simulate installation before install')
+}
+
+def ignoreErrors(boolean value = false) {
+    return _paramBoolean('IGNORE_ERRORS', value, 'Set to true to ignore errors during install')
+}
+
+def reinstall(boolean value = false) {
+    return _paramBoolean('REINSTALL', value, 'Set to true to re-enable modules during install')
 }
 
 def configType() {

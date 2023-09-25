@@ -1,5 +1,4 @@
 import groovy.text.StreamingTemplateEngine
-import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
@@ -8,17 +7,17 @@ import org.folio.utilities.Tools
  * Renders the ephemeral properties for a tenant.
  *
  * @param tenant The tenant for which the ephemeral properties are to be rendered.
- * @param ns represents RancherNamespace object with ALL properties.
+ * @param namespace represents RancherNamespace object with ALL properties.
  *
  */
 
-void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
+void renderEphemeralProperties(RancherNamespace namespace) {
   Tools tools = new Tools(this)
-  Common common = new Common(this, "https://${ns.getDomains()['okapi']}")
+  Common common = new Common(this, "https://${namespace.getDomains()['okapi']}")
   Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToWorkspace("edge/config.yaml")
-  String defaultTenantId = tenant.tenantId
+  String defaultTenantId = namespace.getDefaultTenantId()
   String config_template = tools.steps.readFile file: tools.copyResourceFileToWorkspace("edge/ephemeral-properties.tpl")
-  tenant.modules.edgeModules.each { name, version ->
+  namespace.getModules().getEdgeModules().each { name, version ->
     String edgeTenantsId = defaultTenantId
     String institutional = ""
     String admin_users = ""
@@ -33,18 +32,20 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
           institutional += obj.tenant + "=" + obj.username + "," + obj.password + "\n"
         }
       }
-      ns.tenants.each { tenant_name, tenant_cm ->
-        switch (tenant_cm.tenantId) {
-          case "supertenant":
-            common.logger.warning("The ${tenant_cm.tenantId} should not be presented in config, aborted!")
-            break
-          case "diku":
-            admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
-            break
-          default:
-            admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
-            edgeTenantsId += "," + tenant_cm.tenantId
-            break
+      namespace.tenants.each { tenantId, tenant ->
+        if (tenant.getAdminUser()) {
+          switch (tenant.tenantId) {
+            case "supertenant":
+              common.logger.warning("The ${tenant.tenantId} should not be presented in config, aborted!")
+              break
+            case "diku":
+              admin_users += "${tenant.tenantId + "=" + tenant.adminUser.username + "," + tenant.adminUser.password + "\n"}"
+              break
+            default:
+              admin_users += "${tenant.tenantId + "=" + tenant.adminUser.username + "," + tenant.adminUser.password + "\n"}"
+              edgeTenantsId += "," + tenant.tenantId
+              break
+          }
         }
       }
       LinkedHashMap config_data = [edge_tenants: edgeTenantsId, edge_mappings: defaultTenantId, edge_users: admin_users, institutional_users: institutional]
