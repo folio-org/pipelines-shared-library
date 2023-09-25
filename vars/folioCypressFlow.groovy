@@ -115,20 +115,20 @@ void call(params) {
             def jsonFilePattern = "-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = "${WORKSPACE}/allure-results-5/allure-results"
-            def fullPathList = []
+//            def fullPathList = []
 //            pathList.each { pathEntry ->
 //                def path = pathEntry.value
-            def fullPath = sh(script: "ls -la ${pathList}")
+//            def fullPath = sh(script: "ls -la ${pathList}", returnStdout: true).trim()
 //                fullPathList << fullPath
 //            }
-            println "Full path list: ${fullPath}"
-            for (pathObject in fullPathList) {
-                def jsonFiles = parseJsonFiles(pathObject, jsonFilePattern)
+//            println "Full path list: ${fullPath}"
+//            for (pathObject in pathList) {
+                def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
                 def testStatuses = countTestStatuses(jsonFiles)
                 totalTestStatuses.passed += testStatuses.passed
                 totalTestStatuses.failed += testStatuses.failed
                 totalTestStatuses.broken += testStatuses.broken
-            }
+//            }
             println "Total passed tests: ${totalTestStatuses.passed}"
             println "Total failed tests: ${totalTestStatuses.failed}"
             println "Total broken tests: ${totalTestStatuses.broken}"
