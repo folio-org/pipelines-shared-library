@@ -112,18 +112,19 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            test = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
             def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def pathList = "${WORKSPACE}/${resultPaths}"
-            println test
-            println test.getClass()
-            println resultPaths
-            println resultPaths.getClass()
+            def fullPath = sh(script: "ls -la ${pathList}", returnStdout: true).trim()
+            println "Full path list: ${fullPath}"
+            println pathList
+            println pathList.getClass()
+//            println resultPaths
+//            println resultPaths.getClass()
             println pathList
 
             def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
-            def testStatuses = countTestStatuses(jsonFiles)
+            def testStatuses = countTestStatus(jsonFiles)
             totalTestStatuses.passed += testStatuses.passed
             totalTestStatuses.failed += testStatuses.failed
             totalTestStatuses.broken += testStatuses.broken
@@ -152,7 +153,7 @@ void call(params) {
 
     def parseJsonFiles(String dirPath, String jsonFilePattern) {
         def files = []
-        def dir = new File(dirPath)
+        def dir = new File(${WORKSPACE}/dirPath)
         if (dir.isDirectory()) {
             dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
                 files << file
