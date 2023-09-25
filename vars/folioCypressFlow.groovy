@@ -112,7 +112,7 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            def jsonFilePattern = "-result.json"
+            def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
             def pathList = "${WORKSPACE}/allure-results-5/allure-results"
 
@@ -150,11 +150,11 @@ def parseJsonFiles(String dirPath, String jsonFilePattern) {
     def dir = new File(dirPath)
     if (dir.isDirectory()) {
         println "true: directory ${jsonFilePattern}"
-//        dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
+//        dir.eachFileMatch(~/.*$jsonFilePattern) { file ->
 //            files << file
         }
     else {
-        printlb("false: file ${jsonFilePattern}")
+        println("false: file ${jsonFilePattern}")
 
         }
 
