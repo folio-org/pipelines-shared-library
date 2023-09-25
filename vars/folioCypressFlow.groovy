@@ -112,9 +112,15 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            def jsonFilePattern = "-result.json"
+            test = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def pathList = "${WORKSPACE}/allure-results-5/allure-results"
+            def pathList = "${WORKSPACE}/${resultPaths}"
+            println test
+            println test.getClass()
+            println resultPaths
+            println resultPaths.getClass()
+            println pathList
 
             def jsonFiles = parseJsonFiles(pathList, jsonFilePattern)
             def testStatuses = countTestStatuses(jsonFiles)
@@ -147,25 +153,28 @@ void call(params) {
     def parseJsonFiles(String dirPath, String jsonFilePattern) {
         def files = []
         def dir = new File(dirPath)
-        if (dir.eachFileMatch(~/.*$jsonFilePattern/)) { file ->
+        if (dir.isDirectory()) {
+            dir.eachFileMatch(~/.*$jsonFilePattern/) { file ->
                 files << file
             }
-        println files
-        println dir
+//            dir.eachDir { subdir ->
+//                files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
+//            }
+        }
         return files
     }
 
-    def countTestStatuses(List<File> jsonFiles) {
-        def totalCount = [passed: 0, failed: 0, broken: 0]
+    def countTestStatus(List<File> jsonFiles, List<String> statusList) {
+        def statusCount = [:]
+        statusList.each { statusCount[it] = 0 }
         def jsonSlurper = new JsonSlurper()
-
         jsonFiles.each { file ->
             def jsonContent = jsonSlurper.parse(file)
-            if (jsonContent.status in totalCount.keySet()) {
-                totalCount[jsonContent.status]++
+            if (statusList.contains(jsonContent.status)) {
+                statusCount[jsonContent.status] += 1
             }
         }
-        return totalCount
+        return statusCount
     }
 
     void cloneCypressRepo(String branch) {
@@ -246,4 +255,4 @@ void call(params) {
             }
         }
     }
-}
+
