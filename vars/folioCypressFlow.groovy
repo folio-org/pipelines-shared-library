@@ -113,9 +113,10 @@ void call(params) {
     stage('[Allure] Send slack notifications') {
         script {
             def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            def path =  pathList.get(path)
             def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def fullPath = sh(script: "ls -la ${WORKSPACE}/${pathList.path}")
+            def fullPath = sh(script: "ls -la ${WORKSPACE}/${path}")
             println "Full path list: ${fullPath}"
             println pathList
             println pathList.getClass()
