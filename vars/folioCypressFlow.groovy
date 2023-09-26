@@ -113,9 +113,10 @@ void call(params) {
     stage('[Allure] Send slack notifications') {
         script {
             String allure_report = "${WORKSPACE}/allure-report/data/suites.json"
+            println allure_report
             def jsonSlurper = new JsonSlurper()
-            def testStatuses = jsonSlurper.parse(new File(allure_report))
-            println testStatuses.status
+            def testStatuses = jsonSlurper.parse(allure_report)
+            println testStatuses
 
 //            if (testStatuses.status == "passed") {
 //                println testStatuses.status
