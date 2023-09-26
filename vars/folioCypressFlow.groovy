@@ -98,18 +98,6 @@ void call(params) {
         }
     }
 
-    stage('[Allure] Publish report') {
-        script {
-            allure([
-                includeProperties: false,
-                jdk              : '',
-                commandline      : Constants.CYPRESS_ALLURE_VERSION,
-                properties       : [],
-                reportBuildPolicy: 'ALWAYS',
-                results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
-            ])
-        }
-    }
     stage('[Allure] Send slack notifications') {
         script {
             def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
@@ -129,6 +117,20 @@ void call(params) {
             println "Broken: " + statusCounts.broken
         }
     }
+
+    stage('[Allure] Publish report') {
+        script {
+            allure([
+                includeProperties: false,
+                jdk              : '',
+                commandline      : Constants.CYPRESS_ALLURE_VERSION,
+                properties       : [],
+                reportBuildPolicy: 'ALWAYS',
+                results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            ])
+        }
+    }
+
 }
 
 /* Functions */
