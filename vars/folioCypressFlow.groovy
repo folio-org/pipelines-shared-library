@@ -112,64 +112,25 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            def jsonFilePattern = "-result.json"
-            def files = []
-            def allure_report = sh( script: "ls -la ${WORKSPACE}/allure-report/data")
-            println allure_report
+            String allure_report = "${WORKSPACE}/allure-report/data/suites.json"
+            def jsonSlurper = new JsonSlurper()
+            def testStatuses = jsonSlurper.parse(new File(allure_report))
+            println testStatuses.status
 
-//            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
-//            resultPaths.each { path ->
-//                println path
-//                def dir = new File(path)
-//                dir.eachFileMatch(~/.*$jsonFilePattern/){ file ->
-//                    println file
-//                    files << file
-//                }
+//            if (testStatuses.status == "passed") {
+//                println testStatuses.status
 //            }
-//            def path = pathList.path.get(0)
-//            println path
-            def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-//            def fullPath = sh(script: "ls -la ${WORKSPACE}/${path}")
-//            def jsonFiles = parseJsonFiles(path, jsonFilePattern)
-//            def testStatuses = countTestStatus(jsonFiles)
-            totalTestStatuses.passed += testStatuses.passed
-            totalTestStatuses.failed += testStatuses.failed
-            totalTestStatuses.broken += testStatuses.broken
-            }
-            println "Total passed tests: ${totalTestStatuses.passed}"
-            println "Total failed tests: ${totalTestStatuses.failed}"
-            println "Total broken tests: ${totalTestStatuses.broken}"
+//            def passedTestsCount = countPassedStatus(config.status, "passed")
+//            def failedTestsCount = countPassedStatus(config.status, "failed")
+//            def brokenTestsCount = countPassedStatus(config.status, "broken")
+//            println(passedTestsCount)
+//            println(failedTestsCount)
+//            println(brokenTestsCount)
         }
+    }
 }
 
 /* Functions */
-
-    def parseJsonFiles(String dirPath, String jsonFilePattern) {
-        def files = []
-        def dir = new File(dirPath)
-        if (dir.isDirectory()) {
-            dir.eachFileMatch(~/.$jsonFilePattern/) { file ->
-                    files << file
-            }
-//            dir.eachDir { subdir ->
-//                files += parseJsonFiles(subdir.absolutePath, jsonFilePattern)
-//            }
-        }
-        return files
-    }
-
-    def countTestStatus(List<File> jsonFiles, List<String> statusList) {
-        def statusCount = [:]
-        statusList.each { statusCount[it] = 0 }
-        def jsonSlurper = new JsonSlurper()
-        jsonFiles.each { file ->
-            def jsonContent = jsonSlurper.parse(file)
-            if (statusList.contains(jsonContent.status)) {
-                statusCount[jsonContent.status] += 1
-            }
-        }
-        return statusCount
-    }
 
     void cloneCypressRepo(String branch) {
         stage('Checkout Cypress repo') {
