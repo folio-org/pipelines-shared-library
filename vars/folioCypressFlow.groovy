@@ -112,6 +112,8 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
+            def workspaceList = sh(script: "ls -la ${WORKSPACE}")
+            println workspaceList
             def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
             def jsonSlurper = new JsonSlurper()
             def parseAllureReport = jsonSlurper.parse(new File(allureReport))
