@@ -112,14 +112,23 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
-            def path =  pathList.path.get(0)
-            println path
-            def jsonFilePattern = "*-result.json"
+            def jsonFilePattern = "-result.json"
+            def files = []
+//            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
+            resultPaths.each { path ->
+                println path
+                def dir = new File(path)
+                dir.eachFileMatch(~/.*$jsonFilePattern/){ file ->
+                    println file
+                    files << file
+                }
+            }
+//            def path = pathList.path.get(0)
+//            println path
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def fullPath = sh(script: "ls -la ${WORKSPACE}/${path}")
-            def jsonFiles = parseJsonFiles(path, jsonFilePattern)
-            def testStatuses = countTestStatus(jsonFiles)
+//            def fullPath = sh(script: "ls -la ${WORKSPACE}/${path}")
+//            def jsonFiles = parseJsonFiles(path, jsonFilePattern)
+//            def testStatuses = countTestStatus(jsonFiles)
             totalTestStatuses.passed += testStatuses.passed
             totalTestStatuses.failed += testStatuses.failed
             totalTestStatuses.broken += testStatuses.broken
@@ -127,22 +136,8 @@ void call(params) {
             println "Total passed tests: ${totalTestStatuses.passed}"
             println "Total failed tests: ${totalTestStatuses.failed}"
             println "Total broken tests: ${totalTestStatuses.broken}"
-
-//                def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
-//                def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-//                def passRate = passRateInDecimal.intValue()
-//                println "Total passed tests: ${passedTestsCount}"
-//                println "Total failed tests: ${failedTestsCount}"
-//                println "Total broken tests: ${brokenTestsCount}"
-//
-//                if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-//                    slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-//                }
-//                else {
-//                    slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-//        }
         }
-    }
+}
 
 /* Functions */
 
