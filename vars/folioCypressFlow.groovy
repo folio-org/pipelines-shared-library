@@ -118,7 +118,8 @@ void call(params) {
 
             def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
             def jsonSlurper = new JsonSlurper()
-            def parseAllureReport = jsonSlurper.parse(new FileReader(allureReport))
+            def fileContent = readFile allureReport
+            def parseAllureReport = jsonSlurper.parseText(fileContent)
             def statusCounts = [failed: 0, passed: 0, broken: 0]
             parseAllureReport.children.each { child ->
                 child.children.each { testCase ->
