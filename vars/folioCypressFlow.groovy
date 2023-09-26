@@ -116,7 +116,7 @@ void call(params) {
             def path =  pathList.path.get(0)
             def jsonFilePattern = "*-result.json"
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
-            def fullPath = "${WORKSPACE}/${path}"
+            String fullPath = "${WORKSPACE}/${path}"
 //            println "Full path list: ${fullPath}"
 //            println pathList
 //            println pathList.getClass()
