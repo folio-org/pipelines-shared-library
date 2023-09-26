@@ -114,6 +114,7 @@ void call(params) {
         script {
             String allure_report = "${WORKSPACE}/allure-report/data/suites.json"
             println allure_report
+            println allure_report.getClass()
             def jsonSlurper = new JsonSlurper()
             def testStatuses = jsonSlurper.parse(allure_report)
             println testStatuses
