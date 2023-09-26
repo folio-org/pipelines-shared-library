@@ -114,7 +114,7 @@ void call(params) {
         script {
             def jsonFilePattern = "-result.json"
             def files = []
-            def allure_report = sh( script: "ls -la ${WORKSPACE_DIR}/allure-report/data")
+            def allure_report = sh( script: "ls -la ${WORKSPACE}/allure-report/data")
             println allure_report
 
 //            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
