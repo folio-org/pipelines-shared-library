@@ -123,8 +123,8 @@ void call(params) {
                     }
                 }
             }
-            def passedTestsCount = statusCounts.failed
-            def failedTestsCount = statusCounts.passed
+            def passedTestsCount = statusCounts.passed
+            def failedTestsCount = statusCounts.failed
             def brokenTestsCount = statusCounts.broken
             def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
             def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
