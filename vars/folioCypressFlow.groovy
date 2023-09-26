@@ -113,12 +113,8 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-//            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
-//            def jsonSlurper = new JsonSlurperClassic()
             def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-
             def statusCounts = [failed: 0, passed: 0, broken: 0]
-
             parseAllureReport.children.each { child ->
                 child.children.each { testCase ->
                     def status = testCase.status
@@ -127,13 +123,25 @@ void call(params) {
                     }
                 }
             }
-            println "Failed: " + statusCounts.failed
-            println "Passed: " + statusCounts.passed
-            println "Broken: " + statusCounts.broken
+            def passedTestsCount = statusCounts.failed
+            def failedTestsCount = statusCounts.passed
+            def brokenTestsCount = statusCounts.broken
+            def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
+            def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+            def passRate = passRateInDecimal.intValue()
+            println "Total passed tests: ${passedTestsCount}"
+            println "Total failed tests: ${failedTestsCount}"
+            println "Total broken tests: ${brokenTestsCount}"
+
+            if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
+                slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+            } else {
+                slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+
+            }
         }
     }
 }
-
 /* Functions */
 
     void cloneCypressRepo(String branch) {
