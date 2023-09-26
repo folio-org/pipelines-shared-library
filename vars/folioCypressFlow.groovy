@@ -112,22 +112,21 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            String allure_report = "${WORKSPACE}/allure-report/data/suites.json"
-            println allure_report
-            println allure_report.getClass()
+            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
             def jsonSlurper = new JsonSlurper()
-            def testStatuses = jsonSlurper.parse(allure_report)
-            println testStatuses
-
-//            if (testStatuses.status == "passed") {
-//                println testStatuses.status
-//            }
-//            def passedTestsCount = countPassedStatus(config.status, "passed")
-//            def failedTestsCount = countPassedStatus(config.status, "failed")
-//            def brokenTestsCount = countPassedStatus(config.status, "broken")
-//            println(passedTestsCount)
-//            println(failedTestsCount)
-//            println(brokenTestsCount)
+            def parseAllureReport = jsonSlurper.parse(new File(allureReport))
+            def statusCounts = [failed: 0, passed: 0, broken: 0]
+            parseAllureReport.children.each { child ->
+                child.children.each { testCase ->
+                    def status = testCase.status
+                    if (statusCounts[status] != null) {
+                        statusCounts[status] += 1
+                    }
+                }
+            }
+            println "Failed: " + statusCounts.failed
+            println "Passed: " + statusCounts.passed
+            println "Broken: " + statusCounts.broken
         }
     }
 }
