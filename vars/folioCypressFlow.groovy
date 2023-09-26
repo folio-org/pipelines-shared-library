@@ -113,9 +113,9 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
-            def jsonSlurper = new JsonSlurperClassic()
-            def parseAllureReport = jsonSlurper.parseText(readFile(file: allureReport))
+//            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
+//            def jsonSlurper = new JsonSlurperClassic()
+            def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
 
             def statusCounts = [failed: 0, passed: 0, broken: 0]
 
