@@ -114,15 +114,18 @@ void call(params) {
         script {
             def jsonFilePattern = "-result.json"
             def files = []
+            def allure_report = sh( script: "ls -la ${WORKSPACE_DIR}/allure-report/data")
+            println allure_report
+
 //            def pathList = resultPaths.collect { path -> [path: "${path}/allure-results"] }
-            resultPaths.each { path ->
-                println path
-                def dir = new File(path)
-                dir.eachFileMatch(~/.*$jsonFilePattern/){ file ->
-                    println file
-                    files << file
-                }
-            }
+//            resultPaths.each { path ->
+//                println path
+//                def dir = new File(path)
+//                dir.eachFileMatch(~/.*$jsonFilePattern/){ file ->
+//                    println file
+//                    files << file
+//                }
+//            }
 //            def path = pathList.path.get(0)
 //            println path
             def totalTestStatuses = [passed: 0, failed: 0, broken: 0]
