@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import groovy.json.JsonSlurper
 
@@ -112,15 +113,12 @@ void call(params) {
     }
     stage('[Allure] Send slack notifications') {
         script {
-//            def workspaceList = sh(script: "ls -la ${WORKSPACE}/allure-report")
-//            def workspaceList2 = sh(script: "ls -la ${WORKSPACE}/allure-report/data")
-//            def workspaceList3 = sh(script: "cat ${WORKSPACE}/allure-report/data/suites.json")
-
-            def allureReport = "${WORKSPACE}/allure-report/data/suites.json".toString()
+            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
             def jsonSlurper = new JsonSlurper()
-//            def json = readJSON file: allureReport
-            def parseAllureReport = jsonSlurper.parse(new File(allureReport))
+            def parseAllureReport = jsonSlurper.parseText(readFile(file: allureReport))
+
             def statusCounts = [failed: 0, passed: 0, broken: 0]
+
             parseAllureReport.children.each { child ->
                 child.children.each { testCase ->
                     def status = testCase.status
