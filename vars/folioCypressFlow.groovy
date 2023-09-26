@@ -116,9 +116,9 @@ void call(params) {
 //            def workspaceList2 = sh(script: "ls -la ${WORKSPACE}/allure-report/data")
 //            def workspaceList3 = sh(script: "cat ${WORKSPACE}/allure-report/data/suites.json")
 
-            def allureReport = "${env.WORKSPACE}/allure-report/data/suites.json"
+            def allureReport = "${WORKSPACE}/allure-report/data/suites.json"
             def jsonSlurper = new JsonSlurper()
-            def parseAllureReport = jsonSlurper.parseText(readFile allureReport)
+            def parseAllureReport = jsonSlurper.parseText(readFile(allureReport))
             def statusCounts = [failed: 0, passed: 0, broken: 0]
             parseAllureReport.children.each { child ->
                 child.children.each { testCase ->
