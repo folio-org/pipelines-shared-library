@@ -235,6 +235,6 @@ class OkapiUser {
      */
     @Override
     String toString() {
-        return "OkapiUser{username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group'}"
+        return "OkapiUser{username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}"
     }
 }
