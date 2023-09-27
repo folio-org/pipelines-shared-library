@@ -2,7 +2,7 @@
 import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-920') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

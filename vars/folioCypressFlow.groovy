@@ -1,6 +1,4 @@
-import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import groovy.json.JsonSlurper
 
 /**
  * !Attention! This method should be called inside node block in parent
