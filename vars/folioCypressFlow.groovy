@@ -190,7 +190,8 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
                         sh "yarn install"
 
                         String execString = "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} " +
-                            "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
+
+                          "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
 
                         if (testrailProjectID?.trim() && testrailRunID?.trim()) {
                             env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
