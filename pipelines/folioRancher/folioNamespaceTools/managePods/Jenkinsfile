@@ -90,10 +90,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         50 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
         30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
         10 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        0 22 * * 5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=consair
-        30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=consair
-        0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=consair
-        0 05 * * 2-5 %action=START;CLUSTER=folio-dev;NAMESPACE=consair
+        0 22 * * 5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
+        30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 05 * * 2-5 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
    ''')])])
 
 ansiColor('xterm') {
