@@ -840,7 +840,7 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      memory: '1024Mi'
+      memory: '1536Mi'
     requests:
       memory: '768Mi'
 mod-quick-marc:
