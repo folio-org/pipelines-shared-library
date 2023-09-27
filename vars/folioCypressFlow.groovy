@@ -220,4 +220,3 @@ String archiveTestResults(def id) {
         }
     }
 }
-
