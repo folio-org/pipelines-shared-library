@@ -66,6 +66,12 @@ class OkapiUser {
      */
     String group
 
+
+    /**
+     * User type the Okapi user belongs to.
+     */
+    String type
+
     /**
      * Constructor for creating an instance of OkapiUser class.
      * Initializes username, password, and email.
@@ -142,6 +148,17 @@ class OkapiUser {
      */
     OkapiUser withGroup(String group) {
         this.group = group
+        return this
+    }
+
+    /**
+     * Sets the type for the Okapi user.
+     *
+     * @param type The user type of the user.
+     * @return the OkapiUser instance with the user type set.
+     */
+    OkapiUser withType(String type) {
+        this.type = type
         return this
     }
 
