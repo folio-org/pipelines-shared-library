@@ -89,7 +89,7 @@ def call(params) {
             def totalTestsCount = passedTestsCount + failedTestsCount
             def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
             def passRate = passRateInDecimal.intValue()
-            slackNotifications.sendKarateSlackNotification ("Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+            slackNotifications.sendKarateSlackNotification("Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
         }
     }
 }
