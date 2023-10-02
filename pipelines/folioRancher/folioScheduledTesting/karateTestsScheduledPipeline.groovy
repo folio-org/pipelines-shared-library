@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library@RANCHER-977') _
+@Library('pipelines-shared-library') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -30,6 +30,10 @@ String okapiVersion = versions[0] //versions.toSorted(new SemanticVersionCompara
 pipeline {
 
     agent { label 'jenkins-agent-java17' }
+
+    triggers {
+        cron('H 3 * * *')
+    }
 
     options {
         disableConcurrentBuilds()

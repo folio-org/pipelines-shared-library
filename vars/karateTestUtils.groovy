@@ -102,23 +102,6 @@ void copyCucumberReports() {
 }
 
 /**
- * Get slack color by build status
- * @param buildStatus jenkins build status
- * @return color code
- */
-def getSlackColor(def buildStatus) {
-    if (buildStatus == 'STARTED') {
-        '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-        '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-        '#FFFE89'
-    } else {
-        '#FF9FA1'
-    }
-}
-
-/**
  * Sync jira tickets for failed karate tests
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
