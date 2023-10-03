@@ -103,6 +103,7 @@ static List devEnvironmentsList() {
             'stripes-force',
             'tamu',
             'task-force',
+            'task-force-2nd',
             'thor',
             'thunderjet',
             'unam',
