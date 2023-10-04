@@ -25,7 +25,7 @@ void call(params) {
 
     /* Define variables */
     String customBuildName = params.customBuildName?.trim() ?
-      "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : env.BUILD_ID
+        "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : env.BUILD_ID
     String branch = params.branch
     String tenantUrl = params.tenantUrl
     String okapiUrl = params.okapiUrl
@@ -59,7 +59,7 @@ void call(params) {
                                 cypressImageVersion = getCypressImageVersion()
 
                                 executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                                  customBuildName, browserName, parallelExecParameters, testrailProjectID, testrailRunID, true)
+                                    customBuildName, browserName, parallelExecParameters, testrailProjectID, testrailRunID, true)
 
                                 resultPaths.add(archiveTestResults(currentWorkerNumber))
                             }
@@ -78,7 +78,7 @@ void call(params) {
                     cypressImageVersion = getCypressImageVersion()
 
                     executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                      customBuildName, browserName, sequentialExecParameters, testrailProjectID, testrailRunID, false)
+                        customBuildName, browserName, sequentialExecParameters, testrailProjectID, testrailRunID, false)
 
                     resultPaths.add(archiveTestResults(numberOfWorkers + 1))
                 }
@@ -100,18 +100,49 @@ void call(params) {
     stage('[Allure] Publish report') {
         script {
             allure([
-              includeProperties: false,
-              jdk              : '',
-              commandline      : Constants.CYPRESS_ALLURE_VERSION,
-              properties       : [],
-              reportBuildPolicy: 'ALWAYS',
-              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+                includeProperties: false,
+                jdk              : '',
+                commandline      : Constants.CYPRESS_ALLURE_VERSION,
+                properties       : [],
+                reportBuildPolicy: 'ALWAYS',
+                results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
             ])
+        }
+    }
+    stage('[Allure] Send slack notifications') {
+        script {
+            def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+            def statusCounts = [failed: 0, passed: 0, broken: 0]
+            parseAllureReport.children.each { child ->
+                child.children.each { testCase ->
+                    def status = testCase.status
+                    if (statusCounts[status] != null) {
+                        statusCounts[status] += 1
+                    }
+                }
+            }
+            def passedTestsCount = statusCounts.passed
+            def failedTestsCount = statusCounts.failed
+            def brokenTestsCount = statusCounts.broken
+            def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
+            def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+            def passRate = passRateInDecimal.intValue()
+            println "Total passed tests: ${passedTestsCount}"
+            println "Total failed tests: ${failedTestsCount}"
+            println "Total broken tests: ${brokenTestsCount}"
+
+            if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
+                slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+            } else {
+                slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+
+            }
         }
     }
 }
 
 /* Functions */
+
 void cloneCypressRepo(String branch) {
     stage('Checkout Cypress repo') {
         script {
@@ -160,7 +191,7 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
                         sh "yarn install"
 
                         String execString = "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} " +
-                          "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
+                            "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
 
                         if (testrailProjectID?.trim() && testrailRunID?.trim()) {
                             env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
