@@ -33,7 +33,7 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
             }
         }
         ns.tenants.each { tenant_name, tenant_cm ->
-            if (tenant_cm.tenantId != "supertenant" || tenant_cm.tenantId == 'diku') {
+            if (tenant_cm.tenantId != "supertenant" || tenant_cm.tenantId != 'diku') {
                 admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
                 edgeTenantsId += "," + tenant_cm.tenantId
             }
