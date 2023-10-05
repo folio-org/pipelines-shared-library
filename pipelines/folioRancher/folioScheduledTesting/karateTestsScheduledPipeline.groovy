@@ -1,6 +1,6 @@
 package tests.karate
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
@@ -61,9 +61,14 @@ pipeline {
         stage("Create environment") {
             steps {
                 script {
-                    def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                        projectName, prototypeTenant, folio_repository, folio_branch)
-                    spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    try {
+                        def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+                            projectName, prototypeTenant, folio_repository, folio_branch)
+                        spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    } catch (Exception new_ex) {
+                        println('Failed to create environment: ' + new_ex)
+                        slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+                    }
                 }
             }
         }

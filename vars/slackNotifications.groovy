@@ -171,7 +171,7 @@ void sendCypressSlackNotification(message, channel, buildStatus) {
     slackSend(attachments: attachments, channel: channel)
 }
 
-void sendPipelineFailSlackNotification(channel, buildStatus) {
-    def attachments = renderSlackMessage("", buildStatus, "", "")
+void sendPipelineFailSlackNotification(channel) {
+    def attachments = renderSlackMessage("", "FAILED", "", "")
     slackSend(attachments: attachments, channel: channel)
 }

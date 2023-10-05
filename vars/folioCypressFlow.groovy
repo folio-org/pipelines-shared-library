@@ -130,7 +130,7 @@ void call(params) {
             println "Total passed tests: ${passedTestsCount}"
             println "Total failed tests: ${failedTestsCount}"
             println "Total broken tests: ${brokenTestsCount}"
-            slackNotifications.sendCypressSlackNotification("Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+            slackNotifications.sendCypressSlackNotification("Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
         }
     }
 }
