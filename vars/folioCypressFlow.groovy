@@ -130,13 +130,7 @@ void call(params) {
             println "Total passed tests: ${passedTestsCount}"
             println "Total failed tests: ${failedTestsCount}"
             println "Total broken tests: ${brokenTestsCount}"
-
-            if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-                slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-            } else {
-                slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-
-            }
+            slackNotifications.sendCypressSlackNotification("Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%", "#rancher_tests_notifications", currentBuild.result)
         }
     }
 }
