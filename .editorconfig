@@ -9,7 +9,7 @@ insert_final_newline = true
 
 [*.{java,scala,gradle,proto,groovy}]
 indent_style = space
-indent_size = 4
+indent_size = 2
 
 [*.{yaml,yml,graphql,graphqls}]
 indent_style = space

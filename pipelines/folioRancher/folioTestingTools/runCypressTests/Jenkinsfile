@@ -6,7 +6,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
+  throttleJobProperty(categories: [], limitOneJobWithMatchingParams: true, maxConcurrentPerNode: 0,
+    maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
     string(name: 'TENANT_URL', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),

@@ -27,6 +27,9 @@ def call(params) {
 
     //TODO Temporary solution should be revised during refactoring
     stage('Checkout') {
+        dir('platform-complete') {
+            cleanWs()
+        }
         checkout([$class           : 'GitSCM',
                   branches         : [[name: ui_bundle.hash]],
                   extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
