@@ -25,7 +25,7 @@ void call(params) {
 
     /* Define variables */
     String customBuildName = params.customBuildName?.trim() ?
-        "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : env.BUILD_ID
+      "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : env.BUILD_ID
     String branch = params.branch
     String tenantUrl = params.tenantUrl
     String okapiUrl = params.okapiUrl
@@ -59,7 +59,7 @@ void call(params) {
                                 cypressImageVersion = getCypressImageVersion()
 
                                 executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                                    customBuildName, browserName, parallelExecParameters, testrailProjectID, testrailRunID, true)
+                                  customBuildName, browserName, parallelExecParameters, testrailProjectID, testrailRunID, true)
 
                                 resultPaths.add(archiveTestResults(currentWorkerNumber))
                             }
@@ -78,7 +78,7 @@ void call(params) {
                     cypressImageVersion = getCypressImageVersion()
 
                     executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                        customBuildName, browserName, sequentialExecParameters, testrailProjectID, testrailRunID, false)
+                      customBuildName, browserName, sequentialExecParameters, testrailProjectID, testrailRunID, false)
 
                     resultPaths.add(archiveTestResults(numberOfWorkers + 1))
                 }
@@ -100,12 +100,12 @@ void call(params) {
     stage('[Allure] Publish report') {
         script {
             allure([
-                includeProperties: false,
-                jdk              : '',
-                commandline      : Constants.CYPRESS_ALLURE_VERSION,
-                properties       : [],
-                reportBuildPolicy: 'ALWAYS',
-                results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+              includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
             ])
         }
     }
@@ -136,7 +136,6 @@ void call(params) {
 }
 
 /* Functions */
-
 void cloneCypressRepo(String branch) {
     stage('Checkout Cypress repo') {
         script {
@@ -185,7 +184,7 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
                         sh "yarn install"
 
                         String execString = "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} " +
-                            "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
+                          "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
 
                         if (testrailProjectID?.trim() && testrailRunID?.trim()) {
                             env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
