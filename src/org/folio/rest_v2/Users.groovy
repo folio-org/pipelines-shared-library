@@ -66,7 +66,6 @@ class Users extends Authorization {
         Map body = [id      : user.uuid,
                     username: user.username,
                     barcode : user.barcode,
-                    type    : user.type,
                     active  : true,
                     personal: [lastName : user.lastName,
                                firstName: user.firstName,

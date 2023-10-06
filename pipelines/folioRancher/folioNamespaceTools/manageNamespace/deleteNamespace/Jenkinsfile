@@ -56,17 +56,6 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      //TODO Quick fix. Refactoring required.
-      folioHelm.withKubeConfig(params.CLUSTER){
-        retry(2) {
-          if(params.OPENSEARCH != 'built-in') {
-            folioTools.deleteOpenSearchIndices(params.CLUSTER, params.NAMESPACE)
-          }
-          if(params.KAFKA != 'built-in') {
-            folioTools.deleteKafkaTopics(params.CLUSTER, params.NAMESPACE)
-          }
-        }
-      }
 
       folioTerraformFlow.manageNamespace('destroy', tfConfig)
     } catch (e) {

@@ -66,12 +66,6 @@ class OkapiUser {
      */
     String group
 
-
-    /**
-     * User type the Okapi user belongs to.
-     */
-    String type
-
     /**
      * Constructor for creating an instance of OkapiUser class.
      * Initializes username, password, and email.
@@ -152,17 +146,6 @@ class OkapiUser {
     }
 
     /**
-     * Sets the type for the Okapi user.
-     *
-     * @param type The user type of the user.
-     * @return the OkapiUser instance with the user type set.
-     */
-    OkapiUser withType(String type) {
-        this.type = type
-        return this
-    }
-
-    /**
      * Adds a permission to the user's permissions list.
      *
      * @param permission The permission to add.
@@ -235,6 +218,6 @@ class OkapiUser {
      */
     @Override
     String toString() {
-        return "OkapiUser{username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}"
+        return "OkapiUser{username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group'}"
     }
 }

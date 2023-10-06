@@ -15,7 +15,6 @@ static OkapiUser adminOkapiUser(String username, def password) {
         .withPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
         .withBarcode("88888888")
         .withGroup("staff")
-        .withType("staff")
 }
 
 Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson, InstallRequestParams installQueryParameters = new InstallRequestParams()) {
