@@ -33,9 +33,7 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
         institutional += obj.tenant + "=" + obj.username + "," + obj.password + "\n"
       }
     }
-    common.logger.warning("${ns.tenants}")
-    input("Testing input...")
-    ns.getTenants().each { tenant_name, tenant_cm ->
+    ns.tenants.each { tenant_name, tenant_cm ->
       switch (tenant_cm.tenantId) {
         case "supertenant":
           common.logger.warning("Tenant ${tenant_cm.tenantId} should not be presented in config, aborted!")
