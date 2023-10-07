@@ -1,6 +1,7 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
 
 /**
@@ -33,7 +34,7 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
     ns.tenants.each { tenant_name, tenant_cm ->
       switch (tenant_cm.tenantId) {
         case "supertenant":
-          println("The ${tenant_cm} should not be presented in config, aborted!")
+          new Common(this, "htpps://${ns.getDomains()['okapi']}")("The ${tenant_cm} should not be presented in config, aborted!")
           break
         case "diku":
           admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
