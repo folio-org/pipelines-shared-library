@@ -48,8 +48,10 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
       }
     }
     LinkedHashMap config_data = [edge_tenants: edgeTenantsId, edge_mappings: defaultTenantId, edge_users: admin_users, institutional_users: institutional]
-    common.logger.warning("Boom an error occurred!")
-    input("Please review workspace files!")
-    tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+    try {
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+    } catch (NullPointerException e) {
+      common.logger.warning("Can't write data: ${config_data} to file ${name}-ephemeral-properties \n Error message: ${e.getMessage()}")
+    }
   }
 }
