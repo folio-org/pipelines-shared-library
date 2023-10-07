@@ -1,9 +1,7 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
-import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
-
 
 /**
  * Renders the ephemeral properties for a tenant.
@@ -14,7 +12,6 @@ import org.folio.utilities.Tools
  */
 
 void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
-  Common common = new Common(this, "https://${ns.getDomains()['okapi']}")
   Tools tools = new Tools(this)
   Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToWorkspace("edge/config.yaml")
   String defaultTenantId = tenant.tenantId
@@ -36,7 +33,7 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
     ns.tenants.each { tenant_name, tenant_cm ->
       switch (tenant_cm.tenantId) {
         case "supertenant":
-          common.logger.warning("Tenant ${tenant_cm.tenantId} should not be presented in config, aborted!")
+          println("The ${tenant_cm} should not be presented in config, aborted!")
           break
         case "diku":
           admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
@@ -48,10 +45,6 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
       }
     }
     LinkedHashMap config_data = [edge_tenants: edgeTenantsId, edge_mappings: defaultTenantId, edge_users: admin_users, institutional_users: institutional]
-    try {
-      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-    } catch (NullPointerException e) {
-      common.logger.warning("Can't write data: ${config_data} to file ${name}-ephemeral-properties \n Error message: ${e.getMessage()}")
-    }
+    tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
   }
 }
