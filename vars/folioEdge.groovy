@@ -48,6 +48,8 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
       }
     }
     LinkedHashMap config_data = [edge_tenants: edgeTenantsId, edge_mappings: defaultTenantId, edge_users: admin_users, institutional_users: institutional]
+    common.logger.warning("Boom an error occurred!")
+    input("Please review workspace files!")
     tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
   }
 }
