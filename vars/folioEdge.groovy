@@ -14,6 +14,7 @@ import org.folio.utilities.Tools
  */
 
 void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
+  Common common = new Common(this, "https://${ns.getDomains().okapi}")
   Tools tools = new Tools(this)
   Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToWorkspace("edge/config.yaml")
   String defaultTenantId = tenant.tenantId
@@ -35,7 +36,7 @@ void renderEphemeralProperties(OkapiTenant tenant, RancherNamespace ns) {
     ns.tenants.each { tenant_name, tenant_cm ->
       switch (tenant_cm.tenantId) {
         case "supertenant":
-          new Common(this, ns.getDomains().okapi.toString()).logger.warning("Tenant ${tenant_cm.tenantId} should not be presented in config, aborted!")
+          common.logger.warning("Tenant ${tenant_cm.tenantId} should not be presented in config, aborted!")
           break
         case "diku":
           admin_users += "${tenant_cm.tenantId + "=" + tenant_cm.adminUser.username + "," + tenant_cm.adminUser.password + "\n"}"
