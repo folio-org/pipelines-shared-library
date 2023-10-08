@@ -94,6 +94,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
         0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
         0 05 * * 2-5 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
+        30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
+        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
+        10 06 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
    ''')])])
 
 ansiColor('xterm') {

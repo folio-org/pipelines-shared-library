@@ -29,45 +29,6 @@ class Edge extends Authorization {
     }
 
     /**
-     * Renders the ephemeral properties for a tenant.
-     *
-     * @param tenant The tenant for which the ephemeral properties are to be rendered.
-     */
-    void renderEphemeralProperties(OkapiTenant tenant) {
-        Map edgeUsersConfig = steps.readYaml file: tools.copyResourceFileToWorkspace(EDGE_USERS_CONFIG_PATH)
-        String defaultTenantId = tenant.tenantId
-        String edgeTenantsId = defaultTenantId
-        String institutional = ''
-        tenant.modules.edgeModules.each { name, version ->
-            Map edgeUserConfig = edgeUsersConfig[(name)]
-            if (edgeUserConfig['tenants']) {
-                edgeUserConfig['tenants'].each {
-                    Map obj = [
-                        tenant  : it.tenant == "default" ? defaultTenantId : it.tenant,
-                        username: it.username,
-                        password: it.tenant == "default" ? defaultTenantId : it.password
-                    ]
-                    edgeTenantsId += it.tenant == "default" ? "" : "," + it.tenant
-                    institutional += obj.tenant + "=" + obj.username + "," + obj.password + "\n"
-                }
-            }
-            steps.writeFile file: "${name}-ephemeral-properties", text: """secureStore.type=Ephemeral
-# a comma separated list of tenants
-tenants=${edgeTenantsId}
-# a comma separated list of tenants mappings in form X-TO-CODE:tenant, where X-TO-CODE it's InnReach Header value
-tenantsMappings=fli01:${defaultTenantId}
-#######################################################
-# For each tenant, the institutional user password...
-#
-# Note: this is intended for development purposes only
-#######################################################
-${defaultTenantId}=${tenant.adminUser.username},${tenant.adminUser.password}
-${institutional}
-"""
-        }
-    }
-
-    /**
      * Creates Edge users for a tenant.
      *
      * @param tenant The tenant for which Edge users are to be created.
