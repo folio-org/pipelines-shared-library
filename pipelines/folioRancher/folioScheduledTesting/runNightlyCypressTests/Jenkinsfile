@@ -37,10 +37,10 @@ Map cypressFlowParameters = [
   adminPassword           : 'admin',
   parallelExecParameters  : '--env grepTags="smoke criticalPth extendedPath --nonParallel"',
   sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
-  testsTimeout            : '6',
+  testsTimeout            : '8',
   testrailProjectID       : '14',
   testrailRunID           : '2108',
-  numberOfWorkers         : '8',
+  numberOfWorkers         : '6',
   agent                   : 'rancher||jenkins-agent-java11'
 ]
 
