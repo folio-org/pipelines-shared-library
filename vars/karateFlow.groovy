@@ -89,12 +89,7 @@ def call(params) {
             def totalTestsCount = passedTestsCount + failedTestsCount
             def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
             def passRate = passRateInDecimal.intValue()
-            if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-                slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
-            }
-            else {
-                slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
-            }
+            slackNotifications.sendKarateSlackNotification("Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
         }
     }
 }
