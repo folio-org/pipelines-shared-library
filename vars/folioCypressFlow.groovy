@@ -44,7 +44,7 @@ void call(params) {
   List resultPaths = []
 
   buildName customBuildName
-  
+
   timeout(time: testsTimeout, unit: 'HOURS') {
     if (parallelExecParameters?.trim()) {
       stage('[Cypress] Parallel run') {
@@ -52,13 +52,13 @@ void call(params) {
           Map workers = [:]
           for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
             workers["Worker#${workerNumber}"] = { currentWorkerNumber ->
-              node('rancher||jenkins-agent-java11') {
+              node('rancher||jenkins-agent-java11||jenkins-agent-java17') {
                 cloneCypressRepo(branch)
 
                 cypressImageVersion = getCypressImageVersion()
 
                 executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                  customBuildName, browserName, parallelExecParameters, testrailProjectID, testrailRunID, true)
+                  "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID)
 
                 resultPaths.add(archiveTestResults(currentWorkerNumber))
               }
@@ -77,7 +77,7 @@ void call(params) {
           cypressImageVersion = getCypressImageVersion()
 
           executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-            customBuildName, browserName, sequentialExecParameters, testrailProjectID, testrailRunID, false)
+            "sequential_${customBuildName}", browserName, sequentialExecParameters, testrailProjectID, testrailRunID)
 
           resultPaths.add(archiveTestResults(numberOfWorkers + 1))
         }
@@ -108,6 +108,7 @@ void call(params) {
       ])
     }
   }
+
   stage('[Allure] Send slack notifications') {
     script {
       def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
@@ -131,9 +132,9 @@ void call(params) {
       println "Total broken tests: ${brokenTestsCount}"
 
       if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-        slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+        slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Build name: ${customBuildName}. Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
       } else {
-        slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
+        slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Build name: ${customBuildName}. Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
 
       }
     }
@@ -165,7 +166,7 @@ String getCypressImageVersion() {
 
 void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
                   String adminPassword, String customBuildName, String browserName, String execParameters,
-                  String testrailProjectID = '', String testrailRunID = '', boolean parallel = true) {
+                  String testrailProjectID = '', String testrailRunID = '') {
   stage('Run tests') {
     script {
       catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
@@ -177,20 +178,21 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
           env.CYPRESS_OKAPI_TENANT = "${tenantId}"
           env.CYPRESS_diku_login = "${adminUsername}"
           env.CYPRESS_diku_password = "${adminPassword}"
-          env.CYPRESS_API_URL = Constants.CYPRESS_SC_URL
           env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
           withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                             credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                             accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                             secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-            sh "yarn add -D cypress-testrail-simple"
-            sh "yarn global add cy2@latest"
-            sh "yarn install"
 
-            String execString = "\$HOME/.yarn/bin/cy2 run --config projectId=${Constants.CYPRESS_PROJECT} --key ${Constants.CYPRESS_SC_KEY} " +
-              "${parallel ? "--parallel --record --ci-build-id ${customBuildName}" : ''} --headless --browser ${browserName} ${execParameters}"
+            String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
+            String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
+            String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
+
+            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+            sh "yarn install"
+            sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
+            sh "yarn global add cypress-cloud@${cypressCloudVersion}"
 
             if (testrailProjectID?.trim() && testrailRunID?.trim()) {
               env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
@@ -198,7 +200,8 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
               env.TESTRAIL_RUN_ID = testrailRunID
               env.CYPRESS_allureReuseAfterSpec = "true"
 
-              println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID})"
+              println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+
               withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                 sh execString
               }
