@@ -65,14 +65,6 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
 
 void destroy(TerraformConfig config, boolean approveRequired = false, Closure preAction = {}, Closure postAction = {}) {
 
-    //TODO refactoring required
-    folioHelm.withKubeConfig(config.vars['rancher_cluster_name']){
-        retry(2) {
-            folioTools.deleteOpenSearchIndices(config.vars['rancher_cluster_name'], config.vars['rancher_project_name'])
-            folioTools.deleteKafkaTopics(config.vars['rancher_cluster_name'], config.vars['rancher_project_name'])
-        }
-    }
-
     folioTerraform.init(config.getWorkDir())
     folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
     folioTerraform.statePull(config.getWorkDir())
