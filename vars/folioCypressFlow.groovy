@@ -130,122 +130,92 @@ void call(params) {
       println "Total passed tests: ${passedTestsCount}"
       println "Total failed tests: ${failedTestsCount}"
       println "Total broken tests: ${brokenTestsCount}"
-
-      if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
-        slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Build name: ${customBuildName}. Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-      } else {
-        slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Build name: ${customBuildName}. Cypress tests results: Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate:${passRate}%")
-
-      }
+      slackNotifications.sendCypressSlackNotification("Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
     }
   }
-    stage('[Allure] Send slack notifications') {
-      script {
-        def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-        def statusCounts = [failed: 0, passed: 0, broken: 0]
-        parseAllureReport.children.each { child ->
-          child.children.each { testCase ->
-            def status = testCase.status
-            if (statusCounts[status] != null) {
-              statusCounts[status] += 1
-            }
-          }
-        }
-        def passedTestsCount = statusCounts.passed
-        def failedTestsCount = statusCounts.failed
-        def brokenTestsCount = statusCounts.broken
-        def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
-        def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-        def passRate = passRateInDecimal.intValue()
-        println "Total passed tests: ${passedTestsCount}"
-        println "Total failed tests: ${failedTestsCount}"
-        println "Total broken tests: ${brokenTestsCount}"
-        slackNotifications.sendCypressSlackNotification("Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
-      }
-    }
-  }
+}
 
 /* Functions */
 
-  void cloneCypressRepo(String branch) {
-    stage('Checkout Cypress repo') {
-      script {
-        checkout([$class           : 'GitSCM',
-                  branches         : [[name: "*/${branch}"]],
-                  extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
-                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                  userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
-                                       url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
-      }
+void cloneCypressRepo(String branch) {
+  stage('Checkout Cypress repo') {
+    script {
+      checkout([$class           : 'GitSCM',
+                branches         : [[name: "*/${branch}"]],
+                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
+                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
+                                     url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
     }
   }
+}
 
-  String getCypressImageVersion() {
-    stage('Cypress tests Image version') {
-      script {
-        return readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress']
-      }
+String getCypressImageVersion() {
+  stage('Cypress tests Image version') {
+    script {
+      return readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress']
     }
   }
+}
 
-  void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
-                    String adminPassword, String customBuildName, String browserName, String execParameters,
-                    String testrailProjectID = '', String testrailRunID = '') {
-    stage('Run tests') {
-      script {
-        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-          docker.image("cypress/included:${cypressImageVersion}").inside('--entrypoint=') {
-            env.HOME = "${pwd()}"
-            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-            env.CYPRESS_BASE_URL = "${tenantUrl}"
-            env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
-            env.CYPRESS_OKAPI_TENANT = "${tenantId}"
-            env.CYPRESS_diku_login = "${adminUsername}"
-            env.CYPRESS_diku_password = "${adminPassword}"
-            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
+                  String adminPassword, String customBuildName, String browserName, String execParameters,
+                  String testrailProjectID = '', String testrailRunID = '') {
+  stage('Run tests') {
+    script {
+      catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+        docker.image("cypress/included:${cypressImageVersion}").inside('--entrypoint=') {
+          env.HOME = "${pwd()}"
+          env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+          env.CYPRESS_BASE_URL = "${tenantUrl}"
+          env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
+          env.CYPRESS_OKAPI_TENANT = "${tenantId}"
+          env.CYPRESS_diku_login = "${adminUsername}"
+          env.CYPRESS_diku_password = "${adminPassword}"
+          env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
-              String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
-              String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
-              String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
+            String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
+            String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
+            String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
-              sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-              sh "yarn install"
-              sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
-              sh "yarn global add cypress-cloud@${cypressCloudVersion}"
+            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+            sh "yarn install"
+            sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
+            sh "yarn global add cypress-cloud@${cypressCloudVersion}"
 
-              if (testrailProjectID?.trim() && testrailRunID?.trim()) {
-                env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
-                env.TESTRAIL_PROJECTID = testrailProjectID
-                env.TESTRAIL_RUN_ID = testrailRunID
-                env.CYPRESS_allureReuseAfterSpec = "true"
+            if (testrailProjectID?.trim() && testrailRunID?.trim()) {
+              env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
+              env.TESTRAIL_PROJECTID = testrailProjectID
+              env.TESTRAIL_RUN_ID = testrailRunID
+              env.CYPRESS_allureReuseAfterSpec = "true"
 
-                println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+              println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
 
-                withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                  sh execString
-                }
-              } else {
+              withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
                 sh execString
               }
+            } else {
+              sh execString
             }
           }
         }
       }
     }
   }
+}
 
-  String archiveTestResults(def id) {
-    stage('Archive test results') {
-      script {
-        zip zipFile: "allure-results-${id}.zip", glob: "allure-results/*"
-        archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${id}.zip", fingerprint: true, defaultExcludes: false
-        stash name: "allure-results-${id}", includes: "allure-results-${id}.zip"
-        return "allure-results-${id}"
-      }
+String archiveTestResults(def id) {
+  stage('Archive test results') {
+    script {
+      zip zipFile: "allure-results-${id}.zip", glob: "allure-results/*"
+      archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${id}.zip", fingerprint: true, defaultExcludes: false
+      stash name: "allure-results-${id}", includes: "allure-results-${id}.zip"
+      return "allure-results-${id}"
     }
   }
+}
