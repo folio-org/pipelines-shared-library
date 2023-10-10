@@ -52,7 +52,7 @@ void call(params) {
           Map workers = [:]
           for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
             workers["Worker#${workerNumber}"] = { currentWorkerNumber ->
-              node('rancher||jenkins-agent-java11||jenkins-agent-java17') {
+              node('rancher||jenkins-agent-java11') {
                 cloneCypressRepo(branch)
 
                 cypressImageVersion = getCypressImageVersion()
