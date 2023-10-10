@@ -57,3 +57,4 @@ edge-connexion:
   permissions:
   - copycat.all
 edge-sip2: {}
+edge-fqm: {}
