@@ -1,9 +1,14 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.text.StreamingTemplateEngine
+import groovy.json.JsonSlurperClassic
+import java.time.*
 
 @Library('pipelines-shared-library') _
 
 def call(params) {
+    def res
+    def id
     stage("Checkout") {
         script {
             sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
@@ -19,7 +24,24 @@ def call(params) {
             }
         }
     }
-
+    stage("[Report-Portal]") {
+        println("Binding config file..")
+        withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+            String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
+            String source_tpl = readFile file: key_path
+            LinkedHashMap key_data = [api_key: "${env.api_key}"]
+            writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
+            String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
+            res = sh(returnStdout: true, script: """
+                  curl --header "Content-Type: application/json" \
+                  --header "Authorization: Bearer ${env.api_key}" \
+                  --request POST \
+                  --data '{"name":"Test (Jenkins) build number: ${env.BUILD_NUMBER}","description":"Karate scheduled tests.","startTime":"${Instant.now()}","mode":"DEFAULT","attributes":[{"key":"build","value":"${env.BUILD_NUMBER}"}]}' \
+                  ${url} """)
+            id = new JsonSlurperClassic().parseText("${res}")
+            println("Run id: " + id['id'])
+        }
+    }
     stage("Build karate config") {
         script {
             def files = findFiles(glob: '**/karate-config.js')
@@ -42,8 +64,20 @@ def call(params) {
                 }
                 sh 'echo JAVA_HOME=${JAVA_HOME}'
                 sh 'ls ${JAVA_HOME}/bin'
-                sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -Drp.launch.uuid=${id['id']}"
             }
+        }
+    }
+    stage("[Stop run on Report Portal]") {
+        withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+            String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id['id']}/finish"
+            def res_end = sh(returnStdout: true, script: """
+             curl --header "Content-Type: application/json" \
+             --header "Authorization: Bearer ${env.api_key}" \
+             --request PUT \
+             --data '{"endTime":"${Instant.now()}"}' ${url}
+             """)
+            println("${res_end}")
         }
     }
 
@@ -76,23 +110,26 @@ def call(params) {
     stage('Send in slack test results notifications') {
         script {
             // export and collect karate tests results
-            def files_list = findFiles( excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+            def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
             def passedTestsCount = 0
             def failedTestsCount = 0
             files_list.each { test ->
                 def json = readJSON file: test.path
                 def testsFailed = json['scenariosfailed']
-                if (testsFailed != 0 ){ failedTestsCount += testsFailed }
+                if (testsFailed != 0) {
+                    failedTestsCount += testsFailed
+                }
                 def testsPassed = json['scenariosPassed']
-                if (testsPassed !=0) { passedTestsCount += testsPassed }
+                if (testsPassed != 0) {
+                    passedTestsCount += testsPassed
+                }
             }
             def totalTestsCount = passedTestsCount + failedTestsCount
             def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
             def passRate = passRateInDecimal.intValue()
             if (currentBuild.result == 'FAILURE' || (passRate != null && passRate < 50)) {
                 slackSend(channel: "#rancher_tests_notifications", color: 'danger', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
-            }
-            else {
+            } else {
                 slackSend(channel: "#rancher_tests_notifications", color: 'good', message: "Karate tests results: Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%")
             }
         }
