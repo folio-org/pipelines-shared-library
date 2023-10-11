@@ -10,6 +10,7 @@ def call(params) {
     def res
     def id
     String rp_project = "junit5-integration"
+    String rp_host = "https://poc-report-portal.ci.folio.org"
     stage("Checkout") {
         script {
             sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
@@ -31,7 +32,7 @@ def call(params) {
             String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
             String source_tpl = readFile file: key_path
             String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
-            LinkedHashMap key_data = [rp_key: "${env.api_key}", pr_url: url, rp_project: rp_project]
+            LinkedHashMap key_data = [rp_key: "${env.api_key}", pr_url: rp_host, rp_project: rp_project]
             writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
 
             res = sh(returnStdout: true, script: """
