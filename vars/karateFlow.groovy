@@ -72,7 +72,7 @@ def call(params) {
                 }
                 sh 'echo JAVA_HOME=${JAVA_HOME}'
                 sh 'ls ${JAVA_HOME}/bin'
-                if(id['id'] != null) {
+                if (id['id'] != null) {
                     sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -Drp.launch.uuid=${id['id']}"
                 } else {
                     sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
@@ -92,7 +92,7 @@ def call(params) {
              """)
                 println("${res_end}")
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
         }
     }
