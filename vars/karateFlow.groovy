@@ -28,21 +28,26 @@ def call(params) {
     }
     stage("[Report-Portal]") {
         println("Binding config file..")
-        withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-            String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
-            String source_tpl = readFile file: key_path
-            String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
-            LinkedHashMap key_data = [rp_key: "${env.api_key}", pr_url: rp_host, rp_project: rp_project]
-            writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
+        try {
+            withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+                String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
+                String source_tpl = readFile file: key_path
+                String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
+                LinkedHashMap key_data = [rp_key: "${env.api_key}", pr_url: rp_host, rp_project: rp_project]
+                writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
 
-            res = sh(returnStdout: true, script: """
+                res = sh(returnStdout: true, script: """
                   curl --header "Content-Type: application/json" \
                   --header "Authorization: Bearer ${env.api_key}" \
                   --request POST \
                   --data '{"name":"Test (Jenkins) build number: ${env.BUILD_NUMBER}","description":"Karate scheduled tests.","startTime":"${Instant.now()}","mode":"DEFAULT","attributes":[{"key":"build","value":"${env.BUILD_NUMBER}"}]}' \
                   ${url} """)
-            id = new JsonSlurperClassic().parseText("${res}")
-            println("Run id: " + id['id'])
+                id = new JsonSlurperClassic().parseText("${res}")
+                println("Run id: " + id['id'])
+                return id
+            }
+        } catch (Exception e) {
+            println("Couldn't create a new run in ReportPortal\nPlease make sure it's online...\nError: ${e.getMessage()}")
         }
     }
     stage("Build karate config") {
@@ -67,20 +72,28 @@ def call(params) {
                 }
                 sh 'echo JAVA_HOME=${JAVA_HOME}'
                 sh 'ls ${JAVA_HOME}/bin'
-                sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -Drp.launch.uuid=${id['id']}"
+                if(id['id'] != null) {
+                    sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment} -Drp.launch.uuid=${id['id']}"
+                } else {
+                    sh "mvn test -T ${threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${karateEnvironment}"
+                }
             }
         }
     }
     stage("[Stop run on Report Portal]") {
-        withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-            String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id['id']}/finish"
-            def res_end = sh(returnStdout: true, script: """
+        try {
+            withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+                String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id['id']}/finish"
+                def res_end = sh(returnStdout: true, script: """
              curl --header "Content-Type: application/json" \
              --header "Authorization: Bearer ${env.api_key}" \
              --request PUT \
              --data '{"endTime":"${Instant.now()}"}' ${url}
              """)
-            println("${res_end}")
+                println("${res_end}")
+            }
+        } catch (Exception e){
+            println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
         }
     }
 
