@@ -1,54 +1,54 @@
-#!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
+
 @Library('pipelines-shared-library@RANCHER-1000') _
 
 properties([
-    buildDiscarder(logRotator(numToKeepStr: '20')),
-    disableConcurrentBuilds(),
-    parameters([
-        folioParameters.agent(),
-        folioParameters.refreshParameters(),
-        ansiColor('xterm') {
-            if (params.refresh_parameters) {
-                currentBuild.result = 'ABORTED'
-                println('REFRESH JOB PARAMETERS!')
-                return
-            }
-        }
-    ])
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+    ansiColor('xterm') {
+      if (params.refresh_parameters) {
+        currentBuild.result = 'ABORTED'
+        println('REFRESH JOB PARAMETERS!')
+        return
+      }
+    }
+  ])
 ])
 
 node('rancher') {
-    stage('Init') {
-        currentBuild.result = 'SUCCESS'
-        echo "SUCCESS"
-    }
+  stage('Init') {
+    currentBuild.result = 'SUCCESS'
+    echo "SUCCESS"
+  }
 
-    stage('Check Changes') {
-        echo "CHECK CHECK CHECK CHECK CHECK CHECK"
-    }
+  stage('Check Changes') {
+    echo "CHECK CHECK CHECK CHECK CHECK CHECK"
+  }
 
-    stage('Parallel Stages') {
-        parallel(
-            'Run karate tests': {
-                stage('Run karate tests') {
-                    echo "Restore data-migration project from backup"
-                }
-            },
-            'Run cypress tests': {
-                stage('Run cypress tests') {
-                    echo "test"
-                }
-            },
-            'Run schema comparison': {
-                stage('Run schema comparison') {
-                    // Add code for 'Run schema comparison' stage here
-                }
-            }
-        )
-    }
+  stage('Parallel QualiTY Gate Stages') {
+    parallel(
+      'Run karate tests': {
+        stage('Run karate tests') {
+          echo "Restore data-migration project from backup"
+        }
+      },
+      'Run cypress tests': {
+        stage('Run cypress tests') {
+          echo "test"
+        }
+      },
+      'Run schema comparison': {
+        stage('Run schema comparison') {
+          // Add code for 'Run schema comparison' stage here
+        }
+      }
+    )
+  }
 
-    stage('Cleanup') {
-        cleanWs notFailBuild: true
-    }
+  stage('Cleanup') {
+    cleanWs notFailBuild: true
+  }
 }
