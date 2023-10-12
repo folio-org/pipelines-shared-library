@@ -170,6 +170,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     //Enable extra env
     if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia){
         moduleConfig << [consortiumEnabled: "true"]
+        moduleConfig << [systemUser: "true"]
     }
 
     //Enable cross tenant extra env
