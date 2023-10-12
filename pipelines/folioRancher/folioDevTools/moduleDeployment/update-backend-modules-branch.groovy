@@ -36,7 +36,8 @@ properties([
         jobsParameters.reinstall(),
         jobsParameters.reindexElasticsearch(),
         jobsParameters.recreateIndexElasticsearch(),
-        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split')])])
+        booleanParam(name: 'enable_rw_split', defaultValue: false, description: '(Optional) Enable Read/Write split'),
+        jobsParameters.agents()])])
 
 OkapiUser superadmin_user = okapiSettings.superadmin_user()
 Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
@@ -74,7 +75,7 @@ ansiColor('xterm') {
         println('REFRESH JOB PARAMETERS!')
         return
     }
-    node('rancher||jenkins-agent-java11') {
+    node(params.agent) {
         try {
             stage('Init') {
                 buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"

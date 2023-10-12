@@ -103,12 +103,14 @@ static List devEnvironmentsList() {
             'stripes-force',
             'tamu',
             'task-force',
+            'task-force-2nd',
             'thor',
             'thunderjet',
             'unam',
             'vega',
             'volaris',
-            'volaris-2nd']
+            'volaris-2nd',
+            'rtr']
 }
 
 @NonCPS
