@@ -2,6 +2,7 @@ import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.utilities.HttpClient
+import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
 
@@ -41,9 +42,9 @@ def call(params) {
         String source_tpl = readFile file: "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
         LinkedHashMap key_data = [rp_key: "${env.api_key}", rp_url: "https://poc-report-portal.ci.folio.org", rp_project: "junit5-integration"]
         writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
-        ArrayList headers = [
-          [name: 'Content-type', value: "application/json"],
-          [name: 'Authorization', value: "Bearer ${env.api_key}"]
+        Map headers = [
+          'Content-type' : "application/json",
+          'Authorization': "Bearer ${env.api_key}"
         ]
         String body = JsonOutput.toJson([
           name       : "Test (Jenkins) build number: ${env.BUILD_NUMBER}",
@@ -52,9 +53,9 @@ def call(params) {
           mode       : "DEFAULT",
           attributes : [key: "build", value: "${env.BUILD_NUMBER}"]
         ])
-        def res = new HttpClient(this).postRequest(url,body,headers)
-        id = res['id']
-        println("${res['id']}")
+        def res = new RestClient(this).post(url, body, headers)
+        id = res.body['id']
+        println("${id}")
       }
     } catch (Exception e) {
       println("Error: " + e.getMessage())
@@ -84,14 +85,14 @@ def call(params) {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-        ArrayList headers = [
-          [name: "Content-Type", value: "application/json"],
-          [name: "Authorization", value: "Bearer ${env.api_key}"]
+        Map headers = [
+          "Content-Type" : "application/json",
+          "Authorization": "Bearer ${env.api_key}"
         ]
         String body = JsonOutput.toJson([
-          endTime : "${Instant.now()}"
+          endTime: "${Instant.now()}"
         ])
-        def res_end = new HttpClient(this).postRequest(url, body,headers)
+        def res_end = new RestClient(this).put(url, body, headers)
         println("${res_end}")
       }
     } catch (Exception e) {
