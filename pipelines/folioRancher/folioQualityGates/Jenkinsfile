@@ -32,16 +32,17 @@ node('rancher') {
     parallel(
       'Run karate tests': {
         stage('Run karate tests') {
-          echo "Restore data-migration project from backup"
+          echo "Run karate tests"
         }
       },
       'Run cypress tests': {
         stage('Run cypress tests') {
-          echo "test"
+          echo "Run cypress tests"
         }
       },
       'Run schema comparison': {
         stage('Run schema comparison') {
+        echo "schema comparison tests"
           // Add code for 'Run schema comparison' stage here
         }
       }
