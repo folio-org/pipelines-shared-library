@@ -1,7 +1,7 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
-import org.folio.utilities.RestClient
+import org.folio.utilities.HttpClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
 
@@ -52,7 +52,7 @@ def call(params) {
           mode       : "DEFAULT",
           attributes : [key: "build", value: "${env.BUILD_NUMBER}"]
         ])
-        def res = new RestClient(this).post(url, body, headers as Map<String, String>)
+        def res = new HttpClient(this).postRequest(url,body,headers)
         id = res['id']
         println("${res['id']}")
       }
@@ -91,7 +91,7 @@ def call(params) {
         String body = JsonOutput.toJson([
           endTime : "${Instant.now()}"
         ])
-        def res_end = new RestClient(this).put(url, body, headers as Map<String, String>)
+        def res_end = new HttpClient(this).postRequest(url, body,headers)
         println("${res_end}")
       }
     } catch (Exception e) {
