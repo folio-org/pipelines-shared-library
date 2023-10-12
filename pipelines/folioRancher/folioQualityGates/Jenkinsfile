@@ -1,6 +1,6 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
-@Library('pipelines-shared-library@1000') _
+@Library('pipelines-shared-library@RANCHER-1000') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
