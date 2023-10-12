@@ -1,62 +1,54 @@
+#!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
-
-@Library('pipelines-shared-library@RANCHER-1000') _
+@Library('pipelines-shared-library@1000') _
 
 properties([
-    buildDiscarder(logRotator(numToKeepStr: '30')),
+    buildDiscarder(logRotator(numToKeepStr: '20')),
     disableConcurrentBuilds(),
     parameters([
-        /**
-         *  Placeholder for job parameters
-         *  */
         folioParameters.agent(),
-        folioParameters.refreshParameters()
+        folioParameters.refreshParameters(),
+        ansiColor('xterm') {
+            if (params.refresh_parameters) {
+                currentBuild.result = 'ABORTED'
+                println('REFRESH JOB PARAMETERS!')
+                return
+            }
+        }
     ])
 ])
 
-if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    return
-}
+node('rancher') {
+    stage('Init') {
+        currentBuild.result = 'SUCCESS'
+        echo "SUCCESS"
+    }
 
-ansiColor('xterm') {
-    node(params.AGENT) {
-        stage('Initialize') {
-            buildName "folioCiQualityGates" // Set the build name
-            buildDescription "Quality Gates for Folio CI/CD" // Set the build description
-            echo 'init'
-        }
+    stage('Check Changes') {
+        echo "CHECK CHECK CHECK CHECK CHECK CHECK"
+    }
 
-        stage('Check changes') {
-            steps {
-                // Placeholder stage for future development
-                echo 'Checking for code changes...'
-            }
-        }
-
-        stage('Quality Checks') {
-            parallel {
+    stage('Parallel Stages') {
+        parallel(
+            'Run karate tests': {
                 stage('Run karate tests') {
-                    steps {
-                        // Placeholder stage for future development
-                        echo 'Running Karate tests...'
-                    }
+                    echo "Restore data-migration project from backup"
                 }
-
+            },
+            'Run cypress tests': {
                 stage('Run cypress tests') {
-                    steps {
-                        // Placeholder stage for future development
-                        echo 'Running Cypress tests...'
-                    }
+                    echo "test"
                 }
-
+            },
+            'Run schema comparison': {
                 stage('Run schema comparison') {
-                    steps {
-                        // Placeholder stage for future development
-                        echo 'Running Schema comparison...'
-                    }
+                    // Add code for 'Run schema comparison' stage here
                 }
             }
-        }
+        )
+    }
+
+    stage('Cleanup') {
+        cleanWs notFailBuild: true
     }
 }
