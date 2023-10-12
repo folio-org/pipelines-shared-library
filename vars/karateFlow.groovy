@@ -1,7 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
-import org.folio.utilities.HttpClient
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
