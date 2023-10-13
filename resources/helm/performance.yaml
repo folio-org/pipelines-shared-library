@@ -256,7 +256,7 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: '1280Mi'
+      memory: '1664Mi'
     requests:
       memory: '1024Mi'
 mod-audit:
