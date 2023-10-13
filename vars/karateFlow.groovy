@@ -1,7 +1,7 @@
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 def call(params) {
     stage("Checkout") {
