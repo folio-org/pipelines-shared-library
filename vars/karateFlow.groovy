@@ -38,7 +38,8 @@ def call(params) {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
-        String source_tpl = readFile file: "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
+        String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
+        String source_tpl = readFile file: key_path
         LinkedHashMap key_data = [rp_key: "${env.api_key}", rp_url: "https://poc-report-portal.ci.folio.org", rp_project: "junit5-integration"]
         writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
         Map headers = [
