@@ -51,7 +51,7 @@ def call(params) {
           description: "Karate scheduled tests",
           startTime  : "${Instant.now()}",
           mode       : "DEFAULT",
-          attributes : [key: "build", value: "${env.BUILD_NUMBER}"]
+          attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
         ])
         def res = new RestClient(this).post(url, body, headers)
         id = res.body['id']
