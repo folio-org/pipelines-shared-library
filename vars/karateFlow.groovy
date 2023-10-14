@@ -43,8 +43,8 @@ def call(params) {
         LinkedHashMap key_data = [rp_key: "${env.api_key}", rp_url: "https://poc-report-portal.ci.folio.org", rp_project: "junit5-integration"]
         writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
         Map headers = [
-          'Content-type' : "application/json",
-          'Authorization': "Bearer ${env.api_key}"
+          "Content-type" : "application/json",
+          "Authorization": "Bearer ${env.api_key}"
         ]
         String body = JsonOutput.toJson([
           name       : "Test (Jenkins) build number: ${env.BUILD_NUMBER}",
