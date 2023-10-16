@@ -86,6 +86,7 @@ static List devEnvironmentsList() {
             'bulk-edit',
             'concorde',
             'consortia',
+            'corsair',
             'core-platform',
             'data-migration',
             'falcon',
