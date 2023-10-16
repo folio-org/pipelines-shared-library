@@ -250,7 +250,7 @@ edge-sip2:
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
 mod-agreements:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -904,7 +904,7 @@ mod-serials-management:
     requests:
       memory: '768Mi'
 mod-service-interaction:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
