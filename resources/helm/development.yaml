@@ -40,6 +40,30 @@ edge-connexion:
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
+edge-courses:
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    enabled: true
+    hosts:
+      - paths:
+          - /courses*
+  javaArgs: ''
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-courses-ephemeral-properties'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '256Mi'
+    requests:
+      memory: '192Mi'
+  service:
+    type: NodePort
 edge-dematic:
   ingress:
     annotations:
@@ -250,7 +274,7 @@ edge-sip2:
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
 mod-agreements:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=65.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -904,7 +928,7 @@ mod-serials-management:
     requests:
       memory: '768Mi'
 mod-service-interaction:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=65.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
