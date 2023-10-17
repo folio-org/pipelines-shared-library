@@ -19,6 +19,12 @@ properties([
   ])
 ])
 
+// Add the SCM polling trigger here
+triggers {
+    // SCM polling to periodically check for source code changes
+    pollSCM('* * * * *')  // temporary sample
+}
+
 node('rancher') {
   stage('Init') {
     currentBuild.result = 'SUCCESS'
@@ -26,7 +32,7 @@ node('rancher') {
   }
 
   stage('Check Changes') {
-   checkout scm
+   //checkout scm
     echo "CHECK CHECK CHECK CHECK CHECK CHECK"
   }
 
@@ -35,11 +41,13 @@ node('rancher') {
       'Run karate tests': {
         stage('Run karate tests') {
           echo "Run karate tests"
+          // Add code for 'Run karate tests' stage here
         }
       },
       'Run cypress tests': {
         stage('Run cypress tests') {
           echo "Run cypress tests"
+          // Add code for 'Run cypress tests' stage here
         }
       },
       'Run schema comparison': {
