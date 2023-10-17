@@ -58,3 +58,4 @@ edge-connexion:
   - copycat.all
 edge-sip2: {}
 edge-fqm: {}
+edge-courses: {}
