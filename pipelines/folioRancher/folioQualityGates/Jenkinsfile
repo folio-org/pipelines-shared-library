@@ -1,4 +1,5 @@
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest.GitHubUtility
 
 @Library('pipelines-shared-library@RANCHER-1000') _
 
@@ -25,6 +26,7 @@ node('rancher') {
   }
 
   stage('Check Changes') {
+   checkout scm
     echo "CHECK CHECK CHECK CHECK CHECK CHECK"
   }
 
