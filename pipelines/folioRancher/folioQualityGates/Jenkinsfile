@@ -1,6 +1,6 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1000-v2') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 pipeline {
     agent { label 'rancher' }
