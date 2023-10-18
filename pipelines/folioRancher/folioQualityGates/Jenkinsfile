@@ -28,37 +28,37 @@ pipeline {
         }
 // FOR TESTING PURPOSE USING TEST BRANCH RANCHER-999 When Logic will be workable will adjust for the Platform Complete
 
-        stage('Check Changes') {
-            steps {
-                script {
-                    if (params.SKIP_CHANGES == true) {
-                        echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
+stage('Check Changes') {
+    steps {
+        script {
+            if (params.SKIP_CHANGES == true) {
+                echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
+            } else {
+                def currentHash = ''
+                def savedHash = env.SAVED_HASH ?: '' // Retrieve the saved hash from environment variables
+
+                try {
+                    // Fetch the current Git hash of the specified branch
+                    def gitHashOutput = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true)
+                    if (gitHashOutput != 0) {
+                        error "Error fetching Git hash. Exit code: ${gitHashOutput}"
                     } else {
-                        def currentHash = ''
-                        def savedHash = readFileIfExists('savedHash.txt') ?: ''
-
-                        try {
-                            // Fetch the current Git hash of the specified branch
-                            currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true).trim()
-                        } catch (Exception e) {
-                            error "Error fetching Git hash: ${e.message}"
-                        }
-
-                        if (currentHash == savedHash) {
-                            echo "No changes detected. Returning false."
-                            return
-                        } else {
-                            echo "changes detected. Returning true."
-                            return
-                        }
-
-                        // Save the current Git hash for future comparisons
-                        writeFile file: 'savedHash.txt', text: currentHash
+                        currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStdout: true).trim()
                     }
+                } catch (Exception e) {
+                    error "Error fetching Git hash: ${e.message}"
+                }
+
+                if (currentHash == savedHash) {
+                    echo "No changes detected. Returning false."
+                } else {
+                    echo "Changes detected. Returning true."
+                    env.SAVED_HASH = currentHash // Store the current hash in environment variables
                 }
             }
         }
-
+    }
+}
         stage('Parallel Quality Gate Stages') {
             parallel {
                 stage('Run karate tests') {
@@ -88,8 +88,4 @@ pipeline {
             }
         }
     }
-}
-
-def readFileIfExists(filename) {
-    return fileExists(filename) ? readFile(filename).trim() : null
 }
