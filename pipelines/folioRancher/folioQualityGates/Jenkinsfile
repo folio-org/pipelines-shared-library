@@ -1,6 +1,6 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1000-v2') _
+@Library('pipelines-shared-library@RANCHER-999') _
 
 pipeline {
     agent { label 'rancher' }
@@ -26,15 +26,34 @@ pipeline {
                 }
             }
         }
+// FOR TESTING PURPOSE USING TEST BRANCH RANCHER-1000-v2 When Logic will be workable will adjust for the Platform Complete
 
         stage('Check Changes') {
             steps {
                 script {
                     if (params.SKIP_CHANGES == true) {
-                        echo "Skipping changes For the SNAPSHOT BRANCH and moving to Parrarel Run ."
+                        echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
                     } else {
-                        checkout scm
-                        echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
+                        def currentHash = ''
+                        def savedHash = readFileIfExists('savedHash.txt') ?: ''
+
+                        try {
+                            // Fetch the current Git hash of the specified branch
+                            currentHash = sh(script: "git ls-remote https://github.com/folio-org/platform-complete.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true).trim()
+                        } catch (Exception e) {
+                            error "Error fetching Git hash: ${e.message}"
+                        }
+
+                        if (currentHash == savedHash) {
+                            echo "No changes detected. Returning false."
+                            return
+                        } else {
+                            echo "changes detected. Returning true."
+                            return
+                        }
+
+                        // Save the current Git hash for future comparisons
+                        writeFile file: 'savedHash.txt', text: currentHash
                     }
                 }
             }
