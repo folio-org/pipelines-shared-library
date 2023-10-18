@@ -43,7 +43,7 @@ stage('Check Changes') {
                     if (gitHashOutput != 0) {
                         error "Error fetching Git hash. Exit code: ${gitHashOutput}"
                     } else {
-                        currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStdout: true).trim()
+                        currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStdout: true)
                     }
                 } catch (Exception e) {
                     error "Error fetching Git hash: ${e.message}"
