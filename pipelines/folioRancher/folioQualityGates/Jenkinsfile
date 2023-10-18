@@ -31,29 +31,14 @@ pipeline {
 stage('Check Changes') {
     steps {
         script {
-            if (params.SKIP_CHANGES == true) {
+           if (params.SKIP_CHANGES) {
                 echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
             } else {
-                def currentHash = ''
-                def savedHash = env.SAVED_HASH ?: '' // Retrieve the saved hash from environment variables
+                def awsRegionHash = 'eu-west-1'
+                def HashCommitChanges = folioHashCommitCheck.checkHashChanges(params.BRANCH, awsRegionHash)
 
-                try {
-                    // Fetch the current Git hash of the specified branch
-                    def gitHashOutput = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true)
-                    if (gitHashOutput != 0) {
-                        error "Error fetching Git hash. Exit code: ${gitHashOutput}"
-                    } else {
-                        currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStdout: true)
-                    }
-                } catch (Exception e) {
-                    error "Error fetching Git hash: ${e.message}"
-                }
-
-                if (currentHash == savedHash) {
-                    echo "No changes detected. Returning false."
-                } else {
-                    echo "Changes detected. Returning true."
-                    env.SAVED_HASH = currentHash // Store the current hash in environment variables
+                if (!HashCommitChanges == false) {
+                    currentBuild.result = 'UNSTABLE'
                 }
             }
         }
