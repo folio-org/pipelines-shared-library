@@ -15,7 +15,7 @@ pipeline {
     }
     parameters {
         booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
-        string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
+        string(name: 'BRANCH', defaultValue: 'RANCHER-999', description: 'platform-complete branch where will be run quality CI job')
     }
     stages {
         stage('Init') {
@@ -39,7 +39,7 @@ pipeline {
 
                         try {
                             // Fetch the current Git hash of the specified branch
-                            currentHash = sh(script: "git ls-remote https://github.com/folio-org/platform-complete.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true).trim()
+                            currentHash = sh(script: "git ls-remote https://github.com/folio-org/pipelines-shared-library.git refs/heads/${params.BRANCH} | cut -f 1", returnStatus: true).trim()
                         } catch (Exception e) {
                             error "Error fetching Git hash: ${e.message}"
                         }
