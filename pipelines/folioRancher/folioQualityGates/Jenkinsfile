@@ -89,3 +89,7 @@ pipeline {
         }
     }
 }
+
+def readFileIfExists(filename) {
+    return fileExists(filename) ? readFile(filename).trim() : null
+}
