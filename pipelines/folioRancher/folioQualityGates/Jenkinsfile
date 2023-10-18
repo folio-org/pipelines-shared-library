@@ -1,65 +1,72 @@
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest.GitHubUtility
 
-@Library('pipelines-shared-library@RANCHER-1000') _
+@Library('pipelines-shared-library@RANCHER-1000-v2') _
 
-properties([
-  buildDiscarder(logRotator(numToKeepStr: '20')),
-  disableConcurrentBuilds(),
-  parameters([
-    folioParameters.agent(),
-    folioParameters.refreshParameters(),
-    ansiColor('xterm') {
-      if (params.refresh_parameters) {
-        currentBuild.result = 'ABORTED'
-        println('REFRESH JOB PARAMETERS!')
-        return
-      }
+pipeline {
+    agent { label 'rancher' }
+
+    // SCM polling
+    /*triggers {
+               pollSCM('* * * * *') // Poll SCM
+           }*/
+
+    options {
+        disableConcurrentBuilds()
     }
-  ])
-])
-
-// Add the SCM polling trigger here
-triggers {
-    // SCM polling to periodically check for source code changes
-    pollSCM('* * * * *')  // temporary sample
-}
-
-node('rancher') {
-  stage('Init') {
-    currentBuild.result = 'SUCCESS'
-    echo "SUCCESS"
-  }
-
-  stage('Check Changes') {
-   //checkout scm
-    echo "CHECK CHECK CHECK CHECK CHECK CHECK"
-  }
-
-  stage('Parallel QualiTY Gate Stages') {
-    parallel(
-      'Run karate tests': {
-        stage('Run karate tests') {
-          echo "Run karate tests"
-          // Add code for 'Run karate tests' stage here
+    parameters {
+        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
+        string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
+    }
+    stages {
+        stage('Init') {
+            steps {
+                script {
+                    currentBuild.result = 'SUCCESS'
+                    echo "SOMETHING IMPLEMENT LOGIC IF NEED"
+                }
+            }
         }
-      },
-      'Run cypress tests': {
-        stage('Run cypress tests') {
-          echo "Run cypress tests"
-          // Add code for 'Run cypress tests' stage here
-        }
-      },
-      'Run schema comparison': {
-        stage('Run schema comparison') {
-        echo "schema comparison tests"
-          // Add code for 'Run schema comparison' stage here
-        }
-      }
-    )
-  }
 
-  stage('Cleanup') {
-    cleanWs notFailBuild: true
-  }
+        stage('Check Changes') {
+            steps {
+                script {
+                    if (params.SKIP_CHANGES == true) {
+                        echo "Skipping changes For the SNAPSHOT BRANCH and moving to Parrarel Run ."
+                    } else {
+                        checkout scm
+                        echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
+                    }
+                }
+            }
+        }
+
+        stage('Parallel Quality Gate Stages') {
+            parallel {
+                stage('Run karate tests') {
+                    steps {
+                        echo "Run karate tests"
+                        // Add code for 'Run karate tests' stage here
+                    }
+                }
+                stage('Run cypress tests') {
+                    steps {
+                        echo "Run cypress tests"
+                        // Add code for 'Run cypress tests' stage here
+                    }
+                }
+                stage('Run schema comparison') {
+                    steps {
+                        echo "Schema comparison tests"
+                        // Add code for 'Run schema comparison' stage here
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                cleanWs notFailBuild: true
+            }
+        }
+    }
 }
