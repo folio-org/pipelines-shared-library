@@ -29,7 +29,7 @@ def getCurrentGitHash(branch) {
 
 def getSavedHashFromSSM(awsRegionHash) {
   def ssmClient = AWSSimpleSystemsManagementClientBuilder.standard().withRegion(awsRegionHash).build()
-  def parameterName = "CommitHash" // Adjust the parameter name as needed
+  def parameterName = "CommitHash" // Parameter name
 
   try {
     def parameterRequest = new GetParameterRequest().withName(parameterName)
