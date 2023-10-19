@@ -17,7 +17,7 @@ properties([
         folioParameters.uiBundleTag(),
         folioParameters.uiBundleBuild(),
         folioParameters.repository(),
-        foliosParameters.branch(),
+        folioParameters.branch(),
         folioParameters.tenantId(),
         folioParameters.agent(),
         folioParameters.refreshParameters()
