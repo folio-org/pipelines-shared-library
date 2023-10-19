@@ -1,1 +1,40 @@
-//TBD
+#!groovy
+
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-835') _
+
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '30')),
+    disableConcurrentBuilds(),
+    parameters([
+        folioParameters.cluster(),
+        folioParameters.namespace(),
+        folioParameters.uiBundleTag(),
+        folioParameters.uiBundleBuild(),
+        folioParameters.repository(),
+        foliosParameters.branch(),
+        folioParameters.tenantId(),
+        folioParameters.agent(),
+        folioParameters.refreshParameters()
+    ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    return
+}
+
+ansiColor('xterm') {
+    common.refreshBuidParameters(params.refresh_parameters)
+    node(params.AGENT) {
+        stage('Ini') {
+            buildName "${params.CLUSTER}.${env.BUILD_ID}"
+            buildDescription ""
+        }
+
+      stage('Checkout') {
+        checkout scm
+      }
+        folioUI.build(params)
+}
