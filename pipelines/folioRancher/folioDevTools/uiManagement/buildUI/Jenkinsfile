@@ -1,9 +1,9 @@
 #!groovy
 
-import org.folio.Constants
-import org.folio.rest.model.OkapiTenant
-import org.folio.utilities.model.Project
-import org.folio.utilities.model.Module
+// import org.folio.Constants
+// import org.folio.rest.model.OkapiTenant
+// import org.folio.utilities.model.Project
+// import org.folio.utilities.model.Module
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
