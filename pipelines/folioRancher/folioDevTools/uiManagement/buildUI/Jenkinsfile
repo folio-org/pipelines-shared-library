@@ -38,3 +38,4 @@ ansiColor('xterm') {
       }
         folioUI.build(params)
 }
+}
