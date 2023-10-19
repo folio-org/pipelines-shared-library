@@ -90,6 +90,18 @@ def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
     return _paramChoice('S3_BUCKET', value, 'Select built-in Minio or AWS S3')
 }
 
+def uiBundleBuild(){
+  return _paramBoolean('ui_bundle_build', false, 'True if build new ui bundle, false if choose from existing one in ui_bundle_tag parameter')
+}
+
+def uiBundleTag() {
+  return _paramExtendedSingleSelect('ui_bundle_tag', 'rancher_cluster_name,rancher_project_name', getUIImagesList(), 'Choose image tag for UI')
+}
+
+def tenantId(String tenant_id = defaultTenant().id) {
+  return _paramString('tenant_id', tenant_id, 'Id used for tenant creation')
+}
+
 static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
