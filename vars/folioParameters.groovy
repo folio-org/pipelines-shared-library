@@ -1,33 +1,6 @@
 import org.folio.Constants
 import hudson.util.Secret
-
-static String getUIImagesList() {
-  return """
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.ecr.AmazonECR;
-import com.amazonaws.services.ecr.AbstractAmazonECR;
-import com.amazonaws.services.ecr.AmazonECRClient;
-import com.amazonaws.services.ecr.model.ListImagesRequest;
-import com.amazonaws.services.ecr.model.ListImagesResult;
-import com.amazonaws.services.ecr.AmazonECRClientBuilder;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
-import jenkins.model.*
-
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
-res = client.listImages(request);
-
-
-def result = []
-for (image in res) {
-   result.add(image.getImageIds());
-}
-
-return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
-"""
-}
+import org.folio.rest.model.OkapiTenant
 
 private def _paramChoice(String name, List value, String description) {
     return choice(name: name, choices: value, description: description)
@@ -149,4 +122,45 @@ static List repositoriesList() {
 
 def pgVersion(){
   return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
+}
+static String getUIImagesList() {
+  return """
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.ecr.AmazonECR;
+import com.amazonaws.services.ecr.AbstractAmazonECR;
+import com.amazonaws.services.ecr.AmazonECRClient;
+import com.amazonaws.services.ecr.model.ListImagesRequest;
+import com.amazonaws.services.ecr.model.ListImagesResult;
+import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
+import com.amazonaws.regions.Regions;
+import jenkins.model.*
+
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
+ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
+res = client.listImages(request);
+
+def result = []
+for (image in res) {
+   result.add(image.getImageIds());
+}
+
+return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
+"""
+}
+
+static OkapiTenant defaultTenant() {
+  return new OkapiTenant(
+    id: 'diku',
+    name: 'Datalogisk Institut',
+    description: 'Danish Library Technology Institute',
+    tenantParameters: [
+      loadReference: false,
+      loadSample   : false
+    ],
+    queryParameters: [
+      reinstall: false
+    ]
+  )
 }
