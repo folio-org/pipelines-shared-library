@@ -34,8 +34,13 @@ ansiColor('xterm') {
             buildName ""
             buildDescription ""
         }
-        /**
-         * Placeholder for stages
-         */
+
+        stage("Deploy UI bundle") {
+            if (params.ui_bundle_build) {
+                folioDeploy.uiBundle(tenant.getId(), project_config)
+            }
+        }
+
+
     }
 }//TBD
