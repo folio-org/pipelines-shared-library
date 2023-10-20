@@ -27,35 +27,36 @@ void build(params) {
   Common common = new Common(this, 'diku')
   common.logger.warning(okapi_url)
   input "Testing staff..."
-//  stage('Checkout') {
-//    dir('platform-complete') {
-//      cleanWs()
-//    }
-//    checkout([$class           : 'GitSCM',
-//              branches         : [[name: ui_bundle.hash]],
-//              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-//                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
-//              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-//  }
-//  stage('Build and Push') {
-//    dir('platform-complete') {
-//      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-//        def image = docker.build(
-//          ui_bundle.getImageName(),
-//          "--build-arg OKAPI_URL=${okapi_url} " +
-//            "--build-arg TENANT_ID=${tenant.getId()} " +
-//            "-f docker/Dockerfile  " +
-//            "."
-//        )
-//        image.push()
-//      }
-//    }
-//  }
-//  stage('Cleanup') {
-//    common.removeImage(ui_bundle.getImageName())
-//  }
-//}
-//
+
+  stage('Checkout') {
+    dir('platform-complete') {
+      cleanWs()
+    }
+    checkout([$class           : 'GitSCM',
+              branches         : [[name: ui_bundle.hash]],
+              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
+              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+  }
+  stage('Build and Push') {
+    dir('platform-complete') {
+      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+        def image = docker.build(
+          ui_bundle.getImageName(),
+          "--build-arg OKAPI_URL=${okapi_url} " +
+            "--build-arg TENANT_ID=${tenant.getId()} " +
+            "-f docker/Dockerfile  " +
+            "."
+        )
+        image.push()
+      }
+    }
+  }
+  stage('Cleanup') {
+    common.removeImage(ui_bundle.getImageName())
+  }
+}
+
 //void deploy(params) {
 //  OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
 //  Project project_config = new Project(
