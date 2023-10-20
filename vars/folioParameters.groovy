@@ -39,8 +39,8 @@ def agent() {
 }
 
 def agent_random(){
-  List agents = Collections.shuffle Constants.JENKINS_AGENTS
-  return _paramString('AGENT', "${agents.first()}",'Selected build agent')
+  Collections.shuffle Constants.JENKINS_AGENTS
+  return _paramString('AGENT', "${Constants.JENKINS_AGENTS.first()}",'Selected build agent')
 }
 
 def refreshParameters() {
