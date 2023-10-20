@@ -42,20 +42,18 @@ ansiColor('xterm') {
         }
 
         stage('UI Build') {
-            if (params.ui_bundle_build) {
-                def folioParameters = [
-                    folio_repository    : params.folio_repository,
-                    folio_branch        : params.folio_branch,
-                    rancher_cluster_name: project_config.getClusterName(),
-                    rancher_project_name: project_config.getProjectName(),
-                    tenant_id           : tenant.getId(),
-                    custom_hash         : project_config.getHash(),
-                    custom_url          : "https://${project_config.getDomains().okapi}",
-                    custom_tag          : ui_bundle.getUiBundleTag()
-                ]
-                folioUI.build(folioParameters)
-            }
+            def folioParameters = [
+                folio_repository    : params.folio_repository,
+                folio_branch        : params.folio_branch,
+                rancher_cluster_name: project_config.getClusterName(),
+                rancher_project_name: project_config.getProjectName(),
+                tenant_id           : tenant.getId(),
+                custom_hash         : project_config.getHash(),
+                custom_url          : "https://${project_config.getDomains().okapi}",
+                custom_tag          : ui_bundle.getUiBundleTag()
+            ]
+            folioUI.build(folioParameters)
         }
+    }
+}
 
-}
-}
