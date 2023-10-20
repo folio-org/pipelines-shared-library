@@ -35,7 +35,8 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
 }
 
 def agent() {
-    return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select build agent')
+    List agent_choice = Constants.JENKINS_AGENTS.shuffle()
+    return _paramChoice('AGENT', agent_choice, 'Select build agent')
 }
 
 def refreshParameters() {
