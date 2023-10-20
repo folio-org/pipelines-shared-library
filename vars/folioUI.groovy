@@ -12,9 +12,9 @@ void build(params) {
   Project project_config = new Project(
     clusterName: params.cluster,
     projectName: params.namespace,
-    domains: [ui   : common.generateDomain(params.cluster, params.namespace, tenant.getId(), Constants.CI_ROOT_DOMAIN),
-              okapi: common.generateDomain(params.cluster, params.namespace, 'okapi', Constants.CI_ROOT_DOMAIN),
-              edge : common.generateDomain(params.cluster, params.namespace, 'edge', Constants.CI_ROOT_DOMAIN)]
+    domains: [ui   : common.generateDomain(params.CLUSTER, params.NAMESPACE, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+              okapi: common.generateDomain(params.CLUSTER, params.NAMESPACE, 'okapi', Constants.CI_ROOT_DOMAIN),
+              edge : common.generateDomain(params.CLUSTER, params.NAMESPACE, 'edge', Constants.CI_ROOT_DOMAIN)]
   )
   Module ui_bundle = new Module(
     name: "ui-bundle",
