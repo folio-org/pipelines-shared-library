@@ -34,8 +34,13 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                                     script   : script]]]
 }
 
-def agent(List agents) {
-    return _paramChoice('AGENT', agents, 'Select build agent')
+def agent() {
+    return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select build agent')
+}
+
+def agent_random(){
+  List agents = Collections.shuffle Constants.JENKINS_AGENTS
+  return _paramString('AGENT', "${agents.first()}",'Selected build agent')
 }
 
 def refreshParameters() {
