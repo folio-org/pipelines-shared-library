@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-835') _
 
 void build(params) {
-  OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
+  OkapiTenant tenant = new OkapiTenant()
   Project project_config = new Project(
     clusterName: params.cluster,
     projectName: params.namespace,
@@ -20,7 +20,7 @@ void build(params) {
     name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.repository, params.branch)
   )
-  String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
+  String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://${project_config.getDomains()['okapi']}"
   ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
