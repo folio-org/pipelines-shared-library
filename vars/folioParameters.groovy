@@ -39,11 +39,6 @@ def agent() {
     return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select build agent')
 }
 
-def agent_random(){
-  Collections.shuffle Constants.JENKINS_AGENTS
-  return _paramString('AGENT', "${Constants.JENKINS_AGENTS.first()}",'Selected build agent')
-}
-
 def refreshParameters() {
     return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for job parameters refresh')
 }
