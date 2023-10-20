@@ -1,0 +1,72 @@
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+pipeline {
+    agent { label 'rancher' }
+
+    // SCM polling
+    /*triggers {
+               pollSCM('* * * * *') // Poll SCM
+           }*/
+
+    options {
+        disableConcurrentBuilds()
+    }
+    parameters {
+        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
+        string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
+    }
+    stages {
+        stage('Init') {
+            steps {
+                script {
+                    currentBuild.result = 'SUCCESS'
+                    echo "SOMETHING IMPLEMENT LOGIC IF NEED"
+                }
+            }
+        }
+
+        stage('Check Changes') {
+            steps {
+                script {
+                    if (params.SKIP_CHANGES == true) {
+                        echo "Skipping changes For the SNAPSHOT BRANCH and moving to Parrarel Run ."
+                    } else {
+                        checkout scm
+                        echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
+                    }
+                }
+            }
+        }
+
+        stage('Parallel Quality Gate Stages') {
+            parallel {
+                stage('Run karate tests') {
+                    steps {
+                        echo "Run karate tests"
+                        // Add code for 'Run karate tests' stage here
+                    }
+                }
+                stage('Run cypress tests') {
+                    steps {
+                        echo "Run cypress tests"
+                        // Add code for 'Run cypress tests' stage here
+                    }
+                }
+                stage('Run schema comparison') {
+                    steps {
+                        echo "Schema comparison tests"
+                        // Add code for 'Run schema comparison' stage here
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                cleanWs notFailBuild: true
+            }
+        }
+    }
+}

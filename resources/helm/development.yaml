@@ -12,7 +12,7 @@ edge-caiasoft:
       - paths:
           - /caiasoftService*
   javaArgs: '--log.level=info'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-caiasoft-ephemeral-properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-caiasoft-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -40,6 +40,30 @@ edge-connexion:
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
+edge-courses:
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    enabled: true
+    hosts:
+      - paths:
+          - /courses*
+  javaArgs: ''
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-courses-ephemeral-properties'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '256Mi'
+    requests:
+      memory: '192Mi'
+  service:
+    type: NodePort
 edge-dematic:
   ingress:
     annotations:
@@ -53,7 +77,7 @@ edge-dematic:
       - paths:
           - /asrService*
   javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dematic-ephemeral-properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dematic-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -78,7 +102,7 @@ edge-fqm:
           - /query*
           - /entity-types*
   javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -101,7 +125,7 @@ edge-inn-reach:
     hosts:
       - paths:
           - /innreach*
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-inn-reach-ephemeral-properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-inn-reach-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -125,7 +149,7 @@ edge-ncip:
       - paths:
           - /ncip*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
   postJob:
     enabled: false
   replicaCount: 1
@@ -173,7 +197,7 @@ edge-orders:
       - paths:
           - /orders*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral/edge-orders-ephemeral-properties -Dapi_config=/etc/edge/api/api_configuration.json'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral/edge-orders-ephemeral-properties -Dapi_config=/etc/edge/api/api_configuration.json'
   postJob:
     enabled: false
   replicaCount: 1
@@ -197,7 +221,7 @@ edge-patron:
       - paths:
           - /patron*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
   postJob:
     enabled: false
   replicaCount: 1
@@ -221,7 +245,7 @@ edge-rtac:
       - paths:
           - /*rtac*
   javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-rtac-ephemeral-properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-rtac-ephemeral-properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -234,7 +258,7 @@ edge-rtac:
     type: NodePort
 edge-sip2:
   javaArgs: '-conf /usr/ms/sip2.conf'
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -250,17 +274,17 @@ edge-sip2:
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
 mod-agreements:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '1024Mi'
+      memory: '1280Mi'
     requests:
       memory: '768Mi'
 mod-audit:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -270,7 +294,7 @@ mod-audit:
     requests:
       memory: '512Mi'
 mod-authtoken:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dcache.permissions=true'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dcache.permissions=true'
   postJob:
     enabled: false
   replicaCount: 1
@@ -280,7 +304,7 @@ mod-authtoken:
     requests:
       memory: '256Mi'
 mod-bulk-operations:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
   postJob:
     enabled: false
   replicaCount: 1
@@ -290,7 +314,7 @@ mod-bulk-operations:
     requests:
       memory: '2930Mi'
 mod-calendar:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -300,7 +324,7 @@ mod-calendar:
     requests:
       memory: '225Mi'
 mod-circulation:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -310,7 +334,7 @@ mod-circulation:
     requests:
       memory: '768Mi'
 mod-circulation-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -320,7 +344,7 @@ mod-circulation-storage:
     requests:
       memory: '384Mi'
 mod-configuration:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -330,7 +354,7 @@ mod-configuration:
     requests:
       memory: '256Mi'
 mod-consortia:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -341,7 +365,7 @@ mod-consortia:
       memory: '576Mi'
 # mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
 mod-codex-mux:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   replicaCount: 1
   resources:
     limits:
@@ -351,7 +375,7 @@ mod-codex-mux:
   postJob:
     enabled: false
 mod-codex-inventory:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   replicaCount: 1
   resources:
     limits:
@@ -361,7 +385,7 @@ mod-codex-inventory:
   postJob:
     enabled: false
 mod-codex-ekb:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   replicaCount: 1
   resources:
     limits:
@@ -371,7 +395,7 @@ mod-codex-ekb:
   postJob:
     enabled: false
 mod-copycat:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -381,7 +405,7 @@ mod-copycat:
     requests:
       memory: '384Mi'
 mod-courses:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -392,7 +416,7 @@ mod-courses:
       memory: '256Mi'
 #TODO requested by Aliaksei Harbuz for testing purposes
 mod-data-export:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -402,7 +426,7 @@ mod-data-export:
     requests:
       memory: '768Mi'
 mod-data-export-spring:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -412,7 +436,7 @@ mod-data-export-spring:
     requests:
       memory: '388Mi'
 mod-data-export-worker:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
   postJob:
     enabled: false
   replicaCount: 1
@@ -423,7 +447,7 @@ mod-data-export-worker:
       memory: '2197Mi'
 mod-data-import:
   dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -433,7 +457,7 @@ mod-data-import:
     requests:
       memory: '388Mi'
 mod-data-import-converter-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -443,7 +467,7 @@ mod-data-import-converter-storage:
     requests:
       memory: '256Mi'
 mod-di-converter-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -463,7 +487,7 @@ mod-ebsconet:
     requests:
       memory: '256Mi'
 mod-email:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -483,7 +507,7 @@ mod-entities-links:
     requests:
       memory: '384Mi'
 mod-erm-usage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -493,7 +517,7 @@ mod-erm-usage:
     requests:
       memory: '1536Mi'
 mod-erm-usage-harvester:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -503,7 +527,7 @@ mod-erm-usage-harvester:
     requests:
       memory: '2250Mi'
 mod-eusage-reports:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -513,7 +537,7 @@ mod-eusage-reports:
     requests:
       memory: '384Mi'
 mod-event-config:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -523,7 +547,7 @@ mod-event-config:
     requests:
       memory: '256Mi'
 mod-feesfines:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -533,7 +557,7 @@ mod-feesfines:
     requests:
       memory: '256Mi'
 mod-finance:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -543,7 +567,7 @@ mod-finance:
     requests:
       memory: '384Mi'
 mod-finance-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -553,7 +577,7 @@ mod-finance-storage:
     requests:
       memory: '256Mi'
 mod-fqm-manager:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -563,7 +587,7 @@ mod-fqm-manager:
     requests:
       memory: '256Mi'
 mod-gobi:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -582,7 +606,7 @@ mod-graphql:
     requests:
       memory: '288Mi'
 mod-inn-reach:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dokapi_url=http://okapi:9130'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://okapi:9130'
   postJob:
     enabled: false
   replicaCount: 1
@@ -593,7 +617,7 @@ mod-inn-reach:
       memory: '683Mi'
 mod-inventory:
   dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
   postJob:
     enabled: false
   replicaCount: 1
@@ -604,7 +628,7 @@ mod-inventory:
       memory: '512Mi'
 mod-inventory-storage:
   dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -614,7 +638,7 @@ mod-inventory-storage:
     requests:
       memory: '512Mi'
 mod-inventory-update:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -624,7 +648,7 @@ mod-inventory-update:
     requests:
       memory: '256Mi'
 mod-invoice:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -634,7 +658,7 @@ mod-invoice:
     requests:
       memory: '600Mi'
 mod-invoice-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -644,7 +668,7 @@ mod-invoice-storage:
     requests:
       memory: '256Mi'
 mod-kb-ebsco-java:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -654,7 +678,7 @@ mod-kb-ebsco-java:
     requests:
       memory: '256Mi'
 mod-ldp:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -664,7 +688,7 @@ mod-ldp:
     requests:
       memory: '256Mi'
 mod-licenses:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=50.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -674,7 +698,7 @@ mod-licenses:
     requests:
       memory: '576Mi'
 mod-lists:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -684,7 +708,7 @@ mod-lists:
     requests:
       memory: '256Mi'
 mod-login:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -694,7 +718,7 @@ mod-login:
     requests:
       memory: '256Mi'
 mod-login-saml:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -704,7 +728,7 @@ mod-login-saml:
     requests:
       memory: '256Mi'
 mod-ncip:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -714,7 +738,7 @@ mod-ncip:
     requests:
       memory: '256Mi'
 mod-notes:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -724,7 +748,7 @@ mod-notes:
     requests:
       memory: '388Mi'
 mod-notify:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -734,7 +758,7 @@ mod-notify:
     requests:
       memory: '256Mi'
 mod-oa:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -754,7 +778,7 @@ mod-oai-pmh:
     requests:
       memory: '768Mi'
 mod-orders:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -764,7 +788,7 @@ mod-orders:
     requests:
       memory: '384Mi'
 mod-orders-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -774,7 +798,7 @@ mod-orders-storage:
     requests:
       memory: '256Mi'
 mod-organizations:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -784,7 +808,7 @@ mod-organizations:
     requests:
       memory: '256Mi'
 mod-organizations-storage:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -804,7 +828,7 @@ mod-password-validator:
     requests:
       memory: '384Mi'
 mod-patron:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -814,7 +838,7 @@ mod-patron:
     requests:
       memory: '256Mi'
 mod-patron-blocks:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -824,7 +848,7 @@ mod-patron-blocks:
     requests:
       memory: '256Mi'
 mod-permissions:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -834,7 +858,7 @@ mod-permissions:
     requests:
       memory: '512Mi'
 mod-pubsub:
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -XX:+HeapDumpOnOutOfMemoryError'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError'
   postJob:
     enabled: false
   replicaCount: 1
@@ -864,7 +888,7 @@ mod-remote-storage:
     requests:
       memory: '510Mi'
 mod-rtac:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -884,7 +908,7 @@ mod-search:
     requests:
       memory: '768Mi'
 mod-sender:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -894,7 +918,7 @@ mod-sender:
     requests:
       memory: '384Mi'
 mod-serials-management:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -904,7 +928,7 @@ mod-serials-management:
     requests:
       memory: '768Mi'
 mod-service-interaction:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=55.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
   postJob:
     enabled: false
   replicaCount: 1
@@ -914,7 +938,7 @@ mod-service-interaction:
     requests:
       memory: '768Mi'
 mod-settings:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -927,7 +951,7 @@ mod-source-record-manager:
   dbMaxPoolSize: '15'
   dbReconnectattempts: '3'
   dbReconnectinterval: '1000'
-  javaOptions: '-XX:MaxRAMPercentage=66.0  -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0  -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -938,7 +962,7 @@ mod-source-record-manager:
       memory: '768Mi'
 mod-source-record-storage:
   dbMaxPoolSize: '15'
-  javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
   replicaCount: 1
@@ -958,7 +982,7 @@ mod-tags:
     requests:
       memory: '388Mi'
 mod-template-engine:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -978,7 +1002,7 @@ mod-z3950:
   postJob:
     enabled: false
 mod-user-import:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -988,7 +1012,7 @@ mod-user-import:
     requests:
       memory: '256Mi'
 mod-users:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -998,7 +1022,7 @@ mod-users:
     requests:
       memory: '384Mi'
 mod-users-bl:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -1008,7 +1032,7 @@ mod-users-bl:
     requests:
       memory: '384Mi'
 ldp-server:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
   replicaCount: 1
