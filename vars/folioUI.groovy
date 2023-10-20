@@ -24,9 +24,9 @@ void build(params) {
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
   ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
-  Common common = new Common(this, 'diku')
-  common.logger.warning(okapi_url)
-  input "Testing staff..."
+//  Common common = new Common(this, 'diku')
+//  common.logger.warning(okapi_url)
+//  input "Testing staff..."
 
   stage('Checkout') {
     dir('platform-complete') {
