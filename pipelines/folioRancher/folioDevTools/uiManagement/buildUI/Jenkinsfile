@@ -4,6 +4,7 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
 import org.folio.utilities.model.Module
+import org.folio.models.TenantUi
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
@@ -42,17 +43,7 @@ ansiColor('xterm') {
         }
 
         stage('UI Build') {
-            def folioParameters = [
-                folio_repository    : params.folio_repository,
-                folio_branch        : params.folio_branch,
-                rancher_cluster_name: project_config.getClusterName(),
-                rancher_project_name: project_config.getProjectName(),
-                tenant_id           : tenant.getId(),
-                custom_hash         : project_config.getHash(),
-                custom_url          : "https://${project_config.getDomains().okapi}",
-                custom_tag          : ui_bundle.getUiBundleTag()
-            ]
-            folioUI.build(folioParameters)
+            folioUI.build(params)
         }
     }
 }
