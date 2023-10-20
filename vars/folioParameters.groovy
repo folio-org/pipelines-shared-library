@@ -34,11 +34,8 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                                     script   : script]]]
 }
 
-def agent() {
-    List final_choice = []
-    List agent_choice = Collections.shuffle Constants.JENKINS_AGENTS
-    final_choice.add(agent_choice)
-    return _paramChoice('AGENT', final_choice, 'Select build agent')
+def agent(List agents) {
+    return _paramChoice('AGENT', agents, 'Select build agent')
 }
 
 def refreshParameters() {

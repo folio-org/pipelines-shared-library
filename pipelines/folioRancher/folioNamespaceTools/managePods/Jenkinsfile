@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 
 def postgresql
-
+List agents = Collections.shuffle(Constants.JENKINS_AGENTS)
 properties([buildDiscarder(logRotator(numToKeepStr: '20')),
             disableConcurrentBuilds(),
             parameters([folioParameters.cluster(),
@@ -17,7 +17,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         choice(name: "ACTION", choices: ['start', 'stop'], description: '(Required) Choose action to perform'),
                         choice(name: "PERIOD", choices: ['night', 'weekend'], description: '(Required) Choose period to suspend'),
                         booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
-                        folioParameters.agent(),
+                        folioParameters.agent(agents),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
         30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
