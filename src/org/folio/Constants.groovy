@@ -4,7 +4,6 @@ class Constants {
     //AWS
     static String AWS_REGION = 'us-west-2'
     static String AWS_CREDENTIALS_ID = 'stanislav_test'
-    static String AWS_QUALITYGATES_KEY_ID = 'qualitygates'
     static String AWS_S3_SERVICE_ACCOUNT_ID = 'ci-s3-service-account'
     static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
     static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
