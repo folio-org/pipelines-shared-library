@@ -43,7 +43,7 @@ stage('Check Changes') {
 
                 def HashDiffDetected = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH)  // true or false
                 echo "HashCommitChanges: ${HashDiffDetected}"
-                currentBuild.rawBuild.addAction(new hudson.model.ParametersAction(new hudson.model.StringParameterValue('HashDiffDetected', HashDiffDetected.toString())))
+                env.HashDiffDetected = HashDiffDetected.toString()
 
                 }
             }
