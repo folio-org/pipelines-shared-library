@@ -2,7 +2,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
 
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-999') _
 
 pipeline {
     agent { label 'rancher' }
@@ -43,7 +43,11 @@ stage('Check Changes') {
 
                 def HashDiffDetected = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH)  // true or false
                 echo "HashCommitChanges: ${HashDiffDetected}"
-                env.HashDiffDetected = HashDiffDetected.toString()
+                if (HashDiffDetected) {
+                   // Set the build status to UNSTABLE (Yellow) To Indicate that Changes Are Detected, For the Visualisation Purposes
+                   echo "Changes detected, setting build status to UNSTABLE"
+                   currentBuild.result = 'UNSTABLE'
+                   env.HashDiffDetected = HashDiffDetected.toString()
 
                 }
             }
