@@ -10,6 +10,7 @@ def changeDetected(branch) {
   def currentHash = getLastCommitHash(branch)
   def savedHash = getSavedHashFromSSM(region,parameter_name)
   echo "last commit hash ${currentHash}"
+  echo "saved hash from ssm ${savedHash}"
 
   if (currentHash == savedHash) {
     echo "No changes detected. Returning true."
@@ -43,7 +44,7 @@ String getLastCommitHash(String branch) {
 }
 
 def getSavedHashFromSSM(region,parameter_name) {
-    def parameterValue = "aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text"
+    def parameterValue = sh("aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text")
     echo "Value of Previous Saved Hash-Commit: ${parameterValue}"
     return parameterValue
 }
