@@ -153,7 +153,7 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
             // Created tickets by this run - Within the last 20 min
             def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
 
-            slackSend(attachments: renderSlackMessage("karate", buildStatus, testsStatus, message, moduleFailureFields, existingTickets, createdTickets), channel: "#rancher-test-notifications")
+            slackSend(attachments: renderSlackMessage("karate", buildStatus, testsStatus, message, moduleFailureFields, existingTickets, createdTickets), channel: entry.key.slackChannel)
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()

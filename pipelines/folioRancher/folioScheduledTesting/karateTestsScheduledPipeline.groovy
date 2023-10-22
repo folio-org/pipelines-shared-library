@@ -1,4 +1,4 @@
-package tests.karate
+
 
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
