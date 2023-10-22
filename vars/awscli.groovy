@@ -64,4 +64,9 @@ void waitRdsClusterAvailable(String cluster_name, String region) {
     sh(script: "aws rds wait db-cluster-available --db-cluster-identifier ${cluster_name} --region ${region}")
 }
 
+string GetssmParameterValue(String region, String parameter_name) {
+  return sh(script: "aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text", returnStatus: true)
+}
+
+
 

@@ -36,16 +36,17 @@ stage('Check Changes') {
            if (params.SKIP_CHANGES) {
                 echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
             } else {
-                withCredentials([string(credentialsId: Constants.AWS_QUALITYGATES_KEY_ID, variable: 'qualitygates'),]) {
-                echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
-                sh 'aws ssm describe-parameters --region us-west-2'
-                        }
-                //def awsRegionHash = 'eu-west-1'
-                //def HashCommitChanges = folioHashCommitCheck.checkHashChanges(params.BRANCH, awsRegionHash)
+                withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                  credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
-                //if (!HashCommitChanges == false) {
-                  //  currentBuild.result = 'UNSTABLE'
-                //}
+                def HashDiff = folioHashCommitCheck.changeDetected(params.BRANCH)  // true or false
+                echo "HashCommitChanges: ${HashCommitChanges}"
+
+
+
+                }
             }
         }
     }
