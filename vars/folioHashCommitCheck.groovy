@@ -10,7 +10,7 @@ def changeDetected(branch) {
   def latestCommitHash = getLatestCommitHash(branch)
   def previousSavedHash = getPreviousSavedHashFromSSM(awsRegion,awsParameterName)
   echo "last commit hash ${latestCommitHash}"
-  echo "saved hash from ssm ${savedHash}"
+  echo "saved hash from ssm ${previousSavedHash}"
 
   if (latestCommitHash == previousSavedHash) {
     echo "No changes detected. HashDiffDetected :false."
