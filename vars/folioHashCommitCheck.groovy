@@ -43,14 +43,9 @@ String getLastCommitHash(String branch) {
 }
 
 def getSavedHashFromSSM(region,parameter_name) {
-    def parameterValue = GetSsmParameterValue(region,parameter_name);
+    def parameterValue = "aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text"
     echo "Value of Previous Saved Hash-Commit: ${parameterValue}"
     return parameterValue
-}
-
-
-def GetSsmParameterValue(String region, String parameter_name) {
-  return sh(script: "aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text", returnStatus: true)
 }
 
 void UpdateSsmParameterValue(String region, String parameter_name, String currentHash) {
