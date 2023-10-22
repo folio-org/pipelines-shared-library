@@ -3,7 +3,10 @@ import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 
-def changeDetected(branch) {
+
+// Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
+
+def commitHashChangeDetected(branch) {
 
   def awsParameterName = 'Hash-Commit'
   def awsRegion = 'us-west-2'
@@ -22,19 +25,9 @@ def changeDetected(branch) {
   }
 }
 
-//String getLatestCommitHash(String branch) {
-//  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/branches/RANCHER-999"
-//  def response = new HttpClient(this).getRequest(url)
-//  if (response.status == HttpURLConnection.HTTP_OK) {
-//    return new Tools(this).jsonParse(response.content).commit.sha
-//  } else {
-//    new Logger(this, 'folioHachCommitCheck').error(new HttpClient(this).buildHttpErrorMessage(response))
-//  }
-//}
-
-
+// Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
 String getLatestCommitHash(String branch) {
-  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/brances/${branch}"
+  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/branches/${branch}"
   try {
     def response = new HttpClient(this).getRequest(url)
 
@@ -56,6 +49,7 @@ String getLatestCommitHash(String branch) {
   }
 }
 
+// Function to get the previous platforme-complete $branch commit saved hash from AWS SSM
 
 String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
   try {
@@ -72,6 +66,7 @@ String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
 }
 
 
-void withUpdateSsmParameterNewValue(String region, String parameter_name, String currentHash) {
-  sh(script: "aws ssm put-parameter --name ${parameter_name} --region ${region} --value ${currentHash} --type String --overwrite")
+// Function to update the SSM parameter with a new hash value
+void withUpdateSsmParameterNewValue(String awsRegion, String awsParameterName, String latestCommitHash) {
+  sh(script: "aws ssm put-parameter --name ${awsParameterName} --region ${awsRegion} --value ${latestCommitHash} --type String --overwrite")
 }
