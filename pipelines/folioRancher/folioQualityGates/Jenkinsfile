@@ -43,8 +43,7 @@ stage('Check Changes') {
 
                 def HashDiffDetected = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH)  // true or false
                 echo "HashCommitChanges: ${HashDiffDetected}"
-
-
+                currentBuild.rawBuild.addAction(new hudson.model.ParametersAction(new hudson.model.StringParameterValue('HashDiffDetected', HashDiffDetected.toString())))
 
                 }
             }
@@ -54,7 +53,7 @@ stage('Check Changes') {
         stage('Parallel Quality Gate Stages') {
             when {
                 expression {
-                    param.SKIP_CHANGES || HashDiffDetected
+                    params.SKIP_CHANGES || env.HashDiffDetected == 'true'
                     }
              }
             parallel {
