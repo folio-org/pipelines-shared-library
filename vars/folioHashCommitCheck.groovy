@@ -6,7 +6,7 @@ import org.folio.utilities.Tools
 def changeDetected(branch) {
 
   def parameter_name = 'Hash-Commit'
-  def region = 'us-east-2'
+  def region = 'us-west-2'
   def currentHash = getCurrentGitHash(branch)
   def savedHash = getSavedHashFromSSM(region,parameter_name)
 
