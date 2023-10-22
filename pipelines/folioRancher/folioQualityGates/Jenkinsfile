@@ -52,6 +52,11 @@ stage('Check Changes') {
     }
 }
         stage('Parallel Quality Gate Stages') {
+            when {
+                expression {
+                    param.SKIP_CHANGES || HashDiffDetected
+                    }
+             }
             parallel {
                 stage('Run karate tests') {
                     steps {
