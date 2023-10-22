@@ -48,7 +48,7 @@ stage('Check Changes') {
                    echo "Changes detected, setting build status to UNSTABLE"
                    currentBuild.result = 'UNSTABLE'
                    env.HashDiffDetected = HashDiffDetected.toString()
-
+                   }
                 }
             }
         }
