@@ -36,7 +36,7 @@ stage('Check Changes') {
            if (params.SKIP_CHANGES) {
                 echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
             } else {
-                withCredentials([aws(credentialsId: Constants.AWS_QUALITYGATES_KEY_ID, variable: 'qualitygates'),]) {
+                withCredentials([string(credentialsId: Constants.AWS_QUALITYGATES_KEY_ID, variable: 'qualitygates'),]) {
                 echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
                 sh 'aws ssm describe-parameters --region us-west-2'
                         }
