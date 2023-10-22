@@ -42,7 +42,7 @@ stage('Check Changes') {
                                   secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
                 def HashDiff = folioHashCommitCheck.changeDetected(params.BRANCH)  // true or false
-                echo "HashCommitChanges: ${HashCommitChanges}"
+                echo "HashCommitChanges: ${HashDiff}"
 
 
 
