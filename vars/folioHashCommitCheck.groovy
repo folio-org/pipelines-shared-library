@@ -34,7 +34,7 @@ def changeDetected(branch) {
 
 
 String getLatestCommitHash(String branch) {
-  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/branches/${branch}"
+  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/brances/${branch}"
   try {
     def response = new HttpClient(this).getRequest(url)
 
