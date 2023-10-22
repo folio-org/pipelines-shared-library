@@ -28,7 +28,6 @@ pipeline {
                 }
             }
         }
-// FOR TESTING PURPOSE USING TEST BRANCH RANCHER-999 When Logic will be workable will adjust for the Platform Complete
 
 stage('Check Changes') {
     steps {
