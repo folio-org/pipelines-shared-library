@@ -40,5 +40,5 @@ def GetSsmParameterValue(String region, String parameter_name) {
 }
 
 void UpdateSsmParameterValue(String region, String parameter_name, String currentHash) {
-  sh(script: "aws ssm put-parameter --name ${parameter_name} --region ${region} --value value --type ${currentHash} --overwrite")
+  sh(script: "aws ssm put-parameter --name ${parameter_name} --region ${region} --value ${currentHash} --type String --overwrite")
 }
