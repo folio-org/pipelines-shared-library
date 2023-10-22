@@ -1,5 +1,3 @@
-// folioHashCommitCheck.groovy
-
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
@@ -16,7 +14,8 @@ def changeDetected(branch) {
     echo "No changes detected. Returning true."
     return true
   } else {
-    echo "Changes detected. Returning false."
+    echo "Changes detected. Returning false and updating ssm with new hash: ${currentHash}."
+    UpdateSsmParameterValue(region,parameter_name,currentHash)
     return false
   }
 }
@@ -31,6 +30,15 @@ def getCurrentGitHash(branch) {
 }
 
 def getSavedHashFromSSM(region,parameter_name) {
-    def parameterValue = awscli.GetssmParameterValue(region,parameter_name);
+    def parameterValue = GetSsmParameterValue(region,parameter_name);
     return parameterValue
+}
+
+
+def GetSsmParameterValue(String region, String parameter_name) {
+  return sh(script: "aws ssm get-parameter --name ${parameter_name} --region ${region} --query  \"Parameter.Value\" --output text", returnStatus: true)
+}
+
+void UpdateSsmParameterValue(String region, String parameter_name, String currentHash) {
+  sh(script: "aws ssm put-parameter --name ${parameter_name} --region ${region} --value value --type ${currentHash} --overwrite")
 }
