@@ -26,7 +26,7 @@ def commitHashChangeDetected(branch) {
 
 // Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
 String getLatestCommitHash(String branch) {
-  String url = "https://api.github.com/repos/folio-org/pipelines-shared-library/branches/${branch}"
+  String url = "https://api.github.com/repos/folio-org/platform-complete/branches/${branch}"
   try {
     def response = new HttpClient(this).getRequest(url)
 

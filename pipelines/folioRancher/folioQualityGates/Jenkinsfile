@@ -17,7 +17,7 @@ pipeline {
     }
     parameters {
         booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
-        string(name: 'BRANCH', defaultValue: 'RANCHER-999', description: 'platform-complete branch where will be run quality CI job')
+        string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
     }
     stages {
         stage('Init') {
