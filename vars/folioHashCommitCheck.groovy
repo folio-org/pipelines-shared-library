@@ -5,15 +5,14 @@ import org.folio.utilities.Tools
 
 
 // Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
-
 def commitHashChangeDetected(branch) {
 
   def awsParameterName = 'Hash-Commit'
   def awsRegion = 'us-west-2'
   def latestCommitHash = getLatestCommitHash(branch)
   def previousSavedHash = getPreviousSavedHashFromSSM(awsRegion,awsParameterName)
-  echo "last commit hash ${latestCommitHash}"
-  echo "saved hash from ssm ${previousSavedHash}"
+  echo "latestCommitHash ${latestCommitHash}"
+  echo "previousSavedHash ${previousSavedHash}"
 
   if (latestCommitHash == previousSavedHash) {
     echo "No changes detected. HashDiffDetected :false."
@@ -50,7 +49,6 @@ String getLatestCommitHash(String branch) {
 }
 
 // Function to get the previous platforme-complete $branch commit saved hash from AWS SSM
-
 String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
   try {
     def parameterValue = sh(
