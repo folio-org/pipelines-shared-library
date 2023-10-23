@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
-import org.folio.rest_v2.Common
+//import org.folio.rest_v2.Common
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -35,6 +35,7 @@ void build(params) {
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
   }
+
   stage('Build and Push') {
     dir('platform-complete') {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
@@ -49,6 +50,7 @@ void build(params) {
       }
     }
   }
+
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
   }

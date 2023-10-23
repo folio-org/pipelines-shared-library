@@ -13,13 +13,14 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '30')),
     disableConcurrentBuilds(),
     parameters([
-        folioParameters.cluster(),
-        folioParameters.namespace(),
-        folioParameters.uiBundleTag(),
-        folioParameters.uiBundleBuild(),
         folioParameters.repository(),
         folioParameters.branch(),
+        folioParameters.cluster(),
+        folioParameters.namespace(),
         folioParameters.tenantId(),
+//         folioParameters.custom_hash(),
+        folioParameters.uiBundleTag(),
+        folioParameters.uiBundleBuild(),
         folioParameters.agent(),
         folioParameters.refreshParameters()
     ])
@@ -44,6 +45,9 @@ ansiColor('xterm') {
 
         stage('UI Build') {
             folioUI.build(params)
+            Common common = new Common(this, "diku")
+            common.logger.warning(params)
+            input "Testing staff.."
         }
     }
 }
