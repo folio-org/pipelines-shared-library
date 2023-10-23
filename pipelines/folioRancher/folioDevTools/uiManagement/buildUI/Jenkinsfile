@@ -35,29 +35,26 @@ if (params.REFRESH_PARAMETERS) {
 ansiColor('xterm') {
     common.refreshBuidParameters(params.refresh_parameters)
     node(params.AGENT) {
-        try {
-            stage('Ini') {
-                buildName "${params.CLUSTER}.${env.BUILD_ID}"
-                buildDescription ""
-            }
+      try {
+        stage('Ini') {
+          buildName "${params.CLUSTER}.${env.BUILD_ID}"
+          buildDescription "For build UI bundle"
+        }
 
-            stage('Checkout') {
-              checkout scm
-            }
+        stage('Checkout') {
+          checkout scm
+        }
 
-            stage('UI Build') {
-                folioUI.build(params)
-    //             Common common = new Common(this, "diku")
-    //             common.logger.warning(params)
-    //             input "Testing staff.."
-            }
+        stage('UI Build') {
+          folioUI.build(params)
+        }
     } catch (e) {
-          println "Caught exception: ${e}"
-          error(e.getMessage())
+        println "Caught exception: ${e}"
+        error(e.getMessage())
     } finally {
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
-                  }
+        stage('Cleanup') {
+            cleanWs notFailBuild: true
+              }
         }
     }
 }
