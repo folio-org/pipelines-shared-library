@@ -5,7 +5,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
 import org.folio.utilities.model.Module
 import org.folio.models.TenantUi
-import org.folio.rest_v2.Common
+// import org.folio.rest_v2.Common
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
@@ -22,8 +22,9 @@ properties([
         folioParameters.uiBundleTag(),
         folioParameters.uiBundleBuild(),
         string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+        booleanParam(name: 'consortia', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
         folioParameters.agent(),
-        folioParameters.refreshParameters()
+        folioParameters.refreshParameters(),
     ])
 ])
 
