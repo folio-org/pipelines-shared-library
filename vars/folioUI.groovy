@@ -9,9 +9,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-835') _
 
 void build(params) {
-  Common common = new Common(this, "diku")
-  common.logger.warning(params)
-  input "Testing staff.."
   OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
   Project project_config = new Project(
     clusterName: params.cluster,
