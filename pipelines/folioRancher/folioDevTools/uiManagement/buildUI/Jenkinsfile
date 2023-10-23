@@ -21,8 +21,8 @@ properties([
         folioParameters.tenantId(),
         folioParameters.uiBundleTag(),
         folioParameters.uiBundleBuild(),
-        string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
-        booleanParam(name: 'consortia', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
+        string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
         folioParameters.agent(),
         folioParameters.refreshParameters(),
     ])
@@ -41,11 +41,9 @@ ansiColor('xterm') {
           buildName "${params.CLUSTER}.${env.BUILD_ID}"
           buildDescription "For build UI bundle"
         }
-
         stage('Checkout') {
           checkout scm
         }
-
         stage('UI Build') {
           folioUI.build(params)
         }

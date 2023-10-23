@@ -3,6 +3,9 @@
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
+import org.folio.utilities.model.Module
+import org.folio.models.TenantUi
+// import org.folio.rest_v2.Common
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
@@ -11,15 +14,17 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '30')),
     disableConcurrentBuilds(),
     parameters([
-        folioParameters.clusterName(),
+        folioParameters.cluster(),
         folioParameters.namespace(),
-        folioParameters.uiBundleBuild(),
         folioParameters.repository(),
         folioParameters.branch(),
         folioParameters.tenantId(),
-        booleanParam(name: 'reBuildBundle', defaultValue: false, description: '(Optional) Rebuild UI bundle before deploy or deploy existing'),
+        folioParameters.uiBundleTag(),
+        folioParameters.uiBundleBuild(),
+        string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+        booleanParam(name: 'consortia', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
         folioParameters.agent(),
-        folioParameters.refreshParameters()
+        folioParameters.refreshParameters(),
     ])
 ])
 
@@ -29,18 +34,32 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 ansiColor('xterm') {
+    common.refreshBuidParameters(params.refresh_parameters)
     node(params.AGENT) {
+      try {
         stage('Ini') {
-            buildName ""
-            buildDescription ""
+          buildName "${params.CLUSTER}.${env.BUILD_ID}"
+          buildDescription "For build UI bundle"
         }
-
-        stage("Deploy UI bundle") {
-            if (params.ui_bundle_build) {
-                folioDeploy.uiBundle(tenant.getId(), project_config)
+        stage('Checkout') {
+          checkout scm
+        }
+        if (params.ui_bundle_build) {
+          stage('UI Build') {
+            folioUI.build(params)
             }
+          }
+        stage('UI Deploy') {
+          folioUI.deploy(params)
         }
-
-
+    } catch (e) {
+        println "Caught exception: ${e}"
+        error(e.getMessage())
+    } finally {
+        stage('Cleanup') {
+            cleanWs notFailBuild: true
+      }
     }
-}//TBD
+  }
+}
+
