@@ -14,14 +14,14 @@ properties([
     buildDiscarder(logRotator(numToKeepStr: '30')),
     disableConcurrentBuilds(),
     parameters([
-        folioParameters.repository(),
-        folioParameters.branch(),
         folioParameters.cluster(),
         folioParameters.namespace(),
+        folioParameters.repository(),
+        folioParameters.branch(),
         folioParameters.tenantId(),
-//         folioParameters.custom_hash(),
         folioParameters.uiBundleTag(),
         folioParameters.uiBundleBuild(),
+        string(name: 'custom_hash', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
         folioParameters.agent(),
         folioParameters.refreshParameters()
     ])
@@ -35,20 +35,29 @@ if (params.REFRESH_PARAMETERS) {
 ansiColor('xterm') {
     common.refreshBuidParameters(params.refresh_parameters)
     node(params.AGENT) {
-        stage('Ini') {
-            buildName "${params.CLUSTER}.${env.BUILD_ID}"
-            buildDescription ""
-        }
+        try {
+            stage('Ini') {
+                buildName "${params.CLUSTER}.${env.BUILD_ID}"
+                buildDescription ""
+            }
 
-        stage('Checkout') {
-          checkout scm
-        }
+            stage('Checkout') {
+              checkout scm
+            }
 
-        stage('UI Build') {
-            folioUI.build(params)
-            Common common = new Common(this, "diku")
-            common.logger.warning(params)
-            input "Testing staff.."
+            stage('UI Build') {
+                folioUI.build(params)
+    //             Common common = new Common(this, "diku")
+    //             common.logger.warning(params)
+    //             input "Testing staff.."
+            }
+    } catch (e) {
+          println "Caught exception: ${e}"
+          error(e.getMessage())
+    } finally {
+            stage('Cleanup') {
+                cleanWs notFailBuild: true
+                  }
         }
     }
 }
