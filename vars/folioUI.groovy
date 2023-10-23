@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
-//import org.folio.rest_v2.Common
+import org.folio.rest_v2.Common
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -24,6 +24,9 @@ void build(params) {
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
   ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
+  Common common = new Common(this, "diku")
+  common.logger.warning(params)
+  input "Testing staff.."
 
 //  stage('Checkout') {
 //    dir('platform-complete') {
