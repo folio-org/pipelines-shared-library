@@ -36,17 +36,6 @@ void build(params) {
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
   }
 
-  stage('Checkout') {
-    dir('platform-complete') {
-      cleanWs()
-    }
-    checkout([$class           : 'GitSCM',
-              branches         : [[name: ui_bundle.hash]],
-              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
-              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-  }
-
   stage('Build and Push') {
     dir('platform-complete') {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
