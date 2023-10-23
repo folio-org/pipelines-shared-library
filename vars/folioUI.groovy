@@ -22,7 +22,7 @@ void build(params) {
   )
   Module ui_bundle = new Module(
     name: "ui-bundle",
-    hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
+    hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
   )
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
   ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
