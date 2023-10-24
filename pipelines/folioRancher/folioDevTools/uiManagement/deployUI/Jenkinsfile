@@ -39,7 +39,7 @@ ansiColor('xterm') {
       try {
         stage('Ini') {
           buildName "${params.CLUSTER}.${env.BUILD_ID}"
-          buildDescription "For build UI bundle"
+          buildDescription "For deploy UI bundle"
         }
         stage('Checkout') {
           checkout scm
