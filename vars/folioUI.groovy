@@ -13,16 +13,16 @@ void build(params) {
   Project project_config = new Project(
     clusterName: params.CLUSTER,
     projectName: params.NAMESPACE,
-    domains: [ui   : common.generateDomain(params.cluster, params.NAMESPACE, tenant.getId(), Constants.CI_ROOT_DOMAIN),
-              okapi: common.generateDomain(params.cluster, params.NAMESPACE, 'okapi', Constants.CI_ROOT_DOMAIN),
-              edge : common.generateDomain(params.cluster, params.NAMESPACE, 'edge', Constants.CI_ROOT_DOMAIN)]
+    domains: [ui   : common.generateDomain(params.CLUSTER, params.NAMESPACE, tenant.getId(), Constants.CI_ROOT_DOMAIN),
+              okapi: common.generateDomain(params.CLUSTER, params.NAMESPACE, 'okapi', Constants.CI_ROOT_DOMAIN),
+              edge : common.generateDomain(params.CLUSTER, params.NAMESPACE, 'edge', Constants.CI_ROOT_DOMAIN)]
   )
   Module ui_bundle = new Module(
     name: "ui-bundle",
     hash: params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
   )
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
-  ui_bundle.tag = params.uiBundleTag?.trim() ? params.uiBundleTag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
+  ui_bundle.tag = params.UI_BUNDLE_TAG?.trim() ? params.UI_BUNDLE_TAG : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
   stage('Checkout') {
