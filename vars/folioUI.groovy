@@ -69,12 +69,14 @@ void build(params) {
 void deploy(params) {
   OkapiTenant tenant = new OkapiTenant(id: params.TENANT_ID)
   Project project_config = new Project(
+    hash: params.UI_BUNDLE_BUILD ? common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH) : '',
     clusterName: params.CLUSTER,
     projectName: params.NAMESPACE,
     domains: [ui   : common.generateDomain(params.CLUSTER, params.NAMESPACE, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.CLUSTER, params.NAMESPACE, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.CLUSTER, params.NAMESPACE, 'edge', Constants.CI_ROOT_DOMAIN)]
   )
+  project_config.uiBundleTag = params.UI_BUNDLE_BUILD ? "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${project_config.getHash().take(7)}" : params.UI_BUNDLE_TAG
 
   stage("Deploy UI bundle") {
     folioDeploy.uiBundle(tenant.getId(), project_config)
