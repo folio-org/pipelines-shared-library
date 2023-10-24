@@ -72,6 +72,7 @@ void deploy(params) {
     hash: params.UI_BUNDLE_BUILD ? common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH) : '',
     clusterName: params.CLUSTER,
     projectName: params.NAMESPACE,
+    configType: 'development',
     domains: [ui   : common.generateDomain(params.CLUSTER, params.NAMESPACE, tenant.getId(), Constants.CI_ROOT_DOMAIN),
               okapi: common.generateDomain(params.CLUSTER, params.NAMESPACE, 'okapi', Constants.CI_ROOT_DOMAIN),
               edge : common.generateDomain(params.CLUSTER, params.NAMESPACE, 'edge', Constants.CI_ROOT_DOMAIN)]
