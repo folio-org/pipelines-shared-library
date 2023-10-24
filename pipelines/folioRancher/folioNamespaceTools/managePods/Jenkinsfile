@@ -17,7 +17,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         choice(name: "ACTION", choices: ['start', 'stop'], description: '(Required) Choose action to perform'),
                         choice(name: "PERIOD", choices: ['night', 'weekend'], description: '(Required) Choose period to suspend'),
                         booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
-                        folioParameters.agent(),
+                        string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
         0 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
