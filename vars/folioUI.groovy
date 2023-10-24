@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-835') _
 
 void build(params) {
-  OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+  OkapiTenant tenant = new OkapiTenant(id: params.TENANT_ID)
   Project project_config = new Project(
     clusterName: params.CLUSTER,
     projectName: params.NAMESPACE,
