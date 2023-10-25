@@ -22,8 +22,6 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-final String folioBranch = 'poppy'
-
 Map cypressBugfestFlowParameters = [
   customBuildName         : env.JOB_BASE_NAME,
   branch                  : params.CYPRESS_BUGFEST_BRANCH,
