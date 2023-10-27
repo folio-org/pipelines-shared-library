@@ -85,7 +85,7 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      stage('Build and deploy UI') {
+      stage('Build UI') {
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
