@@ -32,6 +32,7 @@ properties([
 String defaultTenantId = 'diku'
 
   String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+  List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
   TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
   RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
     .withSuperTenantAdminUser()
