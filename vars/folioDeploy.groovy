@@ -121,12 +121,12 @@ void edge(Map install_edge_map, Project project_config, Boolean custom_module = 
     }
 }
 
-void uiBundle(String tenant_id, Project project_config) {
-    String values_path = folioHelm.generateModuleValues('ui-bundle', project_config.getUiBundleTag(), project_config, project_config.getDomains().ui)
+void uiBundle(Map params) {
+    String values_path = folioHelm.generateModuleValues('ui-bundle', params.UI_BUNDLE_TAG(), params, params.GET_DOMAINS().ui)
     folioHelm.withK8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+        awscli.getKubeConfig(Constants.AWS_REGION, params.CLUSTER())
         folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
-        folioHelm.upgrade("${tenant_id}-ui-bundle", project_config.getProjectName(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'platform-complete')
+        folioHelm.upgrade("${params.TENANT_ID}-ui-bundle", params.NAMESPACE(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'platform-complete')
     }
 }
 

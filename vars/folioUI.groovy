@@ -1,9 +1,7 @@
 #!groovy
-import groovy.json.JsonSlurperClassic
+
+//import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-//import org.folio.rest.model.OkapiTenant
-//import org.folio.utilities.model.Module
-//import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
