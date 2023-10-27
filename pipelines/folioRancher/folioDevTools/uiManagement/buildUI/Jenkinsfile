@@ -6,10 +6,7 @@ import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
-import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
-import org.folio.rest_v2.Edge
-import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
@@ -63,9 +60,6 @@ if (params.CONSORTIA) {
   }
 }
 
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-Edge edge = new Edge(this, namespace.getDomains()['okapi'])
-
 if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
     return
@@ -97,7 +91,6 @@ ansiColor('xterm') {
                 CONSORTIA  : tenant instanceof OkapiTenantConsortia
               ]
               folioUI.build(jobParameters)
-
           }
         }
       }
