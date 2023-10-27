@@ -30,6 +30,7 @@ def renderSlackMessage(String testName, buildStatus, testsStatus, message, modul
     def pipelineTemplate = pipelineTemplates[buildStatus]
 
     switch (buildStatus) {
+        case "FAILURE":
         case "FAILED":
             message = STAGE_NAME
             def output = pipelineTemplate
