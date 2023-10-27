@@ -1,6 +1,6 @@
 #!groovy
 
-//import groovy.json.JsonSlurperClassic
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -50,7 +50,7 @@ void build(params) {
 
 void deploy(params) {
   stage("Deploy UI bundle") {
-    folioDeploy.folioUiBundle()iBundle(params.TENANT_ID, project_config)
+    folioDeploy.folioUiBundle(params)
   }
 }
 
