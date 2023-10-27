@@ -92,7 +92,7 @@ ansiColor('xterm') {
                 CONSORTIA  : tenant instanceof OkapiTenantConsortia
               ]
               folioUI.build(params)
-            }
+
           }
         }
       }
@@ -105,5 +105,5 @@ ansiColor('xterm') {
       }
     }
   }
-
+}
 
