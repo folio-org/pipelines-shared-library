@@ -85,7 +85,7 @@ ansiColor('xterm') {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
               def jobParameters = [
-                OKAPI_URL: main
+                OKAPI_URL: namespace.getDomains()['okapi'],
                 TENANT_ID  : ui.getTenantId(),
                 CUSTOM_HASH: ui.getHash(),
                 IMAGE_NAME: ui.getImageName(),
