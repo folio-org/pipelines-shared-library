@@ -101,14 +101,17 @@ ansiColor('xterm') {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               TenantUi ui = tenant.getTenantUi()
-              def jobParameters = [
-                CLUSTER      : namespace.getClusterName(),
-                NAMESPACE    : namespace.getNamespaceName(),
-                UI_BUNDLE_TAG: ui.getTag(),
-                GET_DOMAINS  : namespace.getDomains()['okapi'],
-                TENANT_ID    : ui.getTenantId()
-              ]
-              folioUI.deploy(jobParameters)
+//              def jobParameters = [
+//                CLUSTER      : namespace.getClusterName(),
+//                NAMESPACE    : namespace.getNamespaceName(),
+//                UI_BUNDLE_TAG: ui.getTenantId().getTag(),
+//                GET_DOMAINS  : namespace.getDomains()['okapi'],
+//                TENANT_ID    : ui.getTenantId()
+//              ]
+//              folioUI.deploy(jobParameters)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
             }
           }
         }
