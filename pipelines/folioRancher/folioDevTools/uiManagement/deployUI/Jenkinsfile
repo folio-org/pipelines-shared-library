@@ -35,11 +35,11 @@ String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.get
 List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
 InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+//  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
 
 RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-  .withSuperTenantAdminUser()
-  .withOkapiVersion("${params.OKAPI_VERSION}")
+//  .withSuperTenantAdminUser()
+//  .withOkapiVersion("${params.OKAPI_VERSION}")
   .withDefaultTenant("${defaultTenantId}")
   .withDeploymentConfigType("${params.CONFIG_TYPE}")
 
@@ -47,7 +47,7 @@ namespace.getModules().setInstallJson(installJson)
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallJson(namespace.getModules().getInstallJson().collect())
-  .withIndex(new Index(true, true))
+//  .withIndex(new Index(true, true))
   .withInstallRequestParams(installRequestParams.clone())
   .withTenantUi(tenantUi.clone())
 )
@@ -80,7 +80,7 @@ ansiColor('xterm') {
         stage('Checkout') {
           checkout scm
         }
-        if (params.ui_bundle_build) {
+        if (params.UI_BUNDLE_TAG) {
           stage('UI Build') {
             namespace.getTenants().each { tenantId, tenant ->
               if (tenant.getTenantUi()) {
