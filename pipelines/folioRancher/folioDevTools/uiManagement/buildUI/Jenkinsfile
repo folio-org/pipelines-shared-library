@@ -31,33 +31,37 @@ properties([
 ])
 String defaultTenantId = 'diku'
 
-  String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
-  List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
-  TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
-  RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-    .withSuperTenantAdminUser()
-    .withOkapiVersion(params.OKAPI_VERSION)
-    .withDefaultTenant(defaultTenantId)
-    .withDeploymentConfigType(params.CONFIG_TYPE)
+//Set namespace configuration
+String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
+TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
 
-  namespace.getModules().setInstallJson(installJson)
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withOkapiVersion(params.OKAPI_VERSION)
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
 
-  namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-    .withInstallJson(namespace.getModules().getInstallJson().collect())
-    .withIndex(new Index(true, true))
-    .withInstallRequestParams(installRequestParams.clone())
-    .withTenantUi(tenantUi.clone())
-  )
+namespace.getModules().setInstallJson(installJson)
 
-  if (params.CONSORTIA) {
-    namespace.setEnableConsortia(true)
-    folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-      if (tenant.getIsCentralConsortiaTenant()) {
-        tenant.withTenantUi(tenantUi.clone())
-      }
-      namespace.addTenant(tenant)
+namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+  .withInstallJson(namespace.getModules().getInstallJson().collect())
+  .withIndex(new Index(true, true))
+  .withInstallRequestParams(installRequestParams.clone())
+  .withTenantUi(tenantUi.clone())
+)
+
+if (params.CONSORTIA) {
+  namespace.setEnableConsortia(true)
+  folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+    if (tenant.getIsCentralConsortiaTenant()) {
+      tenant.withTenantUi(tenantUi.clone())
     }
+    namespace.addTenant(tenant)
   }
+}
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 Edge edge = new Edge(this, namespace.getDomains()['okapi'])
