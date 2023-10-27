@@ -48,17 +48,17 @@ void build(params) {
   }
 }
 
-//void deploy(params) {
-//  stage("Deploy UI bundle") {
-//    folioDeploy.uiBundle(params.TENANT_ID, project_config)
-//  }
-//}
-//
-//static String getModuleId(String moduleName) {
-//  URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
-//  if (registry.getResponseCode().equals(200)) {
-//    return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
-//  } else {
-//    throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
-//  }
-//}
+void deploy(params) {
+  stage("Deploy UI bundle") {
+    folioDeploy.folioUiBundle()iBundle(params.TENANT_ID, project_config)
+  }
+}
+
+static String getModuleId(String moduleName) {
+  URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+  if (registry.getResponseCode().equals(200)) {
+    return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
+  } else {
+    throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
+  }
+}
