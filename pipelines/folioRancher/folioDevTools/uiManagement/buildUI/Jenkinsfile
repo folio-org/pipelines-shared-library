@@ -85,8 +85,6 @@ ansiColor('xterm') {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
               def jobParameters = [
-                CLUSTER: params.CLUSTER
-                NAMESPACE: params.NAMESPACE
                 OKAPI_URL: main
                 TENANT_ID  : ui.getTenantId(),
                 CUSTOM_HASH: ui.getHash(),
