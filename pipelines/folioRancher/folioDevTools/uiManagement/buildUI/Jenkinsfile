@@ -96,14 +96,14 @@ ansiColor('xterm') {
           }
         }
       }
-  } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-  } finally {
+    } catch (e) {
+        println "Caught exception: ${e}"
+        error(e.getMessage())
+    } finally {
       stage('Cleanup') {
           cleanWs notFailBuild: true
       }
     }
   }
-}
+
 
