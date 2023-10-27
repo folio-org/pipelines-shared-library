@@ -1,11 +1,15 @@
 #!groovy
 
 import org.folio.Constants
-import org.folio.rest.model.OkapiTenant
-import org.folio.utilities.model.Project
-import org.folio.utilities.model.Module
+import org.folio.models.Index
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenantConsortia
+import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
-// import org.folio.rest_v2.Common
+import org.folio.models.TerraformConfig
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.Edge
+import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835') _
@@ -25,6 +29,37 @@ properties([
         folioParameters.refreshParameters(),
     ])
 ])
+String defaultTenantId = 'diku'
+
+  String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+  TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
+  RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+    .withSuperTenantAdminUser()
+    .withOkapiVersion(params.OKAPI_VERSION)
+    .withDefaultTenant(defaultTenantId)
+    .withDeploymentConfigType(params.CONFIG_TYPE)
+
+  namespace.getModules().setInstallJson(installJson)
+
+  namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+    .withInstallJson(namespace.getModules().getInstallJson().collect())
+    .withIndex(new Index(true, true))
+    .withInstallRequestParams(installRequestParams.clone())
+    .withTenantUi(tenantUi.clone())
+  )
+
+  if (params.CONSORTIA) {
+    namespace.setEnableConsortia(true)
+    folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+      if (tenant.getIsCentralConsortiaTenant()) {
+        tenant.withTenantUi(tenantUi.clone())
+      }
+      namespace.addTenant(tenant)
+    }
+  }
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
 if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
@@ -32,27 +67,45 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 ansiColor('xterm') {
-    common.refreshBuidParameters(params.refresh_parameters)
-    node(params.AGENT) {
-      try {
-        stage('Ini') {
-          buildName "${params.CLUSTER}.${env.BUILD_ID}"
-          buildDescription "For build UI bundle"
+  if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+  }
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}.${env.BUILD_ID}"
+        buildDescription "For build UI bundle"
+      }
+      stage('Checkout') {
+        checkout scm
+      }
+      stage('Build and deploy UI') {
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+              def jobParameters = [
+                CLUSTER: params.CLUSTER
+                NAMESPACE: params.NAMESPACE
+                OKAPI_URL: main
+                TENANT_ID  : ui.getTenantId(),
+                CUSTOM_HASH: ui.getHash(),
+                IMAGE_NAME: ui.getImageName(),
+                CONSORTIA  : tenant instanceof OkapiTenantConsortia
+              ]
+              folioUI.build(params)
+            }
+          }
         }
-        stage('Checkout') {
-          checkout scm
-        }
-        stage('UI Build') {
-          folioUI.build(params)
-        }
-    } catch (e) {
-        println "Caught exception: ${e}"
-        error(e.getMessage())
-    } finally {
-        stage('Cleanup') {
-            cleanWs notFailBuild: true
-              }
-        }
+      }
+  } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+  } finally {
+      stage('Cleanup') {
+          cleanWs notFailBuild: true
+      }
     }
+  }
 }
 
