@@ -82,36 +82,33 @@ ansiColor('xterm') {
         }
         if (params.UI_BUNDLE_TAG) {
           stage('UI Build') {
-//            namespace.getTenants().each { tenantId, tenant ->
-//              if (tenant.getTenantUi()) {
-//                TenantUi ui = tenant.getTenantUi()
+            namespace.getTenants().each { tenantId, tenant ->
+              if (tenant.getTenantUi()) {
+                TenantUi ui = tenant.getTenantUi()
                 def jobParameters = [
                   OKAPI_URL: namespace.getDomains()['okapi'],
-                  TENANT_ID  : tenantUi.getTenantId(),
-                  CUSTOM_HASH: tenantUi.getHash(),
-                  IMAGE_NAME: tenantUi.getImageName(),
-                  CONSORTIA  : tenantUi instanceof OkapiTenantConsortia
+                  TENANT_ID  : ui.getTenantId(),
+                  CUSTOM_HASH: ui.getHash(),
+                  IMAGE_NAME: ui.getImageName(),
+                  CONSORTIA  : tenant instanceof OkapiTenantConsortia
                 ]
                 folioUI.build(jobParameters)
               }
             }
-//          }
-//        }
+          }
+        }
         stage('UI Deploy') {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               TenantUi ui = tenant.getTenantUi()
-//              def jobParameters = [
-//                CLUSTER      : namespace.getClusterName(),
-//                NAMESPACE    : namespace.getNamespaceName(),
-//                UI_BUNDLE_TAG: ui.getTenantId().getTag(),
-//                GET_DOMAINS  : namespace.getDomains()['okapi'],
-//                TENANT_ID    : ui.getTenantId()
-//              ]
-//              folioUI.deploy(jobParameters)
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-              }
+              def jobParameters = [
+                CLUSTER      : namespace.getClusterName(),
+                NAMESPACE    : namespace.getNamespaceName(),
+                UI_BUNDLE_TAG: ui.getTag(),
+                GET_DOMAINS  : namespace.getDomains()['okapi'],
+                TENANT_ID    : ui.getTenantId()
+              ]
+              folioUI.deploy(jobParameters)
             }
           }
         }

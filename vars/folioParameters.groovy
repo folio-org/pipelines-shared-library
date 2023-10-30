@@ -108,7 +108,7 @@ def uiBundleBuild(){
 }
 
 def uiBundleTag() {
-  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Choose image tag for UI')
+  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'cluster,namespace', getUIImagesList(), 'Choose image tag for UI')
 }
 
 def tenantId(String tenant_id = defaultTenant().id) {
