@@ -22,7 +22,7 @@ properties([
         folioParameters.tenantId(),
         folioParameters.uiBundleBuild(),
         folioParameters.uiBundleTag(),
-        string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+        string(name: 'CUSTOM_HASH', defaultValue: '', description: '(Optional) Commit hash for bundle build from specific commit'),
         booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
         folioParameters.agent(),
         folioParameters.refreshParameters(),
@@ -35,11 +35,11 @@ String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.get
 List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
 InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+//  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
 
 RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-  .withSuperTenantAdminUser()
-  .withOkapiVersion("${params.OKAPI_VERSION}")
+//  .withSuperTenantAdminUser()
+//  .withOkapiVersion("${params.OKAPI_VERSION}")
   .withDefaultTenant("${defaultTenantId}")
   .withDeploymentConfigType("${params.CONFIG_TYPE}")
 
@@ -47,7 +47,7 @@ namespace.getModules().setInstallJson(installJson)
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallJson(namespace.getModules().getInstallJson().collect())
-  .withIndex(new Index(true, true))
+//  .withIndex(new Index(true, true))
   .withInstallRequestParams(installRequestParams.clone())
   .withTenantUi(tenantUi.clone())
 )
@@ -80,35 +80,38 @@ ansiColor('xterm') {
         stage('Checkout') {
           checkout scm
         }
-        if (params.ui_bundle_build) {
+        if (params.UI_BUNDLE_TAG) {
           stage('UI Build') {
-            namespace.getTenants().each { tenantId, tenant ->
-              if (tenant.getTenantUi()) {
-                TenantUi ui = tenant.getTenantUi()
+//            namespace.getTenants().each { tenantId, tenant ->
+//              if (tenant.getTenantUi()) {
+//                TenantUi ui = tenant.getTenantUi()
                 def jobParameters = [
                   OKAPI_URL: namespace.getDomains()['okapi'],
-                  TENANT_ID  : ui.getTenantId(),
-                  CUSTOM_HASH: ui.getHash(),
-                  IMAGE_NAME: ui.getImageName(),
-                  CONSORTIA  : tenant instanceof OkapiTenantConsortia
+                  TENANT_ID  : tenantUi.getTenantId(),
+                  CUSTOM_HASH: tenantUi.getHash(),
+                  IMAGE_NAME: tenantUi.getImageName(),
+                  CONSORTIA  : tenantUi instanceof OkapiTenantConsortia
                 ]
                 folioUI.build(jobParameters)
               }
             }
-          }
-        }
+//          }
+//        }
         stage('UI Deploy') {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               TenantUi ui = tenant.getTenantUi()
-              def jobParameters = [
-                CLUSTER      : namespace.getClusterName(),
-                NAMESPACE    : namespace.getNamespaceName(),
-                UI_BUNDLE_TAG: ui.getTag(),
-                GET_DOMAINS  : namespace.getDomains()['okapi'],
-                TENANT_ID    : ui.getTenantId()
-              ]
-              folioUI.deploy(jobParameters)
+//              def jobParameters = [
+//                CLUSTER      : namespace.getClusterName(),
+//                NAMESPACE    : namespace.getNamespaceName(),
+//                UI_BUNDLE_TAG: ui.getTenantId().getTag(),
+//                GET_DOMAINS  : namespace.getDomains()['okapi'],
+//                TENANT_ID    : ui.getTenantId()
+//              ]
+//              folioUI.deploy(jobParameters)
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
             }
           }
         }
