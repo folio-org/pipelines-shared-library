@@ -84,11 +84,11 @@ ansiColor('xterm') {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
               def jobParameters = [
-                CUSTOM_HASH: tenantUi.getHash(),
-                TENANT_ID  : tenantUi.getTenantId(),
                 OKAPI_URL: namespace.getDomains()['okapi'],
-                IMAGE_NAME: tenantUi.getImageName(),
-                CONSORTIA  : tenantUi instanceof OkapiTenantConsortia
+                TENANT_ID  : ui.getTenantId(),
+                CUSTOM_HASH: ui.getHash(),
+                IMAGE_NAME: ui.getImageName(),
+                CONSORTIA  : tenant instanceof OkapiTenantConsortia
               ]
               folioUI.build(jobParameters)
           }
