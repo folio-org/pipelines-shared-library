@@ -15,11 +15,11 @@ def commitHashChangeDetected(branch) {
   echo "previousSavedHash ${previousSavedHash}"
 
   if (latestCommitHash == previousSavedHash) {
-    echo "No changes detected. HashDiffDetected :false."
+    echo "No changes detected. DIFF_DETECTED :false."
     return false
   } else {
-    echo "Changes detected. HashDiffDetected Returning true and updating ssm with new hash: ${latestCommitHash}."
-    withUpdateSsmParameterNewValue(awsRegion,awsParameterName,latestCommitHash)
+    echo "Changes detected. DIFF_DETECTED Returning true and updating ssm with new hash: ${latestCommitHash}."
+    awscli.updateSsmParameter(awsRegion,awsParameterName,latestCommitHash)
     return true
   }
 }
@@ -49,22 +49,14 @@ String getLatestCommitHash(String branch) {
 }
 
 // Function to get the previous platforme-complete $branch commit saved hash from AWS SSM
+
 String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
   try {
-    def parameterValue = sh(
-      script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text",
-      returnStdout: true
-    ).trim()
+    def parameterValue = awscli.GetSsmParameterValue(awsRegion, awsParameterName)
     echo "Value of Previous Saved Hash-Commit: ${parameterValue}"
     return parameterValue
   } catch (Exception e) {
     error "Error fetching parameter value from AWS SSM: ${e.message}"
     return null
   }
-}
-
-
-// Function to update the SSM parameter with a new hash value
-void withUpdateSsmParameterNewValue(String awsRegion, String awsParameterName, String latestCommitHash) {
-  sh(script: "aws ssm put-parameter --name ${awsParameterName} --region ${awsRegion} --value ${latestCommitHash} --type String --overwrite")
 }

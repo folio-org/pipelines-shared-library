@@ -2,7 +2,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
 
 
-@Library('pipelines-shared-library@RRANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-999') _
 
 pipeline {
     agent { label 'rancher' }
@@ -16,7 +16,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     parameters {
-        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
+        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHECK')
         string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
     }
     stages {
@@ -32,22 +32,12 @@ pipeline {
 stage('Check Changes') {
     steps {
         script {
-           if (params.SKIP_CHANGES) {
+           if (params.SKIP_CHECK) {
                 echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
             } else {
-                withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-                def HashDiffDetected = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH)  // true or false
-                echo "HashCommitChanges: ${HashDiffDetected}"
-                env.HashDiffDetected = HashDiffDetected.toString()
-                if (HashDiffDetected) {
-                   // Set the build status to UNSTABLE (Yellow) To Indicate that Changes Are Detected, For the Visualisation Purposes
-                   echo "Changes detected, setting build status to UNSTABLE"
-                   currentBuild.result = 'UNSTABLE'
-                   }
+                awscli.withAwsClient{
+                env.DIFF_DETECTED=folioHashCommitCheck.commitHashChangeDetected(params.BRANCH).toString() // true or false
+                echo "DIFF_DETECTED: ${DIFF_DETECTED}"
                 }
             }
         }
@@ -56,7 +46,7 @@ stage('Check Changes') {
         stage('Parallel Quality Gate Stages') {
             when {
                 expression {
-                    params.SKIP_CHANGES || env.HashDiffDetected == 'true'
+                    params.SKIP_CHECK || env.DIFF_DETECTED == 'true'
                     }
              }
             parallel {
