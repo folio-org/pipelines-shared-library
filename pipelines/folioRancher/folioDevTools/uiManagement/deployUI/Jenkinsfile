@@ -70,13 +70,13 @@ ansiColor('xterm') {
     node(params.AGENT) {
       try {
         stage('Ini') {
-          buildName "${params.CLUSTER}.${env.BUILD_ID}"
+          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
           buildDescription "For deploy UI bundle"
         }
         stage('Checkout') {
           checkout scm
         }
-        if (params.UI_BUNDLE_TAG) {
+        if (params.UI_BUNDLE_BUILD) {
           stage('UI Build') {
             namespace.getTenants().each { tenantId, tenant ->
               if (tenant.getTenantUi()) {
@@ -97,17 +97,17 @@ ansiColor('xterm') {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               TenantUi ui = tenant.getTenantUi()
-//              def jobParameters = [
-//                CLUSTER      : namespace.getClusterName(),
-//                NAMESPACE    : namespace.getNamespaceName(),
-//                UI_BUNDLE_TAG: ui.getTag(),
-//                GET_DOMAINS  : namespace.getDomains()['okapi'],
-//                TENANT_ID    : ui.getTenantId()
-//              ]
-//              folioDeploy.folioUiBundle(jobParameters)
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                }
+              def jobParameters = [
+                CLUSTER      : namespace.getClusterName(),
+                NAMESPACE    : namespace.getNamespaceName(),
+                UI_BUNDLE_TAG: ui.getTag(),
+                GET_DOMAINS  : namespace.getDomains()['okapi'],
+                TENANT_ID    : ui.getTenantId()
+              ]
+              folioDeploy.folioUiBundle(jobParameters)
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//                }
             }
           }
         }
