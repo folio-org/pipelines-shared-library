@@ -67,10 +67,6 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
     node(params.AGENT) {
       try {
         stage('Ini') {
