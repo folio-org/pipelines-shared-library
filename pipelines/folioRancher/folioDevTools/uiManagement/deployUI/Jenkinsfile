@@ -87,7 +87,6 @@ ansiColor('xterm') {
                   CONSORTIA  : ui instanceof OkapiTenantConsortia
                 ]
                 folioUI.build(jobParameters)
-
             }
           }
 
