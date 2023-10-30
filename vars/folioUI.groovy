@@ -16,16 +16,16 @@ void build(params) {
               extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-    if(params.CONSORTIA) {
-      dir('platform-complete') {
-        def packageJson = readJSON file: 'package.json'
-        String moduleId = getModuleId('folio_consortia-settings')
-        String moduleVersion = moduleId - 'folio_consortia-settings-'
-        packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
-        writeJSON file: 'package.json', json: packageJson, pretty: 2
-        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
-      }
-    }
+//    if(params.CONSORTIA) {
+//      dir('platform-complete') {
+//        def packageJson = readJSON file: 'package.json'
+//        String moduleId = getModuleId('folio_consortia-settings')
+//        String moduleVersion = moduleId - 'folio_consortia-settings-'
+//        packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
+//        writeJSON file: 'package.json', json: packageJson, pretty: 2
+//        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
+//      }
+//    }
   }
 
   stage('Build and Push') {
