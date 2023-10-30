@@ -76,9 +76,9 @@ ansiColor('xterm') {
         checkout scm
       }
       stage('Build UI') {
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
+//        namespace.getTenants().each { tenantId, tenant ->
+//          if (tenant.getTenantUi()) {
+            TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
               def jobParameters = [
                 OKAPI_URL: namespace.getDomains()['okapi'],
                 TENANT_ID  : ui.getTenantId(),
@@ -87,8 +87,8 @@ ansiColor('xterm') {
                 CONSORTIA  : ui instanceof OkapiTenantConsortia
               ]
               folioUI.build(jobParameters)
-          }
-        }
+//          }
+//        }
       }
     } catch (e) {
         println "Caught exception: ${e}"

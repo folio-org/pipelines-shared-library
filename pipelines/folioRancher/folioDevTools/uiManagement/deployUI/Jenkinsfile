@@ -35,11 +35,11 @@ String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.get
 List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
 InstallRequestParams installRequestParams = new InstallRequestParams()
-//  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
 
 RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-//  .withSuperTenantAdminUser()
-//  .withOkapiVersion("${params.OKAPI_VERSION}")
+  .withSuperTenantAdminUser()
+  .withOkapiVersion("${params.OKAPI_VERSION}")
   .withDefaultTenant("${defaultTenantId}")
   .withDeploymentConfigType("${params.CONFIG_TYPE}")
 
@@ -47,7 +47,7 @@ namespace.getModules().setInstallJson(installJson)
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallJson(namespace.getModules().getInstallJson().collect())
-//  .withIndex(new Index(true, true))
+  .withIndex(new Index(true, true))
   .withInstallRequestParams(installRequestParams.clone())
   .withTenantUi(tenantUi.clone())
 )
@@ -78,38 +78,33 @@ ansiColor('xterm') {
         }
         if (params.UI_BUNDLE_BUILD) {
           stage('UI Build') {
-            namespace.getTenants().each { tenantId, tenant ->
-              if (tenant.getTenantUi()) {
-                TenantUi ui = tenant.getTenantUi()
+                TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
                 def jobParameters = [
                   OKAPI_URL: namespace.getDomains()['okapi'],
                   TENANT_ID  : ui.getTenantId(),
                   CUSTOM_HASH: ui.getHash(),
                   IMAGE_NAME: ui.getImageName(),
-                  CONSORTIA  : tenant instanceof OkapiTenantConsortia
+                  CONSORTIA  : ui instanceof OkapiTenantConsortia
                 ]
                 folioUI.build(jobParameters)
-              }
+
             }
           }
-        }
+
         stage('UI Deploy') {
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              TenantUi ui = tenant.getTenantUi()
-              def jobParameters = [
-                CLUSTER      : namespace.getClusterName(),
-                NAMESPACE    : namespace.getNamespaceName(),
-                UI_BUNDLE_TAG: ui.getTag(),
-                GET_DOMAINS  : namespace.getDomains()['okapi'],
-                TENANT_ID    : ui.getTenantId()
-              ]
-              folioDeploy.folioUiBundle(jobParameters)
+          TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+          def jobParameters = [
+            CLUSTER      : namespace.getClusterName(),
+            NAMESPACE    : namespace.getNamespaceName(),
+            UI_BUNDLE_TAG: ui.getTag(),
+            GET_DOMAINS  : namespace.getDomains()['okapi'],
+            TENANT_ID    : ui.getTenantId()
+          ]
+          folioDeploy.folioUiBundle(jobParameters)
 //                folioHelm.withKubeConfig(namespace.getClusterName()) {
 //                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
 //                }
-            }
-          }
+
         }
     } catch (e) {
         println "Caught exception: ${e}"
