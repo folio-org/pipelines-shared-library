@@ -79,7 +79,6 @@ ansiColor('xterm') {
         if (params.UI_BUNDLE_BUILD) {
           stage('UI Build') {
                 TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-                println(ui)
                 def jobParameters = [
                   OKAPI_URL: namespace.getDomains()['okapi'],
                   TENANT_ID  : ui.getTenantId(),
@@ -93,6 +92,7 @@ ansiColor('xterm') {
 
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+          println(ui)
           def jobParameters = [
             CLUSTER      : namespace.getClusterName(),
             NAMESPACE    : namespace.getNamespaceName(),
