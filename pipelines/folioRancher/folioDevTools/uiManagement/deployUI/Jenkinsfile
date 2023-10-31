@@ -92,7 +92,6 @@ ansiColor('xterm') {
 
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-          println(ui)
           def jobParameters = [
             CLUSTER      : namespace.getClusterName(),
             NAMESPACE    : namespace.getNamespaceName(),
@@ -100,7 +99,7 @@ ansiColor('xterm') {
             GET_DOMAINS  : namespace.getDomains()['okapi'],
             TENANT_ID    : ui.getTenantId()
           ]
-          folioDeploy.folioUiBundle(jobParameters)
+          folioUI.deploy(jobParameters)
 //                folioHelm.withKubeConfig(namespace.getClusterName()) {
 //                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
 //                }
