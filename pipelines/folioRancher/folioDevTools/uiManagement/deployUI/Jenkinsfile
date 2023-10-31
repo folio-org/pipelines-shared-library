@@ -3,6 +3,7 @@
 import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.rest.GitHubUtility
@@ -82,7 +83,7 @@ ansiColor('xterm') {
               if (tenant.getTenantUi()) {
                 TenantUi ui = tenant.getTenantUi()
 //            TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-                RancherNamespace uiConsortia = namespace.getTenants()[params.TENANT_ID]
+                OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
 //            println(ui)
                 println(uiConsortia)
                 def jobParameters = [
