@@ -81,6 +81,7 @@ ansiColor('xterm') {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
             println(ui)
+            println(tenant)
           }}
         TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
         OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
