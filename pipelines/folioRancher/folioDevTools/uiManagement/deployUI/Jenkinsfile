@@ -78,15 +78,23 @@ ansiColor('xterm') {
         }
         if (params.UI_BUNDLE_BUILD) {
           stage('UI Build') {
-                TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-                def jobParameters = [
-                  OKAPI_URL: namespace.getDomains()['okapi'],
-                  TENANT_ID  : ui.getTenantId(),
-                  CUSTOM_HASH: ui.getHash(),
-                  IMAGE_NAME: ui.getImageName(),
-                  CONSORTIA  : tenant instanceof OkapiTenantConsortia
-                ]
-                folioUI.build(jobParameters)
+//            namespace.getTenants().each { tenantId, tenant ->
+//              if (tenant.getTenantUi()) {
+//                TenantUi ui = tenant.getTenantUi()
+            TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+            TenantUi uiConsortia = namespace.getTenants()[params.TENANT]
+            println(ui)
+            println(uiConsortia)
+            def jobParameters = [
+              OKAPI_URL  : namespace.getDomains()['okapi'],
+              TENANT_ID  : ui.getTenantId(),
+              CUSTOM_HASH: ui.getHash(),
+              IMAGE_NAME : ui.getImageName(),
+              CONSORTIA  : uiConsortia instanceof OkapiTenantConsortia
+            ]
+            folioUI.build(jobParameters)
+//                }
+//              }
             }
           }
 
