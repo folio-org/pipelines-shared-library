@@ -130,15 +130,6 @@ void uiBundle(String tenant_id, Project project_config) {
     }
 }
 
-void folioUiBundle(Map params) {
-  String values_path = folioHelm.generateModuleValues('ui-bundle', params.UI_BUNDLE_TAG(), params, params.GET_DOMAINS().ui)
-  folioHelm.withK8sClient {
-    awscli.getKubeConfig(Constants.AWS_REGION, params.CLUSTER())
-    folioHelm.addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
-    folioHelm.upgrade("${params.TENANT_ID}-ui-bundle", params.NAMESPACE(), "${values_path}/ui-bundle.yaml", Constants.FOLIO_HELM_V2_REPO_NAME, 'platform-complete')
-  }
-}
-
 void greenmail(Project project_config) {
     folioHelm.withK8sClient {
         awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
