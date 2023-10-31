@@ -3,6 +3,7 @@
 import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
@@ -76,19 +77,21 @@ ansiColor('xterm') {
         checkout scm
       }
       stage('Build UI') {
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
-              def jobParameters = [
-                OKAPI_URL: namespace.getDomains()['okapi'],
-                TENANT_ID  : ui.getTenantId(),
-                CUSTOM_HASH: ui.getHash(),
-                IMAGE_NAME: ui.getImageName(),
-                CONSORTIA  : tenant instanceof OkapiTenantConsortia
-              ]
-              folioUI.build(jobParameters)
-          }
-        }
+//        namespace.getTenants().each { tenantId, tenant ->
+//          if (tenant.getTenantUi()) {
+//            TenantUi ui = tenant.getTenantUi()
+        TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+        OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
+        def jobParameters = [
+          OKAPI_URL: namespace.getDomains()['okapi'],
+          TENANT_ID  : ui.getTenantId(),
+          CUSTOM_HASH: ui.getHash(),
+          IMAGE_NAME: ui.getImageName(),
+          CONSORTIA  : uiConsortia instanceof OkapiTenantConsortia
+        ]
+        folioUI.build(jobParameters)
+//          }
+//        }
       }
     } catch (e) {
         println "Caught exception: ${e}"
