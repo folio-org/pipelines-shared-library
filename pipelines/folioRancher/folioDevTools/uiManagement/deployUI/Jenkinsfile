@@ -82,7 +82,7 @@ ansiColor('xterm') {
 //              if (tenant.getTenantUi()) {
 //                TenantUi ui = tenant.getTenantUi()
             TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-            TenantUi uiConsortia = namespace.getTenants()[params.TENANT]
+            TenantUi uiConsortia = namespace.getTenants()
             println(ui)
             println(uiConsortia)
             def jobParameters = [
