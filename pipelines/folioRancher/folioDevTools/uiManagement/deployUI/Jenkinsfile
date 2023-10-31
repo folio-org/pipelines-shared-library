@@ -102,9 +102,6 @@ ansiColor('xterm') {
             TENANT_ID    : ui.getTenantId()
           ]
           folioUI.deploy(jobParameters)
-//                folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//                }
 
         }
     } catch (e) {
