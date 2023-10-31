@@ -38,7 +38,7 @@ stage('Check Changes') {
                 echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
             } else {
                 awscli.withAwsClient{
-                env.DIFF_DETECTED=folioHashCommitCheck.commitHashChangeDetected(params.BRANCH).toString() // true or false
+                env.DIFF_DETECTED = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH).toString() // true or false
                 echo "DIFF_DETECTED: ${DIFF_DETECTED}"
                 }
             }
