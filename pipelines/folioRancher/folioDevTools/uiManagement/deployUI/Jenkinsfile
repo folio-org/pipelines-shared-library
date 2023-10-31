@@ -82,9 +82,9 @@ ansiColor('xterm') {
               if (tenant.getTenantUi()) {
                 TenantUi ui = tenant.getTenantUi()
 //            TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-            TenantUi uiConsortia = namespace.getTenants()[params.TENANT_ID]
+                RancherNamespace uiConsortia = namespace.getTenants()[params.TENANT_ID]
 //            println(ui)
-            println(uiConsortia)
+                println(uiConsortia)
                 def jobParameters = [
                   OKAPI_URL  : namespace.getDomains()['okapi'],
                   TENANT_ID  : ui.getTenantId(),
