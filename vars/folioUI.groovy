@@ -16,6 +16,16 @@ void build(params) {
               extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+    if(params.CONSORTIA) {
+      dir('platform-complete') {
+        def packageJson = readJSON file: 'package.json'
+        String moduleId = getModuleId('folio_consortia-settings')
+        String moduleVersion = moduleId - 'folio_consortia-settings-'
+        packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
+        writeJSON file: 'package.json', json: packageJson, pretty: 2
+        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
+    }
+  }
   }
 
   stage('Build and Push') {
@@ -39,8 +49,17 @@ void build(params) {
 }
 
 void deploy(params) {
-  stage("Deploy UI bundle")
+  stage("Deploy UI bundle") {
     folioHelm.withKubeConfig(params.CLUSTER()) {
       folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
+    }
+  }
+}
+static String getModuleId(String moduleName) {
+  URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+  if (registry.getResponseCode().equals(200)) {
+    return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
+  } else {
+    throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
   }
 }
