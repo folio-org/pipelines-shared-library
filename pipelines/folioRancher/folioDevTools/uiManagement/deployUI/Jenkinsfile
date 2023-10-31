@@ -95,7 +95,7 @@ ansiColor('xterm') {
           def jobParameters = [
             CLUSTER      : namespace.getClusterName(),
             NAMESPACE    : namespace.getNamespaceName(),
-            UI_BUNDLE_TAG: params.UI_BUNDLE_BUILD?.trim() ? ui.getTag() : params.UI_BUNDLE_TAG,
+            UI_BUNDLE_TAG: params.UI_BUNDLE_BUILD ? ui.getTag() : params.UI_BUNDLE_TAG,
             GET_DOMAINS  : namespace.getDomains()['okapi'],
             TENANT_ID    : ui.getTenantId()
           ]
