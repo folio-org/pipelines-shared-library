@@ -69,7 +69,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName "${params.CLUSTER}.${env.BUILD_ID}"
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
         buildDescription "For build UI bundle"
       }
       stage('Checkout') {
@@ -79,8 +79,6 @@ ansiColor('xterm') {
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
-            println(tenant)
-            println(ui)
               def jobParameters = [
                 OKAPI_URL: namespace.getDomains()['okapi'],
                 TENANT_ID  : ui.getTenantId(),
@@ -88,7 +86,6 @@ ansiColor('xterm') {
                 IMAGE_NAME: ui.getImageName(),
                 CONSORTIA  : tenant instanceof OkapiTenantConsortia
               ]
-              println(tenant)
               folioUI.build(jobParameters)
           }
         }
