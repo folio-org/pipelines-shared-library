@@ -77,6 +77,7 @@ class Constants {
     static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
     static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
     static String FOLIO_JIRA_URL = 'https://issues.folio.org'
+    static String FOLIO_JIRA_ISSUE_URL = 'https://issues.folio.org/rest/api/2/issue/'
     static String CI_ROOT_DOMAIN = 'ci.folio.org'
 
     static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'

@@ -4,11 +4,11 @@ static String getOpenTicketsByTeam(String teamName, String projectName, String s
 }
 
 static String getOpenKarateTcikets(String moduleName){
-  String jql = "summary ~ "${moduleName}" AND labels in (karateRegressionPipeline)"
+  String jql = "summary ~ ${moduleName} AND labels in (karateRegressionPipeline)"
   return jql
 }
 
 static String getOpenKitFoxTickets(String summary){
-  String jql = "summary ~ "${summary}" AND 'Development Team' = Kitfox AND status in (Backlog, Active, 'In progress')"
+  String jql = "summary ~ ${summary} AND 'Development Team' = Kitfox AND status in (Backlog, Active, 'In progress')"
   return jql
 }

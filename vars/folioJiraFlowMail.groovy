@@ -8,19 +8,3 @@ void sendMailNotification (List emails, String body, String subject) {
     emailext body: """${pipelineInfo}\n${body}""", subject: "${subject}", to: "${mail}"
   }
 }
-
-void createJiraTicket(String summary, String DevTeam, String projectName){
-
-}
-
-void addJiraComment(String ticketNumber){
-
-}
-
-void updateJiraTicket(String ticketNumber){
-
-}
-
-void closeJiraTicket(String ticketNumber){
-
-}
