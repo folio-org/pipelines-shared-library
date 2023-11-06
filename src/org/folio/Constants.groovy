@@ -229,4 +229,11 @@ class Constants {
     static String DM_ISSUES_JQL = 'labels = dataMigrationSchemaDiff and status != Closed'
 
     static String GLOBAL_BUILD_TIMEOUT = '4'
+
+    static List KitFoxMembers = ["oleksii_petrenko1@epam.com",
+                                 "guram_jalaghonia@epam.com",
+                                 "oleksandr_haimanov@epam.com",
+                                 "renat_safiulin@epam.com",
+                                 "vasili_kapylou@epam.com",
+                                 "eldiiar_duishenaliev@epam"]
 }
