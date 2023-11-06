@@ -52,7 +52,7 @@ String getLatestCommitHash(String branch) {
 
 String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
   try {
-    def parameterValue = awscli.GetSsmParameterValue(awsRegion, awsParameterName)
+    def parameterValue = awscli.getSsmParameterValue(awsRegion, awsParameterName)
     echo "Value of Previous Saved Hash-Commit: ${parameterValue}"
     return parameterValue
   } catch (Exception e) {
