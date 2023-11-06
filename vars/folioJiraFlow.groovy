@@ -1,8 +1,11 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
-import hudson.plugins.jira.JiraSite
 import org.folio.Constants
 import org.folio.utilities.RestClient
+
+import groovy.json.JsonOutput
+
+JsonOutput.prettyPrint()
 
 /*
 ***folioRancher general library for processing existing and new entries***
@@ -10,25 +13,25 @@ import org.folio.utilities.RestClient
 * CRUD operations for Jira: tickets & comments.
 */
 
-JsonOutput JsonOutput = new JsonOutput()
-JsonSlurperClassic JsonSlurperClassic = new JsonSlurperClassic()
-
-JiraSite jira = new JiraSite(Constants.FOLIO_JIRA_URL)
-
-
-
-
-
-
-//Working variant for searching existing tickets.
-void createJiraTicket(String summary, String DevTeam, String projectName){
-  withCredentials([usernamePassword(credentialsId: 'jenkins-jira', passwordVariable: 'jira_password', usernameVariable: 'jira_user')]) {
-    RestClient restWorker = new RestClient(this)
+void createJiraTicket(String summary, String DevTeam, String projectName, String type){
+  withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type": "application/json",
-
+      "Authorization": "Bearer ${env.JiraToken}"
     ]
-    restWorker.post(Constants.FOLIO_JIRA_ISSUE_URL)
+    String body = """{
+    "fields": {
+       "project":
+       {"key": "${projectName}"},
+       "summary": "${summary}",
+       "description": "Automatic Jira ticket created via Jenkins",
+       "Development Team": "${DevTeam}",
+       "issuetype": {
+          "name": "${type}"
+       }
+   }
+}"""
+    new RestClient(this).post(Constants.FOLIO_JIRA_ISSUE_URL, body, headers)
   }
 }
 
