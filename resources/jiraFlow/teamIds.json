@@ -1,154 +1,92 @@
 [
   {
-    "team": "Bama",
-    "id": "12226"
+    "team": "bama",
+    "id": "12226",
+    "slack": "#bama"
   },
   {
-    "team": "Bienenvolk",
-    "id": "10308"
+    "team": "bienenvolk",
+    "id": "10308",
+    "slack": "#bienenvolk-cypress-test"
   },
   {
-    "team": "Citation",
-    "id": "12705"
+    "team": "core platform",
+    "id": "10432",
+    "slack": "#core-platform"
   },
   {
-    "team": "Concorde",
-    "id": "10571"
+    "team": "erm",
+    "id": "12221",
+    "slack": "#erm-team"
   },
   {
-    "team": "Core: Platform",
-    "id": "10432"
+    "team": "falcon",
+    "id": "11327",
+    "slack": "#falcon"
   },
   {
-    "team": "Corsair",
-    "id": "12812"
+    "team": "firebird",
+    "id": "10883",
+    "slack": "#firebird"
   },
   {
-    "team": "Data Import Task Force",
-    "id": "12712"
+    "team": "folijet",
+    "id": "10390",
+    "slack": "#folijet"
   },
   {
-    "team": "ERM",
-    "id": "12221"
+    "team": "kitfox",
+    "id": "12001",
+    "slack": "#rancher_tests_notifications"
   },
   {
-    "team": "Dreamliner",
-    "id": "12813"
+    "team": "mol",
+    "id": "12706",
+    "slack": "#mol-folio-dev"
   },
   {
-    "team": "Falcon",
-    "id": "11327"
+    "team": "nla",
+    "id": "12707",
+    "slack": "#nla-folio-dev"
   },
   {
-    "team": "Firebird",
-    "id": "10883"
+    "team": "prokopovych",
+    "id": "10302",
+    "slack": "#prokopovych"
   },
   {
-    "team": "Folijet",
-    "id": "10390"
+    "team": "spitfire",
+    "id": "10420",
+    "slack": "#spitfire"
   },
   {
-    "team": "K-Int",
-    "id": "12269"
+    "team": "thor",
+    "id": "10609",
+    "slack": ""
   },
   {
-    "team": "Kinetics",
-    "id": "12713"
+    "team": "thunderjet",
+    "id": "10418",
+    "slack": "#karate-tests-reports-thunderjet"
   },
   {
-    "team": "Kitfox",
-    "id": "12001"
+    "team": "unam",
+    "id": "10309",
+    "slack": "#unam-dev"
   },
   {
-    "team": "Lehigh",
-    "id": "10388"
+    "team": "vega",
+    "id": "10419",
+    "slack": "#vega"
   },
   {
-    "team": "Leipzig",
-    "id": "10389"
+    "team": "volaris",
+    "id": "11807",
+    "slack": "#volaris-dev"
   },
   {
-    "team": "Mjolnir",
-    "id": "12602"
-  },
-  {
-    "team": "MOL",
-    "id": "12706"
-  },
-  {
-    "team": "Mriya",
-    "id": "12272"
-  },
-  {
-    "team": "NLA",
-    "id": "12707"
-  },
-  {
-    "team": "Odin",
-    "id": "12703"
-  },
-  {
-    "team": "Prokopovych",
-    "id": "10302"
-  },
-  {
-    "team": "Qulto",
-    "id": "10306"
-  },
-  {
-    "team": "Reporting",
-    "id": "11022"
-  },
-  {
-    "team": "Reservoir Dogs",
-    "id": "12601"
-  },
-  {
-    "team": "Sif",
-    "id": "12228"
-  },
-  {
-    "team": "Siphon",
-    "id": "12702"
-  },
-  {
-    "team": "Spitfire",
-    "id": "10420"
-  },
-  {
-    "team": "Spring Force",
-    "id": "11814"
-  },
-  {
-    "team": "Stacks",
-    "id": "10303"
-  },
-  {
-    "team": "Stripes Force",
-    "id": "10421"
-  },
-  {
-    "team": "Thor",
-    "id": "10609"
-  },
-  {
-    "team": "Thunderjet",
-    "id": "10418"
-  },
-  {
-    "team": "UNAM",
-    "id": "10309"
-  },
-  {
-    "team": "Vega",
-    "id": "10419"
-  },
-  {
-    "team": "Volaris",
-    "id": "11807"
-  },
-  {
-    "team": "TAMU",
-    "id": "11011"
+    "team": "tamu",
+    "id": "11011",
+    "slack": ""
   }
 ]
