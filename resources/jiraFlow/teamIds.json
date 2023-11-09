@@ -2,91 +2,109 @@
   {
     "team": "bama",
     "id": "12226",
-    "slack": "#bama"
+    "slack": "#bama",
+    "project": "FAT"
   },
   {
     "team": "bienenvolk",
     "id": "10308",
-    "slack": "#bienenvolk-cypress-test"
+    "slack": "#bienenvolk-cypress-test",
+    "project": "FAT"
   },
   {
     "team": "core platform",
     "id": "10432",
-    "slack": "#core-platform"
+    "slack": "#core-platform",
+    "project": "FAT"
   },
   {
     "team": "erm",
     "id": "12221",
-    "slack": "#erm-team"
+    "slack": "#erm-team",
+    "project": "FAT"
   },
   {
     "team": "falcon",
     "id": "11327",
-    "slack": "#falcon"
+    "slack": "#falcon",
+    "project": "FAT"
   },
   {
     "team": "firebird",
     "id": "10883",
-    "slack": "#firebird"
+    "slack": "#firebird",
+    "project": "FAT"
   },
   {
     "team": "folijet",
     "id": "10390",
-    "slack": "#folijet"
+    "slack": "#folijet",
+    "project": "FAT"
   },
   {
     "team": "kitfox",
     "id": "12001",
-    "slack": "#rancher_tests_notifications"
+    "slack": "#rancher_tests_notifications",
+    "project": "FAT"
   },
   {
     "team": "mol",
     "id": "12706",
-    "slack": "#mol-folio-dev"
+    "slack": "#mol-folio-dev",
+    "project": "FAT"
   },
   {
     "team": "nla",
     "id": "12707",
-    "slack": "#nla-folio-dev"
+    "slack": "#nla-folio-dev",
+    "project": "FAT"
   },
   {
     "team": "prokopovych",
     "id": "10302",
-    "slack": "#prokopovych"
+    "slack": "#prokopovych",
+    "project": "FAT"
   },
   {
     "team": "spitfire",
     "id": "10420",
-    "slack": "#spitfire"
+    "slack": "#spitfire",
+    "project": "FAT"
   },
   {
     "team": "thor",
     "id": "10609",
-    "slack": ""
+    "slack": "",
+    "project": "FAT"
   },
   {
     "team": "thunderjet",
     "id": "10418",
-    "slack": "#karate-tests-reports-thunderjet"
+    "slack": "#karate-tests-reports-thunderjet",
+    "project": "FAT"
   },
   {
     "team": "unam",
     "id": "10309",
-    "slack": "#unam-dev"
+    "slack": "#unam-dev",
+    "project": "FAT"
   },
   {
     "team": "vega",
     "id": "10419",
-    "slack": "#vega"
+    "slack": "#vega",
+    "project": "FAT"
   },
   {
     "team": "volaris",
     "id": "11807",
-    "slack": "#volaris-dev"
+    "slack": "#volaris-dev",
+    "project": "FAT"
   },
   {
     "team": "tamu",
     "id": "11011",
-    "slack": ""
+    "slack": "",
+    "project": "FAT"
   }
 ]
