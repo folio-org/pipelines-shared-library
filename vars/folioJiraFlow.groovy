@@ -1,5 +1,6 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.rest_v2.Common
 import org.folio.utilities.RestClient
 
 /*
@@ -7,15 +8,6 @@ import org.folio.utilities.RestClient
 * Functionality:
 * CRUD operations for Jira: tickets & comments.
 */
-
-Map status = [
-  "Open"          : 81,
-  "Closed"        : 61,
-  "Blocked"       : 71,
-  "In progress"   : 21,
-  "In review"     : 31,
-  "In code review": 91
-]
 
 void createJiraTicket(String summary, String DevTeamId, String projectName, String type) {
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
@@ -83,11 +75,41 @@ void addLabelJiraTicket(String ticketNumber, List labels) {
   }
 }
 
-void updateStatusJiraTicket(List ticketNumbers) {
-
-
-}
-
-void closeJiraTicket(String ticketNumber) {
-
+void updateStatusJiraTicket(List ticketNumbers, String state) {
+  String body
+  Map status = [
+    "open"          : 81,
+    "closed"        : 61,
+    "blocked"       : 71,
+    "in progress"   : 21,
+    "in review"     : 31,
+    "in code review": 91
+  ]
+  withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
+    Map headers = [
+      "Content-Type" : "application/json",
+      "Authorization": "Bearer ${env.JiraToken}"
+    ]
+    ticketNumbers.each { ticket ->
+      String updateUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
+      switch (state) {
+        case "open":
+          body = """ {"transition": {"id": "${status[state]}"}}"""
+          break
+        case "closed":
+          body = """ {"transition": {"id": "${status[state]}"}}"""
+          break
+        case "in progress":
+          body = """ {"transition": {"id": "${status[state]}"}}"""
+          break
+        case "in review":
+          body = """ {"transition": {"id": "${status[state]}"}}"""
+          break
+        default:
+          new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...")
+          break
+      }
+      new RestClient(this).post(updateUrl, headers, body)
+    }
+  }
 }
