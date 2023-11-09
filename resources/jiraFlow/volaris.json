@@ -1,0 +1,26 @@
+[
+  {
+    "team": "volaris",
+    "project": "EDGCSOFT",
+    "slack": "",
+    "modules": "edge-caiasoft"
+  },
+  {
+    "team": "volaris",
+    "project": "EDGDEMATIC",
+    "slack": "",
+    "modules": "edge-dematic"
+  },
+  {
+    "team": "volaris",
+    "project": "EDGEDCB",
+    "slack": "",
+    "modules": "edge-dcb"
+  },
+  {
+    "team": "volaris",
+    "project": "EDGINREACH",
+    "slack": "",
+    "modules": "edge-inn-reach"
+  }
+]
