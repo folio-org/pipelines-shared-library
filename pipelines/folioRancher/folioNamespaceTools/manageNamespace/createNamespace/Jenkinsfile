@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.folio.models.RancherNamespace
 import org.folio.models.TerraformConfig
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -12,8 +13,9 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
+    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     folioParameters.pgType(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
@@ -25,6 +27,7 @@ properties([
 ])
 
 String defaultTenantId = 'diku'
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
 
 //Set terraform configuration
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
@@ -65,8 +68,16 @@ ansiColor('xterm') {
 
       if (params.GREENMAIL) {
         stage('[Helm] Deploy greenmail') {
-          folioHelm.withKubeConfig(params.CLUSTER) {
-            folioHelmFlow.deployGreenmail(params.NAMESPACE)
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+          }
+        }
+      }
+
+      if (params.MOCK_SERVER) {
+        stage('[Helm] Deploy mock-server') {
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            folioHelmFlow.deployMockServer(namespace)
           }
         }
       }

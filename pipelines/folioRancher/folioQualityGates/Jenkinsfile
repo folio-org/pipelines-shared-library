@@ -1,4 +1,8 @@
+#!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
+import org.folio.utilities.Tools
+
 
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
@@ -14,7 +18,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     parameters {
-        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHANGES')
+        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHECK')
         string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
     }
     stages {
@@ -27,20 +31,26 @@ pipeline {
             }
         }
 
-        stage('Check Changes') {
-            steps {
-                script {
-                    if (params.SKIP_CHANGES == true) {
-                        echo "Skipping changes For the SNAPSHOT BRANCH and moving to Parrarel Run ."
-                    } else {
-                        checkout scm
-                        echo "Checking Changes for the SNAPSHOT BRANCH..and moving to Parrarel Run ."
-                    }
+stage('Check Changes') {
+    steps {
+        script {
+           if (params.SKIP_CHECK) {
+                echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
+            } else {
+                awscli.withAwsClient{
+                env.DIFF_DETECTED = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH).toString() // true or false
+                echo "DIFF_DETECTED: ${DIFF_DETECTED}"
                 }
             }
         }
-
+    }
+}
         stage('Parallel Quality Gate Stages') {
+            when {
+                expression {
+                    params.SKIP_CHECK || env.DIFF_DETECTED == 'true'
+                    }
+             }
             parallel {
                 stage('Run karate tests') {
                     steps {
