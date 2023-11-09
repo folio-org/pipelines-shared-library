@@ -97,7 +97,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
         30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
-        10 06 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
    ''')])])
 
 ansiColor('xterm') {
