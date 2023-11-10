@@ -1,5 +1,6 @@
 void sendMailNotification(List emails, String body, String subject) {
   String pipelineInfo = """
+Pipeline: ${JOB_NAME}
 Build Status: ${currentBuild.currentResult}
 Build Number: ${currentBuild.number}
 Build URL: ${BUILD_URL}
