@@ -2,6 +2,7 @@ import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.rest_v2.Common
 import org.folio.utilities.RestClient
+import org.folio.utilities.Tools
 
 /*
 ***folioRancher general library for processing existing and new entries***
@@ -9,7 +10,7 @@ import org.folio.utilities.RestClient
 * CRUD operations for Jira: tickets & comments.
 */
 
-void createJiraTicket(String summary, String DevTeamId, String projectName, String type) {
+void createJiraTicket(String summary, String DevTeamId, String type) {
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -17,7 +18,7 @@ void createJiraTicket(String summary, String DevTeamId, String projectName, Stri
     ]
     String body = """{
     "fields": {
-       "project": {"key": "${projectName}"},
+       "project": {"key": "${Constants.DM_JIRA_PROJECT}"},
        "summary": "${summary}",
        "description": "Automatic Jira ticket created via Jenkins",
        "customfield_10501": {"id":"${DevTeamId}"},
@@ -30,7 +31,7 @@ void createJiraTicket(String summary, String DevTeamId, String projectName, Stri
 }
 
 def searchForExistingJiraTickets(String jql) {
-  def issues
+  def issuesData
   String search_url = "https://issues.folio.org/rest/api/2/search?jql=${jql}"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
@@ -38,9 +39,9 @@ def searchForExistingJiraTickets(String jql) {
       "Authorization": "Bearer ${env.JiraToken}"
     ]
     def response = new RestClient(this).get(search_url, headers)
-    issues = response.body.issues.key
+    issuesData = response["body"]
   }
-  return issues
+  return issuesData
 }
 
 void addJiraComment(String ticketNumber, String comment) {
@@ -75,41 +76,54 @@ void addLabelJiraTicket(String ticketNumber, List labels) {
   }
 }
 
-void updateStatusJiraTicket(List ticketNumbers, String state) {
-  String body
-  Map status = [
-    "open"          : 81,
-    "closed"        : 61,
-    "blocked"       : 71,
-    "in progress"   : 21,
-    "in review"     : 31,
-    "in code review": 91
-  ]
+void processJiraTicketStatus(String summary) {
+  new Tools(this).copyResourceFileToWorkspace('jiraFlow/teamsInfo.json')
+  def teamsInfo = new JsonSlurperClassic().parseText(readJSON file: "teamsInfo.json")
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
       "Authorization": "Bearer ${env.JiraToken}"
     ]
-    ticketNumbers.each { ticket ->
-      String updateUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
-      switch (state) {
-        case "open":
-          body = """ {"transition": {"id": "${status[state]}"}}"""
-          break
-        case "closed":
-          body = """ {"transition": {"id": "${status[state]}"}}"""
-          break
-        case "in progress":
-          body = """ {"transition": {"id": "${status[state]}"}}"""
-          break
-        case "in review":
-          body = """ {"transition": {"id": "${status[state]}"}}"""
-          break
-        default:
-          new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...")
-          break
+//Below map is written for future use. PLEASE DO NOT DELETE!
+    Map status = [
+      "Open"          : 81,
+      "Closed"        : 61,
+      "Blocked"       : 71,
+      "In progress"   : 21,
+      "In review"     : 31,
+      "In code review": 91
+    ]
+    String updateUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
+    teamsInfo.each { -> team
+      String body
+      def ticketNumbers = new JsonSlurperClassic().parseText(searchForExistingJiraTickets(jiraFlowJQL.getOpenTickets(summary, "${team.keySet().first()}")))
+      if (ticketNumbers["total"] != 0) {
+        ticketNumbers["issues"].each { ticket ->
+          switch (ticket["fields"]["status"]["name"]) {
+            case "Open":
+              new Common(this, "https://fakeUrl").logger.info("Similar ticket already exists, summary: ${summary}")
+              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              break
+            case "Closed":
+              if(ticket["fields"]["summary"].contains(summary)) {
+                createJiraTicket(summary, team["${team.keySet().first()}"]["info"]["id"], "Task")
+                addJiraComment("${ticket[key]}", "This issue opened on " + new Date().format("MM/dd/YYYY"))
+              }
+              break
+            case "In progress":
+              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              break
+            case "In review":
+              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              break
+            default:
+              new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...")
+              break
+          }
+        }
+      } else {
+        new Common(this, "https://fakeUrl").logger.info("No active Jira ticket found for ${ticket["fields"]["customfield_10501"]["value"]} team.")
       }
-      new RestClient(this).post(updateUrl, headers, body)
     }
   }
 }

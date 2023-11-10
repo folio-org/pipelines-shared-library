@@ -16,3 +16,11 @@ Build URL: ${BUILD_URL}
     }
   }
 }
+
+void notifyKitFox() {
+  List emails = ["eldiiar_duishenaliev@epam.com", "guram_jalaghonia@epam.com", "oleksandr_haimanov@epam.com",
+                 "renat_safiulin@epam.com", "vasili_kapylou@epam.com"]
+  if (!("${currentBuild.currentResult}" in ["UNSTABLE", "SUCCESS", "ABORTED"])) {
+    sendMailNotification(emails, "Pipeline failure", "Please review information above")
+  }
+}
