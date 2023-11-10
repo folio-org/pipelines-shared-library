@@ -1,8 +1,8 @@
-void sendMailNotification (List emails, String body, String subject) {
+void sendMailNotification(List emails, String body, String subject) {
   String pipelineInfo = """
-  <p>Build Status: ${currentBuild.currentResult}</p>
-  <p>Build Number: ${currentBuild.number}</p>
-  <p>Build URL: ${BUILD_URL}</p>
+Build Status: ${currentBuild.currentResult}
+Build Number: ${currentBuild.number}
+Build URL: ${BUILD_URL}
   """
   emails.each { mail ->
     emailext body: """${pipelineInfo}\n${body}""", subject: "${subject}", to: "${mail}"
