@@ -16,4 +16,5 @@ String getTicketInfo(String ticketNumber){
   String jql = """
 issue=${ticketNumber}
 """
+  return jql
 }

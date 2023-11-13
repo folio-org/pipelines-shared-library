@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.rest_v2.Common
+import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
@@ -96,6 +97,7 @@ void moveJiraTicket(List ticketNumbers, String moveId){
 void processJiraTicketStatus(String summary) {
   new Tools(this).copyResourceFileToWorkspace('jiraFlow/teamsInfo.json')
   def teamsInfo = new JsonSlurperClassic().parseText(readJSON file: "teamsInfo.json")
+  Logger logger = new Logger(this,'common')
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -110,7 +112,6 @@ void processJiraTicketStatus(String summary) {
       "In review"     : 31,
       "In code review": 91
     ]
-    String updateUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
     teamsInfo.each { -> team
       String body
       def ticketNumbers = new JsonSlurperClassic().parseText(searchForExistingJiraTickets(jiraFlowJQL.getOpenTickets(summary, "${team.keySet().first()}")))
@@ -118,7 +119,7 @@ void processJiraTicketStatus(String summary) {
         ticketNumbers["issues"].each { ticket ->
           switch (ticket["fields"]["status"]["name"]) {
             case "Open":
-              new Common(this, "https://fakeUrl").logger.info("Similar ticket already exists, summary: ${summary}")
+              logger.info("Similar ticket already exists, summary: ${summary}")
               addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             case "Closed":
@@ -134,13 +135,13 @@ void processJiraTicketStatus(String summary) {
               addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             default:
-              new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...\nClosing this ${ticket[key]} ticket...")
+              logger.warning("No suitable state was supplied to flow...\nClosing this ${ticket[key]} ticket...")
               moveJiraTicket("${ticket[key]}", "61")
               break
           }
         }
       } else {
-        new Common(this, "https://fakeUrl").logger.info("No active Jira ticket found for ${ticket["fields"]["customfield_10501"]["value"]} team.")
+        logger.info("No active Jira ticket found for ${ticket["fields"]["customfield_10501"]["value"]} team.")
       }
     }
   }

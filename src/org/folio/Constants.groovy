@@ -232,7 +232,7 @@ class Constants {
 
     static String GLOBAL_BUILD_TIMEOUT = '4'
 
-    static List KitFoxMembers = ["oleksii_petrenko1@epam.com",
+    static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                  "guram_jalaghonia@epam.com",
                                  "oleksandr_haimanov@epam.com",
                                  "renat_safiulin@epam.com",
