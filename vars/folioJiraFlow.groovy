@@ -76,6 +76,23 @@ void addLabelJiraTicket(String ticketNumber, List labels) {
   }
 }
 
+void moveJiraTicket(List ticketNumbers, String moveId){
+  withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
+    Map headers = [
+      "Content-Type" : "application/json",
+      "Authorization": "Bearer ${env.JiraToken}"
+    ]
+    ticketNumbers.each { ticket ->
+      String labelUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
+      String body = """
+      {"transition": {"id": "${moveId}"}}
+      """
+      def body_json = new JsonSlurperClassic().parseText(body)
+      new RestClient(this).put(labelUrl, headers, body_json)
+    }
+  }
+}
+
 void processJiraTicketStatus(String summary) {
   new Tools(this).copyResourceFileToWorkspace('jiraFlow/teamsInfo.json')
   def teamsInfo = new JsonSlurperClassic().parseText(readJSON file: "teamsInfo.json")
@@ -117,7 +134,8 @@ void processJiraTicketStatus(String summary) {
               addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             default:
-              new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...")
+              new Common(this, "https://fakeUrl").logger.warning("No suitable state was supplied to flow...\nClosing this ${ticket[key]} ticket...")
+              moveJiraTicket("${ticket[key]}", "61")
               break
           }
         }
