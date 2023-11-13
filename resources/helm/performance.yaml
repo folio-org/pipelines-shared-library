@@ -472,7 +472,7 @@ mod-di-converter-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: '427Mi'
+      memory: '854Mi'
     requests:
       memory: '341Mi'
 mod-ebsconet:
