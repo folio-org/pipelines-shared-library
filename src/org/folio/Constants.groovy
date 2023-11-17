@@ -84,7 +84,6 @@ class Constants {
   static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
   static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
   static String JIRA_CREDENTIALS_ID = 'jenkins-jira'
-  static String JIRA_TOKEN_ID = 'JiraFlow'
 
   //Rancher
   static String RANCHER_TOKEN_ID = 'rancher_token_v2'
