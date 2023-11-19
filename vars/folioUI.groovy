@@ -4,7 +4,7 @@ import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-835') _
+
 
 void build(params) {
   stage('Checkout') {
@@ -19,7 +19,7 @@ void build(params) {
     if(params.CONSORTIA) {
       dir('platform-complete') {
         def packageJson = readJSON file: 'package.json'
-        String moduleId = getModuleId('folio_consortia-settings')
+        String moduleId = folioStringScripts.getModuleId('folio_consortia-settings')
         String moduleVersion = moduleId - 'folio_consortia-settings-'
         packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
         writeJSON file: 'package.json', json: packageJson, pretty: 2
@@ -53,13 +53,5 @@ void deploy(params) {
     folioHelm.withKubeConfig(params.CLUSTER) {
       folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
     }
-  }
-}
-static String getModuleId(String moduleName) {
-  URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
-  if (registry.getResponseCode().equals(200)) {
-    return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
-  } else {
-    throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
   }
 }
