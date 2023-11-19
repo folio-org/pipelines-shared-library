@@ -502,7 +502,7 @@ mod-entities-links:
   replicaCount: 1
   resources:
     limits:
-      memory: '640Mi'
+      memory: '768Mi'
     requests:
       memory: '512Mi'
 mod-erm-usage:
@@ -1027,7 +1027,7 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: '640Mi'
+      memory: '768Mi'
     requests:
       memory: '512Mi'
 ldp-server:

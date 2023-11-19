@@ -1,3 +1,5 @@
+import org.folio.Constants
+
 // Getting the kubeconfig file from the AWS EKS cluster.
 String getKubeConfig(String region, String cluster_name) {
     sh "aws eks update-kubeconfig --region ${region} --name ${cluster_name}"
@@ -65,3 +67,30 @@ void waitRdsClusterAvailable(String cluster_name, String region) {
 }
 
 
+/**
+ * @param awsRegion The aws region where located ssm parameter
+ * @param awsParameterName parameter where we are saving the commit hash value
+ * @param latestCommitHash latest commit hash value
+
+ */
+void updateSsmParameter(String awsRegion, String awsParameterName, String latestCommitHash) {
+  sh(script: "aws ssm put-parameter --name ${awsParameterName} --region ${awsRegion} --value ${latestCommitHash} --type String --overwrite")
+}
+
+/**
+ * @param awsRegion The aws region where located ssm parameter
+ * @param awsParameterName parameter where we are saving the commit hash value
+ */
+String getSsmParameterValue(String awsRegion, String awsParameterName) {
+  return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text", returnStdout: true).trim()
+}
+
+
+void withAwsClient(Closure closure) {
+  withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                    credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+      closure()
+  }
+}
