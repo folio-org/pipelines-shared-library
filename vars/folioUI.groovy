@@ -5,9 +5,6 @@ import org.folio.Constants
 import org.folio.models.OkapiTenantConsortia
 import org.folio.models.TenantUi
 
-import org.jenkinsci.plugins.workflow.libs.Library
-
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 
 void build(params) {
