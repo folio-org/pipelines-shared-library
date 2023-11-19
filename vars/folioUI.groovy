@@ -2,7 +2,10 @@
 
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.models.OkapiTenantConsortia
+import org.folio.models.TenantUi
 import org.jenkinsci.plugins.workflow.libs.Library
+
 
 
 
@@ -48,10 +51,18 @@ void build(params) {
   }
 }
 
-def deploy(params) {
-  stage("Deploy UI bundle") {
-    folioHelm.withKubeConfig(params.CLUSTER) {
-      folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
-    }
-  }
-}
+//def deploy(params) {
+//  stage("Deploy UI bundle") {
+//    folioHelm.withKubeConfig(params.CLUSTER) {
+//      folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
+//    }
+//  }
+//}
+
+def deployUi(params) {
+  stage('Deploy UI bundle') {
+          folioHelm.withKubeConfig(params.CLUSTER) {
+            folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
+          }
+        }
+      }
