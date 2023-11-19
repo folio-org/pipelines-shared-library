@@ -95,15 +95,15 @@ ansiColor('xterm') {
 
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-          def params = [
+          def parameters = [
             CLUSTER      : namespace.getClusterName(),
             NAMESPACE    : namespace.getNamespaceName(),
             UI_BUNDLE_TAG: params.UI_BUNDLE_BUILD ? ui.getTag() : params.UI_BUNDLE_TAG,
 //            GET_DOMAINS  : namespace.getDomains()['okapi'],
             TENANT_ID    : ui.getTenantId()
           ]
-          folioHelm.withKubeConfig(params.CLUSTER) {
-            folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
+          folioHelm.withKubeConfig(parameters.CLUSTER) {
+            folioHelm.deployFolioModule(parameters.NAMESPACE, 'ui-bundle', parameters.UI_BUNDLE_TAG, false, parameters.TENANT_ID)
           }
 
         }
