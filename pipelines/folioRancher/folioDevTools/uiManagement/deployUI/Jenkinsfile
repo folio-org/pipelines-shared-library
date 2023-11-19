@@ -8,7 +8,6 @@ import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.rest.GitHubUtility
 import org.folio.models.TenantUi
-import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-835-v2') _
@@ -99,7 +98,6 @@ ansiColor('xterm') {
             CLUSTER      : namespace.getClusterName(),
             NAMESPACE    : namespace.getNamespaceName(),
             UI_BUNDLE_TAG: params.UI_BUNDLE_BUILD ? ui.getTag() : params.UI_BUNDLE_TAG,
-//            GET_DOMAINS  : namespace.getDomains()['okapi'],
             TENANT_ID    : ui.getTenantId()
           ]
           folioHelm.withKubeConfig(parameters.CLUSTER) {
