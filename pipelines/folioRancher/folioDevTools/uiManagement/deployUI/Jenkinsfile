@@ -101,7 +101,7 @@ ansiColor('xterm') {
             GET_DOMAINS  : namespace.getDomains()['okapi'],
             TENANT_ID    : ui.getTenantId()
           ]
-          folioUI.deployUi(jobParameters)
+          folioUI.deploy(jobParameters)
 
         }
     } catch (e) {
