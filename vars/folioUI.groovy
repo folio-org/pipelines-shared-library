@@ -48,12 +48,3 @@ void build(params) {
     common.removeImage(params.IMAGE_NAME)
   }
 }
-
-
-//void deploy(params) {
-//  stage('Deploy UI bundle') {
-//          folioHelm.withKubeConfig(params.CLUSTER) {
-//            folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', params.UI_BUNDLE_TAG, false, params.TENANT_ID)
-//          }
-//        }
-//      }
