@@ -100,8 +100,8 @@ ansiColor('xterm') {
             UI_BUNDLE_TAG: params.UI_BUNDLE_BUILD ? ui.getTag() : params.UI_BUNDLE_TAG,
             TENANT_ID    : ui.getTenantId()
           ]
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployFolioModule(namespace, 'ui-bundle', parameters.UI_BUNDLE_TAG, false, parameters.TENANT_ID)
+          folioHelm.withKubeConfig(parameters.CLUSTER) {
+            folioHelm.deployFolioModule(namespace.getClusterName() as RancherNamespace, 'ui-bundle', parameters.UI_BUNDLE_TAG, false, parameters.TENANT_ID)
           }
 
         }
