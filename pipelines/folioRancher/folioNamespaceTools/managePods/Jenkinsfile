@@ -57,11 +57,11 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
-        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
         35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega
         55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
