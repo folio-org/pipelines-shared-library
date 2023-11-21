@@ -13,8 +13,8 @@ properties([
     string(name: 'FOLIO_BRANCH_SRC', defaultValue: 'R1-2023', description: "platform-complete source branch for the comparison"),
     string(name: 'FOLIO_BRANCH_DST', defaultValue: 'snapshot', description: "platform-complete destination branch for the comparison"),
     string(name: 'BACKUP_NAME', defaultValue: 'opbf-bugfest-snapshot-04-12-2023', description: "Backup Name From Where will be provisioned env"),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
+//    folioParameters.agent(),
+//    folioParameters.refreshParameters()
   ])
 ])
 
@@ -30,7 +30,7 @@ Map Parameters = [
   FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
   FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
   BACKUP_NAME                       : params.BACKUP_NAME,
-  agent                             : 'rancher'
+//  agent                             : 'rancher'
 ]
 
 ansiColor('xterm') {
