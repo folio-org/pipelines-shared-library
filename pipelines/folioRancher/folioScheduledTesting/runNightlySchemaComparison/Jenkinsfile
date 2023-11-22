@@ -1,6 +1,7 @@
 #!groovy
-import org.folio.models.RancherNamespace
+
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
 
 @Library('pipelines-shared-library@RANCHER-839') _
 
@@ -44,7 +45,7 @@ ansiColor('xterm') {
     stage('[Job] Execute Schema Comparison Job') {
       script {
         try {
-          build job: folioSchemaCompareJobName,
+          build job: Constants.JENKINS_JOB_SCHEMA_COMPARE,
             parameters:
               [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
                string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
