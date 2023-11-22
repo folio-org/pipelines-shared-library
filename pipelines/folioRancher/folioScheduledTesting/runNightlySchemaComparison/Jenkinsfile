@@ -21,9 +21,8 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
-
+// TODO: Thinkings If We need this parameters here,Does we sometimes manually run this job ? strugle and made comment this,please attention
 Map Parameters = [
-  customBuildName                   : env.JOB_BASE_NAME,
   FOLIO_REPOSITORY                  : params.FOLIO_REPOSITORY,
   FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
   FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
