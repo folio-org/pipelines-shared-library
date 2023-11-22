@@ -65,6 +65,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
             new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
             break
     }
+
+  // Debugging: Print values before calling upgrade
+  System.out.println("Calling upgrade with: releaseName=" + releaseName + ", chartName=" + chartName + ", valuesFilePath=" + valuesFilePath);
     upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
 }
 
