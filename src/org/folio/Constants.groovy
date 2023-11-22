@@ -134,6 +134,7 @@ class Constants {
                                 'jenkins-agent-java17-test']
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
+  static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
 
   //PostgreSQL
   static String PSQL_DUMP_HELM_CHART_NAME = 'psql-dump'
