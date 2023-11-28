@@ -154,8 +154,6 @@ def fetchBranches = { String url ->
                     getNextPage(nextUrl[0][1])
                 }
             }
-        } else {
-            println("Failed to retrieve branches. HTTP Response Code: \${nextConn.responseCode}")
         }
     }
     def conn = new URL(url).openConnection()
