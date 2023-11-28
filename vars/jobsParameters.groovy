@@ -137,13 +137,13 @@ static String getRepositoryBranches(String repository) {
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
-def apiUrl = "https://api.github.com/repos/folio-org/+ ${repository} + /branches"
+def apiUrl = "https://api.github.com/repos/folio-org/ + ${repository} + /branches"
 def perPage = 500
 def fetchBranches = { String url ->
     def branches = []
     def getNextPage = { nextPageUrl ->
         def nextConn = new URL(nextPageUrl).openConnection()
-        nextConn.setRequestProperty("Authorization", "Bearer \$secret_value")
+        nextConn.setRequestProperty("Authorization", "Bearer \${secret_value}")
         if (nextConn.responseCode.equals(200)) {
             def nextResponseText = nextConn.getInputStream().getText()
             branches += new JsonSlurperClassic().parseText(nextResponseText).name
@@ -157,7 +157,7 @@ def fetchBranches = { String url ->
         }
     }
     def conn = new URL(url).openConnection()
-    conn.setRequestProperty("Authorization", "Bearer \$secret_value")
+    conn.setRequestProperty("Authorization", "Bearer \${secret_value}")
     if (conn.responseCode.equals(200)) {
         def responseText = conn.getInputStream().getText()
         branches += new JsonSlurperClassic().parseText(responseText).name
