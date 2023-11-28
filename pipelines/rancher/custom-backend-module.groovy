@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library@fix-for-feature-backend-module-deploy') _
+@Library('pipelines-shared-library') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
