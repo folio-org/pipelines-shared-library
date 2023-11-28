@@ -96,5 +96,5 @@ static List repositoriesList() {
 }
 
 def pgVersion(){
-  return _paramChoice(name: 'DB_VERSION', Constants.PGSQL_VERSION, description: 'Select PostgreSQL version')
+  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
 }
