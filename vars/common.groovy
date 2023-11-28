@@ -38,7 +38,7 @@ void healthCheck(String url, String status_codes='200,403', OkapiTenant tenant){
                     [name: 'X-Okapi-Tenant', value: tenant.getId()],
                     [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
                 ]
-                httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes, headers: headers
+                httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes, customHeaders: headers
                 return true
             } catch (exception) {
                 println(exception.getMessage())
