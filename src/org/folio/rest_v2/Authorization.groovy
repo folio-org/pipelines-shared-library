@@ -61,16 +61,18 @@ class Authorization extends Common {
   String getToken(OkapiTenant tenant) {
     getDefaultHeaders(tenant) + ["X-Okapi-Token": getOkapiToken(tenant)]
   }
+
   /**
-  * Gets the token with expiry for the specified tenant.
-  *
-  * @param tenant The tenant for which to get the token.
-  * @return token with headers.
-  */
+   * Gets the token with expiry for the specified tenant.
+   *
+   * @param tenant The tenant for which to get the token.
+   * @return token with headers.
+   */
   String getTokenWithExpiry(OkapiTenant tenant) {
     //TODO Need to test an ability to use X-OkapiToken header with new endpoint. RANCHER-1082
     getDefaultHeaders(tenant) + ["X-Okapi-Token": getOkapiTokenWithExpiry(tenant)]
   }
+
   /**
    * Checks if the user credentials exist for the specified tenant.
    *
