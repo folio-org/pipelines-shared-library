@@ -176,6 +176,7 @@ def fetchBranches = { String url ->
     }
     return branches
 }
+fetchBranches("\$apiUrl?per_page=\$perPage")
 """
 }
 
