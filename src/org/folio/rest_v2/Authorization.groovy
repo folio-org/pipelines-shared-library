@@ -1,6 +1,5 @@
 package org.folio.rest_v2
 
-import groovy.json.JsonOutput
 import org.folio.models.OkapiUser
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
