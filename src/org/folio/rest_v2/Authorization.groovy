@@ -69,7 +69,7 @@ class Authorization extends Common {
    * @return token with headers.
    */
   String getTokenWithExpiry(OkapiTenant tenant) {
-    //TODO Need to test an ability to use X-OkapiToken header with new endpoint. RANCHER-1082
+    //TODO Need to test an ability to use X-Okapi-Token header with new endpoint. RANCHER-1082
     getDefaultHeaders(tenant) + ["X-Okapi-Token": getOkapiTokenWithExpiry(tenant)]
   }
 
