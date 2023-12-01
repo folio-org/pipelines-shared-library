@@ -733,9 +733,9 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: '1024Mi'
+      memory: '1280Mi'
     requests:
-      memory: '768Mi'
+      memory: '1024Mi'
 mod-ncip:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
