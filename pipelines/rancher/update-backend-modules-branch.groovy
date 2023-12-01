@@ -126,9 +126,9 @@ ansiColor('xterm') {
                 Map update_modules = compare.createActionMaps(backend_installed_modules_map, github_backend_map)
 
                 if (update_modules.updateMap) {
-                    folioDeploy.backend(update_modules.updateMap, 
-                        project_config, 
-                        false, 
+                    folioDeploy.backend(update_modules.updateMap,
+                        project_config,
+                        false,
                         params.enable_rw_split)
                 }
             }
@@ -140,7 +140,7 @@ ansiColor('xterm') {
 
             stage("Health check") {
                 // Checking the health of the Okapi service.
-                common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
+                common.healthCheck("https://${project_config.getDomains().okapi}/_/version", tenant)
             }
 
             stage("Enable backend modules") {
