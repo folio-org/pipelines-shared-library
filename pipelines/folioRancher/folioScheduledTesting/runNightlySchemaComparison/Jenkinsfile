@@ -48,7 +48,7 @@ ansiColor('xterm') {
                string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
         } catch (Exception new_ex) {
           slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
-          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex)
+          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
         }
       }
     }
