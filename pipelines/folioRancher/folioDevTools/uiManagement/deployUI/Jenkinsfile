@@ -95,7 +95,7 @@ ansiColor('xterm') {
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+            folioHelm.deployFolioModule(params.NAMESPACE, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
 
         }
