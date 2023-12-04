@@ -38,11 +38,11 @@ TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commit
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
 
-RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
-  .withOkapiVersion("${params.OKAPI_VERSION}")
-  .withDefaultTenant("${defaultTenantId}")
-  .withDeploymentConfigType("${params.CONFIG_TYPE}")
+  .withOkapiVersion(params.OKAPI_VERSION)
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
 
 namespace.getModules().setInstallJson(installJson)
 
