@@ -94,10 +94,13 @@ ansiColor('xterm') {
 
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+          println(namespace)
+          println(ui)
+          println(ui.getTag())
+          println(ui.getTenantId())
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
-
         }
     } catch (e) {
         println "Caught exception: ${e}"
