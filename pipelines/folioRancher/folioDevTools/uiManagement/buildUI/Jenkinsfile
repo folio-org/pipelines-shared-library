@@ -71,18 +71,12 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "For build UI bundle"
+        buildDescription "For build UI bundle\nBranch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}"
       }
       stage('Checkout') {
         checkout scm
       }
       stage('Build UI') {
-//        namespace.getTenants().each { tenantId, tenant ->
-//          if (tenant.getTenantUi()) {
-//            TenantUi ui = tenant.getTenantUi()
-//            println(ui)
-//            println(tenant)
-//          }}
         TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
         OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
         def jobParameters = [
