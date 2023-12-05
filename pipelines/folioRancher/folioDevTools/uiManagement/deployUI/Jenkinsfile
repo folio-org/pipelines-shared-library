@@ -46,7 +46,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
-namespace.setEnableRwSplit()
+//namespace.setEnableRwSplit()
 namespace.getModules().setInstallJson(installJson)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 
