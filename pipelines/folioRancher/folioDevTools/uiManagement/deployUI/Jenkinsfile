@@ -46,6 +46,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
+namespace.setEnableRwSplit()
 namespace.getModules().setInstallJson(installJson)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 
@@ -97,7 +98,6 @@ ansiColor('xterm') {
 
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-//          OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
