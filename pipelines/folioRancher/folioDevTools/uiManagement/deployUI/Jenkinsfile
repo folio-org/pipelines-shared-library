@@ -22,6 +22,7 @@ properties([
         folioParameters.namespace(),
         folioParameters.repository(),
         folioParameters.branch(),
+        folioParameters.configType(),
         folioParameters.tenantId(),
         folioParameters.uiBundleBuild(),
         folioParameters.uiBundleTag(),
@@ -44,7 +45,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withSuperTenantAdminUser()
   .withOkapiVersion(params.OKAPI_VERSION)
   .withDefaultTenant(defaultTenantId)
-//  .withDeploymentConfigType(params.CONFIG_TYPE)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
 
 namespace.getModules().setInstallJson(installJson)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
