@@ -1,9 +1,9 @@
 #!groovy
 
-import groovy.json.JsonSlurperClassic
+//import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import org.folio.models.OkapiTenantConsortia
-import org.folio.models.TenantUi
+//import org.folio.models.OkapiTenantConsortia
+//import org.folio.models.TenantUi
 
 
 
