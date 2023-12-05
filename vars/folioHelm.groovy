@@ -45,8 +45,6 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     String valuesFilePath = ""
     String releaseName = moduleName
     String chartName = moduleName
-    println(releaseName)
-    println(chartName)
     switch (moduleName) {
         case "okapi":
             valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
