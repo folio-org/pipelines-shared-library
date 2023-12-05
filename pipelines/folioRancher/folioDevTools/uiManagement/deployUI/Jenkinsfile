@@ -46,9 +46,11 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
-//namespace.setEnableRwSplit()
 namespace.getModules().setInstallJson(installJson)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
+
+println(namespace.addDeploymentConfig(CONFIG_BRANCH))
+println(namespace.withDeploymentConfigType(CONFIG_TYPE))
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallJson(namespace.getModules().getInstallJson().collect())
