@@ -76,7 +76,7 @@ ansiColor('xterm') {
       try {
         stage('Ini') {
           buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-          buildDescription "For deploy UI bundle"
+          buildDescription "For deploy UI bundle\nBranch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE} "
         }
         stage('Checkout') {
           checkout scm
