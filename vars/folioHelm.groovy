@@ -17,8 +17,12 @@ void withK8sClient(Closure closure) {
 
 void withKubeConfig(String clusterName, Closure closure) {
     withK8sClient {
+        println(clusterName)
+        println(closure)
         awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
         addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+        println(clusterName)
+        println(closure)
         closure.call()
     }
 }
@@ -45,6 +49,10 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     String valuesFilePath = ""
     String releaseName = moduleName
     String chartName = moduleName
+    println(ns)
+    println(moduleName)
+    println(moduleVersion)
+    println(tenantId)
     switch (moduleName) {
         case "okapi":
             valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
