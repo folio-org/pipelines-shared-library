@@ -80,3 +80,7 @@ static def eval(String expression, Map<String, Object> parameters) {
     GroovyShell sh = new GroovyShell(b);
     return sh.evaluate(expression);
 }
+
+String generateRandomDigits(int length) {
+    (1..length).collect { (int) (Math.random() * 10) }.join()
+}
