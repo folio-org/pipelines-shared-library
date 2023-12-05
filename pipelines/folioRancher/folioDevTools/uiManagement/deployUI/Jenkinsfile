@@ -95,11 +95,11 @@ ansiColor('xterm') {
         stage('UI Deploy') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
           OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
-          println(uiConsortia)
-          println(namespace)
-          println(ui)
-          println(ui.getTag())
-          println(ui.getTenantId())
+//          println(uiConsortia)
+//          println(namespace)
+//          println(ui)
+//          println(ui.getTag())
+//          println(ui.getTenantId())
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
