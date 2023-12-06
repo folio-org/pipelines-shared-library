@@ -1,11 +1,7 @@
 #!groovy
 
-//import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.Logger
-
-//import org.folio.models.OkapiTenantConsortia
-//import org.folio.models.TenantUi
 
 
 void build(params) {
