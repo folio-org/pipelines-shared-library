@@ -8,7 +8,6 @@ import org.folio.utilities.Logger
 //import org.folio.models.TenantUi
 
 
-
 void build(params) {
   stage('Checkout') {
     dir('platform-complete') {
@@ -21,7 +20,7 @@ void build(params) {
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
     new Logger(this, 'common').warning(params)
     input("Test me!")
-    if(params.CONSORTIA) {
+    if (params.CONSORTIA) {
       dir('platform-complete') {
         def packageJson = readJSON file: 'package.json'
         String moduleId = folioStringScripts.getModuleId('folio_consortia-settings')
@@ -29,8 +28,18 @@ void build(params) {
         packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
         writeJSON file: 'package.json', json: packageJson, pretty: 2
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          def image = docker.build(
+            params.IMAGE_NAME,
+            "--build-arg OKAPI_URL=${params.OKAPI_URL} " +
+              "--build-arg TENANT_ID=${params.CONSORTIA} " +
+              "-f docker/Dockerfile  " +
+              "."
+          )
+          image.push()
+        }
+      }
     }
-  }
   }
 
   stage('Build and Push') {
