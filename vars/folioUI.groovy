@@ -2,6 +2,8 @@
 
 //import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.utilities.Logger
+
 //import org.folio.models.OkapiTenantConsortia
 //import org.folio.models.TenantUi
 
@@ -17,6 +19,8 @@ void build(params) {
               extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+    new Logger(this, 'common').warning(params)
+    input("Test me!")
     if(params.CONSORTIA) {
       dir('platform-complete') {
         def packageJson = readJSON file: 'package.json'
