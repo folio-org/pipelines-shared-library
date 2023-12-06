@@ -84,7 +84,7 @@ ansiColor('xterm') {
           TENANT_ID  : ui.getTenantId(),
           CUSTOM_HASH: ui.getHash(),
           IMAGE_NAME: ui.getImageName(),
-          CONSORTIA  : uiConsortia
+          CONSORTIA  : uiConsortia.getTenantId()
         ]
         folioUI.build(jobParameters)
       }
