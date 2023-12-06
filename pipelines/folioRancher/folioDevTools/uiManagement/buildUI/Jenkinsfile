@@ -78,7 +78,7 @@ ansiColor('xterm') {
       }
       stage('Build UI') {
         TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-        OkapiTenant uiConsortia = namespace.getTenants()[params.TENANT_ID]
+        TenantUi uiConsortia = namespace.getTenants()['consortium'].getTenantUi()
         def jobParameters = [
           OKAPI_URL: namespace.getDomains()['okapi'],
           TENANT_ID  : ui.getTenantId(),
