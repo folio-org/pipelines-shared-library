@@ -39,23 +39,25 @@ void build(params) {
           image.push()
         }
       }
-    }
-  }
-
-  stage('Build and Push') {
-    dir('platform-complete') {
-      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        def image = docker.build(
-          params.IMAGE_NAME,
-          "--build-arg OKAPI_URL=${params.OKAPI_URL} " +
-            "--build-arg TENANT_ID=${params.TENANT_ID} " +
-            "-f docker/Dockerfile  " +
-            "."
-        )
-        image.push()
+    } else{
+      stage('Build and Push') {
+        dir('platform-complete') {
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            def image = docker.build(
+              params.IMAGE_NAME,
+              "--build-arg OKAPI_URL=${params.OKAPI_URL} " +
+                "--build-arg TENANT_ID=${params.TENANT_ID} " +
+                "-f docker/Dockerfile  " +
+                "."
+            )
+            image.push()
+          }
+        }
       }
     }
   }
+
+
 
   stage('Cleanup') {
     common.removeImage(params.IMAGE_NAME)
