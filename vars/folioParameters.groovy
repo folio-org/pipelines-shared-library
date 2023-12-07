@@ -94,3 +94,7 @@ static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
 }
+
+def pgVersion(){
+  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
+}
