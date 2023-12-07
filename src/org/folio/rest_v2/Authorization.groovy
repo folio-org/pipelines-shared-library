@@ -172,7 +172,7 @@ class Authorization extends Common {
   }
 
   /**
-   * Gets the Okapi token with expiry date for the specified tenant.
+   * Gets the Okapi token with cookie structure and expiry date for the specified tenant.
    *
    * @param tenant The tenant for which to get the Okapi token.
    * @return The Okapi token with expiry.
@@ -183,7 +183,7 @@ class Authorization extends Common {
       return
     }
 
-    String url = generateUrl("/bl-users/login-with-expiry?expandPermissions=true&fullPermissions=true")
+    String url = generateUrl("/bl-users/login-with-expiry")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
       "username": tenant.adminUser.username,
@@ -194,10 +194,9 @@ class Authorization extends Common {
       def response = restClient.post(url, body, headers)
       if (response) {
         def token_data = response.headers['Set-Cookie'][1]
-        def token_draft = token_data.split("=")[1]
-        String token = token_draft.split(";")[0].join()
-        tenant.adminUser.token = token
-        return token
+        headers.put("Cookie", token_data)
+        tenant.adminUser.cookie = headers
+        return headers
       }
     } catch (RequestException e) {
       if (e.statusCode != HttpURLConnection.HTTP_NOT_FOUND && e.statusCode != HttpURLConnection.HTTP_BAD_REQUEST) {
