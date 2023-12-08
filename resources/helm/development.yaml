@@ -40,6 +40,23 @@ edge-connexion:
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
+edge-courses:
+  javaArgs: '-Dlog.level=debug'
+  javaOptions: '-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '256Mi'
+    requests:
+      memory: '192Mi'
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+    type: LoadBalancer
 edge-dematic:
   ingress:
     annotations:
