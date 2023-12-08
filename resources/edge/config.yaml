@@ -58,4 +58,13 @@ edge-connexion:
   permissions:
   - copycat.all
 edge-sip2: {}
-edge-fqm: {}
+edge-fqm:
+  tenants:
+  - tenant: default
+    username: test-user
+    firstName: test
+    lastName: SYSTEM
+    password: default
+    create: true
+  permissions:
+  - copycat.all
