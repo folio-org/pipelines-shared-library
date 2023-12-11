@@ -193,7 +193,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
 private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
     [string(name: 'CLUSTER', value: clusterName),
      string(name: 'NAMESPACE', value: projectName),
-     booleanParam(name: 'RW_SPLIT', value: true),
+     booleanParam(name: 'RW_SPLIT', value: false),
      string(name: 'POSTGRESQL', value: 'built-in'),
      string(name: 'KAFKA', value: 'built-in'),
      string(name: 'OPENSEARCH', value: 'built-in'),
