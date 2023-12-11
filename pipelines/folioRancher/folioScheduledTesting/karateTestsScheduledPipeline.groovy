@@ -90,9 +90,7 @@ pipeline {
                                          adminUserName  : 'super_admin',
                                          adminPassword  : 'admin',
                                          prototypeTenant: prototypeTenant]
-
-                    // Disable temporary, check tests results without sleep
-                    // sleep time: 60, unit: 'MINUTES'
+                     sleep time: 30, unit: 'MINUTES'
                     karateFlow(jobParameters)
                 }
             }
