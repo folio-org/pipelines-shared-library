@@ -1,5 +1,7 @@
 import org.folio.Constants
 import hudson.util.Secret
+import org.folio.models.OkapiConfig
+import org.folio.models.SmtpConfig
 import org.folio.rest.model.OkapiTenant
 
 private def _paramChoice(String name, List value, String description) {
@@ -99,7 +101,7 @@ def uiBundleTag() {
   return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Choose image tag for UI')
 }
 
-def tenantId(String tenant_id = defaultTenant().id) {
+def tenantId(String tenant_id = folioDefault.tenants()['diku']) {
   return _paramString('TENANT_ID', tenant_id, 'Id used for tenant creation')
 }
 
@@ -134,20 +136,5 @@ for (image in res) {
 
 return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
 """
-}
-
-static OkapiTenant defaultTenant() {
-  return new OkapiTenant(
-    id: 'diku',
-    name: 'Datalogisk Institut',
-    description: 'Danish Library Technology Institute',
-    tenantParameters: [
-      loadReference: false,
-      loadSample   : false
-    ],
-    queryParameters: [
-      reinstall: false
-    ]
-  )
 }
 
