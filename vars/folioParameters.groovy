@@ -164,3 +164,4 @@ static OkapiTenant defaultTenant() {
     ]
   )
 }
+
