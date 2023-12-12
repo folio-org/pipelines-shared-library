@@ -101,7 +101,7 @@ edge-fqm:
       - paths:
           - /query*
           - /entity-types*
-  javaArgs: ''
+  javaArgs: '--log.level=info'
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
   postJob:
     enabled: false
