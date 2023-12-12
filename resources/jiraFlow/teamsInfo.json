@@ -1,0 +1,254 @@
+[
+  {
+    "Bama": {
+      "info": {
+        "id": "12226",
+        "slack": "#bama",
+        "modules": [
+          "mod-calendar",
+          "ui-calendar",
+          "ui-plugin-bursar-export"
+        ]
+      }
+    }
+  },
+  {
+    "Bienenvolk": {
+      "info": {
+        "id": "10308",
+        "slack": "#bienenvolk-cypress-test",
+        "modules": [
+          "stripes-erm-components",
+          "ui-agreements",
+          "ui-erm-comparisons",
+          "ui-licenses",
+          "ui-local-kb-admin",
+          "ui-plugin-find-agreement",
+          "ui-plugin-find-eresource",
+          "ui-plugin-find-license",
+          "mod-agreements",
+          "mod-licenses"
+        ]
+      }
+    }
+  },
+  {
+    "Core: Platform": {
+      "info": {
+        "id": "10432",
+        "slack": "#core-platform",
+        "modules": [
+          "edge-common",
+          "mod-authtoken",
+          "mod-configuration",
+          "mod-login",
+          "mod-login-saml",
+          "mod-permissions",
+          "mod-user-import",
+          "okapi",
+          "raml-module-builder",
+          "folio-vertx-lib"
+        ]
+      }
+    }
+  },
+  {
+    "Firebird": {
+      "info": {
+        "id": "10883",
+        "slack": "#firebird",
+        "modules": [
+          "edge-oai-pmh",
+          "folio-s3-client",
+          "folio-query-tool-metadata",
+          "generate-marc-utils",
+          "mod-data-export",
+          "mod-bulk-operations",
+          "mod-data-export-spring",
+          "mod-data-export-worker",
+          "mod-oai-pmh",
+          "stripes-data-transfer-components",
+          "ui-bulk-edit",
+          "ui-data-export",
+          "ui-export-manager",
+          "ui-oai-pmh",
+          "ui-plugin-query-builder",
+          "ui-tenant-settings"
+        ]
+      }
+    }
+  },
+  {
+    "Folijet": {
+      "info": {
+        "id": "10390",
+        "slack": "#folijet",
+        "modules": [
+          "folio-isbn-util",
+          "folio-kafka-wrapper-util",
+          "liquibase-util",
+          "mod-data-import",
+          "mod-data-import-converter-storage ",
+          "mod-di-converter-storage",
+          "data-import-processing-core",
+          "mod-inventory",
+          "mod-source-record-storage",
+          "mod-source-record-manager",
+          "ui-data-import",
+          "ui-inventory",
+          "ui-plugin-create-inventory-records",
+          "ui-plugin-find-import-profile"
+        ]
+      }
+    }
+  },
+  {
+    "Kitfox": {
+      "info": {
+        "id": "12001",
+        "slack": "#rancher_tests_notifications",
+        "modules": []
+      }
+    }
+  },
+  {
+    "Spitfire": {
+      "info": {
+        "id": "10420",
+        "slack": "#spitfire",
+        "modules": [
+          "folio-di-support",
+          "folio-holdingsiq-client",
+          "folio-service-tools",
+          "mod-entities-links",
+          "mod-inventory-storage",
+          "mod-kb-ebsco-java",
+          "mod-notes",
+          "mod-quick-marc",
+          "mod-search",
+          "ui-eholdings",
+          "ui-marc-authorities",
+          "ui-notes",
+          "ui-plugin-find-authority",
+          "ui-plugin-find-instance",
+          "ui-plugin-find-package-title",
+          "ui-quick-marc",
+          "stripes-authority-components",
+          "stripes-marc-components"
+        ]
+      }
+    }
+  },
+  {
+    "Thor": {
+      "info": {
+        "id": "10609",
+        "slack": "",
+        "modules": [
+          "mod-courses",
+          "mod-graphql",
+          "mod-ldp",
+          "mod-settings",
+          "ui-courses",
+          "ui-ldp"
+        ]
+      }
+    }
+  },
+  {
+    "Thunderjet": {
+      "info": {
+        "id": "10418",
+        "slack": "#karate-tests-reports-thunderjet",
+        "modules": [
+          "edge-orders",
+          "mod-consortia",
+          "mod-ebsconet",
+          "mod-finance",
+          "mod-finance-storage",
+          "mod-gobi",
+          "mod-invoice",
+          "mod-invoice-storage",
+          "mod-orders",
+          "mod-orders-storage",
+          "mod-organizations",
+          "mod-organizations-storage",
+          "ui-acquisition-units",
+          "ui-consortia-settings",
+          "ui-finance",
+          "ui-gobi-settings",
+          "ui-invoice",
+          "ui-orders",
+          "ui-organizations",
+          "ui-plugin-create-item",
+          "ui-plugin-find-contact",
+          "ui-plugin-find-fund",
+          "ui-plugin-find-interface",
+          "ui-plugin-find-organization",
+          "ui-plugin-find-po-line",
+          "ui-receiving",
+          "stripes-acq-components"
+        ]
+      }
+    }
+  },
+  {
+    "Vega": {
+      "info": {
+        "id": "10419",
+        "slack": "#vega",
+        "modules": [
+          "mod-circulation",
+          "mod-circulation-storage",
+          "edge-patron",
+          "mod-feesfines",
+          "mod-patron-blocks",
+          "mod-patron",
+          "mod-pubsub",
+          "ui-checkin",
+          "ui-checkout",
+          "ui-circulation",
+          "ui-requests"
+        ]
+      }
+    }
+  },
+  {
+    "Volaris": {
+      "info": {
+        "id": "11807",
+        "slack": "#volaris-dev",
+        "modules": [
+          "edge-caiasoft",
+          "edge-dematic",
+          "edge-dcb",
+          "edge-inn-reach",
+          "folio-custom-fields",
+          "mod-audit",
+          "mod-circulation-item",
+          "mod-dcb",
+          "mod-email",
+          "mod-event-config",
+          "mod-inn-reach",
+          "mod-notify",
+          "mod-password-validator",
+          "mod-remote-storage",
+          "mod-sender",
+          "mod-tags",
+          "mod-template-engine",
+          "mod-users-bl",
+          "mod-users",
+          "edge-sip2",
+          "ui-circulation-log",
+          "ui-inn-reach",
+          "ui-myprofile",
+          "ui-plugin-find-user",
+          "ui-remote-storage",
+          "ui-servicepoints",
+          "ui-tags",
+          "ui-users"
+        ]
+      }
+    }
+  }
+]

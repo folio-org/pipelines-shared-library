@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  pipelineTriggers([cron('H 0 * * 1-6')]),
+  //pipelineTriggers([cron('H 0 * * 1-6')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -35,12 +35,12 @@ Map cypressFlowParameters = [
   tenantId                : 'diku',
   adminUsername           : 'diku_admin',
   adminPassword           : 'admin',
-  parallelExecParameters  : '--env grepTags="smoke criticalPth extendedPath --nonParallel"',
-  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
+  parallelExecParameters  : '--env grepTags="smoke criticalPath extendedPath --nonParallel"',
+  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel extendedPath+nonParallel"',
   testsTimeout            : '8',
   testrailProjectID       : '14',
   testrailRunID           : '2108',
-  numberOfWorkers         : '6',
+  numberOfWorkers         : '10',
   agent                   : 'rancher||jenkins-agent-java11'
 ]
 

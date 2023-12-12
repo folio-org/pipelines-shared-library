@@ -44,7 +44,7 @@ String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + 
 
 ansiColor('xterm') {
     common.refreshBuidParameters(params.refresh_parameters)
-    node('rancher||jenkins-agent-java11') {
+    node('rancher') {
         try {
             stage('Build and Push') {
                 buildName ui_bundle.getTag() + '.' + env.BUILD_ID

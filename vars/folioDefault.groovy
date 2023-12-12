@@ -7,13 +7,13 @@ import org.folio.models.OkapiTenantConsortia
 import org.folio.models.OkapiUser
 import org.folio.models.OkapiConfig
 
-static OkapiUser adminOkapiUser(String username, def password) {
+OkapiUser adminOkapiUser(String username, def password) {
     return new OkapiUser(username, password)
         .withFirstName(username.capitalize())
         .withLastName('ADMINISTRATOR')
         .withEmail("$username@example.org")
         .withPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
-        .withBarcode("88888888")
+        .withBarcode(folioTools.generateRandomDigits(8))
         .withGroup("staff")
         .withType("staff")
 }

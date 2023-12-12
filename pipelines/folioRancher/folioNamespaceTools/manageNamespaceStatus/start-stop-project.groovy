@@ -29,6 +29,9 @@ properties([
         0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
 
+        0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consair
+        30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consair
+
         0 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         30 22 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
 
@@ -78,15 +81,14 @@ properties([
         25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
         45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
 
-
-
-
-
-
-
+        25 22 * * 5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
+        45 23 * * 0 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
 
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=bama
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=bama
+
+        0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=consair
+        0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=consair
 
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=firebird
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=firebird
@@ -94,8 +96,8 @@ properties([
         0 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=folijet
         0 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=folijet
 
-        10 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
-        15 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
+        30 07 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=nla
+        30 22 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=nla
 
         10 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=spanish
         15 05 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=spanish
@@ -133,6 +135,9 @@ properties([
 
         25 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force
         00 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force
+
+        25 00 * * 2-5 %action=stop;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
+        00 06 * * 2-5 %action=start;rancher_cluster_name=folio-dev;rancher_project_name=task-force-2nd
     ''')
     ])
 ])

@@ -1,5 +1,3 @@
-package tests.karate
-
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library

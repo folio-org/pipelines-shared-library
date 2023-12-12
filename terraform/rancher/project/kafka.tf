@@ -86,5 +86,10 @@ resource "rancher2_app_v2" "kafka_ui" {
         health:
           ldap:
             enabled: false
+      resources:
+        requests:
+          memory: 128Mi
+        limits:
+          memory: 512Mi
   EOT
 }

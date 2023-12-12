@@ -37,7 +37,7 @@ project_config.uiBundleTag = params.ui_bundle_build ? "${project_config.getClust
 
 ansiColor("xterm") {
     common.refreshBuidParameters(params.refresh_parameters)
-    node("rancher||jenkins-agent-java11") {
+    node("rancher") {
         try {
             stage("Checkout") {
                 checkout scm
