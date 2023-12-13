@@ -1,8 +1,8 @@
 import org.folio.Constants
 import hudson.util.Secret
-import org.folio.models.OkapiConfig
-import org.folio.models.SmtpConfig
-import org.folio.rest.model.OkapiTenant
+//import org.folio.models.OkapiConfig
+//import org.folio.models.SmtpConfig
+//import org.folio.rest.model.OkapiTenant
 
 private def _paramChoice(String name, List value, String description) {
     return choice(name: name, choices: value, description: description)
