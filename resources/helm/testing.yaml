@@ -726,6 +726,16 @@ mod-login-saml:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-marc-migrations:
+  javaOptions: '-XX:MaxRAMPercentage=85.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '1280Mi'
+    requests:
+      memory: '1024Mi'
 mod-ncip:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
