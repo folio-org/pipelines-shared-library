@@ -30,7 +30,7 @@ void healthCheck(String url, String status_codes='200,403'){
     timeout(15) {
         waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
             try {
-              httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes
+                httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes
                 return true
             } catch (exception) {
                 println(exception.getMessage())

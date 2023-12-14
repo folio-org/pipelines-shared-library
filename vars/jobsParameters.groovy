@@ -143,7 +143,7 @@ def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.get
 def secret_value = credential.getSecret().getPlainText()
 def get = new URL('https://api.github.com/repos/folio-org/' + ${repository} + '/branches?per_page=100')
 HttpURLConnection conn = (HttpURLConnection) get.openConnection()
-conn.setRequestProperty("Authorization","Bearer "+" \\${secret_value}");
+conn.setRequestProperty("Authorization","Bearer "+" \${secret_value}");
 if(conn.responseCode.equals(200)){
   return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
 }
