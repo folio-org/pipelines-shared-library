@@ -3,16 +3,14 @@
 import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiTenant
-import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.rest.GitHubUtility
 import org.folio.models.TenantUi
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-835') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-835'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '30')),
