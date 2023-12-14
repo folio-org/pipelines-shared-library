@@ -101,7 +101,7 @@ edge-fqm:
       - paths:
           - /query*
           - /entity-types*
-  javaArgs: ''
+  javaArgs: '--log.level=info'
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
   postJob:
     enabled: false
@@ -726,6 +726,16 @@ mod-login-saml:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-marc-migrations:
+  javaOptions: '-XX:MaxRAMPercentage=85.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '1280Mi'
+    requests:
+      memory: '1024Mi'
 mod-ncip:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
@@ -1030,6 +1040,16 @@ mod-users-bl:
       memory: '768Mi'
     requests:
       memory: '512Mi'
+mod-batch-print:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '2560Mi'
+    requests:
+      memory: '2048Mi'
 ldp-server:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:

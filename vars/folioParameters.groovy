@@ -107,6 +107,10 @@ static List repositoriesList() {
             'platform-core']
 }
 
+def pgVersion(){
+  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
+}
+
 static String getUIImagesList() {
   return """
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -134,4 +138,3 @@ for (image in res) {
 return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
 """
 }
-

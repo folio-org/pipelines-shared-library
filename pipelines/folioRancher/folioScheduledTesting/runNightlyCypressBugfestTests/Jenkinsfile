@@ -35,7 +35,7 @@ Map cypressBugfestFlowParameters = [
   testsTimeout            : '10',
   testrailProjectID       : '14',
   testrailRunID           : '2307',
-  numberOfWorkers         : '6',
+  numberOfWorkers         : '10',
   agent                   : 'rancher||jenkins-agent-java11'
 ]
 

@@ -12,7 +12,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     folioParameters.pgType(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),

@@ -16,6 +16,11 @@ resource "rancher2_app_v2" "kafka" {
         enabled: true
       jmx:
         enabled: true
+        resources:
+          limits:
+            memory: 768Mi
+          requests:
+            memory: 512Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -88,8 +93,8 @@ resource "rancher2_app_v2" "kafka_ui" {
             enabled: false
       resources:
         requests:
-          memory: 128Mi
+          memory: 256Mi
         limits:
-          memory: 512Mi
+          memory: 768Mi
   EOT
 }
