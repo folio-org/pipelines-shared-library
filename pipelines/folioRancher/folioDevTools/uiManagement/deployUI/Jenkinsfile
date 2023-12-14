@@ -1,12 +1,13 @@
 #!groovy
 
-import org.folio.Constants
+//import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.folio.rest.GitHubUtility
 import org.folio.models.TenantUi
 import org.folio.rest_v2.Okapi
+//import org.folio.models.OkapiTenant
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-1037-v2') _
@@ -56,6 +57,7 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withTenantUi(tenantUi.clone())
 )
 
+//OkapiTenant OkapiTenant = new OkapiTenant()
 Okapi okapi = new Okapi(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 if (params.CONSORTIA) {
@@ -82,9 +84,6 @@ ansiColor('xterm') {
         stage('Checkout') {
           checkout scm
         }
-        stage('updateTenantModules')  {
-          okapi.tenantInstall(namespace.getTenants()[params.TENANT_ID].getTenantUi(), namespace.getModules().getInstallJson())
-        }
         if (params.UI_BUNDLE_BUILD) {
           stage('UI Build') {
             TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
@@ -104,6 +103,9 @@ ansiColor('xterm') {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
+        }
+        stage('updateTenantModules')  {
+          okapi.tenantInstall(namespace.getSuperTenant(), namespace.getModules().getInstallJson())
         }
     } catch (e) {
         println "Caught exception: ${e}"
