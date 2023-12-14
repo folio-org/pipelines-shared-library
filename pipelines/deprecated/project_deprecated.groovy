@@ -223,7 +223,7 @@ ansiColor('xterm') {
 
                 stage("Health check") {
                     // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version", tenant)
+                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version")
                 }
 
                 stage("Enable backend modules") {
