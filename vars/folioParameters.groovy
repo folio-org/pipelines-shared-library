@@ -131,7 +131,7 @@ for (image in res) {
    result.add(image.getImageIds());
 }
 
-return result[0].imageTag.sort().reverse().findAll({it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())});
+return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
 """
 }
 
