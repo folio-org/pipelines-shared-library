@@ -32,7 +32,6 @@ properties([
     ])
 ])
 String defaultTenantId = 'diku'
-Okapi okapi = new Okapi(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 //Set namespace configuration
 String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
@@ -56,6 +55,8 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallRequestParams(installRequestParams.clone())
   .withTenantUi(tenantUi.clone())
 )
+
+Okapi okapi = new Okapi(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 if (params.CONSORTIA) {
   namespace.setEnableConsortia(true)
