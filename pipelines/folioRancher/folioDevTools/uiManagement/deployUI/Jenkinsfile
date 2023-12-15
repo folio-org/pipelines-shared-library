@@ -58,7 +58,6 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withTenantUi(tenantUi.clone())
 )
 
-//OkapiTenant OkapiTenant = new OkapiTenant()
 Okapi okapi = new Okapi(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 if (params.CONSORTIA) {
