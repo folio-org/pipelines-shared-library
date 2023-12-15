@@ -74,11 +74,11 @@ pipeline {
 //        }
 
         stage("Start tests") {
-            when {
-                expression {
-                    spinUpEnvironmentJob.result == 'SUCCESS'
-                }
-            }
+//            when {
+//                expression {
+//                    spinUpEnvironmentJob.result == 'SUCCESS'
+//                }
+//            }
             steps {
                 script {
                     def jobParameters = [branch         : params.branch,
