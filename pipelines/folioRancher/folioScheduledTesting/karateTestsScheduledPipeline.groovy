@@ -7,8 +7,8 @@ import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-def clusterName = "folio-testing"
-def projectName = "karate"
+def clusterName = "folio-tmp"
+def projectName = "test-2"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
