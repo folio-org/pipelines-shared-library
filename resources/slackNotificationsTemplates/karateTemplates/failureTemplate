@@ -7,6 +7,11 @@
             "type": "button",
             "text": "*Check out the tests report* :bar_chart: ",
             "url": "$BUILD_URLcucumber-html-reports/overview-features.html",
+        },
+        {
+                    "type": "button",
+                    "text": "*Check out the tests report in ReportPortal* :bar_chart: ",
+                    "url": "https://poc-report-portal.ci.folio.org/ui/#login",
         }
   ]
 }
