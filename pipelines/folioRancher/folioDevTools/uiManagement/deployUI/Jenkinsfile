@@ -106,7 +106,7 @@ ansiColor('xterm') {
         }
         input "test"
         stage('updateUIModules')  {
-          main.preInstallUI(UIModules)
+          main.preInstallUI(UIModuleList)
           main.update(defaultTenantId)
         }
     } catch (e) {
