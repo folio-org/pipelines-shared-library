@@ -57,8 +57,6 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 List UIModuleList = installJson.findAll { it.id?.startsWith('folio_') == true }
-println UIModuleList
-
 
 if (params.CONSORTIA) {
   namespace.setEnableConsortia(true)
@@ -104,10 +102,9 @@ ansiColor('xterm') {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
         }
-        input "test"
-        stage('updateUIModules')  {
+        stage('Update UI Modules')  {
           main.preInstallUI(UIModuleList)
-          main.update(defaultTenantId)
+          main.update(namespace.getTenants())
         }
     } catch (e) {
         println "Caught exception: ${e}"
