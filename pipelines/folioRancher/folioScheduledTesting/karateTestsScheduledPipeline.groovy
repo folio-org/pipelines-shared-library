@@ -90,7 +90,7 @@ pipeline {
                                          adminUserName  : 'super_admin',
                                          adminPassword  : 'admin',
                                          prototypeTenant: prototypeTenant]
-                     sleep time: 30, unit: 'MINUTES'
+                     //sleep time: 30, unit: 'MINUTES'
                     karateFlow(jobParameters)
                 }
             }
@@ -99,11 +99,11 @@ pipeline {
         stage("Parallel") {
             parallel {
                 stage("Collect test results") {
-                    when {
-                        expression {
-                            spinUpEnvironmentJob.result == 'SUCCESS'
-                        }
-                    }
+//                    when {
+//                        expression {
+//                            spinUpEnvironmentJob.result == 'SUCCESS'
+//                        }
+//                    }
                     stages {
                         stage("Collect execution results") {
                             steps {
