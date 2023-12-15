@@ -23,6 +23,11 @@ class Main extends Okapi {
         publishServiceDiscovery(discoveryList)
     }
 
+    void preInstallUI(List installJson) {
+      publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
+    }
+
+
     void simulateInstall(OkapiTenant tenant, Object installJson) {
         if (!tenant.getInstallRequestParams().getSimulate()) {
             logger.warning("Simulation not requested!")
