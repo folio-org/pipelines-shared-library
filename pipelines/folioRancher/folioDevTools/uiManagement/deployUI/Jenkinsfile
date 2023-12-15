@@ -104,6 +104,7 @@ ansiColor('xterm') {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
         }
+        input "test"
         stage('updateUIModules')  {
           okapi.tenantInstall(namespace.getSuperTenant(), namespace.getModules().getInstallJson(installJson))
         }
