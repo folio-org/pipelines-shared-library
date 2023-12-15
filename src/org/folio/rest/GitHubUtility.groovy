@@ -76,4 +76,8 @@ class GitHubUtility implements Serializable {
     static Map getEdgeModulesMap(Map install_map){
         return install_map.findAll{it.key.startsWith("edge-")}
     }
+
+    static Map getUIModulesMap(Map install_map){
+      return install_map.findAll{it.key.startsWith("folio_")}
+    }
 }
