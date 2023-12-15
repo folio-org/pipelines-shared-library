@@ -37,6 +37,7 @@ String defaultTenantId = 'diku'
 //Set namespace configuration
 String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
 List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
+println installJson
 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
@@ -106,7 +107,7 @@ ansiColor('xterm') {
         }
         input "test"
         stage('updateUIModules')  {
-          okapi.tenantInstall(namespace.getSuperTenant(), namespace.getModules().getInstallJson(installJson))
+          okapi.tenantInstall(namespace.getSuperTenant(), installJson)
         }
     } catch (e) {
         println "Caught exception: ${e}"
