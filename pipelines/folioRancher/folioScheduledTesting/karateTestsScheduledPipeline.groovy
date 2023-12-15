@@ -83,7 +83,7 @@ pipeline {
                 script {
                     def jobParameters = [branch         : params.branch,
                                          threadsCount   : "4",
-                                         modules        : "mod-data-import",
+                                         modules        : "mod-calendar",
                                          okapiUrl       : okapiUrl,
                                          edgeUrl        : edgeUrl,
                                          tenant         : 'supertenant',
