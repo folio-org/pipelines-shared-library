@@ -122,6 +122,7 @@ static List repositoriesList() {
 def pgVersion(){
   return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
 }
+
 static String getUIImagesList() {
   return """
 import com.amazonaws.client.builder.AwsClientBuilder;
