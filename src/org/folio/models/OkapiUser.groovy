@@ -73,6 +73,11 @@ class OkapiUser {
     String type
 
     /**
+     * Authentication cookie for the Okapi user.
+     */
+    Map cookie
+
+    /**
      * Constructor for creating an instance of OkapiUser class.
      * Initializes username, password, and email.
      *
