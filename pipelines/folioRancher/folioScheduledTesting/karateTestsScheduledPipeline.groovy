@@ -1,14 +1,14 @@
 
 
-@Library('pipelines-shared-library@RANCHER-1123') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-def clusterName = "folio-tmp"
-def projectName = "test-2"
+def clusterName = "folio-testing"
+def projectName = "karate"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
 def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
@@ -45,52 +45,52 @@ pipeline {
     }
 
     stages {
-//        stage("Check environment") {
-//            steps {
-//                script {
-//                    try {
-//                        def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-//                        tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                    } catch (Exception new_ex) {
-//                        println('Existing env: ' + new_ex)
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage("Create environment") {
-//            steps {
-//                script {
-//                    try {
-//                        def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-//                            projectName, prototypeTenant, folio_repository, folio_branch)
-//                        spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                    } catch (Exception new_ex) {
-//                        slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-//                        throw new Exception("Creation of the environment is failed: " + new_ex)
-//                    }
-//                }
-//            }
-//        }
+        stage("Check environment") {
+            steps {
+                script {
+                    try {
+                        def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+                        tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    } catch (Exception new_ex) {
+                        println('Existing env: ' + new_ex)
+                    }
+                }
+            }
+        }
+
+        stage("Create environment") {
+            steps {
+                script {
+                    try {
+                        def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+                            projectName, prototypeTenant, folio_repository, folio_branch)
+                        spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                    } catch (Exception new_ex) {
+                        slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+                        throw new Exception("Creation of the environment is failed: " + new_ex)
+                    }
+                }
+            }
+        }
 
         stage("Start tests") {
-//            when {
-//                expression {
-//                    spinUpEnvironmentJob.result == 'SUCCESS'
-//                }
-//            }
+            when {
+                expression {
+                    spinUpEnvironmentJob.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     def jobParameters = [branch         : params.branch,
                                          threadsCount   : "4",
-                                         modules        : "mod-calendar",
+                                         modules        : "",
                                          okapiUrl       : okapiUrl,
                                          edgeUrl        : edgeUrl,
                                          tenant         : 'supertenant',
                                          adminUserName  : 'super_admin',
                                          adminPassword  : 'admin',
                                          prototypeTenant: prototypeTenant]
-                     //sleep time: 30, unit: 'MINUTES'
+                     sleep time: 30, unit: 'MINUTES'
                     karateFlow(jobParameters)
                 }
             }
@@ -99,11 +99,11 @@ pipeline {
         stage("Parallel") {
             parallel {
                 stage("Collect test results") {
-//                    when {
-//                        expression {
-//                            spinUpEnvironmentJob.result == 'SUCCESS'
-//                        }
-//                    }
+                    when {
+                        expression {
+                            spinUpEnvironmentJob.result == 'SUCCESS'
+                        }
+                    }
                     stages {
                         stage("Collect execution results") {
                             steps {
