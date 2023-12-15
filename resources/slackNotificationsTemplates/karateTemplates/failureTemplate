@@ -10,7 +10,7 @@
         },
         {
                     "type": "button",
-                    "text": "*Check out the tests report in ReportPortal* :bar_chart: ",
+                    "text": "*ReportPortal results* :bar_chart: ",
                     "url": "https://poc-report-portal.ci.folio.org/ui/#login",
         }
   ]
