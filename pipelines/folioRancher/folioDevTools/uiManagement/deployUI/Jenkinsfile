@@ -104,8 +104,8 @@ ansiColor('xterm') {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
         }
-        stage('updateTenantModules')  {
-          okapi.tenantInstall(namespace.getSuperTenant(), namespace.getModules().getInstallJson())
+        stage('updateUIModules')  {
+          okapi.tenantInstall(namespace.getSuperTenant(), namespace.getModules().getInstallJson(installJson))
         }
     } catch (e) {
         println "Caught exception: ${e}"
