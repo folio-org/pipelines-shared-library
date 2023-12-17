@@ -106,5 +106,5 @@ def moduleType(){
   return _paramChoice('VERSION_TYPE', ['release', 'preRelease'], 'Select version type')
 }
 def moduleVersion(){
-  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME','VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version')
+  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version')
 }
