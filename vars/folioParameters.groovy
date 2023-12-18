@@ -90,6 +90,18 @@ def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
     return _paramChoice('S3_BUCKET', value, 'Select built-in Minio or AWS S3')
 }
 
+def uiBundleBuild(){
+  return _paramBoolean('UI_BUNDLE_BUILD', false, 'True if build new ui bundle, false if choose from existing one in ui_bundle_tag parameter')
+}
+
+def uiBundleTag() {
+  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Choose image tag for UI')
+}
+
+def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
+  return _paramString('TENANT_ID', tenant_id, 'Id used for tenant creation')
+}
+
 static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
@@ -97,6 +109,34 @@ static List repositoriesList() {
 
 def pgVersion(){
   return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
+}
+
+static String getUIImagesList() {
+  return """
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.ecr.AmazonECR;
+import com.amazonaws.services.ecr.AbstractAmazonECR;
+import com.amazonaws.services.ecr.AmazonECRClient;
+import com.amazonaws.services.ecr.model.ListImagesRequest;
+import com.amazonaws.services.ecr.model.ListImagesResult;
+import com.amazonaws.services.ecr.AmazonECRClientBuilder;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
+import com.amazonaws.regions.Regions;
+import jenkins.model.*
+
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
+ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
+res = client.listImages(request);
+
+
+def result = []
+for (image in res) {
+   result.add(image.getImageIds());
+}
+
+return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
+"""
 }
 
 def moduleName(){
