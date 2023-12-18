@@ -138,3 +138,13 @@ for (image in res) {
 return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
 """
 }
+
+def moduleName(){
+  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module')
+}
+def moduleType(){
+  return _paramChoice('VERSION_TYPE', ['release', 'preRelease'], 'Select version type')
+}
+def moduleVersion(){
+  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version')
+}
