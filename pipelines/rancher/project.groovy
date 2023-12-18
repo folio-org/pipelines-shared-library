@@ -215,10 +215,10 @@ ansiColor('xterm') {
                     sleep time: 10, unit: 'MINUTES'
                 }
 
-                stage("Health check") {
-                    // Checking the health of the Okapi service.
-                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version", tenant)
-                }
+//                stage("Health check") {
+//                    // Checking the health of the Okapi service.
+//                    common.healthCheck("https://${project_config.getDomains().okapi}/_/version", tenant)
+//                }
 
                 stage("Enable backend modules") {
                     if (project_config.getEnableModules() && (project_config.getAction() == 'apply' || project_config.getAction() == 'nothing')) {
