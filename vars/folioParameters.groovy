@@ -141,6 +141,7 @@ AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").bui
 ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
 res = client.listImages(request);
 
+
 def result = []
 for (image in res) {
    result.add(image.getImageIds());
@@ -150,3 +151,12 @@ return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUST
 """
 }
 
+def moduleName(){
+  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module')
+}
+def moduleType(){
+  return _paramChoice('VERSION_TYPE', ['release', 'preRelease'], 'Select version type')
+}
+def moduleVersion(){
+  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version')
+}
