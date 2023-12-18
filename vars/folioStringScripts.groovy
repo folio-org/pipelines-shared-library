@@ -37,3 +37,39 @@ if (installJson.getResponseCode().equals(200)) {
 }
 """
 }
+
+static String getBackendModulesList(){
+    return '''import groovy.json.JsonSlurperClassic
+String nameGroup = "moduleName"
+String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
+def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
+if (installJson.getResponseCode().equals(200)) {
+    List modules_list = ['okapi']
+    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*|edge-.*/ }.each { value ->
+        def matcherModule = value =~ patternModuleVersion
+        assert matcherModule.matches()
+        modules_list.add(matcherModule.group(nameGroup))
+    }
+    return modules_list.sort()
+}'''
+}
+
+static String getModuleVersion(){
+    return '''import groovy.json.JsonSlurperClassic
+def versionType = ''
+switch(VERSION_TYPE){
+  case 'release':
+    versionType = 'false'
+    break
+  case 'preRelease':
+    versionType = 'only'
+    break
+  default:
+    versionType = 'only'
+    break
+}
+def moduleVersionList = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${MODULE_NAME}&preRelease=${versionType}&order=desc&orderBy=id").openConnection()
+if (moduleVersionList.getResponseCode().equals(200)) {
+  return new JsonSlurperClassic().parseText(moduleVersionList.getInputStream().getText())*.id.collect{id -> return id - "${MODULE_NAME}-"}
+}'''
+}
