@@ -88,7 +88,7 @@ variable "pg_embedded" {
 
 variable "pg_version" {
   type        = string
-  default     = ""
+  default     = "12.12"
   description = "Postgres version"
 }
 
