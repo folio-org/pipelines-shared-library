@@ -35,23 +35,23 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
 }
 
 def agent() {
-    return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select build agent')
+    return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
 
 def refreshParameters() {
-    return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for job parameters refresh')
+    return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
 
 def cluster() {
-    return _paramChoice('CLUSTER', Constants.AWS_EKS_CLUSTERS, '(Required) Select cluster')
+    return _paramChoice('CLUSTER', Constants.AWS_EKS_CLUSTERS, '(Required) Select cluster for current job')
 }
 
 def namespace() {
-    return _paramExtendedSingleSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace')
+    return _paramExtendedSingleSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace for current job')
 }
 
 def repository() {
-    return _paramChoice('FOLIO_REPOSITORY', repositoriesList(), 'Select source repository')
+    return _paramChoice('FOLIO_REPOSITORY', repositoriesList(), 'Platform-complete repository, complete stripes platform consists an NPM package.json that specifies the version of @folio/stripes-core')
 }
 
 def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {
@@ -59,35 +59,39 @@ def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-comp
 }
 
 def okapiVersion() {
-    return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Select okapi version')
+    return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Selectwhat Okapi version use for build')
 }
 
 def loadReference(boolean value = true) {
-    return _paramBoolean('LOAD_REFERENCE', value, 'Set to true to load reference data during install')
+    return _paramBoolean('LOAD_REFERENCE', value, 'Select true to load reference data during install')
 }
 
 def loadSample(boolean value = true) {
-    return _paramBoolean('LOAD_SAMPLE', value, 'Set to true to load sample data during install')
+    return _paramBoolean('LOAD_SAMPLE', value, 'Select true to load sample data during install')
 }
 
 def configType() {
-    return _paramChoice('CONFIG_TYPE', Constants.AWS_EKS_NAMESPACE_CONFIGS, 'Select deployment config type')
+    return _paramChoice('CONFIG_TYPE', Constants.AWS_EKS_NAMESPACE_CONFIGS, 'Select EKS deployment configuration')
 }
 
 def pgType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
-    return _paramChoice('POSTGRESQL', value, 'Select built-in PostgreSQL or AWS RDS')
+    return _paramChoice('POSTGRESQL', value, 'Select database type, built-in PostgreSQL or AWS RDS')
+}
+
+def pgVersion(){
+  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL database version')
 }
 
 def kafkaType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
-    return _paramChoice('KAFKA', value, 'Select built-in Kafka or AWS MSK')
+    return _paramChoice('KAFKA', value, 'Select Kafka type, built-in Kafka or AWS MSK')
 }
 
 def opensearchType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse()) {
-    return _paramChoice('OPENSEARCH', value, 'Select built-in OpenSearch or AWS OpenSearch')
+    return _paramChoice('OPENSEARCH', value, 'Select OpenSearch type, built-in OpenSearch or AWS OpenSearch')
 }
 
 def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
-    return _paramChoice('S3_BUCKET', value, 'Select built-in Minio or AWS S3')
+    return _paramChoice('S3_BUCKET', value, 'Select object storage type, built-in Minio or AWS S3')
 }
 
 def uiBundleBuild(){
@@ -95,7 +99,7 @@ def uiBundleBuild(){
 }
 
 def uiBundleTag() {
-  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Choose image tag for UI')
+  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Select image tag/version for UI which will be deployed')
 }
 
 def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
@@ -105,10 +109,6 @@ def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
 static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
-}
-
-def pgVersion(){
-  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL version')
 }
 
 static String getUIImagesList() {
@@ -140,11 +140,11 @@ return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUST
 }
 
 def moduleName(){
-  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module')
+  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module name to install')
 }
 def moduleType(){
-  return _paramChoice('VERSION_TYPE', ['release', 'preRelease'], 'Select version type')
+  return _paramChoice('VERSION_TYPE', ['release', 'preRelease'], 'Select module version type')
 }
 def moduleVersion(){
-  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version')
+  return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version to install')
 }
