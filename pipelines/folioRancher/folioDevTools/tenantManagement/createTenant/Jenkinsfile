@@ -59,7 +59,7 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
   .withOkapiVersion(params.OKAPI_VERSION)
-  .withDefaultTenant(defaultTenantId)
+  .withDefaultTenant('diku')
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
