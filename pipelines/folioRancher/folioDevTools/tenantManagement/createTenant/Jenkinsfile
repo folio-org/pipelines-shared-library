@@ -9,6 +9,7 @@ import org.folio.models.SmtpConfig
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
+
 @Library('pipelines-shared-library@RANCHER-837') _
 
 CONFIG_BRANCH = 'RANCHER-837'
@@ -58,7 +59,7 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
   .withTenantName(params.TENANT_NAME)
   .withTenantDescription(params.TENANT_DESCRIPTION)
-  .withAdminUser(adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
+  .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
   .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
   .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
   .withIndex(new Index(true, true))
