@@ -15,16 +15,16 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
-    folioParameters.namespace(),
-    folioParameters.referenceTenantId(),
-    folioParameters.tenantId(''),
-    string(name: TENANT_NAME, defaultValue: '', description: "New tenant name"),
-    string(name: TENANT_DESCRIPTION, defaultValue: '', description: "New tenant Description"),
-    folioParameters.loadReference(),
-    folioParameters.loadSample(),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
+      folioParameters.cluster(),
+      folioParameters.namespace(),
+      folioParameters.referenceTenantId(),
+      folioParameters.tenantId(''),
+      string(name: 'TENANT_NAME', defaultValue: '', description: "New tenant name"),
+      string(name: 'TENANT_DESCRIPTION', defaultValue: '', description: "New tenant Description"),
+      folioParameters.loadReference(),
+      folioParameters.loadSample(),
+      folioParameters.agent(),
+      folioParameters.refreshParameters()
   ])
 ])
 
