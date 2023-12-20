@@ -102,6 +102,10 @@ def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
   return _paramString('TENANT_ID', tenant_id, 'Id used for tenant creation')
 }
 
+def referenceTenantId(String tenant_id = 'diku') {
+  return _paramString('REFERENCE_TENANT_ID', tenant_id, 'Reference Id used for tenant creation')
+}
+
 static List repositoriesList() {
     return ['platform-complete',
             'platform-core']
