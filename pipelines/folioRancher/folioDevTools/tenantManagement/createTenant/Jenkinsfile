@@ -54,13 +54,15 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 }
 
 
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
   .withOkapiVersion(params.OKAPI_VERSION)
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 namespace.setEnableRwSplit(params.RW_SPLIT)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
