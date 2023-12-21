@@ -6,7 +6,10 @@ import org.folio.models.OkapiConfig
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.SmtpConfig
+import org.folio.models.TenantUi
+import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
+import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
@@ -31,58 +34,23 @@ properties([
   ])
 ])
 
+String defaultTenantId = 'supertenant'
+
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
-//RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-//  .withSuperTenantAdminUser()
 
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
-
-SmtpConfig smtp = null
-String kbApiKey = ''
-
-withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                  credentialsId    : Constants.EMAIL_SMTP_CREDENTIALS_ID,
-                  accessKeyVariable: 'EMAIL_USERNAME',
-                  secretKeyVariable: 'EMAIL_PASSWORD'],
-                 string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'KB_API_KEY')]) {
-  smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
-  kbApiKey = KB_API_KEY
-}
-
-
-
-
-RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-  .withSuperTenantAdminUser()
-  .withOkapiVersion(params.OKAPI_VERSION)
-  .withDefaultTenant('diku')
-  .withDeploymentConfigType(params.CONFIG_TYPE)
-
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-
-namespace.addDeploymentConfig(CONFIG_BRANCH)
-namespace.getModules().setInstallJson(installJson)
-
-namespace.addTenant(params.TENANT_ID
-    .withTenantName(params.TENANT_NAME)
-    .withTenantDescription(params.TENANT_DESCRIPTION)
-    .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
-    .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
-    .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
-    .withIndex(new Index(true, true))
-    .withInstallRequestParams(installRequestParams.clone())
-)
+RestClient client = new RestClient(this)
 
 ansiColor('xterm') {
   node(params.AGENT) {
-    stage('Ini') {
-      buildName ""
-      buildDescription ""
+    stage('[Primary testing start]'){
+      folioHelm.withK8sClient {
+        Map headers = []
+        String URL = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}"
+        client.get("${URL}", headers)
+      }
     }
-    stage("Create Tenant")
   }
 }
