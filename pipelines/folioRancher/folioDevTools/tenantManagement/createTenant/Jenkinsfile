@@ -54,7 +54,7 @@ ansiColor('xterm') {
         ]
         String URL = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/_/version"
         def res = client.get("${URL}", headers)
-        println(res)
+        println(res['body'])
       }
     }
   }
