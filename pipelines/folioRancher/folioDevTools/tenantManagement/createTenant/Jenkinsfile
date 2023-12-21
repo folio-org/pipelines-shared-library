@@ -65,6 +65,7 @@ ansiColor('xterm') {
       def json_body = new JsonSlurperClassic().parseText(body)
       String auth_url = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/authn/login"
       def token_draft = client.post(auth_url, json_body, headers)
+      println token_draft
       X_Okapi_Token = token_draft['okapiToken']
       println(X_Okapi_Token)
     }
