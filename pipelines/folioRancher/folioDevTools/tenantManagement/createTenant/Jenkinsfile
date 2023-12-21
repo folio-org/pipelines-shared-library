@@ -48,8 +48,9 @@ ansiColor('xterm') {
     stage('[Primary testing start]'){
       folioHelm.withK8sClient {
         Map headers = [
-          ['X-Okapi-Tenant': 'supertenant',
-          'X-Okapi-Token': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcl9hZG1pbiIsInR5cGUiOiJsZWdhY3ktYWNjZXNzIiwidXNlcl9pZCI6ImY1ZDVjY2RlLWE1OTEtNGE5YS05MTVlLTBkMzdmZTIwZDNhNSIsImlhdCI6MTcwMzE2NDQ5MCwidGVuYW50Ijoic3VwZXJ0ZW5hbnQifQ.TxaWr21j8dS3pZlAmpQMCHMlSBsQw5vCwJlZAiWz3X8']
+          "Content-Type": "application/json",
+          'X-Okapi-Tenant': 'supertenant',
+          'X-Okapi-Token': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcl9hZG1pbiIsInR5cGUiOiJsZWdhY3ktYWNjZXNzIiwidXNlcl9pZCI6ImY1ZDVjY2RlLWE1OTEtNGE5YS05MTVlLTBkMzdmZTIwZDNhNSIsImlhdCI6MTcwMzE2NDQ5MCwidGVuYW50Ijoic3VwZXJ0ZW5hbnQifQ.TxaWr21j8dS3pZlAmpQMCHMlSBsQw5vCwJlZAiWz3X8'
         ]
         String URL = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/_/version"
         client.get("${URL}", headers)
