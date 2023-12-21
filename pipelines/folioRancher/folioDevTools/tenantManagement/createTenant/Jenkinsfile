@@ -1,4 +1,5 @@
 #!groovy
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
@@ -35,6 +36,13 @@ properties([
 ])
 
 String defaultTenantId = 'supertenant'
+String X_Okapi_Token = ""
+
+Map headers = [
+  "Content-Type": "application/json",
+  'X-Okapi-Tenant': 'supertenant',
+  'X-Okapi-Token': ""
+]
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -45,16 +53,29 @@ RestClient client = new RestClient(this)
 
 ansiColor('xterm') {
   node(params.AGENT) {
+
+    stage('[Authorization]'){
+     Map admin_user = [
+       "Content-Type": "application/json",
+       'X-Okapi-Tenant': 'supertenant'
+     ]
+     String body =  """{
+       "username": "super_admin",
+       "password": "admin"
+     }"""
+      def json_body = new JsonSlurperClassic().parseText(body)
+      String auth_url = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/authn/login"
+      def token_draft = client.post(auth_url, json_body, headers)
+      X_Okapi_Token = token_draft['body']
+      println(X_Okapi_Token)
+    }
+
     stage('[Primary testing start]'){
       folioHelm.withK8sClient {
-        Map headers = [
-          "Content-Type": "application/json",
-          'X-Okapi-Tenant': 'supertenant',
-          'X-Okapi-Token': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcl9hZG1pbiIsInR5cGUiOiJsZWdhY3ktYWNjZXNzIiwidXNlcl9pZCI6ImY1ZDVjY2RlLWE1OTEtNGE5YS05MTVlLTBkMzdmZTIwZDNhNSIsImlhdCI6MTcwMzE2NDQ5MCwidGVuYW50Ijoic3VwZXJ0ZW5hbnQifQ.TxaWr21j8dS3pZlAmpQMCHMlSBsQw5vCwJlZAiWz3X8'
-        ]
+        headers.put('X-Okapi-Token', X_Okapi_Token)
         String URL = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/_/version"
         def res = client.get("${URL}", headers)
-        println(res['body'])
+        String okapi_version = res['body']
       }
     }
   }
