@@ -66,14 +66,13 @@ ansiColor('xterm') {
       String auth_url = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/authn/login"
       def token_draft = client.post(auth_url, json_body, headers)
       println token_draft
-      X_Okapi_Token = token_draft['headers']['x-okapi-token']
+      X_Okapi_Token = token_draft['headers']['x-okapi-token'].toString()
       println(X_Okapi_Token)
     }
 
     stage('[Primary testing start]'){
       folioHelm.withK8sClient {
         headers.put('X-Okapi-Token', X_Okapi_Token)
-        println headers
         String URL = "https://${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}/_/version"
         def res = client.get("${URL}", headers)
         String okapi_version = res['body']
