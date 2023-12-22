@@ -59,15 +59,15 @@ def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-comp
 }
 
 def okapiVersion() {
-    return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Selectwhat Okapi version use for build')
+    return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Select what Okapi version use for build')
 }
 
 def loadReference(boolean value = true) {
-    return _paramBoolean('LOAD_REFERENCE', value, 'Select true to load reference data during install')
+    return _paramBoolean('LOAD_REFERENCE', value, 'Select true to load initial module reference data (instances, holdings etc.) for automated tests')
 }
 
 def loadSample(boolean value = true) {
-    return _paramBoolean('LOAD_SAMPLE', value, 'Select true to load sample data during install')
+    return _paramBoolean('LOAD_SAMPLE', value, 'Select true to load initial module sample data (instances, holdings etc.) for automated tests')
 }
 
 def configType() {
