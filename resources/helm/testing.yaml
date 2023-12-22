@@ -11,7 +11,7 @@ edge-caiasoft:
     hosts:
       - paths:
           - /caiasoftService*
-  javaArgs: '--log.level=info'
+  javaArgs: '--log.level=info --server.port=$CONTAINER_PORT'
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-caiasoft-ephemeral-properties'
   postJob:
     enabled: false
