@@ -26,7 +26,7 @@ ansiColor('xterm') {
     }
     retry(2){
       RestClient client = new RestClient(this, false)
-      String url = "https://folio-registry.dev.folio.org/_/proxy/modules"
+      String url = "https://folio-registry.dev.folio.org/_/proxy/moduleZ"
       Map headers = ['Content-type': "application/json"]
       def res = client.get(url, headers, 6000)
       def draft = res['body']['id']
