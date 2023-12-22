@@ -1,0 +1,39 @@
+#!groovy
+
+@Library('pipelines-shared-library@RANCHER-ELDIIAR-DEV') _
+import org.folio.utilities.RestClient
+import groovy.json.JsonOutput
+import org.jenkinsci.plugins.workflow.libs.Library
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Testing retry') {
+      buildName "testing"
+      buildDescription "retry"
+    }
+    try {
+      RestClient client = new RestClient(this, false)
+      String url = "https://folio-registry.dev.folio.org/_/proxy/moduleZ"
+      Map headers = ['Content-type': "application/json"]
+      def res = client.get(url, headers, 6000)
+      def draft = res['body']['id']
+      def modules = draft.findAll {
+        it.startsWith("mod-")
+      }
+      println draft
+    } catch (Exception e) {
+      println("Error is ${e.getMessage()}")
+    }
+    retry(2){
+      RestClient client = new RestClient(this, false)
+      String url = "https://folio-registry.dev.folio.org/_/proxy/modules"
+      Map headers = ['Content-type': "application/json"]
+      def res = client.get(url, headers, 6000)
+      def draft = res['body']['id']
+      def modules = draft.findAll {
+        it.startsWith("mod-")
+      }
+      println draft
+    }
+  }
+}
