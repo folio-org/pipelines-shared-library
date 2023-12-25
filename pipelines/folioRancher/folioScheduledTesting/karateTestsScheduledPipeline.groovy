@@ -81,6 +81,7 @@ pipeline {
             } catch (Exception e) {
               println('Something went wrong, error: ' + e.getMessage())
             }
+            sleep time: 1, unit: 'MINUTES'
             try {
               def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                 projectName, prototypeTenant, folio_repository, folio_branch)
