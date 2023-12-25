@@ -79,7 +79,7 @@ def pgType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
 }
 
 def pgVersion(){
-  return _paramChoice('DB_VERSION', Constants.PGSQL_VERSION, 'Select PostgreSQL database version')
+  return _paramExtendedSingleSelect('DB_VERSIONS', '', folioStringScripts.getPostgresqlVersion(), 'Select PostgreSQL database version')
 }
 
 def kafkaType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
