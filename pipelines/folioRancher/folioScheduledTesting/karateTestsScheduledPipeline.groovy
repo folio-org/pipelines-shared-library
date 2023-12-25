@@ -86,9 +86,9 @@ pipeline {
               def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
                 projectName, prototypeTenant, folio_repository, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-            } catch (Exception new_ex) {
+            } catch (Exception e) {
               slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-              throw new Exception("Creation of the environment is failed: " + new_ex.getMessage())
+              throw new Exception("Creation of the environment is failed: " + e.getMessage())
             }
           }
         }
