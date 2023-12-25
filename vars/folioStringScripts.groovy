@@ -83,3 +83,16 @@ if (moduleVersionList.getResponseCode().equals(200)) {
   return new JsonSlurperClassic().parseText(moduleVersionList.getInputStream().getText())*.id.collect{id -> return id - "${MODULE_NAME}-"}
 }'''
 }
+
+static String getPostgresqlVersion(){
+    return '''def versions = ["12.12", "13.13", "14.10", "15.5", "16.1"]
+List pg_versions = []
+versions.each {version ->
+if(version == '13.13') {
+  pg_versions.add(0, version)
+} else{
+  pg_versions.add(version)
+ }
+}
+return (pg_versions)'''
+}
