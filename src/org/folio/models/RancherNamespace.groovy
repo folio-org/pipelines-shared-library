@@ -67,8 +67,8 @@ class RancherNamespace {
     }
 
     void setEnableConsortia(boolean enableConsortia) {
-        this.modules.addModules([this.modules.getModuleVersion('mod-consortia'),
-                                 this.modules.getModuleVersion('folio_consortia-settings')])
+        this.modules.addModules(['mod-consortia-1.0.3',
+                                 'folio_consortia-settings-1.0.2'])
         this.enableConsortia = enableConsortia
     }
 
