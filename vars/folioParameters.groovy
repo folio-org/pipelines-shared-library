@@ -135,7 +135,7 @@ while (nextToken != '') {
     nextToken = res.nextToken ?: ''
 }
 
-result = result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE) }
+result = result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
         .sort()
         .reverse()
 
