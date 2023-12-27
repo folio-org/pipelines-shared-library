@@ -174,7 +174,7 @@ while (nextToken != '') {
     nextToken = res.nextToken ?: ''
 }
 
-result = result.findAll { it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim()) }
+result = result.findAll { it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim()) }
         .sort()
         .reverse()
 
