@@ -161,20 +161,25 @@ AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").bui
 String repositoryName = "ui-bundle"
 
 def result = []
+def final_result = []
 String nextToken = null
 
 while (nextToken != '') {
     ListImagesRequest request = new ListImagesRequest()
-        .withRepositoryName(repositoryName)
-        .withNextToken(nextToken)
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
 
     def res = client.listImages(request)
     result.addAll(res.imageIds.collect { it.imageTag })
-
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
     nextToken = res.nextToken ?: ''
 }
 
-result = result.findAll { it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim() + '.') }
+result = final_result.findAll { it.startsWith('folio-tmp-test-2.') }
         .sort()
         .reverse()
 
