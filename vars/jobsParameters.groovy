@@ -179,7 +179,7 @@ while (nextToken != '') {
     nextToken = res.nextToken ?: ''
 }
 
-result = final_result.findAll { it.startsWith('folio-tmp-test-2.') }
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
         .sort()
         .reverse()
 
