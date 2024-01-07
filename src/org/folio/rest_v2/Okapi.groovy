@@ -6,6 +6,7 @@ import org.folio.models.OkapiTenant
 
 import java.time.Duration
 import java.time.Instant
+import java.util.regex.Matcher
 
 class Okapi extends Authorization {
 
@@ -133,6 +134,15 @@ class Okapi extends Authorization {
         return response.collect { it.srvcId }
     }
 
+    List getServicesDiscovery() {
+        String url = generateUrl("/_/discovery/modules")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        def response = restClient.get(url, headers).body
+
+        return response
+    }
+
     void cleanServicesDiscovery() {
         String url = generateUrl("/_/discovery/modules")
         Map<String, String> headers = getAuthorizedHeaders(superTenant)
@@ -142,6 +152,34 @@ class Okapi extends Authorization {
         restClient.delete(url, headers)
 
         logger.info("Okapi discovery table cleanup finished successfully.")
+    }
+
+    void deleteServiceDiscovery(String srvcId) {
+        String url = generateUrl("/_/discovery/modules/${srvcId}")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        restClient.delete(url, headers)
+        logger.info("Service ${srvcId} discovery removed.")
+    }
+
+    void refreshServicesDiscovery() {
+        List discoveryList = getServicesDiscovery()
+        discoveryList.collect { service ->
+            Matcher match = (service.srvcId =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)
+            if (match) {
+                def (_, module_name, version) = match[0]
+                if (service.url != "http://${module_name}") {
+                    service.url = "http://${module_name}"
+                    deleteServiceDiscovery(service.srvcId)
+                }
+            }
+            match.reset()
+            // Return the updated service
+            service
+        }
+        if (discoveryList) {
+            publishServiceDiscovery(discoveryList)
+        }
     }
 
     String getModuleId(String moduleName) {
@@ -192,7 +230,13 @@ class Okapi extends Authorization {
         logger.info("URL: ${url}")
 
         Instant start = Instant.now()
-        def response = restClient.post(url, installJson, headers, connectionTimeout).body
+        def response
+        if(installJson) {
+            response = restClient.post(url, installJson, headers, connectionTimeout).body
+        }else{
+            logger.warning('installJson list is empty! Nothing to install. Skipping...')
+            return
+        }
         Instant end = Instant.now()
         Duration duration = Duration.between(start, end)
 
@@ -238,6 +282,16 @@ class Okapi extends Authorization {
 
         logger.info("Tenant (${tenant.tenantId}) successfully created")
     }
+
+    List getTenantsList() {
+        String url = generateUrl("/_/proxy/tenants")
+        Map<String, String> headers = getAuthorizedHeaders(superTenant)
+
+        List response = restClient.get(url, headers).body
+
+        return response*.id
+    }
+
 
     String runIndexInstance(OkapiTenant tenant) {
         String url = generateUrl("/search/index/inventory/reindex")

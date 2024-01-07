@@ -27,6 +27,8 @@ class RancherNamespace {
 
     OkapiTenant superTenant = new OkapiTenant("supertenant")
 
+    boolean superTenantLocked
+
     String defaultTenantId
 
     Map<String, OkapiTenant> tenants = [:]

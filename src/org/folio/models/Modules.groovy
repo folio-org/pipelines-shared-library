@@ -2,6 +2,9 @@ package org.folio.models
 
 import groovy.json.JsonSlurper
 import groovy.json.JsonSlurperClassic
+import org.folio.utilities.Logger
+
+import java.util.regex.Matcher
 
 /**
  * The Modules class is responsible for managing information about modules
@@ -62,17 +65,20 @@ class Modules {
         this.discoveryList = []
 
         this.installJson.id.each { id ->
-            def match = (id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)
+            Matcher match = (id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)
             if (match) {
                 def (_, module_name, version) = match[0]
                 this.allModules[module_name] = version
             }
+            match.reset()
         }
 
         this.edgeModules = this.allModules.findAll { name, version -> name.startsWith(EDGE_PREFIX) }
         this.backendModules = this.allModules.findAll { name, version -> name.startsWith(MOD_PREFIX) }
         this.backendModules.collect { name, version ->
-            this.discoveryList << [srvcId: "${name}-${version}", instId: "${name}-${version}", url: "http://${name}"]
+            String id = "${name}-${version}"
+            String url = "http://${name}"
+            this.discoveryList << [srvcId: id, instId: id, url: url]
         }
     }
 
@@ -100,6 +106,10 @@ class Modules {
      */
     void addModules(List<String> modulesIds) {
         modulesIds.each { moduleId ->
+            boolean moduleExist = this.installJson.any { it.id.startsWith(extractModuleNameFromId(moduleId)) }
+            if (moduleExist) {
+                return
+            }
             Map<String, String> module = [
                 'id'    : moduleId,
                 'action': 'enable'
@@ -154,6 +164,26 @@ class Modules {
             return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
         } else {
             throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
+        }
+    }
+
+    static Matcher getMatcher(String moduleId) {
+        // This regular expression matches strings in the format of "mod-pubsub-<version>" or "mod-pubsub-<version>-SNAPSHOT.<sub-version>"
+        return moduleId =~ /^([a-z_\d\-]+)-(\d+\.\d+\.\d+)(?:-SNAPSHOT(?:\.(\w+))?)?$/
+    }
+
+    /**
+     * Extracts the module name from the given moduleId.
+     *
+     * @param moduleId The full identifier string.
+     * @return The extracted module name.
+     */
+    static String extractModuleNameFromId(String moduleId) {
+        Matcher matcher = getMatcher(moduleId)
+        if (matcher) {
+            return matcher.group(1)
+        } else {
+            throw new InputMismatchException("Not able to extract module name. Module id '$moduleId' has wrong format")
         }
     }
 }

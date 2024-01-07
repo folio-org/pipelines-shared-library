@@ -106,8 +106,8 @@ class Authorization extends Common {
     String url = generateUrl("/authn/credentials")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
     Map<String, Object> body = [
-      "password": user.getPasswordPlainText(),
-      "userId"  : user.uuid
+        "password": user.getPasswordPlainText(),
+        "userId"  : user.uuid
     ]
 
     restClient.post(url, body, headers)
@@ -123,8 +123,8 @@ class Authorization extends Common {
     String url = generateUrl("/bl-users/login")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-      "username": tenant.adminUser.username,
-      "password": tenant.adminUser.getPasswordPlainText()
+        "username": tenant.adminUser.username,
+        "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     def response = restClient.post(url, body, headers)
@@ -152,8 +152,8 @@ class Authorization extends Common {
     String url = generateUrl("/authn/login")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-      "username": tenant.adminUser.username,
-      "password": tenant.adminUser.getPasswordPlainText()
+        "username": tenant.adminUser.username,
+        "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     try {
@@ -186,8 +186,8 @@ class Authorization extends Common {
     String url = generateUrl("/bl-users/login-with-expiry")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-      "username": tenant.adminUser.username,
-      "password": tenant.adminUser.getPasswordPlainText()
+        "username": tenant.adminUser.username,
+        "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     try {
@@ -202,6 +202,43 @@ class Authorization extends Common {
       if (e.statusCode != HttpURLConnection.HTTP_NOT_FOUND && e.statusCode != HttpURLConnection.HTTP_BAD_REQUEST) {
         throw new RequestException(e.getMessage(), e.statusCode)
       }
+    }
+  }
+
+  /**
+   * Checks if the tenant is locked by trying to login with the tenant's admin credentials.
+   *
+   * @param tenant The OkapiTenant object representing the tenant.
+   * @return Returns 'true' if the tenant is locked, otherwise returns 'false'.
+   *         If the HTTP response code is other than 404 (NOT FOUND), an exception will be thrown.
+   * @throws RequestException when there's an unexpected error during the REST call.
+   */
+  boolean isTenantLocked(OkapiTenant tenant) {
+    // Construct the URL for the login endpoint.
+    String url = generateUrl("/authn/login")
+
+    // Set up default headers.
+    Map<String, String> headers = getDefaultHeaders(tenant)
+
+    // Prepare the request body using the tenant's admin credentials.
+    Map<String, String> body = [
+        "username": tenant.adminUser.username,
+        "password": tenant.adminUser.getPasswordPlainText()
+    ]
+
+    try {
+      // Attempt to POST the credentials to the login endpoint.
+      restClient.post(url, body, headers)
+
+      // If the POST succeeds, it means the tenant is locked.
+      return true
+    } catch (RequestException e) {
+      // If the response is a 404 NOT FOUND, it means the tenant is not locked.
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        return false
+      }
+      // If there's another type of error, re-throw the exception.
+      throw new RequestException(e.getMessage(), e.statusCode)
     }
   }
 }

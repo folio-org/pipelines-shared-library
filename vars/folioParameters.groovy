@@ -70,6 +70,18 @@ def loadSample(boolean value = true) {
     return _paramBoolean('LOAD_SAMPLE', value, 'Select true to load initial module sample data (instances, holdings etc.) for automated tests')
 }
 
+def simulate(boolean value = false) {
+    return _paramBoolean('SIMULATE', value, 'Set to true to simulate installation before install')
+}
+
+def ignoreErrors(boolean value = false) {
+    return _paramBoolean('IGNORE_ERRORS', value, 'Set to true to ignore errors during install')
+}
+
+def reinstall(boolean value = false) {
+    return _paramBoolean('REINSTALL', value, 'Set to true to re-enable modules during install')
+}
+
 def configType() {
     return _paramChoice('CONFIG_TYPE', Constants.AWS_EKS_NAMESPACE_CONFIGS, 'Select EKS deployment configuration')
 }
