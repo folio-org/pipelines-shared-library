@@ -68,9 +68,9 @@ ansiColor('xterm') {
       buildDescription ""
     }
     stage("Create Tenant"){
-      main.createTenantFlow (newTenant)
+      main.createTenantFlow(newTenant)
     }
-    stage('TMP') {
+    stage('Tmp') {
       println(JsonOutput.prettyPrint(JsonOutput.toJson(namespace)))
       println(JsonOutput.prettyPrint(JsonOutput.toJson(newTenant)))
     }
