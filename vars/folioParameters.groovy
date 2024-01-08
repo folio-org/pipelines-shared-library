@@ -70,6 +70,18 @@ def loadSample(boolean value = true) {
     return _paramBoolean('LOAD_SAMPLE', value, 'Select true to load initial module sample data (instances, holdings etc.) for automated tests')
 }
 
+def simulate(boolean value = false) {
+    return _paramBoolean('SIMULATE', value, 'Set to true to simulate installation before install')
+}
+
+def ignoreErrors(boolean value = false) {
+    return _paramBoolean('IGNORE_ERRORS', value, 'Set to true to ignore errors during install')
+}
+
+def reinstall(boolean value = false) {
+    return _paramBoolean('REINSTALL', value, 'Set to true to re-enable modules during install')
+}
+
 def configType() {
     return _paramChoice('CONFIG_TYPE', Constants.AWS_EKS_NAMESPACE_CONFIGS, 'Select EKS deployment configuration')
 }
@@ -113,29 +125,38 @@ static List repositoriesList() {
 
 static String getUIImagesList() {
   return """
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.ecr.AmazonECR;
-import com.amazonaws.services.ecr.AbstractAmazonECR;
-import com.amazonaws.services.ecr.AmazonECRClient;
-import com.amazonaws.services.ecr.model.ListImagesRequest;
-import com.amazonaws.services.ecr.model.ListImagesResult;
-import com.amazonaws.services.ecr.AmazonECRClientBuilder;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
-import jenkins.model.*
+import com.amazonaws.services.ecr.AmazonECR
+import com.amazonaws.services.ecr.AmazonECRClientBuilder
+import com.amazonaws.services.ecr.model.ListImagesRequest
 
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
-res = client.listImages(request);
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
 
+String repositoryName = "ui-bundle"
 
 def result = []
-for (image in res) {
-   result.add(image.getImageIds());
+def final_result = []
+String nextToken = null
+
+while (nextToken != '') {
+    ListImagesRequest request = new ListImagesRequest()
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
+
+    def res = client.listImages(request)
+    result.addAll(res.imageIds.collect { it.imageTag })
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
+    nextToken = res.nextToken ?: ''
 }
 
-return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(CLUSTER.trim() + '-' + NAMESPACE.trim())};
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
+        .sort()
+        .reverse()
+
+return result
 """
 }
 

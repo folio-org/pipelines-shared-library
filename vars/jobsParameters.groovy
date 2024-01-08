@@ -152,29 +152,38 @@ if(conn.responseCode.equals(200)){
 
 static String getUIImagesList() {
     return """
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.ecr.AmazonECR;
-import com.amazonaws.services.ecr.AbstractAmazonECR;
-import com.amazonaws.services.ecr.AmazonECRClient;
-import com.amazonaws.services.ecr.model.ListImagesRequest;
-import com.amazonaws.services.ecr.model.ListImagesResult;
-import com.amazonaws.services.ecr.AmazonECRClientBuilder;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
-import jenkins.model.*
+import com.amazonaws.services.ecr.AmazonECR
+import com.amazonaws.services.ecr.AmazonECRClientBuilder
+import com.amazonaws.services.ecr.model.ListImagesRequest
 
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
-res = client.listImages(request);
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
 
+String repositoryName = "ui-bundle"
 
 def result = []
-for (image in res) {
-   result.add(image.getImageIds());
+def final_result = []
+String nextToken = null
+
+while (nextToken != '') {
+    ListImagesRequest request = new ListImagesRequest()
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
+
+    def res = client.listImages(request)
+    result.addAll(res.imageIds.collect { it.imageTag })
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
+    nextToken = res.nextToken ?: ''
 }
 
-return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
+        .sort()
+        .reverse()
+
+return result
 """
 }
 

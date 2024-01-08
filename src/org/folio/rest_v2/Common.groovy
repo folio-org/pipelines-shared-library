@@ -31,5 +31,4 @@ class Common {
         this.tools = new Tools(context)
         this.restClient = new RestClient(context, debug)
     }
-
 }

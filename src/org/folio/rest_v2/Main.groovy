@@ -23,14 +23,14 @@ class Main extends Okapi {
         publishServiceDiscovery(discoveryList)
     }
 
-    void simulateInstall (OkapiTenant tenant, Object installJson){
-        if (!tenant.getInstallQueryParameters().getSimulate()) {
+    void simulateInstall(OkapiTenant tenant, Object installJson) {
+        if (!tenant.getInstallRequestParams().getSimulate()) {
             logger.warning("Simulation not requested!")
             return
         }
         publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
         tenantInstall(tenant, installJson)
-        tenant.installQueryParameters.simulate = false
+        tenant.installRequestParams.simulate = false
     }
 
     void lockSuperTenant(OkapiTenant superTenant) {
@@ -50,7 +50,17 @@ class Main extends Okapi {
         if (superTenant.tenantId != 'supertenant') {
             logger.error("${superTenant.tenantId} is not a supertenant")
         }
-        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds(requiredModules().values().toList(), 'enable'))
+
+        if (!superTenant.getAdminUser()) {
+            logger.warning("Admin user not specified for supertenant.")
+            return
+        }
+
+        List installJson = getInstallJson(superTenant.getTenantId(), 'disable')
+        installJson.removeAll { it.id.startsWith('okapi') }
+
+        logger.warning(installJson)
+        tenantInstall(superTenant, installJson)
     }
 
     void createTenantFlow(OkapiTenant tenant) {
@@ -64,7 +74,7 @@ class Main extends Okapi {
         }
     }
 
-    void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants){
+    void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
     }
 
@@ -80,13 +90,23 @@ class Main extends Okapi {
         }
     }
 
-    void update(Map<String, OkapiTenant> tenants){
+    void update(Map<String, OkapiTenant> tenants) {
         tenants.each { tenantId, tenant ->
             tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
             tenantInstall(tenant, tenant.modules.installJson, 900000)
-            configureTenant(tenant)
+            if (tenant.getAdminUser()) {
+                loginUser(tenant)
+                permissions.purgeDeprecatedPermissions(tenant)
+                permissions.refreshAdminPermissions(tenant, tenant.getAdminUser())
+//                configureTenant(tenant)
+            }
         }
 
+    }
+
+    void updateSuperTenant(OkapiTenant superTenant) {
+        tenantInstall(superTenant, superTenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
+        tenantInstall(superTenant, superTenant.modules.installJson, 900000)
     }
 
     void createOkapiUser(OkapiTenant tenant, OkapiUser user) {
