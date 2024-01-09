@@ -5,7 +5,7 @@ import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-karate-tests') _
 
 def call(params) {
   def id
