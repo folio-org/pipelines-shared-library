@@ -40,7 +40,7 @@ def call(params) {
                 def packageJson = readJSON file: 'package.json'
                 String moduleId = getModuleId('folio_consortia-settings')
                 String moduleVersion = moduleId - 'folio_consortia-settings-'
-                packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
+                packageJson.dependencies.put('@folio/consortia-settings: 1.0.2', moduleVersion)
                 writeJSON file: 'package.json', json: packageJson, pretty: 2
                 sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
             }

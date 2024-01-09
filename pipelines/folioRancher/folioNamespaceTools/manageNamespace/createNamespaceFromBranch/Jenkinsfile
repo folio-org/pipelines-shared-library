@@ -179,28 +179,28 @@ ansiColor('xterm') {
         }
       }
 
-//      stage('Build and deploy UI') {
-//        Map branches = [:]
-//        namespace.getTenants().each { tenantId, tenant ->
-//          if (tenant.getTenantUi()) {
-//            TenantUi ui = tenant.getTenantUi()
-//            branches[tenantId] = {
-//              def jobParameters = [
-//                tenant_id  : ui.getTenantId(),
-//                custom_hash: ui.getHash(),
-//                custom_url : "https://${namespace.getDomains()['okapi']}",
-//                custom_tag : ui.getTag(),
-//                consortia  : tenant instanceof OkapiTenantConsortia
-//              ]
-//              uiBuild(jobParameters)
-//              folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//              }
-//            }
-//          }
-//        }
-//        parallel branches
-//      }
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [
+                tenant_id  : ui.getTenantId(),
+                custom_hash: ui.getHash(),
+                custom_url : "https://${namespace.getDomains()['okapi']}",
+                custom_tag : ui.getTag(),
+                consortia  : tenant instanceof OkapiTenantConsortia
+              ]
+              uiBuild(jobParameters)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
+            }
+          }
+        }
+        parallel branches
+      }
 
       stage('Deploy ldp') {
         println('LDP deployment')
