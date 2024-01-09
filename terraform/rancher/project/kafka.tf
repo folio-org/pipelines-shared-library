@@ -51,7 +51,7 @@ resource "rancher2_app_v2" "kafka" {
     readinessProbe:
       enabled: false
     replicaCount: ${var.kafka_number_of_broker_nodes}
-    heapOpts: "-Xmx3072m -Xms768m"
+    heapOpts: "-XX:MaxRAMPercentage=75.0"
     extraEnvVars:
       - name: KAFKA_DELETE_TOPIC_ENABLE
         value: "true"
