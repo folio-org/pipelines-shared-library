@@ -126,16 +126,5 @@
       "mod-remote-storage"
     ],
     "slackChannel": "#volaris-dev"
-  },
-  {
-    "team": "Thor",
-    "modules": [
-      "mod-ldp",
-      "mod-courses",
-      "mod-graphql",
-      "mod-settings"
-    ], 
-    "slackChannel": "#thor"
   }
-
 ]
