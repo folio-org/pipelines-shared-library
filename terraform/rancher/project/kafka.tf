@@ -18,9 +18,9 @@ resource "rancher2_app_v2" "kafka" {
         enabled: true
         resources:
           limits:
-            memory: 768Mi
+            memory: 2048Mi
           requests:
-            memory: 512Mi
+            memory: 1024Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
