@@ -139,22 +139,7 @@
       }
     }
   },
-  {
-    "Thor": {
-      "info": {
-        "id": "10609",
-        "slack": "",
-        "modules": [
-          "mod-courses",
-          "mod-graphql",
-          "mod-ldp",
-          "mod-settings",
-          "ui-courses",
-          "ui-ldp"
-        ]
-      }
-    }
-  },
+
   {
     "Thunderjet": {
       "info": {
