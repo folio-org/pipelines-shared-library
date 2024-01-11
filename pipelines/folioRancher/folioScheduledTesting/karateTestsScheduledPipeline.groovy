@@ -9,8 +9,8 @@ def clusterName = "folio-testing"
 def projectName = "karate"
 def folio_repository = "platform-complete"
 def folio_branch = "snapshot"
-def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
-def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
+def okapiUrl = "https://folio-tmp-test-2-okapi.ci.folio.org"
+def edgeUrl = "https://folio-tmp-test-2-edge.ci.folio.org"
 def prototypeTenant = "consortium"
 
 def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
@@ -29,9 +29,9 @@ pipeline {
 
   agent { label 'jenkins-agent-java17' }
 
-  triggers {
-    cron('H 3 * * *')
-  }
+//  triggers {
+//    cron('H 3 * * *')
+//  }
 
   options {
     disableConcurrentBuilds()
@@ -43,64 +43,64 @@ pipeline {
   }
 
   stages {
-    stage("Check environment") {
-      steps {
-        script {
-          try {
-            def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-            tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-          } catch (Exception new_ex) {
-            println('Existing env: ' + new_ex)
-          }
-        }
-      }
-    }
+//    stage("Check environment") {
+//      steps {
+//        script {
+//          try {
+//            def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//            tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//          } catch (Exception new_ex) {
+//            println('Existing env: ' + new_ex)
+//          }
+//        }
+//      }
+//    }
 
-    stage("Create environment") {
-      steps {
-        script {
-          try {
-            def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-              projectName, prototypeTenant, folio_repository, folio_branch)
-            spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-          } catch (Exception new_ex) {
-            slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-            throw new Exception("Creation of the environment is failed: " + new_ex)
-          }
-        }
-      }
-    }
+//    stage("Create environment") {
+//      steps {
+//        script {
+//          try {
+//            def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+//              projectName, prototypeTenant, folio_repository, folio_branch)
+//            spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//          } catch (Exception new_ex) {
+//            slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+//            throw new Exception("Creation of the environment is failed: " + new_ex)
+//          }
+//        }
+//      }
+//    }
 
-    stage("Retry of building environment") {
-      steps {
-        script {
-          if (spinUpEnvironmentJob.result != 'SUCCESS') {
-            try {
-              def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-              tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-            } catch (Exception e) {
-              println('Something went wrong, error: ' + e.getMessage())
-            }
-            sleep time: 1, unit: 'MINUTES'
-            try {
-              def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                projectName, prototypeTenant, folio_repository, folio_branch)
-              spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-            } catch (Exception e) {
-              slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-              throw new Exception("Creation of the environment is failed: " + e.getMessage())
-            }
-          }
-        }
-      }
-    }
+//    stage("Retry of building environment") {
+//      steps {
+//        script {
+//          if (spinUpEnvironmentJob.result != 'SUCCESS') {
+//            try {
+//              def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//              tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//            } catch (Exception e) {
+//              println('Something went wrong, error: ' + e.getMessage())
+//            }
+//            sleep time: 1, unit: 'MINUTES'
+//            try {
+//              def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
+//                projectName, prototypeTenant, folio_repository, folio_branch)
+//              spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//            } catch (Exception e) {
+//              slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+//              throw new Exception("Creation of the environment is failed: " + e.getMessage())
+//            }
+//          }
+//        }
+//      }
+//    }
 
     stage("Start tests") {
-      when {
-        expression {
-          spinUpEnvironmentJob.result == 'SUCCESS'
-        }
-      }
+//      when {
+//        expression {
+//          spinUpEnvironmentJob.result == 'SUCCESS'
+//        }
+//      }
       steps {
         script {
           def jobParameters = [branch         : params.branch,
@@ -118,72 +118,72 @@ pipeline {
       }
     }
 
-    stage("Parallel") {
-      parallel {
-        stage("Collect test results") {
-          when {
-            expression {
-              spinUpEnvironmentJob.result == 'SUCCESS'
-            }
-          }
-          stages {
-            stage("Collect execution results") {
-              steps {
-                script {
-                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-              }
-            }
-            stage("Destroy environment") {
-              steps {
-                script {
-                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-              }
-            }
-            stage("Parse teams assignment") {
-              steps {
-                script {
-                  def jsonContents = readJSON file: "teams-assignment.json"
-                  teamAssignment = new TeamAssignment(jsonContents)
-                }
-              }
-            }
+//    stage("Parallel") {
+//      parallel {
+//        stage("Collect test results") {
+//          when {
+//            expression {
+//              spinUpEnvironmentJob.result == 'SUCCESS'
+//            }
+//          }
+//          stages {
+//            stage("Collect execution results") {
+//              steps {
+//                script {
+//                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+//                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                }
+//              }
+//            }
+//            stage("Destroy environment") {
+//              steps {
+//                script {
+//                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//              }
+//            }
+//            stage("Parse teams assignment") {
+//              steps {
+//                script {
+//                  def jsonContents = readJSON file: "teams-assignment.json"
+//                  teamAssignment = new TeamAssignment(jsonContents)
+//                }
+//              }
+//            }
+//
+//            stage("Sync jira tickets") {
+//              steps {
+//                script {
+//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
 
-            stage("Sync jira tickets") {
-              steps {
-                script {
-                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                }
-              }
-            }
+//            stage("Send slack notifications") {
+//              steps {
+//                script {
+//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
 
-            stage("Send slack notifications") {
-              steps {
-                script {
-                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    stage("Set job execution result") {
-      when {
-        expression {
-          spinUpEnvironmentJob.result != 'SUCCESS'
-        }
-      }
-      steps {
-        script {
-          currentBuild.result = 'FAILURE'
-        }
-      }
-    }
+//    stage("Set job execution result") {
+//      when {
+//        expression {
+//          spinUpEnvironmentJob.result != 'SUCCESS'
+//        }
+//      }
+//      steps {
+//        script {
+//          currentBuild.result = 'FAILURE'
+//        }
+//      }
+//    }
   }
 }
 

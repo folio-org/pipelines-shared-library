@@ -125,28 +125,28 @@ def call(params) {
     }
   }
 
-  stage('Send in slack test results notifications') {
-    script {
-      // export and collect karate tests results
-      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-      def passedTestsCount = 0
-      def failedTestsCount = 0
-      files_list.each { test ->
-        def json = readJSON file: test.path
-        def testsFailed = json['scenariosfailed']
-        if (testsFailed != 0) {
-          failedTestsCount += testsFailed
-        }
-        def testsPassed = json['scenariosPassed']
-        if (testsPassed != 0) {
-          passedTestsCount += testsPassed
-        }
-      }
-      def totalTestsCount = passedTestsCount + failedTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-      def passRate = passRateInDecimal.intValue()
-      slackNotifications.sendKarateSlackNotification("Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
-    }
-  }
+//  stage('Send in slack test results notifications') {
+//    script {
+//      // export and collect karate tests results
+//      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+//      def passedTestsCount = 0
+//      def failedTestsCount = 0
+//      files_list.each { test ->
+//        def json = readJSON file: test.path
+//        def testsFailed = json['scenariosfailed']
+//        if (testsFailed != 0) {
+//          failedTestsCount += testsFailed
+//        }
+//        def testsPassed = json['scenariosPassed']
+//        if (testsPassed != 0) {
+//          passedTestsCount += testsPassed
+//        }
+//      }
+//      def totalTestsCount = passedTestsCount + failedTestsCount
+//      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+//      def passRate = passRateInDecimal.intValue()
+//      slackNotifications.sendKarateSlackNotification("Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+//    }
+//  }
 }
 
