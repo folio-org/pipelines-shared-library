@@ -40,7 +40,7 @@ resource "rancher2_app_v2" "postgresql" {
           memory: 10240Mi
       extendedConfiguration: |-
         shared_buffers = '2560MB'
-        max_connections = '1000'
+        max_connections = '4000'
         listen_addresses = '0.0.0.0'
         effective_cache_size = '7680MB'
         maintenance_work_mem = '640MB'
@@ -89,7 +89,7 @@ resource "rancher2_app_v2" "postgresql" {
         runAsUser: 1001
       extendedConfiguration: |-
         shared_buffers = '2560MB'
-        max_connections = '1000'
+        max_connections = '4000'
         listen_addresses = '0.0.0.0'
         effective_cache_size = '7680MB'
         maintenance_work_mem = '640MB'

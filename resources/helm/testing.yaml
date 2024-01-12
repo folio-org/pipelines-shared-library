@@ -445,7 +445,7 @@ mod-data-export-worker:
     requests:
       memory: '2930Mi'
 mod-data-import:
-  dbMaxPoolSize: '5'
+  dbMaxPoolSize: '10'
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
     enabled: false
@@ -615,7 +615,7 @@ mod-inn-reach:
     requests:
       memory: '512Mi'
 mod-inventory:
-  dbMaxPoolSize: '5'
+  dbMaxPoolSize: '10'
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
   postJob:
     enabled: false
@@ -626,7 +626,7 @@ mod-inventory:
     requests:
       memory: '683Mi'
 mod-inventory-storage:
-  dbMaxPoolSize: '5'
+  dbMaxPoolSize: '10'
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
     enabled: false
