@@ -677,6 +677,26 @@ mod-kb-ebsco-java:
       memory: '341Mi'
     requests:
       memory: '256Mi'
+mod-requests-mediated:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '384Mi'
+    requests:
+      memory: '256Mi'
+mod-tlr:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '384Mi'
+    requests:
+      memory: '256Mi'
 mod-ldp:
   javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
