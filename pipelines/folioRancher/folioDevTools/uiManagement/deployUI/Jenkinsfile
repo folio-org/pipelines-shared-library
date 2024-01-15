@@ -1,11 +1,11 @@
 #!groovy
 
-import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.folio.rest.GitHubUtility
 import org.folio.models.TenantUi
+import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
@@ -35,6 +35,7 @@ String defaultTenantId = 'diku'
 //Set namespace configuration
 String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
 List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
+List uiModuleList = installJson.findAll { it.id?.startsWith('folio_') == true }
 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
@@ -45,7 +46,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
-namespace.getModules().setInstallJson(installJson)
+namespace.getModules().setInstallJson(uiModuleList)
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -54,6 +55,8 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallRequestParams(installRequestParams.clone())
   .withTenantUi(tenantUi.clone())
 )
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 if (params.CONSORTIA) {
   namespace.setEnableConsortia(true)
@@ -98,6 +101,10 @@ ansiColor('xterm') {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
           }
+        }
+        stage('Update UI Modules')  {
+          main.preInstall(uiModuleList, [])
+          main.update(namespace.getTenants())
         }
     } catch (e) {
         println "Caught exception: ${e}"
