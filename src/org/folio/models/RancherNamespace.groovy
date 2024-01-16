@@ -13,6 +13,8 @@ class RancherNamespace {
 
     private static final List DOMAINS_LIST = ['okapi', 'edge']
 
+    private static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/"
+
     String clusterName
 
     String namespaceName
@@ -38,6 +40,8 @@ class RancherNamespace {
     boolean enableRwSplit = false
 
     boolean enableConsortia = false
+
+    boolean enableSplitFiles = false
 
     RancherNamespace(String clusterName, String namespaceName) {
         this.clusterName = clusterName
@@ -119,38 +123,73 @@ class RancherNamespace {
     }
 
     /**
+     * Updates the configuration for consortia tenants in the RancherNamespace.*/
+    private void updateConsortiaTenantsConfig() {
+        OkapiTenantConsortia centralConsortiaTenant = findCentralConsortiaTenant()
+        if (centralConsortiaTenant) {
+            this.tenants.values().findAll { it instanceof OkapiTenantConsortia && !it.isCentralConsortiaTenant }
+                .each { tenant ->
+                    tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
+                }
+        }
+    }
+
+    private OkapiTenantConsortia findCentralConsortiaTenant() {
+        this.tenants.values().find { it instanceof OkapiTenantConsortia && it.isCentralConsortiaTenant }
+    }
+
+    /**
      * Adds a deployment configuration to the RancherNamespace.
      * @throws IllegalArgumentException if the YAML URL is malformed or if there's an error parsing the YAML
      * @throws UncheckedIOException if there's an error reading from the YAML URL
      */
-    @NonCPS
     void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH) {
-        if (this.deploymentConfigType) {
-            String yamlUrl = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/${branch}/resources/helm/${this.deploymentConfigType}.yaml"
-            try {
-                String yamlString = new URL(yamlUrl).text
-                Yaml yamlParser = new Yaml()
-                this.deploymentConfig = yamlParser.load(yamlString)
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Invalid URL: ${e.message}", e)
-            } catch (IOException e) {
-                throw new UncheckedIOException("Error reading from URL: ${e.message}", e)
-            } catch (YAMLException e) {
-                throw new IllegalArgumentException("Error parsing YAML: ${e.message}", e)
+        if(this.deploymentConfigType){
+            Map deploymentConfig = fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
+            if(this.enableSplitFiles){
+                deploymentConfig = mergeMaps(deploymentConfig, getFeatureConfig('split-files', branch))
             }
+            this.deploymentConfig = deploymentConfig
         }
     }
 
-    /**
-     * Updates the configuration for consortia tenants in the RancherNamespace.*/
-    private void updateConsortiaTenantsConfig() {
-        this.tenants.values().findAll { it instanceof OkapiTenantConsortia }.each { OkapiTenantConsortia tenant ->
-            OkapiTenantConsortia centralConsortiaTenant = this.tenants.values()
-                .findAll { it instanceof OkapiTenantConsortia }
-                .find { OkapiTenantConsortia it -> it.isCentralConsortiaTenant }
-            if (!tenant.isCentralConsortiaTenant && centralConsortiaTenant) {
-                tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
+    private Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
+        return fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/features/${feature}.yaml")
+    }
+
+    @NonCPS
+    private Map fetchYaml(String yamlUrl) {
+        try {
+            String yamlString = new URL(yamlUrl).text
+            Yaml yamlParser = new Yaml()
+            return yamlParser.load(yamlString)
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid URL: ${e.message}", e)
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error reading from URL: ${e.message}", e)
+        } catch (YAMLException e) {
+            throw new IllegalArgumentException("Error parsing YAML: ${e.message}", e)
+        }
+    }
+
+    Map mergeMaps(Map map1, Map map2) {
+        map2.each { key, value ->
+            if (map1.containsKey(key)) {
+                if (map1[key] instanceof Map && value instanceof Map) {
+                    // Merge maps recursively
+                    map1[key] = mergeMaps(map1[key] as Map, value as Map)
+                } else if (map1[key] instanceof List && value instanceof List) {
+                    // Merge lists
+                    List mergedList = new ArrayList(map1[key])
+                    mergedList.addAll(value)
+                    map1[key] = mergedList.unique() // Remove duplicates, if required
+                } else {
+                    map1[key] = value
+                }
+            } else {
+                map1[key] = value
             }
         }
+        return map1
     }
 }

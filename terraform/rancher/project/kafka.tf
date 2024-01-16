@@ -14,13 +14,18 @@ resource "rancher2_app_v2" "kafka" {
     metrics:
       kafka:
         enabled: true
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            memory: 256Mi
       jmx:
         enabled: true
         resources:
           limits:
-            memory: 2048Mi
+            memory: 1280Mi
           requests:
-            memory: 1024Mi
+            memory: 512Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -80,6 +85,11 @@ resource "rancher2_app_v2" "kafka_ui" {
         alb.ingress.kubernetes.io/group.name: ${local.group_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
+    resources:
+      requests:
+        memory: 256Mi
+      limits:
+        memory: 768Mi
     yamlApplicationConfig:
       kafka:
         clusters:

@@ -1,7 +1,6 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
-
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
@@ -18,7 +17,9 @@ void withK8sClient(Closure closure) {
 void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    //TODO change repository back to stable
+    addHelmRepository(Constants.FOLIO_HELM_V2_TEST_REPO_NAME, Constants.FOLIO_HELM_V2_TEST_REPO_URL, true)
+//        addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
     closure.call()
   }
 }
@@ -64,7 +65,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
       break
   }
-  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
+//    upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
+  //TODO change repository back to stable
+  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_TEST_REPO_NAME, chartName)
 }
 
 void deployFolioModules(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -153,44 +156,25 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
-  // Enable JMX metrics
-  if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
-    def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[moduleName], moduleVersion)
-    if (action == "upgrade" || action == "equal") {
-      moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
-    }
-  }
 
-  // Enable R/W split
-  if (ns.enableRwSplit && Constants.READ_WRITE_MODULES.contains(moduleName)) {
-    moduleConfig << [readWriteSplitEnabled: "true"]
-  }
+// Enable R/W split
+//  if (ns.enableRwSplit && Constants.READ_WRITE_MODULES.contains(moduleName)) {
+//    moduleConfig << [readWriteSplitEnabled: "true"]
+//  }
 
-  //Enable extra env
-  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
-    moduleConfig << [consortiumEnabled: "true"]
-  }
-
-  //Enable cross tenant extra env
-  if (moduleName == 'mod-authtoken' && ns.enableConsortia) {
-    moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
-  }
-  //Enable RTR functionality with env value
-  if (params.RTR) {
-    moduleConfig << [rtrEnabled: "true"]
-  }
-
-  if (ns.getClusterName() == 'folio-dev') {
-    moduleConfig << [modSearchDev: "true"]
-    moduleConfig << [modInventoryStorageDev: "true"]
-    moduleConfig << [modEntitiesLinksDev: "true"]
-  }
-
-  //Enable DIS
-  if(params.DI_SLICING && moduleName == 'mod-data-import') {
-    moduleConfig << [disEnabled: 'true']
-    moduleConfig << [awsConnectParameters: 's3-credentials']
-  }
+//Enable extra env
+//  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
+//    moduleConfig << [consortiumEnabled: "true"]
+//  }
+//
+//  //Enable cross tenant extra env
+//  if (moduleName == 'mod-authtoken' && ns.enableConsortia) {
+//    moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
+//  }
+//  //Enable RTR functionality with env value
+//  if (params.RTR) {
+//    moduleConfig << [rtrEnabled: "true"]
+//  }
 
   // Enable ingress
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
@@ -198,6 +182,24 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['ingress']['hosts'][0] += [host: domain]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
   }
+//  if (ns.getClusterName() == 'folio-dev') {
+//    moduleConfig << [modSearchDev: "true"]
+//    moduleConfig << [modInventoryStorageDev: "true"]
+//    moduleConfig << [modEntitiesLinksDev: "true"]
+//  }
+//
+//  //Enable DIS
+//  if(params.DI_SLICING && moduleName == 'mod-data-import') {
+//    moduleConfig << [disEnabled: 'true']
+//    moduleConfig << [awsConnectParameters: 's3-credentials']
+//  }
+//
+//  // Enable ingress
+//  boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
+//  if (enableIngress) {
+//    moduleConfig['ingress']['hosts'][0] += [host: domain]
+//    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
+//  }
 
   //Enable edge NLB
   String serviceType = moduleConfig.containsKey('service') ? moduleConfig['service']['type'] : ""
@@ -230,6 +232,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['service']['annotations'] += ['external-dns.alpha.kubernetes.io/hostname': edgeNlbDomain]
   }
 
-  writeYaml file: valuesFilePath, data: moduleConfig, overwrite: true
+  writeYaml file: valuesFilePath, data: moduleConfig
   return valuesFilePath
 }
