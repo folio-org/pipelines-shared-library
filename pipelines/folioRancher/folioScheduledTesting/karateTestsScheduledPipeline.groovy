@@ -13,7 +13,9 @@ def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 def prototypeTenant = "consortium"
 
-def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
+//TODO switch back before merge
+//def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
+def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054"
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
@@ -60,8 +62,8 @@ pipeline {
       steps {
         script {
           try {
-            def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-              projectName, prototypeTenant, folio_repository, folio_branch)
+            def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+              projectName, folio_branch)
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
             slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
@@ -83,8 +85,8 @@ pipeline {
             }
             sleep time: 1, unit: 'MINUTES'
             try {
-              def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                projectName, prototypeTenant, folio_repository, folio_branch)
+              def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+                projectName, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
               slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
@@ -187,8 +189,7 @@ pipeline {
   }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
-                                         folio_repository, folio_branch) {
+private List getEnvironmentJobParameters(String okapiVersion, clusterName, projectName, folio_branch) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'FOLIO_BRANCH', value: folio_branch),
@@ -197,6 +198,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
    booleanParam(name: 'LOAD_REFERENCE', value: true),
    booleanParam(name: 'LOAD_SAMPLE', value: true),
    booleanParam(name: 'CONSORTIA', value: true),
+   booleanParam(name: 'SPLIT_FILES', value: true),
    booleanParam(name: 'RW_SPLIT', value: false),
    booleanParam(name: 'GREENMAIL', value: false),
    booleanParam(name: 'MOCK_SERVER', value: true),

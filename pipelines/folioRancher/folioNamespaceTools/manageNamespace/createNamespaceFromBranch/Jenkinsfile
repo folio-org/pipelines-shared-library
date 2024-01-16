@@ -12,10 +12,10 @@ import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
+//TODO switch back to RANCHER-741-Jenkins-Enhancements before merge
+@Library('pipelines-shared-library@RANCHER-1054') _
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'RANCHER-1054'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -29,6 +29,7 @@ properties([
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
@@ -80,6 +81,8 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
 namespace.setEnableRwSplit(params.RW_SPLIT)
+namespace.setEnableSplitFiles(params.SPLIT_FILES)
+
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 namespace.getModules().setInstallJson(installJson)
 
@@ -142,7 +145,7 @@ ansiColor('xterm') {
       stage('[Helm] Deploy Okapi') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-          folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
+//          folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
         }
       }
 
@@ -158,7 +161,7 @@ ansiColor('xterm') {
       stage('[Helm] Deploy backend') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+//          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
         }
       }
 

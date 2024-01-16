@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 def karateEnvironment = "folio-testing-karate"
-String clusterName = params.okapiUrl.minus("https://").split("-")[0,1].join("-")
+String clusterName = params.okapiUrl.minus("https://").split("-")[0, 1].join("-")
 String projectName = params.okapiUrl.minus("https://").split("-")[2]
 List edgeModulesRollout = []
 
@@ -90,10 +90,10 @@ pipeline {
             steps {
                 script {
                     def files = findFiles(glob: '**/karate-config.js')
-                        files.each { file ->
-                            echo "Updating file ${file.path}"
-                            writeFile file: file.path, text: renderKarateConfig(readFile(file.path))
-                        }
+                    files.each { file ->
+                        echo "Updating file ${file.path}"
+                        writeFile file: file.path, text: renderKarateConfig(readFile(file.path))
+                    }
 
                 }
             }
@@ -192,7 +192,7 @@ pipeline {
     }
 }
 
-String renderKarateConfig(String config){
+String renderKarateConfig(String config) {
     withCredentials([
         string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
         string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),

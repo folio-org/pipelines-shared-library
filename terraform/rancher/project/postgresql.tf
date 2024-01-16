@@ -11,6 +11,24 @@ resource "random_password" "pg_password" {
   override_special = "‘~!@#$%^&*()_-+={}[]\\/<>,.;?':|"
 }
 
+resource "rancher2_secret" "db-credentials" {
+  name         = "db-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV             = base64encode(local.env_name)
+    DB_HOST         = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    DB_HOST_READER  = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
+    DB_PORT         = base64encode("5432")
+    DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
+    DB_PASSWORD     = base64encode(local.pg_password)
+    DB_DATABASE     = base64encode(var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("5")
+    DB_CHARSET      = base64encode("UTF-8")
+    DB_QUERYTIMEOUT = base64encode("60000")
+  }
+}
+
 locals {
   pg_password       = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
@@ -20,7 +38,7 @@ locals {
 
 # Rancher2 Project App Postgres
 resource "rancher2_app_v2" "postgresql" {
-  depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-connect-modules]
+  depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
   count         = var.pg_embedded ? 1 : 0
   cluster_id    = data.rancher2_cluster.this.id
   namespace     = rancher2_namespace.this.name
@@ -201,25 +219,7 @@ module "rds" {
   db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
   snapshot_identifier             = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
-  #  publicly_accessible             = true
-  skip_final_snapshot = true
-
-  #  vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
-  #  subnets                         = data.aws_subnets.database.ids
-  #  replica_count       = 1
-  #  database_name                   = var.pg_dbname
-  #  username                        = var.pg_username
-  #  password                        = local.pg_password
-  #  instance_type       = var.pg_instance_type
-  #  storage_encrypted               = true
-  #  apply_immediately               = true
-  #  vpc_security_group_ids          = [aws_security_group.allow_rds[count.index].id]
-  #  db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
-  #  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
-  #  snapshot_identifier = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
-  #  create_random_password          = false
-  #  publicly_accessible = true
-  #  skip_final_snapshot = true
+  skip_final_snapshot             = true
 
   tags = merge(
     var.tags,
