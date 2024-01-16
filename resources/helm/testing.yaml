@@ -294,7 +294,7 @@ mod-audit:
     requests:
       memory: '683Mi'
 mod-authtoken:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dcache.permissions=true -Dallow.cross.tenant.requests=true'
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dcache.permissions=true'
   postJob:
     enabled: false
   replicaCount: 1
