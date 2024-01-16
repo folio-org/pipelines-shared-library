@@ -1,3 +1,14 @@
+resource "rancher2_secret" "kafka-credentials" {
+  name         = "kafka-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV        = base64encode(local.env_name)
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
+    KAFKA_PORT = base64encode("9092")
+  }
+}
+
 # Rancher2 Project App Kafka
 resource "rancher2_app_v2" "kafka" {
   count         = var.kafka_shared ? 0 : 1
@@ -14,13 +25,18 @@ resource "rancher2_app_v2" "kafka" {
     metrics:
       kafka:
         enabled: true
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            memory: 256Mi
       jmx:
         enabled: true
         resources:
           limits:
-            memory: 2048Mi
+            memory: 1280Mi
           requests:
-            memory: 1024Mi
+            memory: 512Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -80,6 +96,11 @@ resource "rancher2_app_v2" "kafka_ui" {
         alb.ingress.kubernetes.io/group.name: ${local.group_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
+    resources:
+      requests:
+        memory: 256Mi
+      limits:
+        memory: 768Mi
     yamlApplicationConfig:
       kafka:
         clusters:
@@ -91,10 +112,5 @@ resource "rancher2_app_v2" "kafka_ui" {
         health:
           ldap:
             enabled: false
-      resources:
-        requests:
-          memory: 256Mi
-        limits:
-          memory: 768Mi
   EOT
 }

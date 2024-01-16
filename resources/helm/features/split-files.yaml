@@ -1,0 +1,9 @@
+---
+mod-data-import:
+  extraEnvVars:
+    - name: SPLIT_FILES_ENABLED
+      value: 'true'
+  integrations:
+    s3:
+      enabled: true
+      existingSecret: s3-mod-data-import-credentials
