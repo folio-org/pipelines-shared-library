@@ -115,8 +115,10 @@ class Constants {
   static String FOLIO_NPM_REPO_URL = 'https://repository.folio.org/repository/npm-folioci/'
 
   static String NEXUS_BASE_URL = 'https://repository.folio.org/repository'
-  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2/'
   static String FOLIO_HELM_V2_REPO_NAME = "folio-helm-v2"
+  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2/'
+  static String FOLIO_HELM_V2_TEST_REPO_NAME = "folio-helm-v2-test"
+  static String FOLIO_HELM_V2_TEST_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2-test/'
 
   // Docker
   static String DOCKERHUB_URL = 'https://hub.docker.com/v2'
