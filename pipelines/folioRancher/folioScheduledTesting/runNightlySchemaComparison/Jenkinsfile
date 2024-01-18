@@ -8,18 +8,25 @@ import org.folio.Constants
 properties([
   //pipelineTriggers([cron('H 0 * * *')]),  # need to implement cron time
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds()
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_REPOSITORY', defaultValue: 'platform-complete', description: "Repository where to build"),
+    string(name: 'FOLIO_BRANCH_SRC', defaultValue: 'R1-2024', description: "platform-complete source branch for the comparison"),
+    string(name: 'FOLIO_BRANCH_DST', defaultValue: 'snapshot', description: "platform-complete destination branch for the comparison"),
+    string(name: 'BACKUP_NAME', defaultValue: '', description: "Backup Name From Where will be provisioned env"),
+  ])
 ])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+// TODO: Thinkings If We need this parameters here,Does we sometimes manually run this job ? strugle and made comment this,please attention
 Map Parameters = [
-  FOLIO_REPOSITORY                  : 'platform-complete',
-  FOLIO_BRANCH_SRC                  : 'R1-2024',
-  FOLIO_BRANCH_DST                  : 'snapshot',
-  BACKUP_NAME                       : '',
+  FOLIO_REPOSITORY                  : params.FOLIO_REPOSITORY,
+  FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
+  FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
+  BACKUP_NAME                       : params.BACKUP_NAME,
 ]
 
 ansiColor('xterm') {
