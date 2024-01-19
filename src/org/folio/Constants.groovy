@@ -14,7 +14,8 @@ class Constants {
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'karate', 'snapshot', 'sprint']
-  static List AWS_EKS_DEV_NAMESPACES = ['bama',
+  static List AWS_EKS_DEV_NAMESPACES = ['aggies',
+                                        'bama',
                                         'bienenvolk',
                                         'bulk-edit',
                                         'concorde',
@@ -42,7 +43,6 @@ class Constants {
                                         'spitfire-2nd',
                                         'spring-force',
                                         'stripes-force',
-                                        'tamu',
                                         'task-force',
                                         'task-force-2nd',
                                         'thor',
