@@ -187,24 +187,24 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
 }
 
 // slack notfication
-void sendSlackNotification(String slackChannel) {
-    def buildStatus = currentBuild.result
-    def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-
-    if (buildStatus == "FAILURE") {
-        message += "Data Migration Failed. Please check logs in job."
-    } else {
-        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
-    }
-
-    try {
-        slackSend(color: 'good', message: message, channel: slackChannel)
-        slackSend(message: message, channel: slackChannel)
-    } catch (Exception e) {
-        println("Unable to send slack notification to channel '${slackChannel}'")
-        e.printStackTrace()
-    }
-}
+//void sendSlackNotification(String slackChannel) {
+//    def buildStatus = currentBuild.result
+//    def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
+//
+//    if (buildStatus == "FAILURE") {
+//        message += "Data Migration Failed. Please check logs in job."
+//    } else {
+//        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
+//    }
+//
+//    try {
+//        slackSend(color: 'good', message: message, channel: slackChannel)
+//        slackSend(message: message, channel: slackChannel)
+//    } catch (Exception e) {
+//        println("Unable to send slack notification to channel '${slackChannel}'")
+//        e.printStackTrace()
+//    }
+//}
 
 
 @NonCPS
