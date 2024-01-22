@@ -17,7 +17,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 Map Parameters = [
   FOLIO_REPOSITORY                  : 'platform-complete',
-  FOLIO_BRANCH_SRC                  : 'R1-2024',
+  FOLIO_BRANCH_SRC                  : 'R1-2023',
   FOLIO_BRANCH_DST                  : 'snapshot',
   BACKUP_NAME                       : 'opbf-bugfest-snapshot-04-12-2023',
 ]
