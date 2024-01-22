@@ -82,7 +82,8 @@ static List testingEnvironmentsList() {
 
 @NonCPS
 static List devEnvironmentsList() {
-    return ['bama',
+    return ['aggies',
+            'bama',
             'bulk-edit',
             'concorde',
             'consortia',
@@ -102,7 +103,6 @@ static List devEnvironmentsList() {
             'spitfire',
             'spitfire-2nd',
             'stripes-force',
-            'tamu',
             'task-force',
             'task-force-2nd',
             'thor',

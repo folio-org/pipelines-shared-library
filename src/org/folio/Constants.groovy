@@ -77,7 +77,8 @@ class Constants {
     static String OKAPI_SUPERADMIN_CREDENTIALS_ID = "okapi-superadmin-credentials"
 
     //Teams
-    static Map ENVS_MEMBERS_LIST = ["bama"          : ["Bama"],
+    static Map ENVS_MEMBERS_LIST = ["aggies"          : ["Aggies"],
+                                    "bama"          : ["Bama"],
                                     "concorde"      : ["concorde"],
                                     "consortia"     : ["thunderjet"],
                                     "core-platform" : ["core-platform"],
@@ -98,7 +99,6 @@ class Constants {
                                     "nest-es"       : ["spitfire"],
                                     "sprint"        : [],
                                     "stripes-force" : ["stripes-force"],
-                                    "tamu"          : [],
                                     "task-force"    : ["ebsco-core"],
                                     "task-force-2nd": ["ebsco-core"],
                                     "thor"          : ["thor"],
