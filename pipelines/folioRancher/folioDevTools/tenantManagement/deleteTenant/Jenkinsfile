@@ -2,10 +2,9 @@
 
 @Library('pipelines-shared-library@RANCHER-1154') _
 
-import org.folio.Constants
-import org.folio.rest.Okapi
-import org.folio.rest.model.OkapiTenant
-import org.folio.rest.model.OkapiUser
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
@@ -13,25 +12,26 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    jobsParameters.cluster(),
-    jobsParameters.namespace(),
-    jobsParameters.tenantId(''),
-    jobsParameters.refreshParameters()])
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.tenantId(''),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
 ])
 
-OkapiUser superadmin_user = okapiSettings.superadmin_user()
-Okapi okapi = new Okapi(this, "https://${common.generateDomain(params.rancher_cluster_name, params.rancher_project_name, 'okapi', Constants.CI_ROOT_DOMAIN)}", superadmin_user)
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
 
-OkapiTenant tenant = new OkapiTenant(id: params.tenant_id,
-  name: params.tenant_name)
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
+OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
 
 ansiColor('xterm') {
-  if (params.refresh_parameters) {
+  if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
-    println('REFRESH PARAMETERS!')
-    return
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
   }
-  node('rancher') {
+  node(params.AGENT) {
     try {
       stage("Delete tenant") {
         okapi.deleteTenant(tenant)
