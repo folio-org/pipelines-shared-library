@@ -162,7 +162,15 @@ ansiColor('xterm') {
 
       stage('[Rest] Initialize') {
         sleep time: 3, unit: 'MINUTES'
-        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        try {
+          main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        } catch (Exception e) {
+          println("Modules enabling process has failed...\nError is ${e.getMessage().toString()}\nSleeping for 5 minutes...")
+          sleep time: 5, unit: 'MINUTES'
+        }
+        finally {
+          main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        }
       }
 
       stage('[Rest] Configure edge') {
