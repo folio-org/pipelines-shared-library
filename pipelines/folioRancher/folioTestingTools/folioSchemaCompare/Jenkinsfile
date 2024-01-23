@@ -189,9 +189,9 @@ ansiColor('xterm') {
 
             }
 
-//            stage('Send Slack notification') {
-//                folioSchemaCompareUtils.sendSlackNotification("#${params.SLACK_CHANNEL}")
-//            }
+            stage('Send Slack notification') {
+                folioSchemaCompareUtils.sendSlackNotification("#${params.SLACK_CHANNEL}")
+            }
 
             stage('Destroy data-migration project') {
                 def jobParameters = getEnvironmentJobParameters(
