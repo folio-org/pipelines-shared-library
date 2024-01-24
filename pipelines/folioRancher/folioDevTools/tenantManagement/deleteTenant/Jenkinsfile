@@ -27,7 +27,7 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
-List tenantModuleList = namespace.getModules().setInstallJson(main.getInstallJson(params.TENANT_ID))
+List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
 println tenantModuleList
 
   ansiColor('xterm') {
@@ -41,7 +41,8 @@ println tenantModuleList
           pass
         }
         stage("Delete tenant") {
-          okapi.deleteTenant(tenant)
+//          okapi.deleteTenant(tenant)
+          pass
         }
       } catch (exception) {
         println(exception)
