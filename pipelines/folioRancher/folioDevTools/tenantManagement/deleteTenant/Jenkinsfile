@@ -26,9 +26,12 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+  .withInstallJson(main.getInstallJson(params.TENANT_ID))
 
-List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
-println tenantModuleList
+
+
+//List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
+println tenant
 
   ansiColor('xterm') {
     if (params.REFRESH_PARAMETERS) {
