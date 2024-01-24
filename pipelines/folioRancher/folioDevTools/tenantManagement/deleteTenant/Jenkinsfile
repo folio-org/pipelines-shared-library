@@ -5,6 +5,7 @@
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
+import org.folio.rest_v2.Okapi
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
@@ -26,25 +27,31 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
-ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
-    try {
-      stage("Delete tenant") {
-        okapi.deleteTenant(tenant)
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
-    }
-  }
-}
+List tenantModuleList = namespace.getModules().setInstallJson(main.getInstallJson(params.TENANT_ID))
+println tenantModuleList
+
+//  ansiColor('xterm') {
+//    if (params.REFRESH_PARAMETERS) {
+//      currentBuild.result = 'ABORTED'
+//      error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+//    }
+//    node(params.AGENT) {
+//      try {
+//        stage("Disable tenant modules") {
+//          pass
+//        }
+//        stage("Delete tenant") {
+//          okapi.deleteTenant(tenant)
+//        }
+//      } catch (exception) {
+//        println(exception)
+//        error(exception.getMessage())
+//      } finally {
+//        stage('Cleanup') {
+//          cleanWs notFailBuild: true
+//        }
+//      }
+//    }
+//  }
 
 
