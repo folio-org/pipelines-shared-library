@@ -54,6 +54,16 @@ class InstallRequestParams implements Cloneable {
         return this
     }
 
+  /**
+   * Chainable setter for the purge flag.
+   * @param purge The new value for the reinstall flag.
+   * @return The updated InstallRequestParams object.
+   */
+  InstallRequestParams withPurge(boolean purge) {
+    this.purge = purge
+    return this
+  }
+
     /**
      * Chainable setter for the simulate flag.
      * @param simulate The new value for the simulate flag.

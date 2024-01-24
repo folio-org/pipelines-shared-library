@@ -1,4 +1,5 @@
 #!groovy
+import org.folio.models.InstallRequestParams
 
 @Library('pipelines-shared-library@RANCHER-1154') _
 
@@ -33,15 +34,18 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID))
 
-
 List tenantModuleList = tenant.getModules().getInstallJson()
-println tenantModuleList
-println tenant.getTenantId()
 
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withPurge(true)
 
   ansiColor('xterm') {
     node(params.AGENT) {
       try {
+        stage('Ini') {
+          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          buildDescription "Tenant: ${params.TENANT_ID}"
+        }
         stage("Disable tenant modules") {
           pass
         }
