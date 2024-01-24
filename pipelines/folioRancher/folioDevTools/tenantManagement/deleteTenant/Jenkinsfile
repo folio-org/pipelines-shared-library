@@ -30,28 +30,28 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 List tenantModuleList = namespace.getModules().setInstallJson(main.getInstallJson(params.TENANT_ID))
 println tenantModuleList
 
-//  ansiColor('xterm') {
-//    if (params.REFRESH_PARAMETERS) {
-//      currentBuild.result = 'ABORTED'
-//      error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-//    }
-//    node(params.AGENT) {
-//      try {
-//        stage("Disable tenant modules") {
-//          pass
-//        }
-//        stage("Delete tenant") {
-//          okapi.deleteTenant(tenant)
-//        }
-//      } catch (exception) {
-//        println(exception)
-//        error(exception.getMessage())
-//      } finally {
-//        stage('Cleanup') {
-//          cleanWs notFailBuild: true
-//        }
-//      }
-//    }
-//  }
+  ansiColor('xterm') {
+    if (params.REFRESH_PARAMETERS) {
+      currentBuild.result = 'ABORTED'
+      error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+    }
+    node(params.AGENT) {
+      try {
+        stage("Disable tenant modules") {
+          pass
+        }
+        stage("Delete tenant") {
+          okapi.deleteTenant(tenant)
+        }
+      } catch (exception) {
+        println(exception)
+        error(exception.getMessage())
+      } finally {
+        stage('Cleanup') {
+          cleanWs notFailBuild: true
+        }
+      }
+    }
+  }
 
 
