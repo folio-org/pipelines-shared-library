@@ -34,9 +34,8 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID))
 
 
-
-//List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
-println tenant.getModules().getInstallJson()
+List tenantModuleList = tenant.getModules().getInstallJson()
+println tenantModuleList
 println tenant.getTenantId()
 
 
