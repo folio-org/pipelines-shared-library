@@ -36,9 +36,8 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
 
 //List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
-println tenant.getModules()
+println tenant.getModules().getInstallJson()
 println tenant.getTenantId()
-println tenant.getTenantName()
 
 
   ansiColor('xterm') {
