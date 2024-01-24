@@ -27,8 +27,8 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
-//List tenantModuleList = namespace.getModules().setInstallJson(main.getInstallJson(params.TENANT_ID))
-//println tenantModuleList
+List tenantModuleList = namespace.getModules().setInstallJson(main.getInstallJson(params.TENANT_ID))
+println tenantModuleList
 
   ansiColor('xterm') {
     if (params.REFRESH_PARAMETERS) {
