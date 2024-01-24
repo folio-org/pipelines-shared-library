@@ -15,6 +15,9 @@ class InstallRequestParams implements Cloneable {
     /** Flag indicating if reinstall is necessary. */
     boolean reinstall
 
+    /** Flag indicating if remove is necessary. */
+    boolean purge
+
     /** Simulation mode flag. */
     boolean simulate
 
