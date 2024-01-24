@@ -20,6 +20,11 @@ properties([
     folioParameters.refreshParameters()])
 ])
 
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
@@ -31,13 +36,12 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
 
 //List tenantModuleList = namespace.getModules(main.getInstallJson(params.TENANT_ID))
-println tenant
+println tenant.getModules()
+println tenant.getTenantId()
+println tenant.getTenantName()
+
 
   ansiColor('xterm') {
-    if (params.REFRESH_PARAMETERS) {
-      currentBuild.result = 'ABORTED'
-      error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-    }
     node(params.AGENT) {
       try {
         stage("Disable tenant modules") {
