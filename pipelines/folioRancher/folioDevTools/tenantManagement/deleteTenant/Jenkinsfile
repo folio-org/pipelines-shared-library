@@ -39,7 +39,7 @@ List tenantModuleList = tenant.getModules().getInstallJson()
 def disabledTenantModuleList = tenantModuleList.collect {
   [action: it.action == 'enable' ? 'disable' : it.action, id: it.id]
 }
-printnl tenantModuleList
+println tenantModuleList
 println disabledTenantModuleList
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withPurge(true)
