@@ -45,11 +45,11 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
           buildDescription "Tenant: ${params.TENANT_ID}"
         }
         stage("Disable tenant modules") {
-          main.tenantInstall(tenant.tenantId, tenant.getModules().getInstallJson())
-          printl("modules removed")
+          main.tenantInstall(tenant.getTenantId(), tenant.getModules().getInstallJson())
+          println("modules removed")
         }
         stage("Delete tenant") {
-          main.deleteTenant(tenant.tenantId)
+          main.deleteTenant(tenant.getTenantId())
         }
       } catch (exception) {
         println(exception)
