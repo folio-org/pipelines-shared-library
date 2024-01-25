@@ -32,17 +32,10 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID))
+  .withInstallJson(main.getInstallJson(params.TENANT_ID, "disable"))
 
-List tenantModuleList = tenant.getModules().getInstallJson()
-
-def disabledTenantModuleList = tenantModuleList.collect {
-  [action: it.action == 'enable' ? 'disable' : it.action, id: it.id]
-}
-println tenantModuleList
-println disabledTenantModuleList
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withPurge(true)
+//InstallRequestParams installRequestParams = new InstallRequestParams()
+//  .withPurge(true)
 
   ansiColor('xterm') {
     node(params.AGENT) {
@@ -52,11 +45,11 @@ InstallRequestParams installRequestParams = new InstallRequestParams()
           buildDescription "Tenant: ${params.TENANT_ID}"
         }
         stage("Disable tenant modules") {
-          pass
+          main.tenantInstall(tenant.tenantId, tenant.getModules().getInstallJson())
+          printl("modules removed")
         }
         stage("Delete tenant") {
-//          okapi.deleteTenant(tenant)
-          pass
+          main.deleteTenant(tenant.tenantId)
         }
       } catch (exception) {
         println(exception)
