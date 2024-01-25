@@ -32,7 +32,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID, "disable"))
+  .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
 
 //InstallRequestParams installRequestParams = new InstallRequestParams()
 //  .withPurge(true)
