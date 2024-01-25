@@ -36,13 +36,17 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 
 List tenantModuleList = tenant.getModules().getInstallJson()
 
-def disableTenantModuleList = tenantModuleList.collect {
-  it -> it.action = 'disable'
-    return it
-}
-def updatedJson = JsonOutput.toJson(disableTenantModuleList)
-println(updatedJson)
+//def disableTenantModuleList = tenantModuleList.collect {
+//  it -> it.action = 'disable'
+//    return it
+//}
+//def updatedJson = JsonOutput.toJson(disableTenantModuleList)
+//println(updatedJson)
 
+def disabledTenantModuleList = tenantModuleList.collect {
+  [action: it.action == 'enable' ? 'disable' : it.action, id: it.id]
+}
+println disabledTenantModuleList
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withPurge(true)
 
