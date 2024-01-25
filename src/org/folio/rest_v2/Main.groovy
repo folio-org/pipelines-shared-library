@@ -74,11 +74,6 @@ class Main extends Okapi {
         }
     }
 
-  void deleteTenantFlow(OkapiTenant tenant) {
-    tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'disable'))
-    tenantInstall(tenant, tenant.modules.installJson, 900000)
-
-  }
 
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
