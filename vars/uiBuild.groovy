@@ -35,7 +35,7 @@ def call(params) {
                   extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                       [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
                   userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-        if(params.consortia) {
+        if (params.consortia) {
             dir('platform-complete') {
                 def packageJson = readJSON file: 'package.json'
                 String moduleId = getModuleId('folio_consortia-settings')
@@ -49,14 +49,16 @@ def call(params) {
     stage('Build and Push') {
         dir('platform-complete') {
             docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-                def image = docker.build(
-                    ui_bundle.getImageName(),
-                    "--build-arg OKAPI_URL=${okapi_url} " +
-                        "--build-arg TENANT_ID=${tenant.getId()} " +
-                        "-f docker/Dockerfile  " +
-                        "."
-                )
-                image.push()
+                retry(2) {
+                    def image = docker.build(
+                        ui_bundle.getImageName(),
+                        "--build-arg OKAPI_URL=${okapi_url} " +
+                            "--build-arg TENANT_ID=${tenant.getId()} " +
+                            "-f docker/Dockerfile  " +
+                            "."
+                    )
+                    image.push()
+                }
             }
         }
     }
