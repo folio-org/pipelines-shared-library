@@ -43,7 +43,7 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
           println("modules removed")
         }
         stage("Delete tenant") {
-          main.deleteTenant(tenant.getTenantId())
+          main.deleteTenant(tenant)
         }
       } catch (exception) {
         println(exception)
