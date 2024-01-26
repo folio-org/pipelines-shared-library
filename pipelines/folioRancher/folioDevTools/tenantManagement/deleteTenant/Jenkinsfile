@@ -1,14 +1,11 @@
 #!groovy
-import org.folio.models.InstallRequestParams
 
 @Library('pipelines-shared-library@RANCHER-1154') _
 
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
-import org.folio.rest_v2.Okapi
 import org.jenkinsci.plugins.workflow.libs.Library
-import groovy.json.JsonSlurper
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -34,12 +31,6 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
 
-println(tenant.getTenantId().getClass())
-println(tenant.getTenantId())
-println(tenant.getModules().getInstallJson().getClass())
-println(tenant.getModules().getInstallJson())
-
-
   ansiColor('xterm') {
     node(params.AGENT) {
       try {
@@ -48,7 +39,7 @@ println(tenant.getModules().getInstallJson())
           buildDescription "Tenant: ${params.TENANT_ID}"
         }
         stage("Disable tenant modules") {
-          main.tenantInstall(tenant.getTenantId(), tenant.getModules().getInstallJson())
+          main.tenantInstall(tenant, tenant.getModules().getInstallJson())
           println("modules removed")
         }
         stage("Delete tenant") {
