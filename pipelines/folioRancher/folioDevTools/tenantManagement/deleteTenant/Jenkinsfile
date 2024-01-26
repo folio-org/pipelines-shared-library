@@ -34,8 +34,11 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
 
-//InstallRequestParams installRequestParams = new InstallRequestParams()
-//  .withPurge(true)
+println(tenant.getTenantId().getClass())
+println(tenant.getTenantId())
+println(tenant.getModules().getInstallJson().getClass())
+println(tenant.getModules().getInstallJson())
+
 
   ansiColor('xterm') {
     node(params.AGENT) {
