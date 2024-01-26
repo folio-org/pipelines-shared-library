@@ -284,12 +284,12 @@ class Okapi extends Authorization {
     }
 
     void deleteTenant(OkapiTenant tenant) {
-      if (!isTenantExist(tenant.tenantId)) {
-        logger.warning("Tenant ${tenant.tenantId} is not exists!")
+      if (isTenantExist(tenant.tenantId)) {
+        logger.warning("Tenant ${tenant.tenantId} exists. Deleting...")
         return
       }
 
-      String url = generateUrl("/_/proxy/tenants")
+      String url = generateUrl("/_/proxy/tenants" + tenant.tenantId)
       Map<String, String> headers = getAuthorizedHeaders(superTenant)
 
       logger.info("Deleting tenant ${tenant.tenantId}...")
