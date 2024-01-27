@@ -32,7 +32,8 @@ def call(params) {
         }
         checkout([$class           : 'GitSCM',
                   branches         : [[name: ui_bundle.hash]],
-                  extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                  extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true, timeout: 20],
+                                      [$class: 'CleanBeforeCheckout'],
                                       [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
                   userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
         if (params.consortia) {
