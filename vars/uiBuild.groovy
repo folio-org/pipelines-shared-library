@@ -27,17 +27,17 @@ def call(params) {
 
     //TODO Temporary solution should be revised during refactoring
     stage('Checkout') {
-        dir('platform-complete') {
+        dir("platform-complete-${params.tenant_id}") {
             cleanWs()
         }
         checkout([$class           : 'GitSCM',
                   branches         : [[name: ui_bundle.hash]],
                   extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true, timeout: 20],
                                       [$class: 'CleanBeforeCheckout'],
-                                      [$class: 'RelativeTargetDirectory', relativeTargetDir: 'platform-complete']],
+                                      [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
                   userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
         if (params.consortia) {
-            dir('platform-complete') {
+            dir("platform-complete-${params.tenant_id}") {
                 def packageJson = readJSON file: 'package.json'
                 String moduleId = getModuleId('folio_consortia-settings')
                 String moduleVersion = moduleId - 'folio_consortia-settings-'
@@ -48,7 +48,7 @@ def call(params) {
         }
     }
     stage('Build and Push') {
-        dir('platform-complete') {
+        dir("platform-complete-${params.tenant_id}") {
             docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
                 retry(2) {
                     def image = docker.build(
