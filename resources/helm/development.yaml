@@ -704,9 +704,9 @@ mod-lists:
   replicaCount: 1
   resources:
     limits:
-      memory: '341Mi'
+      memory: '3072Mi'
     requests:
-      memory: '256Mi'
+      memory: '2048Mi'
 mod-login:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
