@@ -89,7 +89,8 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
 )
 
 if (params.CONSORTIA) {
-  namespace.setEnableConsortia(true)
+  boolean releaseVersion = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
+  namespace.setEnableConsortia(true, releaseVersion)
   folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
     if (tenant.getIsCentralConsortiaTenant()) {
       tenant.withTenantUi(tenantUi.clone())

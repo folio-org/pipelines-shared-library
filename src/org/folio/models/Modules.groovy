@@ -158,8 +158,12 @@ class Modules {
      * @param moduleName the string of module name.
      * @return a string with the module ID.
      */
-    String getModuleVersion(String moduleName) {
-        URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+    String getModuleVersion(String moduleName, boolean releaseVersion = false) {
+        String versionType = 'only'
+        if(releaseVersion){
+            versionType = 'false'
+        }
+        URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=${versionType}&latest=1").openConnection()
         if (registry.getResponseCode().equals(200)) {
             return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
         } else {
