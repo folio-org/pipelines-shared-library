@@ -4,11 +4,8 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
-import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
-
-def call(params) {
+void call(Map params, boolean releaseVersion = false) {
     OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
     Project project_config = new Project(
         clusterName: params.rancher_cluster_name,
@@ -39,7 +36,7 @@ def call(params) {
         if (params.consortia) {
             dir("platform-complete-${params.tenant_id}") {
                 def packageJson = readJSON file: 'package.json'
-                String moduleId = getModuleId('folio_consortia-settings')
+                String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
                 String moduleVersion = moduleId - 'folio_consortia-settings-'
                 packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
                 writeJSON file: 'package.json', json: packageJson, pretty: 2
@@ -68,9 +65,12 @@ def call(params) {
     }
 }
 
-//TODO temporary solution should be revised
-private String getModuleId(String moduleName) {
-    URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+static String getModuleVersion(String moduleName, boolean releaseVersion = false) {
+    String versionType = 'only'
+    if(releaseVersion){
+        versionType = 'false'
+    }
+    URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&npmSnapshot=${versionType}&latest=1").openConnection()
     if (registry.getResponseCode().equals(200)) {
         return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
     } else {

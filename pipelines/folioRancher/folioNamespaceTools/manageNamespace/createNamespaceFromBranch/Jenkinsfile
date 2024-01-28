@@ -44,6 +44,7 @@ properties([
 ])
 
 String defaultTenantId = 'diku'
+boolean releaseVersion = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
 
 //Set terraform configuration
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
@@ -89,7 +90,6 @@ namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
 )
 
 if (params.CONSORTIA) {
-  boolean releaseVersion = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
   namespace.setEnableConsortia(true, releaseVersion)
   folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
     if (tenant.getIsCentralConsortiaTenant()) {
@@ -193,7 +193,7 @@ ansiColor('xterm') {
                 custom_tag : ui.getTag(),
                 consortia  : tenant instanceof OkapiTenantConsortia
               ]
-              uiBuild(jobParameters)
+              uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
               }
