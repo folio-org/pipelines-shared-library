@@ -192,4 +192,8 @@ class RancherNamespace {
         }
         return map1
     }
+
+    String getWorkspaceName(){
+        return "${this.clusterName}-${this.namespaceName}"
+    }
 }

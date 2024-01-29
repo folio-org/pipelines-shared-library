@@ -19,7 +19,7 @@ class InstallRequestParams implements Cloneable {
     boolean simulate
 
     /** Additional tenant parameters for the install request. */
-    String tenantParameters
+    String tenantParameters = ''
 
     /**
      * Chainable setter for the async flag.
