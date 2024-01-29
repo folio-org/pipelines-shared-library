@@ -137,14 +137,15 @@ pipeline {
                 }
               }
             }
-            stage("Destroy environment") {
-              steps {
-                script {
-                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-              }
-            }
+              //TODO temporary disabled destroy for investigation
+//            stage("Destroy environment") {
+//              steps {
+//                script {
+//                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//              }
+//            }
             stage("Parse teams assignment") {
               steps {
                 script {
