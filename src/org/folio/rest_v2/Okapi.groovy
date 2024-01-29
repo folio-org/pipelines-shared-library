@@ -291,13 +291,10 @@ class Okapi extends Authorization {
 
         String url = generateUrl("/_/proxy/tenants/${tenant.tenantId}")
         Map<String, String> headers = getAuthorizedHeaders(superTenant)
-        Map body = [id         : tenant.tenantId,
-                    name       : tenant.tenantName,
-                    description: tenant.tenantDescription]
 
         logger.info("Deleting tenant ${tenant.tenantId}...")
 
-        restClient.delete(url, body, headers)
+        restClient.delete(url, headers)
 
         logger.info("Tenant (${tenant.tenantId}) successfully deleted")
     }
