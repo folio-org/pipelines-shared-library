@@ -11,7 +11,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'FOLIO_REPOSITORY', defaultValue: 'platform-complete', description: "Repository where to build"),
-    string(name: 'FOLIO_BRANCH_SRC', defaultValue: 'R1-2023', description: "platform-complete source branch for the comparison"),
+    string(name: 'FOLIO_BRANCH_SRC', defaultValue: 'R2-2023', description: "platform-complete source branch for the comparison"),
     string(name: 'FOLIO_BRANCH_DST', defaultValue: 'snapshot', description: "platform-complete destination branch for the comparison"),
     string(name: 'BACKUP_NAME', defaultValue: 'opbf-bugfest-snapshot-04-12-2023', description: "Backup Name From Where will be provisioned env"),
   ])
@@ -38,17 +38,17 @@ ansiColor('xterm') {
 
     stage('[Job] Execute Schema Comparison Job') {
       script {
-        try {
+//        try {
           build job: Constants.JENKINS_JOB_SCHEMA_COMPARE,
             parameters:
               [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
                string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
                string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
                string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
-        } catch (Exception new_ex) {
-          slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
-          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
-        }
+//        } catch (Exception new_ex) {
+//          slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
+//          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
+//        }
       }
     }
   }
