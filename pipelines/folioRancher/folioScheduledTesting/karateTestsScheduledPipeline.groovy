@@ -119,14 +119,60 @@ pipeline {
       }
     }
 
-/*    stage("Destroy environment") {
-      steps {
-        script {
-          def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-          tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+    stage("Parallel") {
+      parallel {
+        stage("Collect test results") {
+          when {
+            expression {
+              spinUpEnvironmentJob.result == 'SUCCESS'
+            }
+          }
+          stages {
+            stage("Collect execution results") {
+              steps {
+                script {
+                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+                }
+              }
+            }
+              //TODO temporary disabled destroy for investigation
+//            stage("Destroy environment") {
+//              steps {
+//                script {
+//                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//                }
+//              }
+//            }
+            stage("Parse teams assignment") {
+              steps {
+                script {
+                  def jsonContents = readJSON file: "teams-assignment.json"
+                  teamAssignment = new TeamAssignment(jsonContents)
+                }
+              }
+            }
+
+//            stage("Sync jira tickets") {
+//              steps {
+//                script {
+//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
+
+//            stage("Send slack notifications") {
+//              steps {
+//                script {
+//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
+          }
         }
       }
-    }*/
+    }
 
     stage("Set job execution result") {
       when {
