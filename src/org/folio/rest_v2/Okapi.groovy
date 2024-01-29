@@ -289,7 +289,7 @@ class Okapi extends Authorization {
           return
         }
 
-        String url = generateUrl("/_/proxy/tenants/" + tenant.tenantId)
+        String url = generateUrl("/_/proxy/tenants/${tenant.tenantId}")
         Map<String, String> headers = getAuthorizedHeaders(superTenant)
 
         logger.info("Deleting tenant ${tenant.tenantId}...")
