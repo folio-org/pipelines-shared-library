@@ -61,6 +61,7 @@ ansiColor('xterm') {
         if (ns == 'cypress') {
           build job: deleteNamespaceJobName,
             parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
+          println("${ns}")
         } else {
           println('cypress namespace does not exists!')
         }
