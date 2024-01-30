@@ -20,6 +20,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
+        55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
+        35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
+        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
+        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
         0 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
         30 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=bama
         0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
@@ -36,10 +40,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         45 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
         30 07 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=nla
         30 22 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
-        10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spanish
-        0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spanish
-        10 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spanish
-        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spanish
         10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
         0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire
         10 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
@@ -50,6 +50,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
         30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
+        15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
@@ -62,34 +66,14 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
-        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega
-        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=consortia
-        40 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=consortia
-        20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=consortia
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=consortia
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=tamu
-        40 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=tamu
-        20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=tamu
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=tamu
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force
-        45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force
-        25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force
+        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
+        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
         25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
         45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
         25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
         00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
-        30 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        50 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        10 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
         0 22 * * 5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
         30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
         0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
@@ -98,6 +82,14 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
         30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
+        30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-1
+        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-1
+        30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-2
+        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-2
    ''')])])
 
 ansiColor('xterm') {
