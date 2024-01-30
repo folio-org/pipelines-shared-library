@@ -56,7 +56,7 @@ ansiColor('xterm') {
     stage('[Job] Destroy environment') {
       script {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-          ns = kubectl.checkNamespaceExistance("${namespace.namespaceName}")
+          ns = kubectl.checkNamespaceExistence("${namespace.namespaceName}")
         }
         if (ns == namespace.namespaceName) {
           build job: deleteNamespaceJobName,
