@@ -55,15 +55,15 @@ ansiColor('xterm') {
 
     stage('[Job] Destroy environment') {
       script {
-        folioHelm.withKubeConfig("folio-testing") {
-          ns = kubectl.checkNamespaceExistance('cypress')
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ns = kubectl.checkNamespaceExistance("${namespace.namespaceName}")
         }
-        if (ns == 'cypress') {
+        if (ns == namespace.namespaceName) {
           build job: deleteNamespaceJobName,
             parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
           println("${ns}")
         } else {
-          println('cypress namespace does not exists!')
+          println(namespace.namespaceName + ' namespace does not exists!')
         }
       }
     }
