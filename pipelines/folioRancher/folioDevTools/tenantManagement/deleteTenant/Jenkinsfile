@@ -28,6 +28,11 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
+if (!main.isTenantExist(params.TENANT_ID)) {
+  currentBuild.result = 'ABORTED'
+  error('Tenant does not exist, stopping the pipeline')
+}
+
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
 
