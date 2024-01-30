@@ -252,7 +252,7 @@ class Okapi extends Authorization {
 
         try {
             restClient.get(url, headers)
-            logger.info("Tenant ${tenantId} already exists")
+            logger.info("Tenant ${tenantId} exists")
             return true
         } catch (RequestException e) {
             if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
