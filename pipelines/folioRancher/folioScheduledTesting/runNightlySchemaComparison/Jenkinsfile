@@ -38,17 +38,12 @@ ansiColor('xterm') {
 
     stage('[Job] Execute Schema Comparison Job') {
       script {
-//        try {
           build job: Constants.JENKINS_JOB_SCHEMA_COMPARE,
             parameters:
               [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
                string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
                string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
                string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
-//        } catch (Exception new_ex) {
-//          slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
-//          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
-//        }
       }
     }
   }
