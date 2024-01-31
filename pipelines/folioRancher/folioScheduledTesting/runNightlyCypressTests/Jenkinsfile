@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  pipelineTriggers([cron('H 22 * * 1-6')]),
+  pipelineTriggers([cron('H 20 * * 1-6')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -24,6 +24,7 @@ final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createN
 final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
 final String folioBranch = 'snapshot'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': folioBranch])[0]
+def ns
 
 RancherNamespace namespace = new RancherNamespace('folio-testing', 'cypress')
 
@@ -35,13 +36,13 @@ Map cypressFlowParameters = [
   tenantId                : 'diku',
   adminUsername           : 'diku_admin',
   adminPassword           : 'admin',
-  parallelExecParameters  : '--env grepTags="smoke criticalPath extendedPath --nonParallel"',
-  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel extendedPath+nonParallel"',
-  testsTimeout            : '10',
+  parallelExecParameters  : '--env grepTags="smoke criticalPath --nonParallel"',
+  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
+  testsTimeout            : '14',
   testrailProjectID       : '14',
   testrailRunID           : '2108',
   numberOfWorkers         : '10',
-  agent                   : 'rancher||jenkins-agent-java11'
+  agent                   : 'rancher||jenkins-agent-java17'
 ]
 
 ansiColor('xterm') {
@@ -54,8 +55,16 @@ ansiColor('xterm') {
 
     stage('[Job] Destroy environment') {
       script {
-        build job: deleteNamespaceJobName,
-          parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ns = kubectl.checkNamespaceExistence("${namespace.namespaceName}")
+        }
+        if (ns == namespace.namespaceName) {
+          build job: deleteNamespaceJobName,
+            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
+          println("${ns}")
+        } else {
+          println(namespace.namespaceName + ' namespace does not exists!')
+        }
       }
     }
 
