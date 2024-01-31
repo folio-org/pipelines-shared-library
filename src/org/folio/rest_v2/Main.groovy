@@ -73,8 +73,7 @@ class Main extends Okapi {
             configureTenant(tenant)
         }
     }
-
-
+  
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
     }
