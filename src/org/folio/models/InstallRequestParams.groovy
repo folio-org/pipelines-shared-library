@@ -15,9 +15,6 @@ class InstallRequestParams implements Cloneable {
     /** Flag indicating if reinstall is necessary. */
     boolean reinstall
 
-    /** Flag indicating if remove is necessary. */
-    boolean purge
-
     /** Simulation mode flag. */
     boolean simulate
 
@@ -53,16 +50,6 @@ class InstallRequestParams implements Cloneable {
         this.reinstall = reinstall
         return this
     }
-
-  /**
-   * Chainable setter for the purge flag.
-   * @param purge The new value for the reinstall flag.
-   * @return The updated InstallRequestParams object.
-   */
-  InstallRequestParams withPurge(boolean purge) {
-    this.purge = purge
-    return this
-  }
 
     /**
      * Chainable setter for the simulate flag.

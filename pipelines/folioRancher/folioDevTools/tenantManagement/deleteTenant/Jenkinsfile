@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
