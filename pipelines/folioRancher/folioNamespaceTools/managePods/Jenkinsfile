@@ -162,7 +162,11 @@ ansiColor('xterm') {
                     sleep 5
                   }
                   backend.each { deployment, replica_count ->
-                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    if (replica_count == "") {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
+                    } else {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    }
                   }
                   edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
