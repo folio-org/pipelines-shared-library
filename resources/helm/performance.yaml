@@ -943,9 +943,9 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
-      memory: '1280Mi'
+      memory: '1536Mi'
     requests:
-      memory: '1024Mi'
+      memory: '1280Mi'
 mod-settings:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
