@@ -6,7 +6,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library@RANCHER-839') _
+@Library('pipelines-shared-library') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
     def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()
@@ -262,16 +262,15 @@ ansiColor('xterm') {
                                 if (currentDiff == "Schemas are synced, no changes to be made.") {
                                     println "Schemas are synced, no changes to be made."
                                 } else {
-                                  println "Schemas are synced, but changes need to be made."
-//                                    diff.put(it.key, currentDiff)
-//                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap, teamAssignment)
+                                    diff.put(it.key, currentDiff)
+                                    dataMigrationReport.createSchemaDiffJiraIssue(it.key, currentDiff, resultMap, teamAssignment)
                                 }
                             } catch(exception) {
                                 println exception
-//                                def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
-//                                                    "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n"
-//                                diff.put(it.key, messageDiff)
-//                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
+                                def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
+                                                    "Please compare ${it.key} and ${it.value} in pgAdmin Schema Diff UI \n"
+                                diff.put(it.key, messageDiff)
+                                dataMigrationReport.createSchemaDiffJiraIssue(it.key, messageDiff, resultMap, teamAssignment)
                             }
                         }
 
