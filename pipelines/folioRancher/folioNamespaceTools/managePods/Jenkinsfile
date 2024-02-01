@@ -2,6 +2,9 @@
 
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.rest_v2.Common
+import org.folio.rest_v2.Main
+import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -160,7 +163,14 @@ ansiColor('xterm') {
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
-                  backend.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  backend.each { deployment, replica_count ->
+                    try {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    } catch (Error e) {
+                      new Common(this,"https://managePods.fake.url").logger.info("Problem with state error " + e.getMessage())
+                    } finally {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
+                    }
                   }
                   edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
