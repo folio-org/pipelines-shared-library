@@ -30,7 +30,7 @@ static void prepareEcsIndices(String username, String password) {
         }
       }]
   """
-    def res = client.getRequest(Constants.FOLIO_OPEN_SEARCH+ "/${destination}/?pretty", headers)
+    def res = client.getRequest(Constants.FOLIO_OPEN_SEARCH + "/${destination}/?pretty", headers)
     if (res['body']["$destination"] == "${destination}") {
       try {
         client.deleteRequest(Constants.FOLIO_OPEN_SEARCH + "/${destination}/?pretty", body_del, headers)
