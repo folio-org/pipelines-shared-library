@@ -162,13 +162,7 @@ ansiColor('xterm') {
                     sleep 5
                   }
                   backend.each { deployment, replica_count ->
-                    try {
-                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
-                    } catch (Error e) {
-                      new Common(this,"https://managePods.fake.url").logger.info("Problem with state error " + e.getMessage())
-                    } finally {
-                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
-                    }
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
                   edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
