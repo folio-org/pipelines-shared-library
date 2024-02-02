@@ -1,5 +1,4 @@
 import org.folio.Constants
-import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 
