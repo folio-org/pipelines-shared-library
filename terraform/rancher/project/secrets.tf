@@ -38,12 +38,11 @@ resource "random_password" "system_user_password" {
   for_each = toset(local.system_user_modules)
 
   length      = 16
-  special     = true
+  special     = false
   numeric     = true
   upper       = true
   lower       = true
   min_lower   = 1
   min_numeric = 1
-  min_special = 1
   min_upper   = 1
 }
