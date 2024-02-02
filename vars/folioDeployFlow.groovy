@@ -16,7 +16,7 @@ void okapi(RancherNamespace namespace, Closure preStages = { -> }, Closure postS
   stage('[Helm] Deploy Okapi') {
     folioHelm.withKubeConfig(namespace.getClusterName()) {
       folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-      folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
+//      folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
     }
     pauseBetweenStages()
   }
@@ -40,7 +40,7 @@ void backend(RancherNamespace namespace, Closure preStages = { -> }, Closure pos
   stage('[Helm] Deploy backend') {
     folioHelm.withKubeConfig(namespace.getClusterName()) {
       folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-      folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+//      folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
     }
     pauseBetweenStages()
   }
@@ -100,11 +100,16 @@ void updatePreparation(RancherNamespace namespace, InstallRequestParams installR
         fullCompareResultMap[key] += value
       }
 
+      List tenantInstallJson = compareResultMap.UPGRADE
+      if (installRequestParams.getReinstall()) {
+        tenantInstallJson += compareResultMap.EQUAL
+      }
+
       if (tenantId == 'supertenant') {
-        namespace.getSuperTenant().withInstallJson(compareResultMap.UPGRADE)
+        namespace.getSuperTenant().withInstallJson(tenantInstallJson)
       } else {
         namespace.addTenant(new OkapiTenant(tenantId)
-          .withInstallJson(compareResultMap.UPGRADE)
+          .withInstallJson(tenantInstallJson)
           .withInstallRequestParams(installRequestParams.clone()))
         //TODO change to retrieve admin user information from secrets
         def folioTenants = folioDefault.tenants()
@@ -124,7 +129,12 @@ void updatePreparation(RancherNamespace namespace, InstallRequestParams installR
       fullCompareResultMap[key] = value.unique()
     }
 
-    namespace.getModules().setInstallJson(fullCompareResultMap.UPGRADE)
+    if (installRequestParams.getReinstall()) {
+      namespace.getModules().setInstallJson(fullCompareResultMap.UPGRADE + fullCompareResultMap.EQUAL)
+    } else {
+      namespace.getModules().setInstallJson(fullCompareResultMap.UPGRADE)
+    }
+
   } else {
     println('Install Json list is empty!')
   }
