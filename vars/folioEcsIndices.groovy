@@ -1,10 +1,11 @@
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
 
 static void prepareEcsIndices(String username, String password) {
-  String body_del = ""
-  HttpClient client = new HttpClient(this)
+
+  RestClient client = new RestClient(this)
   Logger logger = new Logger(this, 'common')
   Map indices = [
     "ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
@@ -12,9 +13,9 @@ static void prepareEcsIndices(String username, String password) {
     "ecs-snapshot_contributor_cs00000int"     : "folio-testing-ecs-snapshot_contributor_cs00000int",
     "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int"
   ]
-  ArrayList headers = [
-    [name: 'Content-type', value: "application/json"],
-    [name: 'Authorization', value: "Basic ${username}:${password}", maskValue: true]
+  Map headers = [
+    "Content-type" : "application/json",
+    "Authorization": "Basic ${username}:${password}"
   ]
 
   indices.each { source, destination ->
@@ -30,16 +31,16 @@ static void prepareEcsIndices(String username, String password) {
         }
       }]
   """
-    def res = client.getRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
+    def res = client.get(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
     if (res['body']["$destination"] == "${destination}") {
       try {
-        client.deleteRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", body_del, headers)
+        client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
         sleep(30000)
       } catch (Exception es) {
         logger.warning("Unable to delete index: ${destination}, error: ${es.getMessage()}")
       }
     } else {
-      client.postRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex?pretty", body, headers)
+      client.post(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex?pretty", body, headers)
     }
   }
 }
