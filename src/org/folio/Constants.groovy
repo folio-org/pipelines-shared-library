@@ -53,8 +53,8 @@ class Constants {
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
-  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-testing': AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-dev'    : AWS_EKS_DEV_NAMESPACES,
+  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'    : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                           'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
                                           'folio-tmp'    : AWS_EKS_TMP_NAMESPACES]
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
@@ -255,4 +255,7 @@ class Constants {
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 
   static Pattern NAME_VERSION_REGEXP = ~/^([a-z_\-]+)-([\d.]+(?:-SNAPSHOT(?:\.\w+)?|))$/
+
+  static List SYSTEM_USER_MODULES = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
+                                     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub"]
 }

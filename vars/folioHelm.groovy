@@ -146,13 +146,31 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
     String repository = ""
 
-    if (customModule || moduleName == 'ui-bundle') {
+    if(customModule || moduleName == 'ui-bundle'){
         repository = Constants.ECR_FOLIO_REPOSITORY
-    } else if (moduleName == 'mod-graphql' && moduleVersion ==~ /\d{1,2}.\d{1,3}.\d{3,10}/) {
-        repository = "folioci"
-    } else {
-        repository = moduleVersion.contains('SNAPSHOT') ? "folioci" : "folioorg"
+    }else{
+        switch (moduleVersion){
+            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
+                repository = "folioorg"
+                break
+            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
+                repository = "folioci"
+                break
+            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+                repository = Constants.ECR_FOLIO_REPOSITORY
+                break
+            default:
+                repository = "folioci"
+                break
+        }
     }
+//    if (customModule || moduleName == 'ui-bundle') {
+//        repository = Constants.ECR_FOLIO_REPOSITORY
+//    } else if (moduleName == 'mod-graphql' && moduleVersion ==~ /\d{1,2}.\d{1,3}.\d{3,10}/) {
+//        repository = "folioci"
+//    } else {
+//        repository = moduleVersion.contains('SNAPSHOT') ? "folioci" : "folioorg"
+//    }
     moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                       tag       : moduleVersion],
                      podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
