@@ -30,16 +30,16 @@ static void prepareEcsIndices(String username, String password) {
         }
       }]
   """
-    def res = client.getRequest(Constants.FOLIO_OPEN_SEARCH + "/${destination}/?pretty", headers)
+    def res = client.getRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
     if (res['body']["$destination"] == "${destination}") {
       try {
-        client.deleteRequest(Constants.FOLIO_OPEN_SEARCH + "/${destination}/?pretty", body_del, headers)
+        client.deleteRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", body_del, headers)
         sleep(30000)
       } catch (Exception es) {
         logger.warning("Unable to delete index: ${destination}, error: ${es.getMessage()}")
       }
     } else {
-      client.postRequest(Constants.FOLIO_OPEN_SEARCH + "/_reindex?pretty", body, headers)
+      client.postRequest(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex?pretty", body, headers)
     }
   }
 }
