@@ -64,6 +64,30 @@ edge-courses:
       memory: '192Mi'
   service:
     type: NodePort
+edge-dcb:
+  ingress:
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    enabled: true
+    hosts:
+      - paths:
+          - /dcbService
+  javaArgs: ''
+  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dcb-ephemeral-properties'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '256Mi'
+    requests:
+      memory: '200Mi'
+  service:
+    type: NodePort
 edge-dematic:
   ingress:
     annotations:
@@ -333,6 +357,16 @@ mod-circulation:
       memory: '1280Mi'
     requests:
       memory: '1024Mi'
+mod-circulation-item:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '680Mi'
+    requests:
+      memory: '512Mi'
 mod-circulation-storage:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
@@ -465,6 +499,17 @@ mod-data-import-converter-storage:
       memory: '427Mi'
     requests:
       memory: '341Mi'
+mod-dcb:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '342Mi'
+    requests:
+      memory: '256Mi'
+
 mod-di-converter-storage:
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:

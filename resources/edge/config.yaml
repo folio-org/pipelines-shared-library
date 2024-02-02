@@ -24,6 +24,14 @@ edge-orders:
 edge-ncip:
   permissions:
   - ncip.all
+edge-dcb:
+  tenants:
+  - tenant: testedgedcb
+    username: test-user
+    password: test
+    create: true
+  permissions:
+  - ''
 edge-dematic:
   tenants:
   - tenant: default
