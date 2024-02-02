@@ -5,6 +5,7 @@ import org.folio.utilities.Logger
 static void prepareEcsIndices(String username, String password) {
   String body_del = ""
   HttpClient client = new HttpClient(this)
+  Logger logger = new Logger(this, 'common')
   Map indices = [
     "ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
     "ecs-snapshot_instance_cs00000int"        : "folio-testing-ecs-snapshot_instance_cs00000int",
@@ -17,7 +18,7 @@ static void prepareEcsIndices(String username, String password) {
   ]
 
   indices.each { source, destination ->
-    println("Source index: ${source} AND Destination index: ${destination}")
+    logger.info("Source index: ${source} AND Destination index: ${destination}")
 
     String body = """
       [{
@@ -35,7 +36,7 @@ static void prepareEcsIndices(String username, String password) {
         client.deleteRequest(Constants.FOLIO_OPEN_SEARCH + "/${destination}/?pretty", body_del, headers)
         sleep(30000)
       } catch (Exception es) {
-        new Logger(this, 'common').warning("Unable to delete index: ${destination}, error: ${es.getMessage()}")
+        logger.warning("Unable to delete index: ${destination}, error: ${es.getMessage()}")
       }
     } else {
       client.postRequest(Constants.FOLIO_OPEN_SEARCH + "/_reindex?pretty", body, headers)
