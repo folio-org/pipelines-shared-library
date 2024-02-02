@@ -13,7 +13,7 @@ class Constants {
   static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2']
-  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'karate', 'snapshot', 'sprint']
+  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
@@ -81,6 +81,7 @@ class Constants {
   static String FOLIO_JIRA_URL = 'https://issues.folio.org'
   static String FOLIO_JIRA_ISSUE_URL = 'https://issues.folio.org/rest/api/2/issue/'
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
+  static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
   static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'
   static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
