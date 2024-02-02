@@ -13,8 +13,7 @@ static void prepareEcsIndices(String username, String password) {
   ]
   ArrayList headers = [
     [name: 'Content-type', value: "application/json"],
-    [name: 'username', value: "${username}"],
-    [name: 'password', value: "${password}", maskValue: true]
+    ["Authorization": "Basic ${username}:${password}", maskValue: true]
   ]
 
   indices.each { source, destination ->
