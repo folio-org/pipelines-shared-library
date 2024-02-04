@@ -2,7 +2,6 @@
 
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
