@@ -36,29 +36,27 @@ if (!main.isTenantExist(params.TENANT_ID)) {
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
 
-  ansiColor('xterm') {
-    node(params.AGENT) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription "Tenant: ${params.TENANT_ID}"
-        }
-        stage("Disable tenant modules") {
-          main.tenantInstall(tenant, tenant.getModules().getInstallJson())
-          println("modules removed")
-        }
-        stage("Delete tenant") {
-          main.deleteTenant(tenant)
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
-      } finally {
-        stage('Cleanup') {
-          cleanWs notFailBuild: true
-        }
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}"
+      }
+      stage("Disable tenant modules") {
+        main.tenantInstall(tenant, tenant.getModules().getInstallJson())
+        println("modules removed")
+      }
+      stage("Delete tenant") {
+        main.deleteTenant(tenant)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
       }
     }
   }
-
-
+}
