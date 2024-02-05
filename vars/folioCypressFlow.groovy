@@ -184,7 +184,7 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
             String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
             sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-            sh "yarn install --verbose"
+            sh "yarn install"
             sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
             sh "yarn global add cypress-cloud@${cypressCloudVersion}"
 
