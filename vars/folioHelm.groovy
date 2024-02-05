@@ -174,6 +174,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     //Enable cross tenant extra env
     if (moduleName == 'mod-authtoken' && ns.enableConsortia){
         moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
+
+        if (params.RTR == "true") {
+            moduleConfig << [rtrEnabled: "true"]
+        }
     }
 
     // Enable ingress
