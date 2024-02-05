@@ -26,7 +26,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withSuperTenantAdminUser()
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-OkapiTenant superTenant = new OkapiTenant('supertenant')
+//OkapiTenant superTenant = new OkapiTenant('supertenant')
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -35,7 +35,7 @@ ansiColor('xterm') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
       }
       stage("Delete tenant") {
-        main.lockSuperTenant(superTenant)
+        main.lockSuperTenant(namespace.getSuperTenant())
         println("SuperTenant was successfully locked!")
       }
     } catch (exception) {
