@@ -1,1 +1,50 @@
-//TBD
+#!groovy
+
+@Library('pipelines-shared-library@RANCHER-1155') _
+
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
+import org.jenkinsci.plugins.workflow.libs.Library
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+OkapiTenant superTenant = new OkapiTenant('supertenant')
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+      }
+      stage("Delete tenant") {
+        main.lockSuperTenant(superTenant)
+        println("SuperTenant was successfully locked!")
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
