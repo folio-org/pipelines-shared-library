@@ -176,7 +176,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
   }
   //Enable RTR functionality with env value
-  if (params.RTR == "true") {
+  if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
   }
 
