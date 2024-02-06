@@ -1,8 +1,7 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-1155') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -34,7 +33,7 @@ ansiColor('xterm') {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
       }
-      stage("Delete tenant") {
+      stage("Lock Supertenant") {
         if (!namespace.getSuperTenantLocked()) {
           main.lockSuperTenant(namespace.getSuperTenant())
           println("SuperTenant was successfully locked!")
