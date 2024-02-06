@@ -16,7 +16,7 @@ properties([
         folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
         folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
         string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
-        string(name: 'SLACK_CHANNEL', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true)])])
+        string(name: 'SLACK_CHANNEL', defaultValue: 'folioschemacompare', description: 'Slack channel name where send report (without #)', trim: true)])])
         folioParameters.refreshParameters()
 
 def clusterName = 'folio-perf'
@@ -58,7 +58,7 @@ ansiColor('xterm') {
                 def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
                 def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
 
-                srcInstallJson.each { item ->
+              srcInstallJson.each { item ->
                     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
                     resultMap[moduleName] = [srcVersion: moduleVersion]
                 }

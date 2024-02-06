@@ -1,1 +1,56 @@
-//TBD
+#!groovy
+
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  //pipelineTriggers([cron('H 0 * * *')]),  # need to implement cron time
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_REPOSITORY', defaultValue: 'platform-complete', description: "Repository where to build"),
+    string(name: 'FOLIO_BRANCH_SRC', defaultValue: 'R1-2023', description: "platform-complete source branch for the comparison"),
+    string(name: 'FOLIO_BRANCH_DST', defaultValue: 'snapshot', description: "platform-complete destination branch for the comparison"),
+    string(name: 'BACKUP_NAME', defaultValue: 'opbf-bugfest-snapshot-04-12-2023', description: "Backup Name From Where will be provisioned env"),
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+// TODO: Thinkings If We need this parameters here,Does we sometimes manually run this job ? strugle and made comment this,please attention
+Map Parameters = [
+  FOLIO_REPOSITORY                  : params.FOLIO_REPOSITORY,
+  FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
+  FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
+  BACKUP_NAME                       : params.BACKUP_NAME,
+]
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName env.BUILD_ID
+      buildDescription ""
+      cleanWs()
+    }
+
+    stage('[Job] Execute Schema Comparison Job') {
+      script {
+        try {
+          build job: Constants.JENKINS_JOB_DATA_MIGRATION,
+            parameters:
+              [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
+               string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
+               string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
+               string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
+        } catch (Exception new_ex) {
+          slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
+          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
+        }
+      }
+    }
+  }
+}

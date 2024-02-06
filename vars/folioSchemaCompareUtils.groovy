@@ -72,14 +72,15 @@ void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgad
                         println "Schemas are synced, no changes to be made."
                     } else {
                         diff.put(srcValue, currentDiff)
-                        createSchemaDiffJiraIssue(srcValue, currentDiff, resultMap, teamAssignment)
+                      println "Schemas are synced, but there are issues. Jira tickets creation disabled."
+//                        createSchemaDiffJiraIssue(srcValue, currentDiff, resultMap, teamAssignment)
                     }
                 } catch (exception) {
                     println exception
                     def messageDiff = "Changes were found in this scheme, but cannot be processed. \n" +
                         "Please compare ${srcValue} and ${dstValue} in pgAdmin Schema Diff UI \n"
                     diff.put(srcValue, messageDiff)
-                    createSchemaDiffJiraIssue(srcValue, messageDiff, resultMap, teamAssignment)
+//                    createSchemaDiffJiraIssue(srcValue, messageDiff, resultMap, teamAssignment)
                 }
             }
 
@@ -186,7 +187,7 @@ def getSchemaTenantList(namespace, psqlPod, tenantId, dbParams) {
     return schemasList.split('\n').collect({it.trim()})
 }
 
-// slack notfication
+ slack notfication
 void sendSlackNotification(String slackChannel) {
     def buildStatus = currentBuild.result
     def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
@@ -198,7 +199,7 @@ void sendSlackNotification(String slackChannel) {
     }
 
     try {
-        slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
+        slackSend(color: '', message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
         e.printStackTrace()
