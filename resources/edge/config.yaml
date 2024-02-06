@@ -23,6 +23,7 @@ edge-orders:
 edge-ncip:
   permissions:
   - ncip.all
+edge-dcb: {}
 edge-dematic:
   tenants:
   - tenant: default
