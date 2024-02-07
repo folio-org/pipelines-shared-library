@@ -58,7 +58,9 @@ tfConfig.addVar('tenant_id', defaultTenantId)
 tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
 tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+tfConfig.addVar('pg_max_conn', 8000)
 tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+tfConfig.addVar('kafka_max_mem_size', 8192)
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
 tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
 tfConfig.addVar('pgadmin4', 'true')
@@ -166,7 +168,7 @@ ansiColor('xterm') {
       }
 
       stage('[Rest] Initialize') {
-        sleep time: 10, unit: 'MINUTES'
+        sleep time: 3, unit: 'MINUTES'
         main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
 

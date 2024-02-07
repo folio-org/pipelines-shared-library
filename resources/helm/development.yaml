@@ -53,6 +53,28 @@ edge-connexion:
       memory: 480Mi
     requests:
       memory: 384Mi
+edge-dcb:
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+    type: LoadBalancer
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dcb-ephemeral-properties
+      existingConfig: edge-dcb-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 480Mi
+    requests:
+      memory: 384Mi
 edge-courses:
   ingress:
     enabled: true
@@ -1153,6 +1175,40 @@ mod-orders-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-dcb:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-dcb-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-circulation-item:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
