@@ -59,14 +59,13 @@ ansiColor('xterm') {
     stage('[Conditional check]') {
       Date date = new Date()
       String timePart = date.format("HH")
-     // if (10 < timePart.toInteger() && params.NUMBER_OF_WORKERS.toInteger() < 4) {
+      if (6 < timePart.toInteger() && params.NUMBER_OF_WORKERS.toInteger() >= 5) {
         println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to 4.")
         print(timePart.toInteger())
         println(params.NUMBER_OF_WORKERS.toInteger())
-        input('Validate time...')
-        //error("Not a proper condition.")
-        //currentBuild.result = 'ABORTED'
-     // }
+        error("Not a proper condition.")
+        currentBuild.result = 'ABORTED'
+      }
     }
 
     stage('[Flow] Execute tests') {
