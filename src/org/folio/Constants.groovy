@@ -78,8 +78,8 @@ class Constants {
   static String FOLIO_SSH_GITHUB_URL = 'git@github.com:folio-org'
   static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
   static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
-  static String FOLIO_JIRA_URL = 'https://issues.folio.org'
-  static String FOLIO_JIRA_ISSUE_URL = 'https://issues.folio.org/rest/api/2/issue/'
+  static String FOLIO_JIRA_URL = 'https://folio-org.atlassian.net'
+  static String FOLIO_JIRA_ISSUE_URL = 'https://folio-org.atlassian.net/rest/api/2/issue'
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
