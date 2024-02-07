@@ -35,7 +35,7 @@ Date date = new Date()
 String timePart = date.format("HH")
 if (timePart.toInteger() < 20 && params.NUMBER_OF_WORKERS < 8) {
   println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to less then 8.")
-  error("Not a proper condition")
+  error("Not a proper condition.")
   currentBuild.result = 'ABORTED'
 }
 
