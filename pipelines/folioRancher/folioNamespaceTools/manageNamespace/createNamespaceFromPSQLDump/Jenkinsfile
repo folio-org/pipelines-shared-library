@@ -1,6 +1,8 @@
 #!groovy
 @Library('pipelines-shared-library@RANCHER-1148') _
 
+CONFIG_BRANCH = 'RANCHER-1148'
+
 import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.LocalDateTime
