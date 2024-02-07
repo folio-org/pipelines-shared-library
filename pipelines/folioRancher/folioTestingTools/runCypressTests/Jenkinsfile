@@ -60,9 +60,9 @@ ansiColor('xterm') {
       Date date = new Date()
       String timePart = date.format("HH")
       if (6 < timePart.toInteger() && params.NUMBER_OF_WORKERS.toInteger() >= 5) {
-        println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to 4.")
-        print(timePart.toInteger())
-        println(params.NUMBER_OF_WORKERS.toInteger())
+        println("Pipeline execution has been stopped, please start pipeline between 01:00-06:00 UTC and try again or decrease number of workers to 4.")
+        println("Current time: " + timePart.toInteger())
+        println("Number of workers :" + params.NUMBER_OF_WORKERS.toInteger())
         error("Not a proper condition.")
         currentBuild.result = 'ABORTED'
       }
