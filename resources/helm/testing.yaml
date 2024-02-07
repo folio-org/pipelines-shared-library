@@ -28,7 +28,7 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-connexion:
@@ -50,7 +50,7 @@ edge-connexion:
   replicaCount: 1
   resources:
     limits:
-      memory: 480Mi
+      memory: 512Mi
     requests:
       memory: 384Mi
 edge-courses:
@@ -90,7 +90,39 @@ edge-courses:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+edge-dcb:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+        - path: /dcbService*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dcb-ephemeral-properties
+      existingConfig: edge-dcb-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-dematic:
@@ -122,7 +154,7 @@ edge-dematic:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-fqm:
@@ -159,7 +191,7 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 edge-inn-reach:
@@ -223,7 +255,7 @@ edge-ncip:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 edge-oai-pmh:
@@ -287,7 +319,7 @@ edge-orders:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-patron:
@@ -319,7 +351,7 @@ edge-patron:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-rtac:
@@ -351,7 +383,7 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 edge-sip2:
@@ -370,7 +402,7 @@ edge-sip2:
   replicaCount: 1
   resources:
     limits:
-      memory: 320Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
 mod-aes:
@@ -379,7 +411,7 @@ mod-aes:
   replicaCount: 1
   resources:
     limits:
-      memory: 480Mi
+      memory: 512Mi
     requests:
       memory: 384Mi
 mod-agreements:
@@ -406,7 +438,7 @@ mod-audit:
   replicaCount: 1
   resources:
     limits:
-      memory: 853Mi
+      memory: 1024Mi
     requests:
       memory: 683Mi
 mod-authtoken:
@@ -423,9 +455,9 @@ mod-authtoken:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-batch-print:
   extraEnvVars: []
   integrations:
@@ -467,7 +499,7 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
-      memory: 375Mi
+      memory: 512Mi
     requests:
       memory: 300Mi
 mod-circulation:
@@ -480,6 +512,9 @@ mod-circulation:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -500,16 +535,16 @@ mod-circulation-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 2048Mi
     requests:
-      memory: 512Mi
+      memory: 1024Mi
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-codex-inventory:
@@ -518,7 +553,7 @@ mod-codex-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-codex-mux:
@@ -527,7 +562,7 @@ mod-codex-mux:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-configuration:
@@ -539,7 +574,7 @@ mod-configuration:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-consortia:
@@ -560,7 +595,7 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: 837Mi
+      memory: 1024Mi
     requests:
       memory: 670Mi
 mod-copycat:
@@ -572,7 +607,7 @@ mod-copycat:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-courses:
@@ -584,7 +619,7 @@ mod-courses:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-data-export:
@@ -596,12 +631,15 @@ mod-data-export:
     s3:
       enabled: true
       existingSecret: s3-mod-data-export-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: 646Mi
+      memory: 1024Mi
     requests:
-      memory: 517Mi
+      memory: 512Mi
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -620,9 +658,9 @@ mod-data-export-spring:
   replicaCount: 1
   resources:
     limits:
-      memory: 646Mi
+      memory: 1024Mi
     requests:
-      memory: 517Mi
+      memory: 512Mi
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -680,12 +718,18 @@ mod-data-import:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-lists-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: 646Mi
+      memory: 1024Mi
     requests:
-      memory: 517Mi
+      memory: 512Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -695,7 +739,7 @@ mod-di-converter-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-ebsconet:
@@ -704,9 +748,9 @@ mod-ebsconet:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-email:
   extraEnvVars: []
   integrations:
@@ -716,7 +760,7 @@ mod-email:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-entities-links:
@@ -741,7 +785,7 @@ mod-entities-links:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-erm-usage:
@@ -783,7 +827,7 @@ mod-eusage-reports:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-event-config:
@@ -795,7 +839,7 @@ mod-event-config:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-feesfines:
@@ -807,7 +851,7 @@ mod-feesfines:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-finance:
@@ -816,7 +860,7 @@ mod-finance:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-finance-storage:
@@ -828,9 +872,9 @@ mod-finance-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -844,7 +888,7 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-gobi:
@@ -853,16 +897,16 @@ mod-gobi:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 384Mi
+      memory: 512Mi
     requests:
       memory: 288Mi
 mod-inn-reach:
@@ -885,9 +929,9 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
-      memory: 512Mi
+      memory: 824Mi
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -917,7 +961,7 @@ mod-inventory-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 853Mi
+      memory: 1024Mi
     requests:
       memory: 683Mi
 mod-inventory-update:
@@ -926,7 +970,7 @@ mod-inventory-update:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-invoice:
@@ -957,9 +1001,9 @@ mod-invoice-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -969,7 +1013,7 @@ mod-kb-ebsco-java:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 512Mi
     requests:
       memory: 512Mi
 mod-ldp:
@@ -981,7 +1025,7 @@ mod-ldp:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-licenses:
@@ -993,7 +1037,7 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
-      memory: 960Mi
+      memory: 1024Mi
     requests:
       memory: 768Mi
 mod-lists:
@@ -1026,16 +1070,16 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
     requests:
-      memory: 341Mi
+      memory: 824Mi
 mod-login-saml:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-marc-migrations:
@@ -1050,7 +1094,7 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-marccat:
@@ -1071,7 +1115,7 @@ mod-ncip:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-notes:
@@ -1083,7 +1127,7 @@ mod-notes:
   replicaCount: 1
   resources:
     limits:
-      memory: 646Mi
+      memory: 1024Mi
     requests:
       memory: 517Mi
 mod-notify:
@@ -1095,7 +1139,7 @@ mod-notify:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-oa:
@@ -1124,7 +1168,7 @@ mod-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      memory: 720Mi
+      memory: 1024Mi
     requests:
       memory: 576Mi
 mod-orders:
@@ -1156,7 +1200,41 @@ mod-orders-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1024Mi
+    requests:
+      memory: 924Mi
+mod-dcb:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-dcb-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 512Mi
+mod-circulation-item:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-organizations:
@@ -1165,7 +1243,7 @@ mod-organizations:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-organizations-storage:
@@ -1177,7 +1255,7 @@ mod-organizations-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-password-validator:
@@ -1189,7 +1267,7 @@ mod-password-validator:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-patron:
@@ -1198,7 +1276,7 @@ mod-patron:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-patron-blocks:
@@ -1210,7 +1288,7 @@ mod-patron-blocks:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-permissions:
@@ -1222,7 +1300,7 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      memory: 853Mi
+      memory: 1024Mi
     requests:
       memory: 683Mi
 mod-pubsub:
@@ -1262,7 +1340,7 @@ mod-quick-marc:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-remote-storage:
@@ -1280,7 +1358,7 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 850Mi
+      memory: 1024Mi
     requests:
       memory: 680Mi
 mod-requests-mediated:
@@ -1292,7 +1370,7 @@ mod-requests-mediated:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-rtac:
@@ -1301,7 +1379,7 @@ mod-rtac:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-search:
@@ -1368,7 +1446,7 @@ mod-sender:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-serials-management:
@@ -1449,9 +1527,9 @@ mod-tags:
   replicaCount: 1
   resources:
     limits:
-      memory: 646Mi
+      memory: 1024Mi
     requests:
-      memory: 517Mi
+      memory: 512Mi
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -1461,7 +1539,7 @@ mod-template-engine:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-tlr:
@@ -1473,7 +1551,7 @@ mod-tlr:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-user-import:
@@ -1482,7 +1560,7 @@ mod-user-import:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 512Mi
     requests:
       memory: 341Mi
 mod-users:
@@ -1497,16 +1575,16 @@ mod-users:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
-      memory: 512Mi
+      memory: 824Mi
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 1024Mi
     requests:
       memory: 512Mi
 mod-z3950:
@@ -1515,7 +1593,7 @@ mod-z3950:
   replicaCount: 1
   resources:
     limits:
-      memory: 341Mi
+      memory: 512Mi
     requests:
       memory: 256Mi
   postJob:

@@ -37,9 +37,9 @@ resource "rancher2_app_v2" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 1024Mi
+        memory: 2048Mi
       limits:
-        memory: 4096Mi
+        memory: '${var.kafka_max_mem_size}Mi'
     zookeeper:
       image:
         tag: 3.7
