@@ -33,7 +33,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 Date date = new Date()
 String timePart = date.format("HH")
-if (timePart.toInteger() < 20 && params.NUMBER_OF_WORKERS > 4) {
+if (timePart.toInteger() < 20 && params.NUMBER_OF_WORKERS < 4) {
   println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to 4.")
   error("Not a proper condition.")
   currentBuild.result = 'ABORTED'
