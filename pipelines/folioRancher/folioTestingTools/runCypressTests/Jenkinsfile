@@ -17,7 +17,7 @@ properties([
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
     string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
     string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
-    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8","9","10"]),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
     string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
@@ -31,13 +31,7 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
-Date date = new Date()
-String timePart = date.format("HH")
-if (10 < timePart.toInteger() && params.NUMBER_OF_WORKERS < 4) {
-  println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to 4.")
-  error("Not a proper condition.")
-  currentBuild.result = 'ABORTED'
-}
+
 
 Map cypressFlowParameters = [
   customBuildName         : params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME,
@@ -61,6 +55,15 @@ ansiColor('xterm') {
     stage('Ini') {
       buildName env.BUILD_ID
       buildDescription ""
+    }
+    stage('[Conditional check]') {
+      Date date = new Date()
+      String timePart = date.format("HH")
+      if (10 < timePart.toInteger() && params.NUMBER_OF_WORKERS < 4) {
+        println("Pipeline execution has been stopped, please wait until 20:00 UTC and try again or decrease number of workers to 4.")
+        error("Not a proper condition.")
+        currentBuild.result = 'ABORTED'
+      }
     }
 
     stage('[Flow] Execute tests') {
