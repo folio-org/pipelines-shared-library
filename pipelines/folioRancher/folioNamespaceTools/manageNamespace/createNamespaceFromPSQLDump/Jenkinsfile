@@ -42,7 +42,7 @@ ansiColor('xterm') {
       stage('[Helm restore testing v1]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           folioHelm.addHelmRepository(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, true)
-          sh " helm install ecs-snapshot-dump psql-dump --version '1.0.3' --set psql.projectNamespace='ecs-snapshot' \
+          sh " helm install ecs-snapshot-dump helm-hosted/psql-dump --version '1.0.3' --set psql.projectNamespace='ecs-snapshot' \
         --set psql.dbBackupName='ecs-snapshot.tar' --set psql.job.action='restore' \
         --set psql.s3BackupsBucketName='folio-postgresql-backups' \
         --set psql.s3BackupsBucketDirectory='ecs-snapshot' \
