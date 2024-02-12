@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-//  pipelineTriggers([cron('H 20 * * 1-6')]),
+  pipelineTriggers([cron('H 20 * * *')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -42,7 +42,7 @@ Map cypressFlowParameters = [
   testrailProjectID       : '14',
   testrailRunID           : '2108',
   numberOfWorkers         : '10',
-  agent                   : 'rancher||jenkins-agent-java17'
+  agent                   : 'jenkins-agent-java17'
 ]
 
 ansiColor('xterm') {
