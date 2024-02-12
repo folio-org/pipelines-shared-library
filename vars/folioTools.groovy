@@ -1,6 +1,5 @@
 import hudson.util.Secret
 import org.folio.Constants
-import org.folio.utilities.HttpClient
 import org.folio.utilities.RestClient
 
 void deleteOpenSearchIndices(String cluster, String namespace) {
@@ -83,4 +82,8 @@ static def eval(String expression, Map<String, Object> parameters) {
 
 String generateRandomDigits(int length) {
     (1..length).collect { (int) (Math.random() * 10) }.join()
+}
+
+String getPipelineBranch(){
+  return scm.branches[0].name - "*/"
 }
