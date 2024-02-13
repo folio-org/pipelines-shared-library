@@ -15,11 +15,11 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    folioParameters.tenantId(''),
+    folioParameters.tenantId(),
+    folioParameters.adminUsername(),
+    folioParameters.adminPassword(),
     string(name: 'NEW_USERNAME', defaultValue: '', description: "New user's username"),
     string(name: 'NEW_PASSWORD', defaultValue: '', description: "New user's password"),
-    string(name: 'ADMIN_USERNAME', defaultValue: '', description: "New user's username"),
-    string(name: 'ADMIN_PASSWORD', defaultValue: '', description: "New user's password"),
     string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
     string(name: 'PERMISSIONS', defaultValue: '', description: "New user's permissions,comma separated list"),
     folioParameters.agent(),
@@ -39,12 +39,12 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
 OkapiUser user = new OkapiUser(params.newUSERNAME, params.newPASSWORD)
-  .withFirstName(username.capitalize())
-  .withLastName('ADMINISTRATOR')
+  .withFirstName(params.NEW_USERNAME)
+  .withLastName('USER')
   .withEmail("$username@example.org")
-  .withPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
+  .withPermissions(params.PERMISSIONS)
   .withBarcode(folioTools.generateRandomDigits(8))
-  .withGroup("staff")
+  .withGroup((params.PATRON_GROUP).toString().split(","))
   .withType("staff")
 
 Users createUser = new Users(this, namespace.getDomains()['okapi'])
