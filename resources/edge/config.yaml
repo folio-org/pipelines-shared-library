@@ -24,7 +24,6 @@ edge-orders:
 edge-ncip:
   permissions:
   - ncip.all
-edge-dcb: {}
 edge-dematic:
   tenants:
   - tenant: default
@@ -35,6 +34,14 @@ edge-dematic:
     create: true
   permissions:
   - remote-storage.all
+edge-dcb:
+  tenants:
+  - tenant: default
+    username: dcbClient
+    firstName: dcbClient
+    lastName: SYSTEM
+    password: default
+    create: true
 edge-caiasoft:
   tenants:
   - tenant: default
