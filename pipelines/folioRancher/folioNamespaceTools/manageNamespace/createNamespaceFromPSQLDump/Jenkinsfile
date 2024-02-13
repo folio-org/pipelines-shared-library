@@ -64,13 +64,16 @@ ansiColor('xterm') {
             stage('[Helm restore testing v1]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
                     sh("""
-                            apk add postgresql
-                            mkdir dump
-                            cd dump
-                            apt install libfuse2 fuse -y
-                            wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
-                            dpkg -i ./mount-s3.deb
-                            which mount-s3
+                            apk add postgresql12
+                            apk update && apk add git
+                            apk add build-base automake autoconf libxml2-dev fuse-dev curl-dev
+                            git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+                            cd s3fs-fuse
+                            ./autogen.sh
+                            ./configure
+                            make
+                            make install
+                            which s3fs-fuse
                             which psql
                             which pg_restore
                       """)
