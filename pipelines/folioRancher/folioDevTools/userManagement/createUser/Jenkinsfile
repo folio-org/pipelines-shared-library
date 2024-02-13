@@ -60,7 +60,7 @@ ansiColor('xterm') {
         buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.USER}"
       }
       stage("Create New User") {
-        createUser.createUser(tenant, user)
+        main.createOkapiUser(tenant, user)
         println("New User Created")
       }
     } catch (exception) {
