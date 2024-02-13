@@ -63,10 +63,18 @@ ansiColor('xterm') {
 
             stage('[Helm restore testing v1]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
-                    input("Testing started...")
-                    sh("apk add s3fs-fuse")
-                    sh("apk add s3fs-fuse")
-                    sh("apk add postgresql")
+                    sh("""
+                            apk add s3fs-fuse
+                            apk add postgresql
+                            mkdir dump
+                            cd dump
+                            apt install libfuse2 fuse -y
+                            wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb +
+                            dpkg -i ./mount-s3.debx
+                            which mount-s3
+                            which psql
+                            which pg_restore
+                      """)
                     input("Testing start v1...")
                 }
             }
