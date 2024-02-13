@@ -37,6 +37,7 @@ def resultMap = [:]
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH_SRC])[0]
 def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
 def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
+def pgadminURL = "https://${clusterName}-${projectName}-pgadmin.ci.folio.org/"
 
 ansiColor('xterm') {
     if (params.refresh_parameters) {
@@ -145,7 +146,8 @@ ansiColor('xterm') {
                     totalTimeInMs,
                     modulesLongMigrationTimeSlack,
                     modulesMigrationFailedSlack,
-                    startMigrationTime
+                    startMigrationTime,
+                    pgadminURL
                 )
               totalTimeInMs += result[0]
               modulesLongMigrationTimeSlack += result[1]
@@ -168,9 +170,9 @@ ansiColor('xterm') {
                     keepAll: true])
             }
 
-            stage('Send Slack notification') {
-                folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            }
+           stage('Send Slack notification') {
+               folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+           }
 
           stage('Destroy data-migration project') {
             def jobParameters = getEnvironmentJobParameters(

@@ -12,7 +12,7 @@ import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 
-def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime){
+def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime,pgadminURL){
 
 
     srcInstallJson.each { item ->
@@ -62,7 +62,7 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
     // Grouped modules by tenant name and generate HTML report
     def uniqTenants = tenants.tenantName.unique()
     uniqTenants.each { tenantName ->
-        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants)
+        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants, pgadminURL)
         totalTimeInMs += totalTime
         modulesLongMigrationTimeSlack += modulesLongMigrationTime
         modulesMigrationFailedSlack += modulesMigrationFailed
@@ -92,7 +92,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 }
 
 @NonCPS
-def createTimeHtmlReport(tenantName, tenants) {
+def createTimeHtmlReport(tenantName, tenants, pgadminURL) {
     def sortedList = tenants.sort {
         try {
             it.moduleInfo.execTime.toInteger()
@@ -138,7 +138,9 @@ def createTimeHtmlReport(tenantName, tenants) {
                             modulesLongMigrationTime.put(moduleName, execTime)
                         }
                     }
-
+                    markup.bodyy(href: pgadminURL, target: "_blank") {
+                        builder.h2("pgAdmin")
+                    }
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
