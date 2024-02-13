@@ -73,7 +73,7 @@ ansiColor('xterm') {
                             ./configure
                             make
                             make install
-                            apk info -vv | grep 's3fs-fuse'
+                            s3fs --version
                             psql --version
                             pg_restore --version
                       """)
