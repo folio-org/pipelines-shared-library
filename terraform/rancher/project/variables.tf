@@ -92,6 +92,12 @@ variable "pg_version" {
   description = "Postgres version"
 }
 
+variable "pg_vol_size" {
+  type        = number
+  default     = 20
+  description = "Postgres EBS volume size"
+}
+
 variable "pg_dbname" {
   type        = string
   default     = "folio_modules"
