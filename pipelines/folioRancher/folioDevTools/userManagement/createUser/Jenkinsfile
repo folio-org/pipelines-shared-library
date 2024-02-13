@@ -16,11 +16,12 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    string(name: 'USERNAME', defaultValue: '', description: "New user's username"),
-    string(name: 'PASSWORD', defaultValue: '', description: "New user's password"),
-    string(name: 'BARCODE', defaultValue: '', description: "New user's barcode"),
-    string(name: 'PATRON_GROUP', defaultValue: '', description: "New user's patron group"),
-    string(name: 'PERMISSIONS', defaultValue: '', description: "New user's permissions"),
+    string(name: 'NEW_USERNAME', defaultValue: '', description: "New user's username"),
+    string(name: 'NEW_PASSWORD', defaultValue: '', description: "New user's password"),
+    string(name: 'ADMIN_USERNAME', defaultValue: '', description: "New user's username"),
+    string(name: 'ADMIN_PASSWORD', defaultValue: '', description: "New user's password"),
+    string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
+    string(name: 'PERMISSIONS', defaultValue: '', description: "New user's permissions,comma separated list"),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
@@ -36,7 +37,16 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-OkapiUser user = new OkapiUser(params.USERNAME, params.PASSWORD)
+  .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
+OkapiUser user = new OkapiUser(params.newUSERNAME, params.newPASSWORD)
+  .withFirstName(username.capitalize())
+  .withLastName('ADMINISTRATOR')
+  .withEmail("$username@example.org")
+  .withPermissions(["perms.users.assign.immutable", "perms.users.assign.mutable", "perms.users.assign.okapi", "perms.all"])
+  .withBarcode(folioTools.generateRandomDigits(8))
+  .withGroup("staff")
+  .withType("staff")
+
 Users createUser = new Users(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
@@ -44,15 +54,12 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.USER}"
       }
       stage("Create New User") {
-        main.createOkapiUser(tenant, user)
+        createUser.createUser(tenant, user)
         println("New User Created")
       }
-//      stage("Set Permissions") {
-//
-//      }
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
