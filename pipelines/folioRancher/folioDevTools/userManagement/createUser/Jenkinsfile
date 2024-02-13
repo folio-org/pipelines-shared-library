@@ -21,7 +21,7 @@ properties([
     string(name: 'NEW_USERNAME', defaultValue: '', description: "New user's username"),
     string(name: 'NEW_PASSWORD', defaultValue: '', description: "New user's password"),
     string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
-    string(name: 'PERMISSIONS', defaultValue: '', description: "New user's permissions,comma separated list"),
+    string(name: 'PERMISSIONS', defaultValue: 'perms.users.assign.immutable,perms.users.assign.mutable,perms.users.assign.okapi,perms.all', description: "New user's permissions,comma separated list"),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
@@ -30,6 +30,9 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
+
+String permissions = params.PERMISSIONS
+List<String> permissionsList = permissions.split(',')
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
@@ -42,9 +45,9 @@ OkapiUser user = new OkapiUser(params.newUSERNAME, params.newPASSWORD)
   .withFirstName(params.NEW_USERNAME)
   .withLastName('USER')
   .withEmail("$username@example.org")
-  .withPermissions(params.PERMISSIONS)
+  .withPermissions(permissionsList)
   .withBarcode(folioTools.generateRandomDigits(8))
-  .withGroup((params.PATRON_GROUP).toString().split(","))
+  .withGroup(params.PATRON_GROUP)
   .withType("staff")
 
 Users createUser = new Users(this, namespace.getDomains()['okapi'])
