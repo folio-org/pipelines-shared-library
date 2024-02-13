@@ -41,10 +41,10 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
-OkapiUser user = new OkapiUser(params.newUSERNAME, params.newPASSWORD)
+OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
   .withFirstName(params.NEW_USERNAME)
   .withLastName('USER')
-  .withEmail("$username@example.org")
+  .withEmail("${params.NEW_USERNAME}@example.org")
   .withPermissions(permissionsList)
   .withBarcode(folioTools.generateRandomDigits(8))
   .withGroup(params.PATRON_GROUP)
