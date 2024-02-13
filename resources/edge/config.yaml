@@ -24,7 +24,6 @@ edge-orders:
 edge-ncip:
   permissions:
   - ncip.all
-edge-dcb: {}
 edge-dematic:
   tenants:
   - tenant: default
@@ -61,3 +60,4 @@ edge-connexion:
 edge-sip2: {}
 edge-courses: {}
 edge-fqm: {}
+edge-dcb: {}

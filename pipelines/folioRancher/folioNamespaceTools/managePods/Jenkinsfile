@@ -17,9 +17,13 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         choice(name: "ACTION", choices: ['start', 'stop'], description: '(Required) Choose action to perform'),
                         choice(name: "PERIOD", choices: ['night', 'weekend'], description: '(Required) Choose period to suspend'),
                         booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
-                        folioParameters.agent(),
+                        string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
+        55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
+        35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
+        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
+        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
         0 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
         30 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=bama
         0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
@@ -36,10 +40,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         45 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
         30 07 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=nla
         30 22 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
-        10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spanish
-        0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spanish
-        10 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spanish
-        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spanish
         10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
         0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire
         10 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
@@ -50,6 +50,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
         30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
+        15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
@@ -57,39 +61,19 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
         15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
-        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
-        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega
-        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=consortia
-        40 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=consortia
-        20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=consortia
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=consortia
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=tamu
-        40 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=tamu
-        20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=tamu
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=tamu
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force
-        45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force
-        25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
+        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
+        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
         25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
         45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
         25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
         00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
-        30 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        50 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
-        10 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=task-force-2nd
         0 22 * * 5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
         30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
         0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
@@ -97,7 +81,15 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
         30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
-        10 06 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
+        30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-1
+        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-1
+        30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-2
+        30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+        10 05 * * 2-5 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test-2
    ''')])])
 
 ansiColor('xterm') {
@@ -132,10 +124,10 @@ ansiColor('xterm') {
                 def status = new JsonSlurperClassic().parseText("${check}")
                 postgresql = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("postgresql") }
                 def kafka = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("kafka") }
+                def opensearch = kubectl.getKubernetesResourceList('StatefulSet', "${params.NAMESPACE}").findAll { it.startsWith("open") }
                 if (status['status'] == "stopped") {
                   def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
                   def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
                   List core_modules = ["okapi", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
                   def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "okapi", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
                   def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
@@ -145,7 +137,7 @@ ansiColor('xterm') {
                   if (postgresql) {
                     postgresql.each { db ->
                       kubectl.setKubernetesResourceCount("StatefulSet", "${db}", "${params.NAMESPACE}", "1")
-                      kubectl.waitKubernetesResourceStableState("StatefulSet", "${db}", "${params.NAMESPACE}", "1", '300')
+                      kubectl.waitKubernetesResourceStableState("StatefulSet", "${db}", "${params.NAMESPACE}", "1", '900')
                     }
                   } else {
                     awscli.startRdsCluster("rds-${params.CLUSTER}-${params.NAMESPACE}", Constants.AWS_REGION)
@@ -153,6 +145,10 @@ ansiColor('xterm') {
                     sleep 30
                   }
                   kafka.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1")
+                  }
+                  if (opensearch) {
+                    opensearch.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1")
+                    }
                   }
                   services.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
@@ -164,13 +160,19 @@ ansiColor('xterm') {
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
-                  backend.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  backend.each { deployment, replica_count ->
+                    if (replica_count == "") {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
+                    } else {
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    }
                   }
                   edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
                   ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                   }
                   kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
+                  kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
                 } else {
                   println("Target environment: ${params.CLUSTER}-${params.NAMESPACE} is already in running state!")
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "shutdown-schedule", "everyday")
