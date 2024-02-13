@@ -16,7 +16,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    folioParameters.userId(''),
     string(name: 'USERNAME', defaultValue: '', description: "New user's username"),
     string(name: 'PASSWORD', defaultValue: '', description: "New user's password"),
     string(name: 'BARCODE', defaultValue: '', description: "New user's barcode"),
@@ -52,7 +51,7 @@ ansiColor('xterm') {
         println("New User Created")
       }
       stage("Set Permissions") {
-        main.deleteTenant(tenant)
+
       }
     } catch (exception) {
       println(exception)
