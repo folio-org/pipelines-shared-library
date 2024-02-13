@@ -61,7 +61,7 @@ ansiColor('xterm') {
                 folioTerraformFlow.manageNamespace('apply', tfConfig)
             }
 
-            stage('[Helm restore testing v1]') {
+            stage('[Helm restore DB dump & Users with Roles]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
                     sh("""
                             apk add postgresql12
@@ -73,9 +73,11 @@ ansiColor('xterm') {
                             ./configure
                             make
                             make install
-                            s3fs --version
-                            psql --version
-                            pg_restore --version
+                            export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD} && mkdir dump
+                            s3fs folio-postgresql-backups ./dump
+                            ls -l ./dump
+                            #psql --host="127.0.0.1" --port="2525" --username="postgres" --dbname="folio" -a -f /dump/ecs-snapshot-users.sql
+                            #pg_restore --host="127.0.0.1" --port="2525" --username="postgres" --dbname="folio" --verbose --format="tar" --exit-on-error /dump/ecs-snapshot.tar
                       """)
                     input("Testing start v1...")
                 }
