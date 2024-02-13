@@ -64,7 +64,6 @@ ansiColor('xterm') {
             stage('[Helm restore testing v1]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
                     sh("""
-                            apk add s3fs-fuse
                             apk add postgresql
                             mkdir dump
                             cd dump
