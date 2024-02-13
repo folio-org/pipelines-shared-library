@@ -69,8 +69,8 @@ ansiColor('xterm') {
                             mkdir dump
                             cd dump
                             apt install libfuse2 fuse -y
-                            wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb +
-                            dpkg -i ./mount-s3.debx
+                            wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
+                            dpkg -i ./mount-s3.deb
                             which mount-s3
                             which psql
                             which pg_restore
