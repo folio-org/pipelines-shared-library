@@ -64,7 +64,7 @@ ansiColor('xterm') {
             stage('[Helm restore testing v1]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
                     input("Testing started...")
-                    sh("blah blah")
+                    sh("cat /etc/os-release")
                 }
             }
 
