@@ -184,7 +184,6 @@ def moduleVersion(){
 def adminUsername(String admin_username = defaultAdminUser().username) {
   return _paramString('ADMIN_USERNAME', admin_username, 'Admin user name')
 }
-
 def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
   return _paramPassword('ADMIN_PASSWORD', admin_password, description)
 }
