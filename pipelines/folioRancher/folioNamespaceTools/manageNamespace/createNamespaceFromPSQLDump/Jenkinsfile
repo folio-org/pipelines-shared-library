@@ -73,9 +73,9 @@ ansiColor('xterm') {
                             ./configure
                             make
                             make install
-                            which s3fs-fuse
-                            which psql
-                            which pg_restore
+                            apk info -vv | grep 's3fs-fuse'
+                            psql --version
+                            pg_restore --version
                       """)
                     input("Testing start v1...")
                 }
