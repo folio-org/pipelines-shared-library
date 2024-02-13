@@ -64,7 +64,10 @@ ansiColor('xterm') {
             stage('[Helm restore testing v1]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
                     input("Testing started...")
-                    sh("cat /etc/os-release")
+                    sh("apk add s3fs-fuse")
+                    sh("apk add s3fs-fuse")
+                    sh("apk add postgresql")
+                    input("Testing start v1...")
                 }
             }
 
