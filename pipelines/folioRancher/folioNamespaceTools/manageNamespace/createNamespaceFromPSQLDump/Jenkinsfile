@@ -63,24 +63,7 @@ ansiColor('xterm') {
 
             stage('[Helm restore DB dump & Users with Roles]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
-                    sh("""
-                            apk add postgresql12
-                            df -h
-                            #apk update && apk add git
-                            #apk add build-base automake autoconf libxml2-dev fuse-dev curl-dev
-                            #git clone https://github.com/s3fs-fuse/s3fs-fuse.git
-                            #cd s3fs-fuse
-                            #./autogen.sh
-                            #./configure
-                            #make
-                            #make install
-                            #export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD} && mkdir dump
-                            #s3fs -o use_cache="" folio-postgresql-backups ./dump
-                            #ls -l ./dump
-                            #psql --host="127.0.0.1" --port="2525" --username="postgres" --dbname="folio" -a -f /dump/ecs-snapshot-users.sql
-                            #pg_restore --host="127.0.0.1" --port="2525" --username="postgres" --dbname="folio" --verbose --format="tar" --exit-on-error /dump/ecs-snapshot.tar
-                      """)
-                    input("Testing start v1...")
+
                 }
             }
 
