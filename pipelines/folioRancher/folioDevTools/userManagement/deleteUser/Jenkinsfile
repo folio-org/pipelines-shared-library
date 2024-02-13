@@ -15,7 +15,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    folioParameters.userId(''),
+    string(name: 'USER_ID', defaultValue: '', description: "User ID which should be deleted"),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
