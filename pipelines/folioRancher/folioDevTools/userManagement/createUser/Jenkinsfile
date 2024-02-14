@@ -19,7 +19,7 @@ properties([
     folioParameters.adminUsername(),
     folioParameters.adminPassword(),
     string(name: 'NEW_USERNAME', defaultValue: '', description: "New user's username"),
-    string(name: 'NEW_PASSWORD', defaultValue: '', description: "New user's password"),
+    password(name: 'NEW_PASSWORD', defaultValue: '', description: "New user's password"),
     string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
     string(name: 'PERMISSIONS', defaultValue: 'perms.users.assign.immutable,perms.users.assign.mutable,perms.users.assign.okapi,perms.all', description: "New user's permissions,comma separated list"),
     folioParameters.agent(),
@@ -61,7 +61,6 @@ ansiColor('xterm') {
       }
       stage("Create New User") {
         main.createOkapiUser(tenant, user)
-        println("New User Created")
       }
     } catch (exception) {
       println(exception)
