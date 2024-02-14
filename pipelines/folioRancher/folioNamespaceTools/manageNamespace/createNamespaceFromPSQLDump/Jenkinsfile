@@ -63,7 +63,7 @@ ansiColor('xterm') {
 
             stage('[Helm restore DB dump & Users with Roles]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
-
+                // Placeholder for DB restore
                 }
             }
 
