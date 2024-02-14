@@ -57,7 +57,7 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.USER}"
+        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
       }
       stage("Create New User") {
         main.createOkapiUser(tenant, user)
