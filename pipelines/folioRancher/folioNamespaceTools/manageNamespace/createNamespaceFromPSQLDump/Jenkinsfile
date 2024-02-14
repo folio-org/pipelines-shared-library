@@ -14,8 +14,8 @@ properties([
                 string(name: "NAMESPACE", defaultValue: "ecs-snapshot"),
                 string(name: "AGENT", defaultValue: "jenkins-agent-java17"),
                 string(name: "BRANCH", defaultValue: "snapshot", description: "platform-complete"),
-                string(name: "source_db", defaultValue: "ecs-snapshot.tar", description: "Source dump file name"),
-                string(name: "source_db_users", defaultValue: "ecs-snapshot-users.sql", description: "Source dump file of users"),
+                string(name: "source_db", defaultValue: "ecs-snapshot", description: "Source dump file name"),
+                string(name: "source_db_users", defaultValue: "ecs-snapshot-users", description: "Source dump file of users"),
                 folioParameters.refreshParameters()
         ])
 ])
