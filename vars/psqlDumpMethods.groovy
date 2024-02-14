@@ -36,6 +36,17 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
     }
 }
 
+def restoreHelmDump(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String db_backup_data, String db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory) {
+  stage('Helm install') {
+    sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
+        --set psql.dbBackupName=${db_backup_name} --set psql.job.action='restore' \
+        --set psql.dbBackupData=${db_backup_data} \
+        --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
+        --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
+        --namespace=${project_namespace} --timeout 240m --wait --wait-for-jobs"
+  }
+}
+
 def helmDelete(String build_id, String project_namespace) {
     stage('Helm delete') {
         sh "helm delete psql-dump-build-id-${build_id} --namespace=${project_namespace}"
