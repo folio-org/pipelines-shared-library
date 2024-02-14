@@ -152,21 +152,21 @@ pipeline {
               }
             }
 
-            stage("Sync jira tickets") {
-              steps {
-                script {
-                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-                }
-              }
-            }
+//            stage("Sync jira tickets") {
+//              steps {
+//                script {
+//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
 
-            stage("Send slack notifications") {
-              steps {
-                script {
-                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-                }
-              }
-            }
+//            stage("Send slack notifications") {
+//              steps {
+//                script {
+//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
+//                }
+//              }
+//            }
           }
         }
       }
