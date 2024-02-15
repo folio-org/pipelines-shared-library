@@ -69,23 +69,23 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Prepare ES indices...]'){
+      stage('[Prepare ES indices...]') {
         //tdb
       }
 
-      stage('[Helm install modules...]'){
+      stage('[Helm install modules...]') {
         //tdb
       }
 
-      stage('[New modules deploy...]'){
+      stage('[New modules deploy...]') {
         //tdb
       }
 
-      stage('[Configure edge-users & salt...]'){
+      stage('[Configure edge-users & salt...]') {
         //tdb
       }
 
-      stage('[Build ecs-snapshot UI...]'){
+      stage('[Build ecs-snapshot UI...]') {
         //tdb
       }
 
