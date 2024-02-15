@@ -36,14 +36,14 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
     }
 }
 
-def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String psql_dump_backups_bucket_name, String postgresql_backups_directory, String ns) {
+def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String bucket_name, String backups_directory, String namespace) {
   stage('Helm install') {
     sh "helm install psql-dump ${repo_name}/${chart_name} --version ${chart_version} \
         --set psql.dbBackupName=${db_backup_name} \
-        --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
+        --set psql.s3BackupsBucketName=${bucket_name} \
         --set psql.dbBackupData=${db_backup_data} \
-        --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
-        --namespace=${ns} --timeout 240m --wait --wait-for-jobs"
+        --set psql.s3BackupsBucketDirectory=${backups_directory} \
+        --namespace=${namespace} --timeout 360m --wait --wait-for-jobs"
   }
 }
 
