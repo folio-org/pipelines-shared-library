@@ -51,7 +51,7 @@ def restoreHelmData(String repo_name, String chart_name, String chart_version, S
       println("PSQL restore failed, error: ${error.getMessage()}")
     }
     finally {
-      sh "helm uninstall psql-dump"
+      sh "helm uninstall psql-dump --namespace=${namespace}"
     }
   }
 }
