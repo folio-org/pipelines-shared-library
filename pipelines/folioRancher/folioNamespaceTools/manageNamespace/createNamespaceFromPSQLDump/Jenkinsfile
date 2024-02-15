@@ -1,9 +1,9 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library@RANCHER-1148') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-1148'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 import org.folio.models.TerraformConfig
 import org.jenkinsci.plugins.workflow.libs.Library
 
