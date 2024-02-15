@@ -63,7 +63,7 @@ ansiColor('xterm') {
 
             stage('[Helm restore DB dump & Users with Roles]') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
-                // Placeholder for DB restore
+                psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
                 }
             }
 
