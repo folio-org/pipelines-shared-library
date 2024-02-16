@@ -20,14 +20,14 @@ static void prepareEcsIndices(String username, String password) {
     logger.info("Source index: ${source} AND Destination index: ${destination}")
 
     String body = """
-      [{
+      {
         "source": {
         "index": "${source}"
         },
         "dest": {
         "index": "${destination}"
         }
-      }]
+      }
   """
 
     try {
