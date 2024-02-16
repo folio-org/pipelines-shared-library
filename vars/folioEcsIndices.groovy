@@ -36,7 +36,7 @@ static void prepareEcsIndices(String username, String password) {
   """
 
     try {
-      client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers_del)
+      client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}", headers_del)
       logger.warning("Deleting this index: ${destination}...")
       sleep(30000)
     } catch (Exception es) {
@@ -44,7 +44,7 @@ static void prepareEcsIndices(String username, String password) {
     }
     finally {
       logger.info("Working on creation ${destination} index...")
-      client.post(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex?pretty", body, headers)
+      client.post(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex", body, headers)
     }
   }
 }
