@@ -31,24 +31,13 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
-String permissions = params.PERMISSIONS
-List<String> permissionsList = permissions.split(',')
-
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
-
-//Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
 OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
   .withFirstName(params.NEW_USERNAME)
-//  .withLastName('USER')
-//  .withEmail("${params.NEW_USERNAME}@example.org")
-//  .withPermissions(permissionsList)
-//  .withBarcode(folioTools.generateRandomDigits(8))
-//  .withGroup(params.PATRON_GROUP)
-//  .withType("staff")
 
 Users deleteUser = new Users(this, namespace.getDomains()['okapi'])
 
