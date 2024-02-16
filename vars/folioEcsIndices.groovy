@@ -35,7 +35,8 @@ String prepareEcsIndices(String username, String password) {
       logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     } finally {
       logger.info("Working on creation ${destination} index...")
-      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @${env.WORKSPACE}/create.json > /dev/null 2>&1 &")
+      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -H \"Content-Type: application/json\" " +
+        "-d @${env.WORKSPACE}/create.json > /dev/null 2>&1 &")
     }
   }
 }
