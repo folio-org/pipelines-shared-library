@@ -20,7 +20,6 @@ properties([
   ])
 ])
 
-
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
