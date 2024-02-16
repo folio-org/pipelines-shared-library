@@ -125,7 +125,7 @@ static List perfEnvironmentsList() {
 
 @NonCPS
 static List testEnvironmentsList() {
-    return ['test', 'test-1', 'test-2']
+    return ['test', 'test-1', 'test-2', 'tdspora']
 }
 
 @NonCPS

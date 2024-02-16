@@ -12,7 +12,7 @@ class Constants {
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
   static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
-  static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2']
+  static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
