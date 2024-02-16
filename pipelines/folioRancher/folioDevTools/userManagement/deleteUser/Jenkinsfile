@@ -4,7 +4,6 @@
 
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
-import org.folio.rest_v2.Main
 import org.folio.rest_v2.Users
 import org.folio.models.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -19,9 +18,6 @@ properties([
     folioParameters.adminUsername(),
     folioParameters.adminPassword(),
     string(name: 'NEW_USERNAME', defaultValue: '', description: "Please input new user's username"),
-//    password(name: 'NEW_PASSWORD', description: "Please input new user's password"),
-//    string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
-//    string(name: 'PERMISSIONS', defaultValue: 'perms.users.assign.immutable,perms.users.assign.mutable,perms.users.assign.okapi,perms.all', description: "New user's permissions,comma separated list"),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
