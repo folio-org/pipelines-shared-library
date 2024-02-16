@@ -92,7 +92,7 @@ class Users extends Authorization {
     }
     println(getUserByName(tenant, user))
 
-    String url = generateUrl("/users/${user.Uuid}")
+    String url = generateUrl("/users/${user.uuid}")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
 
     logger.info("User ${user.username} exists. Deleting...")
