@@ -55,20 +55,20 @@ ansiColor('xterm') {
       tfConfig.addVar('enable_rw_split', false)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-      stage('[Destroy existing env...]') {
-        destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                       string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                       booleanParam(name: 'RW_SPLIT', value: false),
-                       string(name: 'POSTGRESQL', value: 'built-in'),
-                       string(name: 'KAFKA', value: 'aws'),
-                       string(name: 'OPENSEARCH', value: 'aws'),
-                       string(name: 'S3_BUCKET', value: 'built-in'),
-                       string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-      }
-
-      if (destroyResult == 'SUCCESS' || 'UNSTABLE') {
+//      stage('[Destroy existing env...]') {
+//        destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+//          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+//                       string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+//                       booleanParam(name: 'RW_SPLIT', value: false),
+//                       string(name: 'POSTGRESQL', value: 'built-in'),
+//                       string(name: 'KAFKA', value: 'aws'),
+//                       string(name: 'OPENSEARCH', value: 'aws'),
+//                       string(name: 'S3_BUCKET', value: 'built-in'),
+//                       string(name: 'AGENT', value: 'jenkins-agent-java17'),
+//                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+//      }
+//
+//      if (destroyResult == 'SUCCESS' || 'UNSTABLE') {
 
         stage('[Provision environment...]') {
           folioTerraformFlow.manageNamespace('apply', tfConfig)
@@ -100,7 +100,7 @@ ansiColor('xterm') {
         stage('[Build ecs-snapshot UI...]') {
           //tdb
         }
-      }
+//      }
 
     } catch (exception) {
       println(exception)
