@@ -11,8 +11,11 @@ String prepareEcsIndices(String username, String password) {
     "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int"
   ]
 
+  Logger logger = new Logger(this, 'folioEcsIndices')
+  JsonSlurperClassic json = new JsonSlurperClassic()
+
   indices.each { source, destination ->
-    new Logger(this, 'folioEcsIndices').info("Source index: ${source} AND Destination index: ${destination}")
+    logger.info("Source index: ${source} AND Destination index: ${destination}")
 
     String body = """
       {
@@ -25,16 +28,16 @@ String prepareEcsIndices(String username, String password) {
       }
   """
 
-    writeJSON file: "create.json", json: new JsonSlurperClassic().parseText(body)
+    writeJSON file: "create.json", json: json.parseText(body)
 
     try {
-      new Logger(this, 'folioEcsIndices').warning("Deleting this index: ${destination}...")
+      logger.warning("Deleting this index: ${destination}...")
       sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
       sleep(3)
     } catch (Error es) {
-      new Logger(this, 'folioEcsIndices').error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
+      logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     } finally {
-      new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
+      logger.info("Working on creation ${destination} index...")
       sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @${env.WORKSPACE}/create.json > /dev/null 2>&1 &")
     }
   }
