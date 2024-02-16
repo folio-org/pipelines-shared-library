@@ -10,7 +10,6 @@ String prepareEcsIndices(String username, String password) {
                  "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int"]
 
   Logger logger = new Logger(this, 'folioEcsIndices')
-  JsonSlurperClassic json = new JsonSlurperClassic()
 
   indices.each { source, destination ->
     logger.info("Source index: ${source} AND Destination index: ${destination}")
@@ -26,7 +25,7 @@ String prepareEcsIndices(String username, String password) {
       }
   """
 
-    writeJSON file: "create.json", json: json.parseText(body)
+    writeJSON file: "create.json", json: new JsonSlurperClassic().parseText(body)
 
     try {
       logger.warning("Deleting this index: ${destination}...")
