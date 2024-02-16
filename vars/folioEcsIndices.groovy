@@ -31,12 +31,15 @@ String prepareEcsIndices(String username, String password) {
       new Logger(this, 'folioEcsIndices').warning("Deleting this index: ${destination}...")
       sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
       sleep(3)
-    } catch (Exception es) {
+    } catch (Error es) {
       new Logger(this, 'folioEcsIndices').error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     }
-    finally {
+    try {
       new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
       sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @create.json > /dev/null 2>&1 &")
+    } catch (Error es) {
+      new Logger(this, 'folioEcsIndices').error("Unable to create index: ${destination}, error: ${es.getMessage()}")
+      throw new Exception("Can't proceed further without indices...!")
     }
   }
 }
