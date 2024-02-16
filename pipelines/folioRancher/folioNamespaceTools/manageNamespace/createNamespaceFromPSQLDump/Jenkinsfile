@@ -1,9 +1,9 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1216') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'RANCHER-1216'
 import org.folio.models.TerraformConfig
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -14,8 +14,8 @@ properties([
     string(name: "NAMESPACE", defaultValue: "ecs-snapshot"),
     string(name: "AGENT", defaultValue: "jenkins-agent-java17"),
     string(name: "BRANCH", defaultValue: "snapshot", description: "platform-complete"),
-    string(name: "source_db", defaultValue: "ecs-snapshot", description: "Source dump file name"),
-    string(name: "source_db_users", defaultValue: "ecs-snapshot-users", description: "Source dump file of users"),
+    string(name: "SOURCE_DB", defaultValue: "ecs-snapshot", description: "Source dump file name"),
+    string(name: "SOURCE_DB_USERS", defaultValue: "ecs-snapshot-users", description: "Source dump file of users"),
     folioParameters.refreshParameters()
   ])
 ])
@@ -61,16 +61,18 @@ ansiColor('xterm') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
       }
 
-      stage('[Helm restore DB data & users...]') {
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.source_db_users}",
-            "${params.source_db}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-            "ecs-snapshot", "ecs-snapshot")
+      stage('[Prepare ES indices...]') {
+        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
       }
 
-      stage('[Prepare ES indices...]') {
-        //tdb
+      stage('[Helm restore DB data & users...]') {
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "ecs-snapshot", "ecs-snapshot")
+        }
       }
 
       stage('[Helm install modules...]') {
