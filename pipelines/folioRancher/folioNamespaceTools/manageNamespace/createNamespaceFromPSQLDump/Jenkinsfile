@@ -56,18 +56,18 @@ ansiColor('xterm') {
       tfConfig.addVar('enable_rw_split', false)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-//      stage('[Terraform] Provision...') {
-//        folioTerraformFlow.manageNamespace('apply', tfConfig)
-//      }
+      stage('[Terraform] Provision...') {
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+      }
 
-      stage('[Helm Indices & DB preparation..]') {
+      stage('[Helm Indices & DB preparation...]') {
         withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
           folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
         folioHelm.withKubeConfig(params.CLUSTER) {
-//          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
-//            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-//            "ecs-snapshot", "ecs-snapshot")
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "ecs-snapshot", "ecs-snapshot")
         }
       }
 
