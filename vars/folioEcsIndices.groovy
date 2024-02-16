@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.Logger
 
@@ -24,6 +25,8 @@ String prepareEcsIndices(String username, String password) {
       }
   """
 
+    writeJSON file: "create.json", json: new JsonSlurperClassic().parseText(body)
+
     try {
       new Logger(this, 'folioEcsIndices').warning("Deleting this index: ${destination}...")
       sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
@@ -33,7 +36,7 @@ String prepareEcsIndices(String username, String password) {
     }
     finally {
       new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
-      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d ${body} > /dev/null 2>&1 &")
+      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @create.json > /dev/null 2>&1 &")
     }
   }
 }
