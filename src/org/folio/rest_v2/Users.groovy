@@ -80,22 +80,22 @@ class Users extends Authorization {
     }
 
   /**
-   * Creates a new user.
+   * Delete existing user.
    *
-   * @param tenant The tenant in which to create the user.
-   * @param user The user to be created.
+   * @param tenant The tenant in which to delete the user.
+   * @param user The user to be deleted.
    */
   void deleteUser(OkapiTenant tenant, OkapiUser user) {
     if (!getUserByName(tenant, user)) {
       logger.info("User ${user.username} not exists.")
       return
     }
+    println(getUserByName(tenant, user))
 
-    String url = generateUrl("/users")
+    String url = generateUrl("/users/${user.Uuid}")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
 
     logger.info("User ${user.username} exists. Deleting...")
-    user.generateUserUuid()
     try {
       restClient.delete(url, headers)
       logger.info("User ${user.username} deleted successfully")
