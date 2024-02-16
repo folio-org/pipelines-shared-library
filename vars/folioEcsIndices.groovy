@@ -4,7 +4,7 @@ import org.folio.utilities.RestClient
 
 String prepareEcsIndices(String username, String password) {
 
-  RestClient client = new RestClient(this, true, 10800000)
+  RestClient client = new RestClient(this)
 
   Map indices = [
     "ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
