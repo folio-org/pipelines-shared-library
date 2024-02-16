@@ -1,1 +1,53 @@
-//TBD
+#!groovy
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
+import org.jenkinsci.plugins.workflow.libs.Library
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+      }
+      stage("Unlock Supertenant") {
+        if (namespace.getSuperTenantLocked()) {
+          main.unlockSuperTenant(namespace.getSuperTenant())
+          println("SuperTenant was successfully unlocked!")
+        } else {
+          println("SuperTenant already unlocked!")
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
