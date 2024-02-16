@@ -14,7 +14,7 @@ static void prepareEcsIndices(String username, String password) {
   ]
   Map headers = [
     "Content-type" : "application/json",
-    "Authorization": "Basic ${username}:${password}"
+    "Authorization": 'Basic ' + "${username}:${password}"
   ]
 
   indices.each { source, destination ->
