@@ -62,7 +62,7 @@ ansiColor('xterm') {
 
       stage('[Helm Indices & DB preparation..]') {
         withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-          sh ("${username}:${password} > creds.txt")
+          sh ("${env.es_username}:${env.es_password} > creds.txt")
           input("Testing review...")
           //folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
