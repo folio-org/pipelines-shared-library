@@ -90,7 +90,8 @@ class Users extends Authorization {
       logger.info("User ${user.username} not exists.")
       return
     }
-    println(getUserByName(tenant, user))
+    //Get User Id by username
+    getUserByName(tenant, user)
 
     String url = generateUrl("/users/${user.uuid}")
     Map<String, String> headers = getAuthorizedHeaders(tenant)

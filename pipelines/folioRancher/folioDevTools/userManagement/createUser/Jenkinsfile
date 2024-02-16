@@ -5,7 +5,6 @@
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
-import org.folio.rest_v2.Users
 import org.folio.models.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -49,8 +48,6 @@ OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
   .withBarcode(folioTools.generateRandomDigits(8))
   .withGroup(params.PATRON_GROUP)
   .withType("staff")
-
-Users createUser = new Users(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
   node(params.AGENT) {
