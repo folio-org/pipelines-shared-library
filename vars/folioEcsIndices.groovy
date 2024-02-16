@@ -32,8 +32,6 @@ static void prepareEcsIndices(String username, String password) {
     def res = client.get(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
     if (res['body']["$destination"] == "${destination}") {
       try {
-        sh ("${username}:${password} > creds.txt")
-        input("Testing review...")
         client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
         sleep(30000)
       } catch (Exception es) {
