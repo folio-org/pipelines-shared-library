@@ -36,7 +36,7 @@ String prepareEcsIndices(String username, String password) {
     }
     try {
       new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
-      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @create.json > /dev/null 2>&1 &")
+      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d @${env.WORKSPACE}/create.json > /dev/null 2>&1 &")
     } catch (Error es) {
       new Logger(this, 'folioEcsIndices').error("Unable to create index: ${destination}, error: ${es.getMessage()}")
       throw new Exception("Can't proceed further without indices...!")
