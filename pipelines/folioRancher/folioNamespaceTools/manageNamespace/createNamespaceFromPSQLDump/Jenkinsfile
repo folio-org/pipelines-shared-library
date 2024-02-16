@@ -1,11 +1,11 @@
 #!groovy
 import org.folio.Constants
+import org.folio.models.TerraformConfig
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-1216') _
 
 CONFIG_BRANCH = 'RANCHER-1216'
-import org.folio.models.TerraformConfig
-import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
