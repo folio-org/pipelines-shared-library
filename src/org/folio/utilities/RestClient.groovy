@@ -9,7 +9,7 @@ class RestClient {
     private int defaultReadTimeout
     private Logger logger
 
-    RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10000) {
+    RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
         this.debug = debug
         this.defaultConnectionTimeout = defaultConnectionTimeout
         this.defaultReadTimeout = defaultReadTimeout
