@@ -38,9 +38,9 @@ String prepareEcsIndices(String username, String password) {
     try {
       client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}", headers_del)
       new Logger(this, 'folioEcsIndices').warning("Deleting this index: ${destination}...")
-      sleep(30000)
+      sleep(3)
     } catch (Exception es) {
-      logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
+      new Logger(this, 'folioEcsIndices').error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     }
     finally {
       new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
