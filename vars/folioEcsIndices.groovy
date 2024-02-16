@@ -1,24 +1,13 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
-import org.folio.utilities.RestClient
 
 String prepareEcsIndices(String username, String password) {
-
-  RestClient client = new RestClient(this)
 
   Map indices = [
     "ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
     "ecs-snapshot_instance_cs00000int"        : "folio-testing-ecs-snapshot_instance_cs00000int",
     "ecs-snapshot_contributor_cs00000int"     : "folio-testing-ecs-snapshot_contributor_cs00000int",
     "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int"
-  ]
-  Map headers = [
-    "Content-type" : "application/json",
-    "Authorization": "Basic " + "${username}:${password}".getBytes().encodeBase64()
-  ]
-
-  Map headers_del = [
-    "Authorization": "Basic " + "${username}:${password}".getBytes().encodeBase64()
   ]
 
   indices.each { source, destination ->
@@ -36,15 +25,15 @@ String prepareEcsIndices(String username, String password) {
   """
 
     try {
-      client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}", headers_del)
       new Logger(this, 'folioEcsIndices').warning("Deleting this index: ${destination}...")
+      sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
       sleep(3)
     } catch (Exception es) {
       new Logger(this, 'folioEcsIndices').error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     }
     finally {
       new Logger(this, 'folioEcsIndices').info("Working on creation ${destination} index...")
-      client.post(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex", body, headers)
+      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -d ${body} > /dev/null 2>&1 &")
     }
   }
 }
