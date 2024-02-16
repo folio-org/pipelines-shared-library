@@ -56,9 +56,9 @@ ansiColor('xterm') {
       tfConfig.addVar('enable_rw_split', false)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-      stage('[Terraform] Provision...') {
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
+//      stage('[Terraform] Provision...') {
+//        folioTerraformFlow.manageNamespace('apply', tfConfig)
+//      }
 
       stage('[Helm Indices & DB preparation..]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
