@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 
-static void prepareEcsIndices(String username, String password) {
+String prepareEcsIndices(String username, String password) {
 
   RestClient client = new RestClient(this, true, 10800000)
 
