@@ -14,8 +14,7 @@ static void prepareEcsIndices(String username, String password) {
   ]
   Map headers = [
     "Content-type" : "application/json",
-    "username": "${username}",
-    "password": "${password}"
+    "Authorization": "Basic " + "${username}:${password}".getBytes().encodeBase64()
   ]
   indices.each { source, destination ->
     logger.info("Source index: ${source} AND Destination index: ${destination}")
