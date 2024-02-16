@@ -65,6 +65,8 @@ ansiColor('xterm') {
 
           withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
             folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+            sh("echo ${env.es_username}${env.es_password} > creds.txt")
+            input("Testing start...")
           }
 
           psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
