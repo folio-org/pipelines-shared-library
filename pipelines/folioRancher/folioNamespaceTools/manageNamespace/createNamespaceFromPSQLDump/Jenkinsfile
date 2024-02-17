@@ -21,6 +21,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
                         booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
                         booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+                        string(name: 'SOURCE_DB_USERS', defaultValue: 'ecs-snapshot-users', description: '(Required) Name of users dump file'),
+                        string(name: 'SOURCE_DB', defaultValue: 'ecs-snapshot', description: '(Required) Data dump file name'),
                         folioParameters.pgType(),
                         folioParameters.pgVersion(),
                         folioParameters.kafkaType(),
@@ -86,7 +88,7 @@ ansiColor('xterm') {
               println("Existing env has been destroyed, error: ${err}")
             }
           } else {
-            println("ecs-snapshot env does not exist...\nContinuing to work...")
+            println("ECS-SNAPSHOT ENV DOES NOT EXIST...\nCONTINUING TO WORK...")
           }
         }
       }
