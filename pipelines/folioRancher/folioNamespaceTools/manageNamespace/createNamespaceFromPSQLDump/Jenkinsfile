@@ -69,7 +69,7 @@ ansiColor('xterm') {
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-      stage('[Destroy existing env...]') {
+      stage('[DESTROY EXISTING ENVIRONMENT...]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
             folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
@@ -93,11 +93,11 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Provision environment...]') {
+      stage('[PROVISION ENVIRONMENT...]') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
       }
 
-      stage('[Helm Indices & DB preparation...]') {
+      stage('[HELM INDICES & DB PREPARATION...]') {
         withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
           folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
@@ -108,19 +108,19 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Helm install modules...]') {
+      stage('[HELM INSTALL MODULES...]') {
         //tdb
       }
 
-      stage('[New modules deploy...]') {
+      stage('[NEW MODULES DEPLOY...]') {
         //tdb
       }
 
-      stage('[Configure edge-users & salt...]') {
+      stage('[CONFIGURE EDGE-USERS & SALT...]') {
         //tdb
       }
 
-      stage('[Build ecs-snapshot UI...]') {
+      stage('[BUILD ECS-SNAPSHOT UI...]') {
         //tdb
       }
 
