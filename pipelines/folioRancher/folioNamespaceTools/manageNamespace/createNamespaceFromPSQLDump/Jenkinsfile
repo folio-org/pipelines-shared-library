@@ -70,7 +70,7 @@ ansiColor('xterm') {
       stage('[Destroy existing env...]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-            println("ecs-snapshot env exists!\nProceeding with delete operation...")
+            println("ECS-SNAPSHOT ENV EXISTS!\nPROCEEDING WITH DELETE OPERATION...")
             try {
               build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                 parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
