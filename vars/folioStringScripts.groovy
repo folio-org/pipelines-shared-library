@@ -85,7 +85,7 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }
 
 static String getPostgresqlVersion(){
-    return '''def versions = ["12.12", "13.13", "14.10", "15.5", "16.1"]
+    return '''def versions = ["12.12", "13.13", "14.10", "15.5", "16.1", "12.14"]
 List pg_versions = []
 versions.each {version ->
 if(version == '13.13') {

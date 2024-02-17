@@ -11,22 +11,27 @@ def destroyResult
 
 properties([buildDiscarder(logRotator(numToKeepStr: '20')),
             disableConcurrentBuilds(),
-            parameters([string(name: "CLUSTER", defaultValue: "folio-testing"),
-                        string(name: "NAMESPACE", defaultValue: "ecs-snapshot"),
-                        string(name: "AGENT", defaultValue: "jenkins-agent-java17"),
-                        string(name: "FOLIO_BRANCH", defaultValue: "snapshot", description: "platform-complete"),
-                        string(name: "CONFIG_TYPE", defaultValue: "testing"),
-                        string(name: "SOURCE_DB", defaultValue: "ecs-snapshot", description: "Source dump file name"),
-                        string(name: "SOURCE_DB_USERS", defaultValue: "ecs-snapshot-users", description: "Source dump file of users"),
+            parameters([folioParameters.cluster(),
+                        folioParameters.namespace(),
+                        folioParameters.branch(),
+                        folioParameters.okapiVersion(),
+                        folioParameters.configType(),
+                        folioParameters.loadReference(),
+                        folioParameters.loadSample(),
                         booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
                         booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
                         booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
                         booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
                         booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
-                        folioParameters.refreshParameters(),
-                        folioParameters.okapiVersion(),
-                        folioParameters.loadReference(false),
-                        folioParameters.loadSample(false)])])
+                        folioParameters.pgType(),
+                        folioParameters.pgVersion(),
+                        folioParameters.kafkaType(),
+                        folioParameters.opensearchType(),
+                        folioParameters.s3Type(),
+                        string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
+                        folioParameters.agent(),
+                        folioParameters.refreshParameters()
+            ])])
 
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
@@ -49,32 +54,36 @@ ansiColor('xterm') {
 
       tfConfig.addVar('pg_vol_size', 100)
       tfConfig.addVar('pg_dbname', 'folio')
+      tfConfig.addVar('pg_version', params.DB_VERSION == '12.14')
       tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
       tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-      tfConfig.addVar('pg_embedded', true)
-      tfConfig.addVar('pg_version', '12.14')
-      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-      tfConfig.addVar('pgadmin4', true)
+      tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
       tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
       tfConfig.addVar('rancher_project_name', params.NAMESPACE)
       tfConfig.addVar('tenant_id', 'cs00000int')
-      tfConfig.addVar('kafka_shared', true)
-      tfConfig.addVar('opensearch_shared', true)
-      tfConfig.addVar('s3_embedded', false)
-      tfConfig.addVar('enable_rw_split', false)
+      tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+      tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
+      tfConfig.addVar('s3_embedded', params.S3_BUCKET != 'built-in')
+      tfConfig.addVar('pgadmin4', 'true')
+      tfConfig.addVar('enable_rw_split', params.RW_SPLIT == false)
+      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
       stage('[Destroy existing env...]') {
-        destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                       string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                       booleanParam(name: 'RW_SPLIT', value: false),
-                       string(name: 'POSTGRESQL', value: 'built-in'),
-                       string(name: 'KAFKA', value: 'aws'),
-                       string(name: 'OPENSEARCH', value: 'aws'),
-                       string(name: 'S3_BUCKET', value: 'aws'),
-                       string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+        try {
+          destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+            parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                         string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                         booleanParam(name: 'RW_SPLIT', value: false),
+                         string(name: 'POSTGRESQL', value: 'built-in'),
+                         string(name: 'KAFKA', value: 'aws'),
+                         string(name: 'OPENSEARCH', value: 'aws'),
+                         string(name: 'S3_BUCKET', value: 'aws'),
+                         string(name: 'AGENT', value: 'jenkins-agent-java17'),
+                         booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+        } catch (Error err) {
+          println("Existing env has been destroyed, error: ${err}")
+        }
       }
 
       if (destroyResult == 'SUCCESS' || 'UNSTABLE') {
