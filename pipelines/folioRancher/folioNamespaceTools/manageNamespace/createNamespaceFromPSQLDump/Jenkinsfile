@@ -63,7 +63,7 @@ ansiColor('xterm') {
       tfConfig.addVar('tenant_id', 'cs00000int')
       tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
       tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-      tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
+      tfConfig.addVar('s3_embedded', params.S3_BUCKET != 'built-in')
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
