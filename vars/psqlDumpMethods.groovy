@@ -37,7 +37,7 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
 }
 
 def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String bucket_name, String backups_directory, String namespace) {
-  stage('Helm install') {
+  stage('HELM RESTORING PSQL DUMP...') {
     folioHelm.addHelmRepository("${repo_name}", Constants.NEXUS_BASE_URL + "/${repo_name}/", true)
     try {
       sh "helm install psql-dump ${repo_name}/${chart_name} --version ${chart_version} \
@@ -48,9 +48,10 @@ def restoreHelmData(String repo_name, String chart_name, String chart_version, S
         --set psql.projectNamespace=${namespace} \
         --namespace=${namespace} --timeout 360m --wait --wait-for-jobs"
     } catch (Error error) {
-      println("PSQL restore failed, error: ${error.getMessage()}")
+      folioPrint.colored("HELM PSQL DUMP RESTORE FAILED, ERROR: ${error.getMessage()}", "red")
     }
     finally {
+      folioPrint.colored("PERFORMING HELM CHART ${chart_name}:${chart_version} UNINSTALL OPERATION...", "green")
       sh "helm uninstall psql-dump --namespace=${namespace}"
     }
   }
