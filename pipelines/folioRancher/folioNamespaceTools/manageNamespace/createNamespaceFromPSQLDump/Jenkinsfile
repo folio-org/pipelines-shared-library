@@ -72,7 +72,7 @@ ansiColor('xterm') {
       stage('[Destroy existing env...]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-            folioPrint.colored("ECS-SNAPSHOT ENV EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
+            folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
             try {
               build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                 parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
@@ -85,10 +85,10 @@ ansiColor('xterm') {
                              string(name: 'AGENT', value: 'jenkins-agent-java17'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             } catch (Error err) {
-              folioPrint.colored("Existing env has been destroyed, error: ${err}", "red")
+              folioPrint.colored("EXISTING ENV HAS BEEN DESTROYED, ERROR: ${err}", "red")
             }
           } else {
-            folioPrint.colored("ECS-SNAPSHOT ENV DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
+            folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
           }
         }
       }
