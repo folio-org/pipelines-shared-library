@@ -30,107 +30,110 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         folioParameters.s3Type(),
                         string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
                         folioParameters.agent(),
-                        folioParameters.refreshParameters()
-            ])])
+                        folioParameters.refreshParameters()])
+// TODO DISCUSS SCHEDULE AND COMPLETE PARAMETERS...
+//            pipelineTriggers([parameterizedCron("55 21 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;" +
+//                            "blah blah blah")])
+])
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName params.CLUSTER + '-' + params.NAMESPACE + '-' + env.BUILD_ID
-        buildDescription "cluster: ${params.CLUSTER}\n" + "namespace: ${params.NAMESPACE}\n" + "config: ${params.CONFIG_TYPE}"
-      }
-      stage('Checkout') {
-        checkout scm
-      }
-
-      TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-        .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
-
-      tfConfig.addVar('pg_vol_size', 100)
-      tfConfig.addVar('pg_dbname', 'folio')
-      tfConfig.addVar('pg_version', params.DB_VERSION)
-      tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
-      tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-      tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
-      tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
-      tfConfig.addVar('rancher_project_name', params.NAMESPACE)
-      tfConfig.addVar('tenant_id', 'cs00000int')
-      tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
-      tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-      tfConfig.addVar('s3_embedded', false)
-      tfConfig.addVar('pgadmin4', 'true')
-      tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
-      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-      tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
-
-      stage('[DESTROY EXISTING ENVIRONMENT...]') {
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-            folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
-            try {
-              build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-                parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                             string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                             booleanParam(name: 'RW_SPLIT', value: false),
-                             string(name: 'POSTGRESQL', value: 'built-in'),
-                             string(name: 'KAFKA', value: 'built-in'),
-                             string(name: 'OPENSEARCH', value: 'aws'),
-                             string(name: 'S3_BUCKET', value: 'aws'),
-                             string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-            } catch (Error err) {
-              folioPrint.colored("EXISTING ENVIRONMENT HAS BEEN DESTROYED, ERROR: ${err}", "red")
-            }
-          } else {
-            folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
-          }
-        }
-      }
-
-      stage('[PROVISION ENVIRONMENT...]') {
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
-
-      stage('[HELM INDICES & DB PREPARATION...]') {
-        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-        }
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
-            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-            "${params.SOURCE_DB}", "${params.NAMESPACE}")
-        }
-      }
-
-      stage('[HELM INSTALL MODULES...]') {
-        //tdb
-      }
-
-      stage('[NEW MODULES DEPLOY...]') {
-        //tdb
-      }
-
-      stage('[CONFIGURE EDGE-USERS & SALT...]') {
-        //tdb
-      }
-
-      stage('[BUILD ECS-SNAPSHOT UI...]') {
-        //tdb
-      }
-
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('CLEANUP') {
-        cleanWs notFailBuild: true
-      }
+    if (params.REFRESH_PARAMETERS) {
+        currentBuild.result = 'ABORTED'
+        error('DRY RUN BUILD, PARAMETERS REFRESHED!')
     }
-  }
+
+    node(params.AGENT) {
+        try {
+            stage('Ini') {
+                buildName params.CLUSTER + '-' + params.NAMESPACE + '-' + env.BUILD_ID
+                buildDescription "cluster: ${params.CLUSTER}\n" + "namespace: ${params.NAMESPACE}\n" + "config: ${params.CONFIG_TYPE}"
+            }
+            stage('Checkout') {
+                checkout scm
+            }
+
+            TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+                    .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+
+            tfConfig.addVar('pg_vol_size', 100)
+            tfConfig.addVar('pg_dbname', 'folio')
+            tfConfig.addVar('pg_version', params.DB_VERSION)
+            tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+            tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+            tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+            tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
+            tfConfig.addVar('rancher_project_name', params.NAMESPACE)
+            tfConfig.addVar('tenant_id', 'cs00000int')
+            tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
+            tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
+            tfConfig.addVar('s3_embedded', false)
+            tfConfig.addVar('pgadmin4', 'true')
+            tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
+            tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+            tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
+
+            stage('[DESTROY EXISTING ENVIRONMENT...]') {
+                folioHelm.withKubeConfig(params.CLUSTER) {
+                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
+                        try {
+                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                                                 booleanParam(name: 'RW_SPLIT', value: false),
+                                                 string(name: 'POSTGRESQL', value: 'built-in'),
+                                                 string(name: 'KAFKA', value: 'built-in'),
+                                                 string(name: 'OPENSEARCH', value: 'aws'),
+                                                 string(name: 'S3_BUCKET', value: 'aws'),
+                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
+                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+                        } catch (Error err) {
+                            folioPrint.colored("EXISTING ENVIRONMENT HAS BEEN DESTROYED, ERROR: ${err}", "red")
+                        }
+                    } else {
+                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
+                    }
+                }
+            }
+
+            stage('[PROVISION ENVIRONMENT...]') {
+                folioTerraformFlow.manageNamespace('apply', tfConfig)
+            }
+
+            stage('[HELM INDICES & DB PREPARATION...]') {
+                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+                }
+                folioHelm.withKubeConfig(params.CLUSTER) {
+                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
+                }
+            }
+
+            stage('[HELM INSTALL MODULES...]') {
+                //tdb
+            }
+
+            stage('[NEW MODULES DEPLOY...]') {
+                //tdb
+            }
+
+            stage('[CONFIGURE EDGE-USERS & SALT...]') {
+                //tdb
+            }
+
+            stage('[BUILD ECS-SNAPSHOT UI...]') {
+                //tdb
+            }
+
+        } catch (exception) {
+            println(exception)
+            error(exception.getMessage())
+        } finally {
+            stage('CLEANUP') {
+                cleanWs notFailBuild: true
+            }
+        }
+    }
 }
