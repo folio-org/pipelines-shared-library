@@ -63,7 +63,7 @@ ansiColor('xterm') {
       tfConfig.addVar('tenant_id', 'cs00000int')
       tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
       tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-      tfConfig.addVar('s3_embedded', params.S3_BUCKET != 'built-in')
+      tfConfig.addVar('s3_embedded', false)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
@@ -72,7 +72,7 @@ ansiColor('xterm') {
       stage('[Destroy existing env...]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-            println("ECS-SNAPSHOT ENV EXISTS!\nPROCEEDING WITH DELETE OPERATION...")
+            folioPrint.colored("ECS-SNAPSHOT ENV EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
             try {
               build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                 parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
@@ -85,10 +85,10 @@ ansiColor('xterm') {
                              string(name: 'AGENT', value: 'jenkins-agent-java17'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             } catch (Error err) {
-              println("Existing env has been destroyed, error: ${err}")
+              folioPrint.colored("Existing env has been destroyed, error: ${err}", "red")
             }
           } else {
-            println("ECS-SNAPSHOT ENV DOES NOT EXIST...\nCONTINUING TO WORK...")
+            folioPrint.colored("ECS-SNAPSHOT ENV DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
           }
         }
       }
