@@ -7,8 +7,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 CONFIG_BRANCH = 'RANCHER-1216'
 
-def destroyResult
-
 properties([buildDiscarder(logRotator(numToKeepStr: '20')),
             disableConcurrentBuilds(),
             parameters([folioParameters.cluster(),
@@ -54,7 +52,7 @@ ansiColor('xterm') {
 
       tfConfig.addVar('pg_vol_size', 100)
       tfConfig.addVar('pg_dbname', 'folio')
-      tfConfig.addVar('pg_version', params.DB_VERSION == '12.14')
+      tfConfig.addVar('pg_version', params.DB_VERSION)
       tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
       tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
       tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
@@ -73,7 +71,7 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
             try {
-              destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+              build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                 parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
                              string(name: 'NAMESPACE', value: 'ecs-snapshot'),
                              booleanParam(name: 'RW_SPLIT', value: false),
