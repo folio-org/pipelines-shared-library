@@ -71,7 +71,7 @@ ansiColor('xterm') {
 
       stage('[Destroy existing env...]') {
 
-        folioHelm.withKubeConfig("${params.CLUSTER}")
+        folioHelm.withKubeConfig(params.CLUSTER)
 
         if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
           try {
