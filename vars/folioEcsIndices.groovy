@@ -25,7 +25,7 @@ String prepareEcsIndices(String username, String password) {
       }
   """
 
-    writeJSON file: "create.json", json: new JsonSlurperClassic().parseText(body)
+    writeJSON file: destination + ".json", json: new JsonSlurperClassic().parseText(body)
 
     try {
       logger.warning("Deleting this index: ${destination}...")
@@ -36,7 +36,7 @@ String prepareEcsIndices(String username, String password) {
     } finally {
       logger.info("Working on creation ${destination} index...")
       sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -H \"Content-Type: application/json\" " +
-        "-d @${env.WORKSPACE}/create.json > /dev/null 2>&1 &")
+        "-d @${env.WORKSPACE}/${destination}.json > /dev/null 2>&1 &")
     }
   }
 }
