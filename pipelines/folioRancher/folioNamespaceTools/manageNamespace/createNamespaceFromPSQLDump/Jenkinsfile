@@ -128,7 +128,7 @@ ansiColor('xterm') {
       println(exception)
       error(exception.getMessage())
     } finally {
-      stage('Cleanup') {
+      stage('CLEANUP') {
         cleanWs notFailBuild: true
       }
     }
