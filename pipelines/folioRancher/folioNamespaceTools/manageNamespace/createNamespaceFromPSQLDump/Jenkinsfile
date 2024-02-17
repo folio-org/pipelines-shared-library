@@ -81,7 +81,7 @@ ansiColor('xterm') {
                              string(name: 'POSTGRESQL', value: 'built-in'),
                              string(name: 'KAFKA', value: 'built-in'),
                              string(name: 'OPENSEARCH', value: 'aws'),
-                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             string(name: 'S3_BUCKET', value: 'aws'),
                              string(name: 'AGENT', value: 'jenkins-agent-java17'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             } catch (Error err) {
