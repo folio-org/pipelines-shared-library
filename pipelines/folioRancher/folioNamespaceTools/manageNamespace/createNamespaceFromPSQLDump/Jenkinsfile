@@ -87,8 +87,8 @@ ansiColor('xterm') {
                                                  string(name: 'S3_BUCKET', value: 'aws'),
                                                  string(name: 'AGENT', value: 'jenkins-agent-java17'),
                                                  booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-                        } catch (Error err) {
-                            folioPrint.colored("EXISTING ENVIRONMENT HAS BEEN DESTROYED, ERROR: ${err}", "red")
+                        } catch (Exception exception) {
+                            folioPrint.colored("EXISTING ENVIRONMENT HAS NOT BEEN DESTROYED, ERROR: ${exception.getMessage()}", "red")
                         }
                     } else {
                         folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
