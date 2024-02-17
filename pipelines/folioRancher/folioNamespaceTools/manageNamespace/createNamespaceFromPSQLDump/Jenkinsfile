@@ -70,54 +70,58 @@ ansiColor('xterm') {
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
       stage('[Destroy existing env...]') {
-        try {
-          destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-            parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                         string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                         booleanParam(name: 'RW_SPLIT', value: false),
-                         string(name: 'POSTGRESQL', value: 'built-in'),
-                         string(name: 'KAFKA', value: 'aws'),
-                         string(name: 'OPENSEARCH', value: 'aws'),
-                         string(name: 'S3_BUCKET', value: 'aws'),
-                         string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                         booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-        } catch (Error err) {
-          println("Existing env has been destroyed, error: ${err}")
+
+        folioHelm.withKubeConfig("${params.CLUSTER}")
+
+        if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+          try {
+            destroyResult = build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+              parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                           string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                           booleanParam(name: 'RW_SPLIT', value: false),
+                           string(name: 'POSTGRESQL', value: 'built-in'),
+                           string(name: 'KAFKA', value: 'aws'),
+                           string(name: 'OPENSEARCH', value: 'aws'),
+                           string(name: 'S3_BUCKET', value: 'aws'),
+                           string(name: 'AGENT', value: 'jenkins-agent-java17'),
+                           booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+          } catch (Error err) {
+            println("Existing env has been destroyed, error: ${err}")
+          }
+        } else {
+          println("ecs-snapshot env does not exist...\nContinuing to work...")
         }
       }
 
-      if (destroyResult == 'SUCCESS' || 'UNSTABLE') {
+      stage('[Provision environment...]') {
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+      }
 
-        stage('[Provision environment...]') {
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
+      stage('[Helm Indices & DB preparation...]') {
+        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "ecs-snapshot", "ecs-snapshot")
+        }
+      }
 
-        stage('[Helm Indices & DB preparation...]') {
-          withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-            folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-          }
-          folioHelm.withKubeConfig(params.CLUSTER) {
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
-              "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-              "ecs-snapshot", "ecs-snapshot")
-          }
-        }
+      stage('[Helm install modules...]') {
+        //tdb
+      }
 
-        stage('[Helm install modules...]') {
-          //tdb
-        }
+      stage('[New modules deploy...]') {
+        //tdb
+      }
 
-        stage('[New modules deploy...]') {
-          //tdb
-        }
+      stage('[Configure edge-users & salt...]') {
+        //tdb
+      }
 
-        stage('[Configure edge-users & salt...]') {
-          //tdb
-        }
-
-        stage('[Build ecs-snapshot UI...]') {
-          //tdb
-        }
+      stage('[Build ecs-snapshot UI...]') {
+        //tdb
       }
 
     } catch (exception) {
