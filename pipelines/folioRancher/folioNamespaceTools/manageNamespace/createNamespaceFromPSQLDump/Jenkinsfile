@@ -14,10 +14,19 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
             parameters([string(name: "CLUSTER", defaultValue: "folio-testing"),
                         string(name: "NAMESPACE", defaultValue: "ecs-snapshot"),
                         string(name: "AGENT", defaultValue: "jenkins-agent-java17"),
-                        string(name: "BRANCH", defaultValue: "snapshot", description: "platform-complete"),
+                        string(name: "FOLIO_BRANCH", defaultValue: "snapshot", description: "platform-complete"),
+                        string(name: "CONFIG_TYPE", defaultValue: "testing"),
                         string(name: "SOURCE_DB", defaultValue: "ecs-snapshot", description: "Source dump file name"),
                         string(name: "SOURCE_DB_USERS", defaultValue: "ecs-snapshot-users", description: "Source dump file of users"),
-                        folioParameters.refreshParameters()])])
+                        booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+                        booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
+                        booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
+                        booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
+                        booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+                        folioParameters.refreshParameters(),
+                        folioParameters.okapiVersion(),
+                        folioParameters.loadReference(false),
+                        folioParameters.loadSample(false)])])
 
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
@@ -29,7 +38,7 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName params.CLUSTER + '-' + params.NAMESPACE + '-' + env.BUILD_ID
-        buildDescription "cluster: ${params.CLUSTER}\n" + "namespace: ${params.NAMESPACE}"
+        buildDescription "cluster: ${params.CLUSTER}\n" + "namespace: ${params.NAMESPACE}\n" + "config: ${params.CONFIG_TYPE}"
       }
       stage('Checkout') {
         checkout scm
