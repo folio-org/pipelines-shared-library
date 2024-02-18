@@ -92,7 +92,6 @@ ansiColor('xterm') {
       namespace.getModules().setInstallJson(installJson)
 
       Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-      Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
       stage('[DESTROY EXISTING ENVIRONMENT...]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
