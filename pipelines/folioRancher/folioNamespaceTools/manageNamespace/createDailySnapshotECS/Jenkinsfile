@@ -145,6 +145,7 @@ ansiColor('xterm') {
       }
 
       stage('[-=INSTALL BACKEND MODULES=-]') {
+        folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
         main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
@@ -153,7 +154,14 @@ ansiColor('xterm') {
       }
 
       stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
-        //tdb
+        folioPrint.colored("INSTALLING EDGE MODULES...", "green")
+        folioEdge.renderEphemeralProperties(namespace)
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          namespace.getModules().getEdgeModules().each { name, version ->
+            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+          }
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        }
       }
 
       stage('[-=NEW MODULES DEPLOY=-]') {

@@ -1,4 +1,5 @@
 import groovy.text.StreamingTemplateEngine
+import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
@@ -40,6 +41,9 @@ void renderEphemeralProperties(RancherNamespace namespace) {
               break
             case "diku":
               admin_users += "${tenant.tenantId + "=" + tenant.adminUser.username + "," + tenant.adminUser.password + "\n"}"
+              break
+            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              admin_users += "${tenant.tenantId + "=" + Constants.ECS_EDGE_GENERAL_USERNAME + "," + Constants.ECS_EDGE_GENERAL_PASSWORD + "\n"}"
               break
             default:
               admin_users += "${tenant.tenantId + "=" + tenant.adminUser.username + "," + tenant.adminUser.password + "\n"}"
