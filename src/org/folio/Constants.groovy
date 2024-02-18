@@ -98,7 +98,6 @@ class Constants {
   static String PGADMIN_DEFAULT_PASSWORD = 'SuperSecret'
 
   //ECS Snapshot Edge credentials
-
   static  String ECS_EDGE_GENERAL_USERNAME = 'EBSCOEdge'
   static  String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
