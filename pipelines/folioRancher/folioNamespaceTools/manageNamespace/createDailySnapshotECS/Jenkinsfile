@@ -118,11 +118,11 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[PROVISION ENVIRONMENT...]') {
+      stage('[-=PROVISION ENVIRONMENT=-]') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
       }
 
-      stage('[HELM INDICES & DB PREPARATION...]') {
+      stage('[-=INDICES & DB PREPARATION=-]') {
         folioPrint.colored("HANDLING ES INDICES...", "green")
         withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
           folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
@@ -135,7 +135,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[DEPLOY BUG_FEST OKAPI VERSION...]') {
+      stage('[-=INSTALL OKAPI=-]') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
           folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
@@ -144,7 +144,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[HELM INSTALL MODULES...]') {
+      stage('[-=INSTALL BACKEND MODULES=-]') {
         main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
@@ -152,15 +152,15 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[NEW MODULES DEPLOY...]') {
+      stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
         //tdb
       }
 
-      stage('[CONFIGURE EDGE-USERS & SALT...]') {
+      stage('[-=NEW MODULES DEPLOY=-]') {
         //tdb
       }
 
-      stage('[BUILD ECS-SNAPSHOT UI...]') {
+      stage('[-=BUILD ECS-SNAPSHOT UI=-]') {
         //tdb
       }
 
