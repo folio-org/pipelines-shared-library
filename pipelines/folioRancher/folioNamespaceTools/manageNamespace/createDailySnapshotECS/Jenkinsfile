@@ -5,7 +5,6 @@ import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
-import org.folio.rest_v2.Edge
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -127,7 +126,7 @@ ansiColor('xterm') {
           folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
         }
         folioHelm.withKubeConfig(params.CLUSTER) {
-          folioPrint.colored("RESTORING BUG_FEST PSQL DUMP...\n ESTIMATED DURATION: ~ 2 HOURS", "green")
+          folioPrint.colored("RESTORING BUG_FEST PSQL DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
           psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
             "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
             "${params.SOURCE_DB}", "${params.NAMESPACE}")
