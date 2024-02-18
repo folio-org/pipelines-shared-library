@@ -16,18 +16,18 @@ CONFIG_BRANCH = 'RANCHER-1216'
 properties([buildDiscarder(logRotator(numToKeepStr: '20')),
             disableConcurrentBuilds(),
             parameters([folioParameters.cluster(),
-                        folioParameters.namespace(),
+                        folioParameters.namespace(['ecs-snapshot']),
                         folioParameters.branch(),
                         folioParameters.okapiVersion(),
-                        folioParameters.configType(),
+                        folioParameters.configType(['testing']),
                         booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
                         string(name: 'SOURCE_DB_USERS', defaultValue: 'ecs-snapshot-users', description: '(Required) Name of users dump file'),
                         string(name: 'SOURCE_DB', defaultValue: 'ecs-snapshot', description: '(Required) Data dump file name'),
                         folioParameters.pgVersion(),
-                        folioParameters.kafkaType(),
-                        folioParameters.opensearchType(),
+                        folioParameters.kafkaType(['aws']),
+                        folioParameters.opensearchType(['aws']),
                         string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-                        folioParameters.agent(),
+                        folioParameters.agent(['jenkins-agent-java17']),
                         folioParameters.refreshParameters()])
 // TODO DISCUSS SCHEDULE AND COMPLETE PARAMETERS...
 //            pipelineTriggers([parameterizedCron("55 21 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;" +
