@@ -50,6 +50,8 @@ tfConfig.addVar('rancher_project_name', params.NAMESPACE)
 tfConfig.addVar('tenant_id', defaultTenantId)
 tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+tfConfig.addVar('pg_version', '12.15')
+tfConfig.addVar('pg_dbname', 'folio')
 tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
 tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
@@ -83,11 +85,6 @@ ansiColor('xterm') {
       }
 
       stage('[Terraform] Provision') {
-        folioHelm.withK8sClient {
-          tfConfig.addVar('pg_version', '12.15')
-          tfConfig.addVar('pg_dbname', 'folio')
-        }
-
         folioTerraformFlow.manageNamespace('apply', tfConfig)
       }
 
