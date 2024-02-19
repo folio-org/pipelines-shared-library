@@ -92,7 +92,6 @@ ansiColor('xterm') {
 
             namespace.setEnableRwSplit(params.RW_SPLIT)
             namespace.addDeploymentConfig(CONFIG_BRANCH)
-            namespace.getModules().setInstallJson(installJson)
 
             Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
