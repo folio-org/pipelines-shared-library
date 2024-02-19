@@ -83,13 +83,22 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Terraform] Provision') {
-        folioHelm.withK8sClient {
-          tfConfig.addVar('pg_version', '12.15')
-          tfConfig.addVar('pg_dbname','folio')
-        }
+//      stage('[Terraform] Provision') {
+//        folioHelm.withK8sClient {
+//          tfConfig.addVar('pg_version', '12.15')
+//          tfConfig.addVar('pg_dbname', 'folio')
+//        }
+//
+//        folioTerraformFlow.manageNamespace('apply', tfConfig)
+//      }
 
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
+      stage('[DB] Restore') {
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "${params.SOURCE_DB}", "${params.NAMESPACE}")
+        }
       }
 
       stage('Preparation') {
@@ -99,8 +108,8 @@ ansiColor('xterm') {
         folioHelm.withK8sClient {
           namespace.getModules().setInstallJson(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-          folioBranch = 'snapshot'
-          commitHash = common.getLastCommitHash("platform-complete", "snapshot")
+          folioBranch = 'R2-2023-Consortia'
+          commitHash = common.getLastCommitHash("platform-complete", "R2-2023-Consortia")
         }
 
         namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
@@ -116,38 +125,38 @@ ansiColor('xterm') {
         }
       }
 
-      if (!params.NAMESPACE_ONLY) {
-        folioDeployFlow.restore(namespace)
-
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              TenantUi ui = tenant.getTenantUi()
-              branches[tenantId] = {
-                def jobParameters = [
-                  tenant_id  : ui.getTenantId(),
-                  custom_hash: ui.getHash(),
-                  custom_url : "https://${namespace.getDomains()['okapi']}",
-                  custom_tag : ui.getTag(),
-                  consortia  : tenant instanceof OkapiTenantConsortia
-                ]
-
-                uiBuild(jobParameters)
-
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                }
-              }
-            }
-          }
-          parallel branches
-        }
-
-        stage('Deploy ldp') {
-          println('LDP deployment')
-        }
-      }
+//      if (!params.NAMESPACE_ONLY) {
+//        folioDeployFlow.restore(namespace)
+//
+//        stage('Build and deploy UI') {
+//          Map branches = [:]
+//          namespace.getTenants().each { tenantId, tenant ->
+//            if (tenant.getTenantUi()) {
+//              TenantUi ui = tenant.getTenantUi()
+//              branches[tenantId] = {
+//                def jobParameters = [
+//                  tenant_id  : ui.getTenantId(),
+//                  custom_hash: ui.getHash(),
+//                  custom_url : "https://${namespace.getDomains()['okapi']}",
+//                  custom_tag : ui.getTag(),
+//                  consortia  : tenant instanceof OkapiTenantConsortia
+//                ]
+//
+//                uiBuild(jobParameters)
+//
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//                }
+//              }
+//            }
+//          }
+//          parallel branches
+//        }
+//
+//        stage('Deploy ldp') {
+//          println('LDP deployment')
+//        }
+//      }
     } catch (e) {
       println "Caught exception: ${e}"
       error(e.getMessage())
