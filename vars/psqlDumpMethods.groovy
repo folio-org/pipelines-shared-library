@@ -37,7 +37,7 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
 }
 
 def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String bucket_name, String backups_directory, String namespace) {
-  stage('HELM RESTORING PSQL DUMP...') {
+  stage('[-=HELM RESTORING PSQL DUMP=-]') {
     folioHelm.addHelmRepository("${repo_name}", Constants.NEXUS_BASE_URL + "/${repo_name}/", true)
     try {
       sh "helm install psql-dump ${repo_name}/${chart_name} --version ${chart_version} \
