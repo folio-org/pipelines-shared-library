@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
@@ -74,6 +75,9 @@ ansiColor('xterm') {
             TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
             List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 
+            InstallRequestParams installRequestParams = new InstallRequestParams()
+                    .withTenantParameters("reinstall=true")
+
             RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
                     .withSuperTenantAdminUser()
                     .withOkapiVersion(params.OKAPI_VERSION)
@@ -103,77 +107,87 @@ ansiColor('xterm') {
 
             Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-            stage('[-=DESTROY EXISTING ENVIRONMENT=-]') {
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
-                        try {
-                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                                                 booleanParam(name: 'RW_SPLIT', value: false),
-                                                 string(name: 'POSTGRESQL', value: 'built-in'),
-                                                 string(name: 'KAFKA', value: 'built-in'),
-                                                 string(name: 'OPENSEARCH', value: 'aws'),
-                                                 string(name: 'S3_BUCKET', value: 'aws'),
-                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-                        } catch (Exception exception) {
-                            folioPrint.colored("EXISTING ENVIRONMENT HAS NOT BEEN DESTROYED, ERROR: ${exception.getMessage()}", "red")
-                        }
-                    } else {
-                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
-                    }
-                }
+//            stage('[-=DESTROY EXISTING ENVIRONMENT=-]') {
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+//                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
+//                        try {
+//                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+//                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+//                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+//                                                 booleanParam(name: 'RW_SPLIT', value: false),
+//                                                 string(name: 'POSTGRESQL', value: 'built-in'),
+//                                                 string(name: 'KAFKA', value: 'built-in'),
+//                                                 string(name: 'OPENSEARCH', value: 'aws'),
+//                                                 string(name: 'S3_BUCKET', value: 'aws'),
+//                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
+//                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+//                        } catch (Exception exception) {
+//                            folioPrint.colored("EXISTING ENVIRONMENT HAS NOT BEEN DESTROYED, ERROR: ${exception.getMessage()}", "red")
+//                        }
+//                    } else {
+//                        folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT DOES NOT EXIST...\nCONTINUING TO WORK...", "green")
+//                    }
+//                }
+//            }
+//
+//            stage('[-=PROVISION ENVIRONMENT=-]') {
+//                folioTerraformFlow.manageNamespace('apply', tfConfig)
+//            }
+//
+//            stage('[-=INDICES & DB PREPARATION=-]') {
+//                folioPrint.colored("HANDLING ES INDICES...", "green")
+//                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//                }
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
+//                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+//                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+//                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
+//                }
+//            }
+//
+//            stage('[-=INSTALL OKAPI=-]') {
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                    folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
+//                    folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
+//                    folioPrint.colored("TIMEOUT FOR OKAPI INITIALIZATION PROCESS...", "green")
+//                    sleep time: 3, unit: 'MINUTES'
+//                }
+//            }
+//
+//            stage('[-=INSTALL BACKEND MODULES=-]') {
+//                folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
+//                main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//                    folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+//                }
+//            }
+//
+//            stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
+//                folioPrint.colored("INSTALLING EDGE MODULES...", "green")
+//                folioEdge.renderEphemeralProperties(namespace)
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                    namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//                    }
+//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//                }
+//            }
+
+            stage('[-=INSTALL DRIFT MODULES=-]') {
+                main.update(namespace.tenants)
             }
 
-            stage('[-=PROVISION ENVIRONMENT=-]') {
-                folioTerraformFlow.manageNamespace('apply', tfConfig)
-            }
-
-            stage('[-=INDICES & DB PREPARATION=-]') {
-                folioPrint.colored("HANDLING ES INDICES...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
-                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
-                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
-                }
-            }
-
-            stage('[-=INSTALL OKAPI=-]') {
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-                    folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
-                    folioPrint.colored("TIMEOUT FOR OKAPI INITIALIZATION PROCESS...", "green")
-                    sleep time: 3, unit: 'MINUTES'
-                }
-            }
-
-            stage('[-=INSTALL BACKEND MODULES=-]') {
-                folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
+            stage('[-=NEW MODULES DEPLOY=-]') {
+                folioPrint.colored("INSTALLING NEW MODULES...", "green")
+                namespace.getModules().setInstallJson(updateJson)
                 main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
                     folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
                 }
-            }
-
-            stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
-                folioPrint.colored("INSTALLING EDGE MODULES...", "green")
-                folioEdge.renderEphemeralProperties(namespace)
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-                    }
-                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-                }
-            }
-
-            stage('[-=NEW MODULES DEPLOY=-]') {
-
             }
 
             stage('[-=BUILD ECS-SNAPSHOT UI=-]') {
