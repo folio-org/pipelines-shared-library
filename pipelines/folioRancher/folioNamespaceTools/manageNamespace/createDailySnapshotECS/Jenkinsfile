@@ -71,7 +71,7 @@ ansiColor('xterm') {
 
             String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
             List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
-            TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
+            TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, 'snapshot')
             List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 
             InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -88,7 +88,6 @@ ansiColor('xterm') {
             namespace.getModules().setInstallJson(installJson)
 
             namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-                    .withInstallJson(namespace.getModules().getInstallJson().collect())
                     .withInstallRequestParams(installRequestParams.clone())
                     .withTenantUi(tenantUi.clone())
             )
@@ -158,32 +157,8 @@ ansiColor('xterm') {
 //                }
 //            }
 //
-//            stage('[-=INSTALL BACKEND MODULES=-]') {
-//                folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
-//                main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
-//                folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//                    folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-//                }
-//            }
-//
-//            stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
-//                folioPrint.colored("INSTALLING EDGE MODULES...", "green")
-//                folioEdge.renderEphemeralProperties(namespace)
-//                folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                    namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//                    }
-//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//                }
-//            }
-
-            stage('[-=INSTALL DRIFT MODULES=-]') {
-                main.update(namespace.tenants)
-            }
-
-            stage('[-=NEW MODULES DEPLOY=-]') {
-                folioPrint.colored("INSTALLING NEW MODULES...", "green")
-                namespace.getModules().setInstallJson(updateJson)
+            stage('[-=INSTALL BACKEND MODULES=-]') {
+                folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
                 main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
@@ -191,22 +166,49 @@ ansiColor('xterm') {
                 }
             }
 
-            stage('[-=BUILD ECS-SNAPSHOT UI=-]') {
-                namespace.getTenants().each { tenantId, tenant ->
-                    if (tenant.getTenantUi()) {
-                        TenantUi ui = tenant.getTenantUi()
-                        def jobParameters = [tenant_id  : ui.getTenantId(),
-                                             custom_hash: ui.getHash(),
-                                             custom_url : "https://${namespace.getDomains()['okapi']}",
-                                             custom_tag : ui.getTag(),
-                                             consortia  : true]
-                        uiBuild(jobParameters, false)
-                        folioHelm.withKubeConfig(namespace.getClusterName()) {
-                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                        }
+            stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
+                folioPrint.colored("INSTALLING EDGE MODULES...", "green")
+                folioEdge.renderEphemeralProperties(namespace)
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                    namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
                     }
+                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
                 }
             }
+
+//            stage('[-=INSTALL DRIFT MODULES=-]') {
+//                main.update(namespace.tenants)
+//            }
+//
+//            stage('[-=NEW MODULES DEPLOY=-]') {
+//                folioPrint.colored("INSTALLING NEW MODULES...", "green")
+//                namespace.getModules().setInstallJson(updateJson)
+//                main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+//                folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//                    folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+//                }
+//                namespace.tenants.each {ecs_tenant ->
+//
+//                }
+//            }
+//
+//            stage('[-=BUILD ECS-SNAPSHOT UI=-]') {
+//                namespace.getTenants().each { tenantId, tenant ->
+//                    if (tenant.getTenantUi()) {
+//                        TenantUi ui = tenant.getTenantUi()
+//                        def jobParameters = [tenant_id  : ui.getTenantId(),
+//                                             custom_hash: ui.getHash(),
+//                                             custom_url : "https://${namespace.getDomains()['okapi']}",
+//                                             custom_tag : ui.getTag(),
+//                                             consortia  : true]
+//                        uiBuild(jobParameters, false)
+//                        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//                        }
+//                    }
+//                }
+//            }
 
         } catch (exception) {
             println(exception)
