@@ -66,7 +66,6 @@ ansiColor('xterm') {
       tfConfig.addVar('s3_embedded', false)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
-      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
       String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
