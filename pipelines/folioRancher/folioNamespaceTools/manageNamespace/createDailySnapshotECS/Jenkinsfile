@@ -138,7 +138,7 @@ ansiColor('xterm') {
 
             stage('[-=INSTALL OKAPI=-]') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    def test = testawscli.getS3FileContent("${install_json}/install.json")
+                    def test = awscli.getS3FileContent("${install_json}/install.json")
                     println(test)
                     input("Review install.json...")
                     namespace.getModules().setInstallJson(new Tools(this).jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
