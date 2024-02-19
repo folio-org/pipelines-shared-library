@@ -13,30 +13,17 @@ String prepareEcsIndices(String username, String password) {
 
   indices.each { source, destination ->
     logger.info("Source index: ${source} AND Destination index: ${destination}")
-
-    String body = """
-      {
-        "source": {
-        "index": "${source}"
-        },
-        "dest": {
-        "index": "${destination}"
-        }
-      }
-  """
-
-    writeJSON file: destination + ".json", json: new JsonSlurperClassic().parseText(body)
-
+//  curl -X POST "localhost:9200/my-index-000001/_clone/cloned-my-index-000001?pretty"
     try {
       logger.warning("Deleting this index: ${destination}...")
       sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
-      sleep(60)
+      sleep(30)
     } catch (Error es) {
       logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     } finally {
       logger.info("Working on creation ${destination} index...")
-      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/_reindex -H \"Content-Type: application/json\" " +
-        "-d @${env.WORKSPACE}/${destination}.json > /dev/null 2>&1 &")
+      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination} -H \"Content-Type: application/json\" " +
+        "> /dev/null 2>&1 &")
     }
   }
 }

@@ -1,5 +1,4 @@
 #!groovy
-import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiConfig
@@ -51,6 +50,7 @@ tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
 tfConfig.addVar('pg_version', '12.15')
 tfConfig.addVar('pg_dbname', 'folio')
+tfConfig.addVar('pg_vol_size', 100)
 tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
 tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
@@ -64,10 +64,12 @@ tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENV
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
 
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
         .withSuperTenantAdminUser()
         .withDefaultTenant(defaultTenantId)
         .withDeploymentConfigType(params.CONFIG_TYPE)
+
 
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 namespace.setEnableRwSplit(params.RW_SPLIT)
@@ -83,16 +85,44 @@ ansiColor('xterm') {
                 checkout scm
             }
 
+            stage('[Terraform] Destroy') {
+                folioHelm.withKubeConfig(params.CLUSTER) {
+                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+                        folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
+                        try {
+                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                                                 booleanParam(name: 'RW_SPLIT', value: false),
+                                                 string(name: 'POSTGRESQL', value: 'built-in'),
+                                                 string(name: 'KAFKA', value: 'built-in'),
+                                                 string(name: 'OPENSEARCH', value: 'aws'),
+                                                 string(name: 'S3_BUCKET', value: 'built-in'),
+                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
+                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+                        } catch (Exception exception) {
+                            folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
+                        }
+                    } else {
+                        folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
+                    }
+                }
+            }
+
             stage('[Terraform] Provision') {
                 folioTerraformFlow.manageNamespace('apply', tfConfig)
             }
 
             stage('[DB and Index] Restore') {
                 folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
+                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
                     psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
                             "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
                             "ecs-snapshot", "${params.NAMESPACE}")
+                }
+                folioPrint.colored("Restoring indices...", "green")
+                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
                 }
             }
 
@@ -135,6 +165,10 @@ ansiColor('xterm') {
                         }
                     }
                 }
+            }
+
+            stage('Update to snapshot versions') {
+
             }
 
             stage('Deploy ldp') {
