@@ -51,10 +51,10 @@ tfConfig.addVar('rancher_project_name', params.NAMESPACE)
 tfConfig.addVar('tenant_id', defaultTenantId)
 tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-tfConfig.addVar('pg_embedded', params.POSTGRESQL != 'aws')
-tfConfig.addVar('kafka_shared', params.KAFKA != 'aws')
+tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-tfConfig.addVar('s3_embedded', params.S3_BUCKET != 'aws')
+tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
 tfConfig.addVar('pgadmin4', 'true')
 tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
 tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
@@ -84,9 +84,6 @@ ansiColor('xterm') {
       }
 
       stage('[Terraform] Provision') {
-        tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
-        tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
-
         folioHelm.withK8sClient {
           tfConfig.addVar('pg_version', '12.15')
           tfConfig.addVar('pg_dbname','folio')
@@ -102,10 +99,8 @@ ansiColor('xterm') {
         folioHelm.withK8sClient {
           namespace.getModules().setInstallJson(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-//          Map uiJson = new Tools(this)
-//            .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-ui.json"))
-//          folioBranch = uiJson['branch']
-//          commitHash = uiJson['hash']
+          folioBranch = 'snapshot'
+          commitHash = common.getLastCommitHash("platform-complete", "snapshot")
         }
 
         namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
