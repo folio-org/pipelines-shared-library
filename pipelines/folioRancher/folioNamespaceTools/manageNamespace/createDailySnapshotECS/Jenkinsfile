@@ -52,7 +52,7 @@ tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
 tfConfig.addVar('pg_version', '12.15')
 tfConfig.addVar('pg_dbname', 'folio')
 tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
-tfConfig.addVar('kafka_shared', params.KAFKA == 'built-in')
+tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
 tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
 tfConfig.addVar('pgadmin4', 'true')
@@ -62,6 +62,7 @@ tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENV
 
 //Set namespace configuration
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
         .withSuperTenantAdminUser()
@@ -118,28 +119,22 @@ ansiColor('xterm') {
             folioDeployFlow.restore(namespace)
 
             stage('Build and deploy UI') {
-                Map branches = [:]
                 namespace.getTenants().each { tenantId, tenant ->
                     if (tenant.getTenantUi()) {
                         TenantUi ui = tenant.getTenantUi()
-                        branches[tenantId] = {
-                            def jobParameters = [
-                                    tenant_id  : ui.getTenantId(),
-                                    custom_hash: ui.getHash(),
-                                    custom_url : "https://${namespace.getDomains()['okapi']}",
-                                    custom_tag : ui.getTag(),
-                                    consortia  : tenant instanceof OkapiTenantConsortia
-                            ]
-
-                            uiBuild(jobParameters)
-
-                            folioHelm.withKubeConfig(namespace.getClusterName()) {
-                                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                            }
+                        def jobParameters = [
+                                tenant_id  : ui.getTenantId(),
+                                custom_hash: ui.getHash(),
+                                custom_url : "https://${namespace.getDomains()['okapi']}",
+                                custom_tag : ui.getTag(),
+                                consortia  : tenant instanceof OkapiTenantConsortia
+                        ]
+                        uiBuild(jobParameters)
+                        folioHelm.withKubeConfig(namespace.getClusterName()) {
+                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
                         }
                     }
                 }
-                parallel branches
             }
 
             stage('Deploy ldp') {
