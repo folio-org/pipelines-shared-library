@@ -99,6 +99,8 @@ ansiColor('xterm') {
             institutional.each { ecs ->
                 OkapiTenant ecs_tenant = new OkapiTenant(ecs)
                 namespace.addTenant(ecs_tenant)
+                        .withInstallRequestParams(installRequestParams.clone())
+                        .withInstallJson(namespace.getModules().getInstallJson().collect())
             }
 
             namespace.setEnableRwSplit(params.RW_SPLIT)
