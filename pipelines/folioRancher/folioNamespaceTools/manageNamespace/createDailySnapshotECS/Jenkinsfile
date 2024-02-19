@@ -82,7 +82,6 @@ ansiColor('xterm') {
                     .withDefaultTenant('cs00000int')
                     .withDeploymentConfigType(params.CONFIG_TYPE)
 
-            namespace.getModules().setInstallJson(new Tools(this).jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
             namespace.setEnableRwSplit(params.RW_SPLIT)
             namespace.addDeploymentConfig(CONFIG_BRANCH)
 
@@ -140,10 +139,11 @@ ansiColor('xterm') {
 
             stage('[-=INSTALL OKAPI=-]') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
+                    namespace.getModules().setInstallJson(new Tools(this).jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
                     folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
                     folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
                     folioPrint.colored("TIMEOUT FOR OKAPI INITIALIZATION PROCESS...", "green")
-                    sleep time: 3, unit: 'MINUTES'
+                    sleep time: 1, unit: 'MINUTES'
                 }
             }
 
