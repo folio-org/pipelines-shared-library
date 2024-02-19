@@ -138,8 +138,6 @@ ansiColor('xterm') {
 
             stage('[-=INSTALL OKAPI=-]') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    namespace.getModules().setInstallJson(new Tools(this)
-                            .jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
                     folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
                     folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
                     folioPrint.colored("TIMEOUT FOR OKAPI INITIALIZATION PROCESS...", "green")

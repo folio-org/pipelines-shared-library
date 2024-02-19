@@ -1,0 +1,165 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiConfig
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiTenantConsortia
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.models.TerraformConfig
+import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1216') _
+
+CONFIG_BRANCH = 'RANCHER-1216'
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.configType(),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
+    string(name: 'UI_TENANTS_IDS', defaultValue: '', description: 'A comma-separated list of tenant IDs that require a UI.'),
+    folioParameters.pgType(),
+    folioParameters.kafkaType(),
+    folioParameters.opensearchType(['aws']),
+    folioParameters.s3Type(),
+    booleanParam(name: 'NAMESPACE_ONLY', defaultValue: false, description: '(Optional) Set to true to provision namespace only'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+String defaultTenantId = 'cs00000int'
+
+//Set terraform configuration
+TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+
+tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
+tfConfig.addVar('rancher_project_name', params.NAMESPACE)
+tfConfig.addVar('tenant_id', defaultTenantId)
+tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+tfConfig.addVar('pg_embedded', params.POSTGRESQL)
+tfConfig.addVar('kafka_shared', params.KAFKA)
+tfConfig.addVar('opensearch_shared', params.OPENSEARCH)
+tfConfig.addVar('s3_embedded', params.S3_BUCKET)
+tfConfig.addVar('pgadmin4', 'true')
+tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
+tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
+
+//Set namespace configuration
+String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.addDeploymentConfig(CONFIG_BRANCH)
+namespace.setEnableRwSplit(params.RW_SPLIT)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
+      buildDescription "Config: ${params.CONFIG_TYPE}"
+    }
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[Terraform] Provision') {
+        tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
+        tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
+
+        folioHelm.withK8sClient {
+          tfConfig.addVar('pg_version', '12.15')
+          tfConfig.addVar('pg_dbname','folio')
+        }
+
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+      }
+
+      stage('Preparation') {
+        String commitHash = ''
+        String folioBranch = ''
+
+        folioHelm.withK8sClient {
+          namespace.getModules().setInstallJson(new Tools(this)
+            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+//          Map uiJson = new Tools(this)
+//            .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-ui.json"))
+//          folioBranch = uiJson['branch']
+//          commitHash = uiJson['hash']
+        }
+
+        namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+        namespace.setEnableConsortia(params.CONSORTIA)
+
+        if (uiTenantsList) {
+          TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
+          uiTenantsList.each { tenantId ->
+            namespace.addTenant(new OkapiTenant(tenantId)
+              .withConfiguration(new OkapiConfig())
+              .withTenantUi(tenantUi.clone()))
+          }
+        }
+      }
+
+      if (!params.NAMESPACE_ONLY) {
+        folioDeployFlow.restore(namespace)
+
+        stage('Build and deploy UI') {
+          Map branches = [:]
+          namespace.getTenants().each { tenantId, tenant ->
+            if (tenant.getTenantUi()) {
+              TenantUi ui = tenant.getTenantUi()
+              branches[tenantId] = {
+                def jobParameters = [
+                  tenant_id  : ui.getTenantId(),
+                  custom_hash: ui.getHash(),
+                  custom_url : "https://${namespace.getDomains()['okapi']}",
+                  custom_tag : ui.getTag(),
+                  consortia  : tenant instanceof OkapiTenantConsortia
+                ]
+
+                uiBuild(jobParameters)
+
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+                }
+              }
+            }
+          }
+          parallel branches
+        }
+
+        stage('Deploy ldp') {
+          println('LDP deployment')
+        }
+      }
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
