@@ -94,7 +94,7 @@ ansiColor('xterm') {
                     .withTenantUi(tenantUi.clone())
             )
 
-            List institutional = ['cs00000int_001', 'cs00000int_002', 'cs00000int_003', 'cs00000int_004', 'cs00000int_005']
+            List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
             institutional.each { ecs ->
                 OkapiTenant ecs_tenant = new OkapiTenant(ecs)
