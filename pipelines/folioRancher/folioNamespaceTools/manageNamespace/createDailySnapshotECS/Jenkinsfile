@@ -130,12 +130,12 @@ ansiColor('xterm') {
                 withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
                     folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
                 }
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
-                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
-                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
-                }
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
+//                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
+//                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+//                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
+//                }
             }
 
             stage('[-=INSTALL OKAPI=-]') {
