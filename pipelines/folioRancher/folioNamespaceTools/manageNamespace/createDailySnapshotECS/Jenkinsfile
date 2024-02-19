@@ -123,21 +123,21 @@ ansiColor('xterm') {
 //                folioTerraformFlow.manageNamespace('apply', tfConfig)
 //            }
 
-            stage('[-=INDICES & DB PREPARATION=-]') {
-                folioPrint.colored("HANDLING ES INDICES...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
+//            stage('[-=INDICES & DB PREPARATION=-]') {
+//                folioPrint.colored("HANDLING ES INDICES...", "green")
+//                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//                }
 //                folioHelm.withKubeConfig(params.CLUSTER) {
 //                    folioPrint.colored("RESTORING PSQL ECS DUMP...\nESTIMATED DURATION: ~ 2 HOURS", "green")
 //                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "${params.SOURCE_DB_USERS}",
 //                            "${params.SOURCE_DB}", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
 //                            "${params.SOURCE_DB}", "${params.NAMESPACE}")
 //                }
-            }
+//            }
 
             stage('[-=INSTALL OKAPI=-]') {
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.withK8sClient {
                     awscli.getS3FileContent("${install_json}/install.json")
                     input("Review install.json...")
                     namespace.getModules().setInstallJson(new Tools(this).jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
@@ -151,7 +151,7 @@ ansiColor('xterm') {
             stage('[-=INSTALL BACKEND MODULES=-]') {
                 folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
                 main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.withK8sClient {
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
                     folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
                 }
@@ -160,7 +160,7 @@ ansiColor('xterm') {
             stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
                 folioPrint.colored("INSTALLING EDGE MODULES...", "green")
                 folioEdge.renderEphemeralProperties(namespace)
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.withK8sClient {
                     namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
                     }
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
