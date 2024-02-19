@@ -116,7 +116,7 @@ def uiBundleTag() {
 }
 
 def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
-  return _paramString('TENANT_ID', tenant_id, 'Id used for tenant creation/deletion')
+  return _paramString('TENANT_ID', tenant_id, 'Input Tenant ID')
 }
 
 def referenceTenantId(String tenant_id = 'diku') {
