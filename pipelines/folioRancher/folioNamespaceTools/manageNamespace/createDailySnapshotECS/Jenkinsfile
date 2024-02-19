@@ -24,7 +24,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         string(name: 'SOURCE_DB_USERS', defaultValue: 'ecs-snapshot-users', description: '(Required) Name of users dump file'),
                         string(name: 'SOURCE_DB', defaultValue: 'ecs-snapshot', description: '(Required) Data dump file name'),
                         folioParameters.pgVersion(),
-                        folioParameters.kafkaType(),
                         folioParameters.opensearchType(),
                         string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
                         folioParameters.agent(),
@@ -62,7 +61,7 @@ ansiColor('xterm') {
             tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
             tfConfig.addVar('rancher_project_name', params.NAMESPACE)
             tfConfig.addVar('tenant_id', 'cs00000int')
-            tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+            tfConfig.addVar('kafka_shared', false)
             tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
             tfConfig.addVar('s3_embedded', false)
             tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
@@ -98,9 +97,9 @@ ansiColor('xterm') {
 
             institutional.each { ecs ->
                 OkapiTenant ecs_tenant = new OkapiTenant(ecs)
+                        .withInstallJson(installJson)
                 namespace.addTenant(ecs_tenant)
-                        .withInstallRequestParams(installRequestParams.clone())
-                        .withInstallJson(namespace.getModules().getInstallJson().collect())
+
             }
 
             namespace.setEnableRwSplit(params.RW_SPLIT)
