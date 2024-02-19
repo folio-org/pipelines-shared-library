@@ -138,9 +138,8 @@ ansiColor('xterm') {
 
             stage('[-=INSTALL OKAPI=-]') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    def tmp_json = awscli.getS3FileContent("${install_json}/install.json")
-                    input("Review install.json...")
-                    namespace.getModules().setInstallJson(new Tools(this).jsonParse(tmp_json))
+                    namespace.getModules().setInstallJson(new Tools(this)
+                            .jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
                     folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
                     folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
                     folioPrint.colored("TIMEOUT FOR OKAPI INITIALIZATION PROCESS...", "green")
@@ -167,18 +166,12 @@ ansiColor('xterm') {
                 }
             }
 
-//            stage('[-=NEW MODULES DEPLOY=-]') {
-//                folioPrint.colored("INSTALLING NEW MODULES...", "green")
-//                namespace.getModules().setInstallJson(updateJson)
-//                main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
-//                folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//                    folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-//                }
-//                namespace.tenants.each {ecs_tenant ->
-//
-//                }
-//            }
+            stage('[-=NEW MODULES DEPLOY=-]') {
+                folioPrint.colored("INSTALLING NEW MODULES...", "green")
+                namespace.getModules().setInstallJson(updateJson)
+                main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+                //FromJson
+            }
 
 //            stage('[-=BUILD ECS-SNAPSHOT UI=-]') {
 //                namespace.getTenants().each { tenantId, tenant ->
