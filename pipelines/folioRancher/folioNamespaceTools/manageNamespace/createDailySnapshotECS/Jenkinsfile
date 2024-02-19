@@ -137,8 +137,9 @@ ansiColor('xterm') {
 //            }
 
             stage('[-=INSTALL OKAPI=-]') {
-                folioHelm.withK8sClient {
-                    awscli.getS3FileContent("${install_json}/install.json")
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                    def test = testawscli.getS3FileContent("${install_json}/install.json")
+                    println(test)
                     input("Review install.json...")
                     namespace.getModules().setInstallJson(new Tools(this).jsonParse(awscli.getS3FileContent("${install_json}/install.json")))
                     folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
@@ -151,7 +152,7 @@ ansiColor('xterm') {
             stage('[-=INSTALL BACKEND MODULES=-]') {
                 folioPrint.colored("INSTALLING BACKEND MODULES...", "green")
                 main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
-                folioHelm.withK8sClient {
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
                     folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
                 }
@@ -160,7 +161,7 @@ ansiColor('xterm') {
             stage('[-=INSTALL EDGE MODULES & CONFIGURE EDGE-USERS=-]') {
                 folioPrint.colored("INSTALLING EDGE MODULES...", "green")
                 folioEdge.renderEphemeralProperties(namespace)
-                folioHelm.withK8sClient {
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
                     namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
                     }
                     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
