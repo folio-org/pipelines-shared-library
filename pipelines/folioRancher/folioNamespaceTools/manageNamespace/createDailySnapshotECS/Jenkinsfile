@@ -64,6 +64,7 @@ ansiColor('xterm') {
       tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
       tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
       tfConfig.addVar('s3_embedded', false)
+      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
@@ -91,7 +92,7 @@ ansiColor('xterm') {
 
       Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-      stage('[DESTROY EXISTING ENVIRONMENT...]') {
+      stage('[-=DESTROY EXISTING ENVIRONMENT=-]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
             folioPrint.colored("ECS-SNAPSHOT ENVIRONMENT EXISTS!\nPROCEEDING WITH DESTROY OPERATION...", "red")
