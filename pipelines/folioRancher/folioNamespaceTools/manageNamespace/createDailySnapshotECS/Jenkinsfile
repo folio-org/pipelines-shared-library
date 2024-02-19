@@ -28,9 +28,9 @@ properties([
                 folioParameters.opensearchType(['aws']),
                 folioParameters.s3Type(),
                 folioParameters.agent(),
-                folioParameters.refreshParameters()
-        ])
-])
+                folioParameters.refreshParameters()]),
+        pipelineTriggers([parameterizedCron("30 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;" +
+                "POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in,AGENT=jenkins-agent-java17")])])
 
 if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
@@ -39,7 +39,6 @@ if (params.REFRESH_PARAMETERS) {
 
 String defaultTenantId = 'cs00000int'
 
-//Set terraform configuration
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
         .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
 
@@ -60,7 +59,6 @@ tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
 tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
 tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-//Set namespace configuration
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
 
@@ -169,10 +167,6 @@ ansiColor('xterm') {
 
             stage('Update to snapshot versions') {
 
-            }
-
-            stage('Deploy ldp') {
-                println('LDP deployment')
             }
 
         } catch (e) {
