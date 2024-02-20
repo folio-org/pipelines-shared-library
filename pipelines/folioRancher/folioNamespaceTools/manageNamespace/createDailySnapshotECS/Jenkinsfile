@@ -126,15 +126,15 @@ ansiColor('xterm') {
             }
 
             stage('Preparation') {
-//                String commitHash = ''
-//                String folioBranch = ''
-//
-//                folioHelm.withK8sClient {
-//                    namespace.getModules().setInstallJson(new Tools(this)
-//                            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+                String commitHash = ''
+                String folioBranch = ''
+
+                folioHelm.withK8sClient {
+                    namespace.getModules().setInstallJson(new Tools(this)
+                            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
                     folioBranch = 'snapshot'
                     commitHash = common.getLastCommitHash("platform-complete", "snapshot")
-//                }
+                }
 
                 namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
                 namespace.setEnableConsortia(params.CONSORTIA)
