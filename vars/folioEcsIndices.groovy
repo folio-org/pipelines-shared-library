@@ -16,13 +16,15 @@ String prepareEcsIndices(String username, String password) {
 
     try {
       logger.warning("Deleting this index: ${destination}...")
-      sh("curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination} > /dev/null 2>&1 &")
-      sleep(30)
+      sh(script: "curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", returnStdout: true)
+      sleep time: 10, unit: 'SECONDS'
     } catch (Error es) {
       logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     } finally {
       logger.info("Working on creation ${destination} index...")
-      sh("curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination} > /dev/null 2>&1 &")
+      sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
+      sleep time: 10, unit: 'SECONDS'
+      sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
     }
   }
 }
