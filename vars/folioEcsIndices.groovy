@@ -1,4 +1,3 @@
-import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.Logger
 
