@@ -8,6 +8,7 @@ import org.folio.models.TenantUi
 import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
+import org.folio.rest_v2.Okapi
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -151,18 +152,15 @@ ansiColor('xterm') {
                 folioHelm.withK8sClient {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson)
-//                    namespace.getModules().setInstallJson(updateJson)
-//                    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-//                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
-//                    List institutional =  ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-//                    institutional.each {institute ->
-//                        if (institute == 'cs00000int'){
-//                            OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
-//                        } else {
-//                            OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
-//                            okapiTenantConsortia.getModules().setInstallJson(updateJson)
-//                        }
-//                    }
+                    namespace.getModules().setInstallJson(updateJson)
+                    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+                    Okapi okapi = new Okapi(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+                    List institutional =  ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
+                    institutional.each {institute ->
+                        OkapiTenant okapiTenant = new OkapiTenant(institute)
+                        okapi.tenantInstall(okapiTenant, updateJson)
+                    }
                 }
             }
 
