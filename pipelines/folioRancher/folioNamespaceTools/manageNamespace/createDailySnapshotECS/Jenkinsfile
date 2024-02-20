@@ -165,7 +165,7 @@ ansiColor('xterm') {
                 }
             }
 
-            folioDeployFlow.restore(namespace)
+            folioDeployFlow.update(namespace)
 
             stage('Build and deploy UI') {
                 namespace.getTenants().each { tenantId, tenant ->
