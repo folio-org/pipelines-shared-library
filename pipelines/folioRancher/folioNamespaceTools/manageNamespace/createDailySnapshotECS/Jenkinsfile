@@ -117,12 +117,12 @@ ansiColor('xterm') {
                     folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
                 }
 
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
-                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
-                            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-                            "ecs-snapshot", "${params.NAMESPACE}")
-                }
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
+//                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
+//                            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+//                            "ecs-snapshot", "${params.NAMESPACE}")
+//                }
             }
 
             stage('Preparation') {
