@@ -112,10 +112,10 @@ ansiColor('xterm') {
 
             stage('[DB and Index] Restore') {
 
-                folioPrint.colored("Restoring indices...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
+//                folioPrint.colored("Restoring indices...", "green")
+//                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//                }
 
 //                folioHelm.withKubeConfig(params.CLUSTER) {
 //                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
@@ -150,32 +150,42 @@ ansiColor('xterm') {
             stage('New modules preparation') {
                 folioHelm.withK8sClient {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
-                    namespace.getModules().setInstallJson(updateJson)
-                    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+                    println(updateJson)
+//                    namespace.getModules().setInstallJson(updateJson)
+//                    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+//                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+//                    List institutional =  ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
+//                    institutional.each {institute ->
+//                        if (institute == 'cs00000int'){
+//                            OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
+//                        } else {
+//                            OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
+//                            okapiTenantConsortia.getModules().setInstallJson(updateJson)
+//                        }
+//                    }
                 }
             }
 
-            folioDeployFlow.restore(namespace)
-
-            stage('Build and deploy UI') {
-                namespace.getTenants().each { tenantId, tenant ->
-                    if (tenant.getTenantUi()) {
-                        TenantUi ui = tenant.getTenantUi()
-                        def jobParameters = [
-                                tenant_id  : ui.getTenantId(),
-                                custom_hash: ui.getHash(),
-                                custom_url : "https://${namespace.getDomains()['okapi']}",
-                                custom_tag : ui.getTag(),
-                                consortia  : tenant instanceof OkapiTenantConsortia
-                        ]
-                        uiBuild(jobParameters)
-                        folioHelm.withKubeConfig(namespace.getClusterName()) {
-                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                        }
-                    }
-                }
-            }
+//            folioDeployFlow.restore(namespace)
+//
+//            stage('Build and deploy UI') {
+//                namespace.getTenants().each { tenantId, tenant ->
+//                    if (tenant.getTenantUi()) {
+//                        TenantUi ui = tenant.getTenantUi()
+//                        def jobParameters = [
+//                                tenant_id  : ui.getTenantId(),
+//                                custom_hash: ui.getHash(),
+//                                custom_url : "https://${namespace.getDomains()['okapi']}",
+//                                custom_tag : ui.getTag(),
+//                                consortia  : tenant instanceof OkapiTenantConsortia
+//                        ]
+//                        uiBuild(jobParameters)
+//                        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//                        }
+//                    }
+//                }
+//            }
 
         } catch (e) {
             println "Caught exception: ${e}"
