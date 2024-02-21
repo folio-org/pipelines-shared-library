@@ -21,6 +21,7 @@ class Tools {
     String copyResourceFileToWorkspace(String srcPath) {
         String destPath = steps.env.WORKSPACE + File.separator + new File(srcPath).getName()
         steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
+        logger.debug(steps.sh(script: "pwd; ls -al;"))
         logger.info("Copied ${srcPath} to ${steps.env.WORKSPACE}")
         return destPath
     }
@@ -111,8 +112,8 @@ class Tools {
             sqconfig_repo_token   : ldpConfig.getSqconfig_repo_token()
         ]
 
-        this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
-        def content = steps.readFile template_name
+
+        def content = steps.readFile this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
         String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
         return body
 

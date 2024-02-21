@@ -2,18 +2,12 @@
 root = true
 
 [*]
+indent_style = space
+indent_size = 2
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
-
-[*.{java,scala,gradle,proto,groovy}]
-indent_style = space
-indent_size = 2
-
-[*.{yaml,yml,graphql,graphqls}]
-indent_style = space
-indent_size = 2
 
 [*.{java,scala}]
 ij_formatter_off_tag = @formatter:off
@@ -25,7 +19,3 @@ trim_trailing_whitespace = false
 
 [*.{ts,tsx,css,scss,html,ejs}]
 indent_style = tab
-
-[Jenkinsfile]
-indent_style = space
-indent_size = 2

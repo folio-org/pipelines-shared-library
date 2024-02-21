@@ -27,7 +27,7 @@ resource "rancher2_app_v2" "kafka" {
         enabled: true
         resources:
           limits:
-            memory: 512Mi
+            memory: 1280Mi
           requests:
             memory: 256Mi
       jmx:
@@ -36,7 +36,7 @@ resource "rancher2_app_v2" "kafka" {
           limits:
             memory: 1280Mi
           requests:
-            memory: 512Mi
+            memory: 256Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -59,7 +59,7 @@ resource "rancher2_app_v2" "kafka" {
         size: 5Gi
       resources:
         requests:
-          memory: 512Mi
+          memory: 256Mi
         limits:
           memory: 768Mi
     livenessProbe:

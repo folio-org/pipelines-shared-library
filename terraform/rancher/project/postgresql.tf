@@ -53,9 +53,9 @@ resource "rancher2_app_v2" "postgresql" {
       replicaCount: 1
       resources:
         requests:
-          memory: 512Mi
+          memory: 2048Mi
         limits:
-          memory: 10240Mi
+          memory: 7168Mi
       extendedConfiguration: |-
         shared_buffers = '2560MB'
         max_connections = '4000'
@@ -98,9 +98,9 @@ resource "rancher2_app_v2" "postgresql" {
         storageClass: gp2
       resources:
         requests:
-          memory: 512Mi
+          memory: 2048Mi
         limits:
-          memory: 10240Mi
+          memory: 7168Mi
       podSecurityContext:
         fsGroup: 1001
       containerSecurityContext:
@@ -125,9 +125,9 @@ resource "rancher2_app_v2" "postgresql" {
       enabled: true
       resources:
         requests:
-          memory: 512Mi
+          memory: 1024Mi
         limits:
-          memory: 2048Mi
+          memory: 4096Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -246,6 +246,11 @@ resource "rancher2_app_v2" "pgadmin4" {
   chart_version = "1.10.1"
   force_upgrade = "true"
   values        = <<-EOT
+    resources:
+      requests:
+        memory: 256Mi
+      limits:
+        memory: 512Mi
     env:
       email: ${var.pgadmin_username}
       password: ${var.pgadmin_password}
@@ -266,7 +271,6 @@ resource "rancher2_app_v2" "pgadmin4" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
         alb.ingress.kubernetes.io/healthcheck-port: '80'
-
     serverDefinitions:
       enabled: true
       servers:
