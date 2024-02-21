@@ -21,18 +21,17 @@ String prepareEcsIndices(String username, String password) {
     } catch (Error es) {
       logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
     } finally {
-//      logger.info("Working on creation ${destination} index...")
-//      sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
-//      sleep time: 10, unit: 'SECONDS'
-//      sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
-      Map headers = [
-        'Authorization' : "Basic " + "${username}:${password}".getBytes().encodeBase64()
-      ]
-      def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
-      println(response['body'].keySet()[0])
-      input("Testing review...")
-      if (response['body'][0] != destination) {
-        logger.info("Working on creation ${destination} index...")
+      logger.info("Working on creation ${destination} index...")
+      sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
+      sleep time: 10, unit: 'SECONDS'
+      sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
+      try {
+        Map headers = [
+          'Authorization': "Basic " + "${username}:${password}".getBytes().encodeBase64()
+        ]
+        def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
+      } catch (Exception exception) {
+        logger.info("Error: ${exception.getMessage()}\nWorking on creation ${destination} index...")
         sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
         sleep time: 10, unit: 'SECONDS'
         sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
