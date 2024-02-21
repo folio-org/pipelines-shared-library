@@ -33,7 +33,7 @@ properties([
                 folioParameters.s3Type(),
                 folioParameters.agent(),
                 folioParameters.refreshParameters()]),
-        pipelineTriggers([parameterizedCron("30 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;" +
+        pipelineTriggers([parameterizedCron("H 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;" +
                 "POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in,AGENT=jenkins-agent-java17")])
 ])
 
