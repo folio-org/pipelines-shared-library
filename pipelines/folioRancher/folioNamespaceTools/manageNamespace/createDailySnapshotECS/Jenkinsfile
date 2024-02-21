@@ -73,9 +73,10 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
         .withDefaultTenant(defaultTenantId)
         .withDeploymentConfigType(params.CONFIG_TYPE)
 
-
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 namespace.setEnableRwSplit(params.RW_SPLIT)
+
+Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
 ansiColor('xterm') {
     node(params.AGENT) {
@@ -115,7 +116,7 @@ ansiColor('xterm') {
 //            stage('[Terraform] Provision') {
 //                folioTerraformFlow.manageNamespace('apply', tfConfig)
 //            }
-
+//
 //            stage('[DB and Index] Restore') {
 //                folioPrint.colored("Restoring indices...", "green")
 //                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
@@ -146,50 +147,53 @@ ansiColor('xterm') {
 
                 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
                 namespace.addTenant(new OkapiTenant(defaultTenantId)
+                        .withInstallRequestParams(installRequestParams)
                         .withConfiguration(new OkapiConfig())
                         .withTenantUi(tenantUi.clone()))
             }
 
-//            folioDeployFlow.restore(namespace)
+            folioDeployFlow.restore(namespace)
 
-            stage('New modules preparation') {
+            stage('New modules deploy') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson) // for postman t-shooting purpose
-                    namespace.getModules().setInstallJson(updateJson)
-                    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-                    List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
-                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
+
+//                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
+//                    folioEdge.renderEphemeralProperties(namespace)
+//                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
+
+                    List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
                                 .withInstallJson(updateJson)
                                 .withInstallRequestParams(installRequestParams)
                         namespace.addTenant(okapiTenant)
                     }
+                    namespace.getTenants()['cs00000int'].withInstallJson(updateJson)
                     main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
                     main.update(namespace.getTenants())
                 }
             }
 
-//            stage('Build and deploy UI') {
-//                namespace.getTenants().each { tenantId, tenant ->
-//                    if (tenant.getTenantUi()) {
-//                        TenantUi ui = tenant.getTenantUi()
-//                        def jobParameters = [
-//                                tenant_id  : ui.getTenantId(),
-//                                custom_hash: ui.getHash(),
-//                                custom_url : "https://${namespace.getDomains()['okapi']}",
-//                                custom_tag : ui.getTag(),
-//                                consortia  : tenant instanceof OkapiTenantConsortia
-//                        ]
-//                        uiBuild(jobParameters)
-//                        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//                        }
-//                    }
-//                }
-//            }
+            stage('Build and deploy UI') {
+                namespace.getTenants().each { tenantId, tenant ->
+                    if (tenant.getTenantUi()) {
+                        TenantUi ui = tenant.getTenantUi()
+                        def jobParameters = [
+                                tenant_id  : ui.getTenantId(),
+                                custom_hash: ui.getHash(),
+                                custom_url : "https://${namespace.getDomains()['okapi']}",
+                                custom_tag : ui.getTag(),
+                                consortia  : tenant instanceof OkapiTenantConsortia
+                        ]
+                        uiBuild(jobParameters)
+                        folioHelm.withKubeConfig(namespace.getClusterName()) {
+                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+                        }
+                    }
+                }
+            }
             stage('The rest components placeholder') {
                 // GreenMail
                 // LDP
@@ -202,7 +206,7 @@ ansiColor('xterm') {
             error(e.getMessage())
         } finally {
             stage('Notify and Cleanup') {
-//                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
