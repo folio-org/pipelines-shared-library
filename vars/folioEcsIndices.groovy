@@ -29,7 +29,7 @@ String prepareEcsIndices(String username, String password) {
         'Authorization' : "Basic " + "${username}:${password}".getBytes().encodeBase64()
       ]
       def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
-      println(response['body'][0])
+      println(response['body'].getKey())
       input("Testing review...")
       if (status.keySet()[0] != destination) {
         logger.info("Working on creation ${destination} index...")
