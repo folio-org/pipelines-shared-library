@@ -164,6 +164,7 @@ ansiColor('xterm') {
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
                                 .withInstallJson(updateJson)
+                                .withInstallRequestParams(installRequestParams)
                         namespace.addTenant(okapiTenant)
                     }
                     main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
@@ -201,7 +202,7 @@ ansiColor('xterm') {
             error(e.getMessage())
         } finally {
             stage('Notify and Cleanup') {
-                //slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
