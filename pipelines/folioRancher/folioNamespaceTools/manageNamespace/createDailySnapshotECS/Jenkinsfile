@@ -150,7 +150,7 @@ ansiColor('xterm') {
 //            folioDeployFlow.restore(namespace)
 
             stage('New modules preparation') {
-                folioHelm.withK8sClient {
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson) // for postman t-shooting purpose
                     namespace.getModules().setInstallJson(updateJson)
