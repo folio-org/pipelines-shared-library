@@ -30,8 +30,9 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
     ]
 
     if (message.contains("Pass rate:")){
-        def passRate = (message =~ /Pass rate: (\d+)%/)?.getAt(0)?.getAt(1)?.toInteger()
-        testsStatus = passRate > 50 ? "SUCCESS" : "FAILED"
+      def match = (message =~ /Pass rate: (\d+.\d+|\d+)%/)
+      def passRate = match ? match[0][1].toFloat() : 0.0
+      testsStatus = passRate > 50.0 ? "SUCCESS" : "FAILED"
     }
 
     def pipelineTemplate = pipelineTemplates[buildStatus]

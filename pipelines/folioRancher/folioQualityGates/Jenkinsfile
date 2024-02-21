@@ -3,21 +3,23 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.utilities.Logger
 import org.folio.rest_v2.Constants
+import org.folio.models.parameters.KarateTestsParameters
 import org.folio.models.parameters.CreateNamespaceParameters
 
+//TODO Switch branch before final merge
 //@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-@Library('pipelines-shared-library@RANCHER-1002') _
+@Library('pipelines-shared-library@RANCHER-1001') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
-  buildDiscarder(logRotator(numToKeepStr: '40')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
-  ])
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+buildDiscarder(logRotator(numToKeepStr: '40')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+  booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+  folioParameters.agent(),
+  folioParameters.refreshParameters()
+])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -30,13 +32,10 @@ boolean autoCanceled = false
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 String clusterName = 'folio-tmp' //TODO Switch to folio-testing cluster before final merge
 
-//Map namespacesMap = [
-//  karate: "cikarate",
-//  cypress: "cicypress",
-//  schema: "cischema"
-//] //TODO Uncomment before final merge
 Map namespacesMap = [
-  cypress: 'test',
+  karate : 'cikarate',
+  cypress: 'cicypress',
+//  schema: "cischema" //TODO Uncomment after functionality implementation
 ]
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
@@ -55,9 +54,17 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName env.BUILD_ID
+        buildName "#${env.BUILD_ID}"
         buildDescription "Quality Gates:\nKarate\nCypress\nSchema compare"
-        checkout scm
+        Map branches = [failFast: false]
+        namespacesMap.each { id, namespace ->
+          branches["${clusterName}-${namespace}"] = { ->
+            dir(id) {
+              checkout scm
+            }
+          }
+          parallel(branches)
+        }
       }
 
       stage('Check Changes') {
@@ -95,9 +102,8 @@ ansiColor('xterm') {
           .rtr(false)
           .build()
 
-        Map branches = [failFast: false]
         namespacesMap.each { id, namespace ->
-          branches["${clusterName}-${namespace}"] = { ->
+          dir(id) {
             CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
               .clusterName(clusterName)
               .namespaceName(namespace)
@@ -106,7 +112,23 @@ ansiColor('xterm') {
             folioNamespaceCreate(namespaceCreateParams)
           }
         }
-        parallel(branches)
+
+//        Map branches = [failFast: false]
+//        namespacesMap.each { id, namespace ->
+//          branches["${clusterName}-${namespace}"] = { ->
+//            dir(id) {
+//              Integer startTimeout = new Random().nextInt(10) + 1
+//              sleep(time: startTimeout, unit: 'MINUTES')
+//              CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+//                .clusterName(clusterName)
+//                .namespaceName(namespace)
+//                .build()
+//              logger.debug(namespaceCreateParams.dump())
+//              folioNamespaceCreate(namespaceCreateParams)
+//            }
+//          }
+//        }
+//        parallel(branches)
       }
 
       stage('Execute quality gates') {
@@ -128,17 +150,32 @@ ansiColor('xterm') {
           ]
           folioCypressFlow(cypressParams)
         }
+        branches['Karate'] = { ->
+          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+          karateTestsParams.okapiUrl = "https://${clusterName}-${namespacesMap['karate']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${clusterName}-${namespacesMap['karate']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.tenant = 'supertenant'
+          karateTestsParams.prototypeTenant = 'consortium'
+          karateTestsParams.adminUserName = 'super_admin'
+          karateTestsParams.adminPassword = 'admin'
+          karateTestsParams.threadsCount = '4'
+          karateTestsParams.reportPortalProjectName = 'karate-quality-gate'
+          karateTestsParams.sendSlackNotification = true
+          karateTestsParams.timeout = '2'
+          folioKarateFlow(karateTestsParams)
+        }
         parallel(branches)
       }
     } catch (e) {
       logger.error "Caught exception: ${e}"
       error(e.getMessage())
     } finally {
+      input 'Paused'
       if (!autoCanceled) {
         destroyParallelStage(clusterName, namespacesMap, namespaceBaseParams)
       }
-
       stage('Cleanup') {
+        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
     }
@@ -150,16 +187,18 @@ void destroyParallelStage(String clusterName, Map namespacesMap, CreateNamespace
     Map branches = [failFast: false]
     namespacesMap.each { id, namespace ->
       branches["${clusterName}-${namespace}"] = { ->
-        CreateNamespaceParameters namespaceDeleteParams = namespaceBaseParams.toBuilder()
-          .clusterName(clusterName)
-          .namespaceName(namespace)
-          .build()
-        boolean nsExists
-        folioHelm.withKubeConfig(clusterName) {
-          nsExists = kubectl.checkNamespaceExistence(namespace)
-        }
-        if (nsExists) {
-          folioNamespaceDelete(namespaceDeleteParams)
+        dir(id) {
+          CreateNamespaceParameters namespaceDeleteParams = namespaceBaseParams.toBuilder()
+            .clusterName(clusterName)
+            .namespaceName(namespace)
+            .build()
+          boolean nsExists
+          folioHelm.withKubeConfig(clusterName) {
+            nsExists = kubectl.checkNamespaceExistence(namespace)
+          }
+          if (nsExists) {
+            folioNamespaceDelete(namespaceDeleteParams)
+          }
         }
       }
     }
