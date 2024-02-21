@@ -32,7 +32,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
-OkapiUser user = new OkapiUser(params.USERNAME, params.NEW_PASSWORD)
+OkapiUser user = new OkapiUser(params.USERNAME, '')
   .withFirstName(params.USERNAME)
 
 Users deleteUser = new Users(this, namespace.getDomains()['okapi'])
