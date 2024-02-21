@@ -151,7 +151,7 @@ ansiColor('xterm') {
 
             stage('New modules preparation') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+                    def updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson) // for postman t-shooting purpose
                     namespace.getModules().setInstallJson(updateJson)
                     Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
