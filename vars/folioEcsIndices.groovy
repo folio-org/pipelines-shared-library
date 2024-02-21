@@ -1,5 +1,7 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
+import groovy.json.JsonSlurperClassic
+import org.folio.utilities.RestClient
 
 String prepareEcsIndices(String username, String password) {
 
@@ -24,6 +26,17 @@ String prepareEcsIndices(String username, String password) {
       sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
       sleep time: 10, unit: 'SECONDS'
       sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
+      Map headers = [
+        'Authorization' : "Basic " + "${username}:${password}".getBytes().encodeBase64()
+      ]
+      def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
+      def status = new JsonSlurperClassic().parseText("${response}")
+      if (status.keySet()[0] != destination) {
+        logger.info("Working on creation ${destination} index...")
+        sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
+        sleep time: 10, unit: 'SECONDS'
+        sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
+      }
     }
   }
 }
