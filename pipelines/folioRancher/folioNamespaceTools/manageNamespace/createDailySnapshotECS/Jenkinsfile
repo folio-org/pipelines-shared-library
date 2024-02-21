@@ -18,24 +18,20 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
-properties([
-        buildDiscarder(logRotator(numToKeepStr: '30')),
-        disableConcurrentBuilds(),
-        parameters([
-                folioParameters.cluster(),
-                folioParameters.namespace(),
-                folioParameters.configType(),
-                booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
-                booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
-                folioParameters.pgType(),
-                folioParameters.kafkaType(),
-                folioParameters.opensearchType(['aws']),
-                folioParameters.s3Type(),
-                folioParameters.agent(),
-                folioParameters.refreshParameters()]),
-        pipelineTriggers([parameterizedCron("H 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;" +
-                "POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in,AGENT=jenkins-agent-java17")])
-])
+properties([buildDiscarder(logRotator(numToKeepStr: '30')),
+            disableConcurrentBuilds(),
+            parameters([folioParameters.cluster(),
+                        folioParameters.namespace(),
+                        folioParameters.configType(),
+                        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
+                        booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
+                        folioParameters.pgType(),
+                        folioParameters.kafkaType(),
+                        folioParameters.opensearchType(['aws']),
+                        folioParameters.s3Type(),
+                        folioParameters.agent(),
+                        folioParameters.refreshParameters()]),
+            pipelineTriggers([parameterizedCron("H 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;" + "POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in,AGENT=jenkins-agent-java17")])])
 
 if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
@@ -143,7 +139,6 @@ ansiColor('xterm') {
                 }
 
                 namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-                namespace.setEnableConsortia(params.CONSORTIA)
 
                 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
                 namespace.addTenant(new OkapiTenant(defaultTenantId)
@@ -159,18 +154,21 @@ ansiColor('xterm') {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson) // for postman t-shooting purpose
 
+                    List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
+                    institutional.each { institute ->
+                        OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
+                                .withInstallJson(updateJson)
+                                .withInstallRequestParams(installRequestParams)
+                        namespace.addTenant(okapiTenantConsortia)
+                    }
+
+                    namespace.getTenants()['cs00000int'].withInstallJson(updateJson)
+                    namespace.setEnableConsortia(params.CONSORTIA)
+
 //                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
 //                    folioEdge.renderEphemeralProperties(namespace)
 //                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
 
-                    List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-                    institutional.each { institute ->
-                        OkapiTenant okapiTenant = new OkapiTenant(institute)
-                                .withInstallJson(updateJson)
-                                .withInstallRequestParams(installRequestParams)
-                        namespace.addTenant(okapiTenant)
-                    }
-                    namespace.getTenants()['cs00000int'].withInstallJson(updateJson)
                     main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
                     main.update(namespace.getTenants())
                 }
@@ -180,13 +178,11 @@ ansiColor('xterm') {
                 namespace.getTenants().each { tenantId, tenant ->
                     if (tenant.getTenantUi()) {
                         TenantUi ui = tenant.getTenantUi()
-                        def jobParameters = [
-                                tenant_id  : ui.getTenantId(),
-                                custom_hash: ui.getHash(),
-                                custom_url : "https://${namespace.getDomains()['okapi']}",
-                                custom_tag : ui.getTag(),
-                                consortia  : tenant instanceof OkapiTenantConsortia
-                        ]
+                        def jobParameters = [tenant_id  : ui.getTenantId(),
+                                             custom_hash: ui.getHash(),
+                                             custom_url : "https://${namespace.getDomains()['okapi']}",
+                                             custom_tag : ui.getTag(),
+                                             consortia  : tenant instanceof OkapiTenantConsortia]
                         uiBuild(jobParameters)
                         folioHelm.withKubeConfig(namespace.getClusterName()) {
                             folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
@@ -206,7 +202,7 @@ ansiColor('xterm') {
             error(e.getMessage())
         } finally {
             stage('Notify and Cleanup') {
-                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+//                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
