@@ -1,6 +1,5 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
-import groovy.json.JsonSlurperClassic
 import org.folio.utilities.RestClient
 
 String prepareEcsIndices(String username, String password) {
@@ -30,7 +29,7 @@ String prepareEcsIndices(String username, String password) {
         'Authorization' : "Basic " + "${username}:${password}".getBytes().encodeBase64()
       ]
       def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
-      println(response)
+      println(response['body'][0])
       input("Testing review...")
       if (status.keySet()[0] != destination) {
         logger.info("Working on creation ${destination} index...")
