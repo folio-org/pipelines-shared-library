@@ -166,10 +166,9 @@ ansiColor('xterm') {
 //                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
-                                .withInstallRequestParams(installRequestParams)
                                 .withInstallJson(updateJson)
                     }
-                    folioDeployFlow.update(namespace)
+                    main.update(namespace.getTenants())
                 }
             }
 
