@@ -71,6 +71,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 namespace.setEnableRwSplit(params.RW_SPLIT)
+namespace.setEnableConsortia(params.CONSORTIA)
 
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
@@ -141,7 +142,7 @@ ansiColor('xterm') {
                 namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
 
                 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
-                namespace.addTenant(new OkapiTenant(defaultTenantId)
+                namespace.addTenant(new OkapiTenantConsortia(defaultTenantId, true)
                         .withInstallRequestParams(installRequestParams)
                         .withConfiguration(new OkapiConfig())
                         .withTenantUi(tenantUi.clone()))
@@ -155,15 +156,13 @@ ansiColor('xterm') {
                     println(updateJson) // for postman t-shooting purpose
 
                     List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
+
                     institutional.each { institute ->
                         OkapiTenantConsortia okapiTenantConsortia = new OkapiTenantConsortia(institute, false)
                                 .withInstallJson(updateJson)
                                 .withInstallRequestParams(installRequestParams)
                         namespace.addTenant(okapiTenantConsortia)
                     }
-
-                    namespace.getTenants()['cs00000int'].withInstallJson(updateJson)
-                    namespace.setEnableConsortia(params.CONSORTIA)
 
 //                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
 //                    folioEdge.renderEphemeralProperties(namespace)
