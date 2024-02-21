@@ -142,7 +142,7 @@ ansiColor('xterm') {
                 namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
 
                 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
-                namespace.addTenant(new OkapiTenantConsortia(defaultTenantId, true)
+                namespace.addTenant(new OkapiTenant(defaultTenantId)
                         .withInstallRequestParams(installRequestParams)
                         .withConfiguration(new OkapiConfig())
                         .withTenantUi(tenantUi.clone()))
@@ -153,7 +153,9 @@ ansiColor('xterm') {
             stage('New modules deploy') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
                     List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
-                    println(updateJson) // for postman t-shooting purpose
+                    println(namespace.getModules().getInstallJson()) // for postman t-shooting purpose
+
+                    input("Start testing...")
 
                     List institutional = ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
