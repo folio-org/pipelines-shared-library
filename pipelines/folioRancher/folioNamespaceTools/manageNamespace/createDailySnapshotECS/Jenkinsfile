@@ -167,9 +167,9 @@ ansiColor('xterm') {
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
                                 .withInstallRequestParams(installRequestParams)
-//                        okapi.tenantInstall(okapiTenant, updateJson)
-                        main.update(namespace.getTenants())
+                                .withInstallJson(updateJson)
                     }
+                    folioDeployFlow.update(namespace)
                 }
             }
 
