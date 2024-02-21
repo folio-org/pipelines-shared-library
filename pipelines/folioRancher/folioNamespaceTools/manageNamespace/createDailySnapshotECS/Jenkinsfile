@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiConfig
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiTenantConsortia
@@ -66,10 +67,13 @@ tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENV
 
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 
+InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
         .withSuperTenantAdminUser()
         .withDefaultTenant(defaultTenantId)
         .withDeploymentConfigType(params.CONFIG_TYPE)
+
 
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 namespace.setEnableRwSplit(params.RW_SPLIT)
@@ -151,17 +155,18 @@ ansiColor('xterm') {
 
             stage('New modules preparation') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    def updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+                    List updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
                     println(updateJson) // for postman t-shooting purpose
                     namespace.getModules().setInstallJson(updateJson)
                     Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
                     Okapi okapi = new Okapi(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+//                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
                     List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
-                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
+//                    folioHelm.deployFolioModules(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
+//                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
+                                .withInstallRequestParams(installRequestParams)
                         okapi.tenantInstall(okapiTenant, updateJson)
                     }
                 }
