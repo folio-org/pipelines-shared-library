@@ -147,7 +147,7 @@ ansiColor('xterm') {
                         .withTenantUi(tenantUi.clone()))
             }
 
-            folioDeployFlow.restore(namespace)
+//            folioDeployFlow.restore(namespace)
 
             stage('New modules deploy') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -169,7 +169,7 @@ ansiColor('xterm') {
 //                    folioEdge.renderEphemeralProperties(namespace)
 //                    folioHelm.deployFolioModules(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
 
-                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+                    main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
                     main.update(namespace.getTenants())
                 }
             }
