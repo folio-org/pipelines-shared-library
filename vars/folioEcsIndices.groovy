@@ -29,7 +29,7 @@ String prepareEcsIndices(String username, String password) {
         Map headers = [
           'Authorization': "Basic " + "${username}:${password}".getBytes().encodeBase64()
         ]
-        def response = new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
+        new RestClient(this).get("${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", headers)
       } catch (Exception exception) {
         logger.info("Error: ${exception.getMessage()}\nWorking on creation ${destination} index...")
         sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)

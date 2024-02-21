@@ -114,10 +114,10 @@ ansiColor('xterm') {
 //            }
 
             stage('[DB and Index] Restore') {
-                folioPrint.colored("Restoring indices...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
+//                folioPrint.colored("Restoring indices...", "green")
+//                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//                }
 
 //                folioHelm.withKubeConfig(params.CLUSTER) {
 //                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
@@ -158,7 +158,7 @@ ansiColor('xterm') {
                     Okapi okapi = new Okapi(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
                     main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
                     List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-                    folioHelm.deployFolioModules(namespace, updateJson as Map, false, namespace.getDefaultTenantId())
+                    folioHelm.deployFolioModules(namespace, updateJson, namespace.getDefaultTenantId())
                     institutional.each { institute ->
                         OkapiTenant okapiTenant = new OkapiTenant(institute)
                         okapi.tenantInstall(okapiTenant, updateJson)
