@@ -156,13 +156,13 @@ ansiColor('xterm') {
                     namespace.getModules().setInstallJson(updateJson)
                     Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
                     Okapi okapi = new Okapi(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
-                    List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-                    folioHelm.deployFolioModules(namespace, updateJson, namespace.getDefaultTenantId())
-                    institutional.each { institute ->
-                        OkapiTenant okapiTenant = new OkapiTenant(institute)
-                        okapi.tenantInstall(okapiTenant, updateJson)
-                    }
+//                    main.preInstall(updateJson, namespace.getModules().getDiscoveryList())
+//                    List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
+//                    folioHelm.deployFolioModules(namespace, updateJson, namespace.getDefaultTenantId())
+//                    institutional.each { institute ->
+//                        OkapiTenant okapiTenant = new OkapiTenant(institute)
+//                        okapi.tenantInstall(okapiTenant, updateJson)
+//                    }
                 }
             }
 
