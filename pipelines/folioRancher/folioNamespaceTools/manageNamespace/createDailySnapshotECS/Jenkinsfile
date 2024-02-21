@@ -14,9 +14,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO Will be switched to 741 branch, after review. DO NOT COMMENT ON THIS.
 
-@Library('pipelines-shared-library@RANCHER-1216') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-1216'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
         buildDiscarder(logRotator(numToKeepStr: '30')),
