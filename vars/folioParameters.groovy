@@ -1,5 +1,6 @@
 import org.folio.Constants
 import hudson.util.Secret
+import org.folio.rest.model.OkapiUser
 
 private def _paramChoice(String name, List value, String description) {
     return choice(name: name, choices: value, description: description)
@@ -115,7 +116,7 @@ def uiBundleTag() {
 }
 
 def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
-  return _paramString('TENANT_ID', tenant_id, 'Id used for tenant creation/deletion')
+  return _paramString('TENANT_ID', tenant_id, 'Input Tenant ID')
 }
 
 def referenceTenantId(String tenant_id = 'diku') {
@@ -164,6 +165,13 @@ return result
 """
 }
 
+static OkapiUser defaultAdminUser() {
+  return new OkapiUser(
+    username: 'diku_admin',
+    password: 'admin'
+  )
+}
+
 def moduleName(){
   return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module name to install')
 }
@@ -172,4 +180,10 @@ def moduleType(){
 }
 def moduleVersion(){
   return _paramExtendedSingleSelect('MODULE_VERSION', 'MODULE_NAME, VERSION_TYPE', folioStringScripts.getModuleVersion(), 'Select module version to install')
+}
+def adminUsername(String admin_username = defaultAdminUser().username) {
+  return _paramString('ADMIN_USERNAME', admin_username, 'Admin user name')
+}
+def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
+  return _paramPassword('ADMIN_PASSWORD', admin_password, description)
 }

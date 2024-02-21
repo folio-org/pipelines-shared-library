@@ -79,6 +79,32 @@ class Users extends Authorization {
         }
     }
 
+  /**
+   * Delete existing user.
+   *
+   * @param tenant The tenant in which to delete the user.
+   * @param user The user to be deleted.
+   */
+  void deleteUser(OkapiTenant tenant, OkapiUser user) {
+    if (!getUserByName(tenant, user)) {
+      logger.info("User ${user.username} not exists.")
+      return
+    }
+    //Get User Id by username
+    getUserByName(tenant, user)
+
+    String url = generateUrl("/users/${user.uuid}")
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+    logger.info("User ${user.username} exists. Deleting...")
+    try {
+      restClient.delete(url, headers)
+      logger.info("User ${user.username} deleted successfully")
+    } catch (RequestException e) {
+      throw new RequestException("Can not delete user: ${user.username}. ${e.getMessage()}", e.statusCode)
+    }
+  }
+
     /**
      * Retrieves the service points IDs for a tenant.
      *
