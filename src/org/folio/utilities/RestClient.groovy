@@ -1,5 +1,4 @@
 package org.folio.utilities
-
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
@@ -10,41 +9,41 @@ class RestClient {
     private int defaultReadTimeout
     private Logger logger
 
-    RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000) {
+    RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
         this.debug = debug
         this.defaultConnectionTimeout = defaultConnectionTimeout
         this.defaultReadTimeout = defaultReadTimeout
         this.logger = new Logger(context, 'RestClient')
     }
 
-    def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout) {
-        return doRequest('GET', url, null, headers, connectionTimeout)
+    def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+        return doRequest('GET', url, null, headers, connectionTimeout, readTimeout)
     }
 
-    def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout) {
-        return doRequest('POST', url, body, headers, connectionTimeout)
+    def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout) {
+        return doRequest('POST', url, body, headers, connectionTimeout, defaultReadTimeout)
     }
 
-    def delete(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout) {
-        return doRequest('DELETE', url, null, headers, connectionTimeout)
+    def delete(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+        return doRequest('DELETE', url, null, headers, connectionTimeout, readTimeout)
     }
 
-    def put(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout) {
-        return doRequest('PUT', url, body, headers, connectionTimeout)
+    def put(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+        return doRequest('PUT', url, body, headers, connectionTimeout, readTimeout)
     }
 
-    def upload(String url, File file, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout) {
+    def upload(String url, File file, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
         headers['Content-Type'] = 'application/octet-stream'
-        return doRequest('POST', url, file.bytes, headers, connectionTimeout)
+        return doRequest('POST', url, file.bytes, headers, connectionTimeout, readTimeout)
     }
 
-    private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout) {
+    private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
 
         if (debug) {
             logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
         }
 
-        HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout)
+        HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
 
         if (body) {
             sendRequestBody(connection, body)
@@ -69,10 +68,11 @@ class RestClient {
 
     }
 
-    private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout) {
+    private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout, int readTimeout) {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection()
         connection.requestMethod = method
         connection.connectTimeout = connectionTimeout
+        connection.readTimeout = readTimeout
         headers.each { header, value ->
             connection.setRequestProperty(header, value)
         }

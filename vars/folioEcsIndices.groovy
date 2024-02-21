@@ -1,45 +1,29 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
-import org.folio.utilities.RestClient
 
-static void prepareEcsIndices(String username, String password) {
+String prepareEcsIndices(String username, String password) {
 
-  RestClient client = new RestClient(this)
-  Logger logger = new Logger(this, 'common')
-  Map indices = [
-    "ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
-    "ecs-snapshot_instance_cs00000int"        : "folio-testing-ecs-snapshot_instance_cs00000int",
-    "ecs-snapshot_contributor_cs00000int"     : "folio-testing-ecs-snapshot_contributor_cs00000int",
-    "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int"
-  ]
-  Map headers = [
-    "Content-type" : "application/json",
-    "Authorization": "Basic ${username}:${password}"
-  ]
+  Map indices = ["ecs-snapshot_instance_subject_cs00000int": "folio-testing-ecs-snapshot_instance_subject_cs00000int",
+                 "ecs-snapshot_contributor_cs00000int"     : "folio-testing-ecs-snapshot_contributor_cs00000int",
+                 "ecs-snapshot_authority_cs00000int"       : "folio-testing-ecs-snapshot_authority_cs00000int",
+                 "ecs-snapshot_instance_cs00000int"        : "folio-testing-ecs-snapshot_instance_cs00000int"]
+
+  Logger logger = new Logger(this, 'folioEcsIndices')
 
   indices.each { source, destination ->
     logger.info("Source index: ${source} AND Destination index: ${destination}")
 
-    String body = """
-      [{
-        "source": {
-        "index": "${source}"
-        },
-        "dest": {
-        "index": "${destination}"
-        }
-      }]
-  """
-    def res = client.get(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
-    if (res['body']["$destination"] == "${destination}") {
-      try {
-        client.delete(Constants.FOLIO_OPEN_SEARCH_URL + "/${destination}/?pretty", headers)
-        sleep(30000)
-      } catch (Exception es) {
-        logger.warning("Unable to delete index: ${destination}, error: ${es.getMessage()}")
-      }
-    } else {
-      client.post(Constants.FOLIO_OPEN_SEARCH_URL + "/_reindex?pretty", body, headers)
+    try {
+      logger.warning("Deleting this index: ${destination}...")
+      sh(script: "curl -u \"${username}:${password}\" -X DELETE ${Constants.FOLIO_OPEN_SEARCH_URL}/${destination}?pretty", returnStdout: true)
+      sleep time: 10, unit: 'SECONDS'
+    } catch (Error es) {
+      logger.error("Unable to delete index: ${destination}, error: ${es.getMessage()}")
+    } finally {
+      logger.info("Working on creation ${destination} index...")
+      sh(script: "curl -u \"${username}:${password}\" -X PUT ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_block/write?pretty", returnStdout: true)
+      sleep time: 10, unit: 'SECONDS'
+      sh(script: "curl -u \"${username}:${password}\" -X POST ${Constants.FOLIO_OPEN_SEARCH_URL}/${source}/_clone/${destination}?pretty", returnStdout: true)
     }
   }
 }

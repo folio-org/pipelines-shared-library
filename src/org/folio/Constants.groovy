@@ -97,6 +97,10 @@ class Constants {
   static String PG_LDP_DEFAULT_PASSWORD = 'diku_ldp9367'
   static String PGADMIN_DEFAULT_PASSWORD = 'SuperSecret'
 
+  //ECS Snapshot Edge credentials
+  static  String ECS_EDGE_GENERAL_USERNAME = 'EBSCOEdge'
+  static  String ECS_EDGE_GENERAL_PASSWORD = 'edge'
+
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
   static String EMAIL_SMTP_SERVER = 'email-smtp.us-west-2.amazonaws.com'
