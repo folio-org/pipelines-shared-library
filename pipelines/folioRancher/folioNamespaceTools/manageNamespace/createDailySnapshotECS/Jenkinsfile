@@ -213,7 +213,6 @@ ansiColor('xterm') {
             error(e.getMessage())
         } finally {
             stage('Notify and Cleanup') {
-                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
