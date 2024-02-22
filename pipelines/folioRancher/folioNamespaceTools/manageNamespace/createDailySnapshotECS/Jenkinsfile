@@ -183,6 +183,8 @@ ansiColor('xterm') {
                 TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
 
                 namespace.addTenant(new OkapiTenant(defaultTenantId)
+                        .withInstallRequestParams(installRequestParams)
+                        .withConfiguration(new OkapiConfig())
                         .withTenantUi(tenantUi.clone()))
 
                 namespace.getTenants().each { tenantId, tenant ->
