@@ -200,7 +200,6 @@ ansiColor('xterm') {
                     }
                 }
             }
-
             stage('The rest components placeholder') {
                 // GreenMail
                 // LDP
