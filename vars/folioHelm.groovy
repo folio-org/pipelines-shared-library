@@ -218,6 +218,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['service']['annotations'] += ['external-dns.alpha.kubernetes.io/hostname': edgeNlbDomain]
   }
 
-  writeYaml file: valuesFilePath, data: moduleConfig
+  writeYaml file: valuesFilePath, data: moduleConfig, overwrite: true
   return valuesFilePath
 }

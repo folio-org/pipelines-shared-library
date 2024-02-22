@@ -11,8 +11,6 @@ import org.folio.rest_v2.Main
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//TODO Will be switched to 741 branch, after review. DO NOT COMMENT ON THIS.
-
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
@@ -212,9 +210,9 @@ ansiColor('xterm') {
         } catch (e) {
             println "Caught exception: ${e}"
             error(e.getMessage())
-            slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
         } finally {
             stage('Notify and Cleanup') {
+                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
