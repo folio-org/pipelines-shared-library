@@ -13,9 +13,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO Will be switched to 741 branch, after review. DO NOT COMMENT ON THIS.
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-createDailySnapshotECS') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'RANCHER-createDailySnapshotECS'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -85,47 +85,47 @@ ansiColor('xterm') {
                 checkout scm
             }
 
-            stage('[Terraform] Destroy') {
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-                        folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
-                        try {
-                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                                                 booleanParam(name: 'RW_SPLIT', value: false),
-                                                 string(name: 'POSTGRESQL', value: 'built-in'),
-                                                 string(name: 'KAFKA', value: 'built-in'),
-                                                 string(name: 'OPENSEARCH', value: 'aws'),
-                                                 string(name: 'S3_BUCKET', value: 'built-in'),
-                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-                        } catch (Exception exception) {
-                            folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
-                        }
-                    } else {
-                        folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
-                    }
-                }
-            }
-
-            stage('[Terraform] Provision') {
-                folioTerraformFlow.manageNamespace('apply', tfConfig)
-            }
-
-            stage('[DB and Index] Restore') {
-                folioPrint.colored("Restoring indices...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
-
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
-                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
-                            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-                            "ecs-snapshot", "${params.NAMESPACE}")
-                }
-            }
+//            stage('[Terraform] Destroy') {
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+//                        folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
+//                        try {
+//                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+//                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+//                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+//                                                 booleanParam(name: 'RW_SPLIT', value: false),
+//                                                 string(name: 'POSTGRESQL', value: 'built-in'),
+//                                                 string(name: 'KAFKA', value: 'built-in'),
+//                                                 string(name: 'OPENSEARCH', value: 'aws'),
+//                                                 string(name: 'S3_BUCKET', value: 'built-in'),
+//                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
+//                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+//                        } catch (Exception exception) {
+//                            folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
+//                        }
+//                    } else {
+//                        folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
+//                    }
+//                }
+//            }
+//
+//            stage('[Terraform] Provision') {
+//                folioTerraformFlow.manageNamespace('apply', tfConfig)
+//            }
+//
+//            stage('[DB and Index] Restore') {
+//                folioPrint.colored("Restoring indices...", "green")
+//                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//                }
+//
+//                folioHelm.withKubeConfig(params.CLUSTER) {
+//                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
+//                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
+//                            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+//                            "ecs-snapshot", "${params.NAMESPACE}")
+//                }
+//            }
 
             stage('Restore reparation') {
                 folioHelm.withK8sClient {
