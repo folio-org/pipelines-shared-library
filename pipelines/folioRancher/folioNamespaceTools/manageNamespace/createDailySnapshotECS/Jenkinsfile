@@ -127,15 +127,15 @@ ansiColor('xterm') {
 //                }
 //            }
 //
-//            stage('Restore reparation') {
-//                folioHelm.withK8sClient {
-//                    namespace.getModules().setInstallJson(new Tools(this)
-//                            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-//                    namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-//                }
-//            }
-//
-//            folioDeployFlow.restore(namespace)
+            stage('Restore reparation') {
+                folioHelm.withK8sClient {
+                    namespace.getModules().setInstallJson(new Tools(this)
+                            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+                    namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+                }
+            }
+
+            folioDeployFlow.restore(namespace)
 
             stage('New modules deploy') {
                 folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -212,9 +212,9 @@ ansiColor('xterm') {
         } catch (e) {
             println "Caught exception: ${e}"
             error(e.getMessage())
+//            slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
         } finally {
             stage('Notify and Cleanup') {
-//                slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
                 cleanWs notFailBuild: true
             }
         }
