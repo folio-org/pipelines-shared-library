@@ -105,6 +105,11 @@ resource "rancher2_app_v2" "postgresql" {
       enabled: true
     metrics:
       enabled: true
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 2048Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
