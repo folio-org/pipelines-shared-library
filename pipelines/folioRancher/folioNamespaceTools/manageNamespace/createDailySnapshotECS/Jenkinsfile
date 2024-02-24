@@ -9,7 +9,6 @@ import org.folio.models.TenantUi
 import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
-import org.folio.rest_v2.Users
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -32,7 +31,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 01 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 01 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -40,7 +39,6 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 String defaultTenantId = 'cs00000int'
-String sys_psswd = ''
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
@@ -71,7 +69,7 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+Main main = new Main(this, namespace.generateDomain('okapi'), new OkapiTenant('supertenant'))
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -97,7 +95,7 @@ ansiColor('xterm') {
                              string(name: 'KAFKA', value: 'built-in'),
                              string(name: 'OPENSEARCH', value: 'aws'),
                              string(name: 'S3_BUCKET', value: 'built-in'),
-                             string(name: 'AGENT', value: 'rancher'),
+                             string(name: 'AGENT', value: 'jenkins-agent-java17'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             } catch (Exception exception) {
               folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
@@ -121,9 +119,8 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
           psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
-            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
             "ecs-snapshot", "${params.NAMESPACE}")
-          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-connect-modules', 'SYSTEM_USER_PASSWORD')
         }
       }
 
@@ -138,38 +135,29 @@ ansiColor('xterm') {
 
       stage('Prepare update') {
         main.getTenantsList().each {
-          switch (it) {
-            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
-              namespace.addTenant(new OkapiTenant("${it}")
-                .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
-                .withInstallRequestParams(installRequestParams)
-                .withConfiguration(new OkapiConfig()))
-              break
+          if (it != 'supertenant') {
+            namespace.addTenant(new OkapiTenant("${it}")
+              .withAdminUser(new OkapiUser('super_admin', 'admin'))
+              .withInstallRequestParams(installRequestParams)
+              .withConfiguration(new OkapiConfig()))
+          } else {
+            namespace
+              .withSuperTenantAdminUser()
           }
         }
-        Users users = new Users(this, namespace.generateDomain('okapi'))
         namespace.getModules().setInstallJson(newInstallJson)
-        OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
-        namespace.tenants.each { name, id ->
-          switch (id.getTenantId()) {
-            case ['cs00000int']:
-              id.getModules().setInstallJson(newInstallJson)
-              break
-            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
-              id.getModules().setInstallJson(newInstallJson)
-              id.getModules().removeModule('folio_consortia-settings')
-              break
-            default:
-              println("${id.tenantId} --> leaving blank")
-              break
-          }
-          def user = users.getUserByName(id, okapiUser)
-          okapiUser.setUuid(user.get('id'))
-          users.resetUserPassword(id, okapiUser)
-          println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
-        }
         main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+        namespace.tenants.each { name, id ->
+          if (id.getTenantId() != defaultTenantId) {
+            id.getModules().setInstallJson(newInstallJson)
+            id.getModules().removeModule('folio_consortia-settings')
+          }
+          if (id.getTenantId() == defaultTenantId) {
+            id.getModules().setInstallJson(newInstallJson)
+          }
+          println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().allModules)
+        }
       }
 
       stage('Update') {
@@ -184,16 +172,15 @@ ansiColor('xterm') {
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
           folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-
-          kubectl.scaleDownResources(namespace.getNamespaceName(), 'deployment')
-          sleep time: 1, unit: 'MINUTES'
-          kubectl.scaleUpResources(namespace.getNamespaceName(), 'deployment')
         }
+        sleep time: 10, unit: 'MINUTES'
       }
 
       stage('Enable') {
-        sleep time: 5, unit: 'MINUTES'
-        main.update(namespace.getTenants())
+
+        retry(2) {
+          main.update(namespace.getTenants())
+        }
       }
 
       stage('Build and deploy UI') {
@@ -223,7 +210,6 @@ ansiColor('xterm') {
             }
           }
         }
-        slackSend(color: '', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
       }
       stage('The rest components placeholder') {
         // GreenMail, LDP, Mock server, etc.
