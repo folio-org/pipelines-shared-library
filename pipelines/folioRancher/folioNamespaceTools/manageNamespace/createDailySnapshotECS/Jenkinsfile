@@ -137,7 +137,7 @@ ansiColor('xterm') {
         main.getTenantsList().each {
           if (it != 'supertenant') {
             namespace.addTenant(new OkapiTenant("${it}")
-              .withAdminUser(new OkapiUser('super_admin', 'admin'))
+              .withAdminUser(new OkapiUser('ECSAdmin', 'admin'))
               .withInstallRequestParams(installRequestParams)
               .withConfiguration(new OkapiConfig()))
           } else {
