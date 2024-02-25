@@ -135,14 +135,18 @@ ansiColor('xterm') {
 
       stage('Prepare update') {
         main.getTenantsList().each {
-          if (it != 'supertenant') {
-            namespace.addTenant(new OkapiTenant("${it}")
-              .withAdminUser(new OkapiUser('ECSAdmin', 'admin'))
-              .withInstallRequestParams(installRequestParams)
-              .withConfiguration(new OkapiConfig()))
-          } else {
-            namespace
-              .withSuperTenantAdminUser()
+          switch (it) {
+            case 'cs00000int':
+              namespace.addTenant(new OkapiTenant("${it}")
+                .withAdminUser(new OkapiUser('ECSAdmin', 'admin'))
+                .withInstallRequestParams(installRequestParams)
+                .withConfiguration(new OkapiConfig()))
+              break
+            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0004']:
+              namespace.addTenant(new OkapiTenant("${it}")
+                .withInstallRequestParams(installRequestParams)
+                .withConfiguration(new OkapiConfig()))
+              break
           }
         }
         namespace.getModules().setInstallJson(newInstallJson)
