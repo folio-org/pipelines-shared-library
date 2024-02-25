@@ -69,7 +69,7 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-Main main = new Main(this, namespace.generateDomain('okapi'), new OkapiTenant('supertenant'))
+Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
 ansiColor('xterm') {
   node(params.AGENT) {
