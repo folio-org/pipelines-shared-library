@@ -146,17 +146,22 @@ ansiColor('xterm') {
         }
         namespace.getModules().setInstallJson(newInstallJson)
         namespace.setEnableConsortia(params.CONSORTIA, false)
-        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
         namespace.tenants.each { name, id ->
-          if (id.getTenantId() != defaultTenantId) {
-            id.getModules().setInstallJson(newInstallJson)
-            id.getModules().removeModule('folio_consortia-settings')
-          }
-          if (id.getTenantId() == defaultTenantId) {
-            id.getModules().setInstallJson(newInstallJson)
+          switch (id.getTenantId()) {
+            case ['cs00000int']:
+              id.getModules().setInstallJson(newInstallJson)
+              break
+            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              id.getModules().setInstallJson(newInstallJson)
+              id.getModules().removeModule('folio_consortia-settings')
+              break
+            default:
+              println("${id.tenantId} --> leaving blank")
+              break
           }
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().allModules)
         }
+        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
       }
 
       stage('Update') {
@@ -172,7 +177,7 @@ ansiColor('xterm') {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
           folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
         }
-        sleep time: 10, unit: 'MINUTES'
+        sleep time: 5, unit: 'MINUTES'
       }
 
       stage('Enable') {
