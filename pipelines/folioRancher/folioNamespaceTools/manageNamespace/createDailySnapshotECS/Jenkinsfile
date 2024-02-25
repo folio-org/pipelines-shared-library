@@ -142,7 +142,7 @@ ansiColor('xterm') {
                 .withInstallRequestParams(installRequestParams)
                 .withConfiguration(new OkapiConfig()))
               break
-            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0004']:
+            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
               namespace.addTenant(new OkapiTenant("${it}")
                 .withInstallRequestParams(installRequestParams)
                 .withConfiguration(new OkapiConfig()))
