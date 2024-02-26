@@ -177,14 +177,14 @@ ansiColor('xterm') {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
           folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
         }
-        sleep time: 5, unit: 'MINUTES'
+        kubectl.scaleDownResources(namespace.getNamespaceName(), 'deployment')
+        sleep time: 1, unit: 'MINUTES'
+        kubectl.scaleUpResources(namespace.getNamespaceName(), 'deployment')
       }
 
       stage('Enable') {
-
-        retry(2) {
-          main.update(namespace.getTenants())
-        }
+        sleep time: 5, unit: 'MINUTES'
+        main.update(namespace.getTenants())
       }
 
       stage('Build and deploy UI') {
