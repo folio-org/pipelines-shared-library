@@ -1,5 +1,4 @@
 #!groovy
-import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiConfig
@@ -33,7 +32,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 01 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
+            pipelineTriggers([parameterizedCron('''45 01 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -165,8 +164,9 @@ ansiColor('xterm') {
               println("${id.tenantId} --> leaving blank")
               break
           }
-          def user = new JsonSlurperClassic().parseText(users.getUserByName(id, okapiUser))
-          okapiUser.setUuid(user['id'].toString())
+          def user = users.getUserByName(id, okapiUser)
+          println(user.get('id'))
+          okapiUser.setUuid(user.get('id'))
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
