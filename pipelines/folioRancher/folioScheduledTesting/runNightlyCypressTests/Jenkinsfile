@@ -37,7 +37,7 @@ Map cypressFlowParameters = [
   adminUsername           : 'diku_admin',
   adminPassword           : 'admin',
   parallelExecParameters  : '--env grepTags="smoke criticalPath --nonParallel"',
-  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
+//  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
   testsTimeout            : '14',
   testrailProjectID       : '14',
   testrailRunID           : '2108',
