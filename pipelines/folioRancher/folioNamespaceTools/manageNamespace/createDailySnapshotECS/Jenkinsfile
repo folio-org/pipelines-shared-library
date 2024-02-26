@@ -223,6 +223,7 @@ ansiColor('xterm') {
             }
           }
         }
+        slackSend(color: '', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
       }
       stage('The rest components placeholder') {
         // GreenMail, LDP, Mock server, etc.
