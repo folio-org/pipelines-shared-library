@@ -165,7 +165,6 @@ ansiColor('xterm') {
               break
           }
           def user = users.getUserByName(id, okapiUser)
-          println(user.get('id'))
           okapiUser.setUuid(user.get('id'))
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
