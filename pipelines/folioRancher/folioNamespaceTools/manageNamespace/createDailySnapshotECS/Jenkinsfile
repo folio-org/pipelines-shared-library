@@ -150,7 +150,7 @@ ansiColor('xterm') {
         Users users = new Users(this, namespace.generateDomain('okapi'))
         namespace.getModules().setInstallJson(newInstallJson)
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
-        //namespace.setEnableConsortia(params.CONSORTIA, false) temp disabled
+        namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
           switch (id.getTenantId()) {
             case ['cs00000int']:
@@ -158,7 +158,7 @@ ansiColor('xterm') {
               break
             case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
               id.getModules().setInstallJson(newInstallJson)
-              //id.getModules().removeModule('folio_consortia-settings') temp disabled
+              id.getModules().removeModule('folio_consortia-settings')
               break
             default:
               println("${id.tenantId} --> leaving blank")
@@ -200,7 +200,7 @@ ansiColor('xterm') {
         namespace.getModules().setInstallJson(newInstallJson)
         String folioBranch = 'snapshot'
         String commitHash = common.getLastCommitHash("platform-complete", "snapshot")
-        namespace.setEnableConsortia(true, true) //temp wokraround
+        namespace.setEnableConsortia(true)
 
         TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
 
