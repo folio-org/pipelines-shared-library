@@ -60,4 +60,10 @@ edge-connexion:
 edge-sip2: {}
 edge-courses: {}
 edge-fqm: {}
-edge-dcb: {}
+edge-dcb:
+  tenants:
+  - tenant: testedgedcb
+    username: dcbClient
+    password: password
+  permissions:
+  - to_be_done
