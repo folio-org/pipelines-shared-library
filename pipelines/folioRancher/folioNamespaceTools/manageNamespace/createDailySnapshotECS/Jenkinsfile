@@ -97,7 +97,7 @@ ansiColor('xterm') {
                              string(name: 'KAFKA', value: 'built-in'),
                              string(name: 'OPENSEARCH', value: 'aws'),
                              string(name: 'S3_BUCKET', value: 'built-in'),
-                             string(name: 'AGENT', value: 'jenkins-agent-java17'),
+                             string(name: 'AGENT', value: 'rancher'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             } catch (Exception exception) {
               folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
