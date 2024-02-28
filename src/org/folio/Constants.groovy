@@ -23,6 +23,7 @@ class Constants {
                                         'corsair',
                                         'core-platform',
                                         'data-migration',
+                                        'dreamliner',
                                         'falcon',
                                         'firebird',
                                         'folijet',
@@ -161,6 +162,7 @@ class Constants {
                                   'consortia'     : 'thunderjet',
                                   'core-platform' : 'core-platform',
                                   'cypress'       : 'AQA',
+                                  'dreamliner'    : 'Dreamliner',
                                   'ebsco-core'    : 'ebsco-core',
                                   'falcon'        : 'falcon',
                                   'firebird'      : 'firebird',
@@ -242,12 +244,11 @@ class Constants {
   static String GLOBAL_BUILD_TIMEOUT = '4'
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
-                                "guram_jalaghonia@epam.com",
                                 "oleksandr_haimanov@epam.com",
                                 "renat_safiulin@epam.com",
-                                "vasili_kapylou@epam.com",
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
+                                "vasyl_avramenko@epam.com",
                                 "eldiiar_duishenaliev@epam"]
 
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
