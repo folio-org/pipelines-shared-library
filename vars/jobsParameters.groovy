@@ -90,6 +90,7 @@ static List devEnvironmentsList() {
             'corsair',
             'core-platform',
             'data-migration',
+            'dreamliner',
             'falcon',
             'firebird',
             'folijet',

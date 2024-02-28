@@ -83,6 +83,7 @@ class Constants {
                                     "consortia"     : ["thunderjet"],
                                     "core-platform" : ["core-platform"],
                                     "cypress"       : ["AQA"],
+                                    "dreamliner"    : ["Dreamliner"],
                                     "ebsco-core"    : ["ebsco-core"],
                                     "falcon"        : ["falcon"],
                                     "firebird"      : ["firebird"],
