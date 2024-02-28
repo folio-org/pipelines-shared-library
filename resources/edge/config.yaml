@@ -65,5 +65,3 @@ edge-dcb:
   - tenant: testedgedcb
     username: dcbClient
     password: password
-  permissions:
-  - to_be_done
