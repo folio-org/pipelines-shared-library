@@ -3,12 +3,13 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 
-//TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+//TODO Switch branch before final merge
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1247') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
+//  disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -26,6 +27,8 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
+boolean nsExists
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
@@ -48,8 +51,13 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      folioNamespaceDelete(namespaceParams)
+      folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence(namespaceParams.getNamespaceName())
+      }
 
+      if (nsExists) {
+        folioNamespaceDelete(namespaceParams)
+      }
     } catch (e) {
       println "Caught exception: ${e}"
       error(e.getMessage())
