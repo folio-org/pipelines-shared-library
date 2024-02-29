@@ -15,9 +15,9 @@ import org.folio.utilities.Tools
 void renderEphemeralProperties(RancherNamespace namespace) {
   Tools tools = new Tools(this)
   Common common = new Common(this, "https://${namespace.getDomains()['okapi']}")
-  Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToWorkspace("edge/config.yaml")
+  Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config.yaml")
   String defaultTenantId = namespace.getDefaultTenantId()
-  String config_template = tools.steps.readFile file: tools.copyResourceFileToWorkspace("edge/ephemeral-properties.tpl")
+  String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
   namespace.getModules().getEdgeModules().each { name, version ->
     String edgeTenantsId = defaultTenantId
     String institutional = ""

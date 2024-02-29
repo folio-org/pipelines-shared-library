@@ -21,8 +21,15 @@ class Tools {
     String copyResourceFileToWorkspace(String srcPath) {
         String destPath = steps.env.WORKSPACE + File.separator + new File(srcPath).getName()
         steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
-        logger.debug(steps.sh(script: "pwd; ls -al;"))
         logger.info("Copied ${srcPath} to ${steps.env.WORKSPACE}")
+        return destPath
+    }
+
+    String copyResourceFileToCurrentDirectory(String srcPath) {
+        String currentDir = steps.sh(script: "pwd", returnStdout: true,).trim()
+        String destPath = currentDir + File.separator + new File(srcPath).getName()
+        steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
+        logger.info("Copied ${srcPath} to ${currentDir}")
         return destPath
     }
 
