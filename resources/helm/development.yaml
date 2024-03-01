@@ -83,9 +83,9 @@ edge-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: '512Mi'
     requests:
-      memory: '200Mi'
+      memory: '340Mi'
   service:
     type: NodePort
 edge-dematic:
@@ -507,9 +507,9 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: '342Mi'
+      memory: '728Mi'
     requests:
-      memory: '256Mi'
+      memory: '640Mi'
 mod-di-converter-storage:
   javaOptions: '-XX:MaxRAMPercentage=66.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
   postJob:
