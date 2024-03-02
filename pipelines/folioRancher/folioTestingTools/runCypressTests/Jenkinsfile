@@ -65,9 +65,9 @@ ansiColor('xterm') {
       Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
 
       boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
-        (dayOfWeek == Calendar.SUNDAY && curHour <= 18) || (dayOfWeek == Calendar.FRIDAY && curHour >= 18)
+        (dayOfWeek == Calendar.SUNDAY && curHour < 18) || (dayOfWeek == Calendar.FRIDAY && curHour >= 18)
 
-      boolean isRestOfWeek6To24 = !isFri18ToSun18 && curHour > 6
+      boolean isRestOfWeek6To24 = !isFri18ToSun18 && curHour >= 6
 
       boolean isLimitReach = isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4
         || isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8
