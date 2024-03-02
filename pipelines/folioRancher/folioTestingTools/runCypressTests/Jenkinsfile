@@ -2,6 +2,8 @@
 import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
 
+import java.text.SimpleDateFormat
+
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
@@ -58,10 +60,18 @@ ansiColor('xterm') {
     }
     stage('[Conditional check]') {
       Date date = new Date()
-      String timePart = date.format("HH")
-      if (6 < timePart.toInteger() && params.NUMBER_OF_WORKERS.toInteger() >= 5) {
+      String curHours = date.format("HH")
+
+      // RANCHER-1240: Allow to utilize up to 8 workers from 2024/03/01 18PM to 2024/03/03 18PM
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH")
+      Date intervalStart = sdf.parse("2024030118")
+      Date intervalEnd = sdf.parse("2024030318")
+      Integer intervalWorkersLimit = 8
+
+      if ((curHours.toInteger() > 6 && params.NUMBER_OF_WORKERS.toInteger() >= 5)
+          && !(date.after(intervalStart) && date.before(intervalEnd) && params.NUMBER_OF_WORKERS.toInteger() <= intervalWorkersLimit)) {
         println("Pipeline execution has been stopped, please start pipeline between 01:00-06:00 UTC or decrease number of workers to 4 and try again.")
-        println("Current time: " + timePart.toInteger())
+        println("Current time: " + curHours.toInteger())
         println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
