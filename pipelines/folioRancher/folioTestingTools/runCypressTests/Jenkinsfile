@@ -59,8 +59,8 @@ ansiColor('xterm') {
       buildDescription ""
     }
     stage('[Conditional check]') {
-      Date date = new Date()
-      String curHours = date.format("HH")
+      Date curDate = new Date()
+      String curHour = curDate.format("HH")
 
       // RANCHER-1240: Allow to utilize up to 8 workers from 2024/03/01 18PM to 2024/03/03 18PM
       SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH")
@@ -68,10 +68,10 @@ ansiColor('xterm') {
       Date intervalEnd = sdf.parse("2024030318")
       Integer intervalWorkersLimit = 8
 
-      if ((curHours.toInteger() > 6 && params.NUMBER_OF_WORKERS.toInteger() >= 5)
-          && !(date.after(intervalStart) && date.before(intervalEnd) && params.NUMBER_OF_WORKERS.toInteger() <= intervalWorkersLimit)) {
+      if ((curHour.toInteger() > 6 && params.NUMBER_OF_WORKERS.toInteger() >= 5)
+          && !(curDate.after(intervalStart) && curDate.before(intervalEnd) && params.NUMBER_OF_WORKERS.toInteger() <= intervalWorkersLimit)) {
         println("Pipeline execution has been stopped, please start pipeline between 01:00-06:00 UTC or decrease number of workers to 4 and try again.")
-        println("Current time: " + curHours.toInteger())
+        println("Current time: " + curHour.toInteger())
         println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
