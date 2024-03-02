@@ -59,15 +59,14 @@ ansiColor('xterm') {
     }
     stage('[Conditional check]') {
       Calendar cal = Calendar.getInstance()
-      Date curDate = new Date()
 
-      Integer curHour = curDate.format("HH").toInteger()
       Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+      Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
 
       boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
-        (dayOfWeek == Calendar.SUNDAY && curHour < 18) || (dayOfWeek == Calendar.FRIDAY && curHour >= 18)
+        (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) || (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
 
-      boolean isRestOfWeek6To24 = !isFri18ToSun18 && curHour >= 6
+      boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
 
       boolean isLimitReach = isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4
         || isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8
@@ -75,7 +74,7 @@ ansiColor('xterm') {
       if (isLimitReach) {
         println("Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
           "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again.")
-        println("Current time: " + curHour)
+        println("Current time: " + hourOfDay)
         println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
