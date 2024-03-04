@@ -1,6 +1,7 @@
 #!groovy
 import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
+import java.util.Calendar
 
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
@@ -57,11 +58,23 @@ ansiColor('xterm') {
       buildDescription ""
     }
     stage('[Conditional check]') {
-      Date date = new Date()
-      String timePart = date.format("HH")
-      if (6 < timePart.toInteger() && params.NUMBER_OF_WORKERS.toInteger() >= 5) {
-        println("Pipeline execution has been stopped, please start pipeline between 01:00-06:00 UTC or decrease number of workers to 4 and try again.")
-        println("Current time: " + timePart.toInteger())
+      Calendar cal = Calendar.getInstance()
+
+      Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+      Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
+
+      boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
+        (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) || (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
+
+      boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
+
+      boolean isLimitReach = (isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4)
+        || (isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8)
+
+      if (isLimitReach) {
+        println("Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
+          "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again.")
+        println("Current time: " + hourOfDay)
         println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
