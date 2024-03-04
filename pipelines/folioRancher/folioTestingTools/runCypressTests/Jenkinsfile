@@ -68,8 +68,8 @@ ansiColor('xterm') {
 
       boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
 
-      boolean isLimitReach = (isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4)
-        || (isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8)
+      boolean isLimitReach = (isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4) ||
+        (isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8)
 
       if (isLimitReach) {
         println("Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
