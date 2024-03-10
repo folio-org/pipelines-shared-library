@@ -49,7 +49,7 @@ class ReportPortalClient {
   }
 
   def launch() throws Error{
-    withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
+    pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch"
 
       tuneWorkspace(pipeline.apiKey)
