@@ -60,16 +60,19 @@ void call(params) {
   if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
       try {
-        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.WORKSPACE)
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, env.BUILD_NUMBER, env.WORKSPACE)
 
         def id = reportPortal.launch()
         println("${id}")
 
+        String portalExecParams = reportPortal.getExecParams()
+        println("Report portal execution parameters: ${portalExecParams}")
+
         parallelExecParameters = parallelExecParameters?.trim() ?
-          "${parallelExecParameters} ${reportPortal.getExecParams()}" : parallelExecParameters
+          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
 
         sequentialExecParameters = sequentialExecParameters?.trim() ?
-          "${sequentialExecParameters} ${reportPortal.getExecParams()}" : sequentialExecParameters
+          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
       } catch (Exception e) {
         println("Error: " + e.getMessage())
       }
