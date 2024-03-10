@@ -52,11 +52,11 @@ class ReportPortalClient {
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch"
 
-      tuneWorkspace(apiKey)
+      tuneWorkspace(pipeline.apiKey)
 
       Map headers = [
         "Content-type" : "application/json",
-        "Authorization": "Bearer ${apiKey}"
+        "Authorization": "Bearer ${pipeline.apiKey}"
       ]
 
       String body = JsonOutput.toJson([
