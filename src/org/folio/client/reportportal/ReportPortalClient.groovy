@@ -49,7 +49,7 @@ class ReportPortalClient {
   }
 
   def launch() throws Error{
-    pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
+    withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch"
 
       tuneWorkspace(pipeline.apiKey)
@@ -76,11 +76,11 @@ class ReportPortalClient {
   String getExecParams() throws Error{
     if(!launchID) return ""
 
-    withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
+    pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       if (testType.equals(ReportPortalTestType.KARATE)) {
         LinkedHashMap bind = [
           "api_url"     : ReportPortalConstants.API_URL,
-          "api_key"     : apiKey,
+          "api_key"     : pipeline.apiKey,
           "project_name": testType.projectName,
           "description" : "${testType.name()} scheduled tests",
           "launch_id"   : launchID
@@ -95,12 +95,12 @@ class ReportPortalClient {
   }
 
   def launchFinish() throws Error{
-    withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
+    pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch/${launchID}/finish"
 
       Map headers = [
         "Content-Type" : "application/json",
-        "Authorization": "Bearer ${apiKey}"
+        "Authorization": "Bearer ${pipeline.apiKey}"
       ]
       String body = JsonOutput.toJson([
         endTime: "${Instant.now()}"
