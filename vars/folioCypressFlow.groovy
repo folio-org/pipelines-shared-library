@@ -126,54 +126,54 @@ void call(params) {
     }
   }
 
-/*  stage('[Allure] Generate report') {
-    script {
-      for (path in resultPaths) {
-        unstash name: path
-        unzip zipFile: "${path}.zip", dir: path
-      }
-      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-      sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-    }
-  }*/
+//  stage('[Allure] Generate report') {
+//    script {
+//      for (path in resultPaths) {
+//        unstash name: path
+//        unzip zipFile: "${path}.zip", dir: path
+//      }
+//      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+//      sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+//    }
+//  }
 
-/*  stage('[Allure] Publish report') {
-    script {
-      allure([
-        includeProperties: false,
-        jdk              : '',
-        commandline      : Constants.CYPRESS_ALLURE_VERSION,
-        properties       : [],
-        reportBuildPolicy: 'ALWAYS',
-        results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
-      ])
-    }
-  }*/
+//  stage('[Allure] Publish report') {
+//    script {
+//      allure([
+//        includeProperties: false,
+//        jdk              : '',
+//        commandline      : Constants.CYPRESS_ALLURE_VERSION,
+//        properties       : [],
+//        reportBuildPolicy: 'ALWAYS',
+//        results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+//      ])
+//    }
+//  }
 
-/*  stage('[Allure] Send slack notifications') {
-    script {
-      def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-      def statusCounts = [failed: 0, passed: 0, broken: 0]
-      parseAllureReport.children.each { child ->
-        child.children.each { testCase ->
-          def status = testCase.status
-          if (statusCounts[status] != null) {
-            statusCounts[status] += 1
-          }
-        }
-      }
-      def passedTestsCount = statusCounts.passed
-      def failedTestsCount = statusCounts.failed
-      def brokenTestsCount = statusCounts.broken
-      def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-      def passRate = passRateInDecimal.intValue()
-      println "Total passed tests: ${passedTestsCount}"
-      println "Total failed tests: ${failedTestsCount}"
-      println "Total broken tests: ${brokenTestsCount}"
-      slackNotifications.sendCypressSlackNotification("Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
-    }
-  }*/
+//  stage('[Allure] Send slack notifications') {
+//    script {
+//      def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+//      def statusCounts = [failed: 0, passed: 0, broken: 0]
+//      parseAllureReport.children.each { child ->
+//        child.children.each { testCase ->
+//          def status = testCase.status
+//          if (statusCounts[status] != null) {
+//            statusCounts[status] += 1
+//          }
+//        }
+//      }
+//      def passedTestsCount = statusCounts.passed
+//      def failedTestsCount = statusCounts.failed
+//      def brokenTestsCount = statusCounts.broken
+//      def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
+//      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+//      def passRate = passRateInDecimal.intValue()
+//      println "Total passed tests: ${passedTestsCount}"
+//      println "Total failed tests: ${failedTestsCount}"
+//      println "Total broken tests: ${brokenTestsCount}"
+//      slackNotifications.sendCypressSlackNotification("Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+//    }
+//  }
 }
 
 /* Functions */
