@@ -36,18 +36,20 @@ class ReportPortalClient {
   }
 
   private ReportPortalTestType testType
+  private def pipeline
   private def buildNumber
   private def workspace
   def launchID = null
 
-  ReportPortalClient(TestType testType, def buildNumber, def workspace) throws Error{
+  ReportPortalClient(def pipeline, TestType testType, def buildNumber, def workspace) throws Error{
+    this.pipeline = pipeline
     this.testType = ReportPortalTestType.fromType(testType)
     this.buildNumber = buildNumber
     this.workspace = workspace
   }
 
   def launch() throws Error{
-    withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
+    pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch"
 
       tuneWorkspace(apiKey)
