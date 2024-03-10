@@ -1,5 +1,6 @@
 package org.folio.client.reportportal
 
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.shared.TestType
@@ -23,6 +24,7 @@ class ReportPortalClient {
       this.execParamTemplate = execParamTemplate
     }
 
+    @NonCPS
     static ReportPortalTestType fromType(TestType type) throws Error{
       for(ReportPortalTestType elem: values()){
         if(elem.baseType == type){
