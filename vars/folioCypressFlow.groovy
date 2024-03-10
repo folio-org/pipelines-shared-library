@@ -52,9 +52,9 @@ void call(params) {
   List resultPaths = []
 
   println("folioCypressFlow: before getting useReportPortal")
-  println("${params?.useReportPortal}")
-  boolean useReportPortal = params?.useReportPortal as boolean
-  useReportPortal = true
+//  println("${params?.useReportPortal}")
+//  boolean useReportPortal = params?.useReportPortal as boolean
+  boolean useReportPortal = true
   ReportPortalClient reportPortal = null
 
   buildName customBuildName
