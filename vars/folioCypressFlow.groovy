@@ -60,7 +60,7 @@ void call(params) {
   if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
       try {
-        reportPortal = new ReportPortalClient(TestType.CYPRESS, customBuildName, env.WORKSPACE)
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.WORKSPACE)
 
         def id = reportPortal.launch()
         println("${id}")
