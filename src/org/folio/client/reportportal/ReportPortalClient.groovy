@@ -74,7 +74,11 @@ class ReportPortalClient {
   }
 
   String getExecParams() throws Error{
-   if(launchID == null) return ""
+    pipeline.println("ReportPortalClient getExecParams(): launchID=${launchID}")
+    pipeline.println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
+    pipeline.println("ReportPortalClient getExecParams(): launchID == null=${launchID == null}")
+
+    if(launchID == null) return ""
 
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       if (testType.equals(ReportPortalTestType.KARATE)) {

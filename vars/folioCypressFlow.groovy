@@ -81,7 +81,6 @@ void call(params) {
 
         String portalExecParams = reportPortal.getExecParams()
         println("Report portal execution parameters: ${portalExecParams}")
-        println("Report portal execution parameters: ${reportPortal.launchID}")
 
         parallelExecParameters = parallelExecParameters?.trim() ?
           "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
