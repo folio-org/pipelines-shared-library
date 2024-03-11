@@ -74,8 +74,8 @@ class ReportPortalClient {
   }
 
   String getExecParams() throws Error{
-    println("ReportPortalClient getExecParams(): launchID=${launchID}")
-    println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
+    pipeline.println("ReportPortalClient getExecParams(): launchID=${launchID}")
+    pipeline.println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
 
     if(!launchID) return ""
 
