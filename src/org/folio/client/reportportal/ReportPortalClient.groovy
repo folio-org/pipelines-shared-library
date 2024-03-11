@@ -74,27 +74,21 @@ class ReportPortalClient {
   }
 
   String getExecParams() throws Error{
-    pipeline.println("ReportPortalClient getExecParams(): launchID=${launchID}")
-    pipeline.println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
-    pipeline.println("ReportPortalClient getExecParams(): launchID == null=${launchID == null}")
-
     if(launchID == null) return ""
 
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
-      if (testType.equals(ReportPortalTestType.KARATE)) {
-        LinkedHashMap bind = [
-          "api_url"     : ReportPortalConstants.API_URL,
-          "api_key"     : pipeline.apiKey,
-          "project_name": testType.projectName,
-          "description" : "${testType.name()} scheduled tests",
-          "launch_id"   : launchID
-        ]
+      LinkedHashMap bind = [
+        "api_url"     : ReportPortalConstants.API_URL,
+        "api_key"     : pipeline.apiKey,
+        "project_name": testType.projectName,
+        "description" : "${testType.name()} scheduled tests",
+        "launch_id"   : launchID
+      ]
 
-        return (new StreamingTemplateEngine()
-                    .createTemplate(testType.execParamTemplate)
-                    .make(bind)
-               ).toString()
-      }
+      return (new StreamingTemplateEngine()
+                  .createTemplate(testType.execParamTemplate)
+                  .make(bind)
+             ).toString()
     }
   }
 
