@@ -74,6 +74,9 @@ class ReportPortalClient {
   }
 
   String getExecParams() throws Error{
+    println("ReportPortalClient getExecParams(): launchID=${launchID}")
+    println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
+
     if(!launchID) return ""
 
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
