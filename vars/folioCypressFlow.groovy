@@ -64,7 +64,9 @@ void call(params) {
 
   println("folioCypressFlow: params.useReportPortal.trim().toLowerCase().toBoolean()=${params.useReportPortal.trim().toLowerCase().toBoolean()}")
   println("folioCypressFlow: params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()=${params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()}")
-//  useReportPortal = true
+
+  useReportPortal = true
+
   ReportPortalClient reportPortal = null
 
   buildName customBuildName
@@ -79,6 +81,7 @@ void call(params) {
 
         String portalExecParams = reportPortal.getExecParams()
         println("Report portal execution parameters: ${portalExecParams}")
+        println("Report portal execution parameters: ${reportPortal.launchID}")
 
         parallelExecParameters = parallelExecParameters?.trim() ?
           "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
