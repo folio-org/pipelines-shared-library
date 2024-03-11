@@ -39,7 +39,7 @@ class ReportPortalClient {
   private def pipeline
   private def buildNumber
   private def workspace
-  def launchID = null
+  private def launchID = null
 
   ReportPortalClient(def pipeline, TestType testType, def buildNumber, def workspace) throws Error{
     this.pipeline = pipeline
@@ -74,10 +74,7 @@ class ReportPortalClient {
   }
 
   String getExecParams() throws Error{
-    pipeline.println("ReportPortalClient getExecParams(): launchID=${launchID}")
-    pipeline.println("ReportPortalClient getExecParams(): !launchID=${!launchID}")
-
-    if(!launchID) return ""
+   if(launchID == null) return ""
 
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       if (testType.equals(ReportPortalTestType.KARATE)) {
@@ -109,6 +106,9 @@ class ReportPortalClient {
         endTime: "${Instant.now()}"
       ])
       def res_end = new RestClient(this).put(url, body, headers)
+
+      launchID = null
+
       return res_end
     }
   }
