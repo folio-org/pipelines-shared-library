@@ -52,7 +52,7 @@ void call(params) {
   List resultPaths = []
 
 
-  boolean useReportPortal = params?.useReportPortal as boolean
+  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
   println("folioCypressFlow: useReportPortal=${useReportPortal}")
   println("folioCypressFlow: params.useReportPortal=${params.useReportPortal}")
   println("folioCypressFlow: params?.useReportPortal=${params?.useReportPortal}")
