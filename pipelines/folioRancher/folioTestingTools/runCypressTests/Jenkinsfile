@@ -35,6 +35,7 @@ if (params.REFRESH_PARAMETERS) {
 
 
 Map cypressFlowParameters = [
+  useReportPortal         : false,
   customBuildName         : params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME,
   branch                  : params.CYPRESS_BRANCH,
   tenantUrl               : params.TENANT_URL,
@@ -48,8 +49,7 @@ Map cypressFlowParameters = [
   testrailProjectID       : params.TESTRAIL_PROJECTID,
   testrailRunID           : params.TESTRAIL_RUN_ID,
   numberOfWorkers         : params.NUMBER_OF_WORKERS,
-  agent                   : params.AGENT,
-  useReportPortal         : "false"
+  agent                   : params.AGENT
 ]
 
 ansiColor('xterm') {
