@@ -46,30 +46,18 @@ void call(params) {
   String testrailProjectID = params.testrailProjectID
   String testrailRunID = params.testrailRunID
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
+  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
+
   String agent = params.agent
   String browserName = "chrome"
   String cypressImageVersion = ''
   List resultPaths = []
 
-
-  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
-  println("folioCypressFlow: useReportPortal=${useReportPortal}")
-  println("folioCypressFlow: params.useReportPortal=${params.useReportPortal}")
-  println("folioCypressFlow: params?.useReportPortal=${params?.useReportPortal}")
-  println("folioCypressFlow: params?.useReportPortal as boolean=${params?.useReportPortal as boolean}")
-  println("folioCypressFlow: (boolean) params?.useReportPortal=${(boolean)(params?.useReportPortal)}")
-
-  println("folioCypressFlow: (boolean) params.useReportPortal=${(boolean)(params.useReportPortal)}")
-  println("folioCypressFlow: params.useReportPortal as boolean=${params.useReportPortal as boolean}")
-
-  println("folioCypressFlow: params.useReportPortal.trim().toLowerCase().toBoolean()=${params.useReportPortal.trim().toLowerCase().toBoolean()}")
-  println("folioCypressFlow: params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()=${params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()}")
-
-  useReportPortal = true
-
   ReportPortalClient reportPortal = null
 
   buildName customBuildName
+
+  useReportPortal = true
 
   if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
