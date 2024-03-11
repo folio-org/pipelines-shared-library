@@ -55,6 +55,9 @@ void call(params) {
   boolean useReportPortal = params?.useReportPortal as boolean
   println("folioCypressFlow: useReportPortal=${useReportPortal}")
   println("folioCypressFlow: params.useReportPortal=${params.useReportPortal}")
+  println("folioCypressFlow: params?.useReportPortal=${params?.useReportPortal}")
+  println("folioCypressFlow: params?.useReportPortal as boolean=${params?.useReportPortal as boolean}")
+  println("folioCypressFlow: (boolean) params?.useReportPortal=${(boolean)(params?.useReportPortal)}")
 //  useReportPortal = true
   ReportPortalClient reportPortal = null
 
