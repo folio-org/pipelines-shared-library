@@ -37,13 +37,15 @@ class ReportPortalClient {
 
   private ReportPortalTestType testType
   private def pipeline
+  private def buildName
   private def buildNumber
   private def workspace
   private def launchID = null
 
-  ReportPortalClient(def pipeline, TestType testType, def buildNumber, def workspace) throws Error{
+  ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace) throws Error{
     this.pipeline = pipeline
     this.testType = ReportPortalTestType.fromType(testType)
+    this.buildName = buildName
     this.buildNumber = buildNumber
     this.workspace = workspace
   }
@@ -60,7 +62,7 @@ class ReportPortalClient {
       ]
 
       String body = JsonOutput.toJson([
-        name       : "Test (Jenkins) build number: ${buildNumber}",
+        name       : buildName,
         description: "${testType.name()} scheduled tests",
         startTime  : "${Instant.now()}",
         mode       : "DEFAULT",
@@ -83,7 +85,7 @@ class ReportPortalClient {
         "project_name": testType.projectName,
         "description" : "${testType.name()} scheduled tests",
         "launch_id"   : launchID,
-        "launch_name" : "Test (Jenkins) build number: ${buildNumber}",
+        "launch_name" : buildName,
         "attributes"  : [key: "build", value: "${buildNumber}"]
       ]
 
