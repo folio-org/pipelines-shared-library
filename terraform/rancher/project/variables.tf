@@ -56,6 +56,12 @@ variable "github_team_ids" {
   description = "List of github team IDs for project access"
 }
 
+variable "github_org_id" {
+  type        = string
+  default     = "16495055"
+  description = "Global GitHub folio-org team id"
+}
+
 # PostgreSQL variables
 variable "enable_rw_split" {
   type        = bool

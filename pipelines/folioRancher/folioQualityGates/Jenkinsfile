@@ -8,10 +8,10 @@ import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO Switch branch before final merge
 //@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-@Library('pipelines-shared-library@RANCHER-1247') _
+@Library('pipelines-shared-library@RANCHER-1258') _
 
 properties([
-//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
@@ -32,9 +32,9 @@ boolean diffFound = false
 boolean autoCanceled = false
 
 //TODO switch to regular job before merge
-String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-1247'
+String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-1258'
 //TODO switch to regular job before merge
-String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-1247'
+String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-1258'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map namespacesMap = [
@@ -139,7 +139,7 @@ ansiColor('xterm') {
       logger.error "Caught exception: ${e}"
       error(e.getMessage())
     } finally {
-      input 'Paused'
+//      input 'Paused'
       if (!autoCanceled) {
         destroyParallelStage(deleteNamespaceJob, namespacesMap, namespaceBaseParams)
       }

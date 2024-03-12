@@ -1,5 +1,6 @@
 # Creating local variables that are used in the rest of the terraform file.
 locals {
+  testing_cluster       = "folio-testing"
   opensearch_value      = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch[0].value)), "")
   msk_value             = try(nonsensitive(jsondecode(data.aws_ssm_parameter.msk[0].value)), "")
   env_name              = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
