@@ -25,7 +25,7 @@ void call(params) {
 
   /* Define variables */
   String customBuildName = params.customBuildName?.trim() ?
-    "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : env.BUILD_ID
+    "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
   String branch = params.branch
   String tenantUrl = params.tenantUrl
   String okapiUrl = params.okapiUrl

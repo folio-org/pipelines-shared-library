@@ -84,7 +84,7 @@ class Constants {
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
-  static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'
+  static String GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token'
   static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
   static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
   static String JIRA_CREDENTIALS_ID = 'jenkins-jira'
@@ -200,6 +200,10 @@ class Constants {
   static String CYPRESS_SC_KEY = 'secretCypressKey'
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
+
+  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'

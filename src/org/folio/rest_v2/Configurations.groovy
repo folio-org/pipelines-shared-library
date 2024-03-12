@@ -117,8 +117,8 @@ class Configurations extends Authorization {
                        email_password : tenant.okapiConfig.smtp.password,
                        email_from     : tenant.okapiConfig.smtp.from]
         Constants.CONFIGURATIONS.smtpConfig.each {
-            tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
-            def content = steps.readFile it
+
+            def content = steps.readFile file: tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
             try {
                 restClient.post(url, body, headers)
@@ -147,8 +147,7 @@ class Configurations extends Authorization {
 
         Map binding = [stripes_url: tenant.okapiConfig.resetPasswordLink]
         Constants.CONFIGURATIONS.resetPassword.each {
-            tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
-            def content = steps.readFile it
+            def content = steps.readFile file: tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
             try {
                 restClient.post(url, body, headers)

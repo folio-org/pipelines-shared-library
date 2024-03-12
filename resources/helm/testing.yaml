@@ -946,7 +946,7 @@ mod-inventory:
     limits:
       memory: 2560Mi
     requests:
-      memory: 683Mi
+      memory: 1024Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1015,7 +1015,7 @@ mod-kb-ebsco-java:
     limits:
       memory: 512Mi
     requests:
-      memory: 512Mi
+      memory: 256Mi
 mod-ldp:
   extraEnvVars: []
   integrations:
