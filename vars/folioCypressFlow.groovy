@@ -57,8 +57,6 @@ void call(params) {
 
   buildName customBuildName
 
-  useReportPortal = true
-
   if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
       try {
