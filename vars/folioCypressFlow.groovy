@@ -132,7 +132,7 @@ void call(params) {
     }
   }
 
-/*  stage('[Allure] Generate report') {
+  stage('[Allure] Generate report') {
     script {
       for (path in resultPaths) {
         unstash name: path
@@ -141,9 +141,9 @@ void call(params) {
       def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
       sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
     }
-  }*/
+  }
 
-/*  stage('[Allure] Publish report') {
+  stage('[Allure] Publish report') {
     script {
       allure([
         includeProperties: false,
@@ -154,9 +154,9 @@ void call(params) {
         results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
       ])
     }
-  }*/
+  }
 
-/*  stage('[Allure] Send slack notifications') {
+  stage('[Allure] Send slack notifications') {
     script {
       def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
       def statusCounts = [failed: 0, passed: 0, broken: 0]
@@ -179,7 +179,7 @@ void call(params) {
       println "Total broken tests: ${brokenTestsCount}"
       slackNotifications.sendCypressSlackNotification("Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
     }
-  }*/
+  }
 }
 
 /* Functions */
