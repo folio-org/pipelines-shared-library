@@ -206,11 +206,13 @@ def scaleDownResources(String namespace, String resource_type) {
     }
 }
 
-def checkNamespaceExistence(String namespace){
+boolean checkNamespaceExistence(String namespace){
   try {
-    return sh (script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.name}'", returnStdout: true)
+    String result = sh (script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.name}'", returnStdout: true)
+    return result == namespace
   }
   catch (Exception e) {
     println( e.getMessage() )
+    return false
   }
 }

@@ -1,62 +1,47 @@
 import org.folio.Constants
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
+import org.folio.utilities.RequestException
+import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
 
 // Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
-def commitHashChangeDetected(branch) {
-
+boolean commitHashChangeDetected(branch) {
   def awsParameterName = 'Hash-Commit'
-  def awsRegion = 'us-west-2'
-  def latestCommitHash = getLatestCommitHash(branch)
-  def previousSavedHash = getPreviousSavedHashFromSSM(awsRegion,awsParameterName)
-  echo "latestCommitHash ${latestCommitHash}"
-  echo "previousSavedHash ${previousSavedHash}"
+  def currentCommitHash = getLatestCommitHash(branch)
+  def previousSavedHash = getPreviousSavedHashFromSSM(Constants.AWS_REGION, awsParameterName)
+  println("Current commit hash: ${currentCommitHash}")
+  println("Previous commit hash: ${previousSavedHash}")
 
-  if (latestCommitHash == previousSavedHash) {
-    echo "No changes detected. DIFF_DETECTED :false."
+  if (currentCommitHash == previousSavedHash) {
+    println("Changes not found.")
     return false
   } else {
-    echo "Changes detected. DIFF_DETECTED Returning true and updating ssm with new hash: ${latestCommitHash}."
-    awscli.updateSsmParameter(awsRegion,awsParameterName,latestCommitHash)
+    println("Changes detected. Updating ssm with new hash: ${currentCommitHash}.")
+    awscli.updateSsmParameter(Constants.AWS_REGION, awsParameterName, currentCommitHash)
     return true
   }
 }
 
 // Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
 String getLatestCommitHash(String branch) {
-  String url = "https://api.github.com/repos/folio-org/platform-complete/branches/${branch}"
+  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/platform-complete/branches/${branch}"
   try {
-    def response = new HttpClient(this).getRequest(url)
-
-    if (response.status == HttpURLConnection.HTTP_OK) {
-      def parsedResponse = new Tools(this).jsonParse(response.content)
-      if (parsedResponse && parsedResponse.commit && parsedResponse.commit.sha) {
-        return parsedResponse.commit.sha
-      } else {
-        error "Failed to parse GitHub response or retrieve commit SHA."
-        return null
-      }
-    } else {
-      error "GitHub API request failed with status code ${response.status}: ${response.body}"
-      return null
+    def response = new RestClient(this).get(url).body
+    if(response?.commit){
+      return response.commit.sha
     }
-  } catch (Exception e) {
-    error "An error occurred while fetching GitHub data: ${e.message}"
-    return null
+  }catch (RequestException e) {
+    error "An error occurred while fetching GitHub data: ${e.getMessage()}"
   }
 }
 
-// Function to get the previous platforme-complete $branch commit saved hash from AWS SSM
-
+// Function to get the previous platform-complete $branch commit saved hash from AWS SSM
 String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
   try {
-    def parameterValue = awscli.getSsmParameterValue(awsRegion, awsParameterName)
-    echo "Value of Previous Saved Hash-Commit: ${parameterValue}"
-    return parameterValue
+    return awscli.getSsmParameterValue(awsRegion, awsParameterName)
   } catch (Exception e) {
-    error "Error fetching parameter value from AWS SSM: ${e.message}"
-    return null
+    error "Error fetching '${awsParameterName}' parameter value from AWS SSM: ${e.message}"
   }
 }

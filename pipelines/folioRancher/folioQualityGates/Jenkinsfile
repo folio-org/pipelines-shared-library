@@ -1,82 +1,168 @@
 #!groovy
+
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.Constants
-import org.folio.utilities.Tools
+import org.folio.utilities.Logger
+import org.folio.rest_v2.Constants
+import org.folio.models.parameters.CreateNamespaceParameters
 
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1002') _
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+properties([
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '40')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
 
-pipeline {
-    agent { label 'rancher' }
-
-    // SCM polling
-    /*triggers {
-               pollSCM('* * * * *') // Poll SCM
-           }*/
-
-    options {
-        disableConcurrentBuilds()
-    }
-    parameters {
-        booleanParam(defaultValue: false, description: 'Skip Commit Changes', name: 'SKIP_CHECK')
-        string(name: 'BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job')
-    }
-    stages {
-        stage('Init') {
-            steps {
-                script {
-                    currentBuild.result = 'SUCCESS'
-                    echo "SOMETHING IMPLEMENT LOGIC IF NEED"
-                }
-            }
-        }
-
-stage('Check Changes') {
-    steps {
-        script {
-           if (params.SKIP_CHECK) {
-                echo "Skipping changes for the SNAPSHOT BRANCH and moving to Parallel Run."
-            } else {
-                awscli.withAwsClient{
-                env.DIFF_DETECTED = folioHashCommitCheck.commitHashChangeDetected(params.BRANCH).toString() // true or false
-                echo "DIFF_DETECTED: ${DIFF_DETECTED}"
-                }
-            }
-        }
-    }
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
 }
-        stage('Parallel Quality Gate Stages') {
-            when {
-                expression {
-                    params.SKIP_CHECK || env.DIFF_DETECTED == 'true'
-                    }
-             }
-            parallel {
-                stage('Run karate tests') {
-                    steps {
-                        echo "Run karate tests"
-                        // Add code for 'Run karate tests' stage here
-                    }
-                }
-                stage('Run cypress tests') {
-                    steps {
-                        echo "Run cypress tests"
-                        // Add code for 'Run cypress tests' stage here
-                    }
-                }
-                stage('Run schema comparison') {
-                    steps {
-                        echo "Schema comparison tests"
-                        // Add code for 'Run schema comparison' stage here
-                    }
-                }
-            }
-        }
 
-        stage('Cleanup') {
-            steps {
-                cleanWs notFailBuild: true
+boolean diffFound = false
+boolean autoCanceled = false
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+String clusterName = 'folio-tmp' //TODO Switch to folio-testing cluster before final merge
+
+//Map namespacesMap = [
+//  karate: "cikarate",
+//  cypress: "cicypress",
+//  schema: "cischema"
+//] //TODO Uncomment before final merge
+Map namespacesMap = [
+  cypress: 'test',
+]
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(true)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('built-in')
+  .s3Type('built-in')
+  .members('')
+  .build()
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName env.BUILD_ID
+        buildDescription "Quality Gates:\nKarate\nCypress\nSchema compare"
+        checkout scm
+      }
+
+      stage('Check Changes') {
+        if (params.SKIP_CHECK) {
+          logger.info("Skip check of changes since last build.")
+        } else {
+          awscli.withAwsClient {
+            diffFound = folioHashCommitCheck.commitHashChangeDetected(params.FOLIO_BRANCH)
+            if (diffFound) {
+              logger.info('Incoming changes found. Proceed with build stages.')
+            } else {
+              buildDescription 'Skipped'
+              currentBuild.result = 'ABORTED'
+              autoCanceled = true
+              logger.warning('Incoming changes not found. Skip build...')
             }
+          }
         }
+      }
+
+      if (autoCanceled) {
+        return
+      }
+
+      destroyParallelStage(clusterName, namespacesMap, namespaceBaseParams)
+
+      stage('Provisioning') {
+        CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+          .folioBranch(params.FOLIO_BRANCH)
+          .okapiVersion(okapiVersion)
+          .configType('testing')
+          .loadReference(true)
+          .loadSample(true)
+          .consortia(true)
+          .rtr(false)
+          .build()
+
+        Map branches = [failFast: false]
+        namespacesMap.each { id, namespace ->
+          branches["${clusterName}-${namespace}"] = { ->
+            CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+              .clusterName(clusterName)
+              .namespaceName(namespace)
+              .build()
+            logger.debug(namespaceCreateParams.dump())
+            folioNamespaceCreate(namespaceCreateParams)
+          }
+        }
+        parallel(branches)
+      }
+
+      stage('Execute quality gates') {
+        Map branches = [failFast: false]
+        branches['Cypress'] = { ->
+          Map cypressParams = [
+            branch                : 'master',
+            tenantUrl             : "https://${clusterName}-${namespacesMap['cypress']}-diku.${Constants.CI_ROOT_DOMAIN}",
+            okapiUrl              : "https://${clusterName}-${namespacesMap['cypress']}-okapi.${Constants.CI_ROOT_DOMAIN}",
+            tenantId              : 'diku',
+            adminUsername         : 'diku_admin',
+            adminPassword         : 'admin',
+            parallelExecParameters: '--env grepTags="system --nonParallel"',
+            testsTimeout          : '2',
+            testrailProjectID     : '', //TODO Add testrail Project ID
+            testrailRunID         : '', //TODO Add testrail Run ID
+            numberOfWorkers       : '4',
+            agent                 : 'rancher'
+          ]
+          folioCypressFlow(cypressParams)
+        }
+        parallel(branches)
+      }
+    } catch (e) {
+      logger.error "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      if (!autoCanceled) {
+        destroyParallelStage(clusterName, namespacesMap, namespaceBaseParams)
+      }
+
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
     }
+  }
+}
+
+void destroyParallelStage(String clusterName, Map namespacesMap, CreateNamespaceParameters namespaceBaseParams) {
+  stage('Destroy') {
+    Map branches = [failFast: false]
+    namespacesMap.each { id, namespace ->
+      branches["${clusterName}-${namespace}"] = { ->
+        CreateNamespaceParameters namespaceDeleteParams = namespaceBaseParams.toBuilder()
+          .clusterName(clusterName)
+          .namespaceName(namespace)
+          .build()
+        boolean nsExists
+        folioHelm.withKubeConfig(clusterName) {
+          nsExists = kubectl.checkNamespaceExistence(namespace)
+        }
+        if (nsExists) {
+          folioNamespaceDelete(namespaceDeleteParams)
+        }
+      }
+    }
+    parallel(branches)
+  }
 }
