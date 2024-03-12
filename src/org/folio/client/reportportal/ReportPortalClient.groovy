@@ -84,7 +84,7 @@ class ReportPortalClient {
         "description" : "${testType.name()} scheduled tests",
         "launch_id"   : launchID,
         "launch_name" : "Test (Jenkins) build number: ${buildNumber}",
-        "attributes"  : [[key: "build", value: "${buildNumber}"]]
+        "attributes"  : [key: "build", value: "${buildNumber}"]
       ]
 
       return (new StreamingTemplateEngine()
