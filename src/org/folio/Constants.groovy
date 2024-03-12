@@ -10,7 +10,7 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz'
+  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest']
@@ -54,8 +54,8 @@ class Constants {
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
-  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-testing': AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-dev'    : AWS_EKS_DEV_NAMESPACES,
+  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'    : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                           'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
                                           'folio-tmp'    : AWS_EKS_TMP_NAMESPACES]
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
@@ -116,8 +116,10 @@ class Constants {
   static String FOLIO_NPM_REPO_URL = 'https://repository.folio.org/repository/npm-folioci/'
 
   static String NEXUS_BASE_URL = 'https://repository.folio.org/repository'
-  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2/'
   static String FOLIO_HELM_V2_REPO_NAME = "folio-helm-v2"
+  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2/'
+  static String FOLIO_HELM_V2_TEST_REPO_NAME = "folio-helm-v2-test"
+  static String FOLIO_HELM_V2_TEST_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2-test/'
 
   // Docker
   static String DOCKERHUB_URL = 'https://hub.docker.com/v2'
@@ -254,4 +256,7 @@ class Constants {
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 
   static Pattern NAME_VERSION_REGEXP = ~/^([a-z_\-]+)-([\d.]+(?:-SNAPSHOT(?:\.\w+)?|))$/
+
+  static List SYSTEM_USER_MODULES = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
+                                     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub"]
 }

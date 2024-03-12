@@ -3,11 +3,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.62"
+      version = "~>4.62"
     }
     rancher2 = {
       source  = "rancher/rancher2"
-      version = "~>1.25.0"
+      version = "3.2.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -15,7 +15,7 @@ terraform {
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = "~>1.14.0"
+      version = "1.14.0"
     }
   }
 }

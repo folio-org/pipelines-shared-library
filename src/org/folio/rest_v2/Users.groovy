@@ -38,6 +38,8 @@ class Users extends Authorization {
                 Map userObject = response.users.find { it.username == user.username }
                 user.setUuid(userObject.id)
                 return userObject
+            }else {
+              logger.warning("User ${user.getUsername()} not found!")
             }
         }
         catch (RequestException e) {

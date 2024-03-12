@@ -18,7 +18,7 @@ OkapiUser adminOkapiUser(String username, def password) {
         .withType("staff")
 }
 
-Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson, InstallRequestParams installQueryParameters = new InstallRequestParams()) {
+Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson = [], InstallRequestParams installQueryParameters = new InstallRequestParams()) {
     SmtpConfig smtp = null
     String kbApiKey = ''
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',

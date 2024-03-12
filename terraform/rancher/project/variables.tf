@@ -50,17 +50,6 @@ variable "tenant_id" {
   description = "Default tenant id"
 }
 
-variable "pgadmin_username" {
-  type        = string
-  default     = "user@folio.org"
-  description = "Postgres DB name"
-}
-
-variable "pgadmin_password" {
-  type        = string
-  description = "Postgres DB name"
-}
-
 variable "github_team_ids" {
   type        = list(string)
   default     = []
@@ -84,6 +73,21 @@ variable "pg_embedded" {
   type        = bool
   default     = true
   description = "Embedded PostgreSQL if true and AWS RDS Aurora if false"
+}
+variable "pgadmin_username" {
+  type        = string
+  default     = "user@folio.org"
+  description = "Postgres DB name"
+}
+
+variable "pgadmin_password" {
+  type        = string
+  description = "Postgres DB name"
+}
+
+variable "pg_max_conn" {
+  type    = number
+  default = 4000
 }
 
 variable "pg_version" {
@@ -147,6 +151,11 @@ variable "kafka_number_of_broker_nodes" {
 variable "kafka_ebs_volume_size" {
   type    = number
   default = 10
+}
+
+variable "kafka_max_mem_size" {
+  type    = number
+  default = 4096
 }
 
 # Elasticsearch variables

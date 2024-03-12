@@ -3,6 +3,7 @@
  */
 
 #!groovy
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -23,6 +24,8 @@ if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
     return
 }
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 ansiColor('xterm') {
     node(params.AGENT) {
