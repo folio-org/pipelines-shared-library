@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
@@ -166,9 +167,9 @@ void call(CreateNamespaceParameters args) {
     stage('Deploy ldp') {
       println('LDP deployment')
     }
-  }catch (Exception e){
+  } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
-    error("Namepsace creation failed: ${e.getMessage()}")
+    throw new Exception(e)
   }
 }

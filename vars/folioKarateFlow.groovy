@@ -15,7 +15,7 @@ void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   KarateTestsExecutionSummary karateTestsExecutionSummary
 
-  dir('karate') {
+  dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {
       checkout poll: false,
         scm: [$class           : 'GitSCM',
@@ -74,7 +74,6 @@ void call(KarateTestsParameters args) {
 
     stage('[Report] Analyze results'){
       karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-      println(${prettyPrint(toJson(karateTestsExecutionSummary))})
       karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
     }
 
@@ -93,6 +92,8 @@ void call(KarateTestsParameters args) {
 
     if (args.syncWithJira) {
       stage('[Jira] Sync issues') {
+        println(prettyPrint(toJson(karateTestsExecutionSummary)))
+        println(prettyPrint(toJson(args.teamAssignment)))
         karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
       }
     }
