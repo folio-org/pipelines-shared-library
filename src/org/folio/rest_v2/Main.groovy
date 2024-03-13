@@ -28,7 +28,6 @@ class Main extends Okapi {
             logger.warning("Simulation not requested!")
             return
         }
-        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
         tenantInstall(tenant, installJson)
         tenant.installRequestParams.simulate = false
     }
@@ -73,7 +72,7 @@ class Main extends Okapi {
             configureTenant(tenant)
         }
     }
-  
+
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
     }

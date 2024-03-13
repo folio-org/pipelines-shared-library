@@ -1,1 +1,154 @@
-//TBD
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-836-v2') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    string(name: 'DEFAULT_TENANT_ID', defaultValue: 'diku', description: '(Required) Default tenant id'),
+    folioParameters.moduleName(),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    folioParameters.configType(),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.loadReference(false),
+    folioParameters.loadSample(false),
+    folioParameters.simulate(),
+    folioParameters.ignoreErrors(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+String moduleName = params.MODULE_NAME
+String moduleBranch = params.MODULE_BRANCH
+String moduleHash = folioHashCommitCheck.getLatestCommitHash(moduleName, moduleBranch).take(7)
+String moduleVersion = ''
+String moduleTag = ''
+String moduleDescriptor = ''
+String moduleMavenArguments = params.MAVEN_ARGS
+List installJson = []
+
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+  .withSimulate(params.SIMULATE)
+  .withIgnoreErrors(params.IGNORE_ERRORS)
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withDefaultTenant(params.DEFAULT_TENANT_ID) //Think about remove this parameter
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      }
+
+      stage('[Git] Checkout module source') {
+        checkout([$class           : 'GitSCM',
+                  branches         : [[name: "*/${moduleBranch}"]],
+                  extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
+                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                      [$class: 'AuthorInChangelog']],
+                  userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]])
+        input('Pause')
+      }
+
+      stage('[Maven] Compile') {
+        dir(moduleName) {
+          moduleVersion = readMavenPom().getVersion()
+          moduleTag = "${moduleVersion}.${moduleHash}"
+
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
+            maven: Constants.MAVEN_TOOL_NAME,
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]) {
+            sh """
+              mvn versions:set -DnewVersion=${moduleTag}
+              mvn package ${moduleMavenArguments}
+            """
+          }
+
+          String descriptorPath = "target/ModuleDescriptor.json"
+          if (fileExists(descriptorPath)) {
+            moduleDescriptor = [readJSON(file: descriptorPath)]
+          }
+        }
+      }
+
+      stage('[Docker] Build and push') {
+        common.checkEcrRepoExistence(moduleName)
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(moduleName == 'okapi' ? 'okapi/okapi-core' : moduleName) {
+            def image = docker.build("${moduleName}:${moduleTag}", '--no-cache=true --pull=true .')
+            image.push()
+          }
+        }
+      }
+
+      stage('Update') {
+        if (moduleName == 'okapi') {
+          namespace.setOkapiVersion(moduleVersion)
+        } else {
+          installJson = [["id"    : "${moduleName}-${moduleTag}",
+                          "action": "enable"]]
+        }
+
+        Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
+
+        main.getTenantsList().each { tenantId ->
+          if (tenantId == 'supertenant') {
+            if (moduleName ==~ /mod-(permissions|users|login|authtoken)/) {
+              namespace.getSuperTenant().withInstallJson(installJson)
+            }
+          } else {
+            namespace.addTenant(new OkapiTenant(tenantId)
+              .withInstallJson(installJson)
+              .withInstallRequestParams(installRequestParams.clone()))
+            //TODO change to retrieve admin user information from secrets
+            def folioTenants = folioDefault.tenants()
+            if (folioTenants.containsKey(tenantId)) {
+              namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+            }
+          }
+        }
+        
+        namespace.getModules().setInstallJson(installJson)
+        logger.debug(JsonOutput.prettyPrint(JsonOutput.toJson(namespace)))
+
+        main.publishModulesDescriptors(moduleDescriptor)
+        folioDeployFlow.update(namespace)
+      }
+    } catch (e) {
+      logger.error("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

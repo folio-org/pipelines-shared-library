@@ -153,10 +153,16 @@ void update(RancherNamespace namespace, boolean debug = false) {
     println('Skipping Okapi deploy stage: No okapi module to update.')
   }
 
+  println(namespace.getModules().getInstallJson())
+  println('I am here')
   if (namespace.getModules().getInstallJson()) {
-    stage('[Rest] refresh service discovery') {
+    stage('[Rest] Refresh service discovery') {
       main.refreshServicesDiscovery()
     }
+    stage('[Rest] Publish module descriptors'){
+      main.publishModulesDescriptors(main.getUnregisteredModuleDescriptors(namespace.getModules().getInstallJson()))
+    }
+
     stage('[Rest] Simulate installation') {
       namespace.getTenants().each { tenantId, tenant ->
         main.simulateInstall(tenant, tenant.getModules().getInstallJson())

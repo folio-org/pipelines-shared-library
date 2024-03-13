@@ -9,7 +9,7 @@ import org.folio.utilities.Tools
 // Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
 boolean commitHashChangeDetected(branch) {
   def awsParameterName = 'Hash-Commit'
-  def currentCommitHash = getLatestCommitHash(branch)
+  def currentCommitHash = getLatestCommitHash('platform-complete', branch)
   def previousSavedHash = getPreviousSavedHashFromSSM(Constants.AWS_REGION, awsParameterName)
   println("Current commit hash: ${currentCommitHash}")
   println("Previous commit hash: ${previousSavedHash}")
@@ -25,8 +25,8 @@ boolean commitHashChangeDetected(branch) {
 }
 
 // Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
-String getLatestCommitHash(String branch) {
-  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/platform-complete/branches/${branch}"
+String getLatestCommitHash(String repository, String branch) {
+  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches/${branch}"
   try {
     def response = new RestClient(this).get(url).body
     if(response?.commit){
