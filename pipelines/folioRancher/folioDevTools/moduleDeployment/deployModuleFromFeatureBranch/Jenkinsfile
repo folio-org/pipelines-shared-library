@@ -73,7 +73,6 @@ ansiColor('xterm') {
                                       [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                       [$class: 'AuthorInChangelog']],
                   userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]])
-        input('Pause')
       }
 
       stage('[Maven] Compile') {
@@ -147,6 +146,7 @@ ansiColor('xterm') {
     } finally {
       stage('Cleanup') {
         logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
+        input('Pause')
         cleanWs notFailBuild: true
       }
     }
