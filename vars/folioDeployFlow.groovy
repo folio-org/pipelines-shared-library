@@ -153,8 +153,6 @@ void update(RancherNamespace namespace, boolean debug = false) {
     println('Skipping Okapi deploy stage: No okapi module to update.')
   }
 
-  println(namespace.getModules().getInstallJson())
-  println('I am here')
   if (namespace.getModules().getInstallJson()) {
     stage('[Rest] Refresh service discovery') {
       main.refreshServicesDiscovery()
@@ -176,10 +174,12 @@ void update(RancherNamespace namespace, boolean debug = false) {
     if (namespace.getModules().getBackendModules()) {
       backend(namespace,
         {
-          stage('[Rest] Unlock supertenant') {
-            namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
-            if (namespace.getSuperTenantLocked()) {
-              main.unlockSuperTenant(namespace.getSuperTenant())
+          if(namespace.getSuperTenant().getModules().getInstallJson()){
+            stage('[Rest] Unlock supertenant') {
+              namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
+              if (namespace.getSuperTenantLocked()) {
+                main.unlockSuperTenant(namespace.getSuperTenant())
+              }
             }
           }
         },
