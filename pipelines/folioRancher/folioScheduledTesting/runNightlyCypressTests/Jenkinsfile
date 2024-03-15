@@ -42,7 +42,8 @@ Map cypressFlowParameters = [
   testrailProjectID       : '14',
   testrailRunID           : '2108',
   numberOfWorkers         : '10',
-  agent                   : 'rancher'
+  agent                   : 'rancher',
+  useReportPortal         : 'true'
 ]
 
 ansiColor('xterm') {

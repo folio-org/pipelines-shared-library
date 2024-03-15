@@ -36,7 +36,8 @@ Map cypressBugfestFlowParameters = [
   testrailProjectID       : '14',
   testrailRunID           : '2307',
   numberOfWorkers         : '10',
-  agent                   : 'rancher||jenkins-agent-java17'
+  agent                   : 'rancher||jenkins-agent-java17',
+  useReportPortal         : 'false'
 ]
 
 ansiColor('xterm') {

@@ -1,4 +1,12 @@
+import groovy.json.JsonOutput
+import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.client.reportportal.ReportPortalConstants
+import org.folio.client.reportportal.ReportPortalClient
+import org.folio.shared.TestType
+import org.folio.utilities.RestClient
+
+import java.time.Instant
 
 /**
  * !Attention! This method should be called inside node block in parent
@@ -38,12 +46,38 @@ void call(params) {
   String testrailProjectID = params.testrailProjectID
   String testrailRunID = params.testrailRunID
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
+  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
+
   String agent = params.agent
   String browserName = "chrome"
   String cypressImageVersion = ''
   List resultPaths = []
 
+  ReportPortalClient reportPortal = null
+
   buildName customBuildName
+
+  if(useReportPortal){
+    stage('[ReportPortal config bind & launch]') {
+      try {
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
+
+        def id = reportPortal.launch()
+        println("${id}")
+
+        String portalExecParams = reportPortal.getExecParams()
+        println("Report portal execution parameters: ${portalExecParams}")
+
+        parallelExecParameters = parallelExecParameters?.trim() ?
+          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
+
+        sequentialExecParameters = sequentialExecParameters?.trim() ?
+          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
+      } catch (Exception e) {
+        println("Error: " + e.getMessage())
+      }
+    }
+  }
 
   timeout(time: testsTimeout, unit: 'HOURS') {
     if (parallelExecParameters?.trim()) {
@@ -81,6 +115,17 @@ void call(params) {
 
           resultPaths.add(archiveTestResults(numberOfWorkers + 1))
         }
+      }
+    }
+  }
+
+  if(useReportPortal) {
+    stage("[ReportPortal Run stop]") {
+      try {
+        def res_end = reportPortal.launchFinish()
+        println("${res_end}")
+      } catch (Exception e) {
+        println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
       }
     }
   }
@@ -187,6 +232,7 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
             sh "yarn install"
             sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
             sh "yarn global add cypress-cloud@${cypressCloudVersion}"
+            sh "yarn add @reportportal/agent-js-cypress@latest"
 
             if (testrailProjectID?.trim() && testrailRunID?.trim()) {
               env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
