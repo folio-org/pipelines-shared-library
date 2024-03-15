@@ -42,7 +42,7 @@ String moduleBranch = params.MODULE_BRANCH
 String moduleHash = folioHashCommitCheck.getLatestCommitHash(moduleName, moduleBranch).take(7)
 String moduleVersion = ''
 String moduleTag = ''
-String moduleDescriptor = ''
+List moduleDescriptor = []
 String moduleMavenArguments = params.MAVEN_ARGS
 List installJson = []
 
@@ -134,7 +134,7 @@ ansiColor('xterm') {
             }
           }
         }
-        
+
         namespace.getModules().setInstallJson(installJson)
         logger.debug(JsonOutput.prettyPrint(JsonOutput.toJson(namespace)))
 
