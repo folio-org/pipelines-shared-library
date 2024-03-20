@@ -2,10 +2,10 @@
 import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1276') _
 
 properties([
-  pipelineTriggers([cron('H 20 * * *')]),
+//  pipelineTriggers([cron('H 20 * * *')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -41,7 +41,7 @@ Map cypressFlowParameters = [
   testsTimeout            : '14',
   testrailProjectID       : '14',
   testrailRunID           : '2108',
-  numberOfWorkers         : '10',
+  numberOfWorkers         : '8', //Changed form 10 to 8 according to cores number
   agent                   : 'rancher',
   useReportPortal         : 'true'
 ]
@@ -62,7 +62,6 @@ ansiColor('xterm') {
         if (ns == namespace.namespaceName) {
           build job: deleteNamespaceJobName,
             parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
-          println("${ns}")
         } else {
           println(namespace.namespaceName + ' namespace does not exists!')
         }
