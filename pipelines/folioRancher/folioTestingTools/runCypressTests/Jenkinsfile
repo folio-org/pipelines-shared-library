@@ -3,7 +3,8 @@ import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.util.Calendar
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1276') _
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -17,8 +18,8 @@ properties([
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
     string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
-    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
-    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
+//    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8"]),
     string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
@@ -43,12 +44,12 @@ Map cypressFlowParameters = [
   adminUsername           : params.ADMIN_USERNAME,
   adminPassword           : params.ADMIN_PASSWORD,
   parallelExecParameters  : params.PARALLEL_EXEC_PARAMETERS,
-  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
+//  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
   testsTimeout            : params.TIMEOUT,
   testrailProjectID       : params.TESTRAIL_PROJECTID,
   testrailRunID           : params.TESTRAIL_RUN_ID,
   numberOfWorkers         : params.NUMBER_OF_WORKERS,
-  agent                   : params.AGENT,
+  agent                   : 'cypress',
   useReportPortal         : "false"
 ]
 
@@ -56,7 +57,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     stage('Ini') {
       buildName env.BUILD_ID
-      buildDescription ""
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
     }
     stage('[Conditional check]') {
       Calendar cal = Calendar.getInstance()
@@ -79,7 +80,6 @@ ansiColor('xterm') {
         println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
-
       }
     }
 

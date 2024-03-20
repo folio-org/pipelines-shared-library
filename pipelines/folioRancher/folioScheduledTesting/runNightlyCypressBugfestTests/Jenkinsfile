@@ -1,17 +1,15 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyCypressBugfestTests
-
-
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1276') _
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  //pipelineTriggers([cron('H 0 * * 1-6')]),
+  //pipelineTriggers([cron('H 0 * * 1-6')]), //TODO Disabled by Mriya team request for BugFest period
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'CYPRESS_BUGFEST_BRANCH', defaultValue: 'poppy', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    string(name: 'CYPRESS_BUGFEST_BRANCH', defaultValue: 'quesnelia', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -25,18 +23,18 @@ if (params.REFRESH_PARAMETERS) {
 Map cypressBugfestFlowParameters = [
   customBuildName         : env.JOB_BASE_NAME,
   branch                  : params.CYPRESS_BUGFEST_BRANCH,
-  tenantUrl               : "https://bugfest-poppy-aqa.int.aws.folio.org",
-  okapiUrl                : "https://okapi-bugfest-poppy-aqa.int.aws.folio.org",
+  tenantUrl               : "https://bugfest-quesnelia-aqa.int.aws.folio.org",
+  okapiUrl                : "https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org",
   tenantId                : 'fs09000003',
   adminUsername           : 'folio-aqa',
   adminPassword           : 'Folio-aqa1',
-  parallelExecParameters  : '--env grepTags="smoke criticalPth extendedPath --nonParallel"',
-  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
-  testsTimeout            : '10',
+  parallelExecParameters  : '--env grepTags="smoke criticalPth extendedPath"',
+//  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
+  testsTimeout            : '14',
   testrailProjectID       : '14',
-  testrailRunID           : '2307',
-  numberOfWorkers         : '10',
-  agent                   : 'rancher||jenkins-agent-java17',
+  testrailRunID           : '2421',
+  numberOfWorkers         : '6',
+  agent                   : 'cypress-static',
   useReportPortal         : 'false'
 ]
 
@@ -44,7 +42,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     stage('Ini') {
       buildName env.BUILD_ID
-      buildDescription ""
+      buildDescription "Branch: ${params.CYPRESS_BUGFEST_BRANCH}\nEnv: ${cypressBugfestFlowParameters.tenantUrl}"
       cleanWs()
     }
 
