@@ -77,7 +77,8 @@ static List configTypeList() {
 static List testingEnvironmentsList() {
     return ['karate',
             'cypress',
-            'sprint']
+            'sprint',
+            'snapshot']
 }
 
 @NonCPS
@@ -95,7 +96,6 @@ static List devEnvironmentsList() {
             'firebird',
             'folijet',
             'folijet-lotus',
-            'snapshot',
             'metadata',
             'nest-es',
             'nla',
