@@ -89,7 +89,6 @@ class Constants {
                                     "firebird"      : ["firebird"],
                                     "folijet"       : ["folijet"],
                                     "folijet-lotus" : ["folijet"],
-                                    "folio-testing-snapshot" : [],
                                     "karate"        : [],
                                     "metadata"      : ["spitfire"],
                                     "nla"           : ["nla"],
@@ -109,7 +108,8 @@ class Constants {
                                     "vega"          : ["vega"],
                                     "volaris"       : ["volaris"],
                                     "volaris-2nd"   : ["volaris"],
-                                    "rtr"           : ["volaris"]]
+                                    "rtr"           : ["volaris"],
+                                    "snapshot"      : []]
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
