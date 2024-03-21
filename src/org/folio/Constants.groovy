@@ -44,7 +44,6 @@ class Constants {
                                         'spitfire-2nd',
                                         'spring-force',
                                         'stripes-force',
-                                        'snapshot',
                                         'task-force',
                                         'task-force-2nd',
                                         'thor',
