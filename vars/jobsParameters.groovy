@@ -95,6 +95,7 @@ static List devEnvironmentsList() {
             'firebird',
             'folijet',
             'folijet-lotus',
+            'folio-testing-snapshot',
             'metadata',
             'nest-es',
             'nla',

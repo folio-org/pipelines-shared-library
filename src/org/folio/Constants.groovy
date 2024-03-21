@@ -89,6 +89,7 @@ class Constants {
                                     "firebird"      : ["firebird"],
                                     "folijet"       : ["folijet"],
                                     "folijet-lotus" : ["folijet"],
+                                    "folio-testing-snapshot" : [],
                                     "karate"        : [],
                                     "metadata"      : ["spitfire"],
                                     "nla"           : ["nla"],
