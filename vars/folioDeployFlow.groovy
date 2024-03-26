@@ -116,7 +116,7 @@ void updatePreparation(RancherNamespace namespace, InstallRequestParams installR
       println('=' * 15)
       println("TenantId: ${tenantId}\n" +
         "Upgrade:\n${compareResultMap.UPGRADE*.id.collect { "- $it" }.join('\n')}\n" +
-        "Egaul:\n${compareResultMap.EQUAL*.id.collect { "- $it" }.join('\n')}\n" +
+        "Equal:\n${compareResultMap.EQUAL*.id.collect { "- $it" }.join('\n')}\n" +
         "Downgrade:\n${compareResultMap.DOWNGRADE*.id.collect { "- $it" }.join('\n')}\n")
     }
 
