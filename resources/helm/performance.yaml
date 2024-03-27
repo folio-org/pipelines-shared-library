@@ -973,6 +973,7 @@ mod-sender:
       memory: '512Mi'
 mod-serials-management:
   javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
+  dbMaxPoolSize: '50'
   postJob:
     enabled: false
   replicaCount: 1
