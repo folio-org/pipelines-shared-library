@@ -299,6 +299,7 @@ edge-sip2:
     type: LoadBalancer
 mod-agreements:
   javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
+  dbMaxPoolSize: '50'
   postJob:
     enabled: false
   replicaCount: 1
