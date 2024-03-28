@@ -12,12 +12,41 @@ static String getRepositoryBranches(String repository){
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
-def get = new URL("${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches?per_page=100")
-HttpURLConnection conn = (HttpURLConnection) get.openConnection()
-conn.setRequestProperty("Authorization","Bearer "+" \${secret_value}");
-if(conn.responseCode.equals(200)){
-  return new JsonSlurperClassic().parseText(conn.getInputStream().getText()).name
+def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/" + ${repository} + "/branches"
+def perPage = 500
+def fetchBranches = { String url ->
+    def branches = []
+    def getNextPage = { nextPageUrl ->
+        def nextConn = new URL(nextPageUrl).openConnection()
+        nextConn.setRequestProperty("Authorization", "Bearer \${secret_value}")
+        if (nextConn.responseCode.equals(200)) {
+            def nextResponseText = nextConn.getInputStream().getText()
+            branches += new JsonSlurperClassic().parseText(nextResponseText).name
+            def nextLinkHeader = nextConn.getHeaderField("Link")
+            if (nextLinkHeader && nextLinkHeader.contains('rel="next"')) {
+                def nextUrl = nextLinkHeader =~ /<(.*?)>/
+                if (nextUrl) {
+                    getNextPage(nextUrl[0][1])
+                }
+            }
+        }
+    }
+    def conn = new URL(url).openConnection()
+    conn.setRequestProperty("Authorization", "Bearer \${secret_value}")
+    if (conn.responseCode.equals(200)) {
+        def responseText = conn.getInputStream().getText()
+        branches += new JsonSlurperClassic().parseText(responseText).name
+        def linkHeader = conn.getHeaderField("Link")
+        if (linkHeader && linkHeader.contains('rel="next"')) {
+            def nextPageUrl = linkHeader =~ /<(.*?)>/
+            if (nextPageUrl) {
+                getNextPage(nextPageUrl[0][1])
+            }
+        }
+    }
+    return branches
 }
+fetchBranches("\$apiUrl?per_page=\$perPage")
 """
 }
 
