@@ -12,7 +12,7 @@ static String getRepositoryBranches(String repository){
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
-def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/" + ${repository} + "/branches"
+def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 500
 def fetchBranches = { String url ->
     def branches = []
