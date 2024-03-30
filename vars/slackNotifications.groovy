@@ -12,8 +12,9 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
                        moduleFailureFields = [],
                        List<String> jiraIssueLinksExisting = [], List<String> jiraIssueLinksCreated = []) {
 
-    String rpTemplate = new JsonSlurper()
-      .parseText(libraryResource("slackNotificationsTemplates/reportPortalTemplate") as String)
+    String rpTemplate = libraryResource("slackNotificationsTemplates/reportPortalTemplate")
+
+    println("rpTemplate: ${rpTemplate}")
 
     Map pipelineTemplates = [
         SUCCESS: libraryResource("slackNotificationsTemplates/pipelineSuccessTemplate"),
@@ -36,6 +37,8 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 
     def pipelineTemplate = pipelineTemplates[buildStatus]
                             ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
+
+    println("pipelineTemplate: ${pipelineTemplate}")
 
     switch (buildStatus) {
         case "FAILURE":
@@ -88,6 +91,8 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             String testsTemplate = testType == TestType.KARATE ? karateTemplates[testsStatus] :
                                 testType == TestType.CYPRESS ? cypressTemplates[testsStatus] : null
             testsTemplate = testsTemplate?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
+
+            println("testsTemplate: ${testsTemplate}")
 
             def messageLines = message.tokenize("\n")
             message = messageLines.join("\\n")
