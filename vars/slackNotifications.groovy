@@ -36,7 +36,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
     }
 
     def pipelineTemplate = pipelineTemplates[buildStatus]
-                            ?.replace('RP_COMMA', useReportPortal ? "," : "")
+                            ?.replace('$RP_COMMA', useReportPortal ? "," : "")
                             ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "")
 
     println("pipelineTemplate: ${pipelineTemplate}")
@@ -92,7 +92,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             String testsTemplate = testType == TestType.KARATE ? karateTemplates[testsStatus] :
                                 testType == TestType.CYPRESS ? cypressTemplates[testsStatus] : null
             testsTemplate = testsTemplate
-                              ?.replace('RP_COMMA', useReportPortal ? "," : "")
+                              ?.replace('$RP_COMMA', useReportPortal ? "," : "")
                               ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "")
 
             println("testsTemplate: ${testsTemplate}")
