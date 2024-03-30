@@ -26,7 +26,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
         FAILED: libraryResource("slackNotificationsTemplates/cypressTemplates/failureTemplate")
     ]
 
-    rpTemplate = new JsonSlurper()
+    String rpTemplate = new JsonSlurper()
                       .parseText(libraryResource("slackNotificationsTemplates/reportPortalTemplate") as String)
 
     if (message.contains("Pass rate:")){
@@ -95,15 +95,19 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 
             finalTemplate += additionTemplate
             finalTemplate += extraFields
-            updatedTemplate = JsonOutput.toJson(finalTemplate)
+            def updatedTemplate = JsonOutput.toJson(finalTemplate)
 
-            println("Right before the final processing the string")
+            println("Right before the final processing the string: ${updatedTemplate}")
 
             def output = updatedTemplate
                 .replace('$BUILD_URL', env.BUILD_URL)
                 .replace('$BUILD_NUMBER', env.BUILD_NUMBER)
                 .replace('$JOBNAME', env.JOB_NAME)
                 .replace('$MESSAGE', !moduleFailureFields.isEmpty() ? "" : message)
+
+            println("Right before the RP template processing: ${updatedTemplate}")
+
+            output
                 .replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
                 .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
