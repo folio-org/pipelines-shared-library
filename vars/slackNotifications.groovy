@@ -12,6 +12,9 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
                        moduleFailureFields = [],
                        List<String> jiraIssueLinksExisting = [], List<String> jiraIssueLinksCreated = []) {
 
+    String rpTemplate = new JsonSlurper()
+      .parseText(libraryResource("slackNotificationsTemplates/reportPortalTemplate") as String)
+
     Map pipelineTemplates = [
         SUCCESS: libraryResource("slackNotificationsTemplates/pipelineSuccessTemplate"),
         UNSTABLE: libraryResource("slackNotificationsTemplates/pipelineUnstableTemplate"),
@@ -26,15 +29,13 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
         FAILED: libraryResource("slackNotificationsTemplates/cypressTemplates/failureTemplate")
     ]
 
-    String rpTemplate = new JsonSlurper()
-                      .parseText(libraryResource("slackNotificationsTemplates/reportPortalTemplate") as String)
-
     if (message.contains("Pass rate:")){
         def passRate = (message =~ /Pass rate: (\d+)%/)?.getAt(0)?.getAt(1)?.toInteger()
         testsStatus = passRate > 50 ? "SUCCESS" : "FAILED"
     }
 
     def pipelineTemplate = pipelineTemplates[buildStatus]
+                            ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
 
     switch (buildStatus) {
         case "FAILURE":
@@ -84,8 +85,9 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 
             }
 
-            def testsTemplate = testType == TestType.KARATE ? karateTemplates[testsStatus] :
+            String testsTemplate = testType == TestType.KARATE ? karateTemplates[testsStatus] :
                                 testType == TestType.CYPRESS ? cypressTemplates[testsStatus] : null
+            testsTemplate = testsTemplate?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
 
             def messageLines = message.tokenize("\n")
             message = messageLines.join("\\n")
@@ -108,7 +110,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             println("Right before the RP template processing: ${updatedTemplate}")
 
             output
-                .replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
                 .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
