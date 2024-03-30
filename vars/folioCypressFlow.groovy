@@ -164,7 +164,7 @@ void call(params) {
       def failedTestsCount = statusCounts.failed
       def brokenTestsCount = statusCounts.broken
       def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 0
       def passRate = passRateInDecimal.intValue()
       println "Total passed tests: ${passedTestsCount}"
       println "Total failed tests: ${failedTestsCount}"
