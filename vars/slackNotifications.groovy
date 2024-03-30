@@ -175,6 +175,8 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
 void sendSlackNotification(TestType type, String message, String channel, String buildStatus,
                            boolean useReportPortal = false) {
     def attachments = renderSlackMessage(type, buildStatus, "", message, useReportPortal)
+    printf("useReportPortal: ${useReportPortal}")
+    printf("attachments: ${attachments}")
     slackSend(attachments: attachments, channel: channel)
 }
 
