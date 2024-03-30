@@ -94,7 +94,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             def additionTemplate = new JsonSlurper().parseText(testsTemplate)
 
             finalTemplate += additionTemplate
-            finalTemplate += rpTemplate
             finalTemplate += extraFields
             updatedTemplate = JsonOutput.toJson(finalTemplate)
 
@@ -103,7 +102,8 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
                 .replace('$BUILD_NUMBER', env.BUILD_NUMBER)
                 .replace('$JOBNAME', env.JOB_NAME)
                 .replace('$MESSAGE', !moduleFailureFields.isEmpty() ? "" : message)
-                .replace('$RP_TEMPLATE',
+                .replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "" as CharSequence)
+                .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
             return output
