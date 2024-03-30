@@ -1,12 +1,16 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.folio.client.reportportal.ReportPortalTestType
 import org.folio.karate.results.KarateExecutionResult
 import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
+import org.folio.shared.TestType
 
-def renderSlackMessage(String testName, buildStatus, testsStatus, message, moduleFailureFields = [], List<String> jiraIssueLinksExisting = [], List<String> jiraIssueLinksCreated = []) {
+def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boolean useReportPortal = false,
+                       moduleFailureFields = [],
+                       List<String> jiraIssueLinksExisting = [], List<String> jiraIssueLinksCreated = []) {
 
     Map pipelineTemplates = [
         SUCCESS: libraryResource("slackNotificationsTemplates/pipelineSuccessTemplate"),
@@ -77,8 +81,8 @@ def renderSlackMessage(String testName, buildStatus, testsStatus, message, modul
 
             }
 
-            def testsTemplate = testName == "karate" ? karateTemplates[testsStatus] :
-                                testName == "cypress" ? cypressTemplates[testsStatus] : null
+            def testsTemplate = testType == TestType.KARATE ? karateTemplates[testsStatus] :
+                                testType == TestType.CYPRESS ? cypressTemplates[testsStatus] : null
 
             def messageLines = message.tokenize("\n")
             message = messageLines.join("\\n")
@@ -95,6 +99,8 @@ def renderSlackMessage(String testName, buildStatus, testsStatus, message, modul
                 .replace('$BUILD_NUMBER', env.BUILD_NUMBER)
                 .replace('$JOBNAME', env.JOB_NAME)
                 .replace('$MESSAGE', !moduleFailureFields.isEmpty() ? "" : message)
+                .replace('$RP_TEMPLATE',
+                         useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
             return output
             break
@@ -154,7 +160,11 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
             // Created tickets by this run - Within the last 20 min
             def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
 
-            slackSend(attachments: renderSlackMessage("karate", buildStatus, testsStatus, message, moduleFailureFields, existingTickets, createdTickets), channel: entry.key.slackChannel)
+            slackSend(
+              attachments: renderSlackMessage(TestType.KARATE, buildStatus, testsStatus, message, false,
+                                              moduleFailureFields, existingTickets, createdTickets),
+              channel: entry.key.slackChannel
+            )
         } catch (Exception e) {
             println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
             e.printStackTrace()
@@ -162,17 +172,13 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
     }
 }
 
-void sendKarateSlackNotification(message, channel, buildStatus) {
-    def attachments = renderSlackMessage("karate", buildStatus, "", message)
-    slackSend(attachments: attachments, channel: channel)
-}
-
-void sendCypressSlackNotification(message, channel, buildStatus) {
-    def attachments = renderSlackMessage("cypress", buildStatus, "", message)
+void sendSlackNotification(TestType type, String message, String channel, String buildStatus,
+                           boolean useReportPortal = false) {
+    def attachments = renderSlackMessage(type, buildStatus, "", message, useReportPortal)
     slackSend(attachments: attachments, channel: channel)
 }
 
 void sendPipelineFailSlackNotification(channel) {
-    def attachments = renderSlackMessage("", "FAILED", "", "")
+    def attachments = renderSlackMessage(TestType.OTHER, "FAILED", "", "")
     slackSend(attachments: attachments, channel: channel)
 }

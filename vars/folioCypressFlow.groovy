@@ -1,12 +1,6 @@
-import groovy.json.JsonOutput
-import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
-import org.folio.client.reportportal.ReportPortalConstants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.shared.TestType
-import org.folio.utilities.RestClient
-
-import java.time.Instant
 
 /**
  * !Attention! This method should be called inside node block in parent
@@ -175,7 +169,9 @@ void call(params) {
       println "Total passed tests: ${passedTestsCount}"
       println "Total failed tests: ${failedTestsCount}"
       println "Total broken tests: ${brokenTestsCount}"
-      slackNotifications.sendCypressSlackNotification("Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+      slackNotifications.sendSlackNotification(TestType.CYPRESS,
+        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
     }
   }
 }
