@@ -26,6 +26,9 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
         FAILED: libraryResource("slackNotificationsTemplates/cypressTemplates/failureTemplate")
     ]
 
+    rpTemplate = new JsonSlurper()
+                      .parseText(libraryResource("slackNotificationsTemplates/reportPortalTemplate") as String)
+
     if (message.contains("Pass rate:")){
         def passRate = (message =~ /Pass rate: (\d+)%/)?.getAt(0)?.getAt(1)?.toInteger()
         testsStatus = passRate > 50 ? "SUCCESS" : "FAILED"
@@ -87,12 +90,13 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             def messageLines = message.tokenize("\n")
             message = messageLines.join("\\n")
 
-            def finaleTemplate = new JsonSlurper().parseText(pipelineTemplate)
+            def finalTemplate = new JsonSlurper().parseText(pipelineTemplate)
             def additionTemplate = new JsonSlurper().parseText(testsTemplate)
 
-            finaleTemplate += additionTemplate
-            finaleTemplate += extraFields
-            updatedTemplate = JsonOutput.toJson(finaleTemplate)
+            finalTemplate += additionTemplate
+            finalTemplate += rpTemplate
+            finalTemplate += extraFields
+            updatedTemplate = JsonOutput.toJson(finalTemplate)
 
             def output = updatedTemplate
                 .replace('$BUILD_URL', env.BUILD_URL)
