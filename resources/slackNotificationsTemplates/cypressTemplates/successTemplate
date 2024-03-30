@@ -7,7 +7,7 @@
             "type": "button",
             "text": "*Check out the tests report* :bar_chart: ",
             "url": "$BUILD_URLallure/",
-        },
-        $RP_TEMPLATE
+        }
+        $RP_COMMA$RP_TEMPLATE
   ]
 }
