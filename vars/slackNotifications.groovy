@@ -114,7 +114,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 
             println("Right before the RP template processing: ${updatedTemplate}")
 
-            output
+            output = output
                 .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
