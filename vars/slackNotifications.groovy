@@ -14,8 +14,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 
     String rpTemplate = libraryResource("slackNotificationsTemplates/reportPortalTemplate")
 
-    println("rpTemplate: ${rpTemplate}")
-
     Map pipelineTemplates = [
         SUCCESS: libraryResource("slackNotificationsTemplates/pipelineSuccessTemplate"),
         UNSTABLE: libraryResource("slackNotificationsTemplates/pipelineUnstableTemplate"),
@@ -38,8 +36,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
     def pipelineTemplate = pipelineTemplates[buildStatus]
                             ?.replace('$RP_COMMA', useReportPortal ? "," : "")
                             ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "")
-
-    println("pipelineTemplate: ${pipelineTemplate}")
 
     switch (buildStatus) {
         case "FAILURE":
@@ -95,8 +91,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
                               ?.replace('$RP_COMMA', useReportPortal ? "," : "")
                               ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "")
 
-            println("testsTemplate: ${testsTemplate}")
-
             def messageLines = message.tokenize("\n")
             message = messageLines.join("\\n")
 
@@ -107,17 +101,11 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             finalTemplate += extraFields
             def updatedTemplate = JsonOutput.toJson(finalTemplate)
 
-            println("Right before the final processing the string: ${updatedTemplate}")
-
             def output = updatedTemplate
                 .replace('$BUILD_URL', env.BUILD_URL)
                 .replace('$BUILD_NUMBER', env.BUILD_NUMBER)
                 .replace('$JOBNAME', env.JOB_NAME)
                 .replace('$MESSAGE', !moduleFailureFields.isEmpty() ? "" : message)
-
-            println("Right before the RP template processing: ${updatedTemplate}")
-
-            output = output
                 .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
@@ -194,8 +182,6 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
 void sendSlackNotification(TestType type, String message, String channel, String buildStatus,
                            boolean useReportPortal = false) {
     def attachments = renderSlackMessage(type, buildStatus, "", message, useReportPortal)
-    println("useReportPortal: ${useReportPortal}")
-    println("attachments: ${attachments}")
     slackSend(attachments: attachments, channel: channel)
 }
 
