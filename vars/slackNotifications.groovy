@@ -97,12 +97,14 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
             finalTemplate += extraFields
             updatedTemplate = JsonOutput.toJson(finalTemplate)
 
+            println("Right before the final processing the string")
+
             def output = updatedTemplate
                 .replace('$BUILD_URL', env.BUILD_URL)
                 .replace('$BUILD_NUMBER', env.BUILD_NUMBER)
                 .replace('$JOBNAME', env.JOB_NAME)
                 .replace('$MESSAGE', !moduleFailureFields.isEmpty() ? "" : message)
-                .replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "" as CharSequence)
+                .replace('$RP_TEMPLATE', useReportPortal ? rpTemplate as String : "" )
                 .replace('$RP_URL',
                          useReportPortal ? ReportPortalTestType.fromType(testType).reportPortalDashboardURL() : "")
 
