@@ -67,16 +67,26 @@ ansiColor('xterm') {
 
             stage('Restore namespace from RDS snapshot') {
               if (params.RDS_SNAPSHOT_NAME) {
-                def jobParameters = getEnvironmentJobParameters(
-                  clusterName: clusterName,
-                  projectName: projectName,
-                  configType: configType,
-                  snapshotName: params.RDS_SNAPSHOT_NAME,
-                  agent: tenantId)
+                def jobParameters = getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName, tenantId)
 
                 spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
               }
             }
+
+            // stage("Create environment") {
+            //   steps {
+            //     script {
+            //       try {
+            //         def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+            //           projectName, folio_branch)
+            //         spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+            //       } catch (Exception new_ex) {
+            //         slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+            //         throw new Exception("Creation of the environment is failed: " + new_ex)
+            //       }
+            //     }
+            //   }
+            // }
 
             // stage('Create data-migration project') {
             //   if (!params.RDS_SNAPSHOT_NAME) {
@@ -174,13 +184,15 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, String projectName, String configType, String snapshotName, String agent) {
-  [string(name: 'CLUSTER', value: clusterName),
+private List getEnvironmentJobParameters(String clusterName, projectName, configType, snapshotName) 
+{
+  [
+   string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'CONFIG_TYPE', value: configType),
    string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
    string(name: 'UI_TENANTS_IDS', 'fs09000000'),
-   string(name: 'AGENT', value: agent),
+   string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'CONSORTIA', value: false),
    booleanParam(name: 'RW_SPLIT', value: false),
    string(name: 'POSTGRESQL', value: 'aws'),
@@ -188,11 +200,14 @@ private List getEnvironmentJobParameters(String clusterName, String projectName,
    string(name: 'OPENSEARCH', value: 'aws'),
    string(name: 'S3_BUCKET', value: 'built-in'),
    booleanParam(name: 'NAMESPACE_ONLY', value: false),
-   booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+   booleanParam(name: 'REFRESH_PARAMETERS', value: false)
+   ]
 }
 
-private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
-  [string(name: 'CLUSTER', value: clusterName),
+private List getDestroyEnvironmentJobParameters(clusterName, projectName) 
+{
+  [
+   string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    booleanParam(name: 'RW_SPLIT', value: false),
    string(name: 'POSTGRESQL', value: 'built-in'),
@@ -200,7 +215,8 @@ private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
    string(name: 'AGENT', value: 'jenkins-agent-java17'),
-   booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+   booleanParam(name: 'REFRESH_PARAMETERS', value: false)
+   ]
 }
 
 // private List getEnvironmentJobParameters(String action,
