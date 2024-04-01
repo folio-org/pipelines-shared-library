@@ -66,55 +66,54 @@ ansiColor('xterm') {
                 }
             }
 
-          stage('Restore namespace from RDS snapshot') {
-            if (params.RDS_SNAPSHOT_NAME) {
-              def jobParameters = getEnvironmentJobParameters(
-                clusterName,
-                projectName,
-                configType,
-                params.RDS_SNAPSHOT_NAME,
-                tenantId)
+            stage('Restore namespace from RDS snapshot') {
+              if (params.RDS_SNAPSHOT_NAME) {
+                def jobParameters = getEnvironmentJobParameters(
+                  clusterName,
+                  projectName,
+                  configType,
+                  params.RDS_SNAPSHOT_NAME,
+                  tenantId)
 
-              spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+                spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+              }
             }
-          }
 
-          // stage('Create data-migration project') {
-          //   if (!params.RDS_SNAPSHOT_NAME) {
-          //     def jobParameters = getEnvironmentJobParameters(
-          //       'apply',
-          //       clusterName,
-          //       projectName,
-          //       params.FOLIO_REPOSITORY,
-          //       params.FOLIO_BRANCH_SRC,
-          //       okapiVersion,
-          //       tenantId,
-          //       adminUsername,
-          //       adminPassword,
-          //       params.RDS_SNAPSHOT_NAME,
-          //       false,
-          //       true,
-          //       true,
-          //       true)
+            // stage('Create data-migration project') {
+            //   if (!params.RDS_SNAPSHOT_NAME) {
+            //     def jobParameters = getEnvironmentJobParameters(
+            //       'apply',
+            //       clusterName,
+            //       projectName,
+            //       params.FOLIO_REPOSITORY,
+            //       params.FOLIO_BRANCH_SRC,
+            //       okapiVersion,
+            //       tenantId,
+            //       adminUsername,
+            //       adminPassword,
+            //       params.RDS_SNAPSHOT_NAME,
+            //       false,
+            //       true,
+            //       true,
+            //       true)
 
-          //     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-          //   }
-          // }
+            //     build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+            //   }
+            // }
 
-          //   stage('Update with dst release versions') {
-          //       build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-          //           parameters: [
-          //               string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
-          //               string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
-          //               string(name: 'rancher_cluster_name', value: clusterName),
-          //               string(name: 'rancher_project_name', value: projectName),
-          //               string(name: 'config_type', value: configType),
-          //               string(name: 'tenant_id', value: tenantId),
-          //               string(name: 'admin_username', value: adminUsername),
-          //               string(name: 'admin_password', value: adminPassword)
-          //           ]
-          //   }
-
+            // stage('Update with dst release versions') {
+            //     build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+            //         parameters: [
+            //             string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
+            //             string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
+            //             string(name: 'rancher_cluster_name', value: clusterName),
+            //             string(name: 'rancher_project_name', value: projectName),
+            //             string(name: 'config_type', value: configType),
+            //             string(name: 'tenant_id', value: tenantId),
+            //             string(name: 'admin_username', value: adminUsername),
+            //             string(name: 'admin_password', value: adminPassword)
+            //         ]
+            // }
 
             // stage('Generate Data Migration Time report') {
             //     def result = folioexecuteDataMigrationUtils.getMigrationTime(
