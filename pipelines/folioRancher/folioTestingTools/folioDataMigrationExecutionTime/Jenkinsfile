@@ -184,7 +184,7 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, projectName, configType, snapshotName) 
+private List getEnvironmentJobParameters(String clusterName, String projectName, String configType, String snapshotName)
 {
   [
    string(name: 'CLUSTER', value: clusterName),
@@ -204,7 +204,7 @@ private List getEnvironmentJobParameters(String clusterName, projectName, config
    ]
 }
 
-private List getDestroyEnvironmentJobParameters(clusterName, projectName) 
+private List getDestroyEnvironmentJobParameters(clusterName, projectName)
 {
   [
    string(name: 'CLUSTER', value: clusterName),
