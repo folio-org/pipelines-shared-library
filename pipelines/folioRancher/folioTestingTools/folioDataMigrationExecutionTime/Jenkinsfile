@@ -78,21 +78,6 @@ ansiColor('xterm') {
             }
           }
 
-          // stage("Create environment") {
-          //   steps {
-          //     script {
-          //       try {
-          //         def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
-          //           projectName, folio_branch)
-          //         spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-          //       } catch (Exception new_ex) {
-          //         slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-          //         throw new Exception("Creation of the environment is failed: " + new_ex)
-          //       }
-          //     }
-          //   }
-          // }
-
           // stage('Create data-migration project') {
           //   if (!params.RDS_SNAPSHOT_NAME) {
           //     def jobParameters = getEnvironmentJobParameters(
@@ -130,39 +115,38 @@ ansiColor('xterm') {
           //   }
 
 
-        //     stage('Generate Data Migration Time report') {
-        //         def result = folioexecuteDataMigrationUtils.getMigrationTime(
-        //             clusterName,
-        //             projectName,
-        //             resultMap,
-        //             srcInstallJson,
-        //             dstInstallJson,
-        //             totalTimeInMs,
-        //             modulesLongMigrationTimeSlack,
-        //             modulesMigrationFailedSlack,
-        //             startMigrationTime,
-        //             pgadminURL
-        //         )
-        //       totalTimeInMs += result[0]
-        //       modulesLongMigrationTimeSlack += result[1]
-        //       modulesMigrationFailedSlack += result[2]
-        //     }
+            // stage('Generate Data Migration Time report') {
+            //     def result = folioexecuteDataMigrationUtils.getMigrationTime(
+            //         clusterName,
+            //         projectName,
+            //         resultMap,
+            //         srcInstallJson,
+            //         dstInstallJson,
+            //         totalTimeInMs,
+            //         modulesLongMigrationTimeSlack,
+            //         modulesMigrationFailedSlack,
+            //         startMigrationTime,
+            //         pgadminURL
+            //     )
+            //   totalTimeInMs += result[0]
+            //   modulesLongMigrationTimeSlack += result[1]
+            //   modulesMigrationFailedSlack += result[2]
+            // }
 
-
-
-        // } catch (exception) {
-        //     currentBuild.result = 'FAILURE'
-        //     error(exception.getMessage())
-        // } finally {
-        //     stage('Publish HTML Reports') {
-        //         publishHTML([
-        //             reportDir: 'reportTime',
-        //             reportFiles: '*.html',
-        //             reportName: 'Data Migration Time',
-        //             allowMissing: true,
-        //             alwaysLinkToLastBuild: true,
-        //             keepAll: true])
-        //     }
+        } catch (exception) {
+            currentBuild.result = 'FAILURE'
+            error(exception.getMessage())
+        }
+        // finally {
+            // stage('Publish HTML Reports') {
+            //     publishHTML([
+            //         reportDir: 'reportTime',
+            //         reportFiles: '*.html',
+            //         reportName: 'Data Migration Time',
+            //         allowMissing: true,
+            //         alwaysLinkToLastBuild: true,
+            //         keepAll: true])
+            // }
 
         //    stage('Send Slack notification') {
         //        folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
@@ -187,7 +171,7 @@ ansiColor('xterm') {
             // stage('Cleanup') {
             //     cleanWs notFailBuild: true
             // }
-        }
+        // }
     }
 }
 
