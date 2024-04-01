@@ -176,7 +176,7 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, projectName, configType, snapshotName, tenantId, agent) {
+private List getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName, tenantId, agent) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'CONFIG_TYPE', value: configType),
