@@ -28,6 +28,7 @@ properties([
 def clusterName = 'folio-perf'
 def projectName = 'data-migration'
 def configType = 'performance'
+def snapshotName = params.RDS_SNAPSHOT_NAME
 def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot"
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def tenantId
@@ -175,11 +176,11 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, projectName, configType, agent, tenantId) {
+private List getEnvironmentJobParameters(String clusterName, projectName, configType, snapshotName, tenantId, agent) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'CONFIG_TYPE', value: configType),
-   string(name: 'RDS_SNAPSHOT_NAME', value: configType),
+   string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
    booleanParam(name: 'CONSORTIA', value: false),
    booleanParam(name: 'RW_SPLIT', value: false),
    string(name: 'UI_TENANTS_IDS', tenantId),
