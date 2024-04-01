@@ -175,12 +175,12 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, String projectName, String configType, String snapshotName, String tenantId, String agent) {
+private List getEnvironmentJobParameters(String clusterName, String projectName, String configType, String snapshotName, String agent) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'CONFIG_TYPE', value: configType),
    string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
-   string(name: 'UI_TENANTS_IDS', tenantId),
+   string(name: 'UI_TENANTS_IDS', 'fs09000000'),
    string(name: 'AGENT', value: agent),
    booleanParam(name: 'CONSORTIA', value: false),
    booleanParam(name: 'RW_SPLIT', value: false),
