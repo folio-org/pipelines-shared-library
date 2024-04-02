@@ -67,7 +67,14 @@ ansiColor('xterm') {
 
             stage('Restore namespace from RDS snapshot') {
               if (params.RDS_SNAPSHOT_NAME) {
-                def jobParameters = getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName, tenantId)
+                try {
+                  def jobParameters = getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName, tenantId)
+                  println(jobParameters)
+                } catch (Exception e) {
+                  println(e.getMessage())
+
+                }
+
 
                 spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
               }
