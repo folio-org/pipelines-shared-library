@@ -69,7 +69,7 @@ ansiColor('xterm') {
             }
 
             stage('Restore namespace from RDS snapshot') {
-              build job: 'createNamespaceFromRdsSnapshot',
+              build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
                 parameters: [string(name: 'CLUSTER', value: clusterName),
                              string(name: 'NAMESPACE', value: projectName),
                              string(name: 'CONFIG_TYPE', value: configType),
