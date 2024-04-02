@@ -1,5 +1,7 @@
 @Library('pipelines-shared-library@RANCHER-1248') _
 
+CONFIG_BRANCH = 'RANCHER-1248'
+
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
@@ -73,7 +75,6 @@ ansiColor('xterm') {
                   println(jobParameters)
                 } catch (Exception e) {
                   println(e.getMessage())
-
                 }
 
 
@@ -192,7 +193,7 @@ ansiColor('xterm') {
     }
 }
 
-private List getEnvironmentJobParameters(String clusterName, String projectName, String configType, String snapshotName)
+private List getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName)
 {
   [
    string(name: 'CLUSTER', value: clusterName),
