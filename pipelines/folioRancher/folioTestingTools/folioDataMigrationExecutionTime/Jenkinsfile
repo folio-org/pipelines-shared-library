@@ -89,7 +89,7 @@ ansiColor('xterm') {
 
             stage('Create data-migration project') {
               if (!params.RDS_SNAPSHOT_NAME) {
-                println(kitfox)
+                println(LocalDateTime.now())
               }
             }
 
