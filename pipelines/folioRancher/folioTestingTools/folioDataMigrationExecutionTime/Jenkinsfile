@@ -31,7 +31,6 @@ def projectName = 'data-migration'
 def configType = 'performance'
 def jobParameters
 def snapshotName = params.RDS_SNAPSHOT_NAME
-def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot"
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def tenantId
 def adminUsername
@@ -69,6 +68,7 @@ ansiColor('xterm') {
             }
 
             stage('Restore namespace from RDS snapshot') {
+              if (params.RDS_SNAPSHOT_NAME)
               build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
                 parameters: [string(name: 'CLUSTER', value: clusterName),
                              string(name: 'NAMESPACE', value: projectName),
@@ -85,6 +85,14 @@ ansiColor('xterm') {
                              string(name: 'AGENT', value: 'rancher'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             }
+
+
+            stage('Create data-migration project') {
+              if (!params.RDS_SNAPSHOT_NAME) {
+                println(kitfox)
+              }
+            }
+
 
             // stage("Create environment") {
             //   steps {
