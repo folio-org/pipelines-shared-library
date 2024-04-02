@@ -733,7 +733,7 @@ mod-ldp:
     requests:
       memory: '256Mi'
 mod-licenses:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
+  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal -Dgrails.env=production'
   postJob:
     enabled: false
   replicaCount: 1
