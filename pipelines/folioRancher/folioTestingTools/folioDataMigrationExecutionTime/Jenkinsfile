@@ -69,17 +69,21 @@ ansiColor('xterm') {
             }
 
             stage('Restore namespace from RDS snapshot') {
-              if (params.RDS_SNAPSHOT_NAME) {
-                try {
-                  jobParameters = getEnvironmentJobParameters(clusterName, projectName, configType, snapshotName, tenantId)
-                  println(jobParameters)
-                } catch (Exception e) {
-                  println(e.getMessage())
-                }
-
-
-                spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-              }
+              build job: 'createNamespaceFromRdsSnapshot',
+                parameters: [string(name: 'CLUSTER', value: clusterName),
+                             string(name: 'NAMESPACE', value: projectName),
+                             string(name: 'CONFIG_TYPE', value: configType),
+                             string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
+                             booleanParam(name: 'CONSORTIA', value: false),
+                             booleanParam(name: 'RW_SPLIT', value: false),
+                             string(name: 'UI_TENANTS_IDS', value: 'fs09000000'),
+                             string(name: 'POSTGRESQL', value: 'aws'),
+                             string(name: 'KAFKA', value: 'built-in'),
+                             string(name: 'OPENSEARCH', value: 'aws'),
+                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             booleanParam(name: 'NAMESPACE_ONLY', value: false),
+                             string(name: 'AGENT', value: 'rancher'),
+                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             }
 
             // stage("Create environment") {
