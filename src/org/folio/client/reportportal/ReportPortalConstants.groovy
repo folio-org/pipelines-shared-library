@@ -2,7 +2,7 @@ package org.folio.client.reportportal
 
 class ReportPortalConstants {
 
-  public static final String URL = "https://poc-report-portal.ci.folio.org"
+  public static final String URL = "https://report-portal.ci.folio.org"
   public static final String API_URL = "${ReportPortalConstants.URL}/api/v1"
   public static final String KARATE_CRED_TEMPLATE_FILE_PATH = "testrail-integration/src/main/resources/reportportal.properties"
 

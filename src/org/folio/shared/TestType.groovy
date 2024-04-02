@@ -1,5 +1,5 @@
 package org.folio.shared
 
 enum TestType {
-  KARATE, CYPRESS
+  KARATE, CYPRESS, OTHER
 }

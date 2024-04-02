@@ -9,32 +9,6 @@ import org.folio.utilities.RestClient
 import java.time.Instant
 
 class ReportPortalClient {
-
-  private enum ReportPortalTestType{
-    KARATE(ReportPortalConstants.KARATE_PROJECT_NAME, ReportPortalConstants.KARATE_EXEC_PARAM_TEMPLATE, TestType.KARATE),
-    CYPRESS(ReportPortalConstants.CYPRESS_PROJECT_NAME, ReportPortalConstants.CYPRESS_EXEC_PARAM_TEMPLATE, TestType.CYPRESS)
-
-    private String projectName
-    private String execParamTemplate
-    private TestType baseType
-
-    ReportPortalTestType(String projectName, String execParamTemplate, TestType type) {
-      this.projectName = projectName
-      this.baseType = type
-      this.execParamTemplate = execParamTemplate
-    }
-
-    @NonCPS
-    static ReportPortalTestType fromType(TestType type) throws Error{
-      for(ReportPortalTestType elem: values()){
-        if(elem.baseType == type){
-          return elem
-        }
-      }
-      throw new Error("Unknown test type")
-    }
-  }
-
   private ReportPortalTestType testType
   private def pipeline
   private def buildName

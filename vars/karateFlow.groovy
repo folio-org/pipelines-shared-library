@@ -1,6 +1,7 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.shared.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
@@ -145,7 +146,9 @@ def call(params) {
       def totalTestsCount = passedTestsCount + failedTestsCount
       def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
       def passRate = passRateInDecimal.intValue()
-      slackNotifications.sendKarateSlackNotification("Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%", "#rancher_tests_notifications", currentBuild.result)
+      slackNotifications.sendSlackNotification(TestType.KARATE,
+        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+        "#rancher_tests_notifications", currentBuild.result, true)
     }
   }
 }

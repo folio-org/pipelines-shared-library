@@ -1,0 +1,5 @@
+{
+    "type": "button",
+    "text": "*ReportPortal results* :bar_chart: ",
+    "url": "$RP_URL",
+}

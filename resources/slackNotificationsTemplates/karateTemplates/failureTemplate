@@ -1,17 +1,13 @@
 {
   "title": "Karate tests results :martial_arts_uniform:",
-  "color": "#FF0000",
   "text": "$MESSAGE",
+  "color": "#FF0000",
   "actions": [
         {
             "type": "button",
             "text": "*Check out the tests report* :bar_chart: ",
             "url": "$BUILD_URLcucumber-html-reports/overview-features.html",
-        },
-        {
-                    "type": "button",
-                    "text": "*ReportPortal results* :bar_chart: ",
-                    "url": "https://poc-report-portal.ci.folio.org/ui/#login",
         }
+        $RP_COMMA$RP_TEMPLATE
   ]
 }
