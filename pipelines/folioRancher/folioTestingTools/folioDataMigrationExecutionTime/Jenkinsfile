@@ -29,8 +29,9 @@ properties([
 def clusterName = 'folio-perf'
 def projectName = 'data-migration'
 def configType = 'performance'
-def jobParameters
 def snapshotName = params.RDS_SNAPSHOT_NAME
+def folioBranch = params.FOLIO_BRANCH_SRC
+def jobParameters
 def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def tenantId
 def adminUsername
@@ -72,6 +73,8 @@ ansiColor('xterm') {
               build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
                 parameters: [string(name: 'CLUSTER', value: clusterName),
                              string(name: 'NAMESPACE', value: projectName),
+                             string(name: 'FOLIO_BRANCH', value: folioBranch),
+                             string(name: 'OKAPI_VERSION', value: okapiVersion),
                              string(name: 'CONFIG_TYPE', value: configType),
                              string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
                              booleanParam(name: 'CONSORTIA', value: false),
@@ -82,32 +85,29 @@ ansiColor('xterm') {
                              string(name: 'OPENSEARCH', value: 'aws'),
                              string(name: 'S3_BUCKET', value: 'built-in'),
                              booleanParam(name: 'NAMESPACE_ONLY', value: false),
-                             string(name: 'AGENT', value: 'rancher'),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             }
 
-
-            stage('Create data-migration project') {
-              if (!params.RDS_SNAPSHOT_NAME) {
-                println(LocalDateTime.now())
-              }
-            }
-
-
-            // stage("Create environment") {
-            //   steps {
-            //     script {
-            //       try {
-            //         def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
-            //           projectName, folio_branch)
-            //         spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-            //       } catch (Exception new_ex) {
-            //         slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
-            //         throw new Exception("Creation of the environment is failed: " + new_ex)
-            //       }
-            //     }
-            //   }
-            // }
+            stage("Create an environment from scratch") {
+              if (!params.RDS_SNAPSHOT_NAME)
+              build job: '/folioRancher/folioNamespaceTools/createNamespaceFromBranch',
+                parameters: [string(name: 'CLUSTER', value: clusterName),
+                             string(name: 'NAMESPACE', value: projectName),
+                             string(name: 'CONFIG_TYPE', value: configType),
+                             string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
+                             booleanParam(name: 'LOAD_REFERENCE', value: false),
+                             booleanParam(name: 'LOAD_SAMPLE', value: false),
+                             booleanParam(name: 'CONSORTIA', value: false),
+                             booleanParam(name: 'RW_SPLIT', value: false),
+                             booleanParam(name: 'GREENMAIL', value: false),
+                             booleanParam(name: 'MOCK_SERVER', value: false),
+                             booleanParam(name: 'RTR', value: false),
+                             string(name: 'POSTGRESQL', value: 'built-in'),
+                             string(name: 'KAFKA', value: 'built-in'),
+                             string(name: 'OPENSEARCH', value: 'aws'),
+                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             string(name: 'MEMBERS', value: ''),
+                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 
             // stage('Create data-migration project') {
             //   if (!params.RDS_SNAPSHOT_NAME) {
