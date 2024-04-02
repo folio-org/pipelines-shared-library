@@ -108,6 +108,7 @@ ansiColor('xterm') {
                              string(name: 'S3_BUCKET', value: 'built-in'),
                              string(name: 'MEMBERS', value: ''),
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+            }
 
             // stage('Create data-migration project') {
             //   if (!params.RDS_SNAPSHOT_NAME) {
