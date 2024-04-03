@@ -508,7 +508,7 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: '728Mi'
+      memory: '2048'
     requests:
       memory: '640Mi'
 mod-di-converter-storage:
