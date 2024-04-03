@@ -1084,7 +1084,7 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: '2048Mi'
     requests:
       memory: '384Mi'
 mod-batch-print:
