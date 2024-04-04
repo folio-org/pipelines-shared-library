@@ -1,7 +1,3 @@
-@Library('pipelines-shared-library@RANCHER-1248') _
-
-CONFIG_BRANCH = 'RANCHER-1248'
-
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest.model.DataMigrationTenant
 import java.time.*
@@ -9,7 +5,10 @@ import org.folio.rest.GitHubUtility
 import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 import org.folio.utilities.Tools
-import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1248') _
+
+CONFIG_BRANCH = 'RANCHER-1248'
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -24,7 +23,6 @@ properties([
         folioParameters.refreshParameters()
         ])
       ])
-
 
 def clusterName = 'folio-perf'
 def projectName = 'data-migration'
@@ -66,7 +64,7 @@ ansiColor('xterm') {
                 }
             }
 
-            stage('Restore namespace from RDS snapshot') {
+            stage('Restoring namespace from RDS snapshot') {
               if (params.RDS_SNAPSHOT_NAME)
               build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
                 parameters: [string(name: 'CLUSTER', value: clusterName),
@@ -84,7 +82,7 @@ ansiColor('xterm') {
                              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
             }
 
-            stage('Create an environment from scratch') {
+            stage('Creating an environment from scratch') {
               if (!params.RDS_SNAPSHOT_NAME)
               build job: '/folioRancher/folioNamespaceTools/createNamespaceFromBranch',
                 parameters: [string(name: 'CLUSTER', value: clusterName),
@@ -109,7 +107,7 @@ ansiColor('xterm') {
             }
 
 
-            stage('Update to the desired version') {
+            stage('Updating to the desired modules version') {
                 build job: '/Rancher/Update/backend-modules-deploy-branch',
                     parameters: [
                         string(name: 'rancher_cluster_name', value: clusterName),
@@ -123,44 +121,44 @@ ansiColor('xterm') {
                     ]
             }
 
-            // stage('Generate Data Migration Time report') {
-            //     def result = folioexecuteDataMigrationUtils.getMigrationTime(
-            //         clusterName,
-            //         projectName,
-            //         resultMap,
-            //         srcInstallJson,
-            //         dstInstallJson,
-            //         totalTimeInMs,
-            //         modulesLongMigrationTimeSlack,
-            //         modulesMigrationFailedSlack,
-            //         startMigrationTime,
-            //         pgadminURL
-            //     )
-            //   totalTimeInMs += result[0]
-            //   modulesLongMigrationTimeSlack += result[1]
-            //   modulesMigrationFailedSlack += result[2]
-            // }
+            stage('Generating Data Migration Time report') {
+                def result = folioexecuteDataMigrationUtils.getMigrationTime(
+                    clusterName,
+                    projectName,
+                    resultMap,
+                    srcInstallJson,
+                    dstInstallJson,
+                    totalTimeInMs,
+                    modulesLongMigrationTimeSlack,
+                    modulesMigrationFailedSlack,
+                    startMigrationTime,
+                    pgadminURL
+                )
+              totalTimeInMs += result[0]
+              modulesLongMigrationTimeSlack += result[1]
+              modulesMigrationFailedSlack += result[2]
+            }
 
             } catch (exception) {
                 currentBuild.result = 'FAILURE'
                 error(exception.getMessage())
             }
-        // finally {
-            // stage('Publish HTML Reports') {
-            //     publishHTML([
-            //         reportDir: 'reportTime',
-            //         reportFiles: '*.html',
-            //         reportName: 'Data Migration Time',
-            //         allowMissing: true,
-            //         alwaysLinkToLastBuild: true,
-            //         keepAll: true])
+              finally {
+                stage('Publish HTML Reports') {
+                    publishHTML([
+                        reportDir: 'reportTime',
+                        reportFiles: '*.html',
+                        reportName: 'Data Migration Time',
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true])
+                }
+
+            // stage('Send Slack notification') {
+            //     folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             // }
 
-        //    stage('Send Slack notification') {
-        //        folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-        //    }
-
-            stage('Destroy data-migration project') {
+            stage('Destroying data-migration project') {
                 build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                   parameters: [string(name: 'CLUSTER', value: clusterName),
                               string(name: 'NAMESPACE', value: projectName),
@@ -177,3 +175,4 @@ ansiColor('xterm') {
             }
         }
     }
+}
