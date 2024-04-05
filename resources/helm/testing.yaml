@@ -415,7 +415,9 @@ mod-aes:
     requests:
       memory: 384Mi
 mod-agreements:
-  extraEnvVars: []
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
   integrations:
     db:
       enabled: true
@@ -1450,7 +1452,9 @@ mod-sender:
     requests:
       memory: 512Mi
 mod-serials-management:
-  extraEnvVars: []
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
   integrations:
     db:
       enabled: true
@@ -1462,7 +1466,9 @@ mod-serials-management:
     requests:
       memory: 1024Mi
 mod-service-interaction:
-  extraEnvVars: []
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
   integrations:
     db:
       enabled: true
