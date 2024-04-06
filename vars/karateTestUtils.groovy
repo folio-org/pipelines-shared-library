@@ -3,7 +3,6 @@ import org.folio.Constants
 import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.KarateConstants
-import org.folio.karate.results.KarateExecutionResult
 import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
@@ -107,7 +106,7 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    JiraClient jiraClient = getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     // find existing karate issues
     List<JiraIssue> issues = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
@@ -221,20 +220,16 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         .replaceAll("\\{", "&#125;")
 }
 
-private JiraClient getJiraClient() {
-    withCredentials([
-        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-    }
-}
-
 def getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = []
-    List<JiraIssue> issuesByTeam = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
-    issuesByTeam.each { issue ->
-        ticketsByTeam += issue.key
-    }
+
+    List<JiraIssue> issuesByTeam = JiraClient.getJiraClient(this)
+      .searchIssuesKarate(
+        KarateConstants.KARATE_ISSUES_JQL + """ and "Development Team" = "${team}" and ${timeFilter} """
+        , ["summary", "status"]
+      ) as List<JiraIssue>
+
+    issuesByTeam.each { issue -> ticketsByTeam += issue.key }
     return ticketsByTeam
 }
 
