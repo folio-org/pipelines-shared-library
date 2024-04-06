@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import hudson.AbortException
 import hudson.plugins.jira.model.JiraIssue
 import org.apache.http.HttpHeaders
+import org.folio.Constants
 import org.folio.client.jira.model.*
 import org.folio.karate.KarateConstants
 
@@ -18,8 +19,6 @@ class JiraClient {
   String url
 
   String authToken
-
-  JiraParser parser = new JiraParser()
 
   def createIgnoreFields = ["issuetype"]
 
@@ -185,7 +184,7 @@ class JiraClient {
     withPagedResponse(endpoint,
       { response, body ->
         body.issues.each { issue ->
-          retVal.add(parser.parseIssueKarateTest(issue))
+          retVal.add(JiraParser.parseIssueKarateTest(issue))
         }
 
       },
@@ -205,7 +204,7 @@ class JiraClient {
     withPagedResponse(endpoint,
       { response, body ->
         body.issues.each { issue ->
-          retVal.add(parser.parseIssue(issue))
+          retVal.add(JiraParser.parseIssue(issue))
         }
 
       },
@@ -217,37 +216,31 @@ class JiraClient {
 
   JiraIssueCreateMeta getJiraIssueCreateMeta(String projectKey, String issueTypeName) {
     withResponse("${JiraResources.ISSUE_CREATE_META}?projectKeys=${projectKey}&issuetypeNames=${issueTypeName}&expand=projects.issuetypes.fields",
-      { response, body ->
-        parser.parseIssueCreateMeta(body)
-      },
+      { response, body -> JiraParser.parseIssueCreateMeta(body) },
       "Unable to get issue create meta for project '${projectKey}' and issue type '${issueTypeName}'"
-    )
+    ) as JiraIssueCreateMeta
   }
 
   JiraIssueUpdateMeta getJiraIssueUpdateMeta(String issueId) {
     withResponse("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_EDIT_META}",
-      { response, body ->
-        parser.parseIssueUpdateMeta(body)
-      },
+      { response, body -> JiraParser.parseIssueUpdateMeta(body) },
       "Unable to get issue update meta for issue '${issueId}'"
-    )
+    ) as JiraIssueUpdateMeta
   }
 
   JiraProject getJiraProject(String key) {
     withResponse("${JiraResources.PROJECT}/${key}",
-      { response, body ->
-        parser.parseProject(body)
-      },
+      { response, body -> JiraParser.parseProject(body) },
       "Unable to get jira project with '${key}' key"
-    )
+    ) as JiraProject
   }
 
   List<JiraIssueTransition> getJiraIssueTransitions(String issueId) {
     def retVal = []
     withResponse("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_TRANSITIONS}",
-      { response, body ->
-        body.transitions.each { transition ->
-          retVal.add(parser.parseIssueTransition(transition))
+      {
+        response, body -> body.transitions.each {
+          transition -> retVal.add(JiraParser.parseIssueTransition(transition))
         }
       },
       "Unable to get issue transitions issue '${issueId}'"
@@ -259,19 +252,19 @@ class JiraClient {
     withResponse("${JiraResources.PRIORITY}",
       { response, body ->
         def priority = body.find { priority -> priority.name == name }
-        parser.parsePriority(priority)
+        JiraParser.parsePriority(priority)
       },
       "Unable to get jira priority with '${name}' name"
-    )
+    ) as JiraPriority
   }
 
   JiraStatus getJiraStatus(String name) {
     withResponse("${JiraResources.STATUS}/${name}",
       { response, body ->
-        parser.parseStatus(body)
+        JiraParser.parseStatus(body)
       },
       "Unable to get jira priority with '${name}' name"
-    )
+    ) as JiraStatus
   }
 
   private withPagedResponse(endpoint, successClosure, errorMessage, int pageSize = 100) {
@@ -295,7 +288,7 @@ class JiraClient {
   }
 
 
-  private withResponse(endpoint, successClosure, errorMessage) {
+  private def withResponse(String endpoint, successClosure, String errorMessage) {
     def response = getRequest(endpoint)
 
     if (response.status < 300) {
@@ -331,4 +324,12 @@ class JiraClient {
       validResponseCodes: "100:599"
   }
 
+  static JiraClient getJiraClient(def pipeline, String credentialsId = Constants.JIRA_CREDENTIALS_ID
+                                  , String url = Constants.FOLIO_JIRA_URL){
+    pipeline.withCredentials([
+      pipeline.usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
+    ]) {
+      return new JiraClient(pipeline, url, jiraUsername, jiraPassword)
+    } as JiraClient
+  }
 }
