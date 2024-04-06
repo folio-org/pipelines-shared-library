@@ -2,10 +2,14 @@ package org.folio.client.jira
 
 import org.folio.client.jira.model.*
 
-class JiraParser {
+final class JiraParser {
 
-  JiraProject parseProject(def json) {
-    def retVal = new JiraProject(id: json.id, key: json.key, name: json.name, description: json.description, issueTypes: [], archived: json.archived)
+  private JiraParser() {}
+
+  static JiraProject parseProject(def json) {
+    def retVal = new JiraProject(id: json.id, key: json.key, name: json.name
+                                , description: json.description, issueTypes: []
+                                , archived: json.archived)
 
     json.issueTypes.each { itJson ->
       retVal.issueTypes.add(parseIssueType(itJson))
@@ -14,7 +18,7 @@ class JiraParser {
     retVal
   }
 
-  JiraIssue parseIssue(def json) {
+  static JiraIssue parseIssue(def json) {
     new JiraIssue(id: json.id,
       key: json.key,
       summary: json.fields.summary,
@@ -24,7 +28,7 @@ class JiraParser {
       status: json.fields.status?.name)
   }
 
-  JiraIssue parseIssueKarateTest(def json) {
+  static JiraIssue parseIssueKarateTest(def json) {
     new JiraIssue(id: json.id,
       key: json.key,
       summary: json.fields.summary,
@@ -32,37 +36,40 @@ class JiraParser {
       status: json.fields.status?.name)
   }
 
-  JiraIssueType parseIssueType(def json) {
+  static JiraIssueType parseIssueType(def json) {
     new JiraIssueType(id: json.id, name: json.name, description: json.description, subtask: json.subtask)
   }
 
-  JiraIssueTransition parseIssueTransition(def json) {
+  static JiraIssueTransition parseIssueTransition(def json) {
     new JiraIssueTransition(id: json.id, name: json.name, statusId: json.to.id, statusName: json.to.name)
   }
 
-  JiraStatus parseStatus(def json) {
+  static JiraStatus parseStatus(def json) {
     new JiraStatus(id: json.id, name: json.name, description: json.description)
   }
 
-  JiraPriority parsePriority(def json) {
+  static JiraPriority parsePriority(def json) {
     new JiraPriority(id: json.id, name: json.name, description: json.description)
   }
 
-  JiraField parseField(def json) {
+  static JiraField parseField(def json) {
     new JiraField(id: json.id, name: json.name)
   }
 
-  JiraIssueCreateMeta parseIssueCreateMeta(def json) {
-    def fields = json.projects[0].issuetypes[0].fields.collect { key, fieldJson ->
-      parseFieldMeta(fieldJson)
+  static JiraIssueCreateMeta parseIssueCreateMeta(def json) {
+    def fields = json.projects[0].issuetypes[0].fields.collect {
+      key, fieldJson -> parseFieldMeta(fieldJson)
     }
 
-    new JiraIssueCreateMeta(projectId: json.projects[0].id, projectKey: json.projects[0].key,
-      issueTypeId: json.projects[0].issuetypes[0].id, issueTypeName: json.projects[0].issuetypes[0].name,
-      fields: fields)
+    new JiraIssueCreateMeta(
+      projectId: json.projects[0].id
+      , projectKey: json.projects[0].key
+      , issueTypeId: json.projects[0].issuetypes[0].id
+      , issueTypeName: json.projects[0].issuetypes[0].name
+      , fields: fields)
   }
 
-  JiraIssueUpdateMeta parseIssueUpdateMeta(def json) {
+  static JiraIssueUpdateMeta parseIssueUpdateMeta(def json) {
     def fields = json.fields.collect { key, fieldJson ->
       parseFieldMeta(fieldJson)
     }
@@ -70,8 +77,8 @@ class JiraParser {
     new JiraIssueUpdateMeta(fields: fields)
   }
 
-  private JiraField parseFieldMeta(fieldJson) {
-    def allowedValues = [:]
+  private static JiraField parseFieldMeta(fieldJson) {
+    Map<String, String> allowedValues = [:]
     fieldJson.allowedValues.each { value ->
       if (value.name) {
         allowedValues[value.name] = value.id
