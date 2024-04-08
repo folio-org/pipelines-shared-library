@@ -6,7 +6,7 @@ import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1004') _
 
 def call(params) {
   def id
@@ -35,7 +35,7 @@ def call(params) {
       }
     }
   }
-  stage('[ReportPortal config bind & Run start]') {
+/*  stage('[ReportPortal config bind & Run start]') {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
@@ -61,7 +61,7 @@ def call(params) {
     } catch (Exception e) {
       println("Error: " + e.getMessage())
     }
-  }
+  }*/
   stage('Run karate tests') {
     script {
       def karateEnvironment = "folio-testing-karate"
@@ -82,7 +82,7 @@ def call(params) {
       }
     }
   }
-  stage("[ReportPortal Run stop]") {
+/*  stage("[ReportPortal Run stop]") {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
@@ -108,7 +108,7 @@ def call(params) {
 
       junit testResults: '**/target/karate-reports*/*.xml'
     }
-  }
+  }*/
 
   stage('Archive artifacts') {
     script {
@@ -126,30 +126,30 @@ def call(params) {
     }
   }
 
-  stage('Send in slack test results notifications') {
-    script {
-      // export and collect karate tests results
-      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-      def passedTestsCount = 0
-      def failedTestsCount = 0
-      files_list.each { test ->
-        def json = readJSON file: test.path
-        def testsFailed = json['scenariosfailed']
-        if (testsFailed != 0) {
-          failedTestsCount += testsFailed
-        }
-        def testsPassed = json['scenariosPassed']
-        if (testsPassed != 0) {
-          passedTestsCount += testsPassed
-        }
-      }
-      def totalTestsCount = passedTestsCount + failedTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-      def passRate = passRateInDecimal.intValue()
-      slackNotifications.sendSlackNotification(TestType.KARATE,
-        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, true)
-    }
-  }
+//  stage('Send in slack test results notifications') {
+//    script {
+//      // export and collect karate tests results
+//      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+//      def passedTestsCount = 0
+//      def failedTestsCount = 0
+//      files_list.each { test ->
+//        def json = readJSON file: test.path
+//        def testsFailed = json['scenariosfailed']
+//        if (testsFailed != 0) {
+//          failedTestsCount += testsFailed
+//        }
+//        def testsPassed = json['scenariosPassed']
+//        if (testsPassed != 0) {
+//          passedTestsCount += testsPassed
+//        }
+//      }
+//      def totalTestsCount = passedTestsCount + failedTestsCount
+//      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+//      def passRate = passRateInDecimal.intValue()
+//      slackNotifications.sendSlackNotification(TestType.KARATE,
+//        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+//        "#rancher_tests_notifications", currentBuild.result, true)
+//    }
+//  }
 }
 
