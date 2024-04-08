@@ -23,16 +23,8 @@ final class JiraParser {
       key: json.key,
       summary: json.fields.summary,
       description: json.fields.description,
-      project: json.fields.project.name,
-      fixVersions: json.fields.fixVersions.name,
-      status: json.fields.status?.name)
-  }
-
-  static JiraIssue parseIssueKarateTest(def json) {
-    new JiraIssue(id: json.id,
-      key: json.key,
-      summary: json.fields.summary,
-      description: json.fields.description,
+      project: json.fields.project?.name,
+      fixVersions: json.fields.fixVersions?.name,
       status: json.fields.status?.name)
   }
 

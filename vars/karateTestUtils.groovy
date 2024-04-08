@@ -109,7 +109,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     // find existing karate issues
-    List<JiraIssue> issues = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
         def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
@@ -224,7 +224,7 @@ def getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = []
 
     List<JiraIssue> issuesByTeam = JiraClient.getJiraClient(this)
-      .searchIssuesKarate(
+      .searchIssues(
         KarateConstants.KARATE_ISSUES_JQL + """ and "Development Team" = "${team}" and ${timeFilter} """
         , ["summary", "status"]
       ) as List<JiraIssue>

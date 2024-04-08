@@ -2,7 +2,6 @@ package org.folio.client.jira
 
 import groovy.json.JsonOutput
 import hudson.AbortException
-import hudson.plugins.jira.model.JiraIssue
 import org.apache.http.HttpHeaders
 import org.folio.Constants
 import org.folio.client.jira.model.*
@@ -171,27 +170,6 @@ class JiraClient {
     } else {
       throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
     }
-  }
-
-
-  List<JiraIssue> searchIssuesKarate(String jql, List<String> fields) {
-    String endpoint = "${JiraResources.SEARCH}?jql=${URLEncoder.encode(jql, "UTF-8")}"
-    if (fields) {
-      endpoint += "&fields=${fields.join(',')}"
-    }
-
-    def retVal = []
-    withPagedResponse(endpoint,
-      { response, body ->
-        body.issues.each { issue ->
-          retVal.add(JiraParser.parseIssueKarateTest(issue))
-        }
-
-      },
-      "Unable to get execute search for jql '${jql}' and fields '${fields}'"
-    )
-
-    retVal
   }
 
   List<JiraIssue> searchIssues(String jql, List<String> fields) {
