@@ -307,7 +307,7 @@ class JiraClient {
     pipeline.withCredentials([
       pipeline.usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
-      return new JiraClient(pipeline, url, jiraUsername, jiraPassword)
+      return new JiraClient(pipeline, url, pipeline.jiraUsername, pipeline.jiraPassword)
     } as JiraClient
   }
 }
