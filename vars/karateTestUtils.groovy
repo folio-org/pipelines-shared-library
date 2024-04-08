@@ -22,9 +22,6 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
         String path = karateSummary.path
         echo "Collecting tests execution result from '${path}' file"
         String[] split = path.split("/")
-        println("karateTestUtils.collectTestResults path=${path}")
-        println("karateTestUtils.collectTestResults split=${split}")
-        println("karateTestUtils.collectTestResults moduleName = split[split.size() - 4]=${split[split.size() - 4]}")
         String moduleName = split[split.size() - 4]
 
         def contents = readJSON file: path
