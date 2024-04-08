@@ -114,7 +114,7 @@ pipeline {
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
                                prototypeTenant: prototypeTenant]
-          sleep time: 30, unit: 'MINUTES'
+          /*sleep time: 30, unit: 'MINUTES'*/
           karateFlow(jobParameters)
         }
       }
