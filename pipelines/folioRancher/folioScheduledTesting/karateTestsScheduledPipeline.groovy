@@ -151,6 +151,8 @@ pipeline {
                 script {
                   def jsonContents = readJSON file: "teams-assignment.json"
                   teamAssignment = new TeamAssignment(jsonContents)
+
+                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
               }
             }

@@ -115,8 +115,11 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
+    println("syncJiraIssues issues=${issues}")
+    println("syncJiraIssues issuesMap=${issuesMap}")
+
     Map<String, KarateTeam> teamByModule = teamAssignment.getTeamsByModules()
-    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
+/*    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
@@ -152,7 +155,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
                 }
             }
         }
-    }
+    }*/
 }
 
 String toSearchableSummary(String summary) {
