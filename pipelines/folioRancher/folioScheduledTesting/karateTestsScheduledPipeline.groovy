@@ -113,7 +113,8 @@ pipeline {
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant]
+                               prototypeTenant: prototypeTenant,
+                               modules: 'mod-fqm-manager']
           /*sleep time: 30, unit: 'MINUTES'*/
           karateFlow(jobParameters)
         }
