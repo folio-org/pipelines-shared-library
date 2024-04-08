@@ -82,33 +82,33 @@ def call(params) {
       }
     }
   }
-/*  stage("[ReportPortal Run stop]") {
-    try {
-      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-        Map headers = [
-          "Content-Type" : "application/json",
-          "Authorization": "Bearer ${env.api_key}"
-        ]
-        String body = JsonOutput.toJson([
-          endTime: "${Instant.now()}"
-        ])
-        def res_end = new RestClient(this).put(url, body, headers)
-        println("${res_end}")
-      }
-    } catch (Exception e) {
-      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-    }
-  }
-  stage('Publish tests report') {
-    script {
-      cucumber buildStatus: "UNSTABLE",
-        fileIncludePattern: "**/target/karate-reports*/*.json",
-        sortingMethod: "ALPHABETICAL"
-
-      junit testResults: '**/target/karate-reports*/*.xml'
-    }
-  }*/
+//  stage("[ReportPortal Run stop]") {
+//    try {
+//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
+//        Map headers = [
+//          "Content-Type" : "application/json",
+//          "Authorization": "Bearer ${env.api_key}"
+//        ]
+//        String body = JsonOutput.toJson([
+//          endTime: "${Instant.now()}"
+//        ])
+//        def res_end = new RestClient(this).put(url, body, headers)
+//        println("${res_end}")
+//      }
+//    } catch (Exception e) {
+//      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+//    }
+//  }
+//  stage('Publish tests report') {
+//    script {
+//      cucumber buildStatus: "UNSTABLE",
+//        fileIncludePattern: "**/target/karate-reports*/*.json",
+//        sortingMethod: "ALPHABETICAL"
+//
+//      junit testResults: '**/target/karate-reports*/*.xml'
+//    }
+//  }
 
   stage('Archive artifacts') {
     script {
