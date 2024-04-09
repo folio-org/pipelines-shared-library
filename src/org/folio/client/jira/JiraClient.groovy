@@ -58,7 +58,7 @@ class JiraClient {
       }
     }
 
-    pipeline.println("JiraClient.createJiraTicketInternal fields=${fields}")
+    pipeline.println("JiraClient.createJiraTicketInternal createFields=${createFields}")
     pipeline.println("JiraClient.createJiraTicketInternal JsonOutput.toJson(createFields)=${JsonOutput.toJson(createFields)}")
 
     def content = """
