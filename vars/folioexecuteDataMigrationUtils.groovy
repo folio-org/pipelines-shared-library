@@ -65,7 +65,6 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
         }
     }
     println("TENANTS: ${tenants}")
-    println("UNIQUE: ${uniqTenants}")
     // Grouped modules by tenant name and generate HTML report
     def uniqTenants = tenants.tenantName.unique()
     uniqTenants.each { tenantName ->
@@ -76,8 +75,8 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
         writeFile file: "reportTime/${tenantName}.html", text: htmlData
     }
     return [totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack]
-
 }
+    println("UNIQUE: ${uniqTenants}")
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
