@@ -50,10 +50,18 @@ class JiraClient {
 
     fields.each { name, value ->
       if (!createIgnoreFields.contains(name)) {
+        pipeline.println("JiraClient.createJiraTicketInternal fields.each.name=${name}")
+        pipeline.println("JiraClient.createJiraTicketInternal fields.each.value=${value}")
+        pipeline.println("JiraClient.createJiraTicketInternal !jiraFields[name]=${!jiraFields[name]}")
         if (!jiraFields[name]) {
           updateFieldsCandidates[name] = value
         } else {
+          pipeline.println("JiraClient.createJiraTicketInternal jiraFields[name]=${jiraFields[name]}")
+
           def jiraField = jiraFields[name]
+
+          pipeline.println("JiraClient.createJiraTicketInternal !jiraField.allowedValues=${!jiraField.allowedValues}")
+
           if (!jiraField.allowedValues) {
             createFields[jiraField.id] = value
           } else {
@@ -64,6 +72,7 @@ class JiraClient {
     }
 
     pipeline.println("JiraClient.createJiraTicketInternal createFields=${createFields}")
+    pipeline.println("JiraClient.createJiraTicketInternal updateFieldsCandidates=${updateFieldsCandidates}")
     pipeline.println("JiraClient.createJiraTicketInternal JsonOutput.toJson(createFields)=${JsonOutput.toJson(createFields)}")
 
     def content = """
