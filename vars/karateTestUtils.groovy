@@ -200,6 +200,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 
     try {
         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+        println("createFailedFeatureJiraIssue fields=${fields}")
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
         echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
     } catch (e) {
