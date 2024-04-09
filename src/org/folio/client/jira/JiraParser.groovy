@@ -48,9 +48,9 @@ final class JiraParser {
     new JiraField(id: json.id, name: json.name)
   }
 
-  static JiraIssueCreateMeta parseIssueCreateMeta(def json, def pipeline) {
+  static JiraIssueCreateMeta parseIssueCreateMeta(def json) {
     def fields = json.projects[0].issuetypes[0].fields.collect {
-      key, fieldJson -> parseFieldMeta(fieldJson, pipeline)
+      key, fieldJson -> parseFieldMeta(fieldJson)
     }
 
     new JiraIssueCreateMeta(
@@ -69,7 +69,7 @@ final class JiraParser {
     new JiraIssueUpdateMeta(fields: fields)
   }
 
-  private static JiraField parseFieldMeta(fieldJson, def pipeline = null) {
+  private static JiraField parseFieldMeta(fieldJson) {
     Map<String, String> allowedValues = [:]
     fieldJson.allowedValues.each { value ->
       if (value.name) {
@@ -78,9 +78,6 @@ final class JiraParser {
         allowedValues[value.value] = value.id
       }
     }
-
-    pipeline.println("JiraParser.parseFieldMeta fieldJson=${fieldJson}")
-    pipeline.println("JiraParser.parseFieldMeta fieldJson.fieldId=${fieldJson.fieldId} fieldJson.name=${fieldJson.name} allowedValues=${allowedValues}")
     new JiraField(id: fieldJson.fieldId, name: fieldJson.name, allowedValues: allowedValues)
   }
 
