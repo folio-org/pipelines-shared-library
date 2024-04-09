@@ -200,14 +200,14 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 
     println("createFailedFeatureJiraIssue fields=${fields}")
 
-    try {
-        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+//    try {
+//        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
-        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-    } catch (e) {
-        echo("Unable to create Jira ticket. " + e.getMessage())
-        e.printStackTrace()
-    }
+//        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+//    } catch (e) {
+//        echo("Unable to create Jira ticket. " + e.getMessage())
+//        e.printStackTrace()
+//    }
 }
 
 private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
