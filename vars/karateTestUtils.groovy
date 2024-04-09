@@ -119,11 +119,14 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     println("syncJiraIssues issuesMap=${issuesMap}")
 
     Map<String, KarateTeam> teamByModule = teamAssignment.getTeamsByModules()
-/*    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
+    karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
             if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
+                println("syncJiraIssues inside moduleSummary.features.each featureName=${featureName}")
+                println("syncJiraIssues inside moduleSummary.features.each getIssueDescription(featureSummary)=${getIssueDescription(featureSummary)}")
+
                 createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
             } else if (issuesMap.containsKey(featureName)) {
@@ -155,7 +158,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
                 }
             }
         }
-    }*/
+    }
 }
 
 String toSearchableSummary(String summary) {
@@ -184,7 +187,8 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
-    def teamName = "TEAM_MISSING"
+//    def teamName = "TEAM_MISSING"
+    def teamName = "Kitfox"
     def team = teamByModule[moduleSummary.name]
     if (team) {
         teamName = team.name
