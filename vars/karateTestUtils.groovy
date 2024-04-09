@@ -177,6 +177,8 @@ String toSearchableSummary(String summary) {
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
                                   Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
+    println("createFailedFeatureJiraIssue start")
+
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
@@ -187,6 +189,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
+    println("createFailedFeatureJiraIssue before assignment development team")
     fields["Development Team"] = "Kitfox"
 
 /*    def teamName = "TEAM_MISSING"
