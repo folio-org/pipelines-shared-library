@@ -78,7 +78,7 @@ final class JiraParser {
         allowedValues[value.value] = value.id
       }
     }
-    new JiraField(id: fieldJson.fieldId, name: fieldJson.name, allowedValues: allowedValues)
+    new JiraField(id: fieldJson.key, name: fieldJson.name, allowedValues: allowedValues)
   }
 
 }
