@@ -31,7 +31,7 @@
                 "customId": 11100
               },
               "name": "Template",
-              "fieldId": "customfield_11100",
+              "key": "customfield_11100",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -44,7 +44,7 @@
                 "system": "summary"
               },
               "name": "Summary",
-              "fieldId": "summary",
+              "key": "summary",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -57,7 +57,7 @@
                 "system": "issuetype"
               },
               "name": "Issue Type",
-              "fieldId": "issuetype",
+              "key": "issuetype",
               "hasDefaultValue": false,
               "operations": [],
               "allowedValues": [
@@ -79,7 +79,7 @@
                 "system": "reporter"
               },
               "name": "Reporter",
-              "fieldId": "reporter",
+              "key": "reporter",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/latest/user/search?username=",
               "hasDefaultValue": false,
               "operations": [
@@ -94,7 +94,7 @@
                 "system": "components"
               },
               "name": "Component/s",
-              "fieldId": "components",
+              "key": "components",
               "hasDefaultValue": false,
               "operations": [
                 "add",
@@ -110,7 +110,7 @@
                 "system": "description"
               },
               "name": "Description",
-              "fieldId": "description",
+              "key": "description",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -125,7 +125,7 @@
                 "customId": 10001
               },
               "name": "Sprint",
-              "fieldId": "customfield_10001",
+              "key": "customfield_10001",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -139,7 +139,7 @@
                 "customId": 10006
               },
               "name": "Story Points",
-              "fieldId": "customfield_10006",
+              "key": "customfield_10006",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -153,7 +153,7 @@
                 "customId": 10501
               },
               "name": "Development Team",
-              "fieldId": "customfield_10501",
+              "key": "customfield_10501",
               "hasDefaultValue": true,
               "operations": [
                 "set"
@@ -397,7 +397,7 @@
                 "system": "fixVersions"
               },
               "name": "Fix Version/s",
-              "fieldId": "fixVersions",
+              "key": "fixVersions",
               "hasDefaultValue": false,
               "operations": [
                 "set",
@@ -414,7 +414,7 @@
                 "customId": 11101
               },
               "name": "Release",
-              "fieldId": "customfield_11101",
+              "key": "customfield_11101",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -658,7 +658,7 @@
                 "customId": 11807
               },
               "name": "Hot Fix Approved by Cap Planning?",
-              "fieldId": "customfield_11807",
+              "key": "customfield_11807",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -686,7 +686,7 @@
                 "customId": 11808
               },
               "name": "Hot Fix Approval Comments",
-              "fieldId": "customfield_11808",
+              "key": "customfield_11808",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -699,7 +699,7 @@
                 "system": "priority"
               },
               "name": "Priority",
-              "fieldId": "priority",
+              "key": "priority",
               "hasDefaultValue": true,
               "operations": [
                 "set"
@@ -758,7 +758,7 @@
                 "customId": 11202
               },
               "name": "Affected Institution",
-              "fieldId": "customfield_11202",
+              "key": "customfield_11202",
               "hasDefaultValue": false,
               "operations": [
                 "add",
@@ -992,7 +992,7 @@
                 "system": "labels"
               },
               "name": "Labels",
-              "fieldId": "labels",
+              "key": "labels",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/labels/suggest?query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1009,7 +1009,7 @@
                 "system": "attachment"
               },
               "name": "Attachment",
-              "fieldId": "attachment",
+              "key": "attachment",
               "hasDefaultValue": false,
               "operations": []
             },
@@ -1021,7 +1021,7 @@
                 "system": "issuelinks"
               },
               "name": "Linked Issues",
-              "fieldId": "issuelinks",
+              "key": "issuelinks",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=null&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1036,7 +1036,7 @@
                 "customId": 10400
               },
               "name": "Tester Assignee",
-              "fieldId": "customfield_10400",
+              "key": "customfield_10400",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10400&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1051,7 +1051,7 @@
                 "customId": 10502
               },
               "name": "UX Lead",
-              "fieldId": "customfield_10502",
+              "key": "customfield_10502",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10502&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1066,7 +1066,7 @@
                 "customId": 10002
               },
               "name": "Epic Link",
-              "fieldId": "customfield_10002",
+              "key": "customfield_10002",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1080,7 +1080,7 @@
                 "customId": 10401
               },
               "name": "Analysis Estimate",
-              "fieldId": "customfield_10401",
+              "key": "customfield_10401",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1144,7 +1144,7 @@
                 "customId": 10402
               },
               "name": "Analysis Estimator",
-              "fieldId": "customfield_10402",
+              "key": "customfield_10402",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10402&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1159,7 +1159,7 @@
                 "customId": 10405
               },
               "name": "Back End Estimate",
-              "fieldId": "customfield_10405",
+              "key": "customfield_10405",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1235,7 +1235,7 @@
                 "customId": 10406
               },
               "name": "Back End Estimator",
-              "fieldId": "customfield_10406",
+              "key": "customfield_10406",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10406&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1250,7 +1250,7 @@
                 "customId": 10407
               },
               "name": "Front-End Confidence factor",
-              "fieldId": "customfield_10407",
+              "key": "customfield_10407",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1344,7 +1344,7 @@
                 "customId": 10408
               },
               "name": "Estimation Notes and Assumptions",
-              "fieldId": "customfield_10408",
+              "key": "customfield_10408",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1358,7 +1358,7 @@
                 "customId": 10403
               },
               "name": "Front End Estimate",
-              "fieldId": "customfield_10403",
+              "key": "customfield_10403",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1440,7 +1440,7 @@
                 "customId": 10404
               },
               "name": "Front End Estimator",
-              "fieldId": "customfield_10404",
+              "key": "customfield_10404",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10404&query=",
               "hasDefaultValue": false,
               "operations": [
@@ -1455,7 +1455,7 @@
                 "customId": 11204
               },
               "name": "RCA Group",
-              "fieldId": "customfield_11204",
+              "key": "customfield_11204",
               "hasDefaultValue": true,
               "operations": [
                 "set"
@@ -1573,7 +1573,7 @@
                 "customId": 11900
               },
               "name": "Automation QA Estimate",
-              "fieldId": "customfield_11900",
+              "key": "customfield_11900",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1649,7 +1649,7 @@
                 "customId": 11902
               },
               "name": "Back-End Confidence factor",
-              "fieldId": "customfield_11902",
+              "key": "customfield_11902",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1725,7 +1725,7 @@
                 "customId": 11903
               },
               "name": "Automation QA Confidence factor",
-              "fieldId": "customfield_11903",
+              "key": "customfield_11903",
               "hasDefaultValue": false,
               "operations": [
                 "set"
@@ -1800,7 +1800,7 @@
                 "system": "assignee"
               },
               "name": "Assignee",
-              "fieldId": "assignee",
+              "key": "assignee",
               "autoCompleteUrl": "https://issues.folio.org/rest/api/latest/user/assignable/search?issueKey=null&username=",
               "hasDefaultValue": false,
               "operations": [
@@ -1814,7 +1814,7 @@
                 "system": "project"
               },
               "name": "Project",
-              "fieldId": "project",
+              "key": "project",
               "hasDefaultValue": false,
               "operations": [
                 "set"

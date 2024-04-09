@@ -8,7 +8,7 @@
         "customId": 11100
       },
       "name": "Template",
-      "fieldId": "customfield_11100",
+      "key": "customfield_11100",
       "operations": [
         "set"
       ]
@@ -20,7 +20,7 @@
         "system": "issuetype"
       },
       "name": "Issue Type",
-      "fieldId": "issuetype",
+      "key": "issuetype",
       "operations": [],
       "allowedValues": [
         {
@@ -102,7 +102,7 @@
         "system": "summary"
       },
       "name": "Summary",
-      "fieldId": "summary",
+      "key": "summary",
       "operations": [
         "set"
       ]
@@ -115,7 +115,7 @@
         "customId": 10006
       },
       "name": "Story Points",
-      "fieldId": "customfield_10006",
+      "key": "customfield_10006",
       "operations": [
         "set"
       ]
@@ -129,7 +129,7 @@
         "customId": 10001
       },
       "name": "Sprint",
-      "fieldId": "customfield_10001",
+      "key": "customfield_10001",
       "operations": [
         "set"
       ]
@@ -142,7 +142,7 @@
         "customId": 10501
       },
       "name": "Development Team",
-      "fieldId": "customfield_10501",
+      "key": "customfield_10501",
       "operations": [
         "set"
       ],
@@ -378,7 +378,7 @@
         "system": "priority"
       },
       "name": "Priority",
-      "fieldId": "priority",
+      "key": "priority",
       "operations": [
         "set"
       ],
@@ -429,7 +429,7 @@
         "system": "components"
       },
       "name": "Component/s",
-      "fieldId": "components",
+      "key": "components",
       "operations": [
         "add",
         "set",
@@ -444,7 +444,7 @@
         "system": "description"
       },
       "name": "Description",
-      "fieldId": "description",
+      "key": "description",
       "operations": [
         "set"
       ]
@@ -457,7 +457,7 @@
         "system": "versions"
       },
       "name": "Affects Version/s",
-      "fieldId": "versions",
+      "key": "versions",
       "operations": [
         "set",
         "add",
@@ -473,7 +473,7 @@
         "system": "fixVersions"
       },
       "name": "Fix Version/s",
-      "fieldId": "fixVersions",
+      "key": "fixVersions",
       "operations": [
         "set",
         "add",
@@ -489,7 +489,7 @@
         "customId": 11101
       },
       "name": "Release",
-      "fieldId": "customfield_11101",
+      "key": "customfield_11101",
       "operations": [
         "set"
       ],
@@ -738,7 +738,7 @@
         "customId": 11807
       },
       "name": "Hot Fix Approved by Cap Planning?",
-      "fieldId": "customfield_11807",
+      "key": "customfield_11807",
       "operations": [
         "set"
       ],
@@ -765,7 +765,7 @@
         "customId": 11808
       },
       "name": "Hot Fix Approval Comments",
-      "fieldId": "customfield_11808",
+      "key": "customfield_11808",
       "operations": [
         "set"
       ]
@@ -778,7 +778,7 @@
         "system": "labels"
       },
       "name": "Labels",
-      "fieldId": "labels",
+      "key": "labels",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/labels/suggest?query=",
       "operations": [
         "add",
@@ -793,7 +793,7 @@
         "system": "environment"
       },
       "name": "Environment",
-      "fieldId": "environment",
+      "key": "environment",
       "operations": [
         "set"
       ]
@@ -806,7 +806,7 @@
         "customId": 10722
       },
       "name": "Potential Workaround",
-      "fieldId": "customfield_10722",
+      "key": "customfield_10722",
       "operations": [
         "set"
       ]
@@ -820,7 +820,7 @@
         "customId": 11202
       },
       "name": "Affected Institution",
-      "fieldId": "customfield_11202",
+      "key": "customfield_11202",
       "operations": [
         "add",
         "set",
@@ -1053,7 +1053,7 @@
         "system": "attachment"
       },
       "name": "Attachment",
-      "fieldId": "attachment",
+      "key": "attachment",
       "operations": []
     },
     "issuelinks": {
@@ -1064,7 +1064,7 @@
         "system": "issuelinks"
       },
       "name": "Linked Issues",
-      "fieldId": "issuelinks",
+      "key": "issuelinks",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=KRD-328&query=",
       "operations": [
         "add"
@@ -1078,7 +1078,7 @@
         "customId": 10400
       },
       "name": "Tester Assignee",
-      "fieldId": "customfield_10400",
+      "key": "customfield_10400",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10400&query=",
       "operations": [
         "set"
@@ -1092,7 +1092,7 @@
         "customId": 10502
       },
       "name": "UX Lead",
-      "fieldId": "customfield_10502",
+      "key": "customfield_10502",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10502&query=",
       "operations": [
         "set"
@@ -1106,7 +1106,7 @@
         "customId": 10002
       },
       "name": "Epic Link",
-      "fieldId": "customfield_10002",
+      "key": "customfield_10002",
       "operations": [
         "set"
       ]
@@ -1119,7 +1119,7 @@
         "customId": 10401
       },
       "name": "Analysis Estimate",
-      "fieldId": "customfield_10401",
+      "key": "customfield_10401",
       "operations": [
         "set"
       ],
@@ -1182,7 +1182,7 @@
         "customId": 10402
       },
       "name": "Analysis Estimator",
-      "fieldId": "customfield_10402",
+      "key": "customfield_10402",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10402&query=",
       "operations": [
         "set"
@@ -1196,7 +1196,7 @@
         "customId": 10405
       },
       "name": "Back End Estimate",
-      "fieldId": "customfield_10405",
+      "key": "customfield_10405",
       "operations": [
         "set"
       ],
@@ -1271,7 +1271,7 @@
         "customId": 10406
       },
       "name": "Back End Estimator",
-      "fieldId": "customfield_10406",
+      "key": "customfield_10406",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10406&query=",
       "operations": [
         "set"
@@ -1285,7 +1285,7 @@
         "customId": 10407
       },
       "name": "Front-End Confidence factor",
-      "fieldId": "customfield_10407",
+      "key": "customfield_10407",
       "operations": [
         "set"
       ],
@@ -1378,7 +1378,7 @@
         "customId": 10403
       },
       "name": "Front End Estimate",
-      "fieldId": "customfield_10403",
+      "key": "customfield_10403",
       "operations": [
         "set"
       ],
@@ -1459,7 +1459,7 @@
         "customId": 10404
       },
       "name": "Front End Estimator",
-      "fieldId": "customfield_10404",
+      "key": "customfield_10404",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10404&query=",
       "operations": [
         "set"
@@ -1473,7 +1473,7 @@
         "customId": 10408
       },
       "name": "Estimation Notes and Assumptions",
-      "fieldId": "customfield_10408",
+      "key": "customfield_10408",
       "operations": [
         "set"
       ]
@@ -1486,7 +1486,7 @@
         "customId": 11204
       },
       "name": "RCA Group",
-      "fieldId": "customfield_11204",
+      "key": "customfield_11204",
       "operations": [
         "set"
       ],
@@ -1597,7 +1597,7 @@
         "customId": 11900
       },
       "name": "Automation QA Estimate",
-      "fieldId": "customfield_11900",
+      "key": "customfield_11900",
       "operations": [
         "set"
       ],
@@ -1672,7 +1672,7 @@
         "customId": 11902
       },
       "name": "Back-End Confidence factor",
-      "fieldId": "customfield_11902",
+      "key": "customfield_11902",
       "operations": [
         "set"
       ],
@@ -1747,7 +1747,7 @@
         "customId": 11903
       },
       "name": "Automation QA Confidence factor",
-      "fieldId": "customfield_11903",
+      "key": "customfield_11903",
       "operations": [
         "set"
       ],
@@ -1821,7 +1821,7 @@
         "system": "assignee"
       },
       "name": "Assignee",
-      "fieldId": "assignee",
+      "key": "assignee",
       "autoCompleteUrl": "https://issues.folio.org/rest/api/latest/user/assignable/search?issueKey=KRD-328&username=",
       "operations": [
         "set"
@@ -1834,7 +1834,7 @@
         "system": "comment"
       },
       "name": "Comment",
-      "fieldId": "comment",
+      "key": "comment",
       "operations": [
         "add",
         "edit",
