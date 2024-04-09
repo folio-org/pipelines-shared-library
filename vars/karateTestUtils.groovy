@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
@@ -199,6 +200,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
     }*/
 
     println("createFailedFeatureJiraIssue fields=${fields}")
+    println("createFailedFeatureJiraIssue JsonOutput.toJson(createFields)=${JsonOutput.toJson(fields)}")
 
 //    try {
 //        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
