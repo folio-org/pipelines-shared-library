@@ -191,6 +191,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
 
     println("createFailedFeatureJiraIssue before assignment development team")
     fields["Development Team"] = "Kitfox"
+    println("createFailedFeatureJiraIssue after assignment development team")
 
 /*    def teamName = "TEAM_MISSING"
     def team = teamByModule[moduleSummary.name]
