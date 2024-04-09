@@ -79,6 +79,7 @@ final class JiraParser {
       }
     }
 
+    pipeline.println("JiraParser.parseFieldMeta fieldJson=${fieldJson}")
     pipeline.println("JiraParser.parseFieldMeta fieldJson.fieldId=${fieldJson.fieldId} fieldJson.name=${fieldJson.name} allowedValues=${allowedValues}")
     new JiraField(id: fieldJson.fieldId, name: fieldJson.name, allowedValues: allowedValues)
   }
