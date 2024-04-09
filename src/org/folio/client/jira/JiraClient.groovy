@@ -43,41 +43,20 @@ class JiraClient {
     def jiraFields = issueCreateMeta.getFieldsByName()
     def updateFieldsCandidates = [:]
     def createFields = [:]
-
-    pipeline.println("JiraClient.createJiraTicketInternal issueCreateMeta=${issueCreateMeta}")
-    pipeline.println("JiraClient.createJiraTicketInternal jiraFields=${jiraFields}")
-
-
     fields.each { name, value ->
       if (!createIgnoreFields.contains(name)) {
-//        pipeline.println("JiraClient.createJiraTicketInternal !jiraFields[name]=${!jiraFields[name]}")
         if (!jiraFields[name]) {
           updateFieldsCandidates[name] = value
         } else {
-          pipeline.println("JiraClient.createJiraTicketInternal jiraFields[name]=${jiraFields[name]}")
-
           def jiraField = jiraFields[name]
-
-          pipeline.println("JiraClient.createJiraTicketInternal fields.each.name=${name}")
-          pipeline.println("JiraClient.createJiraTicketInternal fields.each.value=${value}")
-
-          pipeline.println("JiraClient.createJiraTicketInternal !jiraField.allowedValues=${!jiraField.allowedValues}")
-          pipeline.println("JiraClient.createJiraTicketInternal jiraFields[name].id=${jiraField.id}")
-
           if (!jiraField.allowedValues) {
             createFields[jiraField.id] = value
           } else {
-            pipeline.println("JiraClient.createJiraTicketInternal jiraFields[name].allowedValues[value]=${jiraField.allowedValues[value]}")
-
             createFields[jiraField.id] = ["id": jiraField.allowedValues[value]]
           }
         }
       }
     }
-
-    pipeline.println("JiraClient.createJiraTicketInternal createFields=${createFields}")
-    pipeline.println("JiraClient.createJiraTicketInternal updateFieldsCandidates=${updateFieldsCandidates}")
-    pipeline.println("JiraClient.createJiraTicketInternal JsonOutput.toJson(createFields)=${JsonOutput.toJson(createFields)}")
 
     def content = """
         {

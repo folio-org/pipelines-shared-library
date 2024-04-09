@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.folio.client.jira.JiraClient
@@ -116,18 +115,12 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
     }
 
-    println("syncJiraIssues issues=${issues}")
-    println("syncJiraIssues issuesMap=${issuesMap}")
-
     Map<String, KarateTeam> teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
         moduleSummary.features.each { featureSummary ->
             // No jira issue and feature failed
             def featureName = toSearchableSummary(featureSummary.displayName)
             if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
-                println("syncJiraIssues inside moduleSummary.features.each featureName=${featureName}")
-                println("syncJiraIssues inside moduleSummary.features.each getIssueDescription(featureSummary)=${getIssueDescription(featureSummary)}")
-
                 createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
                 // Jira issue exists
             } else if (issuesMap.containsKey(featureName)) {
@@ -199,17 +192,14 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }*/
 
-    println("createFailedFeatureJiraIssue fields=${fields}")
-    println("createFailedFeatureJiraIssue JsonOutput.toJson(createFields)=${JsonOutput.toJson(fields)}")
-
-//    try {
-//        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+    try {
+        echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
-//        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-//    } catch (e) {
-//        echo("Unable to create Jira ticket. " + e.getMessage())
-//        e.printStackTrace()
-//    }
+        echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
+    } catch (e) {
+        echo("Unable to create Jira ticket. " + e.getMessage())
+        e.printStackTrace()
+    }
 }
 
 private String getIssueDescription(KarateFeatureExecutionSummary featureSummary) {
