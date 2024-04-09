@@ -177,8 +177,6 @@ String toSearchableSummary(String summary) {
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
                                   Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
-    println("createFailedFeatureJiraIssue start")
-
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
@@ -189,9 +187,7 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         Labels     : [KarateConstants.ISSUE_LABEL]
     ]
 
-    println("createFailedFeatureJiraIssue before assignment development team")
     fields["Development Team"] = "Kitfox"
-    println("createFailedFeatureJiraIssue after assignment development team")
 
 /*    def teamName = "TEAM_MISSING"
     def team = teamByModule[moduleSummary.name]
@@ -202,9 +198,10 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
         echo "Module ${moduleSummary.name} is not assigned to any team."
     }*/
 
+    println("createFailedFeatureJiraIssue fields=${fields}")
+
     try {
         echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
-        println("createFailedFeatureJiraIssue fields=${fields}")
         def issueId = jiraClient.createJiraTicket KarateConstants.JIRA_PROJECT, KarateConstants.JIRA_ISSUE_TYPE, fields
         echo "Jira ticket '${issueId}' created for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"
     } catch (e) {
