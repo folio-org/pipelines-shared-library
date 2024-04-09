@@ -215,7 +215,7 @@ class JiraClient {
 
   JiraIssueCreateMeta getJiraIssueCreateMeta(String projectKey, String issueTypeName) {
     withResponse("${JiraResources.ISSUE_CREATE_META}?projectKeys=${projectKey}&issuetypeNames=${issueTypeName}&expand=projects.issuetypes.fields",
-      { response, body -> JiraParser.parseIssueCreateMeta(body) },
+      { response, body -> JiraParser.parseIssueCreateMeta(body, pipeline) },
       "Unable to get issue create meta for project '${projectKey}' and issue type '${issueTypeName}'"
     ) as JiraIssueCreateMeta
   }
