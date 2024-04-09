@@ -43,6 +43,11 @@ class JiraClient {
     def jiraFields = issueCreateMeta.getFieldsByName()
     def updateFieldsCandidates = [:]
     def createFields = [:]
+
+    pipeline.println("JiraClient.createJiraTicketInternal issueCreateMeta=${issueCreateMeta}")
+    pipeline.println("JiraClient.createJiraTicketInternal jiraFields=${jiraFields}")
+
+
     fields.each { name, value ->
       if (!createIgnoreFields.contains(name)) {
         if (!jiraFields[name]) {
