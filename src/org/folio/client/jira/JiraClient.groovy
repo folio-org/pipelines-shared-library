@@ -28,6 +28,7 @@ class JiraClient {
   }
 
   String createJiraTicket(String projectKey, String issueTypeName, Map fields) {
+    pipeline.println("JiraClient.createJiraTicket at the beginning")
     def issueCreateMeta = getJiraIssueCreateMeta(projectKey, issueTypeName)
 
     def (issueId, updateFieldsCandidates) = createJiraTicketInternal(projectKey, issueTypeName, fields, issueCreateMeta)
