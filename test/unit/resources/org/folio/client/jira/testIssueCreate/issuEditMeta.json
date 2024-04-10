@@ -24,71 +24,71 @@
       "operations": [],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10105",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10105",
           "id": "10105",
           "description": "New feature requests",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10322&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10322&avatarType=issuetype",
           "name": "New Feature",
           "subtask": false,
           "avatarId": 10322
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10100",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10100",
           "id": "10100",
           "description": "A task that needs to be done.",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype",
           "name": "Task",
           "subtask": false,
           "avatarId": 10318
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10102",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10102",
           "id": "10102",
           "description": "A problem which impairs or prevents the functions of the product.",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10303&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10303&avatarType=issuetype",
           "name": "Bug",
           "subtask": false,
           "avatarId": 10303
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10000",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10000",
           "id": "10000",
           "description": "Created by Jira Software - do not edit or delete. Issue type for a big user story that needs to be broken down.",
-          "iconUrl": "https://issues.folio.org/images/icons/issuetypes/epic.svg",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/issuetypes/epic.svg",
           "name": "Epic",
           "subtask": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10001",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10001",
           "id": "10001",
           "description": "Created by Jira Software - do not edit or delete. Issue type for a user story.",
-          "iconUrl": "https://issues.folio.org/images/icons/issuetypes/story.svg",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/issuetypes/story.svg",
           "name": "Story",
           "subtask": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10200",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10200",
           "id": "10200",
           "description": "",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10300&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10300&avatarType=issuetype",
           "name": "Umbrella",
           "subtask": false,
           "avatarId": 10300
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10600",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10600",
           "id": "10600",
           "description": "",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10314&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10314&avatarType=issuetype",
           "name": "Tech Debt",
           "subtask": false,
           "avatarId": 10314
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/issuetype/10601",
+          "self": "https://folio-org.atlassian.net/rest/api/2/issuetype/10601",
           "id": "10601",
           "description": "Issue Type for Templates",
-          "iconUrl": "https://issues.folio.org/secure/viewavatar?size=xsmall&avatarId=10300&avatarType=issuetype",
+          "iconUrl": "https://folio-org.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10300&avatarType=issuetype",
           "name": "Template",
           "subtask": false,
           "avatarId": 10300
@@ -148,223 +148,223 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10304",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10304",
           "value": "@cult",
           "id": "10304",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12226",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12226",
           "value": "Bama",
           "id": "12226",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10308",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10308",
           "value": "Bienenvolk",
           "id": "10308",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10571",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10571",
           "value": "Concorde",
           "id": "10571",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10432",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10432",
           "value": "Core: Platform",
           "id": "10432",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10307",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10307",
           "value": "EBSCO - FSE",
           "id": "10307",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12221",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12221",
           "value": "ERM",
           "id": "12221",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11327",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11327",
           "value": "Falcon",
           "id": "11327",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10883",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10883",
           "value": "Firebird",
           "id": "10883",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10390",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10390",
           "value": "Folijet",
           "id": "10390",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12101",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12101",
           "value": "Folijet Support",
           "id": "12101",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10882",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10882",
           "value": "FOLIO DevOps",
           "id": "10882",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10305",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10305",
           "value": "Frontside",
           "id": "10305",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10884",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10884",
           "value": "Gulfstream",
           "id": "10884",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12269",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12269",
           "value": "K-Int",
           "id": "12269",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12001",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12001",
           "value": "Kitfox",
           "id": "12001",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10388",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10388",
           "value": "Lehigh",
           "id": "10388",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10389",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10389",
           "value": "Leipzig",
           "id": "10389",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11025",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11025",
           "value": "None",
           "id": "11025",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11805",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11805",
           "value": "Other dev",
           "id": "11805",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10302",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10302",
           "value": "Prokopovych",
           "id": "10302",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11808",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11808",
           "value": "PTF",
           "id": "11808",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10306",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10306",
           "value": "Qulto",
           "id": "10306",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11022",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11022",
           "value": "Reporting",
           "id": "11022",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10903",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10903",
           "value": "Scanbit",
           "id": "10903",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11405",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11405",
           "value": "Scout",
           "id": "11405",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12228",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12228",
           "value": "Sif",
           "id": "12228",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10420",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10420",
           "value": "Spitfire",
           "id": "10420",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11814",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11814",
           "value": "Spring Force",
           "id": "11814",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10303",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10303",
           "value": "Stacks",
           "id": "10303",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10421",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10421",
           "value": "Stripes Force",
           "id": "10421",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10609",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10609",
           "value": "Thor",
           "id": "10609",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10418",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10418",
           "value": "Thunderjet",
           "id": "10418",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10309",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10309",
           "value": "UNAM",
           "id": "10309",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10419",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10419",
           "value": "Vega",
           "id": "10419",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11807",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11807",
           "value": "Volaris",
           "id": "11807",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10909",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10909",
           "value": "仁者无敌 \"Benevolence\"",
           "id": "10909",
           "disabled": false
@@ -384,38 +384,38 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10005",
-          "iconUrl": "https://issues.folio.org/images/icons/priorities/blocker.svg",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/priorities/blocker.svg",
           "name": "P1",
           "id": "10005"
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10006",
-          "iconUrl": "https://issues.folio.org/images/icons/priorities/major.svg",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10006",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/priorities/major.svg",
           "name": "P2",
           "id": "10006"
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10100",
-          "iconUrl": "https://issues.folio.org/images/icons/priorities/minor.svg",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10100",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/priorities/minor.svg",
           "name": "P3",
           "id": "10100"
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10101",
-          "iconUrl": "https://issues.folio.org/images/icons/priorities/trivial.svg",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10101",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/priorities/trivial.svg",
           "name": "P4",
           "id": "10101"
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10102",
-          "iconUrl": "https://issues.folio.org/images/icons/priority_major.gif",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10102",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/priority_major.gif",
           "name": "P5",
           "id": "10102"
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/priority/10200",
-          "iconUrl": "https://issues.folio.org/secure/attachment/22398/Business-Medium-Priority-icon.png",
+          "self": "https://folio-org.atlassian.net/rest/api/2/priority/10200",
+          "iconUrl": "https://folio-org.atlassian.net/secure/attachment/22398/Business-Medium-Priority-icon.png",
           "name": "TBD",
           "id": "10200"
         }
@@ -495,235 +495,235 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10900",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10900",
           "value": "Not Scheduled",
           "id": "10900",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10901",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10901",
           "value": "Q2 2020",
           "id": "10901",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11000",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11000",
           "value": "Q2 2020 Hot Fix #1",
           "id": "11000",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11026",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11026",
           "value": "Q2 2020 Hot Fix #2",
           "id": "11026",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11210",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11210",
           "value": "Q2 2020 Hot Fix #3",
           "id": "11210",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11305",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11305",
           "value": "Q2 2020 Hot Fix #4",
           "id": "11305",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11319",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11319",
           "value": "Q2 2020 Hot Fix #5",
           "id": "11319",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10902",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10902",
           "value": "Q3 2020",
           "id": "10902",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11211",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11211",
           "value": "Q3 2020 Bug Fix",
           "id": "11211",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11333",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11333",
           "value": "Q3 2020 Hot Fix #1",
           "id": "11333",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11500",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11500",
           "value": "Q3 2020 Hot Fix #2",
           "id": "11500",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11504",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11504",
           "value": "Q3 2020 Hot Fix #3",
           "id": "11504",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11306",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11306",
           "value": "R1 2021",
           "id": "11306",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11501",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11501",
           "value": "R1 2021 Bug Fix",
           "id": "11501",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11502",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11502",
           "value": "R1 2021 Hot Fix #1",
           "id": "11502",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11824",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11824",
           "value": "R1 2021 Hot FIx #2",
           "id": "11824",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11833",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11833",
           "value": "R1 2021 Hot Fix #3",
           "id": "11833",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11837",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11837",
           "value": "R1 2021 Hot FIx #4",
           "id": "11837",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11839",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11839",
           "value": "R1 2022",
           "id": "11839",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11337",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11337",
           "value": "R2 2021",
           "id": "11337",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11830",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11830",
           "value": "R2 2021 Bugfix",
           "id": "11830",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11838",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11838",
           "value": "R2 2021 Hot Fix #1",
           "id": "11838",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11858",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11858",
           "value": "R2 2021 Hot Fix #2",
           "id": "11858",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11860",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11860",
           "value": "R2 2021 Hot Fix #3",
           "id": "11860",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11901",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11901",
           "value": "R2 2021 Hot Fix #4",
           "id": "11901",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11825",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11825",
           "value": "R3 2021",
           "id": "11825",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12003",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12003",
           "value": "R2 2021 Hot Fix #5",
           "id": "12003",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11859",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11859",
           "value": "R3 2021 Bug Fix",
           "id": "11859",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12100",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12100",
           "value": "Kiwi (R3 2021) Hot Fix #1",
           "id": "12100",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12220",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12220",
           "value": "Kiwi (R3 2021) Hot Fix #2",
           "id": "12220",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12271",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12271",
           "value": "Kiwi (R3 2021) Hot Fix #3",
           "id": "12271",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11864",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11864",
           "value": "Lotus R1 2022",
           "id": "11864",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11902",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11902",
           "value": "Lotus R1 2022 Bug Fix",
           "id": "11902",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12270",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12270",
           "value": "Lotus R1 2022 Hot Fix #1",
           "id": "12270",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11903",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11903",
           "value": "Morning Glory R2 2022",
           "id": "11903",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11904",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11904",
           "value": "Morning Glory R2 2022 Bug Fix",
           "id": "11904",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12216",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12216",
           "value": "R2 2021 Hot Fix #6",
           "id": "12216",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12223",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12223",
           "value": "Nolana R3 2022",
           "id": "12223",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12225",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12225",
           "value": "R2 2021 Hot Fix #7",
           "id": "12225",
           "disabled": false
@@ -744,13 +744,13 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11826",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11826",
           "value": "No",
           "id": "11826",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11827",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11827",
           "value": "Yes",
           "id": "11827",
           "disabled": false
@@ -779,7 +779,7 @@
       },
       "name": "Labels",
       "key": "labels",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/labels/suggest?query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/labels/suggest?query=",
       "operations": [
         "add",
         "set",
@@ -828,217 +828,217 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11900",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11900",
           "value": "!!!ALL!!!",
           "id": "11900",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11023",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11023",
           "value": "5 Colleges",
           "id": "11023",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11001",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11001",
           "value": "BNCF",
           "id": "11001",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11861",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11861",
           "value": "Caltech",
           "id": "11861",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11002",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11002",
           "value": "Chalmers",
           "id": "11002",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11003",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11003",
           "value": "Cornell",
           "id": "11003",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11004",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11004",
           "value": "Duke",
           "id": "11004",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11007",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11007",
           "value": "GBV",
           "id": "11007",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11834",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11834",
           "value": "Grand Valley State University",
           "id": "11834",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12227",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12227",
           "value": "HBZ",
           "id": "12227",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11008",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11008",
           "value": "Lehigh",
           "id": "11008",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11806",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11806",
           "value": "MI State University/Library of Michigan",
           "id": "11806",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11840",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11840",
           "value": "Middle Tennessee State University",
           "id": "11840",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11009",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11009",
           "value": "MO State",
           "id": "11009",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11832",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11832",
           "value": "Okanagan College",
           "id": "11832",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11010",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11010",
           "value": "OTHER",
           "id": "11010",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11024",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11024",
           "value": "SHL",
           "id": "11024",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11006",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11006",
           "value": "Simmons",
           "id": "11006",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11831",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11831",
           "value": "Skidmore College",
           "id": "11831",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11338",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11338",
           "value": "Spokane Public Libraries",
           "id": "11338",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11503",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11503",
           "value": "St. Michael's College",
           "id": "11503",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11021",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11021",
           "value": "STU",
           "id": "11021",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11011",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11011",
           "value": "TAMU",
           "id": "11011",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12268",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12268",
           "value": "Texas Southmost College",
           "id": "12268",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11836",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11836",
           "value": "Trinity College",
           "id": "11836",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11841",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11841",
           "value": "Universidad de Concepción",
           "id": "11841",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11013",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11013",
           "value": "University of Alabama",
           "id": "11013",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11012",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11012",
           "value": "University of Chicago",
           "id": "11012",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11865",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11865",
           "value": "University of Colorado",
           "id": "11865",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11014",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11014",
           "value": "University of Leipzig",
           "id": "11014",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11700",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11700",
           "value": "University of Tennessee Martin",
           "id": "11700",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11835",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11835",
           "value": "University of Zaragoza",
           "id": "11835",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12002",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12002",
           "value": "Villanova University",
           "id": "12002",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11015",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11015",
           "value": "Warner",
           "id": "11015",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12222",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12222",
           "value": "Washington College",
           "id": "12222",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11212",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11212",
           "value": "Washington-Jefferson",
           "id": "11212",
           "disabled": false
@@ -1065,7 +1065,7 @@
       },
       "name": "Linked Issues",
       "key": "issuelinks",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=KRD-328&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=KRD-328&query=",
       "operations": [
         "add"
       ]
@@ -1079,7 +1079,7 @@
       },
       "name": "Tester Assignee",
       "key": "customfield_10400",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10400&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10400&query=",
       "operations": [
         "set"
       ]
@@ -1093,7 +1093,7 @@
       },
       "name": "UX Lead",
       "key": "customfield_10502",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10502&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10502&query=",
       "operations": [
         "set"
       ]
@@ -1125,49 +1125,49 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10200",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10200",
           "value": "Very Small (VS) < 1day",
           "id": "10200",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10201",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10201",
           "value": "Small < 3 days",
           "id": "10201",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10202",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10202",
           "value": "Medium < 5 days",
           "id": "10202",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10203",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10203",
           "value": "Large < 10 days",
           "id": "10203",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10204",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10204",
           "value": "XL < 15 days",
           "id": "10204",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10205",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10205",
           "value": "XXL < 30 days",
           "id": "10205",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10221",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10221",
           "value": "None",
           "id": "10221",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10227",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10227",
           "value": "Very Small (VS) < 1 day",
           "id": "10227",
           "disabled": false
@@ -1183,7 +1183,7 @@
       },
       "name": "Analysis Estimator",
       "key": "customfield_10402",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10402&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10402&query=",
       "operations": [
         "set"
       ]
@@ -1202,61 +1202,61 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10228",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10228",
           "value": "Out of scope",
           "id": "10228",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10212",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10212",
           "value": "Very Small (VS) < 1day",
           "id": "10212",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10213",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10213",
           "value": "Small < 3 days",
           "id": "10213",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10214",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10214",
           "value": "Medium < 5 days",
           "id": "10214",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10215",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10215",
           "value": "Large < 10 days",
           "id": "10215",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10216",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10216",
           "value": "XL < 15 days",
           "id": "10216",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10217",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10217",
           "value": "XXL < 30 days",
           "id": "10217",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10904",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10904",
           "value": "XXXL: 30-45 days",
           "id": "10904",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10905",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10905",
           "value": "Jumbo: > 45 days",
           "id": "10905",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10225",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10225",
           "value": "Very Small (VS) < 1 day",
           "id": "10225",
           "disabled": true
@@ -1272,7 +1272,7 @@
       },
       "name": "Back End Estimator",
       "key": "customfield_10406",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10406&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10406&query=",
       "operations": [
         "set"
       ]
@@ -1291,79 +1291,79 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10218",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10218",
           "value": "High",
           "id": "10218",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10219",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10219",
           "value": "Medium",
           "id": "10219",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10220",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10220",
           "value": "Low",
           "id": "10220",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12238",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12238",
           "value": "10%",
           "id": "12238",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12239",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12239",
           "value": "20%",
           "id": "12239",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12240",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12240",
           "value": "30%",
           "id": "12240",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12241",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12241",
           "value": "40%",
           "id": "12241",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12242",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12242",
           "value": "50%",
           "id": "12242",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12243",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12243",
           "value": "60%",
           "id": "12243",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12244",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12244",
           "value": "70%",
           "id": "12244",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12245",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12245",
           "value": "80%",
           "id": "12245",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12246",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12246",
           "value": "90%",
           "id": "12246",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12247",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12247",
           "value": "100%",
           "id": "12247",
           "disabled": false
@@ -1384,67 +1384,67 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11863",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11863",
           "value": "Out of scope",
           "id": "11863",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10206",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10206",
           "value": "Very Small (VS) < 1day",
           "id": "10206",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10207",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10207",
           "value": "Small < 3 days",
           "id": "10207",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10208",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10208",
           "value": "Medium < 5 days",
           "id": "10208",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10209",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10209",
           "value": "Large < 10 days",
           "id": "10209",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10210",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10210",
           "value": "XL < 15 days",
           "id": "10210",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10211",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10211",
           "value": "XXL < 30 days",
           "id": "10211",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10908",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10908",
           "value": "XXXL: 30-45 days",
           "id": "10908",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10907",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10907",
           "value": "Jumbo: > 45 days",
           "id": "10907",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10230",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10230",
           "value": "TBD",
           "id": "10230",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/10223",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/10223",
           "value": "Very Small (VS) < 1 day",
           "id": "10223",
           "disabled": true
@@ -1460,7 +1460,7 @@
       },
       "name": "Front End Estimator",
       "key": "customfield_10404",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/1.0/users/picker?fieldName=customfield_10404&query=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10404&query=",
       "operations": [
         "set"
       ]
@@ -1492,97 +1492,97 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12217",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12217",
           "value": "TBD",
           "id": "12217",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12211",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12211",
           "value": "Institution specific data",
           "id": "12211",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11028",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11028",
           "value": "Data related (ex. Can be detected with large dataset only)",
           "id": "11028",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11029",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11029",
           "value": "Ignored UI bundle build errors",
           "id": "11029",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12214",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12214",
           "value": "Implementation coding issue",
           "id": "12214",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11030",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11030",
           "value": "Implemented by another team",
           "id": "11030",
           "disabled": true
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11326",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11326",
           "value": "Incomplete/missing requirements",
           "id": "11326",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12215",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12215",
           "value": "Interface dependency mismatch",
           "id": "12215",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11031",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11031",
           "value": "Legitimate regression",
           "id": "11031",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12212",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12212",
           "value": "Missing integration/unit test",
           "id": "12212",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/11027",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/11027",
           "value": "Missing module permission",
           "id": "11027",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12210",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12210",
           "value": "Requirements change",
           "id": "12210",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12213",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12213",
           "value": "Third party component integration",
           "id": "12213",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12218",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12218",
           "value": "Karate test failure",
           "id": "12218",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12219",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12219",
           "value": "Not a bug",
           "id": "12219",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12224",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12224",
           "value": "Related dependency upgrade",
           "id": "12224",
           "disabled": false
@@ -1603,61 +1603,61 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12200",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12200",
           "value": "Out of scope",
           "id": "12200",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12201",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12201",
           "value": "Very Small (VS) < 1day",
           "id": "12201",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12202",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12202",
           "value": "Small < 3 days",
           "id": "12202",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12203",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12203",
           "value": "Medium < 5 days",
           "id": "12203",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12204",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12204",
           "value": "Large < 10 days",
           "id": "12204",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12205",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12205",
           "value": "XL < 15 days",
           "id": "12205",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12206",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12206",
           "value": "XXL < 30 days",
           "id": "12206",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12207",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12207",
           "value": "XXXL: 30-45 days",
           "id": "12207",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12208",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12208",
           "value": "Jumbo: > 45 days",
           "id": "12208",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12209",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12209",
           "value": "TBD",
           "id": "12209",
           "disabled": false
@@ -1678,61 +1678,61 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12248",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12248",
           "value": "10%",
           "id": "12248",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12249",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12249",
           "value": "20%",
           "id": "12249",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12250",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12250",
           "value": "30%",
           "id": "12250",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12251",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12251",
           "value": "40%",
           "id": "12251",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12252",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12252",
           "value": "50%",
           "id": "12252",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12253",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12253",
           "value": "60%",
           "id": "12253",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12254",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12254",
           "value": "70%",
           "id": "12254",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12255",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12255",
           "value": "80%",
           "id": "12255",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12256",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12256",
           "value": "90%",
           "id": "12256",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12257",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12257",
           "value": "100%",
           "id": "12257",
           "disabled": false
@@ -1753,61 +1753,61 @@
       ],
       "allowedValues": [
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12258",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12258",
           "value": "10%",
           "id": "12258",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12259",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12259",
           "value": "20%",
           "id": "12259",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12260",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12260",
           "value": "30%",
           "id": "12260",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12261",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12261",
           "value": "40%",
           "id": "12261",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12262",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12262",
           "value": "50%",
           "id": "12262",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12263",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12263",
           "value": "60%",
           "id": "12263",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12264",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12264",
           "value": "70%",
           "id": "12264",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12265",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12265",
           "value": "80%",
           "id": "12265",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12266",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12266",
           "value": "90%",
           "id": "12266",
           "disabled": false
         },
         {
-          "self": "https://issues.folio.org/rest/api/2/customFieldOption/12267",
+          "self": "https://folio-org.atlassian.net/rest/api/2/customFieldOption/12267",
           "value": "100%",
           "id": "12267",
           "disabled": false
@@ -1822,7 +1822,7 @@
       },
       "name": "Assignee",
       "key": "assignee",
-      "autoCompleteUrl": "https://issues.folio.org/rest/api/latest/user/assignable/search?issueKey=KRD-328&username=",
+      "autoCompleteUrl": "https://folio-org.atlassian.net/rest/api/latest/user/assignable/search?issueKey=KRD-328&username=",
       "operations": [
         "set"
       ]

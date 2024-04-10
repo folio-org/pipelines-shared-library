@@ -3,7 +3,6 @@ package org.folio.client.jira
 import groovy.json.JsonOutput
 import hudson.AbortException
 import org.apache.http.HttpHeaders
-import org.folio.Constants
 import org.folio.client.jira.model.*
 import org.folio.karate.KarateConstants
 
@@ -278,14 +277,14 @@ class JiraClient {
   }
 
   private getRequest(String endpoint) {
-    pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
+    pipeline.httpRequest url: "${url}${JiraConstants.API_URL_PART}${endpoint}",
       contentType: "APPLICATION_JSON",
       customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
       validResponseCodes: "100:599"
   }
 
   private postRequest(String endpoint, String contents) {
-    pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
+    pipeline.httpRequest url: "${url}${JiraConstants.API_URL_PART}${endpoint}",
       httpMode: "POST",
       contentType: "APPLICATION_JSON",
       customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
@@ -294,7 +293,7 @@ class JiraClient {
   }
 
   private putRequest(String endpoint, String contents) {
-    pipeline.httpRequest url: "${url}/rest/api/2/${endpoint}",
+    pipeline.httpRequest url: "${url}${JiraConstants.API_URL_PART}${endpoint}",
       httpMode: "PUT",
       contentType: "APPLICATION_JSON",
       customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
@@ -302,8 +301,8 @@ class JiraClient {
       validResponseCodes: "100:599"
   }
 
-  static JiraClient getJiraClient(def pipeline, String credentialsId = Constants.JIRA_CREDENTIALS_ID
-                                  , String url = Constants.FOLIO_JIRA_URL){
+  static JiraClient getJiraClient(def pipeline, String credentialsId = JiraConstants.CREDENTIALS_ID
+                                  , String url = JiraConstants.URL){
     pipeline.withCredentials([
       pipeline.usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {

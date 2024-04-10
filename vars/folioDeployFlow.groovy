@@ -216,7 +216,7 @@ void restore(RancherNamespace namespace, boolean debug = false) {
         }
       },
       {
-        //TODO add system-users password reset after https://issues.folio.org/browse/RANCHER-989 implementation
+        //TODO add system-users password reset after https://folio-org.atlassian.net/browse/RANCHER-989 implementation
       }
     )
   } else {

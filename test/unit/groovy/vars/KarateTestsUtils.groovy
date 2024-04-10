@@ -4,6 +4,7 @@ package vars
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
 import org.folio.Constants
+import org.folio.client.jira.JiraConstants
 import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary
@@ -32,7 +33,7 @@ class KarateTestsUtils extends AbstractScriptTest {
              BUILD_NUMBER: "7",
              BUILD_URL   : "https://job.url/"]
         )
-        setCredentials(Constants.JIRA_CREDENTIALS_ID, "user", "password")
+        setCredentials(JiraConstants.CREDENTIALS_ID, "user", "password")
 
         int createIssueId = 100000
         Map<String, List<Object>> issuesModification = [:]
@@ -60,7 +61,7 @@ class KarateTestsUtils extends AbstractScriptTest {
                 content = """{
                   "id": "${createIssueId}",
                   "key": "KRD-${createIssueId}",
-                  "self": "https://issues.folio.org/rest/api/2/issue/${createIssueId}"
+                  "self": "${JiraConstants.ISSUE_URL}${createIssueId}"
                 }"""
                 addAction(issuesModification, String.valueOf(createIssueId), new CreateAction(body: parameters.requestBody))
             }

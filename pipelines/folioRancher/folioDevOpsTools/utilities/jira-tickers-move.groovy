@@ -1,17 +1,16 @@
 #!groovy
 @Library('pipelines-shared-library') _
 
-import org.folio.Constants
 import org.folio.client.jira.JiraClient
+import org.folio.client.jira.JiraConstants
 import org.folio.client.jira.model.JiraIssue
 import org.jenkinsci.plugins.workflow.libs.Library
 
 Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
 String search_pattern = ""
-String jira_host_link = "https://issues.folio.org"
 LinkedHashMap bugfest_map = [:]
-JiraClient jiraClient = JiraClient.getJiraClient(this, Constants.JIRA_CREDENTIALS_ID, jira_host_link)
+JiraClient jiraClient = JiraClient.getJiraClient(this, JiraConstants.CREDENTIALS_ID, JiraConstants.URL)
 LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.folio.org",
                           "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
