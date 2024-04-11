@@ -158,8 +158,6 @@ ansiColor('xterm') {
 
             // stage('Send Slack notification') {
             //     folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            // }
-            input "pause"
             stage('Destroying data-migration project') {
                 build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                   parameters: [string(name: 'CLUSTER', value: clusterName),
