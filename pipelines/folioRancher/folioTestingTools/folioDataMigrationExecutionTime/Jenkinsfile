@@ -6,9 +6,9 @@ import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 import org.folio.utilities.Tools
 
-@Library('pipelines-shared-library@RANCHER-1248') _
+@Library('RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-1248'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -156,8 +156,9 @@ ansiColor('xterm') {
                         keepAll: true])
                 }
 
-            // stage('Send Slack notification') {
-            //     folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            stage('Send Slack notification') {
+                folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+            
             stage('Destroying data-migration project') {
                 build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                   parameters: [string(name: 'CLUSTER', value: clusterName),
