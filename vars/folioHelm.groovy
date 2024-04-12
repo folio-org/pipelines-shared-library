@@ -180,6 +180,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [rtrEnabled: "true"]
   }
 
+  //Enable DIS
+  if(params.DI_SLICING && moduleName == 'mod-data-import') {
+    moduleConfig << [disEnabled: "true"]
+  }
+
   // Enable ingress
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
