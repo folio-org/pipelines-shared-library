@@ -1,12 +1,13 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.client.slack.SlackTestResultRenderer
 import org.folio.shared.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.*
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1323') _
 
 def call(params) {
   def id
@@ -35,7 +36,7 @@ def call(params) {
       }
     }
   }
-  stage('[ReportPortal config bind & Run start]') {
+/*  stage('[ReportPortal config bind & Run start]') {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
@@ -61,7 +62,7 @@ def call(params) {
     } catch (Exception e) {
       println("Error: " + e.getMessage())
     }
-  }
+  }*/
   stage('Run karate tests') {
     script {
       def karateEnvironment = "folio-testing-karate"
@@ -82,33 +83,33 @@ def call(params) {
       }
     }
   }
-  stage("[ReportPortal Run stop]") {
-    try {
-      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-        Map headers = [
-          "Content-Type" : "application/json",
-          "Authorization": "Bearer ${env.api_key}"
-        ]
-        String body = JsonOutput.toJson([
-          endTime: "${Instant.now()}"
-        ])
-        def res_end = new RestClient(this).put(url, body, headers)
-        println("${res_end}")
-      }
-    } catch (Exception e) {
-      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-    }
-  }
-  stage('Publish tests report') {
-    script {
-      cucumber buildStatus: "UNSTABLE",
-        fileIncludePattern: "**/target/karate-reports*/*.json",
-        sortingMethod: "ALPHABETICAL"
-
-      junit testResults: '**/target/karate-reports*/*.xml'
-    }
-  }
+//  stage("[ReportPortal Run stop]") {
+//    try {
+//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
+//        Map headers = [
+//          "Content-Type" : "application/json",
+//          "Authorization": "Bearer ${env.api_key}"
+//        ]
+//        String body = JsonOutput.toJson([
+//          endTime: "${Instant.now()}"
+//        ])
+//        def res_end = new RestClient(this).put(url, body, headers)
+//        println("${res_end}")
+//      }
+//    } catch (Exception e) {
+//      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+//    }
+//  }
+//  stage('Publish tests report') {
+//    script {
+//      cucumber buildStatus: "UNSTABLE",
+//        fileIncludePattern: "**/target/karate-reports*/*.json",
+//        sortingMethod: "ALPHABETICAL"
+//
+//      junit testResults: '**/target/karate-reports*/*.xml'
+//    }
+//  }
 
   stage('Archive artifacts') {
     script {
@@ -146,9 +147,30 @@ def call(params) {
       def totalTestsCount = passedTestsCount + failedTestsCount
       def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
       def passRate = passRateInDecimal.intValue()
-      slackNotifications.sendSlackNotification(TestType.KARATE,
-        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, true)
+
+      SlackTestResultRenderer slackTestType =
+        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
+
+      String slackMessage = SlackHelper.renderMessage(
+        [
+          folioSlackNotificationUtils.renderSlackBuildResultMessage()
+          , slackTestType.renderSection(
+          ""
+          , "${passedTestsCount}"
+          , ""
+          , "${failedTestsCount}"
+          , "${passRate}"
+          , "${env.BUILD_URL}allure/"
+          , true
+          , ReportPortalTestType.KARATE.reportPortalLaunchURL(id))
+        ]
+      )
+      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+
+
+//      slackNotifications.sendSlackNotification(TestType.KARATE,
+//        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+//        "#rancher_tests_notifications", currentBuild.result, true)
     }
   }
 }
