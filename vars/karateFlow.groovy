@@ -1,7 +1,10 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.client.reportportal.ReportPortalTestType
+import org.folio.client.slack.SlackHelper
 import org.folio.client.slack.SlackTestResultRenderer
+import org.folio.shared.TestResult
 import org.folio.shared.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
