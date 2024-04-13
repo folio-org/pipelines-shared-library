@@ -151,6 +151,8 @@ def call(params) {
       def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
       def passRate = passRateInDecimal.intValue()
 
+      println("I'm in karateFlow.groovy. currentBuild=${currentBuild}.")
+
       SlackTestResultRenderer slackTestType =
         SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
 
