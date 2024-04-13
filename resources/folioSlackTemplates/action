@@ -1,0 +1,5 @@
+{
+    "type": "button",
+    "text": "${AC_TEXT}",
+    "url": "${AC_URL}",
+}

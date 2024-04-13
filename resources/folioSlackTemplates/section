@@ -1,0 +1,7 @@
+{
+    "title": "${SC_TITLE}",
+    "text": "${SC_TEXT}",
+    "fallback": "Formatted text",
+    "color": "${SC_COLOR}",
+    "actions": ${SC_ACTIONS}
+  }
