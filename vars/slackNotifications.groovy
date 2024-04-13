@@ -8,6 +8,7 @@ import org.folio.karate.teams.KarateTeam
 import org.folio.karate.teams.TeamAssignment
 import org.folio.shared.TestType
 
+@Deprecated
 def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boolean useReportPortal = false,
                        moduleFailureFields = [],
                        List<String> jiraIssueLinksExisting = [], List<String> jiraIssueLinksCreated = []) {
@@ -121,6 +122,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
+@Deprecated
 void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
     Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
@@ -179,13 +181,15 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
     }
 }
 
+@Deprecated
 void sendSlackNotification(TestType type, String message, String channel, String buildStatus,
                            boolean useReportPortal = false) {
     def attachments = renderSlackMessage(type, buildStatus, "", message, useReportPortal)
     slackSend(attachments: attachments, channel: channel)
 }
 
+@Deprecated
 void sendPipelineFailSlackNotification(channel) {
-    def attachments = renderSlackMessage(TestType.OTHER, "FAILED", "", "")
+    def attachments = renderSlackMessage(null, "FAILED", "", "")
     slackSend(attachments: attachments, channel: channel)
 }
