@@ -172,6 +172,10 @@ pipeline {
               steps {
                 script {
                   println("I'm in Send slack notifications step.")
+
+                  slackSend(attachments: ""
+                            , channel: "#rancher_tests_notifications")
+
 //                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
               }
