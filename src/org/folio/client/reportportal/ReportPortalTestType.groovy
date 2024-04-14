@@ -21,6 +21,14 @@ enum ReportPortalTestType{
     return "${ReportPortalConstants.URL}/ui/#${projectName}/dashboard"
   }
 
+  String reportPortalLaunchesURL(){
+    return "${ReportPortalConstants.URL}/ui/#${projectName}/launches/all"
+  }
+
+  String reportPortalLaunchURL(String launchId){
+    return "${reportPortalLaunchesURL()}/${launchId}"
+  }
+
   @NonCPS
   static ReportPortalTestType fromType(TestType type) throws Error{
     for(ReportPortalTestType elem: values()){

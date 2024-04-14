@@ -1,5 +1,9 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.client.reportportal.ReportPortalTestType
+import org.folio.client.slack.SlackHelper
+import org.folio.client.slack.SlackTestResultRenderer
+import org.folio.shared.TestResult
 import org.folio.shared.TestType
 
 /**
@@ -42,6 +46,8 @@ void call(params) {
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
+  def rpLaunchID
+
   String agent = params.agent
   String browserName = "chrome"
   String cypressImageVersion = ''
@@ -56,8 +62,8 @@ void call(params) {
       try {
         reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
 
-        def id = reportPortal.launch()
-        println("${id}")
+        rpLaunchID = reportPortal.launch()
+        println("${rpLaunchID}")
 
         String portalExecParams = reportPortal.getExecParams()
         println("Report portal execution parameters: ${portalExecParams}")
@@ -169,9 +175,25 @@ void call(params) {
       println "Total passed tests: ${passedTestsCount}"
       println "Total failed tests: ${failedTestsCount}"
       println "Total broken tests: ${brokenTestsCount}"
-      slackNotifications.sendSlackNotification(TestType.CYPRESS,
-        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
+
+      SlackTestResultRenderer slackTestType =
+        SlackTestResultRenderer.fromType(TestType.CYPRESS, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
+
+      String slackMessage = SlackHelper.renderMessage(
+        [
+          folioSlackNotificationUtils.renderSlackBuildResultMessage()
+          , slackTestType.renderSection(
+          "${customBuildName}"
+          , "${passedTestsCount}"
+          , "${brokenTestsCount}"
+          , "${failedTestsCount}"
+          , "${passRate}"
+          , "${env.BUILD_URL}allure/"
+          , useReportPortal
+          , ReportPortalTestType.CYPRESS.reportPortalLaunchesURL())
+        ]
+      )
+      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
     }
   }
 }

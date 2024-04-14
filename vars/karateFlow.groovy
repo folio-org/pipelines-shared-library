@@ -1,6 +1,10 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.client.reportportal.ReportPortalTestType
+import org.folio.client.slack.SlackHelper
+import org.folio.client.slack.SlackTestResultRenderer
+import org.folio.shared.TestResult
 import org.folio.shared.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -126,30 +130,46 @@ def call(params) {
     }
   }
 
-//  stage('Send in slack test results notifications') {
-//    script {
-//      // export and collect karate tests results
-//      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-//      def passedTestsCount = 0
-//      def failedTestsCount = 0
-//      files_list.each { test ->
-//        def json = readJSON file: test.path
-//        def testsFailed = json['scenariosfailed']
-//        if (testsFailed != 0) {
-//          failedTestsCount += testsFailed
-//        }
-//        def testsPassed = json['scenariosPassed']
-//        if (testsPassed != 0) {
-//          passedTestsCount += testsPassed
-//        }
-//      }
-//      def totalTestsCount = passedTestsCount + failedTestsCount
-//      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-//      def passRate = passRateInDecimal.intValue()
-//      slackNotifications.sendSlackNotification(TestType.KARATE,
-//        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-//        "#rancher_tests_notifications", currentBuild.result, true)
-//    }
-//  }
+  stage('Send in slack test results notifications') {
+    script {
+      // export and collect karate tests results
+      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
+      def passedTestsCount = 0
+      def failedTestsCount = 0
+      files_list.each { test ->
+        def json = readJSON file: test.path
+        def testsFailed = json['scenariosfailed']
+        if (testsFailed != 0) {
+          failedTestsCount += testsFailed
+        }
+        def testsPassed = json['scenariosPassed']
+        if (testsPassed != 0) {
+          passedTestsCount += testsPassed
+        }
+      }
+      def totalTestsCount = passedTestsCount + failedTestsCount
+      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
+      def passRate = passRateInDecimal.intValue()
+
+      SlackTestResultRenderer slackTestType =
+        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
+
+      String slackMessage = SlackHelper.renderMessage(
+        [
+          folioSlackNotificationUtils.renderSlackBuildResultMessage()
+          , slackTestType.renderSection(
+          ""
+          , "${passedTestsCount}"
+          , ""
+          , "${failedTestsCount}"
+          , "${passRate}"
+          , "${env.BUILD_URL}allure/"
+          , true
+          , ReportPortalTestType.KARATE.reportPortalLaunchesURL())
+        ]
+      )
+      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+    }
+  }
 }
 
