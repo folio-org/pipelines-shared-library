@@ -1,5 +1,9 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.client.reportportal.ReportPortalTestType
+import org.folio.client.slack.SlackHelper
+import org.folio.client.slack.SlackTestResultRenderer
+import org.folio.shared.TestResult
 import org.folio.shared.TestType
 
 /**
@@ -169,9 +173,29 @@ void call(params) {
       println "Total passed tests: ${passedTestsCount}"
       println "Total failed tests: ${failedTestsCount}"
       println "Total broken tests: ${brokenTestsCount}"
-      slackNotifications.sendSlackNotification(TestType.CYPRESS,
-        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
+
+      SlackTestResultRenderer slackTestType =
+        SlackTestResultRenderer.fromType(TestType.CYPRESS, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
+
+      String slackMessage = SlackHelper.renderMessage(
+        [
+          folioSlackNotificationUtils.renderSlackBuildResultMessage()
+          , slackTestType.renderSection(
+          "${customBuildName}"
+          , "${passedTestsCount}"
+          , "${brokenTestsCount}"
+          , "${failedTestsCount}"
+          , "${passRate}"
+          , "${env.BUILD_URL}allure/"
+          , useReportPortal
+          , ReportPortalTestType.CYPRESS.reportPortalLaunchURL(id))
+        ]
+      )
+      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+
+//      slackNotifications.sendSlackNotification(TestType.CYPRESS,
+//        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+//        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
     }
   }
 }
