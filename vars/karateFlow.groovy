@@ -39,7 +39,7 @@ def call(params) {
       }
     }
   }
-/*  stage('[ReportPortal config bind & Run start]') {
+  stage('[ReportPortal config bind & Run start]') {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
@@ -65,7 +65,7 @@ def call(params) {
     } catch (Exception e) {
       println("Error: " + e.getMessage())
     }
-  }*/
+  }
   stage('Run karate tests') {
     script {
       def karateEnvironment = "folio-testing-karate"
@@ -86,33 +86,33 @@ def call(params) {
       }
     }
   }
-//  stage("[ReportPortal Run stop]") {
-//    try {
-//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-//        Map headers = [
-//          "Content-Type" : "application/json",
-//          "Authorization": "Bearer ${env.api_key}"
-//        ]
-//        String body = JsonOutput.toJson([
-//          endTime: "${Instant.now()}"
-//        ])
-//        def res_end = new RestClient(this).put(url, body, headers)
-//        println("${res_end}")
-//      }
-//    } catch (Exception e) {
-//      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-//    }
-//  }
-//  stage('Publish tests report') {
-//    script {
-//      cucumber buildStatus: "UNSTABLE",
-//        fileIncludePattern: "**/target/karate-reports*/*.json",
-//        sortingMethod: "ALPHABETICAL"
-//
-//      junit testResults: '**/target/karate-reports*/*.xml'
-//    }
-//  }
+  stage("[ReportPortal Run stop]") {
+    try {
+      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
+        Map headers = [
+          "Content-Type" : "application/json",
+          "Authorization": "Bearer ${env.api_key}"
+        ]
+        String body = JsonOutput.toJson([
+          endTime: "${Instant.now()}"
+        ])
+        def res_end = new RestClient(this).put(url, body, headers)
+        println("${res_end}")
+      }
+    } catch (Exception e) {
+      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+    }
+  }
+  stage('Publish tests report') {
+    script {
+      cucumber buildStatus: "UNSTABLE",
+        fileIncludePattern: "**/target/karate-reports*/*.json",
+        sortingMethod: "ALPHABETICAL"
+
+      junit testResults: '**/target/karate-reports*/*.xml'
+    }
+  }
 
   stage('Archive artifacts') {
     script {
@@ -151,7 +151,7 @@ def call(params) {
       def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
       def passRate = passRateInDecimal.intValue()
 
-      println("I'm in karateFlow.groovy. currentBuild.result=${currentBuild.result}.")
+      println("I'm in karateFlow.groovy.Send in slack test results notifications stage currentBuild.result=${currentBuild.result}.")
 
 //      SlackTestResultRenderer slackTestType =
 //        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
@@ -172,6 +172,7 @@ def call(params) {
 //      )
 //      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
 
+      println("I'm in karateFlow.groovy.sendSlackNotification buildStatus=${buildStatus}.")
 
       slackNotifications.sendSlackNotification(TestType.KARATE,
         "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
