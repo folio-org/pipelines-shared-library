@@ -9,4 +9,12 @@ class SlackBuildResultTemplates {
   static final UNSTABLE_TEXT = 'Pipeline run status *UNSTABLE* :warning: : `$BUILD_TXT_JOB_NAME` *#$BUILD_TXT_BUILD_NUMBER*'
 
   static final ACTION_TEXT = '*Check out the console output* :page_facing_up:'
+
+  static Map<String, String> getTextParams(String jobName, String buildNumber, String stageName){
+    [
+      'BUILD_TXT_JOB_NAME' : jobName
+      , 'BUILD_TXT_BUILD_NUMBER': buildNumber
+      , 'BUILD_TXT_STAGE_NAME': stageName
+    ]
+  }
 }

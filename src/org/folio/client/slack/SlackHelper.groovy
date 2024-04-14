@@ -1,12 +1,15 @@
 package org.folio.client.slack
 
+import org.folio.client.slack.templates.SlackMessageTemplates
+
 final class SlackHelper {
 
   private SlackHelper() {}
 
   static String renderAction(String url, String text){
-    return fillTemplate(['AC_TEXT': text, 'AC_URL': url]
-      , new File("folioSlackTemplates/action").text)
+    return fillTemplate(
+            SlackMessageTemplates.getActionParams(url, text)
+            , SlackMessageTemplates.ACTION)
   }
 
   static String renderActions(List<String> actions){
@@ -14,8 +17,9 @@ final class SlackHelper {
   }
 
   static String renderSection(String title, String message, String color, List<String> actions){
-    return fillTemplate(['SC_TITLE': title, 'SC_TEXT': message, 'SC_COLOR': color, 'SC_ACTIONS': renderActions(actions)]
-      , new File("folioSlackTemplates/section").text)
+    return fillTemplate(
+            SlackMessageTemplates.getSectionParams(title, message, color, renderActions(actions))
+            , SlackMessageTemplates.SECTION)
   }
 
   static String renderMessage(List<String> sections){

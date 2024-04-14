@@ -44,7 +44,7 @@ enum SlackTestResultRenderer {
   String renderSection(String buildName, String passedCnt, String brokenCnt, String failCnt, String passRate
                        , String buildUrl, boolean useReportPortal, String rpUrl){
 
-    return renderSection(getTextParams(buildName, passedCnt, brokenCnt, failCnt, passRate)
+    return renderSection(SlackTestResultTemplates.getTextParams(buildName, passedCnt, brokenCnt, failCnt, passRate)
                           , buildUrl, useReportPortal, rpUrl)
   }
 
@@ -56,18 +56,5 @@ enum SlackTestResultRenderer {
       }
     }
     throw new Error("Unknown test type & test result combination")
-  }
-
-  @NonCPS
-  static Map<String, String> getTextParams(String buildName, String passedCnt
-                                               , String brokenCnt, String failCnt
-                                               , String passRate){
-    [
-      'TEST_TXT_BUILD_NAME' : buildName
-      , 'TEST_TXT_PASS_CNT': passedCnt
-      , 'TEST_TXT_BRK_CNT': brokenCnt
-      , 'TEST_TXT_FAIL_CNT': failCnt
-      , 'TEST_TXT_PASS_RATE': passRate
-    ]
   }
 }

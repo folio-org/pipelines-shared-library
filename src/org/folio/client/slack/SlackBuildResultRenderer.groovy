@@ -27,7 +27,7 @@ enum SlackBuildResultRenderer {
   }
 
   String renderSection(String jobName, String buildNumber, String stageName, String buildUrl){
-    return renderSection(getTextParams(jobName, buildNumber, stageName), buildUrl)
+    return renderSection(SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName), buildUrl)
   }
 
   @NonCPS
@@ -38,14 +38,5 @@ enum SlackBuildResultRenderer {
       }
     }
     throw new Error("Unknown build result")
-  }
-
-  @NonCPS
-  static Map<String, String> getTextParams(String jobName, String buildNumber, String stageName){
-    [
-      'BUILD_TXT_JOB_NAME' : jobName
-      , 'BUILD_TXT_BUILD_NUMBER': buildNumber
-      , 'BUILD_TXT_STAGE_NAME': stageName
-    ]
   }
 }
