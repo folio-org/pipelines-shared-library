@@ -165,14 +165,10 @@ def call(params) {
           , "${passRate}"
           , "${env.BUILD_URL}allure/"
           , true
-          , ReportPortalTestType.KARATE.reportPortalLaunchURL(id))
+          , ReportPortalTestType.KARATE.reportPortalLaunchesURL())
         ]
       )
       slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
-
-//      slackNotifications.sendSlackNotification(TestType.KARATE,
-//        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-//        "#rancher_tests_notifications", currentBuild.result, true)
     }
   }
 }

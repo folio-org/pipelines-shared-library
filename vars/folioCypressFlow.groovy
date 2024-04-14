@@ -189,14 +189,10 @@ void call(params) {
           , "${passRate}"
           , "${env.BUILD_URL}allure/"
           , useReportPortal
-          , ReportPortalTestType.CYPRESS.reportPortalLaunchURL(rpLaunchID))
+          , ReportPortalTestType.CYPRESS.reportPortalLaunchesURL())
         ]
       )
       slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
-
-//      slackNotifications.sendSlackNotification(TestType.CYPRESS,
-//        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-//        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
     }
   }
 }
