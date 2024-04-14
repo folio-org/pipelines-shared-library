@@ -180,16 +180,16 @@ pipeline {
 //                                            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
 //                                          )
 //                            , channel: "#rancher_tests_notifications")
-                    slackSend(attachments: '''
-[
-  {
-      "title": "Module Failures :no_entry:",
-      "fallback": "Formatted text",
-      "color": "#FF0000"
-  }
-]
-'''
-                                , channel: "#rancher_tests_notifications")
+//                    slackSend(attachments: '''
+//[
+//  {
+//      "title": "Module Failures :no_entry:",
+//      "fallback": "Formatted text",
+//      "color": "#FF0000"
+//  }
+//]
+//'''
+//                                , channel: "#rancher_tests_notifications")
 
 //                  , "fields": [
 //                    [
