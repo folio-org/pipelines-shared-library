@@ -45,6 +45,7 @@ void call(params) {
   String testrailRunID = params.testrailRunID
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
+  def rpLaunchID
 
   String agent = params.agent
   String browserName = "chrome"
@@ -60,8 +61,8 @@ void call(params) {
       try {
         reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
 
-        def id = reportPortal.launch()
-        println("${id}")
+        rpLaunchID = reportPortal.launch()
+        println("${rpLaunchID}")
 
         String portalExecParams = reportPortal.getExecParams()
         println("Report portal execution parameters: ${portalExecParams}")
@@ -188,7 +189,7 @@ void call(params) {
           , "${passRate}"
           , "${env.BUILD_URL}allure/"
           , useReportPortal
-          , ReportPortalTestType.CYPRESS.reportPortalLaunchURL(id))
+          , ReportPortalTestType.CYPRESS.reportPortalLaunchURL(rpLaunchID))
         ]
       )
       slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
