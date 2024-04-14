@@ -180,7 +180,7 @@ pipeline {
 //                                            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
 //                                          )
 //                            , channel: "#rancher_tests_notifications")
-                    slackSend(attachments: """
+                    slackSend(attachments: '''
 [
   {
       "title": "Module Failures :no_entry:",
@@ -198,27 +198,26 @@ pipeline {
             short: true
         ]
       ]
-  },
-  {
-      "title": "Jira issues :warning:",
-      "color": "#E9D502",
-      "actions": [
-        {
-            "type": "button",
-            "text": "*Check out the created issues* :information_source: ",
-            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
-        },
-         {
-            "type": "button",
-            "text": "*Check out the existing issues* :information_source: ",
-            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
-        }
-      ]
   }
 ]
-
-"""
+'''
                                 , channel: "#rancher_tests_notifications")
+                  //  ,{
+//      "title": "Jira issues :warning:",
+//      "color": "#E9D502",
+//      "actions": [
+//        {
+//            "type": "button",
+//            "text": "*Check out the created issues* :information_source: ",
+//            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
+//        },
+//         {
+//            "type": "button",
+//            "text": "*Check out the existing issues* :information_source: ",
+//            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
+//        }
+//      ]
+//  }
 //                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
               }
