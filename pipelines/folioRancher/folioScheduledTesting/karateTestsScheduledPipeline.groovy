@@ -1,7 +1,10 @@
 @Library('pipelines-shared-library@RANCHER-1004') _
 
+
+import org.folio.client.slack.SlackHelper
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
+import org.folio.shared.TestType
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -165,13 +168,61 @@ pipeline {
               }
             }
 
-//            stage("Send slack notifications") {
-//              steps {
-//                script {
+            stage("Send slack notifications") {
+              steps {
+                script {
+//                  slackSend(attachments: folioSlackNotificationUtils
+//                                          .renderSlackJiraTestIssueMessage(
+//                                            TestType.KARATE
+//                                            , statusCounts
+//                                            , ""
+//                                            , true
+//                                            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+//                                          )
+//                            , channel: "#rancher_tests_notifications")
+                    slackSend(attachments: """
+[
+  {
+      "title": "Module Failures :no_entry:",
+      "fallback": "Formatted text",
+      "color": "#FF0000",
+      "fields": [
+        [
+            title: ":gear: SOME_MODULE_NAME",
+            value: "Has n failures of N total tests",
+            short: true
+        ],
+        [
+            title: ":gear: SOME_MODULE_NAME2",
+            value: "Has n failures of N total tests",
+            short: true
+        ]
+      ]
+  },
+  {
+      "title": "Jira issues :warning:",
+      "color": "#E9D502",
+      "actions": [
+        {
+            "type": "button",
+            "text": "*Check out the created issues* :information_source: ",
+            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
+        },
+         {
+            "type": "button",
+            "text": "*Check out the existing issues* :information_source: ",
+            "url": "https://issues.folio.org/issues/?jql=issuekey%20in%20"
+        }
+      ]
+  }
+]
+
+"""
+                                , channel: "#rancher_tests_notifications")
 //                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
+                }
+              }
+            }
           }
         }
       }
