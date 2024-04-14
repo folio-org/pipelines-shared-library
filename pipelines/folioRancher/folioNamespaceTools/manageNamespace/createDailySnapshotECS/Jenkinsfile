@@ -209,7 +209,7 @@ ansiColor('xterm') {
 
         } catch (e) {
             println "Caught exception: ${e}"
-            slackSend(attachments: folioSlackNotificationUtils.renderFailedResultMessage()
+            slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
                       , channel: "#rancher_tests_notifications")
             error(e.getMessage())
         } finally {

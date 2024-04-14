@@ -1,14 +1,11 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
-import org.folio.client.reportportal.ReportPortalTestType
-import org.folio.client.slack.SlackHelper
-import org.folio.client.slack.SlackTestResultRenderer
-import org.folio.shared.TestResult
 import org.folio.shared.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
-import java.time.*
+
+import java.time.Instant
 
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
@@ -134,41 +131,29 @@ def call(params) {
     script {
       // export and collect karate tests results
       def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-      def passedTestsCount = 0
-      def failedTestsCount = 0
+
+      LinkedHashMap<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
       files_list.each { test ->
         def json = readJSON file: test.path
         def testsFailed = json['scenariosfailed']
         if (testsFailed != 0) {
-          failedTestsCount += testsFailed
+          statusCounts.failed += testsFailed
         }
         def testsPassed = json['scenariosPassed']
         if (testsPassed != 0) {
-          passedTestsCount += testsPassed
+          statusCounts.passed += testsPassed
         }
       }
-      def totalTestsCount = passedTestsCount + failedTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 100
-      def passRate = passRateInDecimal.intValue()
 
-      SlackTestResultRenderer slackTestType =
-        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
-
-      String slackMessage = SlackHelper.renderMessage(
-        [
-          folioSlackNotificationUtils.renderSlackBuildResultMessage()
-          , slackTestType.renderSection(
-          ""
-          , "${passedTestsCount}"
-          , ""
-          , "${failedTestsCount}"
-          , "${passRate}"
-          , "${env.BUILD_URL}allure/"
-          , true
-          , ReportPortalTestType.KARATE.reportPortalLaunchesURL())
-        ]
-      )
-      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+      slackSend(attachments: folioSlackNotificationUtils
+                              .renderSlackTestResultMessage(
+                                TestType.KARATE
+                                , statusCounts
+                                , ""
+                                , true
+                                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+                              )
+                , channel: "#rancher_tests_notifications")
     }
   }
 }
