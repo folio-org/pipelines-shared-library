@@ -34,8 +34,6 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
         testsStatus = passRate > 50 ? "SUCCESS" : "FAILED"
     }
 
-    println("I'm in slackNotifications.groovy.renderSlackMessage buildStatus=${buildStatus}.")
-
     def pipelineTemplate = pipelineTemplates[buildStatus]
                             ?.replace('$RP_COMMA', useReportPortal ? "," : "")
                             ?.replace('$RP_TEMPLATE', useReportPortal ? rpTemplate : "")
@@ -186,9 +184,6 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
 @Deprecated
 void sendSlackNotification(TestType type, String message, String channel, String buildStatus,
                            boolean useReportPortal = false) {
-
-    println("I'm in slackNotifications.groovy.sendSlackNotification buildStatus=${buildStatus}.")
-
     def attachments = renderSlackMessage(type, buildStatus, "", message, useReportPortal)
     slackSend(attachments: attachments, channel: channel)
 }
