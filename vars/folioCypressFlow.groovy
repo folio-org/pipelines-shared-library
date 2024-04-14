@@ -45,7 +45,7 @@ void call(params) {
   String testrailRunID = params.testrailRunID
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
-  useReportPortal = true
+
   def rpLaunchID
 
   String agent = params.agent
