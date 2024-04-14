@@ -9,6 +9,8 @@ String renderSlackBuildResultMessage(){
 
   println("I'm in folioSlackNotificationUtils.groovy. SlackBuildResultRenderer was got.")
 
+  sleep time: 3, unit: 'MINUTES'
+
   return slackBuildResult.renderSection(
       env.JOB_NAME
       , env.BUILD_NUMBER
