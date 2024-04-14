@@ -39,33 +39,33 @@ def call(params) {
       }
     }
   }
-  stage('[ReportPortal config bind & Run start]') {
-    try {
-      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
-        String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
-        String source_tpl = readFile file: key_path
-        LinkedHashMap key_data = [rp_key: "${env.api_key}", rp_url: "https://poc-report-portal.ci.folio.org", rp_project: "junit5-integration"]
-        writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
-        Map headers = [
-          "Content-type" : "application/json",
-          "Authorization": "Bearer ${env.api_key}"
-        ]
-        String body = JsonOutput.toJson([
-          name       : "Test (Jenkins) build number: ${env.BUILD_NUMBER}",
-          description: "Karate scheduled tests",
-          startTime  : "${Instant.now()}",
-          mode       : "DEFAULT",
-          attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
-        ])
-        def res = new RestClient(this).post(url, body, headers)
-        id = res.body['id']
-        println("${id}")
-      }
-    } catch (Exception e) {
-      println("Error: " + e.getMessage())
-    }
-  }
+//  stage('[ReportPortal config bind & Run start]') {
+//    try {
+//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
+//        String key_path = "${env.WORKSPACE}/testrail-integration/src/main/resources/reportportal.properties"
+//        String source_tpl = readFile file: key_path
+//        LinkedHashMap key_data = [rp_key: "${env.api_key}", rp_url: "https://poc-report-portal.ci.folio.org", rp_project: "junit5-integration"]
+//        writeFile encoding: 'utf-8', file: key_path, text: (new StreamingTemplateEngine().createTemplate(source_tpl).make(key_data)).toString()
+//        Map headers = [
+//          "Content-type" : "application/json",
+//          "Authorization": "Bearer ${env.api_key}"
+//        ]
+//        String body = JsonOutput.toJson([
+//          name       : "Test (Jenkins) build number: ${env.BUILD_NUMBER}",
+//          description: "Karate scheduled tests",
+//          startTime  : "${Instant.now()}",
+//          mode       : "DEFAULT",
+//          attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
+//        ])
+//        def res = new RestClient(this).post(url, body, headers)
+//        id = res.body['id']
+//        println("${id}")
+//      }
+//    } catch (Exception e) {
+//      println("Error: " + e.getMessage())
+//    }
+//  }
   stage('Run karate tests') {
     script {
       def karateEnvironment = "folio-testing-karate"
@@ -86,24 +86,24 @@ def call(params) {
       }
     }
   }
-  stage("[ReportPortal Run stop]") {
-    try {
-      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-        Map headers = [
-          "Content-Type" : "application/json",
-          "Authorization": "Bearer ${env.api_key}"
-        ]
-        String body = JsonOutput.toJson([
-          endTime: "${Instant.now()}"
-        ])
-        def res_end = new RestClient(this).put(url, body, headers)
-        println("${res_end}")
-      }
-    } catch (Exception e) {
-      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-    }
-  }
+//  stage("[ReportPortal Run stop]") {
+//    try {
+//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
+//        Map headers = [
+//          "Content-Type" : "application/json",
+//          "Authorization": "Bearer ${env.api_key}"
+//        ]
+//        String body = JsonOutput.toJson([
+//          endTime: "${Instant.now()}"
+//        ])
+//        def res_end = new RestClient(this).put(url, body, headers)
+//        println("${res_end}")
+//      }
+//    } catch (Exception e) {
+//      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+//    }
+//  }
   stage('Publish tests report') {
     script {
       cucumber buildStatus: "UNSTABLE",
@@ -172,11 +172,9 @@ def call(params) {
 //      )
 //      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
 
-      println("I'm in karateFlow.groovy.sendSlackNotification buildStatus=${buildStatus}.")
-
       slackNotifications.sendSlackNotification(TestType.KARATE,
         "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, true)
+        "#rancher_tests_notifications", currentBuild.result == null ? "SUCCESS" : currentBuild.result, true)
     }
   }
 }
