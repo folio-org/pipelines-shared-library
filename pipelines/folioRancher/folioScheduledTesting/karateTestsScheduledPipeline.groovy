@@ -171,7 +171,8 @@ pipeline {
             stage("Send slack notifications") {
               steps {
                 script {
-
+                  println("I'm in Send slack notifications step.")
+//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
               }
             }
