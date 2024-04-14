@@ -173,8 +173,17 @@ pipeline {
                 script {
                   println("I'm in Send slack notifications step.")
 
-                  slackSend(attachments: SlackHelper.renderMessage([SlackHelper.renderSection("Module Failures :no_entry:", "", "#FF0000", [])])
-                            , channel: "#rancher_tests_notifications")
+                  slackSend(attachments: '''[{
+    "title": "Module Failures :no_entry:",
+    "text": "",
+    "fallback": "Formatted text",
+    "color": "#FF0000",
+    "actions": []
+}]'''
+                    , channel: "#rancher_tests_notifications")
+
+//                  slackSend(attachments: SlackHelper.renderMessage([SlackHelper.renderSection("Module Failures :no_entry:", "", "#FF0000", [])])
+//                            , channel: "#rancher_tests_notifications")
 
 //                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
                 }
