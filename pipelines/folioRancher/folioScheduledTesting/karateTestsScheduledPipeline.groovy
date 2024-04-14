@@ -185,24 +185,25 @@ pipeline {
   {
       "title": "Module Failures :no_entry:",
       "fallback": "Formatted text",
-      "color": "#FF0000",
-      "fields": [
-        [
-            title: ":gear: SOME_MODULE_NAME",
-            value: "Has n failures of N total tests",
-            short: true
-        ],
-        [
-            title: ":gear: SOME_MODULE_NAME2",
-            value: "Has n failures of N total tests",
-            short: true
-        ]
-      ]
+      "color": "#FF0000"
   }
 ]
 '''
                                 , channel: "#rancher_tests_notifications")
-                  //  ,{
+
+//                  , "fields": [
+//                    [
+//                      title: ":gear: SOME_MODULE_NAME",
+//                      value: "Has n failures of N total tests",
+//                      short: true
+//                    ],
+//                    [
+//                      title: ":gear: SOME_MODULE_NAME2",
+//                      value: "Has n failures of N total tests",
+//                      short: true
+//                    ]
+//                  ]
+//  ,{
 //      "title": "Jira issues :warning:",
 //      "color": "#E9D502",
 //      "actions": [
