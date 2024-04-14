@@ -4,10 +4,18 @@ String renderSlackBuildResultMessage(){
   SlackBuildResultRenderer slackBuildResult =
     SlackBuildResultRenderer.fromResult(currentBuild.result == null ? "SUCCESS" : currentBuild.result)
 
-  return slackBuildResult.renderSection(
-      env.JOB_NAME
-      , env.BUILD_NUMBER
-      , STAGE_NAME
-      , "${env.BUILD_URL}console"
-    )
+  return renderSlackBuildResultMessage(slackBuildResult)
+}
+
+String renderFailedResultMessage(){
+  return renderSlackBuildResultMessage(SlackBuildResultRenderer.FAILURE)
+}
+
+String renderSlackBuildResultMessage(SlackBuildResultRenderer buildResult){
+  return buildResult.renderSection(
+    env.JOB_NAME
+    , env.BUILD_NUMBER
+    , STAGE_NAME
+    , "${env.BUILD_URL}console"
+  )
 }

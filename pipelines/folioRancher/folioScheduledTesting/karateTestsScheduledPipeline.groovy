@@ -1,5 +1,8 @@
-@Library('pipelines-shared-library@RANCHER-1323') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
+
+import org.folio.client.slack.SlackBuildResultRenderer
+import org.folio.client.slack.SlackHelper
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
@@ -29,9 +32,9 @@ pipeline {
 
   agent { label 'jenkins-agent-java17' }
 
-/*  triggers {
+  triggers {
     cron('H 3 * * *')
-  }*/
+  }
 
   options {
     disableConcurrentBuilds()
@@ -43,7 +46,6 @@ pipeline {
   }
 
   stages {
-/*
     stage("Check environment") {
       steps {
         script {
@@ -65,7 +67,8 @@ pipeline {
               projectName, prototypeTenant, folio_repository, folio_branch)
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
-            slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+            slackSend(attachments: folioSlackNotificationUtils.renderFailedResultMessage()
+                      , channel: "#rancher_tests_notifications")
             throw new Exception("Creation of the environment is failed: " + new_ex)
           }
         }
@@ -88,21 +91,21 @@ pipeline {
                 projectName, prototypeTenant, folio_repository, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
-              slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+              slackSend(attachments: folioSlackNotificationUtils.renderFailedResultMessage()
+                        , channel: "#rancher_tests_notifications")
               throw new Exception("Creation of the environment is failed: " + e.getMessage())
             }
           }
         }
       }
     }
-*/
 
     stage("Start tests") {
-/*      when {
+      when {
         expression {
           spinUpEnvironmentJob.result == 'SUCCESS'
         }
-      }*/
+      }
       steps {
         script {
           def jobParameters = [branch         : params.branch,
@@ -113,9 +116,8 @@ pipeline {
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant,
-                               modules: 'mod-fqm-manager']
-          /*sleep time: 30, unit: 'MINUTES'*/
+                               prototypeTenant: prototypeTenant]
+          sleep time: 30, unit: 'MINUTES'
           karateFlow(jobParameters)
         }
       }
@@ -124,28 +126,28 @@ pipeline {
     stage("Parallel") {
       parallel {
         stage("Collect test results") {
-/*          when {
+          when {
             expression {
               spinUpEnvironmentJob.result == 'SUCCESS'
             }
-          }*/
+          }
           stages {
             stage("Collect execution results") {
               steps {
                 script {
                   karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  /*karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)*/
+                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
                 }
               }
             }
-/*            stage("Destroy environment") {
+            stage("Destroy environment") {
               steps {
                 script {
                   def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
                   tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
               }
-            }*/
+            }
             stage("Parse teams assignment") {
               steps {
                 script {
@@ -175,7 +177,7 @@ pipeline {
       }
     }
 
-/*    stage("Set job execution result") {
+    stage("Set job execution result") {
       when {
         expression {
           spinUpEnvironmentJob.result != 'SUCCESS'
@@ -186,7 +188,7 @@ pipeline {
           currentBuild.result = 'FAILURE'
         }
       }
-    }*/
+    }
   }
 }
 
