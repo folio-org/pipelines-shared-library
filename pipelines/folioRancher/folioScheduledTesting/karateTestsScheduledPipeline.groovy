@@ -1,8 +1,5 @@
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-
-import org.folio.client.slack.SlackBuildResultRenderer
-import org.folio.client.slack.SlackHelper
 import org.folio.karate.results.KarateTestsExecutionSummary
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
