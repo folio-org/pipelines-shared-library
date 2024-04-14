@@ -153,28 +153,28 @@ def call(params) {
 
       println("I'm in karateFlow.groovy.Send in slack test results notifications stage currentBuild.result=${currentBuild.result}.")
 
-//      SlackTestResultRenderer slackTestType =
-//        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
-//
-//      String slackMessage = SlackHelper.renderMessage(
-//        [
-//          folioSlackNotificationUtils.renderSlackBuildResultMessage()
-//          , slackTestType.renderSection(
-//          ""
-//          , "${passedTestsCount}"
-//          , ""
-//          , "${failedTestsCount}"
-//          , "${passRate}"
-//          , "${env.BUILD_URL}allure/"
-//          , true
-//          , ReportPortalTestType.KARATE.reportPortalLaunchURL(id))
-//        ]
-//      )
-//      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+      SlackTestResultRenderer slackTestType =
+        SlackTestResultRenderer.fromType(TestType.KARATE, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
 
-      slackNotifications.sendSlackNotification(TestType.KARATE,
-        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result == null ? "SUCCESS" : currentBuild.result, true)
+      String slackMessage = SlackHelper.renderMessage(
+        [
+          folioSlackNotificationUtils.renderSlackBuildResultMessage()
+          , slackTestType.renderSection(
+          ""
+          , "${passedTestsCount}"
+          , ""
+          , "${failedTestsCount}"
+          , "${passRate}"
+          , "${env.BUILD_URL}allure/"
+          , true
+          , ReportPortalTestType.KARATE.reportPortalLaunchURL(id))
+        ]
+      )
+      slackSend(attachments: slackMessage, channel: "#rancher_tests_notifications")
+
+//      slackNotifications.sendSlackNotification(TestType.KARATE,
+//        "Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
+//        "#rancher_tests_notifications", currentBuild.result, true)
     }
   }
 }
