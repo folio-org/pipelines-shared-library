@@ -181,14 +181,16 @@ void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, Ka
     Labels     : [KarateConstants.ISSUE_LABEL]
   ]
 
-  def teamName = "TEAM_MISSING"
-  def team = teamByModule[moduleSummary.name]
-  if (team) {
-    teamName = team.name
-    fields["Development Team"] = teamName
-  } else {
-    echo "Module ${moduleSummary.name} is not assigned to any team."
-  }
+  fields["Development Team"] = "Kitfox"
+
+/*    def teamName = "TEAM_MISSING"
+    def team = teamByModule[moduleSummary.name]
+    if (team) {
+        teamName = team.name
+        fields["Development Team"] = teamName
+    } else {
+        echo "Module ${moduleSummary.name} is not assigned to any team."
+    }*/
 
   try {
     echo "Create jira ticket for ${moduleSummary.name} '${featureSummary.name}', team '${teamName}'"

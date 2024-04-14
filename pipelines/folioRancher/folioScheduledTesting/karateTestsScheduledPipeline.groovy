@@ -153,19 +153,17 @@ pipeline {
                 script {
                   def jsonContents = readJSON file: "teams-assignment.json"
                   teamAssignment = new TeamAssignment(jsonContents)
-
-                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
                 }
               }
             }
 
-//            stage("Sync jira tickets") {
-//              steps {
-//                script {
-//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
+            stage("Sync jira tickets") {
+              steps {
+                script {
+                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+                }
+              }
+            }
 
 //            stage("Send slack notifications") {
 //              steps {
