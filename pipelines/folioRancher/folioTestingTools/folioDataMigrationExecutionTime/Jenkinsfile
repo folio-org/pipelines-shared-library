@@ -160,7 +160,9 @@ ansiColor('xterm') {
                 folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
             }
 
-            input "PAUSE FOR TESTING"
+            timeout(time: 120, unit: 'MINUTES') {
+              input 'PAUSED FOR TESTING'
+            }
 
             stage('Destroying data-migration project') {
                 build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
