@@ -182,17 +182,19 @@ pipeline {
       {
         "title": ":gear: SOME_MODULE_NAME",
         "value": "Has n failures of N total tests",
-        "short": false
+        "short": false,
+        "text": "Some text for test purposes"
       }
       , {
         "title": ":gear: SOME_MODULE_NAME2",
         "value": "Has n failures of N total tests",
-        "short": false
+        "short": false,
+        "text": "Some text for test purposes"
       }
     ],
     "actions": []
 }]'''
-                    , channel: "#rancher_tests_notifications")
+                    , channel: "#rancher_test_notifications")
 
 //                  slackSend(attachments: SlackHelper.renderMessage([SlackHelper.renderSection("Module Failures :no_entry:", "", "#FF0000", [])])
 //                            , channel: "#rancher_tests_notifications")
