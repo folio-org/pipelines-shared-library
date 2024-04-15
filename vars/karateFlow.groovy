@@ -153,7 +153,7 @@ def call(params) {
                                 , true
                                 , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
                               )
-                , channel: "#rancher_test_notifications")
+                , channel: "#rancher-test-notifications")
     }
   }
 }

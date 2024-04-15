@@ -194,7 +194,7 @@ pipeline {
     ],
     "actions": []
 }]'''
-                    , channel: "#rancher_test_notifications")
+                    , channel: "#rancher-test-notifications")
 
 //                  slackSend(attachments: SlackHelper.renderMessage([SlackHelper.renderSection("Module Failures :no_entry:", "", "#FF0000", [])])
 //                            , channel: "#rancher_tests_notifications")
