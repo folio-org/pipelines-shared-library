@@ -184,6 +184,11 @@ pipeline {
         "value": "Has n failures of N total tests",
         "short": true
       }
+      , {
+        "title": ":gear: SOME_MODULE_NAME2",
+        "value": "Has n failures of N total tests",
+        "short": true
+      }
     ],
     "actions": []
 }]'''
