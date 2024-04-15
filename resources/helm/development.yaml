@@ -440,7 +440,7 @@ mod-copycat:
     requests:
       memory: '384Mi'
 mod-camunda:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
     enabled: false
   replicaCount: 1
@@ -1128,7 +1128,7 @@ mod-tlr:
     requests:
       memory: '256Mi'
 mod-workflow:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
     enabled: false
   replicaCount: 1

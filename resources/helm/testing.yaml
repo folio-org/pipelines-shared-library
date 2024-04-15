@@ -440,15 +440,15 @@ mod-copycat:
     requests:
       memory: '512Mi'
 mod-camunda:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '640Mi'
-    requests:
       memory: '512Mi'
+    requests:
+      memory: '384Mi'
 mod-courses:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
@@ -1128,15 +1128,15 @@ mod-tlr:
     requests:
       memory: '384Mi'
 mod-workflow:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
   postJob:
     enabled: false
   replicaCount: 1
   resources:
     limits:
-      memory: '640Mi'
-    requests:
       memory: '512Mi'
+    requests:
+      memory: '384Mi'
 ldp-server:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
