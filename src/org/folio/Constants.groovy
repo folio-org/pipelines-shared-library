@@ -10,7 +10,7 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko'
+  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
@@ -250,7 +250,8 @@ class Constants {
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
-                                "eldiiar_duishenaliev@epam"]
+                                "eldiiar_duishenaliev@epam",
+                                "yaroslav_ishchenko@epam.com"]
 
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 
