@@ -16,9 +16,19 @@ final class SlackHelper {
     return "[${actions.join(', ')}]"
   }
 
-  static String renderSection(String title, String message, String color, List<String> actions){
+  static String renderField(String title, String value, boolean isShort){
     return fillTemplate(
-            SlackMessageTemplates.getSectionParams(title, message, color, renderActions(actions))
+            SlackMessageTemplates.getFieldParams(title, value, isShort)
+            , SlackMessageTemplates.FIELD)
+  }
+
+  static String renderFields(List<String> fields){
+    return "[${fields.join(', ')}]"
+  }
+
+  static String renderSection(String title, String message, String color, List<String> actions, List<String> fields){
+    return fillTemplate(
+            SlackMessageTemplates.getSectionParams(title, message, color, renderActions(actions), renderFields(fields))
             , SlackMessageTemplates.SECTION)
   }
 
