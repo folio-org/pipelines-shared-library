@@ -66,62 +66,62 @@ ansiColor('xterm') {
                 }
             }
 
-            // stage('Restoring namespace from RDS snapshot') {
-            //   if (params.RDS_SNAPSHOT_NAME)
-            //   build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
-            //     parameters: [string(name: 'CLUSTER', value: clusterName),
-            //                  string(name: 'NAMESPACE', value: projectName),
-            //                  string(name: 'CONFIG_TYPE', value: configType),
-            //                  string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
-            //                  booleanParam(name: 'CONSORTIA', value: false),
-            //                  booleanParam(name: 'RW_SPLIT', value: false),
-            //                  string(name: 'UI_TENANTS_IDS', value: 'fs09000000'),
-            //                  string(name: 'POSTGRESQL', value: 'aws'),
-            //                  string(name: 'KAFKA', value: 'built-in'),
-            //                  string(name: 'OPENSEARCH', value: 'aws'),
-            //                  string(name: 'S3_BUCKET', value: 'built-in'),
-            //                  booleanParam(name: 'NAMESPACE_ONLY', value: false),
-            //                  booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-            // }
+            stage('Restoring namespace from RDS snapshot') {
+              if (params.RDS_SNAPSHOT_NAME)
+              build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
+                parameters: [string(name: 'CLUSTER', value: clusterName),
+                             string(name: 'NAMESPACE', value: projectName),
+                             string(name: 'CONFIG_TYPE', value: configType),
+                             string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
+                             booleanParam(name: 'CONSORTIA', value: false),
+                             booleanParam(name: 'RW_SPLIT', value: false),
+                             string(name: 'UI_TENANTS_IDS', value: 'fs09000000'),
+                             string(name: 'POSTGRESQL', value: 'aws'),
+                             string(name: 'KAFKA', value: 'built-in'),
+                             string(name: 'OPENSEARCH', value: 'aws'),
+                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             booleanParam(name: 'NAMESPACE_ONLY', value: false),
+                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+            }
 
-            // stage('Creating an environment from scratch') {
-            //   if (!params.RDS_SNAPSHOT_NAME)
-            //   build job: '/folioRancher/folioNamespaceTools/createNamespaceFromBranch',
-            //     parameters: [string(name: 'CLUSTER', value: clusterName),
-            //                  string(name: 'NAMESPACE', value: projectName),
-            //                  string(name: 'FOLIO_BRANCH', value: folioBranch),
-            //                  string(name: 'OKAPI_VERSION', value: okapiVersion),
-            //                  string(name: 'CONFIG_TYPE', value: configType),
-            //                  string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
-            //                  booleanParam(name: 'LOAD_REFERENCE', value: false),
-            //                  booleanParam(name: 'LOAD_SAMPLE', value: false),
-            //                  booleanParam(name: 'CONSORTIA', value: false),
-            //                  booleanParam(name: 'RW_SPLIT', value: false),
-            //                  booleanParam(name: 'GREENMAIL', value: false),
-            //                  booleanParam(name: 'MOCK_SERVER', value: false),
-            //                  booleanParam(name: 'RTR', value: false),
-            //                  string(name: 'POSTGRESQL', value: 'built-in'),
-            //                  string(name: 'KAFKA', value: 'built-in'),
-            //                  string(name: 'OPENSEARCH', value: 'aws'),
-            //                  string(name: 'S3_BUCKET', value: 'built-in'),
-            //                  string(name: 'MEMBERS', value: ''),
-            //                  booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-            // }
+            stage('Creating an environment from scratch') {
+              if (!params.RDS_SNAPSHOT_NAME)
+              build job: '/folioRancher/folioNamespaceTools/createNamespaceFromBranch',
+                parameters: [string(name: 'CLUSTER', value: clusterName),
+                             string(name: 'NAMESPACE', value: projectName),
+                             string(name: 'FOLIO_BRANCH', value: folioBranch),
+                             string(name: 'OKAPI_VERSION', value: okapiVersion),
+                             string(name: 'CONFIG_TYPE', value: configType),
+                             string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
+                             booleanParam(name: 'LOAD_REFERENCE', value: false),
+                             booleanParam(name: 'LOAD_SAMPLE', value: false),
+                             booleanParam(name: 'CONSORTIA', value: false),
+                             booleanParam(name: 'RW_SPLIT', value: false),
+                             booleanParam(name: 'GREENMAIL', value: false),
+                             booleanParam(name: 'MOCK_SERVER', value: false),
+                             booleanParam(name: 'RTR', value: false),
+                             string(name: 'POSTGRESQL', value: 'built-in'),
+                             string(name: 'KAFKA', value: 'built-in'),
+                             string(name: 'OPENSEARCH', value: 'aws'),
+                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             string(name: 'MEMBERS', value: ''),
+                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+            }
 
 
-            // stage('Updating to the desired modules version') {
-            //     build job: '/Rancher/Update/backend-modules-deploy-branch',
-            //         parameters: [
-            //             string(name: 'rancher_cluster_name', value: clusterName),
-            //             string(name: 'rancher_project_name', value: projectName),
-            //             string(name: 'config_type', value: configType),
-            //             string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
-            //             string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
-            //             string(name: 'tenant_id', value: tenantId),
-            //             string(name: 'admin_username', value: adminUsername),
-            //             string(name: 'admin_password', value: adminPassword)
-            //         ]
-            // }
+            stage('Updating to the desired modules version') {
+                build job: '/Rancher/Update/backend-modules-deploy-branch',
+                    parameters: [
+                        string(name: 'rancher_cluster_name', value: clusterName),
+                        string(name: 'rancher_project_name', value: projectName),
+                        string(name: 'config_type', value: configType),
+                        string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
+                        string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
+                        string(name: 'tenant_id', value: tenantId),
+                        string(name: 'admin_username', value: adminUsername),
+                        string(name: 'admin_password', value: adminPassword)
+                    ]
+            }
 
             stage('Generating Data Migration Time report') {
                 def result = folioexecuteDataMigrationUtils.getMigrationTime(
