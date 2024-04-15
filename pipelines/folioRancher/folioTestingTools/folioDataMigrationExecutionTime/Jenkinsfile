@@ -6,9 +6,9 @@ import org.folio.Constants
 import groovy.json.JsonSlurperClassic
 import org.folio.utilities.Tools
 
-@Library('pipelines-shared-library@RANCHER-1248') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-1248'
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
