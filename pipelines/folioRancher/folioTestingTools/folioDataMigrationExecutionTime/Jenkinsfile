@@ -158,8 +158,10 @@ ansiColor('xterm') {
 
             stage('Send Slack notification') {
                 folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}",totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
-            
+            }
+
             stage('Destroying data-migration project') {
+              timeout(time: 180, unit: 'MINUTES') {
                 build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
                   parameters: [string(name: 'CLUSTER', value: clusterName),
                               string(name: 'NAMESPACE', value: projectName),
@@ -169,7 +171,8 @@ ansiColor('xterm') {
                               string(name: 'OPENSEARCH', value: 'aws'),
                               string(name: 'S3_BUCKET', value: 'built-in'),
                               booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-              }
+               }
+            }
 
             stage('Cleanup') {
                 cleanWs notFailBuild: true
