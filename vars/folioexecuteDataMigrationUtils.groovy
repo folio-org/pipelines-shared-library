@@ -33,6 +33,12 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
     // Get logs about activating modules from elasticseach
     def result = getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
 
+    println("STARTTIME: ${startMigrationTime}")
+    println("SOURCE: ${srcInstallJson}")
+    println("DESTINATION: ${dstInstallJson}")
+    println("RESULT: ${result}")
+
+
     // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
     def tenants = []
     result.hits.hits.each {
@@ -58,19 +64,19 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
             tenants += new DataMigrationTenant(bindingMap)
         }
     }
-
+    println("TENANTS: ${tenants}")
     // Grouped modules by tenant name and generate HTML report
     def uniqTenants = tenants.tenantName.unique()
     uniqTenants.each { tenantName ->
-        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants, pgadminURL)
+        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants)
         totalTimeInMs += totalTime
         modulesLongMigrationTimeSlack += modulesLongMigrationTime
         modulesMigrationFailedSlack += modulesMigrationFailed
         writeFile file: "reportTime/${tenantName}.html", text: htmlData
     }
     return [totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack]
-
 }
+    println("UNIQUE: ${uniqTenants}")
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
@@ -92,7 +98,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 }
 
 @NonCPS
-def createTimeHtmlReport(tenantName, tenants, pgadminURL) {
+def createTimeHtmlReport(tenantName, tenants) {
     def sortedList = tenants.sort {
         try {
             it.moduleInfo.execTime.toInteger()
@@ -138,9 +144,7 @@ def createTimeHtmlReport(tenantName, tenants, pgadminURL) {
                             modulesLongMigrationTime.put(moduleName, execTime)
                         }
                     }
-                    markup.bodyy(href: pgadminURL, target: "_blank") {
-                        builder.h2("pgAdmin")
-                    }
+
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
