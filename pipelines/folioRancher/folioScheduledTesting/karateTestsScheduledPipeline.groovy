@@ -180,9 +180,9 @@ pipeline {
     "color": "#FF0000",
     "fields": [
       [
-        title: ":gear: SOME_MODULE_NAME",
-        value: "Has n failures of N total tests",
-        short: true
+        "title": ":gear: SOME_MODULE_NAME",
+        "value": "Has n failures of N total tests",
+        "short": true
       ]
     ],
     "actions": []
