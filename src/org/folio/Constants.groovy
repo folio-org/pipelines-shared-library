@@ -250,7 +250,8 @@ class Constants {
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
-                                "eldiiar_duishenaliev@epam"]
+                                "eldiiar_duishenaliev@epam",
+                                "yaroslav_ishchenko@epam.com"]
 
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 
