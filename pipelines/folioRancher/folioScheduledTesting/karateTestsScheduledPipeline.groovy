@@ -173,26 +173,28 @@ pipeline {
                 script {
                   println("I'm in Send slack notifications step.")
 
-                  slackSend(attachments: '''[{
-    "title": "Module Failures :no_entry:",
-    "text": "",
-    "fallback": "Formatted text",
-    "color": "#FF0000",
-    "fields": [
-      {
-        "title": ":gear: SOME_MODULE_NAME",
-        "value": "Has n failures of N total tests",
-        "short": false
-      }
-      , {
-        "title": ":gear: SOME_MODULE_NAME2",
-        "value": "Has n failures of N total tests",
-        "short": false
-      }
-    ],
-    "actions": []
-}]'''
-                    , channel: "#rancher-test-notifications")
+                  folioSlackNotificationUtils.sendSlackJiraTicketTeamNotification()
+
+//                  slackSend(attachments: '''[{
+//    "title": "Module Failures :no_entry:",
+//    "text": "",
+//    "fallback": "Formatted text",
+//    "color": "#FF0000",
+//    "fields": [
+//      {
+//        "title": ":gear: SOME_MODULE_NAME",
+//        "value": "Has n failures of N total tests",
+//        "short": false
+//      }
+//      , {
+//        "title": ":gear: SOME_MODULE_NAME2",
+//        "value": "Has n failures of N total tests",
+//        "short": false
+//      }
+//    ],
+//    "actions": []
+//}]'''
+//                    , channel: "#rancher-test-notifications")
 
 //                  slackSend(attachments: SlackHelper.renderMessage([SlackHelper.renderSection("Module Failures :no_entry:", "", "#FF0000", [])])
 //                            , channel: "#rancher_tests_notifications")
