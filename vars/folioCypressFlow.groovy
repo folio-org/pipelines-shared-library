@@ -1,7 +1,6 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.shared.TestType
-
 /**
  * !Attention! This method should be called inside node block in parent
  *
@@ -42,6 +41,8 @@ void call(params) {
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
+  def rpLaunchID
+
   String agent = params.agent
   String browserName = "chrome"
   String cypressImageVersion = ''
@@ -56,8 +57,8 @@ void call(params) {
       try {
         reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
 
-        def id = reportPortal.launch()
-        println("${id}")
+        rpLaunchID = reportPortal.launch()
+        println("${rpLaunchID}")
 
         String portalExecParams = reportPortal.getExecParams()
         println("Report portal execution parameters: ${portalExecParams}")
@@ -151,7 +152,8 @@ void call(params) {
   stage('[Allure] Send slack notifications') {
     script {
       def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-      def statusCounts = [failed: 0, passed: 0, broken: 0]
+
+      LinkedHashMap<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
       parseAllureReport.children.each { child ->
         child.children.each { testCase ->
           def status = testCase.status
@@ -160,18 +162,16 @@ void call(params) {
           }
         }
       }
-      def passedTestsCount = statusCounts.passed
-      def failedTestsCount = statusCounts.failed
-      def brokenTestsCount = statusCounts.broken
-      def totalTestsCount = passedTestsCount + failedTestsCount + brokenTestsCount
-      def passRateInDecimal = totalTestsCount > 0 ? (passedTestsCount * 100) / totalTestsCount : 0
-      def passRate = passRateInDecimal.intValue()
-      println "Total passed tests: ${passedTestsCount}"
-      println "Total failed tests: ${failedTestsCount}"
-      println "Total broken tests: ${brokenTestsCount}"
-      slackNotifications.sendSlackNotification(TestType.CYPRESS,
-        "Build name: ${customBuildName}. Passed tests: ${passedTestsCount}, Broken tests: ${brokenTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRate}%",
-        "#rancher_tests_notifications", currentBuild.result, useReportPortal)
+
+      slackSend(attachments: folioSlackNotificationUtils
+                                .renderSlackTestResultMessage(
+                                  TestType.CYPRESS
+                                  , statusCounts
+                                  , customBuildName
+                                  , useReportPortal
+                                  , "${env.BUILD_URL}allure/"
+                                )
+                , channel: "#rancher_tests_notifications")
     }
   }
 }

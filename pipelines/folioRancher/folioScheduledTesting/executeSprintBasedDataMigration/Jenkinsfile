@@ -47,7 +47,8 @@ ansiColor('xterm') {
                string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
                string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
         } catch (Exception new_ex) {
-          slackNotifications.sendPipelineFailSlackNotification("#folioschemacompare")
+          slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+                    , channel: "#folioschemacompare")
           throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
         }
       }
