@@ -178,6 +178,7 @@ pipeline {
     "text": "",
     "fallback": "Formatted text",
     "color": "#FF0000",
+    "fields": [],
     "actions": []
 }]'''
                     , channel: "#rancher_tests_notifications")
