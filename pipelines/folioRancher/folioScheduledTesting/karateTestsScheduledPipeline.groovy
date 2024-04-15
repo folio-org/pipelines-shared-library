@@ -178,7 +178,13 @@ pipeline {
     "text": "",
     "fallback": "Formatted text",
     "color": "#FF0000",
-    "fields": [],
+    "fields": [
+      [
+        title: ":gear: SOME_MODULE_NAME",
+        value: "Has n failures of N total tests",
+        short: true
+      ]
+    ],
     "actions": []
 }]'''
                     , channel: "#rancher_tests_notifications")
