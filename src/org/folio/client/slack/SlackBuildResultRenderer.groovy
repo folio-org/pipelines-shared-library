@@ -23,7 +23,7 @@ enum SlackBuildResultRenderer {
 
     String action = SlackHelper.renderAction(buildUrl, SlackBuildResultTemplates.ACTION_TEXT)
 
-    return SlackHelper.renderSection("", text, color, [action])
+    return SlackHelper.renderSection("", text, color, [action], [])
   }
 
   String renderSection(String jobName, String buildNumber, String stageName, String buildUrl){

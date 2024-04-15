@@ -38,7 +38,7 @@ enum SlackTestResultRenderer {
     List<String> actions = [SlackHelper.renderAction(buildUrl, SlackTestResultTemplates.ACTION_TEXT)]
     if(useReportPortal) actions.add(SlackHelper.renderAction(rpUrl, SlackTestResultTemplates.REPORT_PORTAL_ACTION_TEXT))
 
-    return SlackHelper.renderSection(titleTemplate, text, color, actions)
+    return SlackHelper.renderSection(titleTemplate, text, color, actions, [])
   }
 
   String renderSection(String buildName, String passedCnt, String brokenCnt, String failCnt, String passRate
