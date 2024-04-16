@@ -90,8 +90,7 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
     if (failedFields.isEmpty()) {
       moduleInfoSection = SlackHelper.renderSection(
           ""
-//          , "All modules for ${entry.key.name} team have successful result\n"
-          , "Test"
+          , "All modules for ${entry.key.name} team have successful result"
           , "good"
           , []
           , []
