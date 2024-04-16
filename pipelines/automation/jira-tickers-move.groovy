@@ -114,14 +114,14 @@ ansiColor('xterm') {
                     }
                 }
             }
-            stage('Change status of Jira ticket') {
-                for(i in list_of_jira_tasks_to_change) {
-                    jiraClient.addIssueComment(i.id, Comment)
-                    jiraClient.issueTransition(i.id, NextJiraTaskStatus)
-                    println "Jira ticket '${i.key}' status changed to '${NextJiraTaskStatus}'"
-                    println "Jira ticket version '${i.fixVersions}' bugfest version'${bugfest_map[i.project]}'"
-                }
-            }
+//            stage('Change status of Jira ticket') {
+//                for(i in list_of_jira_tasks_to_change) {
+//                    jiraClient.addIssueComment(i.id, Comment)
+//                    jiraClient.issueTransition(i.id, NextJiraTaskStatus)
+//                    println "Jira ticket '${i.key}' status changed to '${NextJiraTaskStatus}'"
+//                    println "Jira ticket version '${i.fixVersions}' bugfest version'${bugfest_map[i.project]}'"
+//                }
+//            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
