@@ -89,38 +89,39 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
     println("folioSlackNotificationUtils created < -1h karateTestUtils.getJiraIssuesByTeam.size()=${karateTestUtils.getJiraIssuesByTeam("Kitfox", "created < -1h").size()}")
     println("folioSlackNotificationUtils created > -20m karateTestUtils.getJiraIssuesByTeam.size()=${karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m").size()}")
 
-    String moduleInfoSection = ""
-//    if (failedFields.isEmpty()) {
-//      moduleInfoSection = SlackHelper.renderSection(
-//          ""
-//          , "All modules for ${entry.key.name} team have successful result"
-//          , "good"
-//          , []
-//          , []
-//        )
-//    } else {
-      // Existing tickets - created more than 1 hour ago
-      def existingTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created < -1h")
+    // Existing tickets - created more than 1 hour ago
+    def existingTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created < -1h")
 //      def existingTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created < -1h")
-      // Created tickets by this run - Within the last 20 min
-      def createdTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m")
+
+    // Created tickets by this run - Within the last 20 min
+    def createdTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m")
 //      def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
 
-      def existingIssuesFilter = "(${existingTickets.join('%2C%20')})"
-      def createdIssuesFilter = "(${createdTickets.join('%2C%20')})"
+    def existingIssuesFilter = "(${existingTickets.join('%2C%20')})"
+    def createdIssuesFilter = "(${createdTickets.join('%2C%20')})"
 
-      List<String> actions =
-        [
-          SlackHelper.renderAction(
-            "https://issues.folio.org/issues/?jql=issuekey%20in%20${existingIssuesFilter}"
-            , "*Check out the existing issues* :information_source: "
-          )
-          , SlackHelper.renderAction(
-            "https://issues.folio.org/issues/?jql=issuekey%20in%20${createdIssuesFilter}"
-                ,"*Check out the created issues* :information_source: "
-          )
-        ]
+    List<String> actions =
+    [
+      SlackHelper.renderAction(
+        "https://issues.folio.org/issues/?jql=issuekey%20in%20${existingIssuesFilter}"
+        , "*Check out the existing issues* :information_source: "
+      )
+      , SlackHelper.renderAction(
+        "https://issues.folio.org/issues/?jql=issuekey%20in%20${createdIssuesFilter}"
+        ,"*Check out the created issues* :information_source: "
+      )
+    ]
 
+    String moduleInfoSection = ""
+    if (failedFields.isEmpty()) {
+      moduleInfoSection = SlackHelper.renderSection(
+          ""
+          , "All modules for ${entry.key.name} team have successful result"
+          , "good"
+          , []
+          , []
+        )
+    } else {
       moduleInfoSection = SlackHelper.renderSection(
         "Jira issues :warning:"
         , ""
@@ -128,7 +129,7 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
         , actions
         , failedFields
       )
-//    }
+    }
 
     slackSend(
       attachments: SlackHelper.renderMessage(
