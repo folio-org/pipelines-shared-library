@@ -106,8 +106,8 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
       def createdTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m")
 //      def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
 
-      def existingIssuesFilter = "(${jiraIssueLinksExisting.join('%2C%20')})"
-      def createdIssuesFilter = "(${jiraIssueLinksCreated.join('%2C%20')})"
+      def existingIssuesFilter = "(${existingTickets.join('%2C%20')})"
+      def createdIssuesFilter = "(${createdTickets.join('%2C%20')})"
 
       List<String> actions =
         [
