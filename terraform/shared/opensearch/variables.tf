@@ -14,7 +14,7 @@ variable "vpc_name" {
 # Elasticsearch variables
 variable "os_version" {
   type        = string
-  default     = "OpenSearch_1.3"
+  default     = "OpenSearch_2.11"
   description = "Elasticsearch version"
 }
 
