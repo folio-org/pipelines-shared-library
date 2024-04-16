@@ -119,7 +119,7 @@ pipeline {
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
                                prototypeTenant: prototypeTenant,
-                               modules: 'mod-kb-ebsco-java']
+                               modules: 'mod-fqm-manager mod-kb-ebsco-java']
           /*sleep time: 30, unit: 'MINUTES'*/
           karateFlow(jobParameters)
         }
