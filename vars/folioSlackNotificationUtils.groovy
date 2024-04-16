@@ -70,10 +70,9 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
                                              , TeamAssignment teamAssignment){
 
   Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults =
-    karateTestsExecutionSummary.getFailedModuleResultByTeam(teamAssignment)
+    karateTestsExecutionSummary.getModuleResultByTeam(teamAssignment)
 
   // iterate over teams and send slack notifications
-  def buildStatus = currentBuild.result
   teamResults.each { entry ->
 
     List<String> failedFields = []
