@@ -117,7 +117,7 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
       attachments: SlackHelper.renderMessage(
         [
           renderSlackBuildResultMessageSection()
-//          , moduleInfoSection
+          , moduleInfoSection
         ]
       )
       , channel: "#rancher-test-notifications"
