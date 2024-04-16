@@ -173,7 +173,7 @@ pipeline {
                 script {
                   println("I'm in Send slack notifications step.")
 
-                  folioSlackNotificationUtils.sendSlackJiraTicketTeamNotification()
+                  folioSlackNotificationUtils.sendSlackJiraTicketTeamNotification(karateTestsExecutionSummary, teamAssignment)
 
 //                  slackSend(attachments: '''[{
 //    "title": "Module Failures :no_entry:",
