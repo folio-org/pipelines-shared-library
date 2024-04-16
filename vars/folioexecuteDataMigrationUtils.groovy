@@ -12,6 +12,23 @@ import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 
+
+def getSlackColor(def buildStatus) {
+  switch(buildStatus) {
+      case 'STARTED':
+          return '#D4DADF'
+        break
+      case 'SUCCESS':
+          return '#BDFFC3'
+        break
+      case 'UNSTABLE':
+          return '#FFFE89'
+        break
+      default:
+          return '#FF9FA1'
+  }
+}
+
 def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime,pgadminURL){
 
 
@@ -197,7 +214,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     }
 
     try {
-        slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
+        slackSend(color: getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
         e.printStackTrace()
@@ -225,5 +242,3 @@ def getBackendModulesList(String repoName, String branchName){
         return modules_list.sort()
     }
 }
-
-
