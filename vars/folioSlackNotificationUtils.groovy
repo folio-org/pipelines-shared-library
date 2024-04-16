@@ -98,9 +98,11 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
         )
     } else {
       // Existing tickets - created more than 1 hour ago
-      def existingTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created < -1h")
+      def existingTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created < -1h")
+//      def existingTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created < -1h")
       // Created tickets by this run - Within the last 20 min
-      def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
+      def createdTickets = karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m")
+//      def createdTickets = karateTestUtils.getJiraIssuesByTeam(entry.key.name, "created > -20m")
 
       moduleInfoSection = SlackHelper.renderSection(
         "Jira issues :warning:"
@@ -118,7 +120,8 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
           , moduleInfoSection
         ]
       )
-      , channel: entry.key.slackChannel
+      , channel: "#rancher-test-notifications"
+//      , channel: entry.key.slackChannel
     )
   }
 }
