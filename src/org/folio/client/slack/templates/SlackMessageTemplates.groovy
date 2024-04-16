@@ -19,7 +19,7 @@ class SlackMessageTemplates {
 {
     "type": "button",
     "text": "${AC_TEXT}",
-    "url": "${AC_URL}",
+    "url": "${AC_URL}"
 }
 '''
 
