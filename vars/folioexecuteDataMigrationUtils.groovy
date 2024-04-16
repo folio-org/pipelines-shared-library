@@ -14,15 +14,19 @@ import org.folio.karate.teams.TeamAssignment
 
 
 def getSlackColor(def buildStatus) {
-    if (buildStatus == 'STARTED') {
-        '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-        '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-        '#FFFE89'
-    } else {
-        '#FF9FA1'
-    }
+  switch(buildStatus) {
+      case 'STARTED':
+          return '#D4DADF'
+        break
+      case 'SUCCESS':
+          return '#BDFFC3'
+        break
+      case 'UNSTABLE':
+          return '#FFFE89'
+        break
+      default:
+          return '#FF9FA1'
+  }
 }
 
 def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime,pgadminURL){
