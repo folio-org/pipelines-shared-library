@@ -86,6 +86,9 @@ String sendSlackJiraTicketTeamNotification(KarateTestsExecutionSummary karateTes
       }
     }
 
+    println("folioSlackNotificationUtils created < -1h karateTestUtils.getJiraIssuesByTeam.size()=${karateTestUtils.getJiraIssuesByTeam("Kitfox", "created < -1h").size()}")
+    println("folioSlackNotificationUtils created > -20m karateTestUtils.getJiraIssuesByTeam.size()=${karateTestUtils.getJiraIssuesByTeam("Kitfox", "created > -20m").size()}")
+
     String moduleInfoSection = ""
     if (failedFields.isEmpty()) {
       moduleInfoSection = SlackHelper.renderSection(
