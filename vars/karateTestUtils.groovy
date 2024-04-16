@@ -124,6 +124,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
       // No jira issue and feature failed
       def featureName = toSearchableSummary(featureSummary.displayName)
       if (!issuesMap.containsKey(featureName) && featureSummary.failed) {
+        println("karateTestUtils.syncJiraIssues List<JiraIssue> created new issue")
         createFailedFeatureJiraIssue(moduleSummary, featureSummary, teamByModule, jiraClient)
         // Jira issue exists
       } else if (issuesMap.containsKey(featureName)) {
@@ -140,6 +141,7 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
         println("karateTestUtils.syncJiraIssues List<JiraIssue> issue.summary=${issue.summary}")
         println("karateTestUtils.syncJiraIssues List<JiraIssue> issue.description=${issue.description}")
         println("karateTestUtils.syncJiraIssues List<JiraIssue> issue.status=${issue.status}")
+        println("karateTestUtils.syncJiraIssues List<JiraIssue> issue.key=${issue.key}")
 
         // Issue fixed and no any activity have been started on the issue
         if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
