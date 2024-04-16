@@ -118,6 +118,9 @@ void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, Tea
     [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
   }
 
+  println("karateTestUtils.syncJiraIssues Map<String, JiraIssue> issuesMap.size()=${issuesMap.size()}")
+  println("karateTestUtils.syncJiraIssues karateTestsExecutionSummary.modulesExecutionSummary.values().size()=${karateTestsExecutionSummary.modulesExecutionSummary.values().size()}")
+
   Map<String, KarateTeam> teamByModule = teamAssignment.getTeamsByModules()
   karateTestsExecutionSummary.modulesExecutionSummary.values().each { moduleSummary ->
     moduleSummary.features.each { featureSummary ->
