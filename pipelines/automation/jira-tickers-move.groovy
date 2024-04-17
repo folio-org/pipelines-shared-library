@@ -8,7 +8,7 @@ import org.folio.client.jira.model.JiraIssue
 Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
 String search_pattern = ""
-String jira_host_link = "https://issues.folio.org"
+String jira_host_link = "https://folio-org.atlassian.net"
 String jira_credentialsId = 'jenkins-jira'
 LinkedHashMap bugfest_map = [:]
 JiraClient jiraClient = getJiraClient(jira_host_link, jira_credentialsId)
@@ -16,9 +16,10 @@ LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.
                           "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
                           "Poppy"        :"https://okapi-bugfest-poppy.int.aws.folio.org",
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
-                          "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org"
+                          "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org",
+                          "Quesnelia"    :"https://okapi-bugfest-quesnelia.int.aws.folio.org"
                     ] as LinkedHashMap
-ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Poppy","Morning-Glory"]
+ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Poppy","Morning-Glory","Quesnelia"]
 String tenant="fs09000000"
 
 properties([
