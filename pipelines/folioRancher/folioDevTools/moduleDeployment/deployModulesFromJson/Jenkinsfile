@@ -26,6 +26,8 @@ properties([
     "id" : "mod-users-x.x.x",
     "action" : "enable"
 } ]'''),
+    booleanParam(name: 'DI_SLICING', defaultValue: false, description: '(Optional) Enable Data Import slicing\nApplicable ONLY if S3 service being used!'),
+    booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     folioParameters.simulate(),
