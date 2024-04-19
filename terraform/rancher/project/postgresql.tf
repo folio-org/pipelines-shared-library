@@ -105,7 +105,7 @@ resource "rancher2_app_v2" "postgresql" {
     volumePermissions:
       enabled: true
     metrics:
-      enabled: true
+      enabled: ${local.pg_auth}
       resources:
         requests:
           memory: 512Mi
