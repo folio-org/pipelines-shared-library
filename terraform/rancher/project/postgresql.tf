@@ -16,7 +16,7 @@ locals {
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
-  pg_auth           = local.pg_architecture == "standalone" ? "true" : "false"
+  pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
 }
 
 # Rancher2 Project App Postgres
