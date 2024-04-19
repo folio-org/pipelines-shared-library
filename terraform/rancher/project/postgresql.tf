@@ -16,6 +16,7 @@ locals {
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
+  pg_auth           = local.pg_architecture == "standalone" ? "true" : "false"
 }
 
 # Rancher2 Project App Postgres
@@ -59,7 +60,7 @@ resource "rancher2_app_v2" "postgresql" {
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
       replicationUsername: ${var.pg_username}
-      usePasswordFiles: true
+      usePasswordFiles: ${local.pg_auth}
     primary:
       initdb:
         scripts:
