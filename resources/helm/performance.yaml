@@ -952,6 +952,16 @@ mod-remote-storage:
       memory: '850Mi'
     requests:
       memory: '680Mi'
+mod-reading-room:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '512Mi'
+    requests:
+      memory: '384Mi'
 mod-rtac:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
