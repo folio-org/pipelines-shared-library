@@ -10,7 +10,7 @@ resource "rancher2_app_v2" "kafka" {
   force_upgrade = "true"
   values        = <<-EOT
     image:
-      tag: 3.5
+      tag: 2.8
     metrics:
       kafka:
         enabled: true
@@ -32,9 +32,9 @@ resource "rancher2_app_v2" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 1024Mi
+        memory: 2Gi
       limits:
-        memory: 4096Mi
+        memory: 8Gi
     zookeeper:
       image:
         tag: 3.7
@@ -65,7 +65,7 @@ resource "rancher2_app_v2" "kafka_ui" {
   name          = "kafka-ui"
   repo_name     = "provectus"
   chart_name    = "kafka-ui"
-  chart_version = "0.7.2"
+  chart_version = "0.7.1"
   force_upgrade = "true"
   values        = <<-EOT
     service:
@@ -95,6 +95,6 @@ resource "rancher2_app_v2" "kafka_ui" {
         requests:
           memory: 512Mi
         limits:
-          memory: 2048Mi
+          memory: 3Gi
   EOT
 }
