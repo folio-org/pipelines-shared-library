@@ -179,8 +179,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
   }
-  
-  if (params.cluster == 'folio-dev') {
+
+  if (ns.getClusterName() == 'folio-dev') {
     moduleConfig << [
       modSearchDev : "true"
       modInventoryStorageDev: "true"
