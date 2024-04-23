@@ -179,6 +179,15 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
   }
+  if (params.namespace.contains("dev"))
+    moduleConfig << [modSearchDev: "true"]
+  }
+  if (params.namespace.contains("dev")) {
+    moduleConfig << [modInventoryStorageDev: "true"]
+  }
+  if (params.namespace.contains("dev")) {
+    moduleConfig << [modEntitiesLinksDev: "true"]
+  }
 
   //Enable DIS
   if(params.DI_SLICING && moduleName == 'mod-data-import') {
