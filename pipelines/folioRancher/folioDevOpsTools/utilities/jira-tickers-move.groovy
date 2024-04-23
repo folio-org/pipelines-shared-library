@@ -2,7 +2,6 @@
 @Library('pipelines-shared-library') _
 
 import org.folio.client.jira.JiraClient
-import org.folio.client.jira.JiraConstants
 import org.folio.client.jira.model.JiraIssue
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -10,7 +9,7 @@ Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
 String search_pattern = ""
 LinkedHashMap bugfest_map = [:]
-JiraClient jiraClient = JiraClient.getJiraClient(this, JiraConstants.CREDENTIALS_ID, JiraConstants.URL)
+JiraClient jiraClient = JiraClient.getJiraClient(this)
 LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.folio.org",
                           "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
