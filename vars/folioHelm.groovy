@@ -179,14 +179,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
   }
-  if (params.cluster.contains("dev")) {
-    moduleConfig << [modSearchDev: "true"]
-  }
-  if (params.cluster.contains("dev")) {
-    moduleConfig << [modInventoryStorageDev: "true"]
-  }
-  if (params.cluster.contains("dev")) {
-    moduleConfig << [modEntitiesLinksDev: "true"]
+  
+  if (params.cluster == 'folio-dev') {
+    moduleConfig << [
+      modSearchDev : "true"
+      modInventoryStorageDev: "true"
+      modEntitiesLinksDev : "true"
+    ]
   }
 
   //Enable DIS
