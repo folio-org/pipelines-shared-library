@@ -439,6 +439,16 @@ mod-copycat:
       memory: '512Mi'
     requests:
       memory: '384Mi'
+mod-camunda:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '512Mi'
+    requests:
+      memory: '384Mi'
 mod-courses:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
@@ -942,6 +952,16 @@ mod-remote-storage:
       memory: '680Mi'
     requests:
       memory: '510Mi'
+mod-reading-room:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '450Mi'
+    requests:
+      memory: '384Mi'
 mod-rtac:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
@@ -1117,6 +1137,16 @@ mod-tlr:
       memory: '384Mi'
     requests:
       memory: '256Mi'
+mod-workflow:
+  javaOptions: '-XX:MaxRAMPercentage=66.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '512Mi'
+    requests:
+      memory: '384Mi'
 ldp-server:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:

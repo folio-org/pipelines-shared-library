@@ -12,6 +12,23 @@ import org.folio.client.jira.JiraClient
 import org.folio.client.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 
+
+def getSlackColor(def buildStatus) {
+  switch(buildStatus) {
+      case 'STARTED':
+          return '#D4DADF'
+        break
+      case 'SUCCESS':
+          return '#BDFFC3'
+        break
+      case 'UNSTABLE':
+          return '#FFFE89'
+        break
+      default:
+          return '#FF9FA1'
+  }
+}
+
 def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInstallJson,dstInstallJson,totalTimeInMs,modulesLongMigrationTimeSlack,modulesMigrationFailedSlack,startMigrationTime,pgadminURL){
 
 
@@ -32,6 +49,12 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
 
     // Get logs about activating modules from elasticseach
     def result = getESLogs(rancher_cluster_name, "logstash-$rancher_project_name", startMigrationTime)
+
+    println("STARTTIME: ${startMigrationTime}")
+    println("SOURCE: ${srcInstallJson}")
+    println("DESTINATION: ${dstInstallJson}")
+    println("RESULT: ${result}")
+
 
     // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
     def tenants = []
@@ -58,19 +81,19 @@ def getMigrationTime(rancher_cluster_name,rancher_project_name,resultMap,srcInst
             tenants += new DataMigrationTenant(bindingMap)
         }
     }
-
+    println("TENANTS: ${tenants}")
     // Grouped modules by tenant name and generate HTML report
     def uniqTenants = tenants.tenantName.unique()
     uniqTenants.each { tenantName ->
-        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants, pgadminURL)
+        (htmlData, totalTime, modulesLongMigrationTime, modulesMigrationFailed) = createTimeHtmlReport(tenantName, tenants)
         totalTimeInMs += totalTime
         modulesLongMigrationTimeSlack += modulesLongMigrationTime
         modulesMigrationFailedSlack += modulesMigrationFailed
         writeFile file: "reportTime/${tenantName}.html", text: htmlData
     }
     return [totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack]
-
 }
+    println("UNIQUE: ${uniqTenants}")
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
@@ -92,7 +115,7 @@ def getESLogs(cluster, indexPattern, startDate) {
 }
 
 @NonCPS
-def createTimeHtmlReport(tenantName, tenants, pgadminURL) {
+def createTimeHtmlReport(tenantName, tenants) {
     def sortedList = tenants.sort {
         try {
             it.moduleInfo.execTime.toInteger()
@@ -138,9 +161,7 @@ def createTimeHtmlReport(tenantName, tenants, pgadminURL) {
                             modulesLongMigrationTime.put(moduleName, execTime)
                         }
                     }
-                    markup.bodyy(href: pgadminURL, target: "_blank") {
-                        builder.h2("pgAdmin")
-                    }
+
                     markup.tr(style: "padding: 5px; border: solid 1px #777;") {
                         markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
                         markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
@@ -193,7 +214,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
     }
 
     try {
-        slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
+        slackSend(color: getSlackColor(buildStatus), message: message, channel: slackChannel)
     } catch (Exception e) {
         println("Unable to send slack notification to channel '${slackChannel}'")
         e.printStackTrace()
@@ -221,5 +242,3 @@ def getBackendModulesList(String repoName, String branchName){
         return modules_list.sort()
     }
 }
-
-

@@ -3,6 +3,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.*
 import groovy.xml.MarkupBuilder
 import java.util.concurrent.*
+import java.util.Date
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
 import org.folio.client.jira.JiraClient
