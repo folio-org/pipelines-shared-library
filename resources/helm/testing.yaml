@@ -1384,6 +1384,18 @@ mod-rtac:
       memory: 512Mi
     requests:
       memory: 341Mi
+mod-reading-room:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 341Mi
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
