@@ -179,13 +179,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
   }
-  if (params.namespace.contains("dev")) {
+  if (params.cluster.contains("dev")) {
     moduleConfig << [modSearchDev: "true"]
   }
-  if (params.namespace.contains("dev")) {
+  if (params.cluster.contains("dev")) {
     moduleConfig << [modInventoryStorageDev: "true"]
   }
-  if (params.namespace.contains("dev")) {
+  if (params.cluster.contains("dev")) {
     moduleConfig << [modEntitiesLinksDev: "true"]
   }
 
