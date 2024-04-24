@@ -2,8 +2,8 @@ package org.folio.client.slack
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.client.slack.templates.SlackTestResultTemplates
-import org.folio.shared.TestResult
-import org.folio.shared.TestType
+import org.folio.testing.TestResult
+import org.folio.testing.TestType
 
 enum SlackTestResultRenderer {
   KARATE_SUCCESS("good", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE

@@ -2,8 +2,8 @@ import org.folio.client.reportportal.ReportPortalTestType
 import org.folio.client.slack.SlackBuildResultRenderer
 import org.folio.client.slack.SlackHelper
 import org.folio.client.slack.SlackTestResultRenderer
-import org.folio.shared.TestResult
-import org.folio.shared.TestType
+import org.folio.testing.TestResult
+import org.folio.testing.TestType
 
 String renderSlackBuildResultMessageSection(){
   SlackBuildResultRenderer slackBuildResult =

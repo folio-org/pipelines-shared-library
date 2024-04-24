@@ -6,7 +6,7 @@ import org.folio.testing.karate.results.KarateModuleExecutionSummary
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
-import org.folio.shared.TestType
+import org.folio.testing.TestType
 
 @Deprecated
 def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boolean useReportPortal = false,
