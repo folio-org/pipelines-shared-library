@@ -1,7 +1,5 @@
 package org.folio.slack.templates
 
-import com.cloudbees.groovy.cps.NonCPS
-
 class SlackTestResultTemplates {
 
   private SlackTestResultTemplates(){}
@@ -15,7 +13,6 @@ class SlackTestResultTemplates {
   static final ACTION_TEXT = '*Check out the tests report* :bar_chart: '
 
   static final REPORT_PORTAL_ACTION_TEXT = '*ReportPortal results* :bar_chart: '
-
 
   static Map<String, String> getTextParams(String buildName, String passedCnt
                                            , String brokenCnt, String failCnt
