@@ -7,8 +7,8 @@ enum TestExecutionResult {
 
   @NonCPS
   static TestExecutionResult byPassRate(IExecutionSummary summary, int passRateLimit = 50){
-//    return summary.passRate > passRateLimit ? SUCCESS : FAILED
-    return SUCCESS
+    return summary.getPassRate() > passRateLimit ? SUCCESS : FAILED
+//    return SUCCESS
   }
 
   @NonCPS
