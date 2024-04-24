@@ -37,12 +37,6 @@ String renderFailedBuildResultMessage(){
 String renderTestResultSection(TestType type, IExecutionSummary summary
                                , String buildName, boolean useReportPortal, String url){
 
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 summary.passRate=${summary.getPassRate()})}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 summary.getTotalCount=${summary.getTotalCount()})}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 summary.getFailedCount=${summary.getFailedCount()})}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 summary.getSkippedCount=${summary.getSkippedCount()})}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 summary.getPassRate() > passRateLimit ? SUCCESS : FAILED=${summary.getPassRate() > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILED})}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection/40 TestExecutionResult.byPassRate(summary)=${TestExecutionResult.byPassRate(summary)}")
   return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary))
     .renderSection(
       "${buildName}"
