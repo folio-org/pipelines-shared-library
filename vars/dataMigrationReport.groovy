@@ -8,7 +8,7 @@ import org.folio.utilities.Tools
 import org.folio.jira.JiraClient
 import org.folio.jira.model.JiraIssue
 import org.folio.Constants
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.teams.TeamAssignment
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"

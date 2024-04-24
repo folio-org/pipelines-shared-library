@@ -4,10 +4,10 @@ package vars
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
 import org.folio.jira.JiraConstants
-import org.folio.karate.results.KarateFeatureExecutionSummary
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.karate.results.KarateFeatureExecutionSummary
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.testharness.AbstractScriptTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

@@ -11,7 +11,7 @@ import org.folio.jira.model.JiraPriority
 import org.folio.jira.model.JiraProject
 import org.folio.jira.model.JiraResources
 import org.folio.jira.model.JiraStatus
-import org.folio.karate.KarateConstants
+import org.folio.testing.karate.KarateConstants
 
 import java.util.logging.Logger
 

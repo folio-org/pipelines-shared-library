@@ -1,4 +1,4 @@
-package org.folio.karate
+package org.folio.testing.karate
 
 class KarateConstants {
 

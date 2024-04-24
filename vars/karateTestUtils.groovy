@@ -2,12 +2,12 @@ import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.folio.jira.JiraClient
 import org.folio.jira.model.JiraIssue
-import org.folio.karate.KarateConstants
-import org.folio.karate.results.KarateFeatureExecutionSummary
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.karate.KarateConstants
+import org.folio.testing.karate.results.KarateFeatureExecutionSummary
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.Team
+import org.folio.testing.teams.TeamAssignment
 
 /**
  * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
@@ -170,7 +170,7 @@ String toSearchableSummary(String summary) {
  * @param jiraClient jira client
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
-                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
+                                  Map<String, Team> teamByModule, JiraClient jiraClient) {
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
