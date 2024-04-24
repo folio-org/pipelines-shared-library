@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.Instant
 
-@Library('pipelines-shared-library@RANCHER-1364') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 def call(params) {
   def id
