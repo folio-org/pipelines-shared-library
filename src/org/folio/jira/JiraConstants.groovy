@@ -1,6 +1,6 @@
-package org.folio.client.jira
+package org.folio.jira
 
-import org.folio.client.jira.model.JiraResources
+import org.folio.jira.model.JiraResources
 
 class JiraConstants {
 

@@ -1,8 +1,8 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.xml.MarkupBuilder
 import org.folio.Constants
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
 import org.folio.karate.teams.TeamAssignment
 import org.folio.utilities.Tools
 

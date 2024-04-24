@@ -5,8 +5,8 @@ import groovy.xml.MarkupBuilder
 import java.util.concurrent.*
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
 import org.folio.Constants
 import org.folio.karate.teams.TeamAssignment
 
