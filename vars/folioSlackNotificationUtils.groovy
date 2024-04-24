@@ -98,3 +98,29 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
     .fromType(type, TestExecutionResult.byTestResults(results))
     .renderSection(team, results, existingIssuesUrl, createdIssuesUrl)
 }
+
+@Deprecated
+String renderSlackTestResultMessageSection(TestType type, LinkedHashMap<String, Integer> testResults
+                                           , String buildName, boolean useReportPortal, String url){
+
+  def totalTestsCount = testResults.passed + testResults.failed + testResults.broken
+  def passRateInDecimal = totalTestsCount > 0 ? (testResults.passed * 100) / totalTestsCount : 0
+  def passRate = passRateInDecimal.intValue()
+
+  println "Total passed tests: ${testResults.passed}"
+  println "Total failed tests: ${testResults.failed}"
+  println "Total broken tests: ${testResults.broken}"
+
+  SlackTestResultRenderer slackTestType =
+    SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILED)
+
+  return slackTestType.renderSection(
+    "${buildName}"
+    , "${testResults.passed}"
+    , "${testResults.broken}"
+    , "${testResults.failed}"
+    , "${passRate}"
+    , "${url}"
+    , useReportPortal
+    , ReportPortalTestType.fromType(type).reportPortalLaunchesURL())
+}
