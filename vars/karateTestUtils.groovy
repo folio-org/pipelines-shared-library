@@ -170,7 +170,7 @@ String toSearchableSummary(String summary) {
  * @param jiraClient jira client
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
-                                  Map<String, Team> teamByModule, JiraClient jiraClient) {
+                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
