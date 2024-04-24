@@ -3,7 +3,7 @@ import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
 import java.util.Calendar
 
-@Library('pipelines-shared-library@RANCHER-1364') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
