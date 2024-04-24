@@ -1,7 +1,7 @@
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 

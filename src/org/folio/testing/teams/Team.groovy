@@ -1,8 +1,8 @@
-package org.folio.karate.teams
+package org.folio.testing.teams
 
 import com.cloudbees.groovy.cps.NonCPS
 
-class KarateTeam {
+class Team {
 
     String name
 
@@ -15,7 +15,7 @@ class KarateTeam {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
 
-        KarateTeam that = (KarateTeam) o
+        Team that = (Team) o
 
         if (modules != that.modules) return false
         if (name != that.name) return false

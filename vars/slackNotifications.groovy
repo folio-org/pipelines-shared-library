@@ -1,11 +1,11 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.folio.client.reportportal.ReportPortalTestType
-import org.folio.karate.results.KarateExecutionResult
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.karate.results.KarateExecutionResult
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.Team
+import org.folio.testing.teams.TeamAssignment
 import org.folio.shared.TestType
 
 @Deprecated
@@ -125,7 +125,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
 @Deprecated
 void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
     // collect modules tests execution results by team
-    Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
+    Map<Team, List<KarateModuleExecutionSummary>> teamResults = [:]
     def teamByModule = teamAssignment.getTeamsByModules()
     karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
         if (teamByModule.containsKey(moduleExecutionSummary.getName())) {

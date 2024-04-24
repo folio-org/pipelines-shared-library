@@ -3,7 +3,7 @@ import groovy.xml.MarkupBuilder
 import org.folio.Constants
 import org.folio.jira.JiraClient
 import org.folio.jira.model.JiraIssue
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
 
 void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgadminURL, resultMap, diff) {
