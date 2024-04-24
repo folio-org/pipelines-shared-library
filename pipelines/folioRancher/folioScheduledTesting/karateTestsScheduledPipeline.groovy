@@ -1,7 +1,6 @@
 @Library('pipelines-shared-library@RANCHER-1364') _
 
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
-import org.folio.testing.teams.TeamAssignment
+
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -18,8 +17,6 @@ def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespa
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
-KarateTestsExecutionSummary karateTestsExecutionSummary
-def teamAssignment
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -60,8 +57,8 @@ pipeline {
       steps {
         script {
           try {
-            def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-              projectName, prototypeTenant, folio_repository, folio_branch)
+            def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+              projectName, folio_branch)
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
             slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
@@ -84,8 +81,8 @@ pipeline {
             }
             sleep time: 1, unit: 'MINUTES'
             try {
-              def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                projectName, prototypeTenant, folio_repository, folio_branch)
+              def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+                projectName, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
               slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
@@ -114,7 +111,7 @@ pipeline {
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
                                prototypeTenant: prototypeTenant,
-                               modules: 'mod-fqm-manager,mod-kb-ebsco-java']
+                               modules: 'mod-fqm-manager,mod-kb-ebsco-java,mod-agreements']
           /*sleep time: 30, unit: 'MINUTES'*/
           karateFlow(jobParameters)
         }
@@ -145,8 +142,7 @@ pipeline {
   }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
-                                         folio_repository, folio_branch) {
+private List getEnvironmentJobParameters(String okapiVersion, clusterName, projectName, folio_branch) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'FOLIO_BRANCH', value: folio_branch),
@@ -155,6 +151,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
    booleanParam(name: 'LOAD_REFERENCE', value: true),
    booleanParam(name: 'LOAD_SAMPLE', value: true),
    booleanParam(name: 'CONSORTIA', value: true),
+   booleanParam(name: 'SPLIT_FILES', value: true),
    booleanParam(name: 'RW_SPLIT', value: false),
    booleanParam(name: 'GREENMAIL', value: false),
    booleanParam(name: 'MOCK_SERVER', value: true),
@@ -164,7 +161,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
    string(name: 'MEMBERS', value: ''),
-   string(name: 'AGENT', value: 'rancher'),
+   string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
 
@@ -176,6 +173,6 @@ private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
    string(name: 'KAFKA', value: 'built-in'),
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
-   string(name: 'AGENT', value: 'rancher'),
+   string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
