@@ -1,7 +1,5 @@
 package org.folio.testing
 
-import com.cloudbees.groovy.cps.NonCPS
-
 enum TestExecutionResult {
   SUCCESS, FAILED
 
