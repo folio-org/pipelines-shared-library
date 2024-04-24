@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import org.folio.rest_v2.Common
+import org.folio.client.jira.JiraConstants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
@@ -27,13 +27,13 @@ void createJiraTicket(String summary, String DevTeamId, String type) {
         }
     }"""
     def body_data = new JsonSlurperClassic().parseText(body)
-    new RestClient(this).post(Constants.FOLIO_JIRA_ISSUE_URL, body_data, headers)
+    new RestClient(this).post(JiraConstants.ISSUE_URL, body_data, headers)
   }
 }
 
 def searchForExistingJiraTickets(String jql) {
   def issuesData
-  String search_url = "https://issues.folio.org/rest/api/2/search?jql=${jql}"
+  String search_url = "${JiraConstants.API_URL}search?jql=${jql}"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -46,7 +46,7 @@ def searchForExistingJiraTickets(String jql) {
 }
 
 void addJiraComment(String ticketNumber, String comment) {
-  String commentUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticketNumber}/comment"
+  String commentUrl = JiraConstants.ISSUE_URL + "${ticketNumber}/comment"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -61,7 +61,7 @@ void addJiraComment(String ticketNumber, String comment) {
 }
 
 void addLabelJiraTicket(String ticketNumber, List labels) {
-  String labelUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticketNumber}"
+  String labelUrl = JiraConstants.ISSUE_URL + "${ticketNumber}"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -84,7 +84,7 @@ void moveJiraTicket(List ticketNumbers, String moveId){
       "Authorization": "Bearer ${env.JiraToken}"
     ]
     ticketNumbers.each { ticket ->
-      String labelUrl = Constants.FOLIO_JIRA_ISSUE_URL + "${ticket}/transitions"
+      String labelUrl = JiraConstants.ISSUE_URL + "${ticket}/transitions"
       String body = """
       {"transition": {"id": "${moveId}"}}
       """

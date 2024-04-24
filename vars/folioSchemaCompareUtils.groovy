@@ -101,7 +101,7 @@ void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgad
 // Jira Issue Creation Report
 
 def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-    JiraClient jiraClient = karateTestUtils.getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
@@ -128,7 +128,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
 
     try {
-        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        List<JiraIssue> issues = jiraClient.searchIssues(Constants.DM_ISSUES_JQL, ["summary", "status"])
         Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
             def issuesSummary = issue.summary
             [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]

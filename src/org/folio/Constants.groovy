@@ -79,15 +79,12 @@ class Constants {
   static String FOLIO_SSH_GITHUB_URL = 'git@github.com:folio-org'
   static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
   static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
-  static String FOLIO_JIRA_URL = 'https://folio-org.atlassian.net'
-  static String FOLIO_JIRA_ISSUE_URL = 'https://folio-org.atlassian.net/rest/api/2/issue/'
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
   static String GITHUB_CREDENTIALS_ID = '11657186-f4d4-4099-ab72-2a32e023cced'
   static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
   static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
-  static String JIRA_CREDENTIALS_ID = 'jenkins-jira'
 
   //Rancher
   static String RANCHER_TOKEN_ID = 'rancher_token_v2'
