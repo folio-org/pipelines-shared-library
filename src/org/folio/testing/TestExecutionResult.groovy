@@ -1,5 +1,5 @@
 package org.folio.testing
 
-enum TestResult{
+enum TestExecutionResult {
   SUCCESS, FAILURE
 }

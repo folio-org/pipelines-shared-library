@@ -2,7 +2,7 @@ import org.folio.client.reportportal.ReportPortalTestType
 import org.folio.client.slack.SlackBuildResultRenderer
 import org.folio.client.slack.SlackHelper
 import org.folio.client.slack.SlackTestResultRenderer
-import org.folio.testing.TestResult
+import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
 
 String renderSlackBuildResultMessageSection(){
@@ -38,7 +38,7 @@ String renderSlackTestResultMessageSection(TestType type, LinkedHashMap<String, 
   println "Total broken tests: ${testResults.broken}"
 
   SlackTestResultRenderer slackTestType =
-    SlackTestResultRenderer.fromType(type, passRate > 50 ? TestResult.SUCCESS : TestResult.FAILURE)
+    SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILURE)
 
   return slackTestType.renderSection(
     "${buildName}"
