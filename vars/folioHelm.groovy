@@ -181,11 +181,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   if (ns.getClusterName() == 'folio-dev') {
-    moduleConfig << [
-      modSearchDev : "true"
-      modInventoryStorageDev: "true"
-      modEntitiesLinksDev : "true"
-    ]
+    moduleConfig << [modSearchDev: "true"]
+    moduleConfig << [modInventoryStorageDev: "true"]
+    moduleConfig << [modEntitiesLinksDev: "true"]
   }
 
   //Enable DIS
