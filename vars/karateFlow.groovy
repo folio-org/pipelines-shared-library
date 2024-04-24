@@ -1,6 +1,7 @@
-import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.testing.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -11,6 +12,10 @@ import java.time.Instant
 
 def call(params) {
   def id
+
+  KarateTestsExecutionSummary karateTestsExecutionSummary
+  TeamAssignment teamAssignment
+
   stage("Checkout") {
     script {
       sshagent(credentials: [Constants.GITHUB_CREDENTIALS_ID]) {
@@ -127,28 +132,19 @@ def call(params) {
     }
   }
 
+  stage("Collect execution results") {
+    script {
+      karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+      karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+    }
+  }
+
   stage('Send in slack test results notifications') {
     script {
-      // export and collect karate tests results
-      def files_list = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-
-      LinkedHashMap<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
-      files_list.each { test ->
-        def json = readJSON file: test.path
-        def testsFailed = json['scenariosfailed']
-        if (testsFailed != 0) {
-          statusCounts.failed += testsFailed
-        }
-        def testsPassed = json['scenariosPassed']
-        if (testsPassed != 0) {
-          statusCounts.passed += testsPassed
-        }
-      }
-
       slackSend(attachments: folioSlackNotificationUtils
-                              .renderSlackTestResultMessage(
+                              .renderBuildAndTestResultMessage(
                                 TestType.KARATE
-                                , statusCounts
+                                , karateTestsExecutionSummary
                                 , ""
                                 , true
                                 , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
@@ -156,5 +152,40 @@ def call(params) {
                 , channel: "#rancher_tests_notifications")
     }
   }
+
+  stage('Jira&Slack team notifications'){
+    stages{
+      stage("Parse teams assignment") {
+        script {
+          def jsonContents = readJSON file: "teams-assignment.json"
+          teamAssignment = new TeamAssignment(jsonContents)
+        }
+      }
+
+      stage("Sync jira tickets") {
+        script {
+          karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+        }
+      }
+
+      stage("Send slack notifications to teams") {
+        script {
+          folioSlackNotificationUtils.renderTeamsTestResultMessages(
+                                        TestType.KARATE
+                                        , karateTestsExecutionSummary
+                                        , teamAssignment
+                                        , ""
+                                        , true
+                                        , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+            .each {
+              slackSend(attachments: it.value
+//              , channel: "#rancher-test-notifications")
+                , channel: it.key.getSlackChannel())
+            }
+        }
+      }
+    }
+  }
+
 }
 

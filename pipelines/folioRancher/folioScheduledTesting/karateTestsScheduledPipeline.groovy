@@ -64,7 +64,7 @@ pipeline {
               projectName, prototypeTenant, folio_repository, folio_branch)
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
-            slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+            slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
                       , channel: "#rancher_tests_notifications")
             throw new Exception("Creation of the environment is failed: " + new_ex)
           }
@@ -88,7 +88,7 @@ pipeline {
                 projectName, prototypeTenant, folio_repository, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
-              slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+              slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
                         , channel: "#rancher_tests_notifications")
               throw new Exception("Creation of the environment is failed: " + e.getMessage())
             }
