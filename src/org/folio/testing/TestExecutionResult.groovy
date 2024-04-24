@@ -12,6 +12,12 @@ enum TestExecutionResult {
   }
 
   @NonCPS
+  static int test(IExecutionSummary summary, int passRateLimit = 50){
+    return passRateLimit
+//    return SUCCESS
+  }
+
+  @NonCPS
   static TestExecutionResult byTestResults(List<IExecutionSummary> results, int passRateLimit = 50){
     if (results.findAll({it.getExecutionResult(passRateLimit) == FAILED }).size() > 0)
       return FAILED
