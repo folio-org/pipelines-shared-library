@@ -1,8 +1,5 @@
 package org.folio.karate.results
 
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignment
-
 class KarateTestsExecutionSummary {
 
   Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:];
@@ -22,27 +19,10 @@ class KarateTestsExecutionSummary {
     }
   }
 
-  Map<KarateTeam, List<KarateModuleExecutionSummary>> getModuleResultByTeam(TeamAssignment teamAssignment) {
-    Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
-
-    Map<String, KarateTeam> teamByModule = teamAssignment.getTeamsByModules()
-    getModulesExecutionSummary().values().each { moduleExecutionSummary ->
-
-      if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
-        KarateTeam team = teamByModule.get(moduleExecutionSummary.getName())
-        if (!teamResults.containsKey(team)) teamResults[team] = []
-
-        teamResults[team].add(moduleExecutionSummary)
-      }
+    @Override
+    public String toString() {
+        return "KarateTestsResult{" +
+            "modulesTestResult=" + modulesExecutionSummary +
+            '}';
     }
-
-    return teamResults
-  }
-
-  @Override
-  public String toString() {
-    return "KarateTestsResult{" +
-      "modulesTestResult=" + modulesExecutionSummary +
-      '}';
-  }
 }
