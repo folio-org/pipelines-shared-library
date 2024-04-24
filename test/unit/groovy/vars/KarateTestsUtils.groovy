@@ -3,8 +3,7 @@ package vars
 
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
-import org.folio.Constants
-import org.folio.client.jira.JiraConstants
+import org.folio.jira.JiraConstants
 import org.folio.karate.results.KarateFeatureExecutionSummary
 import org.folio.karate.results.KarateModuleExecutionSummary
 import org.folio.karate.results.KarateTestsExecutionSummary

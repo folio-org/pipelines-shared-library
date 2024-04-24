@@ -1,4 +1,4 @@
-package org.folio.client.jira.model
+package org.folio.jira.model
 
 class JiraIssueUpdateMeta {
 

@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
-import org.folio.client.jira.JiraConstants
+import org.folio.jira.JiraConstants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.folio.utilities.Tools

@@ -1,7 +1,7 @@
 package org.folio.version
 
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.JiraConstants
+import org.folio.jira.JiraClient
+import org.folio.jira.JiraConstants
 
 def execute() {
     def client = new JiraClient(this, JiraConstants.URL, "dummy", "dummy")

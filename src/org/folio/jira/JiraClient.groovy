@@ -1,9 +1,16 @@
-package org.folio.client.jira
+package org.folio.jira
 
 import groovy.json.JsonOutput
 import hudson.AbortException
 import org.apache.http.HttpHeaders
-import org.folio.client.jira.model.*
+import org.folio.jira.model.JiraIssue
+import org.folio.jira.model.JiraIssueCreateMeta
+import org.folio.jira.model.JiraIssueTransition
+import org.folio.jira.model.JiraIssueUpdateMeta
+import org.folio.jira.model.JiraPriority
+import org.folio.jira.model.JiraProject
+import org.folio.jira.model.JiraResources
+import org.folio.jira.model.JiraStatus
 import org.folio.karate.KarateConstants
 
 import java.util.logging.Logger

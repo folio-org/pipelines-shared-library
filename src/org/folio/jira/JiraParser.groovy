@@ -1,6 +1,15 @@
-package org.folio.client.jira
+package org.folio.jira
 
-import org.folio.client.jira.model.*
+
+import org.folio.jira.model.JiraField
+import org.folio.jira.model.JiraIssue
+import org.folio.jira.model.JiraIssueCreateMeta
+import org.folio.jira.model.JiraIssueTransition
+import org.folio.jira.model.JiraIssueType
+import org.folio.jira.model.JiraIssueUpdateMeta
+import org.folio.jira.model.JiraPriority
+import org.folio.jira.model.JiraProject
+import org.folio.jira.model.JiraStatus
 
 final class JiraParser {
 

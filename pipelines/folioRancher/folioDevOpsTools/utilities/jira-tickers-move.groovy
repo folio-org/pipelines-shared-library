@@ -1,8 +1,8 @@
 #!groovy
 @Library('pipelines-shared-library') _
 
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
 import org.jenkinsci.plugins.workflow.libs.Library
 
 Object list_of_found_jira_tasks
