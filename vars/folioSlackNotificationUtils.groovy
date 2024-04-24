@@ -114,6 +114,17 @@ String renderSlackTestResultMessageSection(TestType type, Map<String, Integer> t
   SlackTestResultRenderer slackTestType =
     SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILED)
 
+  def testVal = slackTestType.renderSection(
+    "${buildName}"
+    , "${testResults.passed}"
+    , "${testResults.broken}"
+    , "${testResults.failed}"
+    , "${passRate}"
+    , "${url}"
+    , useReportPortal
+    , ReportPortalTestType.fromType(type).reportPortalLaunchesURL())
+  println("folioSlackNotificationUtils.groovy renderSlackTestResultMessageSection slackTestType.renderSection=${testVal}")
+
   return slackTestType.renderSection(
     "${buildName}"
     , "${testResults.passed}"
