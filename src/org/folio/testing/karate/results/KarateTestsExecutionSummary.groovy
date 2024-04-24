@@ -89,7 +89,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
 
   @Override
   int getPassRate() {
-    def passRateInDecimal = getTotalCount() > 0 ? (featuresPassed * 100) / getTotalCount() : 0
+    def passRateInDecimal = getTotalCount() > 0 ? (getPassedCount() * 100) / getTotalCount() : 0
     return passRateInDecimal.intValue()
   }
 
