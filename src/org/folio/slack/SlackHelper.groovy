@@ -36,6 +36,13 @@ final class SlackHelper {
     return "[${sections.join(', ')}]"
   }
 
+  static String addSectionsToMessage(String message, List<String> sections){
+    if(message.startsWith('[')) message = message.substring(1)
+    if(message.endsWith(']')) message = message.substring(0, message.length() - 2)
+
+    return renderMessage(sections.add(0, message))
+  }
+
   static String fillTemplate(Map<String, String> params, String template){
     params.each { key, value ->
       template = template.replace("\${${key}}", value)
