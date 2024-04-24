@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1364') _
 
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.TeamAssignment
@@ -29,9 +29,9 @@ pipeline {
 
   agent { label 'jenkins-agent-java17' }
 
-  triggers {
+/*  triggers {
     cron('H 3 * * *')
-  }
+  }*/
 
   options {
     disableConcurrentBuilds()
@@ -43,7 +43,7 @@ pipeline {
   }
 
   stages {
-    stage("Check environment") {
+/*    stage("Check environment") {
       steps {
         script {
           try {
@@ -95,14 +95,14 @@ pipeline {
           }
         }
       }
-    }
+    }*/
 
     stage("Start tests") {
-      when {
+/*      when {
         expression {
           spinUpEnvironmentJob.result == 'SUCCESS'
         }
-      }
+      }*/
       steps {
         script {
           def jobParameters = [branch         : params.branch,
@@ -113,46 +113,47 @@ pipeline {
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant]
-          sleep time: 30, unit: 'MINUTES'
+                               prototypeTenant: prototypeTenant,
+                               modules: 'mod-fqm-manager,mod-kb-ebsco-java']
+          /*sleep time: 30, unit: 'MINUTES'*/
           karateFlow(jobParameters)
         }
       }
     }
 
-    stage("Parallel") {
-      parallel {
-        stage("Collect test results") {
-          when {
+//    stage("Parallel") {
+//      parallel {
+//        stage("Collect test results") {
+/*          when {
             expression {
               spinUpEnvironmentJob.result == 'SUCCESS'
             }
-          }
-          stages {
-            stage("Collect execution results") {
-              steps {
-                script {
-                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-              }
-            }
-            stage("Destroy environment") {
+          }*/
+//          stages {
+//            stage("Collect execution results") {
+//              steps {
+//                script {
+//                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+//                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+//                }
+//              }
+//            }
+/*            stage("Destroy environment") {
               steps {
                 script {
                   def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
                   tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
                 }
               }
-            }
-            stage("Parse teams assignment") {
+            }*/
+/*            stage("Parse teams assignment") {
               steps {
                 script {
                   def jsonContents = readJSON file: "teams-assignment.json"
                   teamAssignment = new TeamAssignment(jsonContents)
                 }
               }
-            }
+            }*/
 
 //            stage("Sync jira tickets") {
 //              steps {
@@ -169,12 +170,12 @@ pipeline {
 //                }
 //              }
 //            }
-          }
-        }
-      }
-    }
+//          }
+//        }
+//      }
+//    }
 
-    stage("Set job execution result") {
+/*    stage("Set job execution result") {
       when {
         expression {
           spinUpEnvironmentJob.result != 'SUCCESS'
@@ -185,7 +186,7 @@ pipeline {
           currentBuild.result = 'FAILURE'
         }
       }
-    }
+    }*/
   }
 }
 
