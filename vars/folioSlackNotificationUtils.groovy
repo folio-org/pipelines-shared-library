@@ -100,7 +100,7 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
 }
 
 @Deprecated
-String renderSlackTestResultMessageSection(TestType type, LinkedHashMap<String, Integer> testResults
+String renderSlackTestResultMessageSection(TestType type, Map<String, Integer> testResults
                                            , String buildName, boolean useReportPortal, String url){
 
   def totalTestsCount = testResults.passed + testResults.failed + testResults.broken
