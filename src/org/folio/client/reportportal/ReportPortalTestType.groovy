@@ -1,7 +1,7 @@
 package org.folio.client.reportportal
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.shared.TestType
+import org.folio.testing.TestType
 
 enum ReportPortalTestType{
   KARATE(ReportPortalConstants.KARATE_PROJECT_NAME, ReportPortalConstants.KARATE_EXEC_PARAM_TEMPLATE, TestType.KARATE)

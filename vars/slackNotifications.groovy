@@ -1,12 +1,12 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.folio.client.reportportal.ReportPortalTestType
-import org.folio.testing.karate.results.KarateExecutionResult
+import org.folio.testing.TestExecutionResult
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
-import org.folio.shared.TestType
+import org.folio.testing.TestType
 
 @Deprecated
 def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boolean useReportPortal = false,
@@ -147,7 +147,7 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
         def moduleFailureFields = []
         def testsStatus = "SUCCESS"
         entry.value.each { moduleTestResult ->
-            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
+            if (moduleTestResult.getExecutionResult() == TestExecutionResult.FAILED) {
                 def moduleName = moduleTestResult.getName()
                 def failures = moduleTestResult.getFeaturesFailed()
                 def totalTests = moduleTestResult.getFeaturesTotal()

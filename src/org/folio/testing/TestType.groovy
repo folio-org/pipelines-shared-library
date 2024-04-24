@@ -1,4 +1,4 @@
-package org.folio.shared
+package org.folio.testing
 
 enum TestType {
   KARATE, CYPRESS

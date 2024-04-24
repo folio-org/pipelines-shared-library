@@ -1,40 +1,64 @@
 package org.folio.testing.karate.results
 
-class KarateFeatureExecutionSummary {
+import org.folio.testing.IExecutionSummary
+import org.folio.testing.TestExecutionResult
 
-    String name
+class KarateFeatureExecutionSummary implements IExecutionSummary {
 
-    String displayName
+  String name
 
-    String description
+  String displayName
 
-    String packageQualifiedName
+  String description
 
-    String relativePath
+  String packageQualifiedName
 
-    int passedCount = 0
+  String relativePath
 
-    int failedCount = 0
+  int passedCount = 0
 
-    int scenarioCount = 0
+  int failedCount = 0
 
-    String cucumberReportFile
+  int scenarioCount = 0
 
-    boolean failed
+  String cucumberReportFile
 
-    @Override
-    public String toString() {
-        return "KarateFeatureExecutionSummary{" +
-            "name='" + name + '\'' +
-            ", displayName='" + displayName + '\'' +
-            ", description='" + description + '\'' +
-            ", packageQualifiedName='" + packageQualifiedName + '\'' +
-            ", relativePath='" + relativePath + '\'' +
-            ", passedCount=" + passedCount +
-            ", failedCount=" + failedCount +
-            ", scenarioCount=" + scenarioCount +
-            ", cucumberReportFile='" + cucumberReportFile + '\'' +
-            ", failed=" + failed +
-            '}';
-    }
+  boolean failed
+
+  @Override
+  int getSkippedCount() {
+    return 0
+  }
+
+  @Override
+  int getTotalCount() {
+    return passedCount + failedCount
+  }
+
+  @Override
+  int getPassRate() {
+    def passRateInDecimal = getTotalCount() > 0 ? (passedCount * 100) / getTotalCount() : 0
+    return passRateInDecimal.intValue()
+  }
+
+  @Override
+  TestExecutionResult getExecutionResult(int passRate) {
+    return failed ? TestExecutionResult.FAILED : TestExecutionResult.SUCCESS
+  }
+
+  @Override
+  public String toString() {
+    return "KarateFeatureExecutionSummary{" +
+      "name='" + name + '\'' +
+      ", displayName='" + displayName + '\'' +
+      ", description='" + description + '\'' +
+      ", packageQualifiedName='" + packageQualifiedName + '\'' +
+      ", relativePath='" + relativePath + '\'' +
+      ", passedCount=" + passedCount +
+      ", failedCount=" + failedCount +
+      ", scenarioCount=" + scenarioCount +
+      ", cucumberReportFile='" + cucumberReportFile + '\'' +
+      ", failed=" + failed +
+      '}';
+  }
 }

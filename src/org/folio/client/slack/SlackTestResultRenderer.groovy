@@ -2,28 +2,28 @@ package org.folio.client.slack
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.client.slack.templates.SlackTestResultTemplates
-import org.folio.shared.TestResult
-import org.folio.shared.TestType
+import org.folio.testing.TestExecutionResult
+import org.folio.testing.TestType
 
 enum SlackTestResultRenderer {
   KARATE_SUCCESS("good", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
-                  , TestType.KARATE, TestResult.SUCCESS)
+                  , TestType.KARATE, TestExecutionResult.SUCCESS)
   , KARATE_FAILURE("#FF0000", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
-                    , TestType.KARATE, TestResult.FAILURE)
+                    , TestType.KARATE, TestExecutionResult.FAILED)
   , CYPRESS_SUCCESS("good", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
-                    , TestType.CYPRESS, TestResult.SUCCESS)
+                    , TestType.CYPRESS, TestExecutionResult.SUCCESS)
   , CYPRESS_FAILURE("#FF0000", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
-                    , TestType.CYPRESS, TestResult.FAILURE)
+                    , TestType.CYPRESS, TestExecutionResult.FAILED)
 
   final String color
   final String textTemplate
   final String titleTemplate
 
   private final TestType baseType
-  private final TestResult testResult
+  private final TestExecutionResult testResult
 
   private SlackTestResultRenderer(String color, String textTemplate, String titleTemplate
-                                  , TestType type, TestResult result) {
+                                  , TestType type, TestExecutionResult result) {
     this.color = color
     this.textTemplate = textTemplate
     this.titleTemplate = titleTemplate
@@ -49,7 +49,7 @@ enum SlackTestResultRenderer {
   }
 
   @NonCPS
-  static SlackTestResultRenderer fromType(TestType type, TestResult result) throws Error{
+  static SlackTestResultRenderer fromType(TestType type, TestExecutionResult result) throws Error{
     for(SlackTestResultRenderer elem: values()){
       if(elem.baseType == type && elem.testResult == result){
         return elem

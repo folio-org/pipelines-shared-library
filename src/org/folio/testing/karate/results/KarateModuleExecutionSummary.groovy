@@ -1,66 +1,105 @@
 package org.folio.testing.karate.results
 
-class KarateModuleExecutionSummary {
+import org.folio.testing.IModuleExecutionSummary
+import org.folio.testing.TestExecutionResult
 
-    String name
+class KarateModuleExecutionSummary implements IModuleExecutionSummary {
 
-    KarateExecutionResult executionResult = KarateExecutionResult.SUCCESS
+  String name
 
-    List<KarateFeatureExecutionSummary> features = []
+  TestExecutionResult executionResult = TestExecutionResult.SUCCESS
 
-    int featuresPassed = 0
+  List<KarateFeatureExecutionSummary> features = []
 
-    int featuresFailed = 0
+  int featuresPassed = 0
 
-    int featuresSkipped = 0
+  int featuresFailed = 0
 
-    KarateModuleExecutionSummary(String name) {
-        this.name = name
+  int featuresSkipped = 0
+
+  KarateModuleExecutionSummary(String name) {
+    this.name = name
+  }
+
+  void addFeaturesExecutionStatistics(int success, int failed, int skipped) {
+    featuresPassed += success
+    featuresFailed += failed
+    featuresSkipped += skipped
+
+    if (featuresFailed > 0) {
+      executionResult = TestExecutionResult.FAILED
+    }
+  }
+
+  void addFeatureSummary(def summaryJson, Map<String, String> displayNames) {
+    String displayName = displayNames[summaryJson.relativePath]
+    if (!displayName) {
+      displayName = summaryJson.relativePath
     }
 
-    void addFeaturesExecutionStatistics(int success, int failed, int skipped) {
-        featuresPassed += success
-        featuresFailed += failed
-        featuresSkipped += skipped
+    KarateFeatureExecutionSummary feature = new KarateFeatureExecutionSummary(
+      name: summaryJson.name,
+      displayName: displayName,
+      description: summaryJson.description,
+      packageQualifiedName: summaryJson.packageQualifiedName,
+      relativePath: summaryJson.relativePath,
+      passedCount: summaryJson.passedCount,
+      failedCount: summaryJson.failedCount,
+      scenarioCount: summaryJson.scenarioCount,
+      failed: summaryJson.failed)
 
-        if (featuresFailed > 0) {
-            executionResult = KarateExecutionResult.FAIL
-        }
-    }
+    features.add(feature)
+  }
 
-    void addFeatureSummary(def summaryJson, Map<String, String> displayNames) {
-        String displayName = displayNames[summaryJson.relativePath]
-        if (!displayName) {
-            displayName = summaryJson.relativePath
-        }
+  int getFeaturesTotal() {
+    featuresPassed + featuresFailed + featuresSkipped
+  }
 
-        KarateFeatureExecutionSummary feature = new KarateFeatureExecutionSummary(
-            name: summaryJson.name,
-            displayName: displayName,
-            description: summaryJson.description,
-            packageQualifiedName: summaryJson.packageQualifiedName,
-            relativePath: summaryJson.relativePath,
-            passedCount: summaryJson.passedCount,
-            failedCount: summaryJson.failedCount,
-            scenarioCount: summaryJson.scenarioCount,
-            failed: summaryJson.failed)
+  @Override
+  int getPassedCount() {
+    return featuresPassed
+  }
 
-        features.add(feature)
-    }
+  @Override
+  int getFailedCount() {
+    return featuresFailed
+  }
 
-    int getFeaturesTotal() {
-        featuresPassed + featuresFailed + featuresSkipped
-    }
+  @Override
+  int getSkippedCount() {
+    return featuresSkipped
+  }
 
-    @Override
-    public String toString() {
-        return "KarateModuleExecutionSummary{" +
-            "name='" + name + '\'' +
-            ", executionResult=" + executionResult +
-            ", features=" + features +
-            ", featuresPassed=" + featuresPassed +
-            ", featuresFailed=" + featuresFailed +
-            ", featuresSkipped=" + featuresSkipped +
-            '}';
-    }
+  @Override
+  int getTotalCount() {
+    return featuresPassed + featuresFailed + featuresSkipped
+  }
+
+  @Override
+  int getPassRate() {
+    def passRateInDecimal = getTotalCount() > 0 ? (featuresPassed * 100) / getTotalCount() : 0
+    return passRateInDecimal.intValue()
+  }
+
+  @Override
+  TestExecutionResult getExecutionResult(int passRate) {
+    return executionResult
+  }
+
+  @Override
+  String getModuleName() {
+    return name
+  }
+
+  @Override
+  public String toString() {
+    return "KarateModuleExecutionSummary{" +
+      "name='" + name + '\'' +
+      ", executionResult=" + executionResult +
+      ", features=" + features +
+      ", featuresPassed=" + featuresPassed +
+      ", featuresFailed=" + featuresFailed +
+      ", featuresSkipped=" + featuresSkipped +
+      '}';
+  }
 }
