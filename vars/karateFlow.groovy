@@ -162,35 +162,33 @@ def call(params) {
   }
 
   stage('Jira&Slack team notifications'){
-    stages{
-      stage("Parse teams assignment") {
-        script {
-          def jsonContents = readJSON file: "teams-assignment.json"
-          teamAssignment = new TeamAssignment(jsonContents)
-        }
+    stage("Parse teams assignment") {
+      script {
+        def jsonContents = readJSON file: "teams-assignment.json"
+        teamAssignment = new TeamAssignment(jsonContents)
       }
+    }
 
-      stage("Sync jira tickets") {
-        script {
-          karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-        }
+    stage("Sync jira tickets") {
+      script {
+        karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
       }
+    }
 
-      stage("Send slack notifications to teams") {
-        script {
-          folioSlackNotificationUtils.renderTeamsTestResultMessages(
-                                        TestType.KARATE
-                                        , karateTestsExecutionSummary
-                                        , teamAssignment
-                                        , ""
-                                        , true
-                                        , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
-            .each {
-              slackSend(attachments: it.value
-              , channel: "#rancher-test-notifications")
+    stage("Send slack notifications to teams") {
+      script {
+        folioSlackNotificationUtils.renderTeamsTestResultMessages(
+                                      TestType.KARATE
+                                      , karateTestsExecutionSummary
+                                      , teamAssignment
+                                      , ""
+                                      , true
+                                      , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+          .each {
+            slackSend(attachments: it.value
+            , channel: "#rancher-test-notifications")
 //                , channel: it.key.getSlackChannel())
-            }
-        }
+          }
       }
     }
   }
