@@ -11,7 +11,6 @@ enum TestExecutionResult {
 //    return SUCCESS
   }
 
-  @NonCPS
   static boolean test(IExecutionSummary summary, int passRateLimit = 50){
     return summary.getPassRate() > passRateLimit
 //    return SUCCESS
