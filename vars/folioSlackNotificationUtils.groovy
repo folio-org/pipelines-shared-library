@@ -1,7 +1,7 @@
 import org.folio.client.reportportal.ReportPortalTestType
-import org.folio.client.slack.SlackBuildResultRenderer
-import org.folio.client.slack.SlackHelper
-import org.folio.client.slack.SlackTestResultRenderer
+import org.folio.slack.SlackBuildResultRenderer
+import org.folio.slack.SlackHelper
+import org.folio.slack.SlackTestResultRenderer
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
 

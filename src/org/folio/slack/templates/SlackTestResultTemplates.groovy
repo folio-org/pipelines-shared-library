@@ -1,4 +1,4 @@
-package org.folio.client.slack.templates
+package org.folio.slack.templates
 
 import com.cloudbees.groovy.cps.NonCPS
 

@@ -1,4 +1,4 @@
-package org.folio.client.slack.templates
+package org.folio.slack.templates
 
 class SlackMessageTemplates {
 

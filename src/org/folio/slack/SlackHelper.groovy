@@ -1,6 +1,6 @@
-package org.folio.client.slack
+package org.folio.slack
 
-import org.folio.client.slack.templates.SlackMessageTemplates
+import org.folio.slack.templates.SlackMessageTemplates
 
 final class SlackHelper {
 

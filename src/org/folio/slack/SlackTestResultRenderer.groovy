@@ -1,7 +1,7 @@
-package org.folio.client.slack
+package org.folio.slack
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.client.slack.templates.SlackTestResultTemplates
+import org.folio.slack.templates.SlackTestResultTemplates
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
 
