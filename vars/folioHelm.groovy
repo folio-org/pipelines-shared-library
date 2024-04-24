@@ -180,6 +180,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [rtrEnabled: "true"]
   }
 
+  if (ns.getClusterName() == 'folio-dev') {
+    moduleConfig << [
+      modSearchDev : "true"
+      modInventoryStorageDev: "true"
+      modEntitiesLinksDev : "true"
+    ]
+  }
+
   //Enable DIS
   if(params.DI_SLICING && moduleName == 'mod-data-import') {
     moduleConfig << [disEnabled: 'true']
