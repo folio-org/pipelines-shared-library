@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.Instant
 
-@Library('pipelines-shared-library@RANCHER-1004') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 def call(params) {
   def id
@@ -36,7 +36,7 @@ def call(params) {
       }
     }
   }
-/*  stage('[ReportPortal config bind & Run start]') {
+  stage('[ReportPortal config bind & Run start]') {
     try {
       withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
         String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch"
@@ -62,7 +62,7 @@ def call(params) {
     } catch (Exception e) {
       println("Error: " + e.getMessage())
     }
-  }*/
+  }
   stage('Run karate tests') {
     script {
       def karateEnvironment = "folio-testing-karate"
@@ -83,33 +83,33 @@ def call(params) {
       }
     }
   }
-//  stage("[ReportPortal Run stop]") {
-//    try {
-//      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
-//        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
-//        Map headers = [
-//          "Content-Type" : "application/json",
-//          "Authorization": "Bearer ${env.api_key}"
-//        ]
-//        String body = JsonOutput.toJson([
-//          endTime: "${Instant.now()}"
-//        ])
-//        def res_end = new RestClient(this).put(url, body, headers)
-//        println("${res_end}")
-//      }
-//    } catch (Exception e) {
-//      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-//    }
-//  }
-//  stage('Publish tests report') {
-//    script {
-//      cucumber buildStatus: "UNSTABLE",
-//        fileIncludePattern: "**/target/karate-reports*/*.json",
-//        sortingMethod: "ALPHABETICAL"
-//
-//      junit testResults: '**/target/karate-reports*/*.xml'
-//    }
-//  }
+  stage("[ReportPortal Run stop]") {
+    try {
+      withCredentials([string(credentialsId: 'report-portal-api-key-1', variable: 'api_key')]) {
+        String url = "https://poc-report-portal.ci.folio.org/api/v1/junit5-integration/launch/${id}/finish"
+        Map headers = [
+          "Content-Type" : "application/json",
+          "Authorization": "Bearer ${env.api_key}"
+        ]
+        String body = JsonOutput.toJson([
+          endTime: "${Instant.now()}"
+        ])
+        def res_end = new RestClient(this).put(url, body, headers)
+        println("${res_end}")
+      }
+    } catch (Exception e) {
+      println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+    }
+  }
+  stage('Publish tests report') {
+    script {
+      cucumber buildStatus: "UNSTABLE",
+        fileIncludePattern: "**/target/karate-reports*/*.json",
+        sortingMethod: "ALPHABETICAL"
+
+      junit testResults: '**/target/karate-reports*/*.xml'
+    }
+  }
 
   stage('Archive artifacts') {
     script {
@@ -153,7 +153,7 @@ def call(params) {
                                 , true
                                 , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
                               )
-                , channel: "#rancher-test-notifications")
+                , channel: "#rancher_tests_notifications")
     }
   }
 }
