@@ -5,7 +5,6 @@ import com.cloudbees.groovy.cps.NonCPS
 enum TestExecutionResult {
   SUCCESS, FAILED
 
-  @NonCPS
   static TestExecutionResult byPassRate(IExecutionSummary summary, int passRateLimit = 50){
     return summary.getPassRate() > passRateLimit ? SUCCESS : FAILED
 //    return SUCCESS
