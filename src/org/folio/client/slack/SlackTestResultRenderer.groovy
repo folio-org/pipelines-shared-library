@@ -9,11 +9,11 @@ enum SlackTestResultRenderer {
   KARATE_SUCCESS("good", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
                   , TestType.KARATE, TestExecutionResult.SUCCESS)
   , KARATE_FAILURE("#FF0000", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
-                    , TestType.KARATE, TestExecutionResult.FAILURE)
+                    , TestType.KARATE, TestExecutionResult.FAILED)
   , CYPRESS_SUCCESS("good", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
                     , TestType.CYPRESS, TestExecutionResult.SUCCESS)
   , CYPRESS_FAILURE("#FF0000", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
-                    , TestType.CYPRESS, TestExecutionResult.FAILURE)
+                    , TestType.CYPRESS, TestExecutionResult.FAILED)
 
   final String color
   final String textTemplate

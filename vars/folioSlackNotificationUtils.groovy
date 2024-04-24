@@ -38,7 +38,7 @@ String renderSlackTestResultMessageSection(TestType type, LinkedHashMap<String, 
   println "Total broken tests: ${testResults.broken}"
 
   SlackTestResultRenderer slackTestType =
-    SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILURE)
+    SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILED)
 
   return slackTestType.renderSection(
     "${buildName}"
