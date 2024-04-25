@@ -193,7 +193,9 @@ ansiColor('xterm') {
 
       stage('Enable') {
         sleep time: 5, unit: 'MINUTES'
-        main.update(namespace.getTenants())
+        retry(2) {
+          main.update(namespace.getTenants())
+        }
       }
 
       stage('Build and deploy UI') {
