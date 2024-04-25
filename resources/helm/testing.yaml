@@ -962,6 +962,16 @@ mod-reading-room:
       memory: '450Mi'
     requests:
       memory: '384Mi'
+mod-record-specifications:
+  javaOptions: '-XX:MaxRAMPercentage=85.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '650Mi'
+    requests:
+      memory: '512Mi'
 mod-rtac:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
