@@ -1,7 +1,7 @@
-package org.folio.client.slack
+package org.folio.slack
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.client.slack.templates.SlackBuildResultTemplates
+import org.folio.slack.templates.SlackBuildResultTemplates
 
 enum SlackBuildResultRenderer {
   SUCCESS("good", SlackBuildResultTemplates.SUCCESS_TEXT)

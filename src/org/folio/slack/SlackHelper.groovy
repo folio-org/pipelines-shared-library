@@ -1,6 +1,6 @@
-package org.folio.client.slack
+package org.folio.slack
 
-import org.folio.client.slack.templates.SlackMessageTemplates
+import org.folio.slack.templates.SlackMessageTemplates
 
 final class SlackHelper {
 
@@ -34,6 +34,13 @@ final class SlackHelper {
 
   static String renderMessage(List<String> sections){
     return "[${sections.join(', ')}]"
+  }
+
+  static String addSectionsToMessage(String message, List<String> sections){
+    if(message.startsWith('[')) message = message.substring(1)
+    if(message.endsWith(']')) message = message.substring(0, message.length() - 2)
+
+    return renderMessage(sections.add(0, message))
   }
 
   static String fillTemplate(Map<String, String> params, String template){

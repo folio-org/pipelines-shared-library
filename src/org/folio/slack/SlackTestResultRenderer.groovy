@@ -1,19 +1,20 @@
-package org.folio.client.slack
+package org.folio.slack
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.client.slack.templates.SlackTestResultTemplates
+import org.folio.slack.templates.SlackTestResultTemplates
+import org.folio.testing.IExecutionSummary
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
 
 enum SlackTestResultRenderer {
   KARATE_SUCCESS("good", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
-                  , TestType.KARATE, TestExecutionResult.SUCCESS)
+    , TestType.KARATE, TestExecutionResult.SUCCESS)
   , KARATE_FAILURE("#FF0000", SlackTestResultTemplates.KARATE_TEXT, SlackTestResultTemplates.KARATE_TITLE
-                    , TestType.KARATE, TestExecutionResult.FAILED)
+    , TestType.KARATE, TestExecutionResult.FAILED)
   , CYPRESS_SUCCESS("good", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
-                    , TestType.CYPRESS, TestExecutionResult.SUCCESS)
+    , TestType.CYPRESS, TestExecutionResult.SUCCESS)
   , CYPRESS_FAILURE("#FF0000", SlackTestResultTemplates.CYPRESS_TEXT, SlackTestResultTemplates.CYPRESS_TITLE
-                    , TestType.CYPRESS, TestExecutionResult.FAILED)
+    , TestType.CYPRESS, TestExecutionResult.FAILED)
 
   final String color
   final String textTemplate
@@ -45,7 +46,18 @@ enum SlackTestResultRenderer {
                        , String buildUrl, boolean useReportPortal, String rpUrl){
 
     return renderSection(SlackTestResultTemplates.getTextParams(buildName, passedCnt, brokenCnt, failCnt, passRate)
-                          , buildUrl, useReportPortal, rpUrl)
+      , buildUrl, useReportPortal, rpUrl)
+  }
+
+  String renderSection(String buildName, IExecutionSummary summary
+                       , String buildUrl, boolean useReportPortal, String rpUrl){
+
+    return renderSection(buildName
+      , summary.passedCount as String
+      , summary.skippedCount as String
+      , summary.failedCount as String
+      , summary.passRate as String
+      , buildUrl, useReportPortal, rpUrl)
   }
 
   @NonCPS
