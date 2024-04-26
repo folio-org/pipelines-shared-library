@@ -1,6 +1,7 @@
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -114,8 +115,9 @@ pipeline {
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant]
-          sleep time: 30, unit: 'MINUTES'
+                               prototypeTenant: prototypeTenant,
+                               modules: 'mod-fqm-manager,mod-kb-ebsco-java']
+//          sleep time: 30, unit: 'MINUTES'
           karateFlow(jobParameters)
         }
       }
