@@ -85,7 +85,7 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Terraform] Destroy') {
+      stage('[TF] Destroy') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
             folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
@@ -109,11 +109,11 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Terraform] Provision') {
+      stage('[TF] Provision') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
       }
 
-      stage('[DB and Index] Restore') {
+      stage('[DB and Indices] Restore') {
         folioPrint.colored("Restoring indices...", "green")
         withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
           folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
@@ -185,16 +185,15 @@ ansiColor('xterm') {
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
           folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-
-          kubectl.scaleDownResources(namespace.getNamespaceName(), 'deployment')
-          sleep time: 1, unit: 'MINUTES'
-          kubectl.scaleUpResources(namespace.getNamespaceName(), 'deployment')
         }
       }
 
       stage('Enable') {
-        sleep time: 5, unit: 'MINUTES'
-        retry(2) {
+        retry(3) {
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            kubectl.rolloutDeployment("mod-agreements", namespace.getNamespaceName())
+          }
+          sleep time: 5, unit: 'MINUTES'
           main.update(namespace.getTenants())
         }
       }
@@ -226,7 +225,7 @@ ansiColor('xterm') {
             }
           }
         }
-        slackSend(color: '', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
       }
       stage('The rest components placeholder') {
         // GreenMail, LDP, Mock server, etc.
@@ -235,7 +234,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackNotifications.sendPipelineFailSlackNotification("#rancher_tests_notifications")
+        slackSend(color: 'warning', message: 'ecs-snapshot env build failed...', channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
