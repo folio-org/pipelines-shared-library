@@ -100,7 +100,7 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
 }
 
 @Deprecated
-String renderSlackTestResultMessage(TestType type, Map<String, Integer> testResults
+String renderSlackTestResultMessageSection(TestType type, Map<String, Integer> testResults
                                            , String buildName, boolean useReportPortal, String url){
 
   def totalTestsCount = testResults.passed + testResults.failed + testResults.broken
@@ -114,17 +114,24 @@ String renderSlackTestResultMessage(TestType type, Map<String, Integer> testResu
   SlackTestResultRenderer slackTestType =
     SlackTestResultRenderer.fromType(type, passRate > 50 ? TestExecutionResult.SUCCESS : TestExecutionResult.FAILED)
 
+  return slackTestType.renderSection(
+    "${buildName}"
+    , "${testResults.passed}"
+    , "${testResults.broken}"
+    , "${testResults.failed}"
+    , "${passRate}"
+    , "${url}"
+    , useReportPortal
+    , ReportPortalTestType.fromType(type).reportPortalLaunchesURL())
+}
+
+@Deprecated
+String renderBuildAndTestResultMessage_OLD(TestType type, Map<String, Integer> testResults
+                                       , String buildName, boolean useReportPortal, String url){
   return SlackHelper.renderMessage(
     [
-      slackTestType.renderSection(
-        "${buildName}"
-        , "${testResults.passed}"
-        , "${testResults.broken}"
-        , "${testResults.failed}"
-        , "${passRate}"
-        , "${url}"
-        , useReportPortal
-        , ReportPortalTestType.fromType(type).reportPortalLaunchesURL())
+      renderBuildResultSection()
+      , renderSlackTestResultMessageSection(type, testResults, buildName, useReportPortal, url)
     ]
   )
 }
