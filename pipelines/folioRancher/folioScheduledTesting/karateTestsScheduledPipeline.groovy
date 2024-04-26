@@ -19,6 +19,8 @@ def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespa
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
+KarateTestsExecutionSummary karateTestsExecutionSummary
+def teamAssignment
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
