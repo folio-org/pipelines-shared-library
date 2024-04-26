@@ -139,13 +139,6 @@ def call(params) {
     }
   }
 
-  stage("Parse teams assignment") {
-    script {
-      def jsonContents = readJSON file: "teams-assignment.json"
-      teamAssignment = new TeamAssignment(jsonContents)
-    }
-  }
-
   stage('Send in slack test results notifications') {
     script {
       slackSend(attachments: folioSlackNotificationUtils
