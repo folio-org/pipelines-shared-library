@@ -164,7 +164,7 @@ void call(params) {
       }
 
       slackSend(attachments: folioSlackNotificationUtils
-                                .renderSlackTestResultMessageSection(
+                                .renderSlackTestResultMessage(
                                   TestType.CYPRESS
                                   , statusCounts
                                   , customBuildName
