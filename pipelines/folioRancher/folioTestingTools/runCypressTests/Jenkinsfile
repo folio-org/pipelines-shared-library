@@ -6,7 +6,7 @@ import java.util.Calendar
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
-  buildDiscarder(logRotator(numToKeepStr: '30')),
+  buildDiscarder(logRotator(numToKeepStr: '50')),
   throttleJobProperty(categories: [], limitOneJobWithMatchingParams: true, maxConcurrentPerNode: 0,
     maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
   parameters([
