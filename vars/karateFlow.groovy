@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
