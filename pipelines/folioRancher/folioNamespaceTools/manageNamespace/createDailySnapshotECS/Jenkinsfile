@@ -191,7 +191,9 @@ ansiColor('xterm') {
       stage('Enable') {
         retry(3) {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            kubectl.rolloutDeployment("mod-agreements", namespace.getNamespaceName())
+            kubectl.scaleDownResources(namespace.getNamespaceName(),"deployment")
+            sleep time: 2, unit: 'MINUTES'
+            kubectl.scaleUpResources(namespace.getNamespaceName(), "deployment")
           }
           sleep time: 5, unit: 'MINUTES'
           main.update(namespace.getTenants())
