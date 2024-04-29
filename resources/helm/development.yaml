@@ -467,9 +467,9 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
-      memory: '1024Mi'
+      memory: '2048Mi'
     requests:
-      memory: '768Mi'
+      memory: '1560Mi'
 mod-data-export-spring:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
