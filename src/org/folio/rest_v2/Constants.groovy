@@ -1,7 +1,7 @@
 package org.folio.rest_v2
 
 class Constants {
-    public static final String OKAPI_REGISTRY = "http://folio-registry.aws.indexdata.com"
+    public static final String OKAPI_REGISTRY = "https://folio-registry.dev.folio.org"
     public static final String CI_ROOT_DOMAIN = "ci.folio.org"
     public static final String ECR_FOLIO_REPOSITORY = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
 
