@@ -64,7 +64,7 @@ def call(params) {
 
 //TODO temporary solution should be revised
 private String getModuleId(String moduleName) {
-    URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+    URLConnection registry = new URL("https://folio-registry.dev.folio.org/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
     if (registry.getResponseCode().equals(200)) {
         return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
     } else {
