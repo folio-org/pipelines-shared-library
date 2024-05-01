@@ -125,9 +125,9 @@ class KarateTestsUtils extends AbstractScriptTest {
             KarateModuleExecutionSummary moduleSummary = new KarateModuleExecutionSummary(name)
 
             moduleSummary.executionResult = module.executionResult
-            moduleSummary.featuresPassed = module.featuresPassed
-            moduleSummary.featuresFailed = module.featuresFailed
-            moduleSummary.featuresSkipped = module.featuresSkipped
+            moduleSummary.featuresPassedCount = module.featuresPassedCount
+            moduleSummary.featuresFailedCount = module.featuresFailedCount
+            moduleSummary.featuresSkippedCount = module.featuresSkippedCount
 
             List<KarateFeatureExecutionSummary> featuresSummary = moduleSummary.features
             module.features.each { feature ->

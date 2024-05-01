@@ -22,6 +22,26 @@ class CypressTestsExecutionSummary implements ITestExecutionSummary {
   }
 
   @Override
+  int getModulesPassedCount() {
+    return 0
+  }
+
+  @Override
+  int getModulesFailedCount() {
+    return 0
+  }
+
+  @Override
+  int getModulesTotalCount() {
+    return 0
+  }
+
+  @Override
+  int getModulesPassRate() {
+    return 0
+  }
+
+  @Override
   int getPassedCount() {
     return 0
   }

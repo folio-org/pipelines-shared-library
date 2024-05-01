@@ -1,5 +1,6 @@
 package org.folio.testing.karate.results
 
+import org.folio.testing.IExecutionSummary
 import org.folio.testing.IModuleExecutionSummary
 import org.folio.testing.TestExecutionResult
 
@@ -11,22 +12,22 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
 
   List<KarateFeatureExecutionSummary> features = []
 
-  int featuresPassed = 0
+  int featuresPassedCount = 0
 
-  int featuresFailed = 0
+  int featuresFailedCount = 0
 
-  int featuresSkipped = 0
+  int featuresSkippedCount = 0
 
   KarateModuleExecutionSummary(String name) {
     this.name = name
   }
 
   void addFeaturesExecutionStatistics(int success, int failed, int skipped) {
-    featuresPassed += success
-    featuresFailed += failed
-    featuresSkipped += skipped
+    featuresPassedCount += success
+    featuresFailedCount += failed
+    featuresSkippedCount += skipped
 
-    if (featuresFailed > 0) {
+    if (featuresFailedCount > 0) {
       executionResult = TestExecutionResult.FAILED
     }
   }
@@ -51,33 +52,44 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
     features.add(feature)
   }
 
-  int getFeaturesTotal() {
-    featuresPassed + featuresFailed + featuresSkipped
-  }
-
   @Override
   int getPassedCount() {
-    return featuresPassed
+    int count = 0
+    for(IExecutionSummary feature: features){
+      count += feature.getPassedCount()
+    }
+
+    return count
   }
 
   @Override
   int getFailedCount() {
-    return featuresFailed
+    int count = 0
+    for(IExecutionSummary feature: features){
+      count += feature.getFailedCount()
+    }
+
+    return count
   }
 
   @Override
   int getSkippedCount() {
-    return featuresSkipped
+    int count = 0
+    for(IExecutionSummary feature: features){
+      count += feature.getSkippedCount()
+    }
+
+    return count
   }
 
   @Override
   int getTotalCount() {
-    return featuresPassed + featuresFailed + featuresSkipped
+    return getPassedCount() + getFailedCount() + getSkippedCount()
   }
 
   @Override
   int getPassRate() {
-    def passRateInDecimal = getTotalCount() > 0 ? (featuresPassed * 100) / getTotalCount() : 0
+    def passRateInDecimal = getTotalCount() > 0 ? (featuresPassedCount * 100) / getTotalCount() : 0
     return passRateInDecimal.intValue()
   }
 
@@ -92,14 +104,25 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   }
 
   @Override
+  int getFeaturesTotalCount() {
+    return featuresPassedCount + featuresFailedCount + featuresSkippedCount
+  }
+
+  @Override
+  int getFeaturesPassRate() {
+    def passRateInDecimal = getFeaturesTotalCount() > 0 ? (featuresPassedCount * 100) / getFeaturesTotalCount() : 0
+    return passRateInDecimal.intValue()
+  }
+
+  @Override
   public String toString() {
     return "KarateModuleExecutionSummary{" +
       "name='" + name + '\'' +
       ", executionResult=" + executionResult +
       ", features=" + features +
-      ", featuresPassed=" + featuresPassed +
-      ", featuresFailed=" + featuresFailed +
-      ", featuresSkipped=" + featuresSkipped +
+      ", featuresPassed=" + featuresPassedCount +
+      ", featuresFailed=" + featuresFailedCount +
+      ", featuresSkipped=" + featuresSkippedCount +
       '}';
   }
 }
