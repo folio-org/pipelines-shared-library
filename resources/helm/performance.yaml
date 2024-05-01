@@ -933,15 +933,23 @@ mod-pubsub:
     requests:
       memory: '1024Mi'
 mod-quick-marc:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
   resources:
     limits:
       memory: '640Mi'
     requests:
       memory: '512Mi'
+mod-reading-room:
+  resources:
+    limits:
+      memory: '512Mi'
+    requests:
+      memory: '384Mi'
+mod-record-specifications:
+  resources:
+    limits:
+      memory: '800Mi'
+    requests:
+      memory: '650Mi'
 mod-remote-storage:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:

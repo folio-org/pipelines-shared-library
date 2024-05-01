@@ -1345,6 +1345,28 @@ mod-quick-marc:
       memory: 1024Mi
     requests:
       memory: 512Mi
+mod-reading-room:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 341Mi
+mod-record-specifications:
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  resources:
+    limits:
+      memory: 650Mi
+    requests:
+      memory: 512Mi
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -1378,18 +1400,6 @@ mod-requests-mediated:
 mod-rtac:
   extraEnvVars: []
   integrations: {}
-  replicaCount: 1
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      memory: 341Mi
-mod-reading-room:
-  extraEnvVars: []
-  integrations:
-    db:
-      enabled: true
-      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
