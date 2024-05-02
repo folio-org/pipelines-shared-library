@@ -17,9 +17,9 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
     }
 
     def moduleSummary = modulesExecutionSummary[moduleName]
-    moduleSummary.addFeaturesExecutionStatistics(summaryJson.featuresPassedCount,
-      summaryJson.featuresFailedCount,
-      summaryJson.featuresSkippedCount)
+    moduleSummary.addFeaturesExecutionStatistics(summaryJson.featuresPassed,
+      summaryJson.featuresFailed,
+      summaryJson.featuresSkipped)
 
     summaryJson.featureSummary.each { featureSummaryJson ->
       moduleSummary.addFeatureSummary(featureSummaryJson, displayNames)
