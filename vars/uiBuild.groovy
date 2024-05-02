@@ -70,7 +70,7 @@ static String getModuleVersion(String moduleName, boolean releaseVersion = false
     if(releaseVersion){
         versionType = 'false'
     }
-    URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&npmSnapshot=${versionType}&latest=1").openConnection()
+    URLConnection registry = new URL("https://folio-registry.dev.folio.org/_/proxy/modules?filter=${moduleName}&npmSnapshot=${versionType}&latest=1").openConnection()
     if (registry.getResponseCode().equals(200)) {
         return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
     } else {

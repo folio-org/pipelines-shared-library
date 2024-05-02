@@ -205,44 +205,46 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
   stage('Run tests') {
     script {
       catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-        docker.image("cypress/included:${cypressImageVersion}").inside('--entrypoint=') {
-          env.HOME = "${pwd()}"
-          env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-          env.CYPRESS_BASE_URL = "${tenantUrl}"
-          env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
-          env.CYPRESS_OKAPI_TENANT = "${tenantId}"
-          env.CYPRESS_diku_login = "${adminUsername}"
-          env.CYPRESS_diku_password = "${adminPassword}"
-          env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          docker.image('732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest').inside('--entrypoint=') {
+            env.HOME = "${pwd()}"
+            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+            env.CYPRESS_BASE_URL = "${tenantUrl}"
+            env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
+            env.CYPRESS_OKAPI_TENANT = "${tenantId}"
+            env.CYPRESS_diku_login = "${adminUsername}"
+            env.CYPRESS_diku_password = "${adminPassword}"
+            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
-            String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
-            String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
-            String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
+              String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
+              String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
+              String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
-            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-            sh "yarn install"
-            sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
-            sh "yarn global add cypress-cloud@${cypressCloudVersion}"
-            sh "yarn add @reportportal/agent-js-cypress@latest"
+              sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+              sh "yarn install"
+              sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
+              sh "yarn global add cypress-cloud@${cypressCloudVersion}"
+              sh "yarn add @reportportal/agent-js-cypress@latest"
 
-            if (testrailProjectID?.trim() && testrailRunID?.trim()) {
-              env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
-              env.TESTRAIL_PROJECTID = testrailProjectID
-              env.TESTRAIL_RUN_ID = testrailRunID
-              env.CYPRESS_allureReuseAfterSpec = "true"
+              if (testrailProjectID?.trim() && testrailRunID?.trim()) {
+                env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
+                env.TESTRAIL_PROJECTID = testrailProjectID
+                env.TESTRAIL_RUN_ID = testrailRunID
+                env.CYPRESS_allureReuseAfterSpec = "true"
 
-              println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+                println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
 
-              withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+                  sh execString
+                }
+              } else {
                 sh execString
               }
-            } else {
-              sh execString
             }
           }
         }
