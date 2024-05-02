@@ -178,9 +178,7 @@ def call(params) {
                                       , true
                                       , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
           .each {
-            slackSend(attachments: it.value
-            , channel: "#rancher_tests_notifications")
-//                , channel: it.key.getSlackChannel())
+            slackSend(attachments: it.value, channel: it.key.getSlackChannel())
           }
       }
     }
