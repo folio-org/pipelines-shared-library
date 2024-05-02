@@ -79,7 +79,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   int getPassedCount() {
     int passed = 0
 
-    modulesExecutionSummary.each { moduleSummary ->
+    modulesExecutionSummary.values().each { moduleSummary ->
       passed += ((IExecutionSummary)moduleSummary).getPassedCount()
     }
 
@@ -90,7 +90,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   int getFailedCount() {
     int failed = 0
 
-    modulesExecutionSummary.each { moduleSummary ->
+    modulesExecutionSummary.values().each { moduleSummary ->
       failed += ((IExecutionSummary)moduleSummary).getFailedCount()
     }
 
@@ -101,7 +101,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   int getSkippedCount() {
     int skipped = 0
 
-    modulesExecutionSummary.each { moduleSummary ->
+    modulesExecutionSummary.values().each { moduleSummary ->
       skipped += ((IExecutionSummary)moduleSummary).getSkippedCount()
     }
 
@@ -112,7 +112,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   int getTotalCount() {
     int total = 0
 
-    modulesExecutionSummary.each { moduleSummary ->
+    modulesExecutionSummary.values().each { moduleSummary ->
       total += ((IExecutionSummary)moduleSummary).getTotalCount()
     }
 
