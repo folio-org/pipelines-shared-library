@@ -80,11 +80,19 @@ Map<Team, String> renderTeamsTestResultMessages(TestType type
 
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecutionSummary> results){
-  // Existing tickets - created more than 1 hour ago
-  def existingTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created < -1h")
+  List<String> existingTickets = []
+  List<String> createdTickets = []
 
-  // Created tickets by this run - Within the last 20 min
-  def createdTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created > -20m")
+  try{
+    // Existing tickets - created more than 1 hour ago
+    existingTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created < -1h")
+
+    // Created tickets by this run - Within the last 20 min
+    createdTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created > -20m")
+  } catch (e){
+    println("An error happened while fetching Jira issues for the team ${team.getName()}")
+    println(e)
+  }
 
   String existingIssuesFilter = "(${existingTickets.join('%2C%20')})"
   String createdIssuesFilter = "(${createdTickets.join('%2C%20')})"
