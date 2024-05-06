@@ -1,14 +1,13 @@
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
-import org.folio.karate.KarateConstants
-import org.folio.karate.results.KarateExecutionResult
-import org.folio.karate.results.KarateFeatureExecutionSummary
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignment
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
+import org.folio.testing.karate.KarateConstants
+import org.folio.testing.karate.results.KarateFeatureExecutionSummary
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.Team
+import org.folio.testing.teams.TeamAssignment
 
 /**
  * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
@@ -107,10 +106,10 @@ void copyCucumberReports() {
  * @param teamAssignment teams assignment to modules
  */
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    JiraClient jiraClient = getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     // find existing karate issues
-    List<JiraIssue> issues = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
         def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
@@ -171,7 +170,7 @@ String toSearchableSummary(String summary) {
  * @param jiraClient jira client
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
-                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
+                                  Map<String, Team> teamByModule, JiraClient jiraClient) {
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
@@ -221,20 +220,16 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         .replaceAll("\\{", "&#125;")
 }
 
-private JiraClient getJiraClient() {
-    withCredentials([
-        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-    }
-}
-
 def getJiraIssuesByTeam(String team, String timeFilter) {
     def ticketsByTeam = []
-    List<JiraIssue> issuesByTeam = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
-    issuesByTeam.each { issue ->
-        ticketsByTeam += issue.key
-    }
+
+    List<JiraIssue> issuesByTeam = JiraClient.getJiraClient(this)
+        .searchIssues(
+          KarateConstants.KARATE_ISSUES_JQL + """ and "Development Team" = "${team}" and ${timeFilter} """
+          , ["summary", "status"]
+        ) as List<JiraIssue>
+
+    issuesByTeam.each { issue -> ticketsByTeam += issue.key }
     return ticketsByTeam
 }
 

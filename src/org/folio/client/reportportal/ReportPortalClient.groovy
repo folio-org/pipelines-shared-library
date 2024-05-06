@@ -1,9 +1,9 @@
 package org.folio.client.reportportal
 
-import com.cloudbees.groovy.cps.NonCPS
+
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
-import org.folio.shared.TestType
+import org.folio.testing.TestType
 import org.folio.utilities.RestClient
 
 import java.time.Instant

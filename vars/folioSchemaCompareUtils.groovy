@@ -1,9 +1,9 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.xml.MarkupBuilder
 import org.folio.Constants
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
-import org.folio.karate.teams.TeamAssignment
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
 
 void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgadminURL, resultMap, diff) {
@@ -101,7 +101,7 @@ void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgad
 // Jira Issue Creation Report
 
 def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-    JiraClient jiraClient = karateTestUtils.getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
@@ -128,7 +128,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
 
     try {
-        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        List<JiraIssue> issues = jiraClient.searchIssues(Constants.DM_ISSUES_JQL, ["summary", "status"])
         Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
             def issuesSummary = issue.summary
             [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]

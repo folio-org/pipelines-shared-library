@@ -1,17 +1,15 @@
 #!groovy
 @Library('pipelines-shared-library') _
 
-import org.folio.client.jira.model.*
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
+import org.jenkinsci.plugins.workflow.libs.Library
 
 Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
 String search_pattern = ""
-String jira_host_link = "https://issues.folio.org"
-String jira_credentialsId = 'jenkins-jira'
 LinkedHashMap bugfest_map = [:]
-JiraClient jiraClient = getJiraClient(jira_host_link, jira_credentialsId)
+JiraClient jiraClient = JiraClient.getJiraClient(this)
 LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.folio.org",
                           "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
@@ -128,14 +126,6 @@ ansiColor('xterm') {
                 cleanWs notFailBuild: true
             }
         }
-    }
-}
-
-private JiraClient getJiraClient(String url, String credentialsId) {
-    withCredentials([
-        usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, url , jiraUsername, jiraPassword)
     }
 }
 

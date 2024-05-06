@@ -1,7 +1,7 @@
 package org.folio.client.jira
 
 import jenkins.plugins.http_request.ResponseContentSupplier
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.model.JiraIssue
 import org.folio.testharness.AbstractScriptTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

@@ -1,17 +1,12 @@
 #!groovy
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.*
-import groovy.xml.MarkupBuilder
 import org.folio.rest.model.DataMigrationTenant
-import java.time.LocalDateTime
+
 import java.util.concurrent.*
-import java.util.Date
+
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
-import org.folio.karate.teams.TeamAssignment
-
 
 def getSlackColor(def buildStatus) {
   switch(buildStatus) {

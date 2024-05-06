@@ -36,7 +36,7 @@ module "eks_cluster" {
   version = "~>19.12.0"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.23" //Highest version 1.24 or 1.25 need to be tested before applying
+  cluster_version   = "1.27"
   cluster_ip_family = "ipv4"
 
   cluster_endpoint_private_access = false
