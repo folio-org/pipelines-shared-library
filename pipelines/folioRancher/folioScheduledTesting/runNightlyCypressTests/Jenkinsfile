@@ -83,7 +83,7 @@ ansiColor('xterm') {
                booleanParam(name: 'GREENMAIL', value: false),
                string(name: 'MEMBERS', value: '')]
         } catch (Exception new_ex) {
-          slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
                     , channel: "#rancher_tests_notifications")
           throw new Exception("Provision of the environment is failed: " + new_ex)
         }

@@ -1,4 +1,6 @@
 #!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
+
 import org.folio.Constants
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiConfig
@@ -227,6 +229,7 @@ ansiColor('xterm') {
             }
           }
         }
+
         slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
       }
       stage('The rest components placeholder') {

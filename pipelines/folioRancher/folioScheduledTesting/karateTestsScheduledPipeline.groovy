@@ -1,7 +1,6 @@
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -18,8 +17,6 @@ def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespa
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
-KarateTestsExecutionSummary karateTestsExecutionSummary
-def teamAssignment
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -60,11 +57,11 @@ pipeline {
       steps {
         script {
           try {
-            def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-              projectName, prototypeTenant, folio_repository, folio_branch)
+            def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+              projectName, folio_branch)
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
-            slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+            slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
                       , channel: "#rancher_tests_notifications")
             throw new Exception("Creation of the environment is failed: " + new_ex)
           }
@@ -84,11 +81,11 @@ pipeline {
             }
             sleep time: 1, unit: 'MINUTES'
             try {
-              def jobParameters = getEnvironmentJobParameters('apply', okapiVersion, clusterName,
-                projectName, prototypeTenant, folio_repository, folio_branch)
+              def jobParameters = getEnvironmentJobParameters(okapiVersion, clusterName,
+                projectName, folio_branch)
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
-              slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
+              slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
                         , channel: "#rancher_tests_notifications")
               throw new Exception("Creation of the environment is failed: " + e.getMessage())
             }
@@ -120,59 +117,14 @@ pipeline {
       }
     }
 
-    stage("Parallel") {
-      parallel {
-        stage("Collect test results") {
-          when {
-            expression {
-              spinUpEnvironmentJob.result == 'SUCCESS'
-            }
-          }
-          stages {
-            stage("Collect execution results") {
-              steps {
-                script {
-                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-              }
-            }
-            stage("Destroy environment") {
-              steps {
-                script {
-                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-                }
-              }
-            }
-            stage("Parse teams assignment") {
-              steps {
-                script {
-                  def jsonContents = readJSON file: "teams-assignment.json"
-                  teamAssignment = new TeamAssignment(jsonContents)
-                }
-              }
-            }
-
-//            stage("Sync jira tickets") {
-//              steps {
-//                script {
-//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-
-//            stage("Send slack notifications") {
-//              steps {
-//                script {
-//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-          }
+/*    stage("Destroy environment") {
+      steps {
+        script {
+          def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+          tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
         }
       }
-    }
+    }*/
 
     stage("Set job execution result") {
       when {
@@ -189,8 +141,7 @@ pipeline {
   }
 }
 
-private List getEnvironmentJobParameters(String action, String okapiVersion, clusterName, projectName, tenant,
-                                         folio_repository, folio_branch) {
+private List getEnvironmentJobParameters(String okapiVersion, clusterName, projectName, folio_branch) {
   [string(name: 'CLUSTER', value: clusterName),
    string(name: 'NAMESPACE', value: projectName),
    string(name: 'FOLIO_BRANCH', value: folio_branch),
@@ -199,6 +150,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
    booleanParam(name: 'LOAD_REFERENCE', value: true),
    booleanParam(name: 'LOAD_SAMPLE', value: true),
    booleanParam(name: 'CONSORTIA', value: true),
+   booleanParam(name: 'SPLIT_FILES', value: true),
    booleanParam(name: 'RW_SPLIT', value: false),
    booleanParam(name: 'GREENMAIL', value: false),
    booleanParam(name: 'MOCK_SERVER', value: true),
@@ -208,7 +160,7 @@ private List getEnvironmentJobParameters(String action, String okapiVersion, clu
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
    string(name: 'MEMBERS', value: ''),
-   string(name: 'AGENT', value: 'rancher'),
+   string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
 
@@ -220,6 +172,6 @@ private List getDestroyEnvironmentJobParameters(clusterName, projectName) {
    string(name: 'KAFKA', value: 'built-in'),
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
-   string(name: 'AGENT', value: 'rancher'),
+   string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }

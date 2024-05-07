@@ -69,7 +69,7 @@ if (installJson.getResponseCode().equals(200)) {
 }
 
 static String getModuleId(String moduleName) {
-  URLConnection registry = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
+  URLConnection registry = new URL("https://folio-registry.dev.folio.org/_/proxy/modules?filter=${moduleName}&preRelease=only&latest=1").openConnection()
   if (registry.getResponseCode().equals(200)) {
     return new JsonSlurperClassic().parseText(registry.getInputStream().getText())*.id.first()
   } else {
@@ -107,7 +107,7 @@ switch(VERSION_TYPE){
     versionType = 'only'
     break
 }
-def moduleVersionList = new URL("http://folio-registry.aws.indexdata.com/_/proxy/modules?filter=${MODULE_NAME}&preRelease=${versionType}&order=desc&orderBy=id").openConnection()
+def moduleVersionList = new URL("https://folio-registry.dev.folio.org/_/proxy/modules?filter=${MODULE_NAME}&preRelease=${versionType}&order=desc&orderBy=id").openConnection()
 if (moduleVersionList.getResponseCode().equals(200)) {
   return new JsonSlurperClassic().parseText(moduleVersionList.getInputStream().getText())*.id.collect{id -> return id - "${MODULE_NAME}-"}
 }'''

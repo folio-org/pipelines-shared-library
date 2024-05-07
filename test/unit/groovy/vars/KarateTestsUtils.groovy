@@ -3,11 +3,11 @@ package vars
 
 import groovy.json.JsonSlurper
 import jenkins.plugins.http_request.ResponseContentSupplier
-import org.folio.Constants
-import org.folio.karate.results.KarateFeatureExecutionSummary
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+import org.folio.jira.JiraConstants
+import org.folio.testing.karate.results.KarateFeatureExecutionSummary
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.testharness.AbstractScriptTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -32,7 +32,7 @@ class KarateTestsUtils extends AbstractScriptTest {
              BUILD_NUMBER: "7",
              BUILD_URL   : "https://job.url/"]
         )
-        setCredentials(Constants.JIRA_CREDENTIALS_ID, "user", "password")
+        setCredentials(JiraConstants.CREDENTIALS_ID, "user", "password")
 
         int createIssueId = 100000
         Map<String, List<Object>> issuesModification = [:]
@@ -60,7 +60,7 @@ class KarateTestsUtils extends AbstractScriptTest {
                 content = """{
                   "id": "${createIssueId}",
                   "key": "KRD-${createIssueId}",
-                  "self": "https://issues.folio.org/rest/api/2/issue/${createIssueId}"
+                  "self": "${JiraConstants.ISSUE_URL}${createIssueId}"
                 }"""
                 addAction(issuesModification, String.valueOf(createIssueId), new CreateAction(body: parameters.requestBody))
             }
@@ -125,9 +125,9 @@ class KarateTestsUtils extends AbstractScriptTest {
             KarateModuleExecutionSummary moduleSummary = new KarateModuleExecutionSummary(name)
 
             moduleSummary.executionResult = module.executionResult
-            moduleSummary.featuresPassed = module.featuresPassed
-            moduleSummary.featuresFailed = module.featuresFailed
-            moduleSummary.featuresSkipped = module.featuresSkipped
+            moduleSummary.featuresPassedCount = module.featuresPassedCount
+            moduleSummary.featuresFailedCount = module.featuresFailedCount
+            moduleSummary.featuresSkippedCount = module.featuresSkippedCount
 
             List<KarateFeatureExecutionSummary> featuresSummary = moduleSummary.features
             module.features.each { feature ->
