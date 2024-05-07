@@ -178,7 +178,7 @@ void call(params) {
       script {
         def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
 
-        LinkedHashMap<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
+        Map<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
         parseAllureReport.children.each { child ->
           child.children.each { testCase ->
             def status = testCase.status
@@ -189,7 +189,7 @@ void call(params) {
         }
 
         slackSend(attachments: folioSlackNotificationUtils
-          .renderSlackTestResultMessage(
+          .renderBuildAndTestResultMessage_OLD(
             TestType.CYPRESS
             , statusCounts
             , customBuildName
