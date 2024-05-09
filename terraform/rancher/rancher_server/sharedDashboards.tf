@@ -57,7 +57,7 @@ resource "helm_release" "opensearch-dashboards" {
   name             = "opensearch-dashboards"
   repository       = "https://opensearch-project.github.io/helm-charts"
   chart            = "opensearch-dashboards"
-  version          = "2.9.2"
+  version          = "2.11.1"
   namespace        = "shared-dashboards"
   create_namespace = true
   values = [<<EOF
