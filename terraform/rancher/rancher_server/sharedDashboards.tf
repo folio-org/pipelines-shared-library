@@ -19,7 +19,7 @@ resource "helm_release" "kafka-ui" {
   name             = "kafka-ui"
   repository       = "https://provectus.github.io/kafka-ui-charts"
   chart            = "kafka-ui"
-  version          = "0.7.1"
+  version          = "0.7.2"
   namespace        = "shared-dashboards"
   create_namespace = true
   values = [<<EOF
