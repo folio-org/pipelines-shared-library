@@ -126,6 +126,7 @@ void checkAllPodsRunning(String ns) {
 
       if (notAllRunning) {
         println('Not all pods are running. Retrying...')
+        sh(script: "kubectl get pods -n ${ns} | grep Evicted | awk '{print \$2 \" -n \" \$1}' | xargs -n 3 kubectl delete pod", returnStdout: true)
       } else {
         println('All pods are running.')
       }
