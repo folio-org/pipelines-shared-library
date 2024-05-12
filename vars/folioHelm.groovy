@@ -128,7 +128,7 @@ void checkAllPodsRunning(String ns) {
         def evictedPodsList
         println('Not all pods are running. Retrying...')
         try {
-          evictedPodsList = sh(script: "kubectl get pods -n ${ns} | grep Evicted | awk '{print \$2 \" -n \" \$1}' | xargs -n 3 kubectl delete pod", returnStdout: true)
+          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
         } catch (Error err) {
           new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
         }
