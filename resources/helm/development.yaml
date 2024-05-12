@@ -75,7 +75,7 @@ edge-dcb:
     enabled: true
     hosts:
       - paths:
-          - /dcbService
+          - /dcbService*
   javaArgs: ''
   javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dcb-ephemeral-properties'
   postJob:
