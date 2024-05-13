@@ -14,15 +14,15 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    string(name: 'MODULE_NAME', defaultValue: '', description: 'Module/Modules list', trim: true),
-    folioParameters.moduleName(),
+    string(name: 'TENANT_NAME', defaultValue: 'ALL', description: 'Enter tenant names separated by comma default value ALL')
+    string(name: 'MODULE_NAME', defaultValue: '', description: '(REQUIRED) Module/Modules list', trim: true),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'
-  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+   currentBuild.result = 'ABORTED'
+   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
@@ -32,33 +32,70 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 
 if (!main.isTenantExist(params.TENANT_ID)) {
   currentBuild.result = 'ABORTED'
-  error('Tenant does not exist, stopping the pipeline')
+  error('Tenant does not exist, aborting the pipeline')
 }
 
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+if (params.MODULE_NAME.trim() == '') {
+    currentBuild.result = 'ABORTED'
+    error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
+}
 
-ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}"
-      }
-      stage("Disable tenant modules") {
-        main.tenantInstall(tenant, tenant.getModules().getInstallJson())
-        println("modules removed")
-      }
-      stage("Delete tenant") {
-        main.deleteTenant(tenant)
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
+def tenants = processInput(params.TENANTS)
+println tenants
+
+def processInput(String input) {
+    List<String> tenants
+    if (input.toLowerCase() == 'all') {
+        tenants = getAllTenants()
+    } else {
+        tenants = input.split(',').collect { it.trim() }
     }
-  }
+    return tenants.join(', ')
 }
+
+def getAllTenants() {
+    return ['Tenant1', 'Tenant2', 'Tenant3']
+}
+
+// def processInput(String input) {
+//     if (input.toLowerCase() == 'all') {
+//         return getAllTenants()
+//     } else {
+//         return input.split(',').collect { it.trim() }
+//     }
+// }
+
+// def getAllTenants() {
+//     return ['Tenant1', 'Tenant2', 'Tenant3']
+// }
+
+// println processInput('ALL')
+// println processInput('Tenant1, Tenant2')
+
+// OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+//   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+
+// ansiColor('xterm') {
+//   node(params.AGENT) {
+//     try {
+//       stage('Ini') {
+//         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+//         buildDescription "Tenant: ${params.TENANT_ID}"
+//       }
+//       stage("Disable tenant modules") {
+//         main.tenantInstall(tenant, tenant.getModules().getInstallJson())
+//         println("modules removed")
+//       }
+//       stage("Delete tenant") {
+//         main.deleteTenant(tenant)
+//       }
+//     } catch (exception) {
+//       println(exception)
+//       error(exception.getMessage())
+//     } finally {
+//       stage('Cleanup') {
+//         cleanWs notFailBuild: true
+//       }
+//     }
+//   }
+// }
