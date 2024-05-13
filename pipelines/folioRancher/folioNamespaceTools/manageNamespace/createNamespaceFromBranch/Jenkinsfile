@@ -13,9 +13,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1336') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'RANCHER-1336'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
