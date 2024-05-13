@@ -1,9 +1,6 @@
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
-import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
-import org.jenkinsci.plugins.workflow.libs.Library
 
 def clusterName = "folio-testing"
 def projectName = "karate"
@@ -16,12 +13,10 @@ def prototypeTenant = "consortium"
 //TODO switch back before merge
 //def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
 def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054"
-def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
+//def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
+def destroyEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
-
-KarateTestsExecutionSummary karateTestsExecutionSummary
-def teamAssignment
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -108,75 +103,29 @@ pipeline {
       steps {
         script {
           def jobParameters = [branch         : params.branch,
-                               threadsCount   : "1",
-                               modules        : "",
+                               threadsCount   : params.threadsCount,
+                               modules        : '',
                                okapiUrl       : okapiUrl,
                                edgeUrl        : edgeUrl,
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant,
-                               modules: 'mod-fqm-manager,mod-kb-ebsco-java']
-//          sleep time: 30, unit: 'MINUTES'
+                               prototypeTenant: prototypeTenant]
+          sleep time: 30, unit: 'MINUTES'
           karateFlow(jobParameters)
         }
       }
     }
 
-    stage("Parallel") {
-      parallel {
-        stage("Collect test results") {
-          when {
-            expression {
-              spinUpEnvironmentJob.result == 'SUCCESS'
-            }
-          }
-          stages {
-            stage("Collect execution results") {
-              steps {
-                script {
-                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-              }
-            }
-              //TODO temporary disabled destroy for investigation
-//            stage("Destroy environment") {
-//              steps {
-//                script {
-//                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-//                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//              }
-//            }
-            stage("Parse teams assignment") {
-              steps {
-                script {
-                  def jsonContents = readJSON file: "teams-assignment.json"
-                  teamAssignment = new TeamAssignment(jsonContents)
-                }
-              }
-            }
-
-//            stage("Sync jira tickets") {
-//              steps {
-//                script {
-//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-//
-//            stage("Send slack notifications") {
-//              steps {
-//                script {
-//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-          }
-        }
-      }
-    }
+//TODO temporary disabled destroy for investigation
+//    stage("Destroy environment") {
+//      steps {
+//        script {
+//          def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//          tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//        }
+//      }
+//    }
 
     stage("Set job execution result") {
       when {

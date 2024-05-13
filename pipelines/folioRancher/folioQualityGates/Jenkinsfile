@@ -8,7 +8,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO Switch branch before final merge
 //@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-@Library('pipelines-shared-library@RANCHER-1258') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
 properties([
   pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
