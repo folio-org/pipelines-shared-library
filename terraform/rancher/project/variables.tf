@@ -210,3 +210,29 @@ variable "pg_ldp_user_password" {
   type        = string
   description = "Postgresql password for ldp user"
 }
+
+variable "eureka" {
+  type        = bool
+  description = "Eureka setup enabled"
+  default     = false
+}
+
+variable "keycloak_config_map" {
+  description = "Configuration parameters map for Keycloak service"
+  type = object({
+    db_port        = number,
+    db_name        = string,
+    db_user        = string,
+    db_secret      = string,
+    admin_user     = string,
+    admin_password = string
+  })
+  default = {
+    db_port        = 5432,
+    db_name        = "keycloak",
+    db_user        = "kc_user",
+    db_secret      = "kc_user_secret",
+    admin_user     = "kc_admin",
+    admin_password = "kc_admin_secret"
+  }
+}
