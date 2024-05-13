@@ -40,12 +40,10 @@ if (params.MODULE_NAME.trim() == '') {
     error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
 }
 
-println tenants
-
 def inputString = params.MODULE_NAME
-def tenantList = inputString.split(',').collect { "\"${it.trim()}\"" }
+def moduleList = inputString.split(',').collect { "\"${it.trim()}\"" }
 
-println tenantList
+println moduleList
 
 // OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 //   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
