@@ -186,12 +186,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [modEntitiesLinksDev: "true"]
   }
 
-  //Enable DIS
-  if(params.DI_SLICING && moduleName == 'mod-data-import') {
-    moduleConfig << [disEnabled: 'true']
-    moduleConfig << [awsConnectParameters: 's3-credentials']
-  }
-
   // Enable ingress
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
