@@ -14,7 +14,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    string(name: 'TENANT_NAME', defaultValue: 'ALL', description: 'Enter tenant names separated by comma default value ALL'),
+    // string(name: 'TENANT_NAME', defaultValue: 'ALL', description: 'Enter tenant names separated by comma default value ALL'),
     string(name: 'MODULE_NAME', defaultValue: '', description: '(REQUIRED) Module/Modules list', trim: true),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
