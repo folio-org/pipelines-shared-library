@@ -40,7 +40,7 @@ if (params.MODULE_NAME.trim() == '') {
     error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
 }
 
-def tenants = processInput(params.TENANTS)
+def tenants = processInput(params.TENANT_ID)
 println tenants
 
 def processInput(String input) {
@@ -67,12 +67,6 @@ def getAllTenants() {
 //     }
 // }
 
-// def getAllTenants() {
-//     return ['Tenant1', 'Tenant2', 'Tenant3']
-// }
-
-// println processInput('ALL')
-// println processInput('Tenant1, Tenant2')
 
 // OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 //   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
