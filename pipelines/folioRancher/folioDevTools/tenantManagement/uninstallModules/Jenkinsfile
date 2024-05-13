@@ -53,6 +53,8 @@ def processInput(String input) {
     return tenants.join(', ')
 }
 
+println getAllTenants
+
 def getAllTenants() {
     return ['Tenant1', 'Tenant2', 'Tenant3']
 }
