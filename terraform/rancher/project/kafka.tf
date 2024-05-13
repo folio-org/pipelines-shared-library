@@ -1,14 +1,23 @@
-# Rancher2 Project App Kafka
-resource "rancher2_app_v2" "kafka" {
-  count         = var.kafka_shared ? 0 : 1
-  cluster_id    = data.rancher2_cluster.this.id
-  namespace     = rancher2_namespace.this.name
-  name          = "kafka-${var.rancher_project_name}"
-  repo_name     = "bitnami"
-  chart_name    = "kafka"
-  chart_version = "21.4.6"
-  force_upgrade = "true"
-  values        = <<-EOT
+resource "rancher2_secret" "kafka-credentials" {
+  name         = "kafka-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV        = base64encode(local.env_name)
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
+    KAFKA_PORT = base64encode("9092")
+  }
+}
+
+# Kafka deployment
+resource "helm_release" "kafka" {
+  count      = var.kafka_shared ? 0 : 1
+  namespace  = rancher2_namespace.this.name
+  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  name       = "kafka-${var.rancher_project_name}"
+  chart      = "kafka"
+  version    = "21.4.6"
+  values = [<<-EOT
     image:
       tag: 3.5
     metrics:
@@ -61,18 +70,18 @@ resource "rancher2_app_v2" "kafka" {
       - name: KAFKA_DELETE_TOPIC_ENABLE
         value: "true"
   EOT
+  ]
 }
 
-resource "rancher2_app_v2" "kafka_ui" {
-  count         = var.kafka_shared ? 0 : 1
-  cluster_id    = data.rancher2_cluster.this.id
-  namespace     = rancher2_namespace.this.name
-  name          = "kafka-ui"
-  repo_name     = "provectus"
-  chart_name    = "kafka-ui"
-  chart_version = "0.7.2"
-  force_upgrade = "true"
-  values        = <<-EOT
+# Kafka UI deployment
+resource "helm_release" "kafka-ui" {
+  count      = var.kafka_shared ? 0 : 1
+  namespace  = rancher2_namespace.this.name
+  repository = "https://provectus.github.io/kafka-ui-charts"
+  name       = "kafka-ui"
+  chart      = "kafka-ui"
+  version    = "0.7.1"
+  values = [<<-EOT
     service:
       type: NodePort
     ingress:
@@ -107,4 +116,5 @@ resource "rancher2_app_v2" "kafka_ui" {
         limits:
           memory: 2048Mi
   EOT
+  ]
 }
