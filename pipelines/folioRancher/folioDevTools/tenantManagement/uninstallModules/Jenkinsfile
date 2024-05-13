@@ -43,30 +43,10 @@ if (params.MODULE_NAME.trim() == '') {
 def tenants = processInput(params.TENANT_ID)
 println tenants
 
-def processInput(String input) {
-    List<String> tenants
-    if (input.toLowerCase() == 'all') {
-        tenants = getAllTenants()
-    } else {
-        tenants = input.split(',').collect { it.trim() }
-    }
-    return tenants.join(', ')
-}
+def inputString = params.MODULE_NAME
+def tenantList = inputString.split(',').collect { "\"${it.trim()}\"" }
 
-println getAllTenants
-
-def getAllTenants() {
-    return ['Tenant1', 'Tenant2', 'Tenant3']
-}
-
-// def processInput(String input) {
-//     if (input.toLowerCase() == 'all') {
-//         return getAllTenants()
-//     } else {
-//         return input.split(',').collect { it.trim() }
-//     }
-// }
-
+println tenantList
 
 // OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
 //   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
