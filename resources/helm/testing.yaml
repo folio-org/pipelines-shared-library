@@ -683,36 +683,8 @@ mod-data-export-worker:
       memory: 2930Mi
 mod-data-import:
   extraEnvVars:
-  - name: RECORDS_PER_SPLIT_FILE
-    value: '1000'
-  - name: SCORE_JOB_SMALLEST
-    value: '40'
-  - name: SCORE_JOB_LARGEST
-    value: '-40'
-  - name: SCORE_JOB_REFERENCE
-    value: '100000'
-  - name: SCORE_AGE_NEWEST
-    value: '0'
-  - name: SCORE_AGE_OLDEST
-    value: '50'
-  - name: SCORE_AGE_EXTREME_THRESHOLD_MINUTES
-    value: '480'
-  - name: SCORE_AGE_EXTREME_VALUE
-    value: '10000'
-  - name: SCORE_TENANT_USAGE_MIN
-    value: '100'
-  - name: SCORE_TENANT_USAGE_MAX
-    value: '-200'
-  - name: SCORE_PART_NUMBER_FIRST
-    value: '1'
-  - name: SCORE_PART_NUMBER_LAST
-    value: '0'
-  - name: SCORE_PART_NUMBER_LAST_REFERENCE
-    value: '100'
-  - name: ASYNC_PROCESSOR_POLL_INTERVAL_MS
-    value: '5000'
-  - name: ASYNC_PROCESSOR_MAX_WORKERS_COUNT
-    value: '1'
+  - name: S3_FORCEPATHSTYLE
+    value: "true"
   integrations:
     db:
       enabled: true
@@ -948,7 +920,7 @@ mod-inventory:
     limits:
       memory: 2560Mi
     requests:
-      memory: 1024Mi
+      memory: 683Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR

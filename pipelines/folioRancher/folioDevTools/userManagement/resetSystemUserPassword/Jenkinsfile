@@ -7,7 +7,7 @@ import org.folio.rest_v2.Users
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1182') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

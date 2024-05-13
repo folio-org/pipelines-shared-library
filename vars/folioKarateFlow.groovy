@@ -1,7 +1,8 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.TestType
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Logger
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.RestClient
@@ -14,6 +15,7 @@ import static groovy.json.JsonOutput.toJson
 void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   KarateTestsExecutionSummary karateTestsExecutionSummary
+//  TeamAssignment teamAssignment
 
   dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {
@@ -94,28 +96,23 @@ void call(KarateTestsParameters args) {
       stage('[Jira] Sync issues') {
         println(prettyPrint(toJson(karateTestsExecutionSummary)))
         println(prettyPrint(toJson(args.teamAssignment)))
+//        def jsonContents = readJSON file: "teams-assignment.json"
+//        teamAssignment = new TeamAssignment(jsonContents)
         karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
       }
     }
 
     if (args.sendSlackNotification) {
       stage('[Slack] Send notification') {
-        List testsResultsList = findFiles(excludes: '', glob: "**/target/karate-reports*/karate-summary-json.txt")
-        Integer passedTestsCount = 0
-        Integer failedTestsCount = 0
-
-        testsResultsList.each { testResultFile ->
-          def testResultContent = readJSON file: testResultFile.path
-          failedTestsCount += testResultContent['scenariosfailed'] ?: 0
-          passedTestsCount += testResultContent['scenariosPassed'] ?: 0
-        }
-
-        Integer totalTestsCount = failedTestsCount + passedTestsCount
-        Float passRate = totalTestsCount > 0 ? (passedTestsCount / totalTestsCount) * 100 : 0
-        String passRateFormatted = String.format("%.2f", passRate)
-
-        slackNotifications.sendKarateSlackNotification("Passed tests: ${passedTestsCount}, Failed tests: ${failedTestsCount}, Pass rate: ${passRateFormatted}%", "#rancher_tests_notifications", currentBuild.currentResult)
-//        slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
+        slackSend(attachments: folioSlackNotificationUtils
+          .renderBuildAndTestResultMessage(
+            TestType.KARATE
+            , karateTestsExecutionSummary
+            , ""
+            , true
+            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+          )
+          , channel: "#rancher_tests_notifications")
       }
     }
   }

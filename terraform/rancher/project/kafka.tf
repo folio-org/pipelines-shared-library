@@ -17,7 +17,7 @@ resource "helm_release" "kafka" {
   name       = "kafka-${var.rancher_project_name}"
   chart      = "kafka"
   version    = "21.4.6"
-  values = [<<-EOT
+  values = [<<-EOF
     image:
       tag: 3.5
     metrics:
@@ -69,7 +69,7 @@ resource "helm_release" "kafka" {
     extraEnvVars:
       - name: KAFKA_DELETE_TOPIC_ENABLE
         value: "true"
-  EOT
+  EOF
   ]
 }
 
@@ -81,7 +81,7 @@ resource "helm_release" "kafka-ui" {
   name       = "kafka-ui"
   chart      = "kafka-ui"
   version    = "0.7.1"
-  values = [<<-EOT
+  values = [<<-EOF
     service:
       type: NodePort
     ingress:
@@ -115,6 +115,6 @@ resource "helm_release" "kafka-ui" {
           memory: 512Mi
         limits:
           memory: 2048Mi
-  EOT
+  EOF
   ]
 }

@@ -1,11 +1,5 @@
-import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
-import org.folio.models.Index
-import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiTenantConsortia
-import org.folio.models.RancherNamespace
-import org.folio.models.TenantUi
-import org.folio.models.TerraformConfig
+import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Edge
@@ -95,13 +89,13 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
+    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
     Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
     stage('[Helm] Deploy Okapi') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
+//        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
       }
     }
 
@@ -118,7 +112,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+//        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
 

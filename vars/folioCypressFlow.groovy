@@ -27,7 +27,7 @@ void call(params) {
 
   /* Define variables */
   String customBuildName = params.customBuildName?.trim() ?
-    "${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
+    "#${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
   String branch = params.branch
   String tenantUrl = params.tenantUrl
   String okapiUrl = params.okapiUrl
@@ -53,7 +53,7 @@ void call(params) {
 
   buildName customBuildName
 
-  if(useReportPortal){
+  if (useReportPortal) {
     stage('[ReportPortal config bind & launch]') {
       try {
         reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
@@ -115,7 +115,7 @@ void call(params) {
     }
   }
 
-  if(useReportPortal) {
+  if (useReportPortal) {
     stage("[ReportPortal Run stop]") {
       try {
         def res_end = reportPortal.launchFinish()
@@ -165,14 +165,14 @@ void call(params) {
       }
 
       slackSend(attachments: folioSlackNotificationUtils
-                                .renderBuildAndTestResultMessage_OLD(
-                                  TestType.CYPRESS
-                                  , statusCounts
-                                  , customBuildName
-                                  , useReportPortal
-                                  , "${env.BUILD_URL}allure/"
-                                )
-                , channel: "#rancher_tests_notifications")
+        .renderBuildAndTestResultMessage_OLD(
+          TestType.CYPRESS
+          , statusCounts
+          , customBuildName
+          , useReportPortal
+          , "${env.BUILD_URL}allure/"
+        )
+        , channel: "#rancher_tests_notifications")
     }
   }
 }
@@ -206,15 +206,16 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
   stage('Run tests') {
     script {
       catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-        docker.image("cypress/included:${cypressImageVersion}").inside('--entrypoint=') {
-          env.HOME = "${pwd()}"
-          env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-          env.CYPRESS_BASE_URL = "${tenantUrl}"
-          env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
-          env.CYPRESS_OKAPI_TENANT = "${tenantId}"
-          env.CYPRESS_diku_login = "${adminUsername}"
-          env.CYPRESS_diku_password = "${adminPassword}"
-          env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          docker.image('732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest').inside('--entrypoint=') {
+            env.HOME = "${pwd()}"
+            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+            env.CYPRESS_BASE_URL = "${tenantUrl}"
+            env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
+            env.CYPRESS_OKAPI_TENANT = "${tenantId}"
+            env.CYPRESS_diku_login = "${adminUsername}"
+            env.CYPRESS_diku_password = "${adminPassword}"
+            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
             withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                               credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,

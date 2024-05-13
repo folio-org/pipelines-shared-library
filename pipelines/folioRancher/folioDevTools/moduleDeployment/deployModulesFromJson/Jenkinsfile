@@ -5,9 +5,9 @@ import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
 
 // Define a global variable for the library branch
-String DEPLOYMENT_CONFIG_BRANCH = 'RANCHER-1182'
+String DEPLOYMENT_CONFIG_BRANCH = 'RANCHER-1054'
 
-@Library('pipelines-shared-library@RANCHER-1182') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
 
 properties([

@@ -1,6 +1,6 @@
 package org.folio.models.parameters
 
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.teams.TeamAssignment
 
 class KarateTestsParameters {
   String okapiUrl

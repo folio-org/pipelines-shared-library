@@ -146,24 +146,24 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = ""
 
-    if(customModule || moduleName == 'ui-bundle'){
+  if (customModule || moduleName == 'ui-bundle') {
+    repository = Constants.ECR_FOLIO_REPOSITORY
+  } else {
+    switch (moduleVersion) {
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
+        repository = "folioorg"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
+        repository = "folioci"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
-    }else{
-        switch (moduleVersion){
-            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
-                repository = "folioorg"
-                break
-            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
-                repository = "folioci"
-                break
-            case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
-                repository = Constants.ECR_FOLIO_REPOSITORY
-                break
-            default:
-                repository = "folioci"
-                break
-        }
+        break
+      default:
+        repository = "folioci"
+        break
     }
+  }
 //    if (customModule || moduleName == 'ui-bundle') {
 //        repository = Constants.ECR_FOLIO_REPOSITORY
 //    } else if (moduleName == 'mod-graphql' && moduleVersion ==~ /\d{1,2}.\d{1,3}.\d{3,10}/) {
@@ -171,14 +171,22 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    } else {
 //        repository = moduleVersion.contains('SNAPSHOT') ? "folioci" : "folioorg"
 //    }
-    moduleConfig << [image         : [repository: "${repository}/${moduleName}",
-                                      tag       : moduleVersion],
-                     podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
+  moduleConfig << [image         : [repository: "${repository}/${moduleName}",
+                                    tag       : moduleVersion],
+                   podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
 // Enable R/W split
 //  if (ns.enableRwSplit && Constants.READ_WRITE_MODULES.contains(moduleName)) {
 //    moduleConfig << [readWriteSplitEnabled: "true"]
 //  }
+
+//    // Enable JMX metrics
+//    if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
+//        def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[moduleName], moduleVersion)
+//        if (action == "upgrade" || action == "equal") {
+//            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
+//        }
+//    }
 
 //Enable extra env
 //  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
@@ -210,13 +218,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //  if(params.DI_SLICING && moduleName == 'mod-data-import') {
 //    moduleConfig << [disEnabled: 'true']
 //    moduleConfig << [awsConnectParameters: 's3-credentials']
-//  }
-//
-//  // Enable ingress
-//  boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
-//  if (enableIngress) {
-//    moduleConfig['ingress']['hosts'][0] += [host: domain]
-//    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
 //  }
 
   //Enable edge NLB
