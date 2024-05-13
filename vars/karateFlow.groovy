@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.Instant
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
 def call(params) {
   def id
@@ -140,49 +140,48 @@ def call(params) {
     }
   }
 
-  stage('Send in slack test results notifications') {
-    script {
-      slackSend(attachments: folioSlackNotificationUtils
-                              .renderBuildAndTestResultMessage(
-                                TestType.KARATE
-                                , karateTestsExecutionSummary
-                                , ""
-                                , true
-                                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-                              )
-                , channel: "#rancher_tests_notifications")
-    }
-  }
-
-  stage('Jira&Slack team notifications'){
-    stage("Parse teams assignment") {
-      script {
-        def jsonContents = readJSON file: "teams-assignment.json"
-        teamAssignment = new TeamAssignment(jsonContents)
-      }
-    }
-
-    stage("Sync jira tickets") {
-      script {
-        karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-      }
-    }
-
-    stage("Send slack notifications to teams") {
-      script {
-        folioSlackNotificationUtils.renderTeamsTestResultMessages(
-                                      TestType.KARATE
-                                      , karateTestsExecutionSummary
-                                      , teamAssignment
-                                      , ""
-                                      , true
-                                      , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
-          .each {
-            slackSend(attachments: it.value, channel: it.key.getSlackChannel())
-          }
-      }
-    }
-  }
-
+//  stage('Send in slack test results notifications') {
+//    script {
+//      slackSend(attachments: folioSlackNotificationUtils
+//                              .renderBuildAndTestResultMessage(
+//                                TestType.KARATE
+//                                , karateTestsExecutionSummary
+//                                , ""
+//                                , true
+//                                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+//                              )
+//                , channel: "#rancher_tests_notifications")
+//    }
+//  }
+//
+//  stage('Jira&Slack team notifications'){
+//    stage("Parse teams assignment") {
+//      script {
+//        def jsonContents = readJSON file: "teams-assignment.json"
+//        teamAssignment = new TeamAssignment(jsonContents)
+//      }
+//    }
+//
+//    stage("Sync jira tickets") {
+//      script {
+//        karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
+//      }
+//    }
+//
+//    stage("Send slack notifications to teams") {
+//      script {
+//        folioSlackNotificationUtils.renderTeamsTestResultMessages(
+//                                      TestType.KARATE
+//                                      , karateTestsExecutionSummary
+//                                      , teamAssignment
+//                                      , ""
+//                                      , true
+//                                      , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+//          .each {
+//            slackSend(attachments: it.value, channel: it.key.getSlackChannel())
+//          }
+//      }
+//    }
+//  }
 }
 
