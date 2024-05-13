@@ -214,7 +214,7 @@ variable "pg_ldp_user_password" {
 variable "eureka" {
   type        = bool
   description = "Eureka setup enabled"
-  default     = false
+  default     = true
 }
 
 variable "keycloak_config_map" {
