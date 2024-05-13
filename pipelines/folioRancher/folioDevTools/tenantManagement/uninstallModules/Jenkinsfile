@@ -40,7 +40,6 @@ if (params.MODULE_NAME.trim() == '') {
     error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
 }
 
-def tenants = processInput(params.TENANT_ID)
 println tenants
 
 def inputString = params.MODULE_NAME
