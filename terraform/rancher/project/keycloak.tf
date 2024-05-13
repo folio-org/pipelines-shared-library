@@ -26,7 +26,7 @@ resource "rancher2_app_v2" "keycloak" {
       adminUser: ${var.keycloak_config_map.admin_user}
       adminPassword: ${var.keycloak_config_map.admin_password}
     postgresql:
-      enabled=false
+      enabled: false
     externalDatabase:
       host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
       port: ${var.keycloak_config_map.db_port}
