@@ -139,8 +139,7 @@ class TenantConfiguration extends GeneralParameters {
             stripes_url    : stripes_url
         ]
         OkapiConstants.CONFIGURATIONS.each {
-            tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
-            def content = steps.readFile it
+            def content = steps.readFile file: tools.copyResourceFileToWorkspace("okapi/configurations/" + it)
             String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
             def res = http.postRequest(url, body, headers)
             if (res.status == HttpURLConnection.HTTP_CREATED) {
