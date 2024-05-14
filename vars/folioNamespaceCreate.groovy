@@ -96,7 +96,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     if (args.eureka) {
-      folioEurekaSQL.initSQL(namespace,"")
+      folioEurekaSQL.initSQL(namespace, args.eureka)
     }
 
     Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
