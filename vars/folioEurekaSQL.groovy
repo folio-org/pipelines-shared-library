@@ -27,8 +27,8 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], Boolea
       } else {
         try {
           logger.info("Trying to init Eureka DBs on built-in PostgresSQL...")
-          sh(script: "kubectl cp ./${db}.sql pod/postgresql-${namespace.getNamespaceName()}-0:/tmp/${db}.sql", returnStdout: true)
-          sh(script: "kubectl create job eureka_init_db --image=bitnami/postgresql:16.1.0 -- /opt/bitnami/postgresql/bin/psql -a -f ${db}.sql", returnStdout: true)
+          sh(script: "kubectl cp ./${db}.sql pod/postgresql-${namespace.getNamespaceName()}-0:/tmp/${db}.sql -n ${namespace.getNamespaceName()}", returnStdout: true)
+          sh(script: "kubectl exec pod/postgresql-${namespace.getNamespaceName()}-0 -n ${namespace.getNamespaceName()} -- /opt/bitnami/postgresql/bin/psql -a -f ${db}.sql", returnStdout: true)
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
         }
