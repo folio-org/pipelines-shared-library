@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1054') _
 
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.TeamAssignment
@@ -16,7 +16,7 @@ def prototypeTenant = "consortium"
 //TODO switch back before merge
 //def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
 def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054"
-def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
+def destroyEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
