@@ -3,7 +3,6 @@
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
-import org.jenkinsci.plugins.workflow.libs.Library
 
 def clusterName = "folio-testing"
 def projectName = "karate"
@@ -16,6 +15,7 @@ def prototypeTenant = "consortium"
 //TODO switch back before merge
 //def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
 def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054"
+//def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def destroyEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
@@ -108,15 +108,14 @@ pipeline {
       steps {
         script {
           def jobParameters = [branch         : params.branch,
-                               threadsCount   : "1",
+                               threadsCount   : "4",
                                modules        : "",
                                okapiUrl       : okapiUrl,
                                edgeUrl        : edgeUrl,
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
-                               prototypeTenant: prototypeTenant,
-                               modules: 'mod-fqm-manager,mod-kb-ebsco-java']
+                               prototypeTenant: prototypeTenant]
 //          sleep time: 30, unit: 'MINUTES'
           karateFlow(jobParameters)
         }
