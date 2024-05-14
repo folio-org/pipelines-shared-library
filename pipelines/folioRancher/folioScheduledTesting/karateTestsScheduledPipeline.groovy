@@ -108,7 +108,7 @@ pipeline {
       steps {
         script {
           def jobParameters = [branch         : params.branch,
-                               threadsCount   : "4",
+                               threadsCount   : params.threadsCount,
                                modules        : "",
                                okapiUrl       : okapiUrl,
                                edgeUrl        : edgeUrl,
