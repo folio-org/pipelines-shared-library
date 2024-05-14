@@ -95,6 +95,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    if (args.eureka) {
+      folioEurekaSQL.initSQL(namespace,"")
+    }
+
     Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
     Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
