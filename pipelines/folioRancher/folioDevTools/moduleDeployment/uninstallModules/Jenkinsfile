@@ -20,9 +20,9 @@ properties([
     folioParameters.refreshParameters()])
 ])
 
-def cluster_url = params.CLUSTER
-def namespace_url = params.NAMESPACE
-def tenant_url = params.TENANT_ID
+def CLUSTER_URL = params.CLUSTER
+def NAMESPACE_URL = params.NAMESPACE
+def TENANT_URL = params.TENANT_ID
 
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
