@@ -221,7 +221,7 @@ boolean checkNamespaceExistence(String namespace){
 
 void portForwardPSQL(String namespace, Map ports = [5432:5432]){
   try {
-    sh(script: "kubectl port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}" )
+    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}" )
   } catch (Exception e) {
     new Logger(this,'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
   }
