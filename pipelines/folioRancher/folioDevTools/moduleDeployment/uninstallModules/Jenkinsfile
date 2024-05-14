@@ -3,9 +3,10 @@ import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.json.JsonSlurperClassic
+import java.net.URL
 
-// @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-@Library('pipelines-shared-library@RANCHER-1241') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -18,6 +19,10 @@ properties([
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
+
+def cluster = params.CLUSTER
+def namespace = params.NAMESPACE
+def tenant = params.TENANT_ID
 
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
@@ -42,10 +47,41 @@ if (params.MODULE_NAME.trim() == '') {
 def inputString = params.MODULE_NAME
 def moduleList = inputString.split(',').collect { "\"${it.trim()}\"" }
 
-println moduleList
+def test = []
+def url = new URL('https://${CLUSTER}-${NAMESPACE}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_NAME}/modules')
 
-// OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-//   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+try {
+    def connection = url.openConnection()
+    connection.setRequestProperty('Accept', 'application/json')
+
+    def inputStream = connection.getInputStream()
+    def jsonText = inputStream.getText()
+    inputStream.close()
+
+    def json = new JsonSlurperClassic().parseText(jsonText)
+
+    List modules = moduleList
+    modules.each { module ->
+        test +=  [id: json.find {it -> it =~ "${module}"}['id'], action: 'disable']
+    }
+    println(test)
+} catch (Exception e) {
+    println "Error: ${e.message}"
+}
+
+
+
+// def test = []
+// File file = new File("./find.json") //Rest api call response
+// def json = new JsonSlurperClassic().parseText(file.text)
+// List modules = moduleList
+// modules.each { module ->
+//    test +=  [id: json.find {it -> it =~ "${module}"}['id'], action: 'disable']
+// }
+
+// println(test)
+
+// println(moduleList)
 
 // ansiColor('xterm') {
 //   node(params.AGENT) {
@@ -54,12 +90,12 @@ println moduleList
 //         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
 //         buildDescription "Tenant: ${params.TENANT_ID}"
 //       }
-//       stage("Disable tenant modules") {
-//         main.tenantInstall(tenant, tenant.getModules().getInstallJson())
-//         println("modules removed")
-//       }
-//       stage("Delete tenant") {
-//         main.deleteTenant(tenant)
+//       stage("Purge tenant modules") {
+//         String fakeUrl = '{{host}}/_/proxy/tenants/supertenant/modules'
+//         Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
+//         RestClient client = new RestClient(this, true)
+//         def installJsonActual = client.get("${fakeUrl}", headers)
+//         installJsonActual.find { it }
 //       }
 //     } catch (exception) {
 //       println(exception)
