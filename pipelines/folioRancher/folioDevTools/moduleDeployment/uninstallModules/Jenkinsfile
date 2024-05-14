@@ -24,10 +24,6 @@ def CLUSTER_URL = params.CLUSTER
 def NAMESPACE_URL = params.NAMESPACE
 def TENANT_URL = params.TENANT_ID
 
-println(CLUSTER_URL)
-println(NAMESPACE_URL)
-println(TENANT_URL)
-
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
@@ -74,20 +70,6 @@ try {
 } catch (Exception e) {
     println "Error: ${e.message}"
 }
-
-
-
-// def test = []
-// File file = new File("./find.json") //Rest api call response
-// def json = new JsonSlurperClassic().parseText(file.text)
-// List modules = moduleList
-// modules.each { module ->
-//    test +=  [id: json.find {it -> it =~ "${module}"}['id'], action: 'disable']
-// }
-
-// println(test)
-
-// println(moduleList)
 
 // ansiColor('xterm') {
 //   node(params.AGENT) {
