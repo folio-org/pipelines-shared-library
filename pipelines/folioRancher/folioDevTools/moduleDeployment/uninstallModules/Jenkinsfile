@@ -20,9 +20,9 @@ properties([
     folioParameters.refreshParameters()])
 ])
 
-def cluster = params.CLUSTER
-def namespace = params.NAMESPACE
-def tenant = params.TENANT_ID
+// def cluster = params.CLUSTER
+// def namespace = params.NAMESPACE
+// def tenant = params.TENANT_ID
 
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
@@ -32,7 +32,11 @@ if (params.REFRESH_PARAMETERS) {
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
+println(namespace)
+
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
+println(main)
 
 if (!main.isTenantExist(params.TENANT_ID)) {
   currentBuild.result = 'ABORTED'
