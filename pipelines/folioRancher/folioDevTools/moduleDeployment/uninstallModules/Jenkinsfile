@@ -24,6 +24,10 @@ def CLUSTER_URL = params.CLUSTER
 def NAMESPACE_URL = params.NAMESPACE
 def TENANT_URL = params.TENANT_ID
 
+println(CLUSTER_URL)
+println(NAMESPACE_URL)
+println(TENANT_URL)
+
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
