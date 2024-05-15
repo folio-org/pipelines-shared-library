@@ -51,7 +51,7 @@ def inputString = params.MODULE_NAME
 def modules = []
 def values = []
 def tmp_values = inputString.split(",").each { it -> modules.add(it.trim()) }
-def url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules"
+String url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules"
 println("URL: " + url) //debug
 
 try {
@@ -76,27 +76,27 @@ try {
     println "Error: ${e.message}"
 }
 
-ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}"
-      }
-      stage("Purge tenant modules") {
-        String fakeUrl = '{{host}}/_/proxy/tenants/supertenant/modules'
-        Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
-        RestClient client = new RestClient(this, true)
-        def installJsonActual = client.get("${fakeUrl}", headers)
-        installJsonActual.find { it }
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
-    }
-  }
-}
+// ansiColor('xterm') {
+//   node(params.AGENT) {
+//     try {
+//       stage('Ini') {
+//         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+//         buildDescription "Tenant: ${params.TENANT_ID}"
+//       }
+//       stage("Purge tenant modules") {
+//         String url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/install"
+//         Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
+//         RestClient client = new RestClient(this, true)
+//         def installJsonActual = client.get("${fakeUrl}", headers)
+//         installJsonActual.find { it }
+//       }
+//     } catch (exception) {
+//       println(exception)
+//       error(exception.getMessage())
+//     } finally {
+//       stage('Cleanup') {
+//         cleanWs notFailBuild: true
+//       }
+//     }
+//   }
+// }
