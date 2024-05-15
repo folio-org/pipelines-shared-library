@@ -5,7 +5,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import groovy.json.JsonSlurperClassic
 
-void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], Boolean type) {
+void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], Boolean type, String pgMajorVersion = '13') {
   String arn = Constants.AWS_RDS_CLUSTER_ARN + namespace.getClusterName() + '-' + namespace.getNamespaceName()
   String secret = Constants.AWS_RDS_CLUSTER_SECRET
   Logger logger = new Logger(this, 'initSQL')
@@ -22,14 +22,14 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], Boolea
       if (!type) {
         try {
           logger.info("Trying to init Eureka DBs on AWS RDS Cluster...")
-          sh(script: "kubectl exec pod/${pgadmin_pod} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-13/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
+          sh(script: "kubectl exec pod/${pgadmin_pod} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
         }
       } else {
         try {
           logger.info("Trying to init Eureka DBs on built-in PostgresSQL...")
-          sh(script: "kubectl exec pod/${pgadmin_pod} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-13/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
+          sh(script: "kubectl exec pod/${pgadmin_pod} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
         }
