@@ -19,7 +19,8 @@ properties([
     folioParameters.tenantId(''),
     string(name: 'MODULE_NAME', defaultValue: '', description: '(REQUIRED) Module names separated by comma', trim: true),
     folioParameters.agent(),
-    folioParameters.refreshParameters()])
+    folioParameters.refreshParameters()
+    ])
 ])
 
 def CLUSTER_URL = params.CLUSTER
