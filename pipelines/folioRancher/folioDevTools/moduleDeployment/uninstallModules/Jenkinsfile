@@ -48,9 +48,9 @@ if (params.MODULE_NAME.trim() == '') {
 }
 
 def inputString = params.MODULE_NAME
-def test = []
+def modules = []
 def values = []
-def tmp_values = inputString.split(",").each { it -> test.add(it.trim()) }
+def tmp_values = inputString.split(",").each { it -> modules.add(it.trim()) }
 def url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules"
 println("URL: " + url) //debug
 
@@ -60,7 +60,7 @@ try {
     def jsonText = get_request.body
     def json = jsonText instanceof String ? new JsonSlurperClassic().parseText(jsonText) : jsonText
     println("JSON: " + json) //debug
-    test.each { module ->
+    modules.each { module ->
         try {
             if ( json.find { it.id =~ module }) {
                 def tmp = json.find { it.id =~ module }
@@ -76,27 +76,27 @@ try {
     println "Error: ${e.message}"
 }
 
-// ansiColor('xterm') {
-//   node(params.AGENT) {
-//     try {
-//       stage('Ini') {
-//         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-//         buildDescription "Tenant: ${params.TENANT_ID}"
-//       }
-//       stage("Purge tenant modules") {
-//         String fakeUrl = '{{host}}/_/proxy/tenants/supertenant/modules'
-//         Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
-//         RestClient client = new RestClient(this, true)
-//         def installJsonActual = client.get("${fakeUrl}", headers)
-//         installJsonActual.find { it }
-//       }
-//     } catch (exception) {
-//       println(exception)
-//       error(exception.getMessage())
-//     } finally {
-//       stage('Cleanup') {
-//         cleanWs notFailBuild: true
-//       }
-//     }
-//   }
-// }
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}"
+      }
+      stage("Purge tenant modules") {
+        String fakeUrl = '{{host}}/_/proxy/tenants/supertenant/modules'
+        Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
+        RestClient client = new RestClient(this, true)
+        def installJsonActual = client.get("${fakeUrl}", headers)
+        installJsonActual.find { it }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
