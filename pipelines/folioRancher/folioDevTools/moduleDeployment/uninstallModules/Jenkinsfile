@@ -59,10 +59,10 @@ println("URL:" + url) //debug
 try {
     Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
     def get_request = new RestClient(this).get(url, headers)
-    println("GET_REQUEST:" + get_request) //debug
+    // println("GET_REQUEST:" + get_request) //debug
     def jsonText = get_request.body
     println("JSON_TEXT:" + jsonText) //debug
-    def json = new JsonSlurperClassic().parseText(jsonText)
+    def json = jsonText instanceof String ? new JsonSlurperClassic().parseText(jsonText) : jsonText
     println("JSON:" + json) //debug
     test.each { module ->
         try {
