@@ -63,10 +63,10 @@ def get_request = new RestClient(this).get(url, headers)
 println(get_request)
 
 try {
-    def connection = url.openConnection()
-    connection.setRequestProperty('Accept', 'application/json')
+    // def connection = url.openConnection()
+    // connection.setRequestProperty('Accept', 'application/json')
 
-    def inputStream = connection.getInputStream()
+    def inputStream = get_request.getInputStream()
     def jsonText = inputStream.getText()
     inputStream.close()
     def json = new JsonSlurperClassic().parseText(jsonText)
