@@ -48,8 +48,6 @@ if (params.MODULE_NAME.trim() == '') {
 }
 
 def inputString = params.MODULE_NAME
-def moduleList = inputString.split(',').collect { "\"${it.trim()}\"" }
-
 def test = []
 def values = []
 def tmp_values = inputString.split(",").each { it -> test.add(it.trim()) }
