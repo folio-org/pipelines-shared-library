@@ -2,6 +2,7 @@
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
+import org.folio.rest_v2.Authorization
 import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurperClassic
 import java.net.URL
@@ -56,6 +57,12 @@ println(url)
 try {
     def connection = url.openConnection()
     connection.setRequestProperty('Accept', 'application/json')
+    Map headers = getAuthorizedHeaders(namespace.getSuperTenant())
+    
+        headers.each { key, value ->
+        connection.setRequestProperty(key, value.toString())
+    }
+
     def inputStream = connection.getInputStream()
     def jsonText = inputStream.getText()
     inputStream.close()
