@@ -92,13 +92,6 @@ ansiColor('xterm') {
         println("POST_REQUEST: " + post_request)
         def jsonText = post_request.body
         println("RESPONSE: " + jsonText)
-
-        // Map headers = new Authorization(this, "fakeUrl").getAuthorizedHeaders(namespace.getSuperTenant())
-        // Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
-        // def get_request = new RestClient(this).get(urlPost, headers)
-        // RestClient client = new RestClient(this, true)
-        // def installJsonActual = client.get("${fakeUrl}", headers)
-        // installJsonActual.find { it }
       }
     } catch (exception) {
       println(exception)
