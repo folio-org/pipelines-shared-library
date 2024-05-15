@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurperClassic
 import org.folio.utilities.RestClient
 
-@Library('pipelines-shared-library@RANCHER-1241') // remove before merge
+@Library('pipelines-shared-library@RANCHER-1241')
 // @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
