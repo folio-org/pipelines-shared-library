@@ -54,16 +54,14 @@ def test = []
 def values = []
 def tmp_values = inputString.split(",").each { it -> test.add(it.trim()) }
 def url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules"
-println("URL:" + url) //debug
+println("URL: " + url) //debug
 
 try {
     Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
     def get_request = new RestClient(this).get(url, headers)
-    // println("GET_REQUEST:" + get_request) //debug
     def jsonText = get_request.body
-    println("JSON_TEXT:" + jsonText) //debug
     def json = jsonText instanceof String ? new JsonSlurperClassic().parseText(jsonText) : jsonText
-    println("JSON:" + json) //debug
+    println("JSON: " + json) //debug
     test.each { module ->
         try {
             if ( json.find { it.id =~ module }) {
