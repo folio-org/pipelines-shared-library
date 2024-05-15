@@ -48,25 +48,30 @@ def inputString = params.MODULE_NAME
 def moduleList = inputString.split(',').collect { "\"${it.trim()}\"" }
 
 def test = []
+def values = []
+def tmp_values = inputString.split(",").each { it -> test.add(it.trim()) }
 def url = new URL("https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules")
-
 println(url)
 
 try {
     def connection = url.openConnection()
     connection.setRequestProperty('Accept', 'application/json')
-
     def inputStream = connection.getInputStream()
     def jsonText = inputStream.getText()
     inputStream.close()
-
     def json = new JsonSlurperClassic().parseText(jsonText)
-
-    List modules = moduleList
-    modules.each { module ->
-        test +=  [id: json.find {it -> it =~ "${module}"}['id'], action: 'disable']
+    test.each { module ->
+        try {
+            if ( json.find { it.id =~ module }) {
+                def tmp = json.find { it.id =~ module }
+                tmp['action']='disable'
+                values.add(tmp)
+            }
+        } catch (Exception e) {
+            println(e.getMessage())
+        }
     }
-    println(test)
+    println(values)
 } catch (Exception e) {
     println "Error: ${e.message}"
 }
