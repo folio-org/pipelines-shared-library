@@ -55,6 +55,10 @@ def tmp_values = inputString.split(",").each { it -> test.add(it.trim()) }
 def url = new URL("https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules")
 println(url)
 
+Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
+def get_request = new RestClient(this).get(url, headers)
+println(get_request)
+
 try {
     def connection = url.openConnection()
     connection.setRequestProperty('Accept', 'application/json')
