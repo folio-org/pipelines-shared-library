@@ -52,7 +52,7 @@ def modules = []
 def values = []
 def tmp_values = inputString.split(",").each { it -> modules.add(it.trim()) }
 String url = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/modules"
-println("URL: " + url) //debug
+println("URL: " + url)
 
 try {
     Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
@@ -85,7 +85,7 @@ ansiColor('xterm') {
       }
       stage("Purge tenant modules") {
         String postUrl = "https://${CLUSTER_URL}-${NAMESPACE_URL}-okapi.ci.folio.org/_/proxy/tenants/${TENANT_URL}/install?purge=true"
-
+        println("POST_URL: " + postUrl)
         Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
         def body = values
         def post_request = new RestClient(this).post(postUrl, new JsonBuilder(body).toString(), headers)
