@@ -49,7 +49,7 @@ resource "rancher2_secret" "s3-config-data-worker" {
     AWS_BUCKET            = base64encode(join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "data-worker"]))
     AWS_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
     AWS_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
-    LOCAL_FS_BUCKET       = base64encode("local-files")
+    LOCAL_FS_BUCKET       = base64encode(var.s3_embedded ? join("-", ["second", data.rancher2_cluster.this.name, var.rancher_project_name, "data-worker"]) : "local-files")
   }
 }
 
