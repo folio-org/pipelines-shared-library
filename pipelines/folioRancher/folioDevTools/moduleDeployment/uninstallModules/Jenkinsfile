@@ -88,7 +88,7 @@ ansiColor('xterm') {
 
         Map headers = new Authorization(this, namespace.generateDomain('okapi')).getAuthorizedHeaders(namespace.getSuperTenant())
         def body = values
-        def post_request = new RestClient(this).post(postUrl, 'application/json', new JsonBuilder(body).toString(), headers)
+        def post_request = new RestClient(this).post(postUrl, new JsonBuilder(body).toString(), headers)
         println("POST_REQUEST: " + post_request)
         def jsonText = post_request.body
         println("RESPONSE: " + jsonText)
