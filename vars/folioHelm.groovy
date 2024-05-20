@@ -171,6 +171,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [consortiumEnabled: "true"]
   }
 
+  if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
+    moduleConfig << [disEnabled: false]
+  }
+
   //Enable cross tenant extra env
   if (moduleName == 'mod-authtoken' && ns.enableConsortia) {
     moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
