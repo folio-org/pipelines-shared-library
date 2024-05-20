@@ -225,3 +225,8 @@ variable "pg_ldp_user_password" {
   type        = string
   description = "Postgresql password for ldp user"
 }
+variable "eureka" {
+  type        = bool
+  default     = false
+  description = "Eureka base env setup feature enable"
+}
