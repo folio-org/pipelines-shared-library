@@ -181,6 +181,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    moduleConfig << [readWriteSplitEnabled: "true"]
 //  }
 
+//    // Enable JMX metrics
+//    if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
+//        def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[moduleName], moduleVersion)
+//        if (action == "upgrade" || action == "equal") {
+//            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
+//        }
+//    }
+
 //Enable extra env
 //  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
 //    moduleConfig << [consortiumEnabled: "true"]
