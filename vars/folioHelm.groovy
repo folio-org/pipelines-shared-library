@@ -181,6 +181,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (moduleName == 'mod-authtoken') {
     moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
   }
+
+  //Enable cross tenant extra env as default option
+  if (moduleName == 'mod-bulk-operations' && params.NAMESPACE == 'sprint') {
+    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-file-size=40MB'
+    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-request-size=40MB'
+  }
+
   //Enable RTR functionality with env value
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
