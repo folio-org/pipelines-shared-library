@@ -183,7 +183,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Enable cross tenant extra env as default option
-  if (moduleName == 'mod-bulk-operations') {
+  if (moduleName == 'mod-bulk-operations' && params.NAMESPACE == 'sprint') {
     moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-file-size=40MB'
     moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-request-size=40MB'
   }
