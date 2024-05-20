@@ -1,7 +1,5 @@
 @Library('pipelines-shared-library@RANCHER-1054') _
 
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
-import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Tools
 
 def clusterName = "folio-testing"
@@ -19,9 +17,6 @@ def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createN
 def destroyEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
-
-KarateTestsExecutionSummary karateTestsExecutionSummary
-def teamAssignment
 
 Tools tools = new Tools(this)
 List<String> versions = tools.eval(jobsParameters.getOkapiVersions(), ["folio_repository": folio_repository, "folio_branch": folio_branch])
@@ -109,73 +104,32 @@ pipeline {
         script {
           def jobParameters = [branch         : params.branch,
                                threadsCount   : params.threadsCount,
-                               modules        : "",
+
+                               modules        : '',
+
                                okapiUrl       : okapiUrl,
                                edgeUrl        : edgeUrl,
                                tenant         : 'supertenant',
                                adminUserName  : 'super_admin',
                                adminPassword  : 'admin',
                                prototypeTenant: prototypeTenant]
-//          sleep time: 30, unit: 'MINUTES'
+
+          sleep time: 30, unit: 'MINUTES'
+
           karateFlow(jobParameters)
         }
       }
     }
 
-    stage("Parallel") {
-      parallel {
-        stage("Collect test results") {
-          when {
-            expression {
-              spinUpEnvironmentJob.result == 'SUCCESS'
-            }
-          }
-          stages {
-            stage("Collect execution results") {
-              steps {
-                script {
-                  karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
-                  karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
-                }
-              }
-            }
-              //TODO temporary disabled destroy for investigation
-//            stage("Destroy environment") {
-//              steps {
-//                script {
-//                  def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
-//                  tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
-//                }
-//              }
-//            }
-            stage("Parse teams assignment") {
-              steps {
-                script {
-                  def jsonContents = readJSON file: "teams-assignment.json"
-                  teamAssignment = new TeamAssignment(jsonContents)
-                }
-              }
-            }
-
-//            stage("Sync jira tickets") {
-//              steps {
-//                script {
-//                  karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-//
-//            stage("Send slack notifications") {
-//              steps {
-//                script {
-//                  slackNotifications.sendKarateTeamSlackNotification(karateTestsExecutionSummary, teamAssignment)
-//                }
-//              }
-//            }
-          }
-        }
-      }
-    }
+//TODO temporary disabled destroy for investigation
+//    stage("Destroy environment") {
+//      steps {
+//        script {
+//          def jobParameters = getDestroyEnvironmentJobParameters(clusterName, projectName)
+//          tearDownEnvironmentJob = build job: destroyEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
+//        }
+//      }
+//    }
 
     stage("Set job execution result") {
       when {
