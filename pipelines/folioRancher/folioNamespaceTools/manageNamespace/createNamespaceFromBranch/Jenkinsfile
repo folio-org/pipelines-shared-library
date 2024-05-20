@@ -3,7 +3,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1054') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -21,6 +21,7 @@ properties([
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+    booleanParam(name: 'EUREKA', defaultValue: false, description: '(Optional) Set true to enable Eureka'),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -46,6 +47,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
+  .eureka(params.EUREKA)
   .rwSplit(params.RW_SPLIT)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)

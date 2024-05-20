@@ -24,6 +24,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean consortia
 
+  boolean eureka
+
   boolean rwSplit
 
   boolean greenmail
@@ -169,6 +171,17 @@ class CreateNamespaceParameters implements Cloneable {
      */
     public Builder consortia(boolean consortia) {
       parameters.consortia = consortia
+      return this
+    }
+
+    /**
+     * Enables or disables Eureka IDP within the namespace.
+     * Eureka is a successor of Okapi
+     * @param eureka `true` to enable Eureka features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    public Builder eureka(boolean eureka) {
+      parameters.eureka = eureka
       return this
     }
 
