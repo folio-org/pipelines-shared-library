@@ -4,13 +4,15 @@ import java.util.regex.Pattern
 
 class Constants {
   //AWS
+  static String AWS_RDS_CLUSTER_ARN = 'arn:aws:rds:us-west-2:732722833398:cluster:rds-'
+  static String AWS_RDS_CLUSTER_SECRET = 'arn:aws:secretsmanager:us-west-2:732722833398:secret:eureka_db-a66VFa'
   static String AWS_REGION = 'us-west-2'
   static String AWS_CREDENTIALS_ID = 'stanislav_test'
   static String AWS_S3_SERVICE_ACCOUNT_ID = 'ci-s3-service-account'
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
+  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
@@ -199,8 +201,8 @@ class Constants {
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
-  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
-  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
   static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
@@ -249,7 +251,6 @@ class Constants {
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                 "oleksandr_haimanov@epam.com",
-                                "renat_safiulin@epam.com",
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
