@@ -201,8 +201,8 @@ class Constants {
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
-  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
-  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
   static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
