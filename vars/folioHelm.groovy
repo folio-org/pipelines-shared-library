@@ -173,6 +173,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
     moduleConfig << [disEnabled: false]
+    println("mod-data-import slicing is bot requested...!")
   }
 
   //Enable cross tenant extra env
