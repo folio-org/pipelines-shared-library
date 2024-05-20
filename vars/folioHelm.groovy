@@ -171,8 +171,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [consortiumEnabled: "true"]
   }
 
-  //Enable cross tenant extra env
-  if (moduleName == 'mod-authtoken' && ns.enableConsortia) {
+  //Override default mdi-slicing, in case of minio
+  if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
+    moduleConfig << [disEnabled: false]
+    println("mod-data-import slicing was not requested...!")
+  }
+
+  //Enable cross tenant extra env as default option
+  if (moduleName == 'mod-authtoken') {
     moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
   }
   //Enable RTR functionality with env value
