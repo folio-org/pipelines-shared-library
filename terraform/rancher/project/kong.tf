@@ -8,6 +8,7 @@ resource "helm_release" "kong" {
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [
     <<-EOF
+
 replicaCount: 1
 
 image:
@@ -49,13 +50,26 @@ service:
   port: 80
 
 ingress:
-  enabled: true
-  annotations: {}
   hosts:
-    - kong.local
-  tls: []
+    - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+      paths:
+        - path: /*
+          pathType: ImplementationSpecific
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/group.name: ${local.kong_url}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
 
-resources: {}
+resources:
+  requests:
+    memory: 1Gi
+  limits:
+    memory: 2Gi
 
 deployment:
   enabled: false
