@@ -1,10 +1,8 @@
 #!groovy
-
-import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.utilities.Logger
-import org.folio.rest_v2.Constants
-import org.folio.models.parameters.KarateTestsParameters
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.KarateTestsParameters
+import org.folio.rest_v2.Constants
+import org.folio.utilities.Logger
 
 //TODO Switch branch before final merge
 //@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
@@ -32,19 +30,25 @@ boolean diffFound = false
 boolean autoCanceled = false
 
 //TODO switch to regular job before merge
-String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-1258'
+String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-1054'
 //TODO switch to regular job before merge
-String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-1258'
+String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-1054'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
-Map namespacesMap = [
-  karate : 'cikarate',
-  cypress: 'cicypress',
-//  schema: "cischema" //TODO Uncomment after functionality implementation
+//Map namespacesMap = [
+//  karate : 'cikarate',
+//  cypress: 'cicypress',
+////  schema: "cischema" //TODO Uncomment after functionality implementation
+//]
+
+Map envsMap = [
+  karate : [cluster: 'folio-tmp', namespace: 'cikarate'],
+  cypress: [cluster: 'folio-perf', namespace: 'cicypress'],
+//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-tmp') //TODO Switch to folio-testing cluster before final merge
+//  .clusterName('folio-tmp') //TODO Switch to folio-testing cluster before final merge
   .rwSplit(false)
   .greenmail(false)
   .mockServer(true)
@@ -97,17 +101,17 @@ ansiColor('xterm') {
         return
       }
 
-      destroyParallelStage(deleteNamespaceJob, namespacesMap, namespaceBaseParams)
+      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
 
-      provisionFromBranchParallelStage(createNamespaceFromBranchJob, namespacesMap, namespaceFromBranchParams)
+      provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams)
 
       stage('Execute quality gates') {
         Map branches = [failFast: false]
         branches['Cypress'] = { ->
           Map cypressParams = [
             branch                : 'master',
-            tenantUrl             : "https://${namespaceBaseParams.getClusterName()}-${namespacesMap['cypress']}-diku.${Constants.CI_ROOT_DOMAIN}",
-            okapiUrl              : "https://${namespaceBaseParams.getClusterName()}-${namespacesMap['cypress']}-okapi.${Constants.CI_ROOT_DOMAIN}",
+            tenantUrl             : "https://${namespaceBaseParams.getClusterName()}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
+            okapiUrl              : "https://${namespaceBaseParams.getClusterName()}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
             tenantId              : 'diku',
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
@@ -121,8 +125,8 @@ ansiColor('xterm') {
         }
         branches['Karate'] = { ->
           KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${namespaceBaseParams.getClusterName()}-${namespacesMap['karate']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${namespaceBaseParams.getClusterName()}-${namespacesMap['karate']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.okapiUrl = "https://${namespaceBaseParams.getClusterName()}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${namespaceBaseParams.getClusterName()}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
           karateTestsParams.tenant = 'supertenant'
           karateTestsParams.prototypeTenant = 'consortium'
           karateTestsParams.adminUserName = 'super_admin'
@@ -141,7 +145,7 @@ ansiColor('xterm') {
     } finally {
 //      input 'Paused'
       if (!autoCanceled) {
-        destroyParallelStage(deleteNamespaceJob, namespacesMap, namespaceBaseParams)
+        destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
       }
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
@@ -151,13 +155,14 @@ ansiColor('xterm') {
   }
 }
 
-void provisionFromBranchParallelStage(String jobName, Map namespacesMap, CreateNamespaceParameters namespaceFromBranchParams) {
+void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams) {
   stage('Provisioning') {
     Logger logger = new Logger(this, 'Provision stage')
     Map branches = [failFast: false]
-    namespacesMap.each { id, namespace ->
+    envsMap.each { id, metadata ->
       CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-        .namespaceName(namespace)
+        .clusterName(metadata['cluster'])
+        .namespaceName(metadata['namespace'])
         .build()
       branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
         logger.debug(namespaceCreateParams.dump())
@@ -193,9 +198,10 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
   stage('Destroy') {
     Logger logger = new Logger(this, 'Destroy stage')
     Map branches = [failFast: false]
-    namespacesMap.each { id, namespace ->
+    namespacesMap.each { id, metadata ->
       CreateNamespaceParameters namespaceDeleteParams = namespaceBaseParams.toBuilder()
-        .namespaceName(namespace)
+        .clusterName(metadata['cluster'])
+        .namespaceName(metadata['namespace'])
         .build()
       branches["${namespaceDeleteParams.getClusterName()}-${namespaceDeleteParams.getNamespaceName()}"] = { ->
         logger.debug(namespaceDeleteParams.dump())
