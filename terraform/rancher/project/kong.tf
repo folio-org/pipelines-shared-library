@@ -8,7 +8,59 @@ resource "helm_release" "kong" {
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [
     <<-EOF
-TBD...
+replicaCount: 1
+
+image:
+  repository: kong
+  tag: 2.3
+  pullPolicy: IfNotPresent
+
+env:
+  database: "postgres"
+  pg_host:
+    valueFrom:
+      secretKeyRef:
+        name: db-connect-modules
+        key: DB_HOST
+  pg_user:
+    valueFrom:
+      secretKeyRef:
+        name: db-connect-modules
+        key: DB_KONG_USERNAME
+  pg_password:
+    valueFrom:
+      secretKeyRef:
+        name: db-connect-modules
+        key: DB_PASSWORD
+  pg_database:
+    valueFrom:
+      secretKeyRef:
+        name: db-connect-modules
+        key: postgresql-database
+
+postgresql:
+  enabled: false
+
+migrations:
+  enabled: true
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - kong.local
+  tls: []
+
+resources: {}
+
+deployment:
+  enabled: false
+daemonSet:
+  enabled: true
 EOF
   ]
 }
