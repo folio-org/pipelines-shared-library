@@ -7,7 +7,7 @@ resource "random_integer" "node_port" {
 resource "helm_release" "kong" {
   count      = var.eureka ? 1 : 0
   chart      = "kong"
-  depends_on = [rancher2_secret.db-credentials, random_integer.node_port]
+  depends_on = [rancher2_secret.db-credentials, random_integer.node_port, helm_release.postgresql, helm_release.pgadmin]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"
@@ -15,7 +15,8 @@ resource "helm_release" "kong" {
   values = [<<-EOF
 replicaCount: 1
 image:
-  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kong
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kong
   tag: testing
   pullPolicy: IfNotPresent
 ingressController:
