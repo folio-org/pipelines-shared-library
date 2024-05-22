@@ -13,7 +13,7 @@ resource "helm_release" "kong" {
   version    = "12.0.11"
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [<<-EOF
-replicaCount: 1
+replicaCount: 0
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kong
