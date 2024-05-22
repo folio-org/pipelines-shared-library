@@ -30,9 +30,9 @@ boolean diffFound = false
 boolean autoCanceled = false
 
 //TODO switch to regular job before merge
-String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-1054'
+String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054'
 //TODO switch to regular job before merge
-String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-1054'
+String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 //Map namespacesMap = [
