@@ -13,17 +13,16 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
     LinkedHashMap data = [db_name: "${db}", db_username: "${if (db == 'keycloak') { 'keycloak_admin' } else { 'kong_admin' }}", db_password: Constants.PG_ROOT_DEFAULT_PASSWORD]
     writeFile encoding: 'utf-8', file: "${db}.sql", text: (new StreamingTemplateEngine().createTemplate(tpl).make(data)).toString()
     folioHelm.withKubeConfig(namespace.getClusterName()) {
-      String pgadmin_pod = sh(script: "kubectl get pod -n ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true)
-      def files = sh(script: "ls -la", returnStdout: true)
-      logger.info(files)
+      String pgadmin_pod = sh(script: "kubectl get pod --namespace ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true)
+      logger.info(sh(script: "ls -la", returnStdout: true))
       input("Paused for testing stuff...")
       String sql = readFile encoding: 'utf-8', file: "./${db}.sql"
-      sh("kubectl exec ${pgadmin_pod} -n ${namespace.getNamespaceName()} -- /bin/echo ${sql} > /tmp/${db}.sql")
-      def connInfo = sh(script: "kubectl exec ${pgadmin_pod} -n ${namespace.getNamespaceName()} -- /bin/cat /pgadmin4/servers.json", returnStdout: true)
+      sh("kubectl exec ${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /bin/echo ${sql} > /tmp/${db}.sql")
+      def connInfo = sh(script: "kubectl exec ${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /bin/cat /pgadmin4/servers.json", returnStdout: true)
       def connStr = new JsonSlurperClassic().parseText("${connInfo}")
         try {
           logger.info("Trying to init Eureka DBs...")
-          sh(script: "kubectl exec pod/${pgadmin_pod} -n ${namespace.getNamespaceName()} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
+          sh(script: "kubectl exec pod/${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
         }
