@@ -1,6 +1,7 @@
 resource "random_integer" "node_port" {
   max     = 32767
   min     = 30000
+
 }
 
 resource "helm_release" "kong" {
@@ -25,7 +26,7 @@ admin:
   http:
     enabled: true
     servicePort: 8001
-    nodePort: ${random_integer.node_port.result}
+    nodePort: ${random_integer.node_port[0].result}
   tls:
     enabled: false
 proxy:
@@ -62,22 +63,22 @@ env:
   pg_host:
     valueFrom:
       secretKeyRef:
-        name: db-connect-modules
+        name: db-credentials
         key: DB_HOST
   pg_user:
     valueFrom:
       secretKeyRef:
-        name: db-connect-modules
+        name: db-credentials
         key: DB_KONG_USERNAME
   pg_password:
     valueFrom:
       secretKeyRef:
-        name: db-connect-modules
+        name: db-credentials
         key: DB_PASSWORD
   pg_database:
     valueFrom:
       secretKeyRef:
-        name: db-connect-modules
+        name: db-credentials
         key: postgresql-database
   pg_port: 5432
   prefix: "/usr/local/kong"
@@ -122,7 +123,7 @@ services:
       - name: admin
         port: 8001
         targetPort: 8000
-        nodePort: ${random_integer.node_port.result}
+        nodePort: ${random_integer.node_port[0].result}
     selector:
       app: kong
     labels:
