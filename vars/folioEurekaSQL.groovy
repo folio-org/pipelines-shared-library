@@ -13,7 +13,7 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
     LinkedHashMap data = [db_name: "${db}", db_username: "${if (db == 'keycloak') { 'keycloak_admin' } else { 'kong_admin' }}", db_password: Constants.PG_ROOT_DEFAULT_PASSWORD]
     writeFile encoding: 'utf-8', file: "${db}.sql", text: (new StreamingTemplateEngine().createTemplate(tpl).make(data)).toString()
     folioHelm.withKubeConfig(namespace.getClusterName()) {
-      String pgadmin_pod = sh(script: "kubectl get pod --namespace ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true)
+      String pgadmin_pod = sh(script: "kubectl get pod --namespace ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true).trim()
       logger.info(sh(script: "ls -la", returnStdout: true))
       input("Paused for testing stuff...")
       String sql = readFile encoding: 'utf-8', file: "./${db}.sql"
