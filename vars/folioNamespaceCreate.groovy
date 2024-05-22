@@ -59,11 +59,11 @@ void call(CreateNamespaceParameters args) {
     }
 
 //    if (args.eureka) {
-//      stage('[Kong] Init DB & Deploy') {
-//        folioEurekaSQL.initSQL(namespace)
+      stage('[Kong] Init DB & Deploy') {
+        folioEurekaSQL.initSQL(namespace)
 //        tfConfig.addVar('eureka', args.eureka)
 //        folioTerraformFlow.manageNamespace('apply', tfConfig)
-//      }
+      }
 //    }
 
     if (args.namespaceOnly) {
