@@ -52,6 +52,12 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    if (args.eureka) {
+      stage('[Kong] Init DB') {
+        folioEurekaSQL.initSQL(namespace)
+      }
+    }
+
     if (args.namespaceOnly) {
       return
     }
