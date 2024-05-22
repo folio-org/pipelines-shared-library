@@ -230,3 +230,9 @@ variable "eureka" {
   default     = false
   description = "Eureka base env setup feature enable"
 }
+
+variable "kong_image" {
+  type = string
+  default = "kong"
+  description = "Kong image from param choice"
+}
