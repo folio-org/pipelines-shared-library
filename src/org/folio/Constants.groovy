@@ -10,8 +10,8 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,renatsafiulin,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
-  static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp']
+  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
+  static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-eureka']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
@@ -57,7 +57,8 @@ class Constants {
   static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                           'folio-dev'    : AWS_EKS_DEV_NAMESPACES,
                                           'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
-                                          'folio-tmp'    : AWS_EKS_TMP_NAMESPACES]
+                                          'folio-tmp'    : AWS_EKS_TMP_NAMESPACES,
+                                          'folio-eureka' : AWS_EKS_DEV_NAMESPACES]
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing']
@@ -96,8 +97,8 @@ class Constants {
   static String PGADMIN_DEFAULT_PASSWORD = 'SuperSecret'
 
   //ECS Snapshot Edge credentials
-  static  String ECS_EDGE_GENERAL_USERNAME = 'EBSCOEdge'
-  static  String ECS_EDGE_GENERAL_PASSWORD = 'edge'
+  static String ECS_EDGE_GENERAL_USERNAME = 'EBSCOEdge'
+  static String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
@@ -243,7 +244,6 @@ class Constants {
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                 "oleksandr_haimanov@epam.com",
-                                "renat_safiulin@epam.com",
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
