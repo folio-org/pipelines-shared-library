@@ -16,7 +16,7 @@ resource "helm_release" "kong" {
 replicaCount: 1
 image:
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kong
-  tag: ${var.kong_image}
+  tag: testing
   pullPolicy: IfNotPresent
 ingressController:
   enabled: true
