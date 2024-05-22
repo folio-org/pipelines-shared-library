@@ -15,10 +15,7 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
     folioHelm.withKubeConfig(namespace.getClusterName()) {
       String pgadmin_pod = sh(script: "kubectl get pod --namespace ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true).trim()
       logger.info(sh(script: "ls -la", returnStdout: true))
-      input("Paused for testing stuff...")
-      String sql = readFile encoding: 'utf-8', file: "./${db}.sql"
-      String command = "kubectl exec ${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /bin/echo ${sql} > /tmp/${db}.sql"
-      sh(command)
+      sh(script: "kubectl cp ./${db}.sql ${namespace.getNamespaceName()}/${pgadmin_pod}:/tmp/${db}.sql", returnStdout: true)
       def connInfo = sh(script: "kubectl exec ${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /bin/cat /pgadmin4/servers.json", returnStdout: true)
       def connStr = new JsonSlurperClassic().parseText("${connInfo}")
         try {
