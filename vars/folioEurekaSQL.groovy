@@ -18,7 +18,7 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
       logger.info(files)
       input("Paused for testing stuff...")
       String sql = readFile encoding: 'utf-8', file: "./${db}.sql"
-      sh(script: "kubectl exec ${pgadmin_pod} -n ${namespace.getNamespaceName()} -- /bin/echo ${sql} > /tmp/${db}.sql")
+      sh("kubectl exec ${pgadmin_pod} -n ${namespace.getNamespaceName()} -- /bin/echo ${sql} > /tmp/${db}.sql")
       def connInfo = sh(script: "kubectl exec ${pgadmin_pod} -n ${namespace.getNamespaceName()} -- /bin/cat /pgadmin4/servers.json", returnStdout: true)
       def connStr = new JsonSlurperClassic().parseText("${connInfo}")
         try {
