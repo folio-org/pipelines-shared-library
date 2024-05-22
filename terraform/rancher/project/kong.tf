@@ -26,7 +26,7 @@ admin:
   http:
     enabled: true
     servicePort: 8001
-    nodePort: ${random_integer.node_port[0].result}
+    nodePort: ${random_integer.node_port.result}
   tls:
     enabled: false
 proxy:
@@ -123,7 +123,7 @@ services:
       - name: admin
         port: 8001
         targetPort: 8000
-        nodePort: ${random_integer.node_port[0].result}
+        nodePort: ${random_integer.node_port.result}
     selector:
       app: kong
     labels:
