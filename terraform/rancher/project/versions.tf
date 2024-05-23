@@ -22,7 +22,7 @@ terraform {
       version = "2.12.1"
     }
     postgresql = {
-      source = "cyrilgdn/postgresql"
+      source  = "cyrilgdn/postgresql"
       version = "1.22.0"
     }
   }
