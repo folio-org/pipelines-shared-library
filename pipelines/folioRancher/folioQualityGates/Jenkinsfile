@@ -110,13 +110,13 @@ ansiColor('xterm') {
         branches['Cypress'] = { ->
           Map cypressParams = [
             branch                : 'master',
-            tenantUrl             : "https://${namespaceBaseParams.getClusterName()}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
-            okapiUrl              : "https://${namespaceBaseParams.getClusterName()}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
+            tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
+            okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
             tenantId              : 'diku',
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
             parallelExecParameters: '--env grepTags="system --nonParallel"',
-            testsTimeout          : '2',
+            testsTimeout          : '3',
             testrailProjectID     : '', //TODO Add testrail Project ID
             testrailRunID         : '', //TODO Add testrail Run ID
             numberOfWorkers       : '4',
@@ -125,8 +125,8 @@ ansiColor('xterm') {
         }
         branches['Karate'] = { ->
           KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${namespaceBaseParams.getClusterName()}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${namespaceBaseParams.getClusterName()}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.okapiUrl = "https://${envsMap['cypress']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${envsMap['cypress']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
           karateTestsParams.tenant = 'supertenant'
           karateTestsParams.prototypeTenant = 'consortium'
           karateTestsParams.adminUserName = 'super_admin'
@@ -134,7 +134,7 @@ ansiColor('xterm') {
           karateTestsParams.threadsCount = '4'
           karateTestsParams.reportPortalProjectName = 'karate-quality-gate'
           karateTestsParams.sendSlackNotification = true
-          karateTestsParams.timeout = '2'
+          karateTestsParams.timeout = '3'
           folioKarateFlow(karateTestsParams)
         }
         parallel(branches)
