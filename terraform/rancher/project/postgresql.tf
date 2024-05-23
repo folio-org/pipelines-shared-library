@@ -259,7 +259,7 @@ env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
   variables:
-    - name: POSTGRES_USERNAME
+    - name: PGPASSWORD
       valueFrom:
         secretKeyRef:
           name: db-credentials
