@@ -16,10 +16,10 @@ resource "rancher2_secret" "db-credentials" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    ENV                  = base64encode(local.env_name)
-    DB_HOST              = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
-    DB_HOST_READER       = base64encode(var.pg_embedded ? local.pg_service_reader :
-      module.rds[0].cluster_reader_endpoint)
+    ENV     = base64encode(local.env_name)
+    DB_HOST = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    DB_HOST_READER = base64encode(var.pg_embedded ? local.pg_service_reader :
+    module.rds[0].cluster_reader_endpoint)
     DB_PORT              = base64encode("5432")
     DB_USERNAME          = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD          = base64encode(local.pg_password)
@@ -49,7 +49,7 @@ resource "helm_release" "postgresql" {
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   chart      = "postgresql"
   version    = "13.2.19"
-  values     = [
+  values = [
     <<-EOT
     architecture: ${local.pg_architecture}
     readReplicas:
@@ -171,7 +171,7 @@ resource "aws_security_group" "allow_rds" {
     var.tags,
     {
       Name = "allow-rds"
-    })
+  })
 }
 
 resource "aws_db_parameter_group" "aurora_db_postgres_parameter_group" {
@@ -203,7 +203,7 @@ module "rds" {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
     }
-  } : {
+    } : {
     write = {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
@@ -236,7 +236,7 @@ module "rds" {
       kubernetes_namespace  = var.rancher_project_name
       kubernetes_label_team = var.rancher_project_name
       kubernetes_service    = "RDS-Database"
-    })
+  })
 }
 
 # pgAdmin service deployment
@@ -248,7 +248,7 @@ resource "helm_release" "pgadmin" {
   name       = "pgadmin4"
   chart      = "pgadmin4"
   version    = "1.10.1"
-  values     = [
+  values = [
     <<-EOF
 resources:
   requests:
@@ -258,6 +258,7 @@ resources:
 env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
+  PGPASSWORD: ${var.pg_password}
 service:
   type: NodePort
 ingress:

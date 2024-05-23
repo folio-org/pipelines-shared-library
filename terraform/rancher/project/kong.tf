@@ -1,6 +1,6 @@
 resource "random_integer" "node_port" {
-  max     = 32767
-  min     = 30000
+  max = 32767
+  min = 30000
 
 }
 
