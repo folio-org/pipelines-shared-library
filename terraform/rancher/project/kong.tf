@@ -7,7 +7,7 @@ resource "random_integer" "node_port" {
 resource "helm_release" "kong" {
   count      = var.eureka ? 1 : 0
   chart      = "kong"
-  depends_on = [rancher2_secret.db-credentials, random_integer.node_port, helm_release.postgresql, helm_release.pgadmin]
+  depends_on = [rancher2_secret.db-credentials, random_integer.node_port, helm_release.postgresql, helm_release.pgadmin, postgresql_database.kong, postgresql_role.kong]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"
