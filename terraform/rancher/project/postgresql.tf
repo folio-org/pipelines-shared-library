@@ -40,14 +40,7 @@ locals {
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
   pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
   pg_init_sql       = <<-EOT
-            CREATE DATABASE kong;
-            CREATE USER kong_admin PASSWORD '${var.pg_password}';
-            ALTER DATABASE kong OWNER TO kong_admin;
-            ALTER DATABASE kong SET search_path TO public;
-            REVOKE CREATE ON SCHEMA public FROM public;
-            GRANT ALL ON SCHEMA public TO kong_admin;
-            GRANT USAGE ON SCHEMA public TO kong_admin;
-            EOT
+
 }
 
 # PostgreSQL database deployment
@@ -95,7 +88,7 @@ resource "helm_release" "postgresql" {
       initdb:
         scripts:
           init.sql: |
-            ${var.eureka ? local.pg_init_sql : "--fail safe"}
+            ${var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"] }) : "--fail safe"}
             CREATE DATABASE ldp;
             CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
             CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
