@@ -11,7 +11,7 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
   folioHelm.withKubeConfig(namespace.getClusterName()) {
     DBs.each { db ->
       String tpl = readFile file: "./eureka_db.tpl"
-      LinkedHashMap data = [db_name: "${db}", db_username: "${if (db == 'keycloak') { "keycloak_admin" } else { "kong_admin" }}", db_password: Constants.PG_ROOT_DEFAULT_PASSWORD]
+      LinkedHashMap data = [db_name: "${db}", db_username: "${if (db == 'keycloak') { "keycloak" } else { "kong" }}", db_password: Constants.PG_ROOT_DEFAULT_PASSWORD]
       writeFile encoding: 'utf-8', file: "${db}.sql", text: (new StreamingTemplateEngine().createTemplate(tpl).make(data)).toString()
       String pgadmin_pod = sh(script: "kubectl get pod --namespace ${namespace.getNamespaceName()} --no-headers | grep pgadmin | awk '{print \$1}'", returnStdout: true).trim()
       logger.info(sh(script: "ls -la", returnStdout: true))
@@ -27,6 +27,5 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
         logger.error("Error: ${e.getMessage()}")
       }
     }
-    input("Paused for a testing purpose...")
   }
 }
