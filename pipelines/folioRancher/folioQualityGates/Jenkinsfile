@@ -10,13 +10,13 @@ import org.folio.utilities.Logger
 
 properties([
 //  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
-  buildDiscarder(logRotator(numToKeepStr: '40')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()])
+buildDiscarder(logRotator(numToKeepStr: '40')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+  booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+  folioParameters.agent(),
+  folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -48,7 +48,6 @@ Map envsMap = [
 ]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-//  .clusterName('folio-tmp') //TODO Switch to folio-testing cluster before final merge
   .rwSplit(false)
   .greenmail(false)
   .mockServer(true)
@@ -116,10 +115,11 @@ ansiColor('xterm') {
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
             parallelExecParameters: '--env grepTags="system --nonParallel"',
-            testsTimeout          : '3',
+            testsTimeout          : '2',
             testrailProjectID     : '', //TODO Add testrail Project ID
             testrailRunID         : '', //TODO Add testrail Run ID
             numberOfWorkers       : '4',
+            useReportPortal       : 'false',
             agent                 : 'rancher']
           folioCypressFlow(cypressParams)
         }
@@ -134,7 +134,7 @@ ansiColor('xterm') {
           karateTestsParams.threadsCount = '4'
           karateTestsParams.reportPortalProjectName = 'karate-quality-gate'
           karateTestsParams.sendSlackNotification = true
-          karateTestsParams.timeout = '3'
+          karateTestsParams.timeout = '2'
           folioKarateFlow(karateTestsParams)
         }
         parallel(branches)
@@ -143,7 +143,6 @@ ansiColor('xterm') {
       logger.error "Caught exception: ${e}"
       error(e.getMessage())
     } finally {
-//      input 'Paused'
       if (!autoCanceled) {
         destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
       }
