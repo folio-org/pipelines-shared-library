@@ -39,7 +39,7 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
   project_id = rancher2_namespace.this.id
-  name       = "keycloak-credentials"
+  name       = "kong-credentials"
   count      = var.eureka ? 1 : 0
 }
 
