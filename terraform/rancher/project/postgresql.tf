@@ -86,7 +86,7 @@ resource "helm_release" "postgresql" {
       initdb:
         scripts:
           init.sql: |
-            ${var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"] }) : "--fail safe"}
+            ${var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe"}
             CREATE DATABASE ldp;
             CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
             CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
