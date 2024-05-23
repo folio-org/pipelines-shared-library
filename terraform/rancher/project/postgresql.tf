@@ -38,6 +38,7 @@ locals {
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
+  pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
   pg_init_sql       = [
     <<-EOT
       CREATE DATABASE kong;
@@ -87,7 +88,7 @@ resource "helm_release" "postgresql" {
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
-      database: ${var.pg_dbname}
+      database: ${local.pg_eureka_db_name}
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
       replicationUsername: ${var.pg_username}
@@ -96,7 +97,7 @@ resource "helm_release" "postgresql" {
       initdb:
         scripts:
           init.sql: |
-            ${var.eureka && var.pg_embedded ? local.pg_init_sql : ""}
+            ${var.eureka ? local.pg_init_sql : "--fail safe"}
             CREATE DATABASE ldp;
             CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
             CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
