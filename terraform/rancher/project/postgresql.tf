@@ -39,8 +39,7 @@ locals {
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
   pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
-  pg_init_sql       = [
-    <<-EOT
+  pg_init_sql       = <<-EOT
       CREATE DATABASE kong;
       CREATE USER kong_admin PASSWORD '${var.pg_password}';
       ALTER DATABASE kong OWNER TO kong_admin;
@@ -49,7 +48,6 @@ locals {
       GRANT ALL ON SCHEMA public TO kong_admin;
       GRANT USAGE ON SCHEMA public TO kong_admin;
  EOT
-  ]
 }
 
 # PostgreSQL database deployment
