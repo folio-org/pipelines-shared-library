@@ -36,11 +36,10 @@ locals {
   pg_password       = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
-  pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
+  pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" :
+    "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
   pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
-  pg_init_sql       = <<-EOT
-
 }
 
 # PostgreSQL database deployment
