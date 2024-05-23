@@ -47,7 +47,7 @@ locals {
             REVOKE CREATE ON SCHEMA public FROM public;
             GRANT ALL ON SCHEMA public TO kong_admin;
             GRANT USAGE ON SCHEMA public TO kong_admin;
- EOT
+            EOT
 }
 
 # PostgreSQL database deployment
