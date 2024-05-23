@@ -84,6 +84,7 @@ resource "helm_release" "postgresql" {
       initdb:
         scripts:
           init.sql: |
+            ${var.eureka && var.pg_embedded ? local.pg_init_sql : ""}
             CREATE DATABASE ldp;
             CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
             CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
