@@ -260,10 +260,7 @@ env:
   password: ${var.pgadmin_password}
   variables:
     - name: PGPASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: db-credentials
-          key: DB_PASSWORD
+      value: ${var.pg_password}
 service:
   type: NodePort
 ingress:
