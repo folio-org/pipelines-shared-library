@@ -35,3 +35,9 @@ provider "helm" {
     }
   }
 }
+
+provider "postgresql" {
+  host     = var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint
+  username = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
+  password = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
+}
