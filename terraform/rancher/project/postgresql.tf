@@ -258,7 +258,12 @@ resources:
 env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
-  PGPASSWORD: ${var.pg_password}
+  envVarsExtra:
+   - name: POSTGRES_USERNAME
+     valueFrom:
+       secretKeyRef:
+         name: db-credentials
+         key: DB_PASSWORD
 service:
   type: NodePort
 ingress:
