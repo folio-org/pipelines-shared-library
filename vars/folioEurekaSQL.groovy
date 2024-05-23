@@ -20,7 +20,7 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
       def connStr = new JsonSlurperClassic().parseText("${connInfo}")
         try {
           logger.info("Trying to init Eureka DBs...")
-          sh(script: "kubectl exec pod/${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- export PGPASSWORD=${Constants.PG_ROOT_DEFAULT_PASSWORD};/usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
+          sh(script: "kubectl exec pod/${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-${pgMajorVersion}/psql -h ${connStr["Servers"]["pg"]["Host"]} -p \"5432\" -u \"postgres\" -a -f /tmp/${db}.sql", returnStdout: true)
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
         }

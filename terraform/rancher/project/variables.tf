@@ -232,7 +232,7 @@ variable "eureka" {
 }
 
 variable "kong_image" {
-  type = string
-  default = "kong"
+  type        = string
+  default     = "kong"
   description = "Kong image from param choice"
 }

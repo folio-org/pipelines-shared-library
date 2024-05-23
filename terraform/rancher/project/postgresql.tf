@@ -256,6 +256,7 @@ resources:
 env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
+  PGPASSWORD: ${var.pg_password}
 service:
   type: NodePort
 ingress:
