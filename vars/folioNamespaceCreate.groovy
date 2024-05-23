@@ -36,6 +36,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
+    tfConfig.addVar('eureka', args.eureka)
 
 
     stage('[Terraform] Provision') {
@@ -57,13 +58,14 @@ void call(CreateNamespaceParameters args) {
         }
       }
     }
+//TODO in case of moving BugFest dataset to Rancher, below condition could enabled to perform DB init part
 
 //    if (args.eureka) {
-      stage('[Kong] Init DB & Deploy') {
-        folioEurekaSQL.initSQL(namespace)
+//      stage('[Kong] Init DB & Deploy') {
+//        folioEurekaSQL.initSQL(namespace)
 //        tfConfig.addVar('eureka', args.eureka)
 //        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
+//      }
 //    }
 
     if (args.namespaceOnly) {
