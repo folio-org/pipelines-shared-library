@@ -19,9 +19,10 @@ void initSQL(RancherNamespace namespace, List DBs = ['keycloak', 'kong'], String
       def connInfo = sh(script: "kubectl exec ${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /bin/cat /pgadmin4/servers.json", returnStdout: true)
       def connStr = new JsonSlurperClassic().parseText("${connInfo}")
         try {
-          logger.info("Trying to init Eureka DBs...")
+          logger.warning("Trying to init Eureka DBs...")
           sh(script: "kubectl exec pod/${pgadmin_pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-${pgMajorVersion}/psql " +
             "--host=${connStr["Servers"]["pg"]["Host"]} --port=\"5432\" --username=\"postgres\" --echo-all --file=/tmp/${db}.sql", returnStdout: true)
+          logger.info("Init process has been successfully ")
           input("Paused for a testing purpose...")
         } catch (Exception e) {
           logger.error("Error: ${e.getMessage()}")
