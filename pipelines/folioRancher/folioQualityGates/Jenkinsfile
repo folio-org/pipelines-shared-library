@@ -9,7 +9,7 @@ import org.folio.utilities.Logger
 @Library('pipelines-shared-library@RANCHER-1054') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
@@ -125,8 +125,8 @@ ansiColor('xterm') {
         }
         branches['Karate'] = { ->
           KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${envsMap['cypress']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${envsMap['cypress']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
           karateTestsParams.tenant = 'supertenant'
           karateTestsParams.prototypeTenant = 'consortium'
           karateTestsParams.adminUserName = 'super_admin'
