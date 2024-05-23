@@ -314,7 +314,7 @@ serverDefinitions:
       Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
       Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
       SSLMode: prefer
-      MaintenanceDB: ${var.pg_dbname}
+      MaintenanceDB: ${local.pg_eureka_db_name}
 EOF
   ]
 }
