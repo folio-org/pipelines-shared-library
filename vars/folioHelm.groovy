@@ -202,6 +202,22 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    moduleConfig << [rtrEnabled: "true"]
 //  }
 
+  // Enable extra PVC and initContainer for folio-perf with firebird namespace and folio-testing and sprint namespace
+  boolean isSuitableNamespaceAndCluster =
+    (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
+      (ns.getClusterName() == 'folio-dev' && ns.getNamespaceName() == 'firebird') ||
+      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint')
+
+  if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
+    moduleConfig <<
+      [
+        initContainer     : [enabled: true],
+        extraVolumes      : [extendedTmp: [enabled: true]],
+        extraVolumeMounts : [extendedTmp: [enabled: true]],
+        volumeClaims      : [extendedTmp: [enabled: true]]
+      ]
+  }
+
   // Enable ingress
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
