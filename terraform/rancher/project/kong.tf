@@ -18,7 +18,7 @@ image:
   repository: kong
   tag: testing
   pullPolicy: IfNotPresent
-useDaemonset: true
+useDaemonset: false
 replicaCount: 1
 containerSecurityContext:
   enabled: true

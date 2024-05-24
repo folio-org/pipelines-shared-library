@@ -38,7 +38,8 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_PG_PORT     = base64encode("5432")
     KONG_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
-  project_id = rancher2_namespace.this.id
+  project_id = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
   name       = "kong-credentials"
   count      = var.eureka ? 1 : 0
 }
@@ -51,7 +52,8 @@ resource "rancher2_secret" "keycloak-credentials" {
     KEYCLOAK_PG_PORT     = base64encode("5432")
     KEYCLOAK_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
-  project_id = rancher2_namespace.this.id
+  project_id = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
   name       = "keycloak-credentials"
   count      = var.eureka ? 1 : 0
 }
