@@ -23,7 +23,6 @@ resource "rancher2_secret" "db-credentials" {
     DB_USERNAME          = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD          = base64encode(local.pg_password)
     DB_DATABASE          = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
-    DB_KEYCLOAK_USERNAME = base64encode("keycloak_admin")
     DB_MAXPOOLSIZE       = base64encode("5")
     DB_CHARSET           = base64encode("UTF-8")
     DB_QUERYTIMEOUT      = base64encode("60000")
