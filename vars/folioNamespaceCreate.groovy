@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -67,108 +68,107 @@ void call(CreateNamespaceParameters args) {
     }
 
     //Set install configuration
-    String defaultTenantId = 'diku'
-    String folioRepository = 'platform-complete'
-    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
-    String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-    TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-      commitHash, args.folioBranch)
-    InstallRequestParams installRequestParams = new InstallRequestParams()
-      .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
-
-    namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
-      .withDeploymentConfigType(args.configType)
-    namespace.setEnableRwSplit(args.rwSplit)
-    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().setInstallJson(installJson)
-
-    namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-      .withInstallJson(namespace.getModules().getInstallJson().collect())
-      .withIndex(new Index(true, true))
-      .withInstallRequestParams(installRequestParams.clone())
-      .withTenantUi(tenantUi.clone())
-    )
-
-    if (args.consortia) {
-      namespace.setEnableConsortia(true, releaseVersion)
-      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-        if (tenant.getIsCentralConsortiaTenant()) {
-          tenant.withTenantUi(tenantUi.clone())
-        }
-        namespace.addTenant(tenant)
-      }
-    }
-
-    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
-
-    stage('[Helm] Deploy Okapi') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
+//    String defaultTenantId = 'diku'
+//    String folioRepository = 'platform-complete'
+//    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
+//    String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
+//    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+//    TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+//      commitHash, args.folioBranch)
+//    InstallRequestParams installRequestParams = new InstallRequestParams()
+//      .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
+//
+//    namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
+//      .withDeploymentConfigType(args.configType)
+//    namespace.setEnableRwSplit(args.rwSplit)
+//    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+//    namespace.getModules().setInstallJson(installJson)
+//
+//    namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+//      .withInstallJson(namespace.getModules().getInstallJson().collect())
+//      .withIndex(new Index(true, true))
+//      .withInstallRequestParams(installRequestParams.clone())
+//      .withTenantUi(tenantUi.clone())
+//    )
+//
+//    if (args.consortia) {
+//      namespace.setEnableConsortia(true, releaseVersion)
+//      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+//        if (tenant.getIsCentralConsortiaTenant()) {
+//          tenant.withTenantUi(tenantUi.clone())
+//        }
+//        namespace.addTenant(tenant)
+//      }
+//    }
+//
+//    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
+//    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
+//
+//    stage('[Helm] Deploy Okapi') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
 //        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
-      }
-    }
-
-    stage('[Rest] Okapi healthcheck') {
-      sleep time: 3, unit: 'MINUTES'
-      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-    }
-
-    stage('[Rest] Preinstall') {
-      main.publishDescriptors(namespace.getModules().getInstallJson())
-      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-    }
-
-    stage('[Helm] Deploy backend') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//      }
+//    }
+//
+//    stage('[Rest] Okapi healthcheck') {
+//      sleep time: 3, unit: 'MINUTES'
+//      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+//      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+//    }
+//
+//    stage('[Rest] Preinstall') {
+//      main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+//    }
+//
+//    stage('[Helm] Deploy backend') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-      }
-    }
-
-    stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES'
-      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-    }
-
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      }
-    }
-
-    stage('Build and deploy UI') {
-      Map branches = [:]
-      namespace.getTenants().each { tenantId, tenant ->
-        if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
-          branches[tenantId] = {
-            def jobParameters = [
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['okapi']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, releaseVersion)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-            }
-          }
-        }
-      }
-      parallel branches
-    }
+//      }
+//    }
+//
+//    stage('[Rest] Initialize') {
+//      sleep time: 10, unit: 'MINUTES'
+//      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+//    }
+//
+//    stage('[Rest] Configure edge') {
+//      folioEdge.renderEphemeralProperties(namespace)
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
+//    }
+//
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version ->
+//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
+//    }
+//
+//    stage('Build and deploy UI') {
+//      Map branches = [:]
+//      namespace.getTenants().each { tenantId, tenant ->
+//        if (tenant.getTenantUi()) {
+//          TenantUi ui = tenant.getTenantUi()
+//          branches[tenantId] = {
+//            def jobParameters = [
+//              tenant_id  : ui.getTenantId(),
+//              custom_hash: ui.getHash(),
+//              custom_url : "https://${namespace.getDomains()['okapi']}",
+//              custom_tag : ui.getTag(),
+//              consortia  : tenant instanceof OkapiTenantConsortia
+//            ]
+//            uiBuild(jobParameters, releaseVersion)
+//            folioHelm.withKubeConfig(namespace.getClusterName()) {
+//              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//            }
+//          }
+//        }
+//      }
+//      parallel branches
+//    }
 
     stage('Deploy ldp') {
       println('LDP deployment')
