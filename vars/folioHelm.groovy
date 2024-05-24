@@ -235,12 +235,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    moduleConfig << [modEntitiesLinksDev: "true"]
 //  }
 //
-//  // Enable ingress
-//  boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
-//  if (enableIngress) {
-//    moduleConfig['ingress']['hosts'][0] += [host: domain]
-//    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
-//  }
+  // Enable ingress
+  boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
+  if (enableIngress) {
+    moduleConfig['ingress']['hosts'][0] += [host: domain]
+    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
+  }
 //  if (ns.getClusterName() == 'folio-dev') {
 //    moduleConfig << [modSearchDev: "true"]
 //    moduleConfig << [modInventoryStorageDev: "true"]
