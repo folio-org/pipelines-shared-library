@@ -246,9 +246,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig <<
       [
         initContainer     : [enabled: true],
-        extraVolumes      : [extendedTmp: [enabled: true]],
-        extraVolumeMounts : [extendedTmp: [enabled: true]],
-        volumeClaims      : [extendedTmp: [enabled: true]]
+        extraVolumes      : [extendedtmp: [enabled: true]],
+        extraVolumeMounts : [extendedtmp: [enabled: true]],
+        volumeClaims      : [extendedtmp: [enabled: true]]
       ]
   }
 
