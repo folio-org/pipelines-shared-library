@@ -83,7 +83,7 @@ kong:
    - name: KONG_NGINX_WORKER_PROCESSES
      value: "2"
    - name: EUREKA_RESOLVE_SIDECAR_IP
-     value: false
+     value: "false"
 ingressController:
   enabled: false
 EOF
