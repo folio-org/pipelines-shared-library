@@ -86,6 +86,7 @@ kong:
      value: "false"
 ingressController:
   enabled: false
+  migration:
 EOF
   ]
 }
