@@ -23,13 +23,14 @@ properties([
     ])
 ])
 
-def CLUSTER_URL = params.CLUSTER
-def NAMESPACE_URL = params.NAMESPACE
-def TENANT_URL = params.TENANT_ID
-
 if (params.REFRESH_PARAMETERS) {
    currentBuild.result = 'ABORTED'
    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
+if (params.MODULE_NAME.trim() == '') {
+    currentBuild.result = 'ABORTED'
+    error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
 }
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
@@ -42,11 +43,9 @@ if (!main.isTenantExist(params.TENANT_ID)) {
   error('Tenant does not exist, aborting the pipeline')
 }
 
-if (params.MODULE_NAME.trim() == '') {
-    currentBuild.result = 'ABORTED'
-    error('MODULE_NAME parameter cannot be empty, aborting the pipeline')
-}
-
+def CLUSTER_URL = params.CLUSTER
+def NAMESPACE_URL = params.NAMESPACE
+def TENANT_URL = params.TENANT_ID
 def inputString = params.MODULE_NAME
 def modules = []
 def values = []
