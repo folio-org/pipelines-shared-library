@@ -44,6 +44,10 @@ postgresql:
     database: kong
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
+kong:
+  extraEnvVars:
+   - name: KONG_PG_DATABASE
+     value: kong
 migrations:
   annotations:
     helm.sh/hook: post-install, pre-upgrade
