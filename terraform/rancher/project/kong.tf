@@ -86,7 +86,9 @@ kong:
      value: "false"
 ingressController:
   enabled: false
-  migration:
+migration:
+  command: ["/bin/sh", "-c"]
+  args: ["echo 'Hello kong!'"]
 EOF
   ]
 }
