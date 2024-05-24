@@ -43,6 +43,10 @@ postgresql:
     database: kong
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
+migrations:
+  enabled: true
+  postUpgrade: true
+  preUpgrade: true
 EOF
   ]
 }
