@@ -44,9 +44,9 @@ postgresql:
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
 migrations:
-  enabled: true
-  postUpgrade: true
-  preUpgrade: true
+  annotations:
+    helm.sh/hook: post-install, pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 EOF
   ]
 }
