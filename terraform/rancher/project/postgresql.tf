@@ -35,7 +35,7 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_PG_HOST     = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     KONG_PG_PASSWORD = base64encode(local.pg_password)
     KONG_PG_PORT     = base64encode("5432")
-    KONG_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    KONG_PG_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
   project_id = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
