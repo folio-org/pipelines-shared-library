@@ -16,9 +16,8 @@ resource "helm_release" "kong" {
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kong
-  tag: testing
+  tag: latest
   pullPolicy: IfNotPresent
-database: postgresql
 useDaemonset: false
 replicaCount: 1
 containerSecurityContext:
@@ -34,6 +33,7 @@ containerSecurityContext:
     drop: ["ALL"]
   seccompProfile:
     type: "RuntimeDefault"
+database: postgresql
 postgresql:
   enabled: false
   external:
