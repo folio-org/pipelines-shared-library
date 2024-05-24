@@ -45,13 +45,47 @@ postgresql:
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
 kong:
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+  startupProbe:
+    enabled: false
   extraEnvVars:
    - name: KONG_PG_DATABASE
      value: kong
-migrations:
-  annotations:
-    helm.sh/hook: post-install, pre-upgrade
-    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+   - name: KONG_NGINX_PROXY_PROXY_BUFFERS
+     value: "64 160k"
+   - name: KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE
+     value: "16k"
+   - name: KONG_NGINX_HTTP_CLIENT_HEADER_BUFFER_SIZE
+     value: "16k"
+   - name: KONG_ADMIN_LISTEN
+     value: "0.0.0.0:8001"
+   - name: KONG_NGINX_PROXY_PROXY_BUFFER_SIZE
+     value: "160k"
+   - name: KONG_NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS
+     value: "4 16k"
+   - name: KONG_PLUGINS
+     value: "bundled"
+   - name: KONG_MEM_CACHE_SIZE
+     value: "2048m"
+   - name: KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS
+     value: "4 16k"
+   - name: KONG_LOG_LEVEL
+     value: "info"
+   - name: KONG_ADMIN_GUI_API_URL
+     value: "http://local.kong-admin"
+   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
+     value: "4 16k"
+   - name: KONG_PROXY_LISTEN
+     value: "0.0.0.0:8000"
+   - name: KONG_NGINX_WORKER_PROCESSES
+     value: "2"
+   - name: EUREKA_RESOLVE_SIDECAR_IP
+     value: false
+ingressController:
+  enabled: false
 EOF
   ]
 }
