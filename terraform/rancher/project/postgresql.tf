@@ -239,7 +239,7 @@ module "rds" {
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
   db_subnet_group_name            = "folio-rancher-vpc"
-  database_name                   = var.pg_dbname
+  database_name                   = local.pg_eureka_db_name
   master_username                 = var.pg_username
   master_password                 = local.pg_password
   manage_master_user_password     = false
