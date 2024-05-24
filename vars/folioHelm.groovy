@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
+
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
@@ -202,6 +203,38 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    moduleConfig << [rtrEnabled: "true"]
 //  }
 
+//  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
+//    moduleConfig << [consortiumEnabled: "true"]
+//  }
+//
+//  //Override default mdi-slicing, in case of minio
+//  if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
+//    moduleConfig << [disEnabled: false]
+//    println("mod-data-import slicing was not requested...!")
+//  }
+//
+//  //Enable cross tenant extra env as default option
+//  if (moduleName == 'mod-authtoken') {
+//    moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
+//  }
+//
+//  //Enable cross tenant extra env as default option
+//  if (moduleName == 'mod-bulk-operations' && params.NAMESPACE == 'sprint') {
+//    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-file-size=40MB'
+//    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-request-size=40MB'
+//  }
+//
+//  //Enable RTR functionality with env value
+//  if (params.RTR) {
+//    moduleConfig << [rtrEnabled: "true"]
+//  }
+//
+//  if (ns.getClusterName() == 'folio-dev') {
+//    moduleConfig << [modSearchDev: "true"]
+//    moduleConfig << [modInventoryStorageDev: "true"]
+//    moduleConfig << [modEntitiesLinksDev: "true"]
+//  }
+//
   // Enable extra PVC and initContainer for folio-perf with firebird namespace and folio-testing and sprint namespace
   boolean isSuitableNamespaceAndCluster =
     (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
