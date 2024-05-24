@@ -1,6 +1,6 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
-import org.folio.shared.TestType
+import org.folio.testing.TestType
 
 /**
  * !Attention! This method should be called inside node block in parent
