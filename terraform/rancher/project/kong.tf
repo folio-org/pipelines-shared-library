@@ -18,6 +18,7 @@ image:
   repository: kong
   tag: testing
   pullPolicy: IfNotPresent
+database: postgresql
 useDaemonset: false
 replicaCount: 1
 containerSecurityContext:
