@@ -9,14 +9,14 @@ import org.folio.utilities.Logger
 @Library('pipelines-shared-library@RANCHER-1054') _
 
 properties([
-//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
-buildDiscarder(logRotator(numToKeepStr: '40')),
-disableConcurrentBuilds(),
-parameters([
-  string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-  booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-  folioParameters.agent(),
-  folioParameters.refreshParameters()])
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '40')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
