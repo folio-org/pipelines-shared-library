@@ -239,7 +239,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean isSuitableNamespaceAndCluster =
     (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
       (ns.getClusterName() == 'folio-dev' && ns.getNamespaceName() == 'firebird') ||
-      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint')
+      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint') ||
+      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'karate')
 
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
     moduleConfig <<
