@@ -51,11 +51,10 @@ service:
   exposeAdmin: true
   disableHttpPort: false
 ingress:
-  hosts:
-    - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
-      paths:
-        - path: /*
-          pathType: ImplementationSpecific
+  enabled: true
+  pathType: ImplementationSpecific
+  path: /
+  hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
   enabled: true
   annotations:
     kubernetes.io/ingress.class: alb
@@ -63,7 +62,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: ${local.group_name}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
-    alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
+    alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/healthcheck-port: '8001'
 kong:
   livenessProbe:
