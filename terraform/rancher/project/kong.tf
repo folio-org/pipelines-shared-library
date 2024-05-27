@@ -44,6 +44,12 @@ postgresql:
     database: kong
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
+networkPolicy:
+  enabled: false
+service:
+  type: ClusterIP
+  exposeAdmin: true
+  disableHttpPort: false
 kong:
   livenessProbe:
     enabled: false
