@@ -56,9 +56,6 @@ service:
     adminHttps: 8444
   nodePorts:
     adminHttp: ${random_integer.node_port.result}
-    adminHttps: 8444
-    proxyHttp: 80
-    proxyHttps: 443
 networkPolicy:
   enabled: false
   livenessProbe:
