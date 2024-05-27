@@ -45,6 +45,19 @@ postgresql:
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
 kong:
+service:
+  type: ClusterIP
+  exposeAdmin: true
+  disableHttpPort: false
+  ports:
+    proxyHttp: 80
+    proxyHttps: 443
+    adminHttp: 8001
+    adminHttps: 8444
+  nodePorts:
+    adminHttp: ${random_integer.node_port.result}
+networkPolicy:
+  enabled: false
   livenessProbe:
     enabled: false
   readinessProbe:
@@ -75,7 +88,7 @@ kong:
    - name: KONG_LOG_LEVEL
      value: "info"
    - name: KONG_ADMIN_GUI_API_URL
-     value: "http://local.kong-admin"
+     value: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
    - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
      value: "4 16k"
    - name: KONG_PROXY_LISTEN
