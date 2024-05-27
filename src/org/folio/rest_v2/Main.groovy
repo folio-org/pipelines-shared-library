@@ -73,7 +73,7 @@ class Main extends Okapi {
             configureTenant(tenant)
         }
     }
-
+  
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
     }
@@ -144,8 +144,7 @@ class Main extends Okapi {
             logger.warning("Module (mod-kb-ebsco-java) not enabled for tenant ${tenant.tenantId}")
         }
         if (tenant.index?.run) {
-          runReIndex(tenant, "instance")  // Recreate Tenant Data Indexes on OpenSearch Instance
-          runReIndex(tenant, "authority") // Recreate MARC Authority Data Indexes for Tenant
+            runIndexInstance(tenant)
         }
     }
 

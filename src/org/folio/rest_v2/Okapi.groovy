@@ -304,12 +304,12 @@ class Okapi extends Authorization {
     }
 
 
-    String runReIndex(OkapiTenant tenant, String resourceName) {
+    String runIndexInstance(OkapiTenant tenant) {
         String url = generateUrl("/search/index/inventory/reindex")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
         Map body = [
             "recreateIndex": tenant.index.recreate,
-            "resourceName" : resourceName
+            "resourceName" : "instance"
         ]
 
         logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.index.recreate}")
