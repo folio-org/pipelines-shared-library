@@ -50,6 +50,21 @@ service:
   type: ClusterIP
   exposeAdmin: true
   disableHttpPort: false
+ingress:
+  hosts:
+    - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+      paths:
+        - path: /*
+          pathType: ImplementationSpecific
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/group.name: ${local.group_name}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
+    alb.ingress.kubernetes.io/healthcheck-port: '8001'
 kong:
   livenessProbe:
     enabled: false
@@ -81,7 +96,7 @@ kong:
    - name: KONG_LOG_LEVEL
      value: "info"
    - name: KONG_ADMIN_GUI_API_URL
-     value: "http://local.kong-admin"
+     value: ${local.kong_url}
    - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
      value: "4 16k"
    - name: KONG_PROXY_LISTEN
