@@ -55,7 +55,7 @@ service:
   exposeAdmin: true
   disableHttpPort: false
   ports:
-    proxyHttp: 80
+    proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
     adminHttps: 8444
