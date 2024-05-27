@@ -45,11 +45,6 @@ postgresql:
     existingSecret: "kong-credentials"
     existingSecretPasswordKey: "KONG_PG_PASSWORD"
 kong:
-  containerPorts:
-    proxyHttp: 8000
-    proxyHttps: 8443
-    adminHttp: 8001
-    adminHttps: 8444
 service:
   type: ClusterIP
   exposeAdmin: true
@@ -59,6 +54,11 @@ service:
     proxyHttps: 443
     adminHttp: 8001
     adminHttps: 8444
+  nodePorts:
+    adminHttp: ${random_integer.node_port.result}
+    adminHttps: 8444
+    proxyHttp: 80
+    proxyHttps: 443
 networkPolicy:
   enabled: false
   livenessProbe:
