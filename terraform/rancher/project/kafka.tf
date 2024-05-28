@@ -10,7 +10,7 @@ resource "rancher2_app_v2" "kafka" {
   force_upgrade = "true"
   values        = <<-EOT
     image:
-      tag: 2.8
+      tag: 3.5
     metrics:
       kafka:
         enabled: true
@@ -65,7 +65,7 @@ resource "rancher2_app_v2" "kafka_ui" {
   name          = "kafka-ui"
   repo_name     = "provectus"
   chart_name    = "kafka-ui"
-  chart_version = "0.7.1"
+  chart_version = "0.7.2"
   force_upgrade = "true"
   values        = <<-EOT
     service:
