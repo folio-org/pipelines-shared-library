@@ -39,7 +39,7 @@ ansiColor('xterm') {
           docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
             def image = docker.build(
               "keycloak",
-              "-f Dockerfile  " +
+              "-f ./Dockerfile  " +
                 "."
             )
             image.push()
