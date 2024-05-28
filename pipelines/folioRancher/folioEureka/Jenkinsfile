@@ -31,8 +31,11 @@ ansiColor('xterm') {
         buildDescription "image build"
       }
       stage('Checkout') {
-        checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-keycloak']]])
+        dir("folio-keycloak") {
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-keycloak']]])
+        }
       }
+
       stage("Build and Push") {
         logger.info("Build started for keycloak image...")
         dir("folio-keycloak") {
