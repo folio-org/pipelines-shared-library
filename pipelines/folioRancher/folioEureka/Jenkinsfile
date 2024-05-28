@@ -49,7 +49,7 @@ ansiColor('xterm') {
           }
         }
       }
-      // stages go here
+
     } catch (e) {
       println("Caught exception: ${e}")
       error(e.getMessage())
