@@ -1,7 +1,6 @@
 resource "random_integer" "node_port" {
   max = 32767
   min = 30000
-
 }
 
 resource "helm_release" "kong" {
@@ -47,10 +46,11 @@ postgresql:
 networkPolicy:
   enabled: false
 service:
-  type: ClusterIP
+  type: NodePort
   exposeAdmin: true
   disableHttpPort: false
 ingress:
+  ingressClassName: ""
   pathType: ImplementationSpecific
   path: /
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
