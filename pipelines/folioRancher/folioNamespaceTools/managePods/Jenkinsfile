@@ -20,6 +20,20 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
+        45 22 * * 5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=sprint
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=sprint
+        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
+        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
+        5 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
+        45 22 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
+        0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
+        0 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
+        15 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
+        55 22 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
+        45 23 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
+        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
         35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
         55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
@@ -66,10 +80,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
-        35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
         25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
         45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
         25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
