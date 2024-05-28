@@ -56,6 +56,7 @@ ansiColor('xterm') {
     } finally {
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        input("Paused for a test...")
         common.removeImage("keycloak")
         cleanWs notFailBuild: true
       }
