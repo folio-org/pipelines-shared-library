@@ -56,7 +56,7 @@ def getOkapiLatestSnapshotVersion(String okapi_version) {
 
 // Removing the image from the local machine.
 void removeImage(String image_name) {
-  String image_id = sh returnStdout: true, script: "docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep '${image_name}' | cut -d' ' -f1"
+  def image_id = sh returnStdout: true, script: "docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep '${image_name}' | cut -d' ' -f1"
   new Logger(this, 'dockerBuild').info("${image_id.trim().getClass()}")
   sh(script: "docker rmi --force ${image_id.trim()}", returnStdout: true)
 }
