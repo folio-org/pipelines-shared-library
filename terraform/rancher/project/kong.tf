@@ -51,7 +51,6 @@ service:
   exposeAdmin: true
   disableHttpPort: false
 ingress:
-  enabled: true
   pathType: ImplementationSpecific
   path: /
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
