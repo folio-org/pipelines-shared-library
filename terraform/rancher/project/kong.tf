@@ -1,6 +1,8 @@
+# DO NOT DELETE this resource, will be used in the future.
 resource "random_integer" "node_port" {
   max = 32767
   min = 30000
+  count = var.eureka ? 4 : 0
 }
 
 resource "helm_release" "kong" {
