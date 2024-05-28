@@ -16,16 +16,16 @@ resource "rancher2_secret" "db-credentials" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    ENV                  = base64encode(local.env_name)
-    DB_HOST              = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
-    DB_HOST_READER       = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
-    DB_PORT              = base64encode("5432")
-    DB_USERNAME          = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
-    DB_PASSWORD          = base64encode(local.pg_password)
-    DB_DATABASE          = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
-    DB_MAXPOOLSIZE       = base64encode("5")
-    DB_CHARSET           = base64encode("UTF-8")
-    DB_QUERYTIMEOUT      = base64encode("60000")
+    ENV             = base64encode(local.env_name)
+    DB_HOST         = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    DB_HOST_READER  = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
+    DB_PORT         = base64encode("5432")
+    DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
+    DB_PASSWORD     = base64encode(local.pg_password)
+    DB_DATABASE     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("5")
+    DB_CHARSET      = base64encode("UTF-8")
+    DB_QUERYTIMEOUT = base64encode("60000")
   }
 }
 
@@ -35,12 +35,12 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_PG_HOST     = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     KONG_PG_PASSWORD = base64encode(local.pg_password)
     KONG_PG_PORT     = base64encode("5432")
-    KONG_PG_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    KONG_PG_DATABASE = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
-  project_id = rancher2_project.this.id
+  project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
-  name       = "kong-credentials"
-  count      = var.eureka ? 1 : 0
+  name         = "kong-credentials"
+  count        = var.eureka ? 1 : 0
 }
 
 resource "rancher2_secret" "keycloak-credentials" {
@@ -51,10 +51,10 @@ resource "rancher2_secret" "keycloak-credentials" {
     KEYCLOAK_PG_PORT     = base64encode("5432")
     KEYCLOAK_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
   }
-  project_id = rancher2_project.this.id
+  project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
-  name       = "keycloak-credentials"
-  count      = var.eureka ? 1 : 0
+  name         = "keycloak-credentials"
+  count        = var.eureka ? 1 : 0
 }
 
 locals {
@@ -75,16 +75,15 @@ resource "helm_release" "postgresql" {
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   chart      = "postgresql"
   version    = "13.2.19"
-  values = [
-    <<-EOT
+  values = [<<-EOF
     architecture: ${local.pg_architecture}
     readReplicas:
       replicaCount: 1
       resources:
         requests:
-          memory: 2048Mi
+          memory: 512Mi
         limits:
-          memory: 7168Mi
+          memory: 10240Mi
       extendedConfiguration: |-
         shared_buffers = '2560MB'
         max_connections = '${var.pg_max_conn}'
@@ -128,9 +127,9 @@ resource "helm_release" "postgresql" {
         storageClass: gp2
       resources:
         requests:
-          memory: 2048Mi
+          memory: 512Mi
         limits:
-          memory: 7168Mi
+          memory: 10240Mi
       podSecurityContext:
         fsGroup: 1001
       containerSecurityContext:
@@ -155,7 +154,7 @@ resource "helm_release" "postgresql" {
       enabled: ${local.pg_auth}
       resources:
         requests:
-          memory: 1024Mi
+          memory: 512Mi
         limits:
           memory: 4096Mi
       serviceMonitor:
@@ -163,7 +162,7 @@ resource "helm_release" "postgresql" {
         namespace: monitoring
         interval: 30s
         scrapeTimeout: 30s
-  EOT
+  EOF
   ]
 }
 
