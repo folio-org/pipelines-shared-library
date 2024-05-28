@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioEureka
+package folioRancher.folioEureka.keycloak
 
 import org.folio.Constants
 import org.folio.utilities.Logger
