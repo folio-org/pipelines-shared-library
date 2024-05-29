@@ -41,10 +41,7 @@ ansiColor('xterm') {
         dir("folio-kong") {
           docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
             def image = docker.build(
-              "kong", +
-              "--build-arg TARGETARCH=amd64 " +
-              "-f ./Dockerfile  " +
-                "."
+              "kong --build-arg TARGETARCH=amd64 -f ./Dockerfile ."
             )
             image.push()
           }
