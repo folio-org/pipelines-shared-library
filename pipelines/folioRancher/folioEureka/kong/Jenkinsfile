@@ -32,7 +32,7 @@ ansiColor('xterm') {
       }
       stage('Checkout') {
         dir("folio-kong") {
-          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-kong']]])
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-kong.git']]])
         }
       }
 
