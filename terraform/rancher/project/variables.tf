@@ -227,7 +227,7 @@ variable "pg_ldp_user_password" {
 }
 variable "eureka" {
   type        = bool
-  default     = false
+  default     = true
   description = "Eureka base env setup feature enable"
 }
 
