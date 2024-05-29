@@ -44,7 +44,8 @@ ansiColor('xterm') {
             def image = docker.build(
               "kong", +
               "--build-arg TARGETARCH=amd64 " +
-              "-f ./Dockerfile ."
+              "-f ./Dockerfile " +
+              "."
             )
             image.push()
           }
