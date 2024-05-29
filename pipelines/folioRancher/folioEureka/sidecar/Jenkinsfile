@@ -1,0 +1,46 @@
+#!groovy
+package folioRancher.folioEureka.sidecar
+
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1338') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "folioEureka-sidecar-${env.BUILD_ID}"
+        buildDescription "image-build"
+      }
+      /**
+       * Placeholder for stages
+       */
+    } catch (e) {
+      println("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        common.removeImage("sidecar")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
