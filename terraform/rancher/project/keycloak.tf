@@ -46,14 +46,14 @@ resource "helm_release" "keycloak" {
           enabled: true
       ingress:
         enabled: true
-        hostname: "${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "keycloak"]), var.root_domain])}"
+        hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "keycloak"]), var.root_domain])}
         ingressClassName: ""
         pathType: ImplementationSpecific
         path: /*
         annotations:
           kubernetes.io/ingress.class: alb
           alb.ingress.kubernetes.io/scheme: internet-facing
-          alb.ingress.kubernetes.io/group.name: "${local.group_name}"
+          alb.ingress.kubernetes.io/group.name: ${local.group_name}
           alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /health/ready
