@@ -39,7 +39,6 @@ ansiColor('xterm') {
       stage("Build and Push") {
         logger.info("Build started for kong image...")
         dir("folio-kong") {
-          input("Paused for a test...")
           docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
             def image = docker.build(
               "kong",
