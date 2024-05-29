@@ -32,7 +32,7 @@ ansiColor('xterm') {
       }
       stage('Checkout') {
         dir("folio-keycloak") {
-          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-keycloak']]])
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-keycloak.git']]])
         }
       }
 
