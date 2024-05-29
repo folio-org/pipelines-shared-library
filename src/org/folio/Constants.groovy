@@ -77,7 +77,7 @@ class Constants {
     static String OKAPI_SUPERADMIN_CREDENTIALS_ID = "okapi-superadmin-credentials"
 
     //Teams
-    static Map ENVS_MEMBERS_LIST = ["aggies"          : ["Aggies"],
+    static Map ENVS_MEMBERS_LIST = ["aggies"        : ["Aggies"],
                                     "bama"          : ["Bama"],
                                     "concorde"      : ["concorde"],
                                     "consortia"     : ["thunderjet"],
@@ -110,7 +110,7 @@ class Constants {
                                     "volaris-2nd"   : ["volaris"],
                                     "rtr"           : ["volaris"],
                                     "snapshot"      : [],
-                                    "leipzig"       : ["leipzig"] ]
+                                    "leipzig"       : ["leipzig"]]
 
     //Cypress
     static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
