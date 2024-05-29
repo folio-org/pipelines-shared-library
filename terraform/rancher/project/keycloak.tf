@@ -17,7 +17,7 @@ resource "helm_release" "keycloak" {
       enableDefaultInitContainers: false
       replicaCount: 1
       containerSecurityContext:
-        enabled: true
+        enabled: false
         seLinuxOptions: {}
         runAsUser: 1001
         runAsGroup: 1001
