@@ -14,6 +14,7 @@ resource "helm_release" "keycloak" {
         tag: latest
         pullPolicy: IfNotPresent
         debug: true
+      enableDefaultInitContainers: false
       replicaCount: 1
       containerSecurityContext:
         enabled: true
