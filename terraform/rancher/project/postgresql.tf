@@ -45,7 +45,7 @@ resource "rancher2_secret" "kong-credentials" {
 
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
-    KEYCLOAK_PG_USER                      = base64encode("kong")
+    KEYCLOAK_PG_USER                      = base64encode("keycloak")
     KEYCLOAK_PG_HOST                      = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     KEYCLOAK_PG_PASSWORD                  = base64encode(local.pg_password)
     KEYCLOAK_PG_PORT                      = base64encode("5432")
