@@ -1,15 +1,11 @@
 import org.folio.Constants
-import org.folio.utilities.HttpClient
-import org.folio.utilities.Logger
 import org.folio.utilities.RequestException
 import org.folio.utilities.RestClient
-import org.folio.utilities.Tools
-
 
 // Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
 boolean commitHashChangeDetected(branch) {
   def awsParameterName = 'Hash-Commit'
-  def currentCommitHash = getLatestCommitHash(branch)
+  def currentCommitHash = getLatestCommitHash('platform-complete', branch)
   def previousSavedHash = getPreviousSavedHashFromSSM(Constants.AWS_REGION, awsParameterName)
   println("Current commit hash: ${currentCommitHash}")
   println("Previous commit hash: ${previousSavedHash}")
@@ -25,14 +21,14 @@ boolean commitHashChangeDetected(branch) {
 }
 
 // Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
-String getLatestCommitHash(String branch) {
-  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/platform-complete/branches/${branch}"
+String getLatestCommitHash(String repository, String branch) {
+  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches/${branch}"
   try {
     def response = new RestClient(this).get(url).body
-    if(response?.commit){
+    if (response?.commit) {
       return response.commit.sha
     }
-  }catch (RequestException e) {
+  } catch (RequestException e) {
     error "An error occurred while fetching GitHub data: ${e.getMessage()}"
   }
 }
