@@ -114,7 +114,7 @@ ansiColor('xterm') {
             tenantId              : 'diku',
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
-            parallelExecParameters: '--env grepTags="system --nonParallel"',
+            parallelExecParameters: '--env grepTags="smoke"',
             testsTimeout          : '2',
             testrailProjectID     : '', //TODO Add testrail Project ID
             testrailRunID         : '', //TODO Add testrail Run ID
