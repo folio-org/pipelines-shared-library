@@ -27,17 +27,17 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName "folioEureka-keycloak-${env.BUILD_ID}"
+        buildName "folioEureka-kong-${env.BUILD_ID}"
         buildDescription "image build"
       }
       stage('Checkout') {
-        dir("folio-keycloak") {
-          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-keycloak']]])
+        dir("folio-kong") {
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-kong']]])
         }
       }
 
       stage("Build and Push") {
-        logger.info("Build started for keycloak image...")
+        logger.info("Build started for kong image...")
         dir("folio-kong") {
           docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
             def image = docker.build(
