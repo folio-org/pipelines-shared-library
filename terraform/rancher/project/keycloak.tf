@@ -121,6 +121,8 @@ resource "helm_release" "keycloak" {
           value: 'true'
         - name: KC_PROXY
           value: edge
+        - name: EUREKA_RESOLVE_SIDECAR_IP
+          value: 'false'
       livenessProbe:
         enabled: false
       readinessProbe:
