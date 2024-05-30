@@ -123,6 +123,8 @@ resource "helm_release" "keycloak" {
           value: edge
         - name: EUREKA_RESOLVE_SIDECAR_IP
           value: 'false'
+        - name: CONFIG_FILE
+          value: config.json
       livenessProbe:
         enabled: false
       readinessProbe:
