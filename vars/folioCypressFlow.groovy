@@ -121,6 +121,8 @@ void call(params) {
                       dir("cypress-${batchIndex + 1}-${workerNumber}"){
                         executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
                           "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
+
+                        sleep time: 10, unit: 'MINUTES'
                       }
                     }
                   }
