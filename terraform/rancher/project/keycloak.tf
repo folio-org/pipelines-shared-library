@@ -107,6 +107,8 @@ resource "helm_release" "keycloak" {
             secretKeyRef:
               name: keycloak-credentials
               key: KEYCLOAK_PG_PASSWORD
+        - name: KC_HTTP_ENABLED
+          value: 'true'
       livenessProbe:
         enabled: false
       readinessProbe:
