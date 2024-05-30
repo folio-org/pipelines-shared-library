@@ -32,6 +32,13 @@ resource "helm_release" "keycloak" {
       database: postgresql
       postgresql:
         enabled: false
+      externalDatabase:
+        existingSecret: keycloak-credentials
+        existingSecretHostKey: KEYCLOAK_PG_HOST
+        existingSecretPortKey: KEYCLOAK_PG_PORT
+        existingSecretUserKey: KEYCLOAK_PG_USER
+        existingSecretDatabaseKey: KEYCLOAK_DATABASE
+        existingSecretPasswordKey: KEYCLOAK_PG_PASSWORD
       networkPolicy:
         enabled: false
       service:
