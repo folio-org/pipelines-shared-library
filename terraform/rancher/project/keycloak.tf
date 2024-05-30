@@ -47,7 +47,7 @@ resource "helm_release" "keycloak" {
           enabled: true
       ingress:
         enabled: true
-        hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "keycloak"]), var.root_domain])}
+        hostname: ${local.keycloak_url}
         ingressClassName: ""
         pathType: ImplementationSpecific
         path: /*
@@ -76,6 +76,10 @@ resource "helm_release" "keycloak" {
               key: KEYCLOAK_HTTPS_KEY_STORE_PASSWORD
         - name: KEYCLOAK_LOG_LEVEL
           value: DEBUG
+        - name: KC_HOSTNAME_STRICT
+          value: true
+        - name: KC_HOSTNAME
+          value: ${local.keycloak_url}
       livenessProbe:
         enabled: false
       readinessProbe:
