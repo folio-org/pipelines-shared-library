@@ -106,25 +106,23 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-//                  cloneCypressRepo(branch)
-//                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-//                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+                  dir("cypress-${batchIndex + 1}-${batch[0]}") {
+                    cloneCypressRepo(branch)
+                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+                  }
 
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-//                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-//                      sh "cd cypress-${batchIndex + 1}-${workerNumber}"
-                      dir("cd cypress-${batchIndex + 1}-${workerNumber}"){
-                        cloneCypressRepo(branch)
-                      }
+                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
+                      sh "cp -r cypress-${batchIndex + 1}-${batch[0]} cypress-${batchIndex + 1}-${workerNumber}"
                       sleep time: 10, unit: 'MINUTES'
 
-                      cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                      compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
-
-                      executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                        "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
+                      dir("cypress-${batchIndex + 1}-${workerNumber}"){
+                        executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
+                          "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
+                      }
                     }
                   }
                   parallel(parallelWorkers)
