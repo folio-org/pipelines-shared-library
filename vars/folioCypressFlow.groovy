@@ -106,15 +106,13 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-//                  cloneCypressRepo(branch)
-//                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                  cloneCypressRepo(branch)
+                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 //                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
 
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      cloneCypressRepo(branch)
-                      cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
                       compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerNumber.toString())
 
                       executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
