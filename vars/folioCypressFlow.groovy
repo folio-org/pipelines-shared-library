@@ -270,7 +270,7 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
 
 void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String workerId = '') {
   stage('Compile tests') {
-    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
+    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}${workerId}", {
       setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerId)
       sh "node -v; yarn -v"
       sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
