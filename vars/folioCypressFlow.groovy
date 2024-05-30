@@ -117,9 +117,8 @@ void call(params) {
                     parallelWorkers["Worker#${workerNumber}"] = {
                       if(workerNumberIndex > 0){
                         sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-                        sh "cp -r cypress-${batchIndex + 1}-${batch[0]} cypress-${batchIndex + 1}-${workerNumber}"
+                        sh "cp -r cypress-${batchIndex + 1}-${batch[0]}/. cypress-${batchIndex + 1}-${workerNumber}"
                       }
-                      sleep time: 10, unit: 'MINUTES'
 
                       dir("cypress-${batchIndex + 1}-${workerNumber}"){
                         executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
