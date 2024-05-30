@@ -77,7 +77,7 @@ resource "helm_release" "keycloak" {
         - name: KEYCLOAK_LOG_LEVEL
           value: DEBUG
         - name: KC_HOSTNAME_STRICT
-          value: true
+          value: 'true'
         - name: KC_HOSTNAME
           value: ${local.keycloak_url}
       livenessProbe:
