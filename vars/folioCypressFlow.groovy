@@ -113,12 +113,11 @@ void call(params) {
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      println(pwd())
-                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-                      sh "cd cypress-${batchIndex + 1}-${workerNumber}"
-                      println(pwd())
-                      sleep time: 3, unit: 'MINUTES'
-                      cloneCypressRepo(branch)
+//                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
+//                      sh "cd cypress-${batchIndex + 1}-${workerNumber}"
+                      dir("cd cypress-${batchIndex + 1}-${workerNumber}"){
+                        cloneCypressRepo(branch)
+                      }
                       sleep time: 10, unit: 'MINUTES'
 
                       cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
