@@ -125,6 +125,10 @@ resource "helm_release" "keycloak" {
           value: 'false'
         - name: CONFIG_FILE
           value: config.json
+        - name: KC_HTTPS_KEY_STORE
+          value: kitfox.server.keystore
+        - name: KCADM_HTTPS_TRUST_STORE
+          value: kitfox.server.truststore
       livenessProbe:
         enabled: false
       readinessProbe:
