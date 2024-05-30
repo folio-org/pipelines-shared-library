@@ -80,6 +80,8 @@ resource "helm_release" "keycloak" {
           value: 'true'
         - name: KC_HOSTNAME
           value: ${local.keycloak_url}
+        - name: FIPS
+          value: 'false'
       livenessProbe:
         enabled: false
       readinessProbe:
