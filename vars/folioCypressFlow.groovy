@@ -113,10 +113,12 @@ void call(params) {
                   }
 
                   Map<String, Closure> parallelWorkers = [failFast: false]
-                  batch.each { workerNumber ->
+                  batch.eachWithIndex { workerNumber, workerNumberIndex ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-                      sh "cp -r cypress-${batchIndex + 1}-${batch[0]} cypress-${batchIndex + 1}-${workerNumber}"
+                      if(workerNumberIndex > 0){
+                        sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
+                        sh "cp -r cypress-${batchIndex + 1}-${batch[0]} cypress-${batchIndex + 1}-${workerNumber}"
+                      }
                       sleep time: 10, unit: 'MINUTES'
 
                       dir("cypress-${batchIndex + 1}-${workerNumber}"){
