@@ -272,6 +272,7 @@ void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}${workerId}", {
       setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerId)
+      sh "sleep 5m"
       sh "mkdir -p ${workerId}"
       sh "node -v; yarn -v"
       sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
