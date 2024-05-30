@@ -32,13 +32,7 @@ resource "helm_release" "keycloak" {
       database: postgresql
       postgresql:
         enabled: false
-      externalDatabase:
-        existingSecret: keycloak-credentials
-        existingSecretHostKey: KEYCLOAK_PG_HOST
-        existingSecretPortKey: KEYCLOAK_PG_PORT
-        existingSecretUserKey: KEYCLOAK_PG_USER
-        existingSecretDatabaseKey: KEYCLOAK_DATABASE
-        existingSecretPasswordKey: KEYCLOAK_PG_PASSWORD
+      externalDatabase: {}
       networkPolicy:
         enabled: false
       service:
@@ -82,6 +76,31 @@ resource "helm_release" "keycloak" {
           value: ${local.keycloak_url}
         - name: FIPS
           value: 'false'
+        - name: KC_DB_URL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_PG_HOST
+        - name: KC_DB_URL_PORT
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_PG_PORT
+        - name: KC_DB_URL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_DATABASE
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_PG_USER
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_PG_PASSWORD
       livenessProbe:
         enabled: false
       readinessProbe:
