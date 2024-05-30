@@ -109,6 +109,8 @@ resource "helm_release" "keycloak" {
               key: KEYCLOAK_PG_PASSWORD
         - name: KC_HTTP_ENABLED
           value: 'true'
+        - name: KC_PROXY
+          value: edge
       livenessProbe:
         enabled: false
       readinessProbe:
