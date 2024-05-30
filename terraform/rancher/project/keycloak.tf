@@ -60,7 +60,7 @@ resource "helm_release" "keycloak" {
           alb.ingress.kubernetes.io/healthcheck-path: /health/ready
           alb.ingress.kubernetes.io/healthcheck-port: '80'
       auth:
-        adminUser: "kc_admin"
+        adminUser: "admin"
         existingSecret: keycloak-credentials
         passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
       extraEnvVars:
@@ -107,6 +107,16 @@ resource "helm_release" "keycloak" {
             secretKeyRef:
               name: keycloak-credentials
               key: KEYCLOAK_PG_PASSWORD
+        - name: KEYCLOAK_ADMIN
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_ADMIN_USER
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: KEYCLOAK_ADMIN_PASSWORD
         - name: KC_HTTP_ENABLED
           value: 'true'
         - name: KC_PROXY

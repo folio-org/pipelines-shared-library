@@ -50,7 +50,7 @@ resource "rancher2_secret" "keycloak-credentials" {
     KEYCLOAK_PG_PASSWORD                  = base64encode(local.pg_password)
     KEYCLOAK_PG_PORT                      = base64encode("5432")
     KEYCLOAK_DATABASE                     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
-    KEYCLOAK_ADMIN_USER                   = base64encode("kc_admin")
+    KEYCLOAK_ADMIN_USER                   = base64encode("admin")
     KEYCLOAK_ADMIN_PASSWORD               = base64encode("SecretPassword")
     KEYCLOAK_FOLIO_BE_ADMIN_CLIENT_SECRET = base64encode("SecretPassword")
     KEYCLOAK_HTTPS_KEY_STORE_PASSWORD     = base64encode("SecretPassword")
