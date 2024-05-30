@@ -93,7 +93,7 @@ void call(params) {
                 break;
               case 'rancher':
                 workersLimit = 8
-                batchSize = 4
+                batchSize = 1
                 break;
               default:
                 error("Worker agent label unknown! '${agent}'")
@@ -106,14 +106,20 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-                  cloneCypressRepo(branch)
-                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+//                  cloneCypressRepo(branch)
+//                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 //                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
 
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerNumber.toString())
+                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
+                      sh "cd cypress-${batchIndex + 1}-${workerNumber}"
+                      cloneCypressRepo(branch)
+                      sleep time: 10, unit: 'MINUTES'
+
+                      cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                      compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
 
                       executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
                         "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
@@ -228,9 +234,9 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
   return packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
 }
 
-void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String workerId) {
-  env.HOME = "${pwd()}/${workerId}"
-  env.CYPRESS_CACHE_FOLDER = "${pwd()}/${workerId}/cache"
+void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
+  env.HOME = "${pwd()}"
+  env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
   env.CYPRESS_BASE_URL = tenantUrl
   env.CYPRESS_OKAPI_HOST = okapiUrl
   env.CYPRESS_OKAPI_TENANT = tenantId
@@ -268,12 +274,10 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
   }
 }
 
-void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String workerId = '') {
+void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
   stage('Compile tests') {
-    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}${workerId}", {
-      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerId)
-      sh "sleep 5m"
-      sh "mkdir -p ${workerId}"
+    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
+      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
       sh "node -v; yarn -v"
       sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
       sh "yarn install"
@@ -300,7 +304,7 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
 //    String execString = "npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
     runInDocker(cypressImageVersion, "worker-${runId}", {
-      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, workerId)
+      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
         env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
         env.TESTRAIL_PROJECTID = testrailProjectID
