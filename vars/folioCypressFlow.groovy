@@ -89,10 +89,6 @@ void call(params) {
                 break;
               case 'cypress':
                 workersLimit = 8
-                batchSize = 4
-                break;
-              case 'rancher':
-                workersLimit = 8
                 batchSize = 2
                 break;
               default:
@@ -112,14 +108,16 @@ void call(params) {
                     compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                   }
 
-                  Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.eachWithIndex { workerNumber, workerNumberIndex ->
-                    parallelWorkers["Worker#${workerNumber}"] = {
-                      if(workerNumberIndex > 0){
-                        sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-                        sh "cp -r cypress-${batchIndex + 1}-${batch[0]}/. cypress-${batchIndex + 1}-${workerNumber}"
-                      }
+                    if(workerNumberIndex > 0){
+                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
+                      sh "cp -r cypress-${batchIndex + 1}-${batch[0]}/. cypress-${batchIndex + 1}-${workerNumber}"
+                    }
+                  }
 
+                  Map<String, Closure> parallelWorkers = [failFast: false]
+                  batch.each { workerNumber ->
+                    parallelWorkers["Worker#${workerNumber}"] = {
                       dir("cypress-${batchIndex + 1}-${workerNumber}"){
                         executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
                           "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
@@ -128,7 +126,11 @@ void call(params) {
                   }
                   parallel(parallelWorkers)
 
-                  resultPaths.add(archiveTestResults((batchIndex + 1).toString()))
+                  batch.each {workerNumber ->
+                    dir("cypress-${batchIndex + 1}-${workerNumber}") {
+                      resultPaths.add(archiveTestResults("${(batchIndex + 1).toString()}-${workerNumber}"))
+                    }
+                  }
                 }
               }
             }
