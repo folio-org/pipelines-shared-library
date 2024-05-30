@@ -93,7 +93,7 @@ void call(params) {
                 break;
               case 'rancher':
                 workersLimit = 8
-                batchSize = 1
+                batchSize = 2
                 break;
               default:
                 error("Worker agent label unknown! '${agent}'")
