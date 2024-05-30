@@ -38,6 +38,7 @@ void call(params) {
   String testsTimeout = params.testsTimeout?.trim() ?: Constants.GLOBAL_BUILD_TIMEOUT
   String testrailProjectID = params.testrailProjectID
   String testrailRunID = params.testrailRunID
+  String runType = params.runType
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
@@ -55,7 +56,7 @@ void call(params) {
   if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
       try {
-        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
 
         rpLaunchID = reportPortal.launch()
         println("${rpLaunchID}")

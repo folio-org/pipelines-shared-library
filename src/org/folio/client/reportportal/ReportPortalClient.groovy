@@ -16,12 +16,13 @@ class ReportPortalClient {
   private def workspace
   private def launchID = null
 
-  ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace) throws Error{
+  ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace, def runType) throws Error{
     this.pipeline = pipeline
     this.testType = ReportPortalTestType.fromType(testType)
     this.buildName = buildName
     this.buildNumber = buildNumber
     this.workspace = workspace
+    this.runType = runType
   }
 
   def launch() throws Error{
@@ -40,7 +41,7 @@ class ReportPortalClient {
         description: "${testType.name()} scheduled tests",
         startTime  : "${Instant.now()}",
         mode       : "DEFAULT",
-        attributes : [[key: "build", value: "${buildNumber}"]]
+        attributes : [[key: "build", value: "${buildNumber}"], [key: "runType", value: "${runType}"]]
       ])
 
       def res = new RestClient(this).post(url, body, headers)
