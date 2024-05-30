@@ -32,7 +32,6 @@ resource "helm_release" "keycloak" {
       database: postgresql
       postgresql:
         enabled: false
-      externalDatabase: {}
       networkPolicy:
         enabled: false
       service:
