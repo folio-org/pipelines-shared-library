@@ -247,7 +247,6 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
 void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
   env.HOME = "${pwd()}"
   env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-  sleep time: 20, unit: 'MINUTES'
   env.CYPRESS_BASE_URL = tenantUrl
   env.CYPRESS_OKAPI_HOST = okapiUrl
   env.CYPRESS_OKAPI_TENANT = tenantId
@@ -292,6 +291,7 @@ void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
       sh "node -v; yarn -v"
       sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
       sh "yarn install"
+      sleep time: 20, unit: 'MINUTES'
       sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
       sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
