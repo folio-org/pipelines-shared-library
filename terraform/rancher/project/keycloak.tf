@@ -69,11 +69,6 @@ resource "helm_release" "keycloak" {
             secretKeyRef:
               name: keycloak-credentials
               key: KEYCLOAK_FOLIO_BE_ADMIN_CLIENT_SECRET
-        - name: KC_HTTPS_KEY_STORE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-credentials
-              key: KEYCLOAK_HTTPS_KEY_STORE_PASSWORD
         - name: KEYCLOAK_LOG_LEVEL
           value: DEBUG
         - name: KC_HOSTNAME_STRICT
