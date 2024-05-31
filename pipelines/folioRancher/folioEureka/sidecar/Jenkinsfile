@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioEureka.sidecar
 
+import org.folio.Constants
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -29,9 +30,33 @@ ansiColor('xterm') {
         buildName "folioEureka-sidecar-${env.BUILD_ID}"
         buildDescription "image-build"
       }
-      /**
-       * Placeholder for stages
-       */
+      stage('Checkout') {
+        dir("folio-module-sidecar") {
+          checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/folio-org/folio-module-sidecar.git']]])
+        }
+      }
+      stage('Maven build') {
+        dir("folio-module-sidecar") {
+          withMaven(jdk: "openjdk-17-jenkins-slave-all", maven: Constants.MAVEN_TOOL_NAME, options: [artifactsPublisher(disabled: true)]) {
+            sh """
+               mvn clean install -DskipTests
+                     """
+          }
+        }
+      }
+      stage("Build and Push") {
+        logger.info("Build started for sidecar image...")
+        dir("folio-module-sidecar") {
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            def image = docker.build(
+              "sidecar",
+              "-f ./Dockerfile " +
+                "."
+            )
+            image.push()
+          }
+        }
+      }
     } catch (e) {
       println("Caught exception: ${e}")
       error(e.getMessage())
