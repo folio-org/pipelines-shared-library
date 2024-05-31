@@ -103,12 +103,11 @@ void call(params) {
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
                   String batchId = batch[0]
-                  dir("cypress-${batchId}") {
+                  ws("cypress-${batchId}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                   }
-
-                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, "cypress-${batchId}")
 
                   sleep time: 20, unit: 'MINUTES'
 
@@ -256,7 +255,7 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 }
 
-void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure, String currentDir = '') {
+void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure) {
   String containerName = "cypress-${containerNameSuffix}"
   def containerObject
   try {
@@ -266,9 +265,7 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
                           credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                           accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-          dir(currentDir){
-            closure()
-          }
+          closure()
         }
       }
     }
@@ -287,7 +284,7 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
   }
 }
 
-void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String currentDir) {
+void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
         setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
@@ -298,7 +295,7 @@ void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
         sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
         sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
-    }, currentDir)
+    })
   }
 }
 
