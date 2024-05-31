@@ -247,6 +247,7 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
 void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
   env.HOME = "${pwd()}"
   env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+  sleep time: 20, unit: 'MINUTES'
   env.CYPRESS_BASE_URL = tenantUrl
   env.CYPRESS_OKAPI_HOST = okapiUrl
   env.CYPRESS_OKAPI_TENANT = tenantId
