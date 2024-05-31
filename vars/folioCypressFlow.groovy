@@ -106,7 +106,7 @@ void call(params) {
                   dir("cypress-${batchId}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, "cypress-${batchId}")
                   }
 
                   sleep time: 20, unit: 'MINUTES'
@@ -284,17 +284,19 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
   }
 }
 
-void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
+void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String currentDir) {
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
-      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
-      sh "node -v; yarn -v"
-      sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-      sh "yarn install"
-      sleep time: 20, unit: 'MINUTES'
-      sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
-      sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
+      dir(currentDir) {
+        setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+        sh "node -v; yarn -v"
+        sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+        sh "yarn install"
+        sleep time: 20, unit: 'MINUTES'
+        sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
+        sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
+      }
     })
   }
 }
