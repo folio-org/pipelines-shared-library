@@ -108,6 +108,8 @@ void call(params) {
                     compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                   }
 
+                  sleep time: 20, unit: 'MINUTES'
+
                   batch.eachWithIndex { copyBatch, copyBatchIndex ->
                     if(copyBatchIndex > 0){
                       sh "mkdir -p cypress-${copyBatch}"
