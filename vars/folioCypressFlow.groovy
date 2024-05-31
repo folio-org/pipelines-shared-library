@@ -102,14 +102,15 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-                  dir("cypress-${batch[0]}") {
+                  String batchId = batch[0]
+                  dir("cypress-${batchId}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
                     compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                   }
 
-//                  sleep time: 20, unit: 'MINUTES'
-//
+                  sleep time: 20, unit: 'MINUTES'
+
 //                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
 //                    if(copyBatchIndex > 0){
 //                      sh "mkdir -p cypress-${copyBatch}"
@@ -141,8 +142,6 @@ void call(params) {
               }
             }
             parallel(batchExecutions)
-
-            sleep time: 20, unit: 'MINUTES'
           }
         }
       }
