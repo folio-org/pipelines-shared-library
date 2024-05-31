@@ -102,16 +102,16 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-                  dir("cypress-${batchIndex + 1}-${batch[0]}") {
+                  dir("cypress-${batch[0]}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
                     compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                   }
 
-                  batch.eachWithIndex { workerNumber, workerNumberIndex ->
-                    if(workerNumberIndex > 0){
-                      sh "mkdir -p cypress-${batchIndex + 1}-${workerNumber}"
-                      sh "cp -r cypress-${batchIndex + 1}-${batch[0]}/. cypress-${batchIndex + 1}-${workerNumber}"
+                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
+                    if(copyBatchIndex > 0){
+                      sh "mkdir -p cypress-${copyBatch}"
+                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
                     }
                   }
 
@@ -120,7 +120,7 @@ void call(params) {
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      dir("cypress-${batchIndex + 1}-${workerNumber}"){
+                      dir("cypress-${workerNumber}"){
                         executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
                           "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
 
@@ -131,8 +131,8 @@ void call(params) {
                   parallel(parallelWorkers)
 
                   batch.each {workerNumber ->
-                    dir("cypress-${batchIndex + 1}-${workerNumber}") {
-                      resultPaths.add(archiveTestResults("${(batchIndex + 1).toString()}-${workerNumber}"))
+                    dir("cypress-${workerNumber}") {
+                      resultPaths.add(archiveTestResults("${workerNumber}"))
                     }
                   }
                 }
