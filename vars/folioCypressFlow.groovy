@@ -106,8 +106,9 @@ void call(params) {
                   dir("cypress-${batchId}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, "cypress-${batchId}")
                   }
+
+                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword, "cypress-${batchId}")
 
                   sleep time: 20, unit: 'MINUTES'
 
@@ -255,7 +256,7 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 }
 
-void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure) {
+void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure, String currentDir = '') {
   String containerName = "cypress-${containerNameSuffix}"
   def containerObject
   try {
@@ -265,7 +266,9 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
                           credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                           accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-          closure()
+          dir(currentDir){
+            closure()
+          }
         }
       }
     }
@@ -287,7 +290,6 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
 void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword, String currentDir) {
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
-      dir(currentDir) {
         setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
         sh "node -v; yarn -v"
         sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
@@ -296,8 +298,7 @@ void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
         sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
         sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
-      }
-    })
+    }, currentDir)
   }
 }
 
