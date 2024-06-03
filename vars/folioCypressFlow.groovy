@@ -97,130 +97,23 @@ void call(params) {
             }
             int maxWorkers = Math.min(numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
             List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
+
+            setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
             // Divide workers into batches
             Map<String, Closure> batchExecutions = [failFast: false]
+            batches.eachWithIndex { batch, batchIndex ->
+              batchExecutions["Batch#${batchIndex + 1}"] = {
+                node(agent) {
+                  dir("cypress-${batch[0]}") {
+                    cloneCypressRepo(branch)
+                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
-
-            batchExecutions["Batch#1"] = {
-              node(agent){
-                dir("cypress-1") {
-                  cloneCypressRepo(branch)
-                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-
-                  stage('Compile tests') {
-                    def containerObject
-                    try {
-                      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-                        containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=cypress-compile-${env.BUILD_ID}-1 --entrypoint=") {
-                          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            env.HOME = "${pwd()}"
-                            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                            println("folioCypressFlow: Batch1, pwd():${pwd()}")
-                            println("folioCypressFlow: Batch1, env.HOME:${env.HOME}")
-                            println("folioCypressFlow: Batch1, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
-                            env.CYPRESS_BASE_URL = tenantUrl
-                            env.CYPRESS_OKAPI_HOST = okapiUrl
-                            env.CYPRESS_OKAPI_TENANT = tenantId
-                            env.CYPRESS_diku_login = adminUsername
-                            env.CYPRESS_diku_password = adminPassword
-                            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
-
-                            sh "node -v; yarn -v"
-                            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                            sh "env; yarn install"
-
-//                            sh """node -v; yarn -v
-//yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-//env
-//yarn install
-//"""
-                            sleep time: 20, unit: 'MINUTES'
-                          }
-                        }
-                      }
-                    } catch (e) {
-                      println(e)
-                      currentBuild.result = 'FAILED'
-                      error('Unable to compile tests')
-                    } finally {
-                      if (containerObject) {
-                        containerObject.stop()
-                      }
-                    }
+                    compileTests(cypressImageVersion, batch[0])
                   }
-                }
-              }
-            }
 
-            batchExecutions["Batch#2"] = {
-              node(agent){
-                dir("cypress-2") {
-                  cloneCypressRepo(branch)
-                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                  sleep time: 20, unit: 'MINUTES'
 
-                  stage('Compile tests') {
-                    def containerObject
-                    try {
-                      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-                        containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=cypress-compile-${env.BUILD_ID}-2 --entrypoint=") {
-                          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                            env.HOME = "${pwd()}"
-                            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                            println("folioCypressFlow: Batch2, pwd():${pwd()}")
-                            println("folioCypressFlow: Batch2, env.HOME:${env.HOME}")
-                            println("folioCypressFlow: Batch2, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
-                            env.CYPRESS_BASE_URL = tenantUrl
-                            env.CYPRESS_OKAPI_HOST = okapiUrl
-                            env.CYPRESS_OKAPI_TENANT = tenantId
-                            env.CYPRESS_diku_login = adminUsername
-                            env.CYPRESS_diku_password = adminPassword
-                            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
-
-                            sh "node -v; yarn -v"
-                            sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                            sh "env; yarn install"
-
-//                            sh """node -v; yarn -v
-//yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-//env
-//yarn install
-//"""
-                            sleep time: 20, unit: 'MINUTES'
-                          }
-                        }
-                      }
-                    } catch (e) {
-                      println(e)
-                      currentBuild.result = 'FAILED'
-                      error('Unable to compile tests')
-                    } finally {
-                      if (containerObject) {
-                        containerObject.stop()
-                      }
-                    }
-                  }
-                }
-              }
-            }
-
-//            batches.eachWithIndex { batch, batchIndex ->
-//              batchExecutions["Batch#${batchIndex + 1}"] = {
-//                node(agent) {
-//                  String batchId = batch[0]
-//                  dir("cypress-${batchId}") {
-//                    cloneCypressRepo(branch)
-//                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-//                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
-//                  }
-//
-//                  sleep time: 20, unit: 'MINUTES'
-//
 ////                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
 ////                    if(copyBatchIndex > 0){
 ////                      sh "mkdir -p cypress-${copyBatch}"
@@ -248,9 +141,9 @@ void call(params) {
 ////                      resultPaths.add(archiveTestResults("${workerNumber}"))
 ////                    }
 ////                  }
-//                }
-//              }
-//            }
+                }
+              }
+            }
             parallel(batchExecutions)
           }
         }
@@ -260,7 +153,7 @@ void call(params) {
           script {
             cloneCypressRepo(branch)
             cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-            compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+            compileTests(cypressImageVersion)
             executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
               "sequential_${customBuildName}", browserName, sequentialExecParameters, testrailProjectID, testrailRunID)
             resultPaths.add(archiveTestResults((numberOfWorkers + 1).toString()))
@@ -355,8 +248,8 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
 }
 
 void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
-  env.HOME = "${pwd()}"
-  env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+//  env.HOME = "${pwd()}"
+//  env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
   env.CYPRESS_BASE_URL = tenantUrl
   env.CYPRESS_OKAPI_HOST = okapiUrl
   env.CYPRESS_OKAPI_TENANT = tenantId
@@ -394,16 +287,15 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
   }
 }
 
-void compileTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
+void compileTests(String cypressImageVersion, String batchID = '') {
   stage('Compile tests') {
-    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
-        setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
-        sh "node -v; yarn -v"
-        sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-        sh "yarn install"
-        sleep time: 20, unit: 'MINUTES'
-        sh "yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}"
-        sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"
+    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}-${batchID}", {
+        sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+        node -v; yarn -v
+        yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+        yarn install
+        yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
+        sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"""
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
     })
   }
@@ -425,7 +317,6 @@ void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl,
 //    String execString = "npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
     runInDocker(cypressImageVersion, "worker-${runId}", {
-      setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
         env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
         env.TESTRAIL_PROJECTID = testrailProjectID
