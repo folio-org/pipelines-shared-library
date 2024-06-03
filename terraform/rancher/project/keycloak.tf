@@ -4,7 +4,7 @@ resource "helm_release" "keycloak" {
   depends_on = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
   name       = "keycloak-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
-  version    = "20.0.1"
+  version    = "21.0.4"
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [
     <<-EOF
