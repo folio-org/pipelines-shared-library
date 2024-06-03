@@ -136,7 +136,6 @@ void call(params) {
                 dir("cypress-2") {
                   cloneCypressRepo(branch)
                   cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
 
                   stage('Compile tests') {
                     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
