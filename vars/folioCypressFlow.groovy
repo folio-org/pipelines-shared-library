@@ -109,7 +109,7 @@ void call(params) {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
-                    compileTests(cypressImageVersion, batch[0])
+                    compileTests(cypressImageVersion, "${batch[0]}")
                   }
 
                   sleep time: 20, unit: 'MINUTES'
@@ -293,7 +293,7 @@ void compileTests(String cypressImageVersion, String batchID = '') {
         sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
         node -v; yarn -v
         yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-        yarn install
+        env; yarn install
         yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
         sh "yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"""
 //      sh "yarn add @reportportal/agent-js-cypress@latest"
