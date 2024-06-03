@@ -103,7 +103,7 @@ void call(params) {
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
                   String batchId = batch[0]
-                  ws("cypress-${batchId}") {
+                  dir("cypress-${batchId}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
                     compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
