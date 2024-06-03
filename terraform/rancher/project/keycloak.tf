@@ -103,15 +103,9 @@ resource "helm_release" "keycloak" {
               name: keycloak-credentials
               key: KEYCLOAK_PG_PASSWORD
         - name: KEYCLOAK_ADMIN
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-credentials
-              key: KEYCLOAK_ADMIN_USER
+          value: admin
         - name: KEYCLOAK_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-credentials
-              key: KEYCLOAK_ADMIN_PASSWORD
+          value: admin
         - name: KC_HTTP_ENABLED
           value: 'true'
         - name: KC_PROXY
