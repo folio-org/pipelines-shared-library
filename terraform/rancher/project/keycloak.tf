@@ -33,12 +33,11 @@ resource "helm_release" "keycloak" {
       postgresql:
         enabled: false
       externalDatabase:
-        existingSecret: keycloak-credentials
-        existingSecretHostKey: KEYCLOAK_PG_HOST
-        existingSecretPortKey: KEYCLOAK_PG_PORT
-        existingSecretUserKey: KEYCLOAK_PG_USER
-        existingSecretDatabaseKey: KEYCLOAK_DATABASE
-        existingSecretPasswordKey: KEYCLOAK_PG_PASSWORD
+        host: '${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}'
+        port: 5432
+        user: keycloak
+        database: keycloak
+        password: postgres_password_123!
       networkPolicy:
         enabled: false
       service:
