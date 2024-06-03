@@ -59,6 +59,9 @@ resource "helm_release" "keycloak" {
           alb.ingress.kubernetes.io/success-codes: 200-399
           alb.ingress.kubernetes.io/healthcheck-path: /health/ready
           alb.ingress.kubernetes.io/healthcheck-port: '80'
+      auth:
+        adminUser: admin
+        adminPassword: admin
       extraEnvVars:
         - name: KC_FOLIO_BE_ADMIN_CLIENT_SECRET
           valueFrom:
