@@ -106,7 +106,27 @@ void call(params) {
                 dir("cypress-1") {
                   cloneCypressRepo(branch)
                   cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
+                  stage('Compile tests') {
+                    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
+                      env.HOME = "${pwd()}"
+                      env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+                      println("folioCypressFlow: Batch1, pwd():${pwd()}")
+                      println("folioCypressFlow: Batch1, env.HOME:${env.HOME}")
+                      println("folioCypressFlow: Batch1, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
+                      env.CYPRESS_BASE_URL = tenantUrl
+                      env.CYPRESS_OKAPI_HOST = okapiUrl
+                      env.CYPRESS_OKAPI_TENANT = tenantId
+                      env.CYPRESS_diku_login = adminUsername
+                      env.CYPRESS_diku_password = adminPassword
+                      env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+
+                      sh "node -v; yarn -v"
+                      sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                      sh "yarn install"
+                      sleep time: 20, unit: 'MINUTES'
+                    })
+                  }
                 }
               }
             }
@@ -117,6 +137,27 @@ void call(params) {
                   cloneCypressRepo(branch)
                   cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
                   compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
+                  stage('Compile tests') {
+                    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
+                      env.HOME = "${pwd()}"
+                      env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+                      println("folioCypressFlow: Batch2, pwd():${pwd()}")
+                      println("folioCypressFlow: Batch2, env.HOME:${env.HOME}")
+                      println("folioCypressFlow: Batch2, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
+                      env.CYPRESS_BASE_URL = tenantUrl
+                      env.CYPRESS_OKAPI_HOST = okapiUrl
+                      env.CYPRESS_OKAPI_TENANT = tenantId
+                      env.CYPRESS_diku_login = adminUsername
+                      env.CYPRESS_diku_password = adminPassword
+                      env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+
+                      sh "node -v; yarn -v"
+                      sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
+                      sh "yarn install"
+                      sleep time: 20, unit: 'MINUTES'
+                    })
+                  }
                 }
               }
             }
