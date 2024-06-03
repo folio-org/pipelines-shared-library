@@ -9,9 +9,9 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
       image:
-        registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-        repository: keycloak
-        tag: latest
+        registry: docker.io
+        repository: bitnami/keycloak
+        tag: 24.0.4-debian-12-r1
         pullPolicy: IfNotPresent
         debug: true
       enableDefaultInitContainers: false
