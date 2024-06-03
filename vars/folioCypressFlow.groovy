@@ -119,26 +119,25 @@ void call(params) {
                     }
                   }
 
-                  sleep time: 20, unit: 'MINUTES'
+                  Map<String, Closure> parallelWorkers = [failFast: false]
+                  batch.each { workerNumber ->
+                    parallelWorkers["Worker#${workerNumber}"] = {
+                      dir("cypress-${workerNumber}"){
+                        executeTests(cypressImageVersion, "parallel_${customBuildName}"
+                                      , browserName, parallelExecParameters
+                                      , testrailProjectID, testrailRunID, workerNumber.toString())
 
-////                  Map<String, Closure> parallelWorkers = [failFast: false]
-////                  batch.each { workerNumber ->
-////                    parallelWorkers["Worker#${workerNumber}"] = {
-////                      dir("cypress-${workerNumber}"){
-////                        executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-////                          "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
-////
-////                        sleep time: 10, unit: 'MINUTES'
-////                      }
-////                    }
-////                  }
-////                  parallel(parallelWorkers)
-////
-////                  batch.each {workerNumber ->
-////                    dir("cypress-${workerNumber}") {
-////                      resultPaths.add(archiveTestResults("${workerNumber}"))
-////                    }
-////                  }
+                        sleep time: 10, unit: 'MINUTES'
+                      }
+                    }
+                  }
+                  parallel(parallelWorkers)
+
+                  batch.each {workerNumber ->
+                    dir("cypress-${workerNumber}") {
+                      resultPaths.add(archiveTestResults("${workerNumber}"))
+                    }
+                  }
                 }
               }
             }
@@ -297,27 +296,30 @@ void compileTests(String cypressImageVersion, String batchID = '') {
   }
 }
 
-void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
-                  String adminPassword, String customBuildName, String browserName, String execParameters,
+void executeTests(String cypressImageVersion, String customBuildName, String browserName, String execParameters,
                   String testrailProjectID = '', String testrailRunID = '', String workerId = '') {
   stage('Run tests') {
     String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
     runId = runId.length() > 2 ? runId : "0${runId}"
     String execString = """
+      export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
       export DISPLAY=:${runId[-2..-1]}
       mkdir -p /tmp/.X11-unix
       Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-      npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
+      env; npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
       pkill Xvfb
     """
 //    String execString = "npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
     runInDocker(cypressImageVersion, "worker-${runId}", {
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
-        env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
-        env.TESTRAIL_PROJECTID = testrailProjectID
-        env.TESTRAIL_RUN_ID = testrailRunID
-        env.CYPRESS_allureReuseAfterSpec = "true"
+        execString = """
+        export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
+        export TESTRAIL_PROJECTID=${testrailProjectID}
+        export TESTRAIL_RUN_ID=${testrailRunID}
+        export CYPRESS_allureReuseAfterSpec=true
+        """ + execString
+
         println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
         withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
           sh execString
