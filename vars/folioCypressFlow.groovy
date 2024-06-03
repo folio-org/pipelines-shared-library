@@ -128,7 +128,8 @@ void call(params) {
                             env.CYPRESS_diku_password = adminPassword
                             env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-                            sh '''node -v; yarn -v
+                            sh '''env
+node -v; yarn -v
 yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
 yarn install
 '''
@@ -177,7 +178,8 @@ yarn install
                             env.CYPRESS_diku_password = adminPassword
                             env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-                            sh '''node -v; yarn -v
+                            sh '''env
+node -v; yarn -v
 yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
 yarn install
 '''
