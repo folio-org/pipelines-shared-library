@@ -112,17 +112,15 @@ void call(params) {
                     compileTests(cypressImageVersion, "${batch[0]}")
                   }
 
+                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
+                    if(copyBatchIndex > 0){
+                      sh "mkdir -p cypress-${copyBatch}"
+                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
+                    }
+                  }
+
                   sleep time: 20, unit: 'MINUTES'
 
-////                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
-////                    if(copyBatchIndex > 0){
-////                      sh "mkdir -p cypress-${copyBatch}"
-////                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
-////                    }
-////                  }
-//
-////                  sleep time: 20, unit: 'MINUTES'
-//
 ////                  Map<String, Closure> parallelWorkers = [failFast: false]
 ////                  batch.each { workerNumber ->
 ////                    parallelWorkers["Worker#${workerNumber}"] = {
