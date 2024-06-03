@@ -88,8 +88,8 @@ void call(params) {
                 batchSize = 6
                 break;
               case 'cypress':
-                workersLimit = 8
-                batchSize = 4
+                workersLimit = 10
+                batchSize = 5
                 break;
               default:
                 error("Worker agent label unknown! '${agent}'")

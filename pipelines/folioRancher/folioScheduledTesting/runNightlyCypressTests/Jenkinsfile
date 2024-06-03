@@ -44,7 +44,7 @@ Map cypressFlowParameters = [
   testsTimeout          : '8',
 //  testrailProjectID     : '14',
 //  testrailRunID         : '2108',
-  numberOfWorkers       : '8', //Changed form 10 to 6 according to instance resources capacity
+  numberOfWorkers       : '10', //Changed form 10 to 6 according to instance resources capacity
   agent                 : 'cypress',
   useReportPortal       : 'false'
 ]
@@ -56,40 +56,40 @@ ansiColor('xterm') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
       cleanWs()
     }
-//    stage('[Job] Destroy environment') {
-//      script {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          ns = kubectl.checkNamespaceExistence("${namespace.namespaceName}")
-//        }
-//        if (ns == namespace.namespaceName) {
-//          build job: deleteNamespaceJobName,
-//            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
-//        } else {
-//          println(namespace.namespaceName + ' namespace does not exists!')
-//        }
-//      }
-//    }
-//
-//    stage('[Job] Provision environment') {
-//      script {
-//        try {
-//          build job: createNamespaceJobName,
-//            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName()) +
-//              [string(name: 'FOLIO_BRANCH', value: folioBranch),
-//               string(name: 'OKAPI_VERSION', value: okapiVersion),
-//               string(name: 'CONFIG_TYPE', value: 'testing'),
-//               booleanParam(name: 'LOAD_REFERENCE', value: true),
-//               booleanParam(name: 'LOAD_SAMPLE', value: true),
-//               booleanParam(name: 'CONSORTIA', value: true),
-//               booleanParam(name: 'GREENMAIL', value: false),
-//               string(name: 'MEMBERS', value: '')]
-//        } catch (Exception new_ex) {
-//          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-//            , channel: "#rancher_tests_notifications")
-//          throw new Exception("Provision of the environment is failed: " + new_ex)
-//        }
-//      }
-//    }
+    stage('[Job] Destroy environment') {
+      script {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ns = kubectl.checkNamespaceExistence("${namespace.namespaceName}")
+        }
+        if (ns == namespace.namespaceName) {
+          build job: deleteNamespaceJobName,
+            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
+        } else {
+          println(namespace.namespaceName + ' namespace does not exists!')
+        }
+      }
+    }
+
+    stage('[Job] Provision environment') {
+      script {
+        try {
+          build job: createNamespaceJobName,
+            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName()) +
+              [string(name: 'FOLIO_BRANCH', value: folioBranch),
+               string(name: 'OKAPI_VERSION', value: okapiVersion),
+               string(name: 'CONFIG_TYPE', value: 'testing'),
+               booleanParam(name: 'LOAD_REFERENCE', value: true),
+               booleanParam(name: 'LOAD_SAMPLE', value: true),
+               booleanParam(name: 'CONSORTIA', value: true),
+               booleanParam(name: 'GREENMAIL', value: false),
+               string(name: 'MEMBERS', value: '')]
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
+        }
+      }
+    }
     stage('[Flow] Execute tests') {
       folioCypressFlow(cypressFlowParameters)
     }
