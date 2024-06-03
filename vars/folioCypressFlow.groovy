@@ -99,48 +99,70 @@ void call(params) {
             List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
             // Divide workers into batches
             Map<String, Closure> batchExecutions = [failFast: false]
-            batches.eachWithIndex { batch, batchIndex ->
-              batchExecutions["Batch#${batchIndex + 1}"] = {
-                node(agent) {
-                  String batchId = batch[0]
-                  dir("cypress-${batchId}") {
-                    cloneCypressRepo(branch)
-                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
-                  }
 
-                  sleep time: 20, unit: 'MINUTES'
 
-//                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
-//                    if(copyBatchIndex > 0){
-//                      sh "mkdir -p cypress-${copyBatch}"
-//                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
-//                    }
-//                  }
-
-//                  sleep time: 20, unit: 'MINUTES'
-
-//                  Map<String, Closure> parallelWorkers = [failFast: false]
-//                  batch.each { workerNumber ->
-//                    parallelWorkers["Worker#${workerNumber}"] = {
-//                      dir("cypress-${workerNumber}"){
-//                        executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-//                          "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
-//
-//                        sleep time: 10, unit: 'MINUTES'
-//                      }
-//                    }
-//                  }
-//                  parallel(parallelWorkers)
-//
-//                  batch.each {workerNumber ->
-//                    dir("cypress-${workerNumber}") {
-//                      resultPaths.add(archiveTestResults("${workerNumber}"))
-//                    }
-//                  }
+            batchExecutions["Batch#1"] = {
+              node(agent){
+                dir("cypress-1") {
+                  cloneCypressRepo(branch)
+                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
                 }
               }
             }
+
+            batchExecutions["Batch#2"] = {
+              node(agent){
+                dir("cypress-2") {
+                  cloneCypressRepo(branch)
+                  cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+                  compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+                }
+              }
+            }
+
+//            batches.eachWithIndex { batch, batchIndex ->
+//              batchExecutions["Batch#${batchIndex + 1}"] = {
+//                node(agent) {
+//                  String batchId = batch[0]
+//                  dir("cypress-${batchId}") {
+//                    cloneCypressRepo(branch)
+//                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+//                    compileTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+//                  }
+//
+//                  sleep time: 20, unit: 'MINUTES'
+//
+////                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
+////                    if(copyBatchIndex > 0){
+////                      sh "mkdir -p cypress-${copyBatch}"
+////                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
+////                    }
+////                  }
+//
+////                  sleep time: 20, unit: 'MINUTES'
+//
+////                  Map<String, Closure> parallelWorkers = [failFast: false]
+////                  batch.each { workerNumber ->
+////                    parallelWorkers["Worker#${workerNumber}"] = {
+////                      dir("cypress-${workerNumber}"){
+////                        executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
+////                          "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID, workerNumber.toString())
+////
+////                        sleep time: 10, unit: 'MINUTES'
+////                      }
+////                    }
+////                  }
+////                  parallel(parallelWorkers)
+////
+////                  batch.each {workerNumber ->
+////                    dir("cypress-${workerNumber}") {
+////                      resultPaths.add(archiveTestResults("${workerNumber}"))
+////                    }
+////                  }
+//                }
+//              }
+//            }
             parallel(batchExecutions)
           }
         }
