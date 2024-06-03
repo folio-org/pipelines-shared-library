@@ -108,24 +108,43 @@ void call(params) {
                   cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
                   stage('Compile tests') {
-                    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
-                      env.HOME = "${pwd()}"
-                      env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                      println("folioCypressFlow: Batch1, pwd():${pwd()}")
-                      println("folioCypressFlow: Batch1, env.HOME:${env.HOME}")
-                      println("folioCypressFlow: Batch1, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
-                      env.CYPRESS_BASE_URL = tenantUrl
-                      env.CYPRESS_OKAPI_HOST = okapiUrl
-                      env.CYPRESS_OKAPI_TENANT = tenantId
-                      env.CYPRESS_diku_login = adminUsername
-                      env.CYPRESS_diku_password = adminPassword
-                      env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+                    def containerObject
+                    try {
+                      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+                        containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=cypress-compile-${env.BUILD_ID}-1 --entrypoint=") {
+                          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            env.HOME = "${pwd()}"
+                            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+                            println("folioCypressFlow: Batch1, pwd():${pwd()}")
+                            println("folioCypressFlow: Batch1, env.HOME:${env.HOME}")
+                            println("folioCypressFlow: Batch1, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
+                            env.CYPRESS_BASE_URL = tenantUrl
+                            env.CYPRESS_OKAPI_HOST = okapiUrl
+                            env.CYPRESS_OKAPI_TENANT = tenantId
+                            env.CYPRESS_diku_login = adminUsername
+                            env.CYPRESS_diku_password = adminPassword
+                            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-                      sh "node -v; yarn -v"
-                      sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                      sh "yarn install"
-                      sleep time: 20, unit: 'MINUTES'
-                    })
+                            sh '''node -v; yarn -v
+yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+yarn install
+'''
+                            sleep time: 20, unit: 'MINUTES'
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      println(e)
+                      currentBuild.result = 'FAILED'
+                      error('Unable to compile tests')
+                    } finally {
+                      if (containerObject) {
+                        containerObject.stop()
+                      }
+                    }
                   }
                 }
               }
@@ -138,24 +157,43 @@ void call(params) {
                   cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
                   stage('Compile tests') {
-                    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}", {
-                      env.HOME = "${pwd()}"
-                      env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-                      println("folioCypressFlow: Batch2, pwd():${pwd()}")
-                      println("folioCypressFlow: Batch2, env.HOME:${env.HOME}")
-                      println("folioCypressFlow: Batch2, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
-                      env.CYPRESS_BASE_URL = tenantUrl
-                      env.CYPRESS_OKAPI_HOST = okapiUrl
-                      env.CYPRESS_OKAPI_TENANT = tenantId
-                      env.CYPRESS_diku_login = adminUsername
-                      env.CYPRESS_diku_password = adminPassword
-                      env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+                    def containerObject
+                    try {
+                      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+                        containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=cypress-compile-${env.BUILD_ID}-2 --entrypoint=") {
+                          withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                                            credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            env.HOME = "${pwd()}"
+                            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
+                            println("folioCypressFlow: Batch2, pwd():${pwd()}")
+                            println("folioCypressFlow: Batch2, env.HOME:${env.HOME}")
+                            println("folioCypressFlow: Batch2, env.CYPRESS_CACHE_FOLDER:${env.CYPRESS_CACHE_FOLDER}")
+                            env.CYPRESS_BASE_URL = tenantUrl
+                            env.CYPRESS_OKAPI_HOST = okapiUrl
+                            env.CYPRESS_OKAPI_TENANT = tenantId
+                            env.CYPRESS_diku_login = adminUsername
+                            env.CYPRESS_diku_password = adminPassword
+                            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-                      sh "node -v; yarn -v"
-                      sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-                      sh "yarn install"
-                      sleep time: 20, unit: 'MINUTES'
-                    })
+                            sh '''node -v; yarn -v
+yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+yarn install
+'''
+                            sleep time: 20, unit: 'MINUTES'
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      println(e)
+                      currentBuild.result = 'FAILED'
+                      error('Unable to compile tests')
+                    } finally {
+                      if (containerObject) {
+                        containerObject.stop()
+                      }
+                    }
                   }
                 }
               }
