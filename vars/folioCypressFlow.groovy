@@ -89,7 +89,7 @@ void call(params) {
                 break;
               case 'cypress':
                 workersLimit = 8
-                batchSize = 2
+                batchSize = 4
                 break;
               default:
                 error("Worker agent label unknown! '${agent}'")
@@ -126,8 +126,6 @@ void call(params) {
                         executeTests(cypressImageVersion, "parallel_${customBuildName}"
                                       , browserName, parallelExecParameters
                                       , testrailProjectID, testrailRunID, workerNumber.toString())
-
-                        sleep time: 10, unit: 'MINUTES'
                       }
                     }
                   }
@@ -150,9 +148,12 @@ void call(params) {
           script {
             cloneCypressRepo(branch)
             cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+
             compileTests(cypressImageVersion)
-            executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-              "sequential_${customBuildName}", browserName, sequentialExecParameters, testrailProjectID, testrailRunID)
+
+            executeTests(cypressImageVersion, "sequential_${customBuildName}", browserName
+                          , sequentialExecParameters, testrailProjectID, testrailRunID)
+
             resultPaths.add(archiveTestResults((numberOfWorkers + 1).toString()))
           }
         }
@@ -253,35 +254,6 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 }
 
-void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure) {
-  String containerName = "cypress-${containerNameSuffix}"
-  def containerObject
-  try {
-    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-      containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=${containerName} --entrypoint=") {
-        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                          credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-          closure()
-        }
-      }
-    }
-  } catch (e) {
-    println(e)
-    if (containerName.contains('cypress-compile')) {
-      currentBuild.result = 'FAILED'
-      error('Unable to compile tests')
-    } else {
-      currentBuild.result = 'UNSTABLE'
-    }
-  } finally {
-    if (containerObject) {
-      containerObject.stop()
-    }
-  }
-}
-
 void compileTests(String cypressImageVersion, String batchID = '') {
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}-${batchID}", {
@@ -338,6 +310,35 @@ String archiveTestResults(String id) {
       archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${id}.zip", fingerprint: true, defaultExcludes: false
       stash name: "allure-results-${id}", includes: "allure-results-${id}.zip"
       return "allure-results-${id}"
+    }
+  }
+}
+
+void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure) {
+  String containerName = "cypress-${containerNameSuffix}"
+  def containerObject
+  try {
+    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+      containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=${containerName} --entrypoint=") {
+        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                          credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          closure()
+        }
+      }
+    }
+  } catch (e) {
+    println(e)
+    if (containerName.contains('cypress-compile')) {
+      currentBuild.result = 'FAILED'
+      error('Unable to compile tests')
+    } else {
+      currentBuild.result = 'UNSTABLE'
+    }
+  } finally {
+    if (containerObject) {
+      containerObject.stop()
     }
   }
 }
