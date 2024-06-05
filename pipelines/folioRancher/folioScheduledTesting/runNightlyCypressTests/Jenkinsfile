@@ -42,7 +42,7 @@ Map cypressFlowParameters = [
   testsTimeout          : '8',
   testrailProjectID     : '14',
   testrailRunID         : '2108',
-  numberOfWorkers       : '10', //Changed form 10 to 6 according to instance resources capacity
+  numberOfWorkers       : '12', //Changed form 10 to 6 according to instance resources capacity
   agent                 : 'cypress',
   useReportPortal       : 'false'
 ]
