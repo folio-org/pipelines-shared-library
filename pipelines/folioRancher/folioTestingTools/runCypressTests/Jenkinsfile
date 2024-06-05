@@ -18,12 +18,13 @@ properties([
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
     string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
-//    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
-    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8"]),
+    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
     string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week"]),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -44,12 +45,13 @@ Map cypressFlowParameters = [
   adminUsername           : params.ADMIN_USERNAME,
   adminPassword           : params.ADMIN_PASSWORD,
   parallelExecParameters  : params.PARALLEL_EXEC_PARAMETERS,
-//  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
+  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
   testsTimeout            : params.TIMEOUT,
   testrailProjectID       : params.TESTRAIL_PROJECTID,
   testrailRunID           : params.TESTRAIL_RUN_ID,
   numberOfWorkers         : params.NUMBER_OF_WORKERS,
-  agent                   : 'cypress',
+  agent                   : params.AGENT,
+  runType                 : params.RUN_TYPE,
   useReportPortal         : "false"
 ]
 

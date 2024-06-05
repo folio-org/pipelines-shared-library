@@ -39,6 +39,7 @@ void call(params) {
   String testsTimeout = params.testsTimeout?.trim() ?: Constants.GLOBAL_BUILD_TIMEOUT
   String testrailProjectID = params.testrailProjectID
   String testrailRunID = params.testrailRunID
+  String runType = params.runType
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
@@ -53,10 +54,10 @@ void call(params) {
 
   buildName customBuildName
 
-  if (useReportPortal) {
+  if(useReportPortal){
     stage('[ReportPortal config bind & launch]') {
       try {
-        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE)
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
 
         rpLaunchID = reportPortal.launch()
         println("${rpLaunchID}")
@@ -88,8 +89,8 @@ void call(params) {
                 batchSize = 6
                 break;
               case 'cypress':
-                workersLimit = 10
-                batchSize = 5
+                workersLimit = 12
+                batchSize = 4
                 break;
               default:
                 error("Worker agent label unknown! '${agent}'")
@@ -212,14 +213,14 @@ void call(params) {
         }
 
         slackSend(attachments: folioSlackNotificationUtils
-          .renderBuildAndTestResultMessage_OLD(
-            TestType.CYPRESS
-            , statusCounts
-            , customBuildName
-            , useReportPortal
-            , "${env.BUILD_URL}allure/"
-          )
-          , channel: "#rancher_tests_notifications")
+                                .renderBuildAndTestResultMessage_OLD(
+                                  TestType.CYPRESS
+                                  , statusCounts
+                                  , customBuildName
+                                  , useReportPortal
+                                  , "${env.BUILD_URL}allure/"
+                                )
+                  , channel: "#rancher_tests_notifications")
       }
     }
   }
