@@ -150,8 +150,8 @@ void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExec
         entry.value.each { moduleTestResult ->
             if (moduleTestResult.getExecutionResult() == TestExecutionResult.FAILED) {
                 def moduleName = moduleTestResult.getName()
-                def failures = moduleTestResult.getFeaturesFailed()
-                def totalTests = moduleTestResult.getFeaturesTotal()
+                def failures = moduleTestResult.getFeaturesFailedCount()
+                def totalTests = moduleTestResult.getFeaturesTotalCount()
 
                 moduleFailureFields << [
                     title: ":gear: $moduleName",

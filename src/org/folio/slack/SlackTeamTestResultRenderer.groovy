@@ -39,10 +39,9 @@ enum SlackTeamTestResultRenderer {
 
     List<String> actions =
       [
-        SlackHelper.renderAction(existingIssuesUrl, SlackTeamTestResultTemplates.EXISTING_ISSUES_ACTION_TEXT)
+        SlackHelper.renderAction(existingIssuesUrl, SlackTeamTestResultTemplates.EXISTING_ISSUES_ACTION_TEXT),
+        SlackHelper.renderAction(createdIssuesUrl, SlackTeamTestResultTemplates.CREATED_ISSUES_ACTION_TEXT)
       ]
-
-    actions.add(SlackHelper.renderAction(createdIssuesUrl, SlackTeamTestResultTemplates.CREATED_ISSUES_ACTION_TEXT))
 
     List<String> fields = []
     fieldsParams.each {

@@ -28,6 +28,16 @@ String renderBuildResultSection(SlackBuildResultRenderer buildResult){
   )
 }
 
+String renderBuildResultMessage(){
+  return SlackHelper
+    .renderMessage([renderBuildResultSection()])
+}
+
+String renderSuccessBuildResultMessage(){
+  return SlackHelper
+    .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.SUCCESS)])
+}
+
 String renderFailedBuildResultMessage(){
   return SlackHelper
     .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.FAILURE)])
