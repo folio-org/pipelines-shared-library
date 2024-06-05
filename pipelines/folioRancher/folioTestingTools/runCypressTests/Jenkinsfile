@@ -25,7 +25,7 @@ properties([
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
     choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week"]),
-    folioParameters.agent(),
+    folioParameters.cypress_agent(),
     folioParameters.refreshParameters()
   ])
 ])
