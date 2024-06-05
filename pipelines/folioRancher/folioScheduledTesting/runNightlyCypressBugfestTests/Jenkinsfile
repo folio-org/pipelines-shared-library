@@ -1,8 +1,7 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1276') _
-//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   //pipelineTriggers([cron('H 0 * * 1-6')]), //TODO Disabled by Mriya team request for BugFest period
@@ -34,7 +33,7 @@ Map cypressBugfestFlowParameters = [
   testrailProjectID       : '14',
   testrailRunID           : '2421',
   numberOfWorkers         : '6',
-  agent                   : 'cypress-static',
+  agent                   : 'cypress',
   useReportPortal         : 'false'
 ]
 
