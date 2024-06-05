@@ -2,7 +2,7 @@
 import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1276') _
+@Library('pipelines-shared-library@RANCHER-1276-PR') _
 //@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
