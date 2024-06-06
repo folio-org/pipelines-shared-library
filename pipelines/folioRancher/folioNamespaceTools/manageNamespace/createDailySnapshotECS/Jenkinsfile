@@ -17,7 +17,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO Switch to baseline 741 branch, DO NOT COMMENT ON THIS!
 
-@Library('pipelines-shared-library@RANCHER-ecs-snapshot-bugfixes') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 CONFIG_BRANCH = 'RANCHER-ecs-snapshot-bugfixes'
 
