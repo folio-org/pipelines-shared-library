@@ -5,7 +5,7 @@ import org.folio.models.TerraformConfig
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-ecs-snapshot-bugfixes') _
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
