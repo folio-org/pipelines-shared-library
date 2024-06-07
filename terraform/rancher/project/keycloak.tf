@@ -122,7 +122,7 @@ livenessProbe:
 customLivenessProbe:
   httpGet:
     path: /health/live
-    port: "${local.kc_target_http_port}"
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 0
   periodSeconds: 1
@@ -136,7 +136,7 @@ readinessProbe:
 customReadinessProbe:
   httpGet:
     path: /health/ready
-    port: "${local.kc_target_http_port}"
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 0
   periodSeconds: 10
@@ -150,7 +150,7 @@ startupProbe:
 customStartupProbe:
   httpGet:
     path: /health/started
-    port: "${local.kc_target_http_port}"
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 30
   periodSeconds: 5
