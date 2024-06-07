@@ -3,7 +3,7 @@ package folioRancher.folioEureka.dockerBuild
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1502') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
