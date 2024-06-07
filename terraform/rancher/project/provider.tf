@@ -45,3 +45,7 @@ provider "postgresql" {
   sslmode         = "disable"
   connect_timeout = 30
 }
+
+provider "kubernetes" {
+
+}
