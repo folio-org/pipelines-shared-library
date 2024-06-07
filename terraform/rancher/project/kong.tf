@@ -1,7 +1,7 @@
 # DO NOT DELETE this resource, will be used in the future.
 resource "random_integer" "node_port" {
-  max   = 32767
-  min   = 30000
+  max   = 32766
+  min   = 30001
   count = var.eureka ? 4 : 0
 }
 
@@ -65,10 +65,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result)}"
+    proxyHttp: "${tostring(random_integer.node_port[0].result - 1)}"
+    proxyHttps: "${tostring(random_integer.node_port[1].result + 1)}"
+    adminHttp: "${tostring(random_integer.node_port[2].result - 1)}"
+    adminHttps: "${tostring(random_integer.node_port[3].result + 1)}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
