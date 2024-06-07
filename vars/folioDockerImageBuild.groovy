@@ -27,13 +27,15 @@ void call(Map params) {
             "--build-arg TARGETARCH=amd64 " +
               "-f ./Dockerfile  " +
               "."
-          ) image.push()
+          )
+          image.push()
         } else {
           def image = docker.build(
             "${params.NAME}",
             "-f ./Dockerfile  " +
               "."
-          ) image.push()
+          )
+          image.push()
         }
       }
     }
