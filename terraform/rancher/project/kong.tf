@@ -131,3 +131,19 @@ migration:
 EOF
   ]
 }
+
+resource "kubernetes_service" "kong_svc" {
+  metadata {
+    name = "kong-${var.rancher_project_name}-svc"
+  }
+  spec {
+    selector = {
+      name = "kong"
+    }
+    port {
+      port        = 8001
+      target_port = 8001
+    }
+    type = "ClusterIP"
+  }
+}
