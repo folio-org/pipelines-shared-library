@@ -20,7 +20,6 @@ void call(Map params) {
   stage('build & push') {
     dir("${params.NAME}") {
       logger.info("Build started for ${params.NAME} image...")
-      dir("${params.NAME}") {
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           if (params.NAME == 'folio-kong') {
             def image = docker.build(
@@ -38,7 +37,6 @@ void call(Map params) {
           }
           image.push()
         }
-      }
     }
   }
 }
