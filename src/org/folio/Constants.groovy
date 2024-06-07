@@ -190,7 +190,7 @@ class Constants {
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',
                                   'snapshot'      : '',
-                                  'leipzig'       : 'leipzig' ]
+                                  'leipzig'       : 'leipzig']
 
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
@@ -263,4 +263,15 @@ class Constants {
 
   static List SYSTEM_USER_MODULES = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
                                      "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub"]
+
+  static List EUREKA_MODULES = ['mod-scheduler',
+                                'mod-roles-keycloak',
+                                'mod-users-keycloak',
+                                'mod-login-keycloak',
+                                'mgr-tenants',
+                                'mgr-tenant-entitlements',
+                                'mgr-applications',
+                                'folio-module-sidecar',
+                                'folio-kong',
+                                'folio-keycloak']
 }

@@ -1,0 +1,50 @@
+#!groovy
+package folioRancher.folioEureka.dockerBuild
+
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1502') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+    folioParameters.eurekaModules(),
+    booleanParam(name: 'MAVEN', defaultValue: false, description: '(Optional) Set true to compile app, if needed')
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.MODULE_NAME}-${env.BUILD_ID}"
+        buildDescription "image build"
+      }
+
+      Map eurekaParams = [
+        NAME         : "${params.MODULE_NAME}",
+        buildRequired: params.MAVEN
+      ]
+
+      folioDockerImageBuild(eurekaParams)
+
+    } catch (e) {
+      println("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        common.removeImage("keycloak")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
