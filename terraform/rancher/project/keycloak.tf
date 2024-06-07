@@ -1,3 +1,8 @@
+locals {
+  kc_admin_user_name  = "admin"
+  kc_target_http_port = "8080"
+}
+
 resource "helm_release" "keycloak" {
   count      = (var.eureka ? 1 : 0)
   chart      = "keycloak"
@@ -16,7 +21,7 @@ image:
   debug: true
 
 auth:
-  adminUser: admin
+  adminUser: ${local.kc_admin_user_name}
   existingSecret: keycloak-credentials
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
@@ -75,7 +80,7 @@ extraEnvVars:
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
-    value: "8080"
+    value: ${local.kc_target_http_port}
   - name: KC_HEALTH_ENABLED
     value: "true"
 
@@ -117,7 +122,7 @@ livenessProbe:
 customLivenessProbe:
   httpGet:
     path: /health/live
-    port: 8080
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 0
   periodSeconds: 1
@@ -131,7 +136,7 @@ readinessProbe:
 customReadinessProbe:
   httpGet:
     path: /health/ready
-    port: 8080
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 0
   periodSeconds: 10
@@ -145,7 +150,7 @@ startupProbe:
 customStartupProbe:
   httpGet:
     path: /health/started
-    port: 8080
+    port: ${local.kc_target_http_port}
     scheme: HTTP
   initialDelaySeconds: 30
   periodSeconds: 5
@@ -166,7 +171,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /realms/master
-    alb.ingress.kubernetes.io/healthcheck-port: '8080'
+    alb.ingress.kubernetes.io/healthcheck-port: ${local.kc_target_http_port}
 EOF
   ]
 }
