@@ -53,28 +53,6 @@ edge-connexion:
       memory: 480Mi
     requests:
       memory: 384Mi
-edge-dcb:
-  service:
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-      service.beta.kubernetes.io/aws-load-balancer-type: external
-    type: LoadBalancer
-  extraEnvVars: []
-  integrations:
-    okapi:
-      enabled: true
-      existingSecret: okapi-credentials
-  configMaps:
-    ephemeral:
-      fileName: edge-dcb-ephemeral-properties
-      existingConfig: edge-dcb-ephemeral-properties
-  replicaCount: 1
-  resources:
-    limits:
-      memory: 480Mi
-    requests:
-      memory: 384Mi
 edge-courses:
   ingress:
     enabled: true
@@ -113,6 +91,38 @@ edge-courses:
   resources:
     limits:
       memory: 320Mi
+    requests:
+      memory: 256Mi
+edge-dcb:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+        - path: /dcbService*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dcb-ephemeral-properties
+      existingConfig: edge-dcb-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 480Mi
     requests:
       memory: 256Mi
 edge-dematic:
@@ -504,6 +514,9 @@ mod-circulation:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -620,6 +633,9 @@ mod-data-export:
     s3:
       enabled: true
       existingSecret: s3-mod-data-export-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -676,6 +692,12 @@ mod-data-import:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-lists-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1293,6 +1315,28 @@ mod-quick-marc:
   resources:
     limits:
       memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-reading-room:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 341Mi
+mod-record-specifications:
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  resources:
+    limits:
+      memory: 650Mi
     requests:
       memory: 512Mi
 mod-remote-storage:
