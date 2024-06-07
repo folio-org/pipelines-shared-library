@@ -135,14 +135,13 @@ EOF
 resource "kubernetes_service" "kong_svc" {
   count = var.eureka ? 1 : 0
   metadata {
-    name      = "kong-${var.rancher_project_name}-svc"
+    name      = "kong-admin-api-${var.rancher_project_name}"
     namespace = rancher2_namespace.this.id
   }
   spec {
     selector = {
-      name = "kong"
+      app.kubernetes.io/name: kong
     }
-    allocate_load_balancer_node_ports = false
     port {
       port        = 8001
       target_port = 8001
