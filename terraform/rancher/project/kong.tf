@@ -6,14 +6,22 @@ resource "random_integer" "node_port" {
 }
 
 resource "helm_release" "kong" {
-  count      = var.eureka ? 1 : 0
-  chart      = "kong"
-  depends_on = [rancher2_secret.db-credentials, random_integer.node_port, helm_release.postgresql, helm_release.pgadmin, postgresql_database.kong, postgresql_role.kong]
+  count = var.eureka ? 1 : 0
+  chart = "kong"
+  depends_on = [
+    rancher2_secret.db-credentials,
+    random_integer.node_port,
+    helm_release.postgresql,
+    helm_release.pgadmin,
+    postgresql_database.kong,
+    postgresql_role.kong
+  ]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"
   repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
-  values = [<<-EOF
+  values = [
+    <<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: folio-kong
@@ -57,10 +65,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${random_integer.node_port[0].result}"
-    proxyHttps: "${random_integer.node_port[1].result}"
-    adminHttp: "${random_integer.node_port[2].result}"
-    adminHttps: "${random_integer.node_port[3].result}"
+    proxyHttp: "${tostring(random_integer.node_port[0].result)}"
+    proxyHttps: "${tostring(random_integer.node_port[1].result)}"
+    adminHttp: "${tostring(random_integer.node_port[2].result)}"
+    adminHttps: "${tostring(random_integer.node_port[3].result)}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -68,13 +76,13 @@ ingress:
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/group.name: ${local.group_name}
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/group.name: "${local.group_name}"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/success-codes: 200-399
-    alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-port: ${random_integer.node_port[2].result}
+    alb.ingress.kubernetes.io/success-codes: "200-399"
+    alb.ingress.kubernetes.io/healthcheck-path: "/"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result)}"
 kong:
   livenessProbe:
     enabled: false
@@ -84,7 +92,7 @@ kong:
     enabled: false
   extraEnvVars:
    - name: KONG_PG_DATABASE
-     value: kong
+     value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
      value: "64 160k"
    - name: KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE
@@ -106,7 +114,7 @@ kong:
    - name: KONG_LOG_LEVEL
      value: "info"
    - name: KONG_ADMIN_GUI_API_URL
-     value: ${local.kong_url}
+     value: "${local.kong_url}"
    - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
      value: "4 16k"
    - name: KONG_PROXY_LISTEN
