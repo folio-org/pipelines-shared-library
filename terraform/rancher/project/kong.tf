@@ -1,4 +1,3 @@
-# DO NOT DELETE this resource, will be used in the future.
 resource "random_integer" "node_port" {
   max   = 32766
   min   = 30001
