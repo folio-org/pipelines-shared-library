@@ -16,7 +16,7 @@ resource "helm_release" "kong" {
   values = [<<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: kong
+  repository: folio-kong
   tag: latest
   pullPolicy: IfNotPresent
 useDaemonset: false
@@ -48,9 +48,19 @@ postgresql:
 networkPolicy:
   enabled: false
 service:
-  type: NodePort
+  type: ClusterIP
   exposeAdmin: true
   disableHttpPort: false
+  ports:
+    proxyHttp: 80
+    proxyHttps: 443
+    adminHttp: 8001
+    adminHttps: 8444
+  nodePorts:
+    proxyHttp: ${random_integer.node_port[0].result}
+    proxyHttps: ${random_integer.node_port[1].result}
+    adminHttp: ${random_integer.node_port[2].result}
+    adminHttps: ${random_integer.node_port[3].result}
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -64,7 +74,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-port: '8001'
+    alb.ingress.kubernetes.io/healthcheck-port: ${random_integer.node_port[2].result}
 kong:
   livenessProbe:
     enabled: false
