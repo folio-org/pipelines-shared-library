@@ -11,10 +11,8 @@ void call(Map params) {
     }
   }
   if (params.buildRequired) {
-    dir("${params.NAME}") {
-      withMaven(jdk: "openjdk-17-jenkins-slave-all", maven: Constants.MAVEN_TOOL_NAME, options: [artifactsPublisher(disabled: true)]) {
-        sh(script: "mvn clean install -DskipTests", returnStdOut: true)
-      }
+    withMaven(jdk: "openjdk-17-jenkins-slave-all", maven: Constants.MAVEN_TOOL_NAME, options: [artifactsPublisher(disabled: true)]) {
+      sh(script: "mvn clean install -DskipTests", returnStdOut: true)
     }
   }
   stage('build & push') {
