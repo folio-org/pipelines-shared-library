@@ -134,13 +134,13 @@ EOF
 resource "kubernetes_service" "kong_svc" {
   count = var.eureka ? 1 : 0
   metadata {
-    name      = "kong-admin-api-${var.rancher_project_name}"
+    name      = "kong-admin-api-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
   }
   spec {
     selector = {
       "app.kubernetes.io/component" = "server"
-      "app.kubernetes.io/instance"  = "kong-${rancher2_project.this.id}"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
       "app.kubernetes.io/name"      = "kong"
     }
     port {
