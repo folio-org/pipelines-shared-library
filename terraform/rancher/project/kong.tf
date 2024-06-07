@@ -133,6 +133,7 @@ EOF
 }
 
 resource "kubernetes_service" "kong_svc" {
+  count = var.eureka ? 1 : 0
   metadata {
     name      = "kong-${var.rancher_project_name}-svc"
     namespace = rancher2_namespace.this.id
