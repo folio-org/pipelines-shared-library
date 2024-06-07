@@ -42,7 +42,7 @@ ansiColor('xterm') {
     } finally {
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        common.removeImage("keycloak")
+        common.removeImage("${params.MODULE_NAME}")
         cleanWs notFailBuild: true
       }
     }
