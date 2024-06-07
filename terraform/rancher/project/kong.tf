@@ -140,7 +140,8 @@ resource "kubernetes_service" "kong_svc" {
   }
   spec {
     selector = {
-      app.kubernetes.io/name = "kong"
+      name                     = "kong"
+      "app.kubernetes.io/name" = "kong"
     }
     port {
       port        = 8001
