@@ -56,7 +56,7 @@ postgresql:
 networkPolicy:
   enabled: false
 service:
-  type: ClusterIP
+  type: NodePort
   exposeAdmin: true
   disableHttpPort: false
   ports:
