@@ -20,23 +20,22 @@ void call(Map params) {
   stage('build & push') {
     dir("${params.NAME}") {
       logger.info("Build started for ${params.NAME} image...")
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          if (params.NAME == 'folio-kong') {
-            def image = docker.build(
-              "${params.NAME}",
-              "--build-arg TARGETARCH=amd64 " +
-                "-f ./Dockerfile  " +
-                "."
-            )
-          } else {
-            def image = docker.build(
-              "${params.NAME}",
+      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+        if (params.NAME == 'folio-kong') {
+          def image = docker.build(
+            "${params.NAME}",
+            "--build-arg TARGETARCH=amd64 " +
               "-f ./Dockerfile  " +
-                "."
-            )
-          }
-          image.push()
+              "."
+          ) image.push()
+        } else {
+          def image = docker.build(
+            "${params.NAME}",
+            "-f ./Dockerfile  " +
+              "."
+          ) image.push()
         }
+      }
     }
   }
 }
