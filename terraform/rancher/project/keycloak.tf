@@ -15,7 +15,7 @@ resource "helm_release" "keycloak" {
     <<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: keycloak
+  repository: folio-keycloak
   tag: latest
   pullPolicy: Always
   debug: true
