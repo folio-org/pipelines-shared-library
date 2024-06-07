@@ -139,8 +139,9 @@ resource "kubernetes_service" "kong_svc" {
   }
   spec {
     selector = {
-      name                     = "kong"
-      "app.kubernetes.io/name" = "kong"
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_project.this.id}"
+      "app.kubernetes.io/name"      = "kong"
     }
     port {
       port        = 8001
