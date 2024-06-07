@@ -144,7 +144,7 @@ resource "kubernetes_service" "kong_svc" {
       "app.kubernetes.io/name"      = "kong"
     }
     port {
-      port        = 8001
+      port        = 80
       target_port = 8001
     }
     type = "ClusterIP"
