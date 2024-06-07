@@ -16,7 +16,7 @@ resource "helm_release" "kong" {
   values = [<<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: kong
+  repository: folio-kong
   tag: latest
   pullPolicy: IfNotPresent
 useDaemonset: false
