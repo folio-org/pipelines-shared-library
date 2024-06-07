@@ -171,7 +171,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /realms/master
-    alb.ingress.kubernetes.io/healthcheck-port: ${local.kc_target_http_port}
+    alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
 EOF
   ]
 }
