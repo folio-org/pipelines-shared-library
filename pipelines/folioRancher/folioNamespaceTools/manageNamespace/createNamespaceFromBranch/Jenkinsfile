@@ -47,7 +47,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
-  .eureka(params.CONSORTIA)
+  .eureka(params.EUREKA)
   .rwSplit(params.RW_SPLIT)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
