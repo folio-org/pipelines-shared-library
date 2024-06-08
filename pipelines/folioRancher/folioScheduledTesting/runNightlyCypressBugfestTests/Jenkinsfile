@@ -33,7 +33,7 @@ Map cypressBugfestFlowParameters = [
   testrailProjectID       : '14',
   testrailRunID           : '2421',
   numberOfWorkers         : '6',
-  agent                   : 'cypress',
+  agent                   : 'cypress-static',
   useReportPortal         : 'false'
 ]
 

@@ -43,6 +43,7 @@ Map cypressFlowParameters = [
   testrailRunID         : '2108',
   numberOfWorkers       : '12', //Changed form 10 to 6 according to instance resources capacity
   agent                 : 'cypress',
+  runType               : 'night',
   useReportPortal       : 'false'
 ]
 
