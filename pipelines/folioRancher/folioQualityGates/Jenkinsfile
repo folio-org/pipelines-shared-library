@@ -4,9 +4,7 @@ import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.Constants
 import org.folio.utilities.Logger
 
-//TODO Switch branch before final merge
-//@Library('pipelines-shared-library') _
-@Library('pipelines-shared-library@RANCHER-1054') _
+@Library('pipelines-shared-library') _
 
 properties([
   pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
@@ -29,17 +27,9 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 boolean diffFound = false
 boolean autoCanceled = false
 
-//TODO switch to regular job before merge
-String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054'
-//TODO switch to regular job before merge
-String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054'
+String createNamespaceFromBranchJob = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
+String deleteNamespaceJob = '/folioRancher/folioNamespaceTools/deleteNamespace'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
-
-//Map namespacesMap = [
-//  karate : 'cikarate',
-//  cypress: 'cicypress',
-////  schema: "cischema" //TODO Uncomment after functionality implementation
-//]
 
 Map envsMap = [
   karate : [cluster: 'folio-tmp', namespace: 'cikarate'],
