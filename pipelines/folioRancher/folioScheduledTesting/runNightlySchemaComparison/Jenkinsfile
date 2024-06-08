@@ -1,7 +1,6 @@
 #!groovy
-
-import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -22,10 +21,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 Map Parameters = [
-  FOLIO_REPOSITORY                  : params.FOLIO_REPOSITORY,
-  FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
-  FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
-  BACKUP_NAME                       : params.BACKUP_NAME,
+  FOLIO_REPOSITORY: params.FOLIO_REPOSITORY,
+  FOLIO_BRANCH_SRC: params.FOLIO_BRANCH_SRC,
+  FOLIO_BRANCH_DST: params.FOLIO_BRANCH_DST,
+  BACKUP_NAME     : params.BACKUP_NAME,
 ]
 
 ansiColor('xterm') {
@@ -38,12 +37,12 @@ ansiColor('xterm') {
 
     stage('[Job] Execute Schema Comparison Job') {
       script {
-          build job: Constants.JENKINS_JOB_SCHEMA_COMPARE,
-            parameters:
-              [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
-               string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
-               string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
-               string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
+        build job: Constants.JENKINS_JOB_SCHEMA_COMPARE,
+          parameters:
+            [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
+             string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
+             string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
+             string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
       }
     }
   }

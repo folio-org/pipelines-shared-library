@@ -1,7 +1,6 @@
 #!groovy
 import hudson.util.Secret
 import org.jenkinsci.plugins.workflow.libs.Library
-import java.util.Calendar
 
 @Library('pipelines-shared-library') _
 //@Library('pipelines-shared-library') _

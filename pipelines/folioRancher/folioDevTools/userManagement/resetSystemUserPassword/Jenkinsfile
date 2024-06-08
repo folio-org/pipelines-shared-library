@@ -1,7 +1,7 @@
 #!groovy
+import org.folio.Constants
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
-import org.folio.Constants
 import org.folio.rest_v2.Main
 import org.folio.rest_v2.Users
 import org.folio.utilities.Logger

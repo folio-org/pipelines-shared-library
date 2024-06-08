@@ -1,10 +1,9 @@
 #!groovy
-
 import org.folio.models.Index
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
-import org.folio.rest.GitHubUtility
 import org.folio.models.TenantUi
+import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -13,22 +12,22 @@ import org.jenkinsci.plugins.workflow.libs.Library
 CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
 properties([
-    buildDiscarder(logRotator(numToKeepStr: '30')),
-    disableConcurrentBuilds(),
-    parameters([
-        folioParameters.cluster(),
-        folioParameters.namespace(),
-        folioParameters.repository(),
-        folioParameters.branch(),
-        folioParameters.configType(),
-        folioParameters.tenantId(),
-        folioParameters.uiBundleBuild(),
-        folioParameters.uiBundleTag(),
-        string(name: 'CUSTOM_HASH', defaultValue: '', description: '(Optional) Commit hash for bundle build from specific commit'),
-        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
-        folioParameters.agent(),
-        folioParameters.refreshParameters(),
-    ])
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.repository(),
+    folioParameters.branch(),
+    folioParameters.configType(),
+    folioParameters.tenantId(),
+    folioParameters.uiBundleBuild(),
+    folioParameters.uiBundleTag(),
+    string(name: 'CUSTOM_HASH', defaultValue: '', description: '(Optional) Commit hash for bundle build from specific commit'),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+  ])
 ])
 String defaultTenantId = 'diku'
 
@@ -68,50 +67,50 @@ if (params.CONSORTIA) {
   }
 }
 if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    return
+  currentBuild.result = 'ABORTED'
+  return
 }
 
 ansiColor('xterm') {
-    node(params.AGENT) {
-      try {
-        stage('Ini') {
-          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-          buildDescription "For deploy UI bundle\nBranch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE} "
-        }
-        stage('Checkout') {
-          checkout scm
-        }
-        if (params.UI_BUNDLE_BUILD) {
-          stage('UI Build') {
-            TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-            def jobParameters = [
-              OKAPI_URL  : "https://${namespace.getDomains()['okapi']}",
-              TENANT_ID  : ui.getTenantId(),
-              CUSTOM_HASH: ui.getHash(),
-              IMAGE_NAME : ui.getImageName(),
-              CONSORTIA  : params.CONSORTIA
-            ]
-            folioUI.build(jobParameters)
-            }
-          }
-
-        stage('UI Deploy') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "For deploy UI bundle\nBranch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE} "
+      }
+      stage('Checkout') {
+        checkout scm
+      }
+      if (params.UI_BUNDLE_BUILD) {
+        stage('UI Build') {
           TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-          }
+          def jobParameters = [
+            OKAPI_URL  : "https://${namespace.getDomains()['okapi']}",
+            TENANT_ID  : ui.getTenantId(),
+            CUSTOM_HASH: ui.getHash(),
+            IMAGE_NAME : ui.getImageName(),
+            CONSORTIA  : params.CONSORTIA
+          ]
+          folioUI.build(jobParameters)
         }
-        stage('Update UI Modules')  {
-          main.preInstall(uiModuleList, [])
-          main.update(namespace.getTenants())
+      }
+
+      stage('UI Deploy') {
+        TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
         }
+      }
+      stage('Update UI Modules') {
+        main.preInstall(uiModuleList, [])
+        main.update(namespace.getTenants())
+      }
     } catch (e) {
-        println "Caught exception: ${e}"
-        error(e.getMessage())
+      println "Caught exception: ${e}"
+      error(e.getMessage())
     } finally {
-        stage('Cleanup') {
-            cleanWs notFailBuild: true
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
       }
     }
   }

@@ -1,12 +1,7 @@
 #!groovy
-import groovy.json.JsonOutput
+
 import org.folio.Constants
-import org.folio.models.Index
-import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiConfig
-import org.folio.models.OkapiTenant
-import org.folio.models.RancherNamespace
-import org.folio.models.SmtpConfig
+import org.folio.models.*
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -71,7 +66,7 @@ ansiColor('xterm') {
       buildName ""
       buildDescription ""
     }
-    stage("Create Tenant"){
+    stage("Create Tenant") {
       main.createTenantFlow(newTenant)
     }
   }

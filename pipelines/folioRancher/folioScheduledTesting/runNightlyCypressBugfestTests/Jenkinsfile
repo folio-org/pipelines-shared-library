@@ -20,21 +20,21 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 Map cypressBugfestFlowParameters = [
-  customBuildName         : env.JOB_BASE_NAME,
-  branch                  : params.CYPRESS_BUGFEST_BRANCH,
-  tenantUrl               : "https://bugfest-quesnelia-aqa.int.aws.folio.org",
-  okapiUrl                : "https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org",
-  tenantId                : 'fs09000003',
-  adminUsername           : 'folio-aqa',
-  adminPassword           : 'Folio-aqa1',
-  parallelExecParameters  : '--env grepTags="smoke criticalPth extendedPath"',
+  customBuildName       : env.JOB_BASE_NAME,
+  branch                : params.CYPRESS_BUGFEST_BRANCH,
+  tenantUrl             : "https://bugfest-quesnelia-aqa.int.aws.folio.org",
+  okapiUrl              : "https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org",
+  tenantId              : 'fs09000003',
+  adminUsername         : 'folio-aqa',
+  adminPassword         : 'Folio-aqa1',
+  parallelExecParameters: '--env grepTags="smoke criticalPth extendedPath"',
 //  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
-  testsTimeout            : '14',
-  testrailProjectID       : '14',
-  testrailRunID           : '2421',
-  numberOfWorkers         : '6',
-  agent                   : 'cypress-static',
-  useReportPortal         : 'false'
+  testsTimeout          : '14',
+  testrailProjectID     : '14',
+  testrailRunID         : '2421',
+  numberOfWorkers       : '6',
+  agent                 : 'cypress-static',
+  useReportPortal       : 'false'
 ]
 
 ansiColor('xterm') {

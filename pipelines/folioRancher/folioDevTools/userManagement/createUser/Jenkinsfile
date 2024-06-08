@@ -1,11 +1,12 @@
 #!groovy
+import org.folio.models.OkapiTenant
 
 @Library('pipelines-shared-library') _
 
-import org.folio.models.OkapiTenant
+
+import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
-import org.folio.models.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([

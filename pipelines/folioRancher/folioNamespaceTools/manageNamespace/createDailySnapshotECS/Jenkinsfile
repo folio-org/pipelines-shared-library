@@ -2,13 +2,7 @@
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
 
 import org.folio.Constants
-import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiConfig
-import org.folio.models.OkapiTenant
-import org.folio.models.OkapiUser
-import org.folio.models.RancherNamespace
-import org.folio.models.TenantUi
-import org.folio.models.TerraformConfig
+import org.folio.models.*
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
 import org.folio.rest_v2.Users
@@ -191,7 +185,7 @@ ansiColor('xterm') {
       stage('Enable') {
         retry(3) {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
-            kubectl.scaleDownResources(namespace.getNamespaceName(),"deployment")
+            kubectl.scaleDownResources(namespace.getNamespaceName(), "deployment")
             sleep time: 2, unit: 'MINUTES'
             kubectl.scaleUpResources(namespace.getNamespaceName(), "deployment")
           }
