@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.testing.TestType
+
 /**
  * !Attention! This method should be called inside node block in parent
  *
@@ -75,96 +76,143 @@ void call(params) {
     }
   }
 
-  timeout(time: testsTimeout, unit: 'HOURS') {
-    if (parallelExecParameters?.trim()) {
-      stage('[Cypress] Parallel run') {
-        script {
-          Map workers = [:]
-          for (int workerNumber = 1; workerNumber <= numberOfWorkers; workerNumber++) {
-            workers["Worker#${workerNumber}"] = { currentWorkerNumber ->
-              node(agent) {
-                cloneCypressRepo(branch)
+  try {
+    timeout(time: testsTimeout, unit: 'HOURS') {
+      if (parallelExecParameters?.trim()) {
+        stage('[Cypress] Parallel run') {
+          script {
+            int workersLimit
+            int batchSize
+            switch (agent) {
+              case 'cypress-static':
+                workersLimit = 6
+                batchSize = 6
+                break;
+              case 'cypress':
+                workersLimit = 12
+                batchSize = 4
+                break;
+              default:
+                error("Worker agent label unknown! '${agent}'")
+                break;
+            }
+            int maxWorkers = Math.min(numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
+            List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
 
-                cypressImageVersion = getCypressImageVersion()
+            setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
 
-                executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-                  "parallel_${customBuildName}", browserName, parallelExecParameters, testrailProjectID, testrailRunID)
+            // Divide workers into batches
+            Map<String, Closure> batchExecutions = [failFast: false]
+            batches.eachWithIndex { batch, batchIndex ->
+              batchExecutions["Batch#${batchIndex + 1}"] = {
+                node(agent) {
+                  dir("cypress-${batch[0]}") {
+                    cloneCypressRepo(branch)
+                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
-                resultPaths.add(archiveTestResults(currentWorkerNumber))
+                    compileTests(cypressImageVersion, "${batch[0]}")
+                  }
+
+                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
+                    if(copyBatchIndex > 0){
+                      sh "mkdir -p cypress-${copyBatch}"
+                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
+                    }
+                  }
+
+                  Map<String, Closure> parallelWorkers = [failFast: false]
+                  batch.each { workerNumber ->
+                    parallelWorkers["Worker#${workerNumber}"] = {
+                      dir("cypress-${workerNumber}"){
+                        executeTests(cypressImageVersion, "parallel_${customBuildName}"
+                                      , browserName, parallelExecParameters
+                                      , testrailProjectID, testrailRunID, workerNumber.toString())
+                      }
+                    }
+                  }
+                  parallel(parallelWorkers)
+
+                  batch.each {workerNumber ->
+                    dir("cypress-${workerNumber}") {
+                      resultPaths.add(archiveTestResults("${workerNumber}"))
+                    }
+                  }
+                }
               }
-            }.curry(workerNumber)
-          }
-          parallel(workers)
-        }
-      }
-    }
-
-    if (sequentialExecParameters?.trim()) {
-      stage('[Cypress] Sequential run') {
-        script {
-          cloneCypressRepo(branch)
-
-          cypressImageVersion = getCypressImageVersion()
-
-          executeTests(cypressImageVersion, tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword,
-            "sequential_${customBuildName}", browserName, sequentialExecParameters, testrailProjectID, testrailRunID)
-
-          resultPaths.add(archiveTestResults(numberOfWorkers + 1))
-        }
-      }
-    }
-  }
-
-  if(useReportPortal) {
-    stage("[ReportPortal Run stop]") {
-      try {
-        def res_end = reportPortal.launchFinish()
-        println("${res_end}")
-      } catch (Exception e) {
-        println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-      }
-    }
-  }
-
-  stage('[Allure] Generate report') {
-    script {
-      for (path in resultPaths) {
-        unstash name: path
-        unzip zipFile: "${path}.zip", dir: path
-      }
-      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-      sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-    }
-  }
-
-  stage('[Allure] Publish report') {
-    script {
-      allure([
-        includeProperties: false,
-        jdk              : '',
-        commandline      : Constants.CYPRESS_ALLURE_VERSION,
-        properties       : [],
-        reportBuildPolicy: 'ALWAYS',
-        results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
-      ])
-    }
-  }
-
-  stage('[Allure] Send slack notifications') {
-    script {
-      def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-
-      Map<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
-      parseAllureReport.children.each { child ->
-        child.children.each { testCase ->
-          def status = testCase.status
-          if (statusCounts[status] != null) {
-            statusCounts[status] += 1
+            }
+            parallel(batchExecutions)
           }
         }
       }
+      if (sequentialExecParameters?.trim()) {
+        stage('[Cypress] Sequential run') {
+          script {
+            cloneCypressRepo(branch)
+            cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
-      slackSend(attachments: folioSlackNotificationUtils
+            compileTests(cypressImageVersion)
+
+            executeTests(cypressImageVersion, "sequential_${customBuildName}", browserName
+                          , sequentialExecParameters, testrailProjectID, testrailRunID)
+
+            resultPaths.add(archiveTestResults((numberOfWorkers + 1).toString()))
+          }
+        }
+      }
+    }
+  } catch (e) {
+    println(e)
+    error("Tests execution stage failed")
+  } finally {
+    if (useReportPortal) {
+      stage("[ReportPortal Run stop]") {
+        try {
+          def res_end = reportPortal.launchFinish()
+          println("${res_end}")
+        } catch (Exception e) {
+          println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+        }
+      }
+    }
+    stage('[Allure] Generate report') {
+      script {
+        for (path in resultPaths) {
+          unstash name: path
+          unzip zipFile: "${path}.zip", dir: path
+        }
+        def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+        sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+      }
+    }
+
+    stage('[Allure] Publish report') {
+      script {
+        allure([
+          includeProperties: false,
+          jdk              : '',
+          commandline      : Constants.CYPRESS_ALLURE_VERSION,
+          properties       : [],
+          reportBuildPolicy: 'ALWAYS',
+          results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+        ])
+      }
+    }
+
+    stage('[Allure] Send slack notifications') {
+      script {
+        def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+
+        Map<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
+        parseAllureReport.children.each { child ->
+          child.children.each { testCase ->
+            def status = testCase.status
+            if (statusCounts[status] != null) {
+              statusCounts[status] += 1
+            }
+          }
+        }
+
+        slackSend(attachments: folioSlackNotificationUtils
                                 .renderBuildAndTestResultMessage_OLD(
                                   TestType.CYPRESS
                                   , statusCounts
@@ -172,7 +220,8 @@ void call(params) {
                                   , useReportPortal
                                   , "${env.BUILD_URL}allure/"
                                 )
-                , channel: "#rancher_tests_notifications")
+                  , channel: "#rancher_tests_notifications")
+      }
     }
   }
 }
@@ -192,75 +241,105 @@ void cloneCypressRepo(String branch) {
   }
 }
 
-String getCypressImageVersion() {
-  stage('Cypress tests Image version') {
-    script {
-      return readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress']
-    }
+String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
+  def packageJson = readJSON file: filePath
+  return packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
+}
+
+void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
+  env.CYPRESS_BASE_URL = tenantUrl
+  env.CYPRESS_OKAPI_HOST = okapiUrl
+  env.CYPRESS_OKAPI_TENANT = tenantId
+  env.CYPRESS_diku_login = adminUsername
+  env.CYPRESS_diku_password = adminPassword
+  env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+}
+
+void compileTests(String cypressImageVersion, String batchID = '') {
+  stage('Compile tests') {
+    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}-${batchID}", {
+        sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+        node -v; yarn -v
+        yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+        env; yarn install
+        yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
+        yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"""
+//      sh "yarn add @reportportal/agent-js-cypress@latest"
+    })
   }
 }
 
-void executeTests(String cypressImageVersion, String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
-                  String adminPassword, String customBuildName, String browserName, String execParameters,
-                  String testrailProjectID = '', String testrailRunID = '') {
+void executeTests(String cypressImageVersion, String customBuildName, String browserName, String execParameters,
+                  String testrailProjectID = '', String testrailRunID = '', String workerId = '') {
   stage('Run tests') {
-    script {
-      catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          docker.image('732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest').inside('--entrypoint=') {
-            env.HOME = "${pwd()}"
-            env.CYPRESS_CACHE_FOLDER = "${pwd()}/cache"
-            env.CYPRESS_BASE_URL = "${tenantUrl}"
-            env.CYPRESS_OKAPI_HOST = "${okapiUrl}"
-            env.CYPRESS_OKAPI_TENANT = "${tenantId}"
-            env.CYPRESS_diku_login = "${adminUsername}"
-            env.CYPRESS_diku_password = "${adminPassword}"
-            env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+    String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
+    runId = runId.length() > 2 ? runId : "0${runId}"
+    String execString = """
+      export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+      export DISPLAY=:${runId[-2..-1]}
+      mkdir -p /tmp/.X11-unix
+      Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+      env; npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
+      pkill Xvfb
+    """
+//    String execString = "npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
-            withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                              credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
-                              accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                              secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+    runInDocker(cypressImageVersion, "worker-${runId}", {
+      if (testrailProjectID?.trim() && testrailRunID?.trim()) {
+        execString = """
+        export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
+        export TESTRAIL_PROJECTID=${testrailProjectID}
+        export TESTRAIL_RUN_ID=${testrailRunID}
+        export CYPRESS_allureReuseAfterSpec=true
+        """ + execString
 
-              String cypressTestrailSimpleVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-testrail-simple']
-              String cypressCloudVersion = readJSON(text: readFile("${env.WORKSPACE}/package.json"))['dependencies']['cypress-cloud']
-              String execString = "\$HOME/.yarn/bin/cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
-
-              sh "yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}"
-              sh "yarn install"
-              sh "yarn add -D cypress-testrail-simple@${cypressTestrailSimpleVersion}"
-              sh "yarn global add cypress-cloud@${cypressCloudVersion}"
-              sh "yarn add @reportportal/agent-js-cypress@latest"
-
-              if (testrailProjectID?.trim() && testrailRunID?.trim()) {
-                env.TESTRAIL_HOST = Constants.CYPRESS_TESTRAIL_HOST
-                env.TESTRAIL_PROJECTID = testrailProjectID
-                env.TESTRAIL_RUN_ID = testrailRunID
-                env.CYPRESS_allureReuseAfterSpec = "true"
-
-                println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
-
-                withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-                  sh execString
-                }
-              } else {
-                sh execString
-              }
-            }
-          }
+        println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+        withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+          sh execString
         }
+      } else {
+        sh execString
       }
-    }
+    })
   }
 }
 
-String archiveTestResults(def id) {
+String archiveTestResults(String id) {
   stage('Archive test results') {
     script {
       zip zipFile: "allure-results-${id}.zip", glob: "allure-results/*"
       archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${id}.zip", fingerprint: true, defaultExcludes: false
       stash name: "allure-results-${id}", includes: "allure-results-${id}.zip"
       return "allure-results-${id}"
+    }
+  }
+}
+
+void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure<?> closure) {
+  String containerName = "cypress-${containerNameSuffix}"
+  def containerObject
+  try {
+    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+      containerObject = docker.image("732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest").inside("--init --name=${containerName} --entrypoint=") {
+        withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                          credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
+                          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          closure()
+        }
+      }
+    }
+  } catch (e) {
+    println(e)
+    if (containerName.contains('cypress-compile')) {
+      currentBuild.result = 'FAILED'
+      error('Unable to compile tests')
+    } else {
+      currentBuild.result = 'UNSTABLE'
+    }
+  } finally {
+    if (containerObject) {
+      containerObject.stop()
     }
   }
 }
