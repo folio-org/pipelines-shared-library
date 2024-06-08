@@ -1,6 +1,7 @@
 import org.folio.Constants
 import hudson.util.Secret
 import org.folio.rest.model.OkapiUser
+import org.folio.testing.cypress.CypressConstants
 
 private def _paramChoice(String name, List value, String description) {
     return choice(name: name, choices: value, description: description)
@@ -37,6 +38,10 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
 
 def agent() {
     return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
+}
+
+def cypress_agent() {
+  return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
 def refreshParameters() {

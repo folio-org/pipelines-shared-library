@@ -106,6 +106,8 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
+                  cleanWs notFailBuild: true
+
                   dir("cypress-${batch[0]}") {
                     cloneCypressRepo(branch)
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
