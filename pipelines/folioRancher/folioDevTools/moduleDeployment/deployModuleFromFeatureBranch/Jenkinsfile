@@ -8,7 +8,7 @@ import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library@RANCHER-836') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

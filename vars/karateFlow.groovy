@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.Instant
 
-@Library('pipelines-shared-library@RANCHER-1054') _
+@Library('pipelines-shared-library') _
 
 def call(params) {
   def id

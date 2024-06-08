@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-1054') _
+@Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
 
