@@ -65,33 +65,33 @@ data "aws_route_table" "rancher_public" {
 }
 
 resource "aws_vpc_peering_connection" "jenkins_rancher" {
-  peer_vpc_id   = data.aws_vpc.rancher.id
-  vpc_id        = module.vpc.vpc_id
+  peer_vpc_id = data.aws_vpc.rancher.id
+  vpc_id      = module.vpc.vpc_id
   auto_accept = true
 
   tags = var.tags
 }
 
 resource "aws_route" "jenkins_to_rancher_private" {
-  route_table_id = module.vpc.private_route_table_ids[0]
-  destination_cidr_block = data.aws_vpc.rancher.cidr_block
+  route_table_id            = module.vpc.private_route_table_ids[0]
+  destination_cidr_block    = data.aws_vpc.rancher.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
 
 resource "aws_route" "jenkins_to_rancher_public" {
-  route_table_id = module.vpc.public_route_table_ids[0]
-  destination_cidr_block = data.aws_vpc.rancher.cidr_block
+  route_table_id            = module.vpc.public_route_table_ids[0]
+  destination_cidr_block    = data.aws_vpc.rancher.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
 
 resource "aws_route" "rancher_to_jenkins_private" {
-  route_table_id = data.aws_route_table.rancher_private.id
-  destination_cidr_block = var.vpc_cidr_block
+  route_table_id            = data.aws_route_table.rancher_private.id
+  destination_cidr_block    = var.vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
 
 resource "aws_route" "rancher_to_jenkins_public" {
-  route_table_id = data.aws_route_table.rancher_public.id
-  destination_cidr_block = var.vpc_cidr_block
+  route_table_id            = data.aws_route_table.rancher_public.id
+  destination_cidr_block    = var.vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.jenkins_rancher.id
 }
