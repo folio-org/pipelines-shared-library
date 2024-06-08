@@ -129,7 +129,13 @@ void checkAllPodsRunning(String ns) {
       notAllRunning = result.split('\n').any { status -> status != 'Running' }
 
       if (notAllRunning) {
+        def evictedPodsList
         println('Not all pods are running. Retrying...')
+        try {
+          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
+        } catch (Error err) {
+          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+        }
       } else {
         println('All pods are running.')
       }

@@ -1,19 +1,25 @@
 #!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
+
 import org.folio.Constants
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiConfig
 import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.models.TerraformConfig
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
+import org.folio.rest_v2.Users
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
+//TODO Switch to baseline 741 branch, DO NOT COMMENT ON THIS!
+
 @Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'RANCHER-ecs-snapshot-bugfixes'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -28,18 +34,18 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 01 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=esc-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
+            pipelineTriggers([parameterizedCron('''45 22 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=performance;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    return
+  currentBuild.result = 'ABORTED'
+  return
 }
 
 String defaultTenantId = 'cs00000int'
-List updateJson
+String sys_psswd = ''
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-        .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
 
 tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
 tfConfig.addVar('rancher_project_name', params.NAMESPACE)
@@ -54,168 +60,192 @@ tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
 tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
 tfConfig.addVar('pgadmin4', 'true')
-tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
 tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
 tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
 
-String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-
-InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-        .withSuperTenantAdminUser()
-        .withDefaultTenant(defaultTenantId)
-        .withDeploymentConfigType(params.CONFIG_TYPE)
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+  .withSuperTenantAdminUser()
 
 namespace.addDeploymentConfig(CONFIG_BRANCH)
-namespace.setEnableRwSplit(params.RW_SPLIT)
 
+String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
+  .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
 ansiColor('xterm') {
-    node(params.AGENT) {
-        stage('Ini') {
-            buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
-            buildDescription "Config: ${params.CONFIG_TYPE}"
-        }
-        try {
-            stage('Checkout') {
-                checkout scm
-            }
-
-            stage('[Terraform] Destroy') {
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
-                        folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
-                        try {
-                            build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-                                    parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                                                 string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                                                 booleanParam(name: 'RW_SPLIT', value: false),
-                                                 string(name: 'POSTGRESQL', value: 'built-in'),
-                                                 string(name: 'KAFKA', value: 'built-in'),
-                                                 string(name: 'OPENSEARCH', value: 'aws'),
-                                                 string(name: 'S3_BUCKET', value: 'built-in'),
-                                                 string(name: 'AGENT', value: 'jenkins-agent-java17'),
-                                                 booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-                        } catch (Exception exception) {
-                            folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
-                        }
-                    } else {
-                        folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
-                    }
-                }
-            }
-
-            stage('[Terraform] Provision') {
-                folioTerraformFlow.manageNamespace('apply', tfConfig)
-            }
-
-            stage('[DB and Index] Restore') {
-                folioPrint.colored("Restoring indices...", "green")
-                withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-                    folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-                }
-
-                folioHelm.withKubeConfig(params.CLUSTER) {
-                    folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
-                    psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
-                            "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-                            "ecs-snapshot", "${params.NAMESPACE}")
-                }
-            }
-
-            stage('Restore reparation') {
-                folioHelm.withK8sClient {
-                    namespace.getModules().setInstallJson(new Tools(this)
-                            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-                    namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-                }
-            }
-
-            folioDeployFlow.restore(namespace)
-
-            stage('New modules deploy') {
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    updateJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
-
-                    namespace.getModules().setInstallJson(updateJson)
-                    namespace.setEnableConsortia(true, false)
-
-                    println(namespace.getModules().getInstallJson()) // for postman t-shooting purpose
-
-                    List institutional = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
-
-                    institutional.each { institute ->
-                        OkapiTenant okapiTenant = new OkapiTenant(institute)
-                                .withInstallJson(namespace.getModules().getInstallJson())
-                                .withInstallRequestParams(installRequestParams)
-                        if (institute != 'cs00000int') {
-                            okapiTenant.getModules().removeModule('folio_consortia-settings')
-                        }
-                        namespace.addTenant(okapiTenant)
-                    }
-
-                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId())
-                    folioEdge.renderEphemeralProperties(namespace)
-                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId())
-
-                    sleep time: 5, unit: 'MINUTES' //Timeout before enabling new snapshot modules
-
-                    main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
-                    main.update(namespace.getTenants())
-                }
-            }
-
-            stage('Build and deploy UI') {
-                String commitHash = ''
-                String folioBranch = ''
-
-                folioHelm.withK8sClient {
-                    namespace.getModules().setInstallJson(updateJson)
-                    folioBranch = 'snapshot'
-                    commitHash = common.getLastCommitHash("platform-complete", "snapshot")
-                    namespace.setEnableConsortia(true)
-                }
-
-                TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
-
-                namespace.addTenant(new OkapiTenant(defaultTenantId)
-                        .withInstallRequestParams(installRequestParams)
-                        .withConfiguration(new OkapiConfig())
-                        .withTenantUi(tenantUi.clone()))
-
-                namespace.getTenants().each { tenantId, tenant ->
-                    if (tenant.getTenantUi()) {
-                        TenantUi ui = tenant.getTenantUi()
-                        def jobParameters = [tenant_id  : ui.getTenantId(),
-                                             custom_hash: ui.getHash(),
-                                             custom_url : "https://${namespace.getDomains()['okapi']}",
-                                             custom_tag : ui.getTag(),
-                                             consortia  : true]
-                        uiBuild(jobParameters)
-                        folioHelm.withKubeConfig(namespace.getClusterName()) {
-                            folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                        }
-                    }
-                }
-            }
-            stage('The rest components placeholder') {
-                // GreenMail
-                // LDP
-                // Mock server
-                // etc.
-            }
-
-        } catch (e) {
-            println "Caught exception: ${e}"
-            slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-                      , channel: "#rancher_tests_notifications")
-            error(e.getMessage())
-        } finally {
-            stage('Notify and Cleanup') {
-                cleanWs notFailBuild: true
-            }
-        }
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
+      buildDescription "Config: ${params.CONFIG_TYPE}"
     }
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[TF] Destroy') {
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+            folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
+            try {
+              build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
+                parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                             string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                             booleanParam(name: 'RW_SPLIT', value: false),
+                             string(name: 'POSTGRESQL', value: 'built-in'),
+                             string(name: 'KAFKA', value: 'built-in'),
+                             string(name: 'OPENSEARCH', value: 'aws'),
+                             string(name: 'S3_BUCKET', value: 'built-in'),
+                             string(name: 'AGENT', value: 'rancher'),
+                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+            } catch (Exception exception) {
+              folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
+            }
+          } else {
+            folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
+          }
+        }
+      }
+
+      stage('[TF] Provision') {
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+      }
+
+      stage('[DB and Indices] Restore') {
+        folioPrint.colored("Restoring indices...", "green")
+        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+        }
+
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
+            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            "ecs-snapshot", "${params.NAMESPACE}")
+          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-connect-modules', 'SYSTEM_USER_PASSWORD')
+        }
+      }
+
+      stage('Restore') {
+        folioHelm.withK8sClient {
+          namespace.getModules().setInstallJson(new Tools(this)
+            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+        }
+        folioDeployFlow.restore(namespace)
+      }
+
+      stage('Prepare update') {
+        main.getTenantsList().each {
+          switch (it) {
+            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              namespace.addTenant(new OkapiTenant("${it}")
+                .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
+                .withInstallRequestParams(installRequestParams)
+                .withConfiguration(new OkapiConfig()))
+              break
+          }
+        }
+        Users users = new Users(this, namespace.generateDomain('okapi'))
+        namespace.getModules().setInstallJson(newInstallJson)
+        OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
+        namespace.setEnableConsortia(params.CONSORTIA, false)
+        namespace.tenants.each { name, id ->
+          switch (id.getTenantId()) {
+            case ['cs00000int']:
+              id.getModules().setInstallJson(newInstallJson)
+              break
+            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              id.getModules().setInstallJson(newInstallJson)
+              id.getModules().removeModule('folio_consortia-settings')
+              break
+            default:
+              println("${id.tenantId} --> leaving blank")
+              break
+          }
+          def user = users.getUserByName(id, okapiUser)
+          okapiUser.setUuid(user.get('id'))
+          users.resetUserPassword(id, okapiUser)
+          println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
+        }
+        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+      }
+
+      stage('Update') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+
+          folioEdge.renderEphemeralProperties(namespace)
+          namespace.getModules().getEdgeModules().each { name, version ->
+            kubectl.deleteConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName())
+            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+          }
+
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+        }
+      }
+
+      stage('Enable') {
+        retry(3) {
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            kubectl.scaleDownResources(namespace.getNamespaceName(),"deployment")
+            sleep time: 2, unit: 'MINUTES'
+            kubectl.scaleUpResources(namespace.getNamespaceName(), "deployment")
+          }
+          sleep time: 5, unit: 'MINUTES'
+          main.update(namespace.getTenants())
+        }
+      }
+
+      stage('Build and deploy UI') {
+        namespace.getModules().setInstallJson(newInstallJson)
+        String folioBranch = 'snapshot'
+        String commitHash = common.getLastCommitHash("platform-complete", "snapshot")
+        namespace.setEnableConsortia(true)
+
+        TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
+
+        namespace.addTenant(new OkapiTenant(defaultTenantId)
+          .withInstallRequestParams(installRequestParams)
+          .withConfiguration(new OkapiConfig())
+          .withTenantUi(tenantUi.clone()))
+
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            def jobParameters = [tenant_id  : ui.getTenantId(),
+                                 custom_hash: ui.getHash(),
+                                 custom_url : "https://${namespace.getDomains()['okapi']}",
+                                 custom_tag : ui.getTag(),
+                                 consortia  : true]
+            uiBuild(jobParameters)
+            folioHelm.withKubeConfig(namespace.getClusterName()) {
+              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+            }
+          }
+        }
+
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
+      }
+      stage('The rest components placeholder') {
+        // GreenMail, LDP, Mock server, etc.
+      }
+
+    } catch (e) {
+      stage('Notify') {
+        println "Caught exception: ${e}"
+        slackSend(color: 'warning', message: 'ecs-snapshot env build failed...', channel: '#rancher_tests_notifications')
+      }
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
 }

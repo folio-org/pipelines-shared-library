@@ -18,6 +18,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
     Map pipelineTemplates = [
         SUCCESS: libraryResource("slackNotificationsTemplates/pipelineSuccessTemplate"),
         UNSTABLE: libraryResource("slackNotificationsTemplates/pipelineUnstableTemplate"),
+        FAILURE: libraryResource("slackNotificationsTemplates/pipelineFailedTemplate"),
         FAILED: libraryResource("slackNotificationsTemplates/pipelineFailedTemplate")
     ]
     Map karateTemplates = [

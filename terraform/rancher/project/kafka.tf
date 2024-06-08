@@ -32,9 +32,9 @@ resource "helm_release" "kafka" {
         enabled: true
         resources:
           limits:
-            memory: 1280Mi
+            memory: 2048Mi
           requests:
-            memory: 256Mi
+            memory: 1024Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
@@ -46,7 +46,7 @@ resource "helm_release" "kafka" {
       storageClass: gp2
     resources:
       requests:
-        memory: 2048Mi
+        memory: 2Gi
       limits:
         memory: '${var.kafka_max_mem_size}Mi'
     zookeeper:
@@ -114,7 +114,7 @@ resource "helm_release" "kafka-ui" {
         requests:
           memory: 512Mi
         limits:
-          memory: 2048Mi
+          memory: 3Gi
   EOF
   ]
 }
