@@ -2,7 +2,7 @@
 import org.folio.models.TerraformConfig
 
 //TODO remove branch before merge
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),

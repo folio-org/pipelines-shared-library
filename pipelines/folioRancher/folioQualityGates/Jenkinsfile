@@ -5,7 +5,7 @@ import org.folio.rest_v2.Constants
 import org.folio.utilities.Logger
 
 //TODO Switch branch before final merge
-//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+//@Library('pipelines-shared-library') _
 @Library('pipelines-shared-library@RANCHER-1054') _
 
 properties([
