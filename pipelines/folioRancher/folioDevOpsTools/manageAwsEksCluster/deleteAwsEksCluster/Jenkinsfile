@@ -1,7 +1,6 @@
 #!groovy
 import org.folio.models.TerraformConfig
 
-//TODO remove branch before merge
 @Library('pipelines-shared-library') _
 
 properties([
