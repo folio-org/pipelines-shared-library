@@ -1,7 +1,7 @@
 #!groovy
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library') _
 
 properties([
   //pipelineTriggers([cron('H 0 * * 1-6')]), //TODO Disabled by Mriya team request for BugFest period
