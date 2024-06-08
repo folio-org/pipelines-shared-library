@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import groovy.json.JsonSlurperClassic
 
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@DEPRECATED-master') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project

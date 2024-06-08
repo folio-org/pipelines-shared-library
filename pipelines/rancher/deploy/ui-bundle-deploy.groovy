@@ -3,7 +3,7 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@DEPRECATED-master') _
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),

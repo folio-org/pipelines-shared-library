@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@DEPRECATED-master') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment
