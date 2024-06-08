@@ -2,14 +2,14 @@ package org.folio.rest.model
 
 class Email {
 
-    String smtpHost
+  String smtpHost
 
-    String smtpPort
+  String smtpPort
 
-    String username
+  String username
 
-    String password
+  String password
 
-    String from
+  String from
 
 }

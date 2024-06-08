@@ -2,10 +2,10 @@ package org.folio.jira.model
 
 class JiraProject extends JiraObject {
 
-    String key
+  String key
 
-    List<JiraIssueType> issueTypes
+  List<JiraIssueType> issueTypes
 
-    boolean archived
+  boolean archived
 
 }

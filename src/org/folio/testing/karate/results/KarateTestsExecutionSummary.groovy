@@ -9,7 +9,7 @@ import org.folio.testing.teams.TeamAssignment
 
 class KarateTestsExecutionSummary implements ITestExecutionSummary {
 
-  Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:];
+  Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:]
 
   void addModuleResult(String moduleName, def summaryJson, Map<String, String> displayNames) {
     if (!modulesExecutionSummary.containsKey(moduleName)) {
@@ -47,7 +47,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   @Override
   int getModulesPassedCount() {
     int count = 0
-    for(KarateModuleExecutionSummary module: modulesExecutionSummary.values()){
+    for (KarateModuleExecutionSummary module : modulesExecutionSummary.values()) {
       count += (module.executionResult == TestExecutionResult.SUCCESS) ? 1 : 0
     }
 
@@ -57,7 +57,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   @Override
   int getModulesFailedCount() {
     int count = 0
-    for(KarateModuleExecutionSummary module: modulesExecutionSummary.values()){
+    for (KarateModuleExecutionSummary module : modulesExecutionSummary.values()) {
       count += (module.executionResult == TestExecutionResult.FAILED) ? 1 : 0
     }
 
@@ -80,7 +80,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
     int passed = 0
 
     modulesExecutionSummary.values().each { moduleSummary ->
-      passed += ((IExecutionSummary)moduleSummary).getPassedCount()
+      passed += ((IExecutionSummary) moduleSummary).getPassedCount()
     }
 
     return passed
@@ -91,7 +91,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
     int failed = 0
 
     modulesExecutionSummary.values().each { moduleSummary ->
-      failed += ((IExecutionSummary)moduleSummary).getFailedCount()
+      failed += ((IExecutionSummary) moduleSummary).getFailedCount()
     }
 
     return failed
@@ -102,7 +102,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
     int skipped = 0
 
     modulesExecutionSummary.values().each { moduleSummary ->
-      skipped += ((IExecutionSummary)moduleSummary).getSkippedCount()
+      skipped += ((IExecutionSummary) moduleSummary).getSkippedCount()
     }
 
     return skipped
@@ -113,7 +113,7 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
     int total = 0
 
     modulesExecutionSummary.values().each { moduleSummary ->
-      total += ((IExecutionSummary)moduleSummary).getTotalCount()
+      total += ((IExecutionSummary) moduleSummary).getTotalCount()
     }
 
     return total
@@ -131,9 +131,9 @@ class KarateTestsExecutionSummary implements ITestExecutionSummary {
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return "KarateTestsResult{" +
       "modulesTestResult=" + modulesExecutionSummary +
-      '}';
+      '}'
   }
 }

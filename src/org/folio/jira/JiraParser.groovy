@@ -1,15 +1,6 @@
 package org.folio.jira
 
-
-import org.folio.jira.model.JiraField
-import org.folio.jira.model.JiraIssue
-import org.folio.jira.model.JiraIssueCreateMeta
-import org.folio.jira.model.JiraIssueTransition
-import org.folio.jira.model.JiraIssueType
-import org.folio.jira.model.JiraIssueUpdateMeta
-import org.folio.jira.model.JiraPriority
-import org.folio.jira.model.JiraProject
-import org.folio.jira.model.JiraStatus
+import org.folio.jira.model.*
 
 final class JiraParser {
 
@@ -17,8 +8,8 @@ final class JiraParser {
 
   static JiraProject parseProject(def json) {
     def retVal = new JiraProject(id: json.id, key: json.key, name: json.name
-                                , description: json.description, issueTypes: []
-                                , archived: json.archived)
+      , description: json.description, issueTypes: []
+      , archived: json.archived)
 
     json.issueTypes.each { itJson ->
       retVal.issueTypes.add(parseIssueType(itJson))

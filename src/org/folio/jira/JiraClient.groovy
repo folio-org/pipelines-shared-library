@@ -3,14 +3,7 @@ package org.folio.jira
 import groovy.json.JsonOutput
 import hudson.AbortException
 import org.apache.http.HttpHeaders
-import org.folio.jira.model.JiraIssue
-import org.folio.jira.model.JiraIssueCreateMeta
-import org.folio.jira.model.JiraIssueTransition
-import org.folio.jira.model.JiraIssueUpdateMeta
-import org.folio.jira.model.JiraPriority
-import org.folio.jira.model.JiraProject
-import org.folio.jira.model.JiraResources
-import org.folio.jira.model.JiraStatus
+import org.folio.jira.model.*
 import org.folio.testing.karate.KarateConstants
 
 import java.util.logging.Logger
@@ -223,9 +216,10 @@ class JiraClient {
     def retVal = []
     withResponse("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_TRANSITIONS}",
       {
-        response, body -> body.transitions.each {
-          transition -> retVal.add(JiraParser.parseIssueTransition(transition))
-        }
+        response, body ->
+          body.transitions.each {
+            transition -> retVal.add(JiraParser.parseIssueTransition(transition))
+          }
       },
       "Unable to get issue transitions issue '${issueId}'"
     )
@@ -309,7 +303,7 @@ class JiraClient {
   }
 
   static JiraClient getJiraClient(def pipeline, String credentialsId = JiraConstants.CREDENTIALS_ID
-                                  , String url = JiraConstants.URL){
+                                  , String url = JiraConstants.URL) {
     pipeline.withCredentials([
       pipeline.usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {

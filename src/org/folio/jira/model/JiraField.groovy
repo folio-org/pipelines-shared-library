@@ -2,10 +2,10 @@ package org.folio.jira.model
 
 class JiraField {
 
-    String id
+  String id
 
-    String name
+  String name
 
-    Map<String, String> allowedValues
+  Map<String, String> allowedValues
 
 }

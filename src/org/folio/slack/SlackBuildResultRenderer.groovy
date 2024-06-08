@@ -18,7 +18,7 @@ enum SlackBuildResultRenderer {
     this.textTemplate = textTemplate
   }
 
-  String renderSection(Map<String, String> textParams, String buildUrl){
+  String renderSection(Map<String, String> textParams, String buildUrl) {
     String text = SlackHelper.fillTemplate(textParams, textTemplate)
 
     String action = SlackHelper.renderAction(buildUrl, SlackBuildResultTemplates.ACTION_TEXT)
@@ -26,14 +26,14 @@ enum SlackBuildResultRenderer {
     return SlackHelper.renderSection("", text, color, [action], [])
   }
 
-  String renderSection(String jobName, String buildNumber, String stageName, String buildUrl){
+  String renderSection(String jobName, String buildNumber, String stageName, String buildUrl) {
     return renderSection(SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName), buildUrl)
   }
 
   @NonCPS
-  static SlackBuildResultRenderer fromResult(String result) throws Error{
-    for(SlackBuildResultRenderer elem: values()){
-      if(elem.name() == result){
+  static SlackBuildResultRenderer fromResult(String result) throws Error {
+    for (SlackBuildResultRenderer elem : values()) {
+      if (elem.name() == result) {
         return elem
       }
     }

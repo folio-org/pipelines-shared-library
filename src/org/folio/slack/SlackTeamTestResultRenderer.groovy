@@ -2,20 +2,20 @@ package org.folio.slack
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.slack.templates.SlackTeamTestResultTemplates
-import org.folio.testing.teams.Team
 import org.folio.testing.IModuleExecutionSummary
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
+import org.folio.testing.teams.Team
 
 enum SlackTeamTestResultRenderer {
   KARATE_SUCCESS("good", SlackTeamTestResultTemplates.SUCCESS_TEXT
-                  , TestType.KARATE, TestExecutionResult.SUCCESS)
+    , TestType.KARATE, TestExecutionResult.SUCCESS)
   , KARATE_FAILURE("#E9D502", SlackTeamTestResultTemplates.FAILED_TEXT
-                    , TestType.KARATE, TestExecutionResult.FAILED)
+    , TestType.KARATE, TestExecutionResult.FAILED)
   , CYPRESS_SUCCESS("good", SlackTeamTestResultTemplates.SUCCESS_TEXT
-                    , TestType.CYPRESS, TestExecutionResult.SUCCESS)
+    , TestType.CYPRESS, TestExecutionResult.SUCCESS)
   , CYPRESS_FAILURE("#E9D502", SlackTeamTestResultTemplates.FAILED_TEXT
-                    , TestType.CYPRESS, TestExecutionResult.FAILED)
+    , TestType.CYPRESS, TestExecutionResult.FAILED)
 
   final String color
   final String textTemplate
@@ -33,7 +33,7 @@ enum SlackTeamTestResultRenderer {
   }
 
   String renderSection(Map<String, String> textParams, List<Map<String, String>> fieldsParams
-                       , String existingIssuesUrl, String createdIssuesUrl){
+                       , String existingIssuesUrl, String createdIssuesUrl) {
 
     String text = SlackHelper.fillTemplate(textParams, textTemplate)
 
@@ -58,7 +58,7 @@ enum SlackTeamTestResultRenderer {
 
   String renderSection(String teamName, List<IModuleExecutionSummary> failedModulesResults
                        , String totalCount, String failedCount
-                       , String existingIssuesUrl, String createdIssuesUrl){
+                       , String existingIssuesUrl, String createdIssuesUrl) {
 
     List<Map<String, String>> fieldsParams = []
 
@@ -80,7 +80,7 @@ enum SlackTeamTestResultRenderer {
   }
 
   String renderSection(Team team, List<IModuleExecutionSummary> testResults
-                       , String existingIssuesUrl, String createdIssuesUrl){
+                       , String existingIssuesUrl, String createdIssuesUrl) {
 
     List<IModuleExecutionSummary> failedModules = testResults.findAll({
       it.getExecutionResult(0) == TestExecutionResult.FAILED
@@ -95,9 +95,9 @@ enum SlackTeamTestResultRenderer {
   }
 
   @NonCPS
-  static SlackTeamTestResultRenderer fromType(TestType type, TestExecutionResult result) throws Error{
-    for(SlackTeamTestResultRenderer elem: values()){
-      if(elem.baseType == type && elem.testResult == result){
+  static SlackTeamTestResultRenderer fromType(TestType type, TestExecutionResult result) throws Error {
+    for (SlackTeamTestResultRenderer elem : values()) {
+      if (elem.baseType == type && elem.testResult == result) {
         return elem
       }
     }

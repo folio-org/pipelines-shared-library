@@ -190,7 +190,7 @@ class Constants {
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',
                                   'snapshot'      : '',
-                                  'leipzig'       : 'leipzig' ]
+                                  'leipzig'       : 'leipzig']
 
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"

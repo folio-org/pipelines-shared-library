@@ -1,7 +1,7 @@
 package org.folio.rest_v2
 
-import org.folio.models.OkapiUser
 import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.utilities.RequestException
 
 /**
@@ -106,8 +106,8 @@ class Authorization extends Common {
     String url = generateUrl("/authn/credentials")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
     Map<String, Object> body = [
-        "password": user.getPasswordPlainText(),
-        "userId"  : user.uuid
+      "password": user.getPasswordPlainText(),
+      "userId"  : user.uuid
     ]
 
     restClient.post(url, body, headers)
@@ -123,8 +123,8 @@ class Authorization extends Common {
     String url = generateUrl("/bl-users/login")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-        "username": tenant.adminUser.username,
-        "password": tenant.adminUser.getPasswordPlainText()
+      "username": tenant.adminUser.username,
+      "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     def response = restClient.post(url, body, headers)
@@ -152,8 +152,8 @@ class Authorization extends Common {
     String url = generateUrl("/authn/login")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-        "username": tenant.adminUser.username,
-        "password": tenant.adminUser.getPasswordPlainText()
+      "username": tenant.adminUser.username,
+      "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     try {
@@ -186,8 +186,8 @@ class Authorization extends Common {
     String url = generateUrl("/bl-users/login-with-expiry")
     Map<String, String> headers = getDefaultHeaders(tenant)
     Map<String, String> body = [
-        "username": tenant.adminUser.username,
-        "password": tenant.adminUser.getPasswordPlainText()
+      "username": tenant.adminUser.username,
+      "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     try {
@@ -222,8 +222,8 @@ class Authorization extends Common {
 
     // Prepare the request body using the tenant's admin credentials.
     Map<String, String> body = [
-        "username": tenant.adminUser.username,
-        "password": tenant.adminUser.getPasswordPlainText()
+      "username": tenant.adminUser.username,
+      "password": tenant.adminUser.getPasswordPlainText()
     ]
 
     try {

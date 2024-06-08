@@ -17,7 +17,7 @@ class ReportPortalClient {
   private def runType
   private def launchID = null
 
-  ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace, def runType) throws Error{
+  ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace, def runType) throws Error {
     this.pipeline = pipeline
     this.testType = ReportPortalTestType.fromType(testType)
     this.buildName = buildName
@@ -26,7 +26,7 @@ class ReportPortalClient {
     this.runType = runType
   }
 
-  def launch() throws Error{
+  def launch() throws Error {
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch"
 
@@ -51,8 +51,8 @@ class ReportPortalClient {
     }
   }
 
-  String getExecParams() throws Error{
-    if(launchID == null) return ""
+  String getExecParams() throws Error {
+    if (launchID == null) return ""
 
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       LinkedHashMap bind = [
@@ -66,13 +66,13 @@ class ReportPortalClient {
       ]
 
       return (new StreamingTemplateEngine()
-                  .createTemplate(testType.execParamTemplate)
-                  .make(bind)
-             ).toString()
+        .createTemplate(testType.execParamTemplate)
+        .make(bind)
+      ).toString()
     }
   }
 
-  def launchFinish() throws Error{
+  def launchFinish() throws Error {
     pipeline.withCredentials([pipeline.string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'apiKey')]) {
       String url = "${ReportPortalConstants.API_URL}/${testType.projectName}/launch/${launchID}/finish"
 
@@ -91,14 +91,14 @@ class ReportPortalClient {
     }
   }
 
-  private tuneWorkspace(def apiKey){
-    if(testType == ReportPortalTestType.KARATE){
+  private tuneWorkspace(def apiKey) {
+    if (testType == ReportPortalTestType.KARATE) {
       String credFilePath = "${workspace}/${ReportPortalConstants.KARATE_CRED_TEMPLATE_FILE_PATH}"
 
       String credFileSource = readFile file: credFilePath
 
-      LinkedHashMap data = [rp_key: "${apiKey}",
-                            rp_url: ReportPortalConstants.URL,
+      LinkedHashMap data = [rp_key    : "${apiKey}",
+                            rp_url    : ReportPortalConstants.URL,
                             rp_project: ReportPortalConstants.KARATE_PROJECT_NAME]
 
       writeFile encoding: 'utf-8', file: credFilePath,
