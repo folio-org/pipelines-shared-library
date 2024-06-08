@@ -7,18 +7,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58923",
-      "self": "https://issues.folio.org/rest/api/2/issue/58923",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58923",
       "key": "KRD-408",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/return-should-create-retrieval-queue-record-when-hold-request-exists.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -30,18 +30,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58922",
-      "self": "https://issues.folio.org/rest/api/2/issue/58922",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58922",
       "key": "KRD-407",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/accession-while-moving-item-to-exist-holding.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -53,18 +53,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58921",
-      "self": "https://issues.folio.org/rest/api/2/issue/58921",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58921",
       "key": "KRD-406",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/check-in-by-request-id-and-remote-configuration-id.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -76,18 +76,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58920",
-      "self": "https://issues.folio.org/rest/api/2/issue/58920",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58920",
       "key": "KRD-405",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/accession-with-holding-dublication.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -99,18 +99,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58919",
-      "self": "https://issues.folio.org/rest/api/2/issue/58919",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58919",
       "key": "KRD-404",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/return-should-change-item-status-to-available-when-no-hold-request-exists.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -122,18 +122,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58918",
-      "self": "https://issues.folio.org/rest/api/2/issue/58918",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58918",
       "key": "KRD-403",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/accession-when-items-have-remote-location-within-holding.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -145,18 +145,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58917",
-      "self": "https://issues.folio.org/rest/api/2/issue/58917",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58917",
       "key": "KRD-402",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/accession-when-item-within-holding-with-remote-location.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -168,18 +168,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58916",
-      "self": "https://issues.folio.org/rest/api/2/issue/58916",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58916",
       "key": "KRD-401",
       "fields": {
         "summary": "Karate test fail: firebird/edge-caiasoft/features/accession-when-item-without-location-get-permanent-location-from-holding.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -191,18 +191,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58915",
-      "self": "https://issues.folio.org/rest/api/2/issue/58915",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58915",
       "key": "KRD-400",
       "fields": {
         "summary": "Karate test fail: thunderjet/cross-modules/features/approve-invoice-using-different-fiscal-years.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -214,18 +214,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58914",
-      "self": "https://issues.folio.org/rest/api/2/issue/58914",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58914",
       "key": "KRD-399",
       "fields": {
         "summary": "Karate test fail: thunderjet/edge-orders/features/ebsconet.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",

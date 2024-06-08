@@ -25,21 +25,29 @@ class Tools {
         return destPath
     }
 
+    String copyResourceFileToCurrentDirectory(String srcPath) {
+        String currentDir = steps.sh(script: "pwd", returnStdout: true,).trim()
+        String destPath = currentDir + File.separator + new File(srcPath).getName()
+        steps.writeFile file: destPath, text: steps.libraryResource(srcPath)
+        logger.info("Copied ${srcPath} to ${currentDir}")
+        return destPath
+    }
+
     List getGitHubTeamsIds(List teams) {
         steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
             String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
-            ArrayList headers = [[ name:"Authorization", value: "Bearer " + steps.token]]
+            ArrayList headers = [[name: "Authorization", value: "Bearer " + steps.token]]
             def response = new HttpClient(steps).getRequest(url, headers)
             List ids = []
             if (response.status == HttpURLConnection.HTTP_OK) {
                 teams.each { team ->
                     try {
-                        ids.add("github_team://" + jsonParse(response.content).find { it["name"] == team }["id"])
+                        ids.add(jsonParse(response.content).find { it["name"] == team }["id"])
                     } catch (ignored) {
                         logger.warning("Unable to get GitHub id for team ${team}")
                     }
                 }
-            }else{
+            } else {
                 logger.warning(new HttpClient(steps).buildHttpErrorMessage(response))
             }
             return ids
@@ -82,7 +90,7 @@ class Tools {
     }
 
     List findAllRegex(String list, String regex) {
-        return new JsonSlurperClassic().parseText(list).findAll{ s -> s ==~ /${regex}/ }
+        return new JsonSlurperClassic().parseText(list).findAll { s -> s ==~ /${regex}/ }
     }
 
     void createFileFromString(String filePathName, String fileContent) {
@@ -93,26 +101,26 @@ class Tools {
     String build_ldp_setting_json(Project project_config, OkapiUser admin_user, String template_name, LdpConfig ldpConfig,
                                   db_host, folio_db_name, folio_db_user, folio_db_password) {
         def binding = [
-            tenant_id              : project_config.getTenant().getId(),
-            tenant_admin_user      : admin_user.getUsername(),
-            tenant_admin_password  : admin_user.getPassword(),
-            okapi_url              : "https://${project_config.getDomains().okapi}",
-            deployment_environment : project_config.getConfigType(),
-            db_host                : db_host,
-            db_port                : 5432,
-            folio_db_name          : folio_db_name,
-            folio_db_user          : folio_db_user,
-            folio_db_password      : folio_db_password,
-            ldp_db_name            : ldpConfig.getLdp_db_name(),
-            ldp_db_user_name       : ldpConfig.getLdp_db_user_name(),
-            ldp_db_user_password   : ldpConfig.getLdp_db_user_password(),
-            sqconfig_repo_name     : ldpConfig.getSqconfig_repo_name(),
-            sqconfig_repo_owner    : ldpConfig.getSqconfig_repo_owner(),
-            sqconfig_repo_token    : ldpConfig.getSqconfig_repo_token()
+            tenant_id             : project_config.getTenant().getId(),
+            tenant_admin_user     : admin_user.getUsername(),
+            tenant_admin_password : admin_user.getPassword(),
+            okapi_url             : "https://${project_config.getDomains().okapi}",
+            deployment_environment: project_config.getConfigType(),
+            db_host               : db_host,
+            db_port               : 5432,
+            folio_db_name         : folio_db_name,
+            folio_db_user         : folio_db_user,
+            folio_db_password     : folio_db_password,
+            ldp_db_name           : ldpConfig.getLdp_db_name(),
+            ldp_db_user_name      : ldpConfig.getLdp_db_user_name(),
+            ldp_db_user_password  : ldpConfig.getLdp_db_user_password(),
+            sqconfig_repo_name    : ldpConfig.getSqconfig_repo_name(),
+            sqconfig_repo_owner   : ldpConfig.getSqconfig_repo_owner(),
+            sqconfig_repo_token   : ldpConfig.getSqconfig_repo_token()
         ]
 
-        this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
-        def content = steps.readFile template_name
+
+        def content = steps.readFile this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
         String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
         return body
 

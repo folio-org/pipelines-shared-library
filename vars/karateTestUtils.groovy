@@ -1,14 +1,13 @@
 import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
-import org.folio.karate.KarateConstants
-import org.folio.karate.results.KarateExecutionResult
-import org.folio.karate.results.KarateFeatureExecutionSummary
-import org.folio.karate.results.KarateModuleExecutionSummary
-import org.folio.karate.results.KarateTestsExecutionSummary
-import org.folio.karate.teams.KarateTeam
-import org.folio.karate.teams.TeamAssignment
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
+import org.folio.testing.karate.KarateConstants
+import org.folio.testing.karate.results.KarateFeatureExecutionSummary
+import org.folio.testing.karate.results.KarateModuleExecutionSummary
+import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.teams.Team
+import org.folio.testing.teams.TeamAssignment
 
 /**
  * Collect karate tests execution statistics based on "karate-summary-json.txt" files content
@@ -102,88 +101,15 @@ void copyCucumberReports() {
 }
 
 /**
- * Send slack notifications regarding karate tests execution results
- * @param karateTestsExecutionSummary karate tests execution statistics
- * @param teamAssignment teams assignment to modules
- */
-void sendSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    // collect modules tests execution results by team
-    Map<KarateTeam, List<KarateModuleExecutionSummary>> teamResults = [:]
-    def teamByModule = teamAssignment.getTeamsByModules()
-    karateTestsExecutionSummary.getModulesExecutionSummary().values().each { moduleExecutionSummary ->
-        if (teamByModule.containsKey(moduleExecutionSummary.getName())) {
-            def team = teamByModule.get(moduleExecutionSummary.getName())
-            if (!teamResults.containsKey(team)) {
-                teamResults[team] = []
-            }
-            teamResults[team].add(moduleExecutionSummary)
-            println "Module '${moduleExecutionSummary.name}' is assignned to '${team.name}' team"
-        } else {
-            println "Module '${moduleExecutionSummary.name}' is not assigned to any team"
-        }
-    }
-
-    // iterate over teams and send slack notifications
-    def buildStatus = currentBuild.result
-    teamResults.each { entry ->
-        def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-        entry.value.each { moduleTestResult ->
-            if (moduleTestResult.getExecutionResult() == KarateExecutionResult.FAIL) {
-                message += "Module '${moduleTestResult.getName()}' has ${moduleTestResult.getFeaturesFailed()} failures of ${moduleTestResult.getFeaturesTotal()} total tests.\n"
-            }
-        }
-        try {
-            if (!message.endsWith("tests.\n")) {
-                message += "All modules for ${entry.key.name} team have successful result\n"
-            }
-            // Existing tickets - created more than 1 hour ago
-            def existingTickets = getJiraIssuesByTeam(entry.key.name, "created < -1h")
-            if (existingTickets) {
-                message += "Existing issues:\n"
-                message += existingTickets
-            }
-            // Created tickets by this run - Within the last 20 min
-            def createdTickets = getJiraIssuesByTeam(entry.key.name, "created > -20m")
-            if (createdTickets) {
-                message += "Created issues by run:\n"
-                message += createdTickets
-            }
-
-            slackSend(color: getSlackColor(buildStatus), message: message, channel: entry.key.slackChannel)
-        } catch (Exception e) {
-            println("Unable to send slack notification to channel '${entry.key.slackChannel}'")
-            e.printStackTrace()
-        }
-    }
-}
-
-/**
- * Get slack color by build status
- * @param buildStatus jenkins build status
- * @return color code
- */
-def getSlackColor(def buildStatus) {
-    if (buildStatus == 'STARTED') {
-        '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-        '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-        '#FFFE89'
-    } else {
-        '#FF9FA1'
-    }
-}
-
-/**
  * Sync jira tickets for failed karate tests
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
 void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
-    JiraClient jiraClient = getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     // find existing karate issues
-    List<JiraIssue> issues = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
+    List<JiraIssue> issues = jiraClient.searchIssues(KarateConstants.KARATE_ISSUES_JQL, ["summary", "status"])
     Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
         def summary = toSearchableSummary(issue.summary)
         [summary.substring(KarateConstants.ISSUE_SUMMARY_PREFIX.length(), summary.length()).trim(), issue]
@@ -244,7 +170,7 @@ String toSearchableSummary(String summary) {
  * @param jiraClient jira client
  */
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
-                                  Map<String, KarateTeam> teamByModule, JiraClient jiraClient) {
+                                  Map<String, Team> teamByModule, JiraClient jiraClient) {
     def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
     String description = getIssueDescription(featureSummary)
 
@@ -294,20 +220,16 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
         .replaceAll("\\{", "&#125;")
 }
 
-private JiraClient getJiraClient() {
-    withCredentials([
-        usernamePassword(credentialsId: Constants.JIRA_CREDENTIALS_ID, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
-    ]) {
-        return new JiraClient(this, Constants.FOLIO_JIRA_URL, jiraUsername, jiraPassword)
-    }
-}
+def getJiraIssuesByTeam(String team, String timeFilter) {
+    def ticketsByTeam = []
 
-String getJiraIssuesByTeam(String team, String timeFilter) {
-    def ticketsByTeam = ""
-    List<JiraIssue> issuesByTeam = jiraClient.searchIssuesKarate(KarateConstants.KARATE_ISSUES_JQL+""" and "Development Team" = "${team}" and ${timeFilter} """, ["summary", "status"])
-    issuesByTeam.each { issue ->
-        ticketsByTeam += "https://issues.folio.org/browse/${issue.key}\n"
-    }
+    List<JiraIssue> issuesByTeam = JiraClient.getJiraClient(this)
+        .searchIssues(
+          KarateConstants.KARATE_ISSUES_JQL + """ and "Development Team" = "${team}" and ${timeFilter} """
+          , ["summary", "status"]
+        ) as List<JiraIssue>
+
+    issuesByTeam.each { issue -> ticketsByTeam += issue.key }
     return ticketsByTeam
 }
 

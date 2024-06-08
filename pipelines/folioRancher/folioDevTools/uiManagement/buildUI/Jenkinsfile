@@ -1,0 +1,98 @@
+#!groovy
+
+import org.folio.Constants
+import org.folio.models.Index
+import org.folio.models.InstallRequestParams
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.rest.GitHubUtility
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '30')),
+    disableConcurrentBuilds(),
+    parameters([
+        folioParameters.cluster(),
+        folioParameters.namespace(),
+        folioParameters.repository(),
+        folioParameters.branch(),
+        folioParameters.tenantId(),
+        string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
+        folioParameters.agent(),
+        folioParameters.refreshParameters(),
+    ])
+])
+String defaultTenantId = 'diku'
+
+//Set namespace configuration
+String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+List installJson = new GitHubUtility(this).getEnableList('platform-complete', params.FOLIO_BRANCH)
+TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+
+RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+  .withSuperTenantAdminUser()
+  .withOkapiVersion("${params.OKAPI_VERSION}")
+  .withDefaultTenant("${defaultTenantId}")
+  .withDeploymentConfigType("${params.CONFIG_TYPE}")
+
+namespace.getModules().setInstallJson(installJson)
+
+namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+  .withInstallJson(namespace.getModules().getInstallJson().collect())
+  .withIndex(new Index(true, true))
+  .withInstallRequestParams(installRequestParams.clone())
+  .withTenantUi(tenantUi.clone())
+)
+
+if (params.CONSORTIA) {
+  namespace.setEnableConsortia(true)
+  folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+    if (tenant.getIsCentralConsortiaTenant()) {
+      tenant.withTenantUi(tenantUi.clone())
+    }
+    namespace.addTenant(tenant)
+  }
+}
+
+if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    return
+}
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "For build UI bundle\nBranch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}"
+      }
+      stage('Checkout') {
+        checkout scm
+      }
+      stage('Build UI') {
+        TenantUi ui = namespace.getTenants()[params.TENANT_ID].getTenantUi()
+        def jobParameters = [
+          OKAPI_URL: "https://${namespace.getDomains()['okapi']}",
+          TENANT_ID  : ui.getTenantId(),
+          CUSTOM_HASH: ui.getHash(),
+          IMAGE_NAME: ui.getImageName(),
+          CONSORTIA  : params.CONSORTIA
+        ]
+        folioUI.build(jobParameters)
+      }
+    } catch (e) {
+        println "Caught exception: ${e}"
+        error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+          cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+

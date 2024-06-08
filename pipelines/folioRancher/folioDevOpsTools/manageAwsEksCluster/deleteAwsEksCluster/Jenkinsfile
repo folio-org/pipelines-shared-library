@@ -1,0 +1,45 @@
+#!groovy
+import org.folio.models.TerraformConfig
+
+//TODO remove branch before merge
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
+  .withWorkspace(params.CLUSTER)
+
+ansiColor('xterm') {
+  if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+  }
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}.${env.BUILD_ID}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      folioTerraformFlow.manageCluster('destroy', tfConfig)
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

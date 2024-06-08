@@ -1,0 +1,122 @@
+#!groovy
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenantConsortia
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.rest_v2.Main
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    string(name: 'BASE_TENANT_ID', defaultValue: '', description: '(Required) Base tenant Id for getting install json'),
+    folioParameters.configType(),
+    folioParameters.loadReference(),
+    folioParameters.loadSample(),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
+    folioParameters.branch(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+//Set namespace configuration
+String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
+
+TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, params.FOLIO_BRANCH)
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.setEnableRwSplit(params.RW_SPLIT)
+namespace.addDeploymentConfig(CONFIG_BRANCH)
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
+ansiColor('xterm') {
+  if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+  }
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+      buildDescription ""
+    }
+
+    try {
+      stage('Set properties') {
+        namespace.getModules().setInstallJson(main.getInstallJson(params.BASE_TENANT_ID))
+        namespace.setEnableConsortia(true)
+
+        folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+          if (tenant.getIsCentralConsortiaTenant()) {
+            tenant.withTenantUi(tenantUi.clone())
+          }
+          namespace.addTenant(tenant)
+        }
+      }
+
+      stage('[Helm] Deploy backend') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+        }
+        sleep time: 3, unit: 'MINUTES'
+      }
+
+      stage('[Rest] Create tenants') {
+        List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
+        List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
+        main.preInstall(consortiaInstallJson, consortiaDiscovery)
+        namespace.getTenants().each { tenantId, tenant ->
+          main.createTenantFlow(tenant)
+        }
+      }
+
+      stage('[Rest] Create consortia') {
+        main.setUpConsortia(namespace.getTenants().values().toList())
+      }
+
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [
+                tenant_id  : ui.getTenantId(),
+                custom_hash: ui.getHash(),
+                custom_url : "https://${namespace.getDomains()['okapi']}",
+                custom_tag : ui.getTag(),
+                consortia  : tenant instanceof OkapiTenantConsortia
+              ]
+              uiBuild(jobParameters)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
+            }
+          }
+        }
+        parallel branches
+      }
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

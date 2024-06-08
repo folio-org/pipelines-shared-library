@@ -1,6 +1,18 @@
-def createConfigMap(String name, String namespace, String file_path) {
+def createConfigMap(String name, String namespace, files) {
     try {
-        sh "kubectl create configmap ${name} --namespace=${namespace} --from-file=${file_path}"
+        def fromFileArgs = []
+        switch (files) {
+            case GString:
+            case String:
+                fromFileArgs.add("--from-file=${files}")
+                break
+            case List:
+                fromFileArgs = files.collect { "--from-file=${it}" }
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported argument type 'files'")
+        }
+        sh "kubectl create configmap ${name} --namespace=${namespace} ${fromFileArgs.join(' ')} --save-config"
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -53,6 +65,42 @@ String getSecretValue(String namespace, String secret_name, String key_name) {
             returnStdout: true).trim()
     } catch (Exception e) {
         currentBuild.result = 'UNSTABLE'
+        println(e.getMessage())
+    }
+}
+
+String createSecretWithJson(String secret_name, String json_value, String key_name, String namespace) {
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${json_value}' --namespace=${namespace}")
+}
+
+String createSecret(String secret_name, String key_name, String key_name_value,String value_name, String secret_value, String namespace) {
+        sh(script: "set +x && kubectl create secret generic ${secret_name} --from-literal='${key_name}'='${key_name_value}' --from-literal='${value_name}'='${secret_value}' --namespace=${namespace}")
+}
+
+String deleteSecret(String secret_name, String namespace) {
+        return sh(script: "set +x && kubectl delete secret ${secret_name} --namespace=${namespace}", returnStdout: true)
+}
+
+String patchSecret(String secret_name, String value_name, String secret_value, String namespace) {
+        sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
+}
+
+def patchConfigMap(String name, String namespace, files) {
+    try {
+        def fromFileArgs = []
+        switch (files) {
+            case GString:
+            case String:
+                fromFileArgs.add("--from-file=${files}")
+                break
+            case List:
+                fromFileArgs = files.collect { "--from-file=${it}" }
+                break
+            default:
+                throw new IllegalArgumentException("Unsupported argument type 'files'")
+        }
+        sh "kubectl create configmap ${name} --namespace=${namespace} ${fromFileArgs.join(' ')} -o json --dry-run=client | kubectl apply -f -"
+    } catch (Exception e) {
         println(e.getMessage())
     }
 }
@@ -126,7 +174,7 @@ def getLabelsFromNamespace(String namespace) {
 
 def addLabelToNamespace(String namespace, String labelKey, String labelValue) {
     try {
-        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue}")
+        sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue} --overwrite=true")
     } catch (Exception e) {
         println(e.getMessage())
     }
@@ -138,4 +186,42 @@ def deleteLabelFromNamespace(String namespace, String labelKey) {
     } catch (Exception e) {
         println(e.getMessage())
     }
+}
+def collectDeploymentState (String namespace) {
+    String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
+    try {
+        return sh (script: "kubectl get all ${jsonPath} --namespace ${namespace}", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
+    }
+}
+
+def scaleDownResources(String namespace, String resource_type) {
+    try {
+        return sh (script: "kubectl scale ${resource_type} --namespace ${namespace} --replicas=0 --all", returnStdout: true)
+    }
+    catch (Exception e) {
+        println( e.getMessage() )
+    }
+}
+
+def scaleUpResources(String namespace, String resource_type) {
+  try {
+    return sh (script: "kubectl scale ${resource_type} --namespace ${namespace} --replicas=1 --all", returnStdout: true)
+  }
+  catch (Exception e) {
+    println( e.getMessage() )
+  }
+}
+
+boolean checkNamespaceExistence(String namespace){
+  try {
+    String result = sh (script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.name}'", returnStdout: true)
+    return result == namespace
+  }
+  catch (Exception e) {
+    println( e.getMessage() )
+    return false
+  }
 }

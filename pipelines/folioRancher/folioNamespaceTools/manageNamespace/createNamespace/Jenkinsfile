@@ -1,0 +1,72 @@
+#!groovy
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.models.parameters.CreateNamespaceParameters
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-1054') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
+    booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
+    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
+    folioParameters.pgType(),
+    folioParameters.pgVersion(),
+    folioParameters.kafkaType(),
+    folioParameters.opensearchType(),
+    folioParameters.s3Type(),
+    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
+  .clusterName(params.CLUSTER)
+  .namespaceName(params.NAMESPACE)
+  .rwSplit(params.RW_SPLIT)
+  .greenmail(params.GREENMAIL)
+  .mockServer(params.MOCK_SERVER)
+  .pgType(params.POSTGRESQL)
+  .pgVersion(params.DB_VERSION)
+  .kafkaType(params.KAFKA)
+  .opensearchType(params.OPENSEARCH)
+  .s3Type(params.S3_BUCKET)
+  .members(params.MEMBERS)
+  .namespaceOnly(true)
+  .build()
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\n" +
+          "Greenmail: ${params.POSTGRESQL}\nMock server: ${params.MOCK_SERVER}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      folioNamespaceCreate(namespaceParams)
+
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

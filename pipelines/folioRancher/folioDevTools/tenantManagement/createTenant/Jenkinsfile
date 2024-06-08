@@ -1,0 +1,78 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.Constants
+import org.folio.models.Index
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiConfig
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.models.SmtpConfig
+import org.folio.rest_v2.Main
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.referenceTenantId(),
+    folioParameters.tenantId(''),
+    string(name: 'TENANT_NAME', defaultValue: '', description: "New tenant name"),
+    string(name: 'TENANT_DESCRIPTION', defaultValue: '', description: "New tenant Description"),
+    folioParameters.loadReference(),
+    folioParameters.loadSample(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+
+SmtpConfig smtp = null
+String kbApiKey = ''
+
+withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                  credentialsId    : Constants.EMAIL_SMTP_CREDENTIALS_ID,
+                  accessKeyVariable: 'EMAIL_USERNAME',
+                  secretKeyVariable: 'EMAIL_PASSWORD'],
+                 string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'KB_API_KEY')]) {
+  smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
+  kbApiKey = KB_API_KEY
+}
+
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
+OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
+  .withTenantName(params.TENANT_NAME)
+  .withTenantDescription(params.TENANT_DESCRIPTION)
+  .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
+  .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
+  .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
+  .withIndex(new Index(true, true))
+  .withInstallRequestParams(installRequestParams.clone())
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName ""
+      buildDescription ""
+    }
+    stage("Create Tenant"){
+      main.createTenantFlow(newTenant)
+    }
+  }
+}

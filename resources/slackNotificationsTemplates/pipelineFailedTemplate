@@ -1,0 +1,14 @@
+[
+  {
+    "text": "Pipeline run status *FAILED* :x: : `$JOBNAME` *#$BUILD_NUMBER* \n:thinking_face: _Pipilene failed on stage_ - *$MESSAGE*",
+    "fallback": "Formatted text",
+    "color": "#FF0000",
+    "actions": [
+        {
+            "type": "button",
+            "text": "*Check out the console output* :page_facing_up:",
+            "url": "$BUILD_URLconsole",
+        }
+    ]
+  }
+]

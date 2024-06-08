@@ -1,1174 +1,1606 @@
 ---
 edge-caiasoft:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /caiasoftService*
-  javaArgs: '--log.level=info'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-caiasoft-ephemeral-properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '320Mi'
-    requests:
-      memory: '256Mi'
+        - path: /caiasoftService*
+          pathType: ImplementationSpecific
+          servicePort: 80
   service:
     type: NodePort
-edge-connexion:
-  javaArgs: '-Dlog.level=debug'
-  javaOptions: '-XX:MaxRAMPercentage=85.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-caiasoft-ephemeral-properties
+      existingConfig: edge-caiasoft-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
+      memory: 256Mi
+edge-connexion:
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-connexion-ephemeral-properties
+      existingConfig: edge-connexion-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 480Mi
+    requests:
+      memory: 384Mi
 edge-courses:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /courses*
-  javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-courses-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /courses*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: secure_store
+    value: Ephemeral
+  - name: token_cache_ttl_ms
+    value: '3600000'
+  - name: null_token_cache_ttl_ms
+    value: '30000'
+  - name: token_cache_capacity
+    value: '100'
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-courses-ephemeral-properties
+      existingConfig: edge-courses-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-dcb:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /dcbService*
-  javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dcb-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /dcbService*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dcb-ephemeral-properties
+      existingConfig: edge-dcb-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: 480Mi
     requests:
-      memory: '340Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-dematic:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /asrService*
-  javaArgs: ''
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-dematic-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /asrService*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dematic-ephemeral-properties
+      existingConfig: edge-dematic-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-fqm:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /query*
-          - /entity-types*
-  javaArgs: '--log.level=info --server.port=$CONTAINER_PORT'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-fqm-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /query*
+          pathType: ImplementationSpecific
+          servicePort: 80
+        - path: /entity-types*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: secure_store
+    value: Ephemeral
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-fqm-ephemeral-properties
+      existingConfig: edge-fqm-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 427Mi
     requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
+      memory: 341Mi
 edge-inn-reach:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /innreach*
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-inn-reach-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /innreach*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-inn-reach-ephemeral-properties
+      existingConfig: edge-inn-reach-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: 512Mi
     requests:
-      memory: '256Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-ncip:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /ncip*
-  javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
-  postJob:
-    enabled: false
+        - path: /ncip*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-ncip-ephemeral-properties
+      existingConfig: edge-ncip-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '341Mi'
+      memory: 427Mi
     requests:
-      memory: '256Mi'
-  service:
-    type: NodePort
+      memory: 341Mi
 edge-oai-pmh:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /oai*
-  javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=86400000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -XX:MaxRAMPercentage=75.0 -Drequest_timeout_ms=7200000 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-oai-pmh-ephemeral-properties'
-  postJob:
-    enabled: false
+        - path: /oai*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-oai-pmh-ephemeral-properties
+      existingConfig: edge-oai-pmh-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '1152Mi'
+      memory: 1152Mi
     requests:
-      memory: '864Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-orders:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /orders*
-  javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms2=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/ephemeral/edge-orders-ephemeral-properties -Dapi_config=/etc/edge/api/api_configuration.json'
-  postJob:
-    enabled: false
+        - path: /orders*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-orders-ephemeral-properties
+      existingConfig: edge-orders-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-patron:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /patron*
-  javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT)'
-  postJob:
-    enabled: false
+        - path: /patron*
+          pathType: ImplementationSpecific
+          servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-patron-ephemeral-properties
+      existingConfig: edge-patron-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
-  service:
-    type: NodePort
+      memory: 256Mi
 edge-rtac:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /*rtac*
-  javaArgs: '-Dlog_level=DEBUG -Drequest_timeout_ms=30000 -Dtoken_cache_ttl_ms=300000 -Dnull_token_cache_ttl_ms=30000 -Dtoken_cache_capacity=25'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://$(OKAPI_HOST):$(OKAPI_PORT) -Dsecure_store_props=/etc/edge/edge-rtac-ephemeral-properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '256Mi'
-    requests:
-      memory: '192Mi'
+        - path: /*rtac*
+          pathType: ImplementationSpecific
+          servicePort: 80
   service:
     type: NodePort
-edge-sip2:
-  javaArgs: '-conf /usr/ms/sip2.conf'
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-rtac-ephemeral-properties
+      existingConfig: edge-rtac-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
-      memory: '256Mi'
+      memory: 320Mi
     requests:
-      memory: '192Mi'
+      memory: 256Mi
+edge-sip2:
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
       service.beta.kubernetes.io/aws-load-balancer-type: external
     type: LoadBalancer
+  extraEnvVars: []
+  integrations: {}
+  configMaps:
+    ephemeral:
+      fileName: edge-sip2-ephemeral-properties
+      existingConfig: edge-sip2-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 320Mi
+    requests:
+      memory: 256Mi
+mod-aes:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 480Mi
+    requests:
+      memory: 384Mi
 mod-agreements:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal -Dgrails.env=production'
-  dbMaxPoolSize: '30'
-  postJob:
-    enabled: false
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '2560Mi'
+      memory: 3072Mi
     requests:
-      memory: '1536Mi'
+      memory: 1536Mi
 mod-audit:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '683Mi'
+      memory: 853Mi
     requests:
-      memory: '512Mi'
+      memory: 683Mi
 mod-authtoken:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dcache.permissions=true'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  extraJavaOpts:
+    - "-Dallow.cross.tenant.requests=true"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '341Mi'
+      memory: 427Mi
     requests:
-      memory: '256Mi'
-mod-bulk-operations:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '3662Mi'
-    requests:
-      memory: '2930Mi'
-mod-calendar:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '300Mi'
-    requests:
-      memory: '225Mi'
-mod-circulation:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-circulation-item:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '680Mi'
-    requests:
-      memory: '512Mi'
-mod-circulation-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-configuration:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-consortia:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '768Mi'
-    requests:
-      memory: '576Mi'
-# mod-codex-mux, mod-codex-inventory, mod-codex-ekb deprecated sinse Nolana release
-mod-codex-mux:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-  postJob:
-    enabled: false
-mod-codex-inventory:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-  postJob:
-    enabled: false
-mod-codex-ekb:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-  postJob:
-    enabled: false
-mod-copycat:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-camunda:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-courses:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-#TODO requested by Aliaksei Harbuz for testing purposes
-mod-data-export:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2048Mi'
-    requests:
-      memory: '1560Mi'
-mod-data-export-spring:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '517Mi'
-    requests:
-      memory: '388Mi'
-mod-data-export-worker:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2930Mi'
-    requests:
-      memory: '2197Mi'
-mod-data-import:
-  dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '517Mi'
-    requests:
-      memory: '388Mi'
-mod-data-import-converter-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-dcb:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2048Mi'
-    requests:
-      memory: '640Mi'
-mod-di-converter-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-ebsconet:
-  javaOptions: '-XX:MaxRAMPercentage=80.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-email:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-entities-links:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-erm-usage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2048Mi'
-    requests:
-      memory: '1536Mi'
-mod-erm-usage-harvester:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '3000Mi'
-    requests:
-      memory: '2250Mi'
-mod-eusage-reports:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-event-config:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-feesfines:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-finance:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-finance-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-fqm-manager:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-gobi:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-graphql:
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '384Mi'
-    requests:
-      memory: '288Mi'
-mod-inn-reach:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dokapi_url=http://okapi:9130'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '683Mi'
-mod-inventory:
-  dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Dorg.folio.metadata.inventory.storage.type=okapi'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2560Mi'
-    requests:
-      memory: '512Mi'
-mod-inventory-storage:
-  dbMaxPoolSize: '5'
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '683Mi'
-    requests:
-      memory: '512Mi'
-mod-inventory-update:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-invoice:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '800Mi'
-    requests:
-      memory: '600Mi'
-mod-invoice-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-kb-ebsco-java:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-ldp:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-licenses:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal -Dgrails.env=production'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '768Mi'
-    requests:
-      memory: '576Mi'
-mod-lists:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '3072Mi'
-    requests:
-      memory: '2048Mi'
-mod-login:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-login-saml:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-marc-migrations:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-ncip:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-notes:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '517Mi'
-    requests:
-      memory: '388Mi'
-mod-notify:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-oa:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-oai-pmh:
-  javaOptions: '-XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2048Mi'
-    requests:
-      memory: '768Mi'
-mod-orders:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-orders-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-organizations:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-organizations-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-password-validator:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-patron:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-patron-blocks:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-permissions:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '683Mi'
-    requests:
-      memory: '512Mi'
-mod-pubsub:
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1536Mi'
-    requests:
-      memory: '768Mi'
-mod-quick-marc:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '640Mi'
-    requests:
-      memory: '512Mi'
-mod-remote-storage:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '680Mi'
-    requests:
-      memory: '510Mi'
-mod-reading-room:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '450Mi'
-    requests:
-      memory: '384Mi'
-mod-record-specifications:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '450Mi'
-mod-rtac:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-search:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-sender:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-serials-management:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal -Dgrails.env=production'
-  dbMaxPoolSize: '30'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-service-interaction:
-  javaOptions: '-server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+PrintFlagsFinal -Dgrails.env=production'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1536Mi'
-    requests:
-      memory: '1280Mi'
-mod-settings:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '683Mi'
-    requests:
-      memory: '512Mi'
-mod-source-record-manager:
-  dbMaxPoolSize: '15'
-  dbReconnectattempts: '3'
-  dbReconnectinterval: '1000'
-  javaOptions: '-XX:MaxRAMPercentage=75.0  -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-source-record-storage:
-  dbMaxPoolSize: '15'
-  javaOptions: '-XX:MaxRAMPercentage=75.0 -Djava.util.logging.config.file=vertx-default-jul-logging.properties'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '1024Mi'
-    requests:
-      memory: '768Mi'
-mod-tags:
-  javaOptions: '-XX:MaxRAMPercentage=85.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '517Mi'
-    requests:
-      memory: '388Mi'
-mod-template-engine:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-z3950:
-  javaOptions: ''
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-  postJob:
-    enabled: false
-mod-user-import:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '341Mi'
-    requests:
-      memory: '256Mi'
-mod-users:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '512Mi'
-    requests:
-      memory: '384Mi'
-mod-users-bl:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
-  replicaCount: 1
-  resources:
-    limits:
-      memory: '2048Mi'
-    requests:
-      memory: '384Mi'
+      memory: 341Mi
 mod-batch-print:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '2048Mi'
+      memory: 2560Mi
     requests:
-      memory: '1536Mi'
+      memory: 2048Mi
+mod-bulk-operations:
+  extraEnvVars:
+  - name: MAX_UPLOADING_RETRIES
+    value: '50'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-bulk-operations-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3662Mi
+    requests:
+      memory: 2930Mi
+mod-calendar:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 375Mi
+    requests:
+      memory: 300Mi
+mod-circulation:
+  extraEnvVars:
+  - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
+    value: '50000'
+  - name: REPLICATION_FACTOR
+    value: '1'
+  integrations:
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-circulation-storage:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: '1'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-codex-ekb:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-codex-inventory:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-codex-mux:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-configuration:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-consortia:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 837Mi
+    requests:
+      memory: 670Mi
+mod-copycat:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-courses:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-data-export:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-data-export-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 646Mi
+    requests:
+      memory: 517Mi
+mod-data-export-spring:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-data-export-spring-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 646Mi
+    requests:
+      memory: 517Mi
+mod-data-export-worker:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-data-export-worker-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3662Mi
+    requests:
+      memory: 2930Mi
+mod-data-import:
+  extraEnvVars:
+  - name: S3_FORCEPATHSTYLE
+    value: "true"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-lists-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 646Mi
+    requests:
+      memory: 517Mi
+mod-di-converter-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-ebsconet:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-email:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-entities-links:
+  extraEnvVars:
+  - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
+    value: '50'
+  - name: AUTHORITY_ARCHIVES_EXPIRATION_PERIOD
+    value: '7'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-entities-links-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-erm-usage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2560Mi
+    requests:
+      memory: 2048Mi
+mod-erm-usage-harvester:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-erm-usage-harvester-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3750Mi
+    requests:
+      memory: 3000Mi
+mod-eusage-reports:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-event-config:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-feesfines:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-finance:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-finance-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-fqm-manager:
+  extraEnvVars:
+  - name: QUERY_RETENTION_DURATION
+    value: 3h
+  - name: task.execution.pool.max-size
+    value: '10'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-gobi:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-graphql:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 384Mi
+    requests:
+      memory: 288Mi
+mod-inn-reach:
+  extraEnvVars:
+  - name: INNREACH_TENANTS
+    value: diku|fs09000000|consortium|college|university
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inn-reach-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-inventory:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2560Mi
+    requests:
+      memory: 683Mi
+mod-inventory-storage:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: '1'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 853Mi
+    requests:
+      memory: 683Mi
+mod-inventory-update:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-invoice:
+  extraEnvVars:
+  - name: dataimport.consumer.verticle.mandatory
+    value: 'false'
+  - name: dataimport.max-active-threads
+    value: '1'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1000Mi
+    requests:
+      memory: 800Mi
+mod-invoice-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-kb-ebsco-java:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-ldp:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-licenses:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 960Mi
+    requests:
+      memory: 768Mi
+mod-lists:
+  extraEnvVars:
+  - name: MAX_LIST_SIZE
+    value: '1250000'
+  - name: LIST_EXPORT_BATCH_SIZE
+    value: '1000'
+  - name: spring.task.execution.pool.max-size
+    value: '10'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-lists-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3840Mi
+    requests:
+      memory: 3072Mi
+mod-login:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-login-saml:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-marc-migrations:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-marccat:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1040Mi
+    requests:
+      memory: 832Mi
+mod-ncip:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-notes:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 646Mi
+    requests:
+      memory: 517Mi
+mod-notify:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-oa:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-oai-pmh:
+  extraEnvVars:
+  - name: CLEAN_UP_ERROR_LOGS_INTERVAL
+    value: '30'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-oai-pmh-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 720Mi
+    requests:
+      memory: 576Mi
+mod-orders:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-orders-storage:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-dcb:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-dcb-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-circulation-item:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-organizations:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-organizations-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-password-validator:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-patron:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-patron-blocks:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-permissions:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 853Mi
+    requests:
+      memory: 683Mi
+mod-pubsub:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-pubsub-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-quick-marc:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: '1'
+  - name: NUMBER_OF_PARTITIONS
+    value: '1'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-reading-room:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 341Mi
+mod-record-specifications:
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  resources:
+    limits:
+      memory: 650Mi
+    requests:
+      memory: 512Mi
+mod-remote-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-remote-storage-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 850Mi
+    requests:
+      memory: 680Mi
 mod-requests-mediated:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '384Mi'
+      memory: 427Mi
     requests:
-      memory: '256Mi'
+      memory: 341Mi
+mod-rtac:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+mod-search:
+  extraEnvVars:
+  - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
+    value: '3'
+  - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
+    value: '3'
+  - name: INDEXING_DATA_FORMAT
+    value: 'json'
+  - name: INITIAL_LANGUAGES
+    value: 'eng'
+  - name: MAX_SUPPORTED_LANGUAGES
+    value: '5'
+  - name: SEARCH_BY_ALL_FIELDS_ENABLED
+    value: 'true'
+  - name: BROWSE_CN_INTERMEDIATE_VALUES_ENABLED
+    value: 'true'
+  - name: BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES
+    value: 'true'
+  - name: SCROLL_QUERY_SIZE
+    value: '1000'
+  - name: STREAM_ID_RETRY_INTERVAL_MS
+    value: '1000'
+  - name: STREAM_ID_RETRY_ATTEMPTS
+    value: '3'
+  - name: STREAM_ID_CORE_POOL_SIZE
+    value: '2'
+  - name: STREAM_ID_MAX_POOL_SIZE
+    value: '2'
+  - name: STREAM_ID_QUEUE_CAPACITY
+    value: '500'
+  - name: CN_BROWSE_OPTIMIZATION_ENABLED
+    value: 'true'
+  - name: SEARCH_QUERY_TIMEOUT
+    value: '25s'
+  - name: MAX_BROWSE_REQUEST_OFFSET
+    value: '500'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    opensearch:
+      enabled: true
+      existingSecret: opensearch-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-search-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-sender:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-serials-management:
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-service-interaction:
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: '50'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-settings:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2560Mi
+    requests:
+      memory: 2048Mi
+mod-source-record-manager:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-source-record-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1280Mi
+    requests:
+      memory: 1024Mi
+mod-tags:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 646Mi
+    requests:
+      memory: 517Mi
+mod-template-engine:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
 mod-tlr:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '384Mi'
+      memory: 427Mi
     requests:
-      memory: '256Mi'
-mod-workflow:
-  javaOptions: '-XX:MaxRAMPercentage=66.0'
-  postJob:
-    enabled: false
+      memory: 341Mi
+mod-user-import:
+  extraEnvVars: []
+  integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: '512Mi'
+      memory: 427Mi
     requests:
-      memory: '384Mi'
-ldp-server:
-  javaOptions: '-XX:MaxRAMPercentage=75.0'
-  postJob:
-    enabled: false
+      memory: 341Mi
+mod-users:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
-      memory: '683Mi'
+      memory: 640Mi
     requests:
-      memory: '512Mi'
+      memory: 512Mi
+mod-users-bl:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 640Mi
+    requests:
+      memory: 512Mi
+mod-z3950:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 341Mi
+    requests:
+      memory: 256Mi
+  postJob:
+    enabled: false
 okapi:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /_/version
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -1176,41 +1608,42 @@ okapi:
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-403
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /*
-  javaOptions: >-
-    -XX:MaxRAMPercentage=85.0 -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Djava.awt.headless=true -Dstorage=postgres -Dpostgres_host=$(OKAPI_HOST) -Dpostgres_port=5432 -Dpostgres_username=$(OKAPI_DB_USER) -Dpostgres_password=$(OKAPI_DB_PASSWORD) -Dpostgres_database=$(OKAPI_DB) -Dlog4j.configurationFile=/etc/log4j2.xml -Dhost=okapi -Dokapiurl=http://okapi:9130 -Dloglevel=INFO -Ddeploy.waitIterations=90 --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens
-    java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
-  postJob:
-    enabled: false
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 9130
+  service:
+    type: NodePort
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1664Mi
     requests:
-      memory: 768Mi
-  service:
-    type: NodePort
+      memory: 1024Mi
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
 ui-bundle:
   ingress:
+    enabled: true
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
-    enabled: true
     hosts:
       - paths:
-          - /*
-  postJob:
-    enabled: false
-  resources:
-    limits:
-      memory: 400Mi
-    requests:
-      memory: 100Mi
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi

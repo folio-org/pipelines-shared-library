@@ -1,0 +1,92 @@
+#!groovy
+import hudson.util.Secret
+import org.jenkinsci.plugins.workflow.libs.Library
+import java.util.Calendar
+
+@Library('pipelines-shared-library@RANCHER-1276') _
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '50')),
+  throttleJobProperty(categories: [], limitOneJobWithMatchingParams: true, maxConcurrentPerNode: 0,
+    maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
+  parameters([
+    folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
+    string(name: 'TENANT_URL', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
+    string(name: 'OKAPI_URL', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
+    string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
+    string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
+    password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
+    string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
+    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
+    string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
+    string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
+    string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
+    string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week"]),
+    folioParameters.cypress_agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+
+Map cypressFlowParameters = [
+  customBuildName         : params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME,
+  branch                  : params.CYPRESS_BRANCH,
+  tenantUrl               : params.TENANT_URL,
+  okapiUrl                : params.OKAPI_URL,
+  tenantId                : params.TENANT_ID,
+  adminUsername           : params.ADMIN_USERNAME,
+  adminPassword           : params.ADMIN_PASSWORD,
+  parallelExecParameters  : params.PARALLEL_EXEC_PARAMETERS,
+  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
+  testsTimeout            : params.TIMEOUT,
+  testrailProjectID       : params.TESTRAIL_PROJECTID,
+  testrailRunID           : params.TESTRAIL_RUN_ID,
+  numberOfWorkers         : params.NUMBER_OF_WORKERS,
+  agent                   : params.AGENT,
+  runType                 : params.RUN_TYPE,
+  useReportPortal         : "false"
+]
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName env.BUILD_ID
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
+    }
+    stage('[Conditional check]') {
+      Calendar cal = Calendar.getInstance()
+
+      Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+      Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
+
+      boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
+        (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) || (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
+
+      boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
+
+      boolean isLimitReach = (isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4) ||
+        (isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8)
+
+      if (isLimitReach) {
+        println("Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
+          "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again.")
+        println("Current time: " + hourOfDay)
+        println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
+        currentBuild.result = 'ABORTED'
+        error("Not a proper condition.")
+      }
+    }
+
+    stage('[Flow] Execute tests') {
+      folioCypressFlow(cypressFlowParameters)
+    }
+  }
+}

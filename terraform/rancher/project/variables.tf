@@ -50,28 +50,23 @@ variable "tenant_id" {
   description = "Default tenant id"
 }
 
-variable "pgadmin_username" {
-  type        = string
-  default     = "user@folio.org"
-  description = "Postgres DB name"
-}
-
-variable "pgadmin_password" {
-  type        = string
-  description = "Postgres DB name"
-}
-
 variable "github_team_ids" {
   type        = list(string)
   default     = []
   description = "List of github team IDs for project access"
 }
 
+variable "github_org_id" {
+  type        = string
+  default     = "16495055"
+  description = "Global GitHub folio-org team id"
+}
+
 # PostgreSQL variables
 variable "enable_rw_split" {
   type        = bool
   default     = false
-  description = "Enavle Read/Write split"
+  description = "Enable Read/Write split"
 }
 
 variable "pgadmin4" {
@@ -85,11 +80,32 @@ variable "pg_embedded" {
   default     = true
   description = "Embedded PostgreSQL if true and AWS RDS Aurora if false"
 }
+variable "pgadmin_username" {
+  type        = string
+  default     = "user@folio.org"
+  description = "Postgres DB name"
+}
+
+variable "pgadmin_password" {
+  type        = string
+  description = "Postgres DB name"
+}
+
+variable "pg_max_conn" {
+  type    = number
+  default = 5000
+}
 
 variable "pg_version" {
   type        = string
-  default     = "12.12"
+  default     = "13.13"
   description = "Postgres version"
+}
+
+variable "pg_vol_size" {
+  type        = number
+  default     = 20
+  description = "Postgres EBS volume size"
 }
 
 variable "pg_dbname" {
@@ -141,6 +157,11 @@ variable "kafka_number_of_broker_nodes" {
 variable "kafka_ebs_volume_size" {
   type    = number
   default = 10
+}
+
+variable "kafka_max_mem_size" {
+  type    = number
+  default = 8192
 }
 
 # Elasticsearch variables

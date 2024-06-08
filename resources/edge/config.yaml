@@ -8,6 +8,7 @@ edge-oai-pmh:
     password: test
   permissions:
   - oai-pmh.all
+  - user-tenants.collection.get
 edge-patron:
   permissions:
   - patron.all
@@ -23,7 +24,6 @@ edge-orders:
 edge-ncip:
   permissions:
   - ncip.all
-edge-dcb: {}
 edge-dematic:
   tenants:
   - tenant: default
@@ -58,5 +58,10 @@ edge-connexion:
   permissions:
   - copycat.all
 edge-sip2: {}
-edge-fqm: {}
 edge-courses: {}
+edge-fqm: {}
+edge-dcb:
+  tenants:
+  - tenant: testedgedcb
+    username: dcbClient
+    password: password

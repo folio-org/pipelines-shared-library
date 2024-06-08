@@ -1,0 +1,13 @@
+{
+  "title": "Cypress tests results :arrow_forward:",
+  "text": "$MESSAGE",
+  "color": "good",
+  "actions": [
+        {
+            "type": "button",
+            "text": "*Check out the tests report* :bar_chart: ",
+            "url": "$BUILD_URLallure/",
+        }
+        $RP_COMMA$RP_TEMPLATE
+  ]
+}

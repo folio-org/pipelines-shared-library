@@ -7,18 +7,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58913",
-      "self": "https://issues.folio.org/rest/api/2/issue/58913",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58913",
       "key": "KRD-398",
       "fields": {
         "summary": "Karate test fail: thunderjet/edge-orders/features/gobi.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -30,18 +30,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58912",
-      "self": "https://issues.folio.org/rest/api/2/issue/58912",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58912",
       "key": "KRD-397",
       "fields": {
         "summary": "Karate test fail: thunderjet/mod-ebsconet/features/get-ebsconet-order-line.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -53,18 +53,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58911",
-      "self": "https://issues.folio.org/rest/api/2/issue/58911",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58911",
       "key": "KRD-396",
       "fields": {
         "summary": "Karate test fail: thunderjet/mod-ebsconet/features/update-ebsconet-order-line.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -76,18 +76,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58910",
-      "self": "https://issues.folio.org/rest/api/2/issue/58910",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58910",
       "key": "KRD-395",
       "fields": {
         "summary": "Karate test fail: thunderjet/mod-invoice/features/voucher-with-lines-using-same-external-account.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -99,18 +99,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58909",
-      "self": "https://issues.folio.org/rest/api/2/issue/58909",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58909",
       "key": "KRD-394",
       "fields": {
         "summary": "Karate test fail: thunderjet/mod-organizations/features/create-test-data.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",

@@ -1,0 +1,222 @@
+#!groovy
+import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.KarateTestsParameters
+import org.folio.rest_v2.Constants
+import org.folio.utilities.Logger
+
+//TODO Switch branch before final merge
+//@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@RANCHER-1054') _
+
+properties([
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '40')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+boolean diffFound = false
+boolean autoCanceled = false
+
+//TODO switch to regular job before merge
+String createNamespaceFromBranchJob = '/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054'
+//TODO switch to regular job before merge
+String deleteNamespaceJob = '/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054'
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
+
+//Map namespacesMap = [
+//  karate : 'cikarate',
+//  cypress: 'cicypress',
+////  schema: "cischema" //TODO Uncomment after functionality implementation
+//]
+
+Map envsMap = [
+  karate : [cluster: 'folio-tmp', namespace: 'cikarate'],
+  cypress: [cluster: 'folio-perf', namespace: 'cicypress'],
+//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
+]
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(true)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('built-in')
+  .s3Type('built-in')
+  .members('')
+  .worker(params.AGENT)
+  .build()
+
+CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+  .folioBranch(params.FOLIO_BRANCH)
+  .okapiVersion(okapiVersion)
+  .configType('testing')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(true)
+  .rtr(false)
+  .build()
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${env.BUILD_ID}"
+        buildDescription "Quality Gates:\nKarate\nCypress\nSchema compare"
+      }
+
+      stage('Check Changes') {
+        if (params.SKIP_CHECK) {
+          logger.info("Skip check of changes since last build.")
+        } else {
+          awscli.withAwsClient {
+            diffFound = folioHashCommitCheck.commitHashChangeDetected(params.FOLIO_BRANCH)
+            if (diffFound) {
+              logger.info('Incoming changes found. Proceed with build stages.')
+            } else {
+              buildDescription 'Skipped'
+              currentBuild.result = 'ABORTED'
+              autoCanceled = true
+              logger.warning('Incoming changes not found. Skip build...')
+            }
+          }
+        }
+      }
+
+      if (autoCanceled) {
+        return
+      }
+
+      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
+
+      provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams)
+
+      stage('Execute quality gates') {
+        Map branches = [failFast: false]
+        branches['Cypress'] = { ->
+          Map cypressParams = [
+            branch                : 'master',
+            tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
+            okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
+            tenantId              : 'diku',
+            adminUsername         : 'diku_admin',
+            adminPassword         : 'admin',
+            parallelExecParameters: '--env grepTags="shiftLeft"',
+            testsTimeout          : '2',
+            testrailProjectID     : '', //TODO Add testrail Project ID
+            testrailRunID         : '', //TODO Add testrail Run ID
+            numberOfWorkers       : '4',
+            useReportPortal       : 'false',
+            agent                 : 'rancher']
+          folioCypressFlow(cypressParams)
+        }
+        branches['Karate'] = { ->
+          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.tenant = 'supertenant'
+          karateTestsParams.prototypeTenant = 'consortium'
+          karateTestsParams.adminUserName = 'super_admin'
+          karateTestsParams.adminPassword = 'admin'
+          karateTestsParams.threadsCount = '4'
+          karateTestsParams.reportPortalProjectName = 'karate-quality-gate'
+          karateTestsParams.sendSlackNotification = true
+          karateTestsParams.timeout = '2'
+          folioKarateFlow(karateTestsParams)
+        }
+        parallel(branches)
+      }
+    } catch (e) {
+      logger.error "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      if (!autoCanceled) {
+        destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
+      }
+      stage('Cleanup') {
+        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+
+void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams) {
+  stage('Provisioning') {
+    Logger logger = new Logger(this, 'Provision stage')
+    Map branches = [failFast: false]
+    envsMap.each { id, metadata ->
+      CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+        .clusterName(metadata['cluster'])
+        .namespaceName(metadata['namespace'])
+        .build()
+      branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
+        logger.debug(namespaceCreateParams.dump())
+        def jobResult = build job: jobName,
+          parameters: [
+            string(name: 'CLUSTER', value: namespaceCreateParams.getClusterName()),
+            string(name: 'NAMESPACE', value: namespaceCreateParams.getNamespaceName()),
+            string(name: 'FOLIO_BRANCH', value: namespaceCreateParams.getFolioBranch()),
+            string(name: 'OKAPI_VERSION', value: namespaceCreateParams.getOkapiVersion()),
+            string(name: 'CONFIG_TYPE', value: namespaceCreateParams.getConfigType()),
+            booleanParam(name: 'LOAD_REFERENCE', value: namespaceCreateParams.getLoadReference()),
+            booleanParam(name: 'LOAD_SAMPLE', value: namespaceCreateParams.getLoadSample()),
+            booleanParam(name: 'CONSORTIA', value: namespaceCreateParams.getConsortia()),
+            booleanParam(name: 'RW_SPLIT', value: namespaceCreateParams.getRwSplit()),
+            booleanParam(name: 'GREENMAIL', value: namespaceCreateParams.getGreenmail()),
+            booleanParam(name: 'MOCK_SERVER', value: namespaceCreateParams.getMockServer()),
+            booleanParam(name: 'RTR', value: namespaceCreateParams.getRtr()),
+            string(name: 'POSTGRESQL', value: namespaceCreateParams.getPgType()),
+            string(name: 'DB_VERSION', value: namespaceCreateParams.getPgVersion()),
+            string(name: 'KAFKA', value: namespaceCreateParams.getKafkaType()),
+            string(name: 'OPENSEARCH', value: namespaceCreateParams.getOpensearchType()),
+            string(name: 'S3_BUCKET', value: namespaceCreateParams.getS3Type()),
+            string(name: 'MEMBERS', value: namespaceCreateParams.getMembers()),
+            string(name: 'AGENT', value: namespaceCreateParams.getWorker())]
+        logger.debug(jobResult.dump())
+      }
+    }
+    parallel(branches)
+  }
+}
+
+void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespaceParameters namespaceBaseParams) {
+  stage('Destroy') {
+    Logger logger = new Logger(this, 'Destroy stage')
+    Map branches = [failFast: false]
+    namespacesMap.each { id, metadata ->
+      CreateNamespaceParameters namespaceDeleteParams = namespaceBaseParams.toBuilder()
+        .clusterName(metadata['cluster'])
+        .namespaceName(metadata['namespace'])
+        .build()
+      branches["${namespaceDeleteParams.getClusterName()}-${namespaceDeleteParams.getNamespaceName()}"] = { ->
+        logger.debug(namespaceDeleteParams.dump())
+        def jobRsult = build job: jobName,
+          parameters: [
+            string(name: 'CLUSTER', value: namespaceDeleteParams.getClusterName()),
+            string(name: 'NAMESPACE', value: namespaceDeleteParams.getNamespaceName()),
+            booleanParam(name: 'RW_SPLIT', value: namespaceDeleteParams.getRwSplit()),
+            string(name: 'POSTGRESQL', value: namespaceDeleteParams.getPgType()),
+            string(name: 'KAFKA', value: namespaceDeleteParams.getKafkaType()),
+            string(name: 'OPENSEARCH', value: namespaceDeleteParams.getOpensearchType()),
+            string(name: 'S3_BUCKET', value: namespaceDeleteParams.getS3Type()),
+            string(name: 'AGENT', value: namespaceDeleteParams.getWorker())]
+        logger.debug(jobRsult.dump())
+      }
+    }
+    parallel(branches)
+  }
+}

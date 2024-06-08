@@ -11,25 +11,42 @@ resource "random_password" "pg_password" {
   override_special = "‘~!@#$%^&*()_-+={}[]\\/<>,.;?':|"
 }
 
+resource "rancher2_secret" "db-credentials" {
+  name         = "db-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV             = base64encode(local.env_name)
+    DB_HOST         = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    DB_HOST_READER  = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
+    DB_PORT         = base64encode("5432")
+    DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
+    DB_PASSWORD     = base64encode(local.pg_password)
+    DB_DATABASE     = base64encode(var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("5")
+    DB_CHARSET      = base64encode("UTF-8")
+    DB_QUERYTIMEOUT = base64encode("60000")
+  }
+}
+
 locals {
   pg_password       = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
+  pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
 }
 
-# Rancher2 Project App Postgres
-resource "rancher2_app_v2" "postgresql" {
-  depends_on    = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-connect-modules]
-  count         = var.pg_embedded ? 1 : 0
-  cluster_id    = data.rancher2_cluster.this.id
-  namespace     = rancher2_namespace.this.name
-  name          = "postgresql-${var.rancher_project_name}"
-  repo_name     = "bitnami"
-  chart_name    = "postgresql"
-  chart_version = "12.4.3"
-  force_upgrade = "true"
-  values        = <<-EOT
+# PostgreSQL database deployment
+resource "helm_release" "postgresql" {
+  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
+  count      = var.pg_embedded ? 1 : 0
+  namespace  = rancher2_namespace.this.name
+  name       = "postgresql-${var.rancher_project_name}"
+  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  chart      = "postgresql"
+  version    = "13.2.19"
+  values = [<<-EOF
     architecture: ${local.pg_architecture}
     readReplicas:
       replicaCount: 1
@@ -40,7 +57,7 @@ resource "rancher2_app_v2" "postgresql" {
           memory: 10240Mi
       extendedConfiguration: |-
         shared_buffers = '2560MB'
-        max_connections = '1000'
+        max_connections = '${var.pg_max_conn}'
         listen_addresses = '0.0.0.0'
         effective_cache_size = '7680MB'
         maintenance_work_mem = '640MB'
@@ -59,7 +76,7 @@ resource "rancher2_app_v2" "postgresql" {
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
       replicationUsername: ${var.pg_username}
-      usePasswordFiles: true
+      usePasswordFiles: ${local.pg_auth}
     primary:
       initdb:
         scripts:
@@ -76,7 +93,7 @@ resource "rancher2_app_v2" "postgresql" {
             GRANT USAGE ON SCHEMA public TO ldp;
       persistence:
         enabled: true
-        size: 20Gi
+        size: '${var.pg_vol_size}Gi'
         storageClass: gp2
       resources:
         requests:
@@ -89,7 +106,7 @@ resource "rancher2_app_v2" "postgresql" {
         runAsUser: 1001
       extendedConfiguration: |-
         shared_buffers = '2560MB'
-        max_connections = '1000'
+        max_connections = '${var.pg_max_conn}'
         listen_addresses = '0.0.0.0'
         effective_cache_size = '7680MB'
         maintenance_work_mem = '640MB'
@@ -104,18 +121,24 @@ resource "rancher2_app_v2" "postgresql" {
     volumePermissions:
       enabled: true
     metrics:
-      enabled: true
+      enabled: ${local.pg_auth}
+      resources:
+        requests:
+          memory: 512Mi
+        limits:
+          memory: 4096Mi
       serviceMonitor:
         enabled: true
         namespace: monitoring
         interval: 30s
         scrapeTimeout: 30s
-  EOT
+  EOF
+  ]
 }
 
 # Delay for db initialization
 resource "time_sleep" "wait_for_db" {
-  depends_on      = [rancher2_app_v2.postgresql]
+  depends_on      = [helm_release.postgresql]
   create_duration = "30s"
 }
 
@@ -177,7 +200,7 @@ module "rds" {
       publicly_accessible = true
     }
     } : {
-    "write" = {
+    write = {
       instance_class      = var.pg_instance_type
       publicly_accessible = true
     }
@@ -196,25 +219,7 @@ module "rds" {
   db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
   snapshot_identifier             = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
-  #  publicly_accessible             = true
-  skip_final_snapshot = true
-
-  #  vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
-  #  subnets                         = data.aws_subnets.database.ids
-  #  replica_count       = 1
-  #  database_name                   = var.pg_dbname
-  #  username                        = var.pg_username
-  #  password                        = local.pg_password
-  #  instance_type       = var.pg_instance_type
-  #  storage_encrypted               = true
-  #  apply_immediately               = true
-  #  vpc_security_group_ids          = [aws_security_group.allow_rds[count.index].id]
-  #  db_parameter_group_name         = aws_db_parameter_group.aurora_db_postgres_parameter_group[count.index].id
-  #  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_cluster_postgres_parameter_group[count.index].id
-  #  snapshot_identifier = var.pg_rds_snapshot_name == "" ? "" : local.db_snapshot_arn
-  #  create_random_password          = false
-  #  publicly_accessible = true
-  #  skip_final_snapshot = true
+  skip_final_snapshot             = true
 
   tags = merge(
     var.tags,
@@ -230,17 +235,21 @@ module "rds" {
   })
 }
 
-# Create a new rancher2 PgAdmin4 App in a default Project namespace
-resource "rancher2_app_v2" "pgadmin4" {
-  count         = var.pgadmin4 ? 1 : 0
-  cluster_id    = data.rancher2_cluster.this.id
-  namespace     = rancher2_namespace.this.name
-  name          = "pgadmin4"
-  repo_name     = "runix"
-  chart_name    = "pgadmin4"
-  chart_version = "1.10.1"
-  force_upgrade = "true"
-  values        = <<-EOT
+# pgAdmin service deployment
+resource "helm_release" "pgadmin" {
+  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
+  count      = var.pgadmin4 ? 1 : 0
+  namespace  = rancher2_namespace.this.name
+  repository = "https://helm.runix.net"
+  name       = "pgadmin4"
+  chart      = "pgadmin4"
+  version    = "1.10.1"
+  values = [<<-EOF
+    resources:
+      requests:
+        memory: 256Mi
+      limits:
+        memory: 512Mi
     env:
       email: ${var.pgadmin_username}
       password: ${var.pgadmin_password}
@@ -261,7 +270,6 @@ resource "rancher2_app_v2" "pgadmin4" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
         alb.ingress.kubernetes.io/healthcheck-port: '80'
-
     serverDefinitions:
       enabled: true
       servers:
@@ -273,5 +281,6 @@ resource "rancher2_app_v2" "pgadmin4" {
           Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
           SSLMode: prefer
           MaintenanceDB: ${var.pg_dbname}
-  EOT
+EOF
+  ]
 }

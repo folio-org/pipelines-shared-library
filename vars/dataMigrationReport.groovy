@@ -1,14 +1,14 @@
 #!groovy
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.*
 import groovy.xml.MarkupBuilder
 import java.util.concurrent.*
-import java.util.Date
 import groovy.text.GStringTemplateEngine
 import org.folio.utilities.Tools
-import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
+import org.folio.jira.JiraClient
+import org.folio.jira.model.JiraIssue
 import org.folio.Constants
-import org.folio.karate.teams.TeamAssignment
+import org.folio.testing.teams.TeamAssignment
 
 def getESLogs(cluster, indexPattern, startDate) {
     def template = "get-logs-ES.json.template"
@@ -38,7 +38,7 @@ def createTimeHtmlReport(tenantName, tenants) {
             println "Activation of module $it failed"
         }
     }
-     
+
     def groupByTenant = sortedList.reverse().groupBy({
         it.tenantName
     })
@@ -60,12 +60,12 @@ def createTimeHtmlReport(tenantName, tenants) {
                 }
             }
             markup.tbody {
-                groupByTenant[tenantName].each { tenantInfo -> 
+                groupByTenant[tenantName].each { tenantInfo ->
                     def moduleName = tenantInfo.moduleInfo.moduleName
                     def moduleVersionDst = tenantInfo.moduleInfo.moduleVersionDst
                     def moduleVersionSrc = tenantInfo.moduleInfo.moduleVersionSrc
                     def execTime = tenantInfo.moduleInfo.execTime
-                    def moduleTime 
+                    def moduleTime
                     if(execTime == "failed") {
                         modulesMigrationFailed += moduleName
                         moduleTime = "failed"
@@ -126,7 +126,7 @@ void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, Li
         message += "Data Migration Failed. Please check logs in job."
     } else {
         message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
-        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"        
+        message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
     }
 
     try {
@@ -144,7 +144,7 @@ def convertTime(int ms) {
     long seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % TimeUnit.MINUTES.toSeconds(1);
 
     String format = String.format("%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds));
-    
+
     return format
 }
 
@@ -220,7 +220,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
                     builder.section(id: schema.key) {
                         builder.h2(schema.key)
                         builder.p(style: "white-space: pre-line", schema.value)
-                    }                    
+                    }
                 } else if (schema.key == "All schemas"){
                     builder.section(id: schema.key) {
                         builder.h2(schema.key)
@@ -245,7 +245,7 @@ def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
 }
 
 def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-    JiraClient jiraClient = karateTestUtils.getJiraClient()
+    JiraClient jiraClient = JiraClient.getJiraClient(this)
 
     def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
     def srcVersion = resultMap[moduleName]?.srcVersion
@@ -272,7 +272,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     }
 
     try {
-        List<JiraIssue> issues = jiraClient.searchIssuesKarate(Constants.DM_ISSUES_JQL, ["summary", "status"])
+        List<JiraIssue> issues = jiraClient.searchIssues(Constants.DM_ISSUES_JQL, ["summary", "status"])
         Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
             def issuesSummary = issue.summary
             [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
@@ -281,7 +281,7 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
         if (issuesMap.containsKey(summary.toString())) {
             JiraIssue issue = issuesMap[summary]
             println "Update jira ticket for ${moduleName}, team '${teamName}'"
-            jiraClient.addIssueComment(issue.id, description) 
+            jiraClient.addIssueComment(issue.id, description)
         } else {
             println "Create jira ticket for ${moduleName}, team '${teamName}'"
             def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields

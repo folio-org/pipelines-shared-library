@@ -1,0 +1,69 @@
+#!groovy
+import org.folio.models.OkapiUser
+import org.folio.models.RancherNamespace
+import org.folio.Constants
+import org.folio.rest_v2.Main
+import org.folio.rest_v2.Users
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1054') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    choice(name: 'SYSTEM_USER_MODULE', choices: ['all'] + Constants.SYSTEM_USER_MODULES, description: 'The list of modules that has system users'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+List systemUserModulesList = params.SYSTEM_USER_MODULE == 'all' ? Constants.SYSTEM_USER_MODULES : [params.SYSTEM_USER_MODULE]
+Map defaultTenants = folioDefault.tenants() + folioDefault.consortiaTenants()
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+Users users = new Users(this, namespace.getDomains()['okapi'])
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName "${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+    }
+    stage('Reset system user password') {
+      List tenants = main.getTenantsList()
+      tenants.remove('supertenant')
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        systemUserModulesList.each { moduleName ->
+          String systemUserName = kubectl.getSecretValue(namespace.getNamespaceName(),
+            "${moduleName}-systemuser", 'SYSTEM_USER_NAME')
+          String systemUserPassword = kubectl.getSecretValue(namespace.getNamespaceName(),
+            "${moduleName}-systemuser", 'SYSTEM_USER_PASSWORD')
+          OkapiUser systemUser = new OkapiUser(systemUserName, systemUserPassword)
+          tenants.each { tenantId ->
+            def tenant = defaultTenants[tenantId]
+            logger.info("[${tenant.getTenantId()}] Change password for user: ${systemUser.getUsername()}.")
+            users.getUserByName(tenant, systemUser)
+            if (systemUser.getUuid()) {
+              users.resetUserPassword(tenant, systemUser)
+              logger.info("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} changed.")
+            } else {
+              logger.warning("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} not changed.")
+            }
+          }
+        }
+      }
+    }
+  }
+}

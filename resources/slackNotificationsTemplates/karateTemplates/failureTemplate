@@ -1,0 +1,13 @@
+{
+  "title": "Karate tests results :martial_arts_uniform:",
+  "text": "$MESSAGE",
+  "color": "#FF0000",
+  "actions": [
+        {
+            "type": "button",
+            "text": "*Check out the tests report* :bar_chart: ",
+            "url": "$BUILD_URLcucumber-html-reports/overview-features.html",
+        }
+        $RP_COMMA$RP_TEMPLATE
+  ]
+}

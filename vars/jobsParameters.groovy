@@ -118,13 +118,18 @@ static List devEnvironmentsList() {
 }
 
 @NonCPS
+static List crudOperationsList () {
+    return ['create', 'delete', 'update']
+}
+
+@NonCPS
 static List perfEnvironmentsList() {
     return devEnvironmentsList()
 }
 
 @NonCPS
 static List testEnvironmentsList() {
-    return ['test', 'test-1', 'test-2']
+    return ['test', 'test-1', 'test-2', 'tdspora']
 }
 
 @NonCPS
@@ -180,29 +185,38 @@ fetchBranches("\$apiUrl?per_page=\$perPage")
 
 static String getUIImagesList() {
     return """
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.ecr.AmazonECR;
-import com.amazonaws.services.ecr.AbstractAmazonECR;
-import com.amazonaws.services.ecr.AmazonECRClient;
-import com.amazonaws.services.ecr.model.ListImagesRequest;
-import com.amazonaws.services.ecr.model.ListImagesResult;
-import com.amazonaws.services.ecr.AmazonECRClientBuilder;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.regions.Regions;
-import jenkins.model.*
+import com.amazonaws.services.ecr.AmazonECR
+import com.amazonaws.services.ecr.AmazonECRClientBuilder
+import com.amazonaws.services.ecr.model.ListImagesRequest
 
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build();
-ListImagesRequest request = new ListImagesRequest().withRepositoryName("ui-bundle");
-res = client.listImages(request);
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
 
+String repositoryName = "ui-bundle"
 
 def result = []
-for (image in res) {
-   result.add(image.getImageIds());
+def final_result = []
+String nextToken = null
+
+while (nextToken != '') {
+    ListImagesRequest request = new ListImagesRequest()
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
+
+    def res = client.listImages(request)
+    result.addAll(res.imageIds.collect { it.imageTag })
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
+    nextToken = res.nextToken ?: ''
 }
 
-return result[0].imageTag.sort().reverse().findAll().findAll{it.startsWith(rancher_cluster_name.trim() + '-' + rancher_project_name.trim())};
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
+        .sort()
+        .reverse()
+
+return result
 """
 }
 
@@ -418,6 +432,10 @@ def backupName() {
 
 def tenantIdToBackupModulesVersions() {
     return _paramString('tenant_id_to_backup_modules_versions', defaultTenant().id, "Choose for which tenant you would like to save modules versions. Default is diku")
+}
+
+def crudOperations(){
+    return _paramChoice('operation_type', crudOperationsList(), "Choose secret operation")
 }
 
 def mvnOptions(String options = '') {

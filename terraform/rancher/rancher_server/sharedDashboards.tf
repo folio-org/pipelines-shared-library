@@ -19,7 +19,7 @@ resource "helm_release" "kafka-ui" {
   name             = "kafka-ui"
   repository       = "https://provectus.github.io/kafka-ui-charts"
   chart            = "kafka-ui"
-  version          = "0.7.1"
+  version          = "0.7.2"
   namespace        = "shared-dashboards"
   create_namespace = true
   values = [<<EOF
@@ -57,7 +57,7 @@ resource "helm_release" "opensearch-dashboards" {
   name             = "opensearch-dashboards"
   repository       = "https://opensearch-project.github.io/helm-charts"
   chart            = "opensearch-dashboards"
-  version          = "2.9.2"
+  version          = "2.11.1"
   namespace        = "shared-dashboards"
   create_namespace = true
   values = [<<EOF

@@ -30,8 +30,8 @@ variable "vpc_name" {
 # Kafka variables
 variable "kafka_version" {
   type        = string
-  default     = "2.8.0"
-  description = "Postgres version"
+  default     = "3.5.1"
+  description = "Kafka version"
 }
 
 variable "kafka_instance_type" {

@@ -9,13 +9,20 @@ resource "rancher2_project" "this" {
   }
 }
 
-# Create a new rancher2 Project Role Template Binding
-resource "rancher2_project_role_template_binding" "this" {
-  for_each           = toset(var.github_team_ids)
-  name               = var.rancher_project_name
+resource "rancher2_project_role_template_binding" "default" {
+  count              = length(var.github_team_ids)
+  name               = "github-team-${var.github_team_ids[count.index]}-binding"
+  role_template_id   = "project-owner"
   project_id         = rancher2_project.this.id
-  role_template_id   = "project-member"
-  group_principal_id = each.key
+  group_principal_id = "github_team://${var.github_team_ids[count.index]}"
+}
+
+resource "rancher2_project_role_template_binding" "read-only" {
+  count              = data.rancher2_cluster.this.name == local.testing_cluster ? 1 : 0
+  name               = "github-team-folio-org-binding"
+  role_template_id   = "read-only"
+  project_id         = rancher2_project.this.id
+  group_principal_id = "github_org://${var.github_org_id}"
 }
 
 # Create a new rancher2 Namespace assigned to cluster project

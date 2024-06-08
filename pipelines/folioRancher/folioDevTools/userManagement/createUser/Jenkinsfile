@@ -1,0 +1,71 @@
+#!groovy
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
+import org.folio.models.OkapiUser
+import org.jenkinsci.plugins.workflow.libs.Library
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.tenantId(),
+    folioParameters.adminUsername(),
+    folioParameters.adminPassword(),
+    string(name: 'NEW_USERNAME', defaultValue: '', description: "Please input new user's username"),
+    password(name: 'NEW_PASSWORD', description: "Please input new user's password"),
+    string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
+    string(name: 'PERMISSIONS', defaultValue: 'perms.users.assign.immutable,perms.users.assign.mutable,perms.users.assign.okapi,perms.all', description: "New user's permissions,comma separated list"),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
+String permissions = params.PERMISSIONS
+List<String> permissionsList = permissions.split(',')
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+
+OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+  .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD))
+OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
+  .withFirstName(params.NEW_USERNAME)
+  .withLastName('USER')
+  .withEmail("${params.NEW_USERNAME}@example.org")
+  .withPermissions(permissionsList)
+  .withBarcode(folioTools.generateRandomDigits(8))
+  .withGroup(params.PATRON_GROUP)
+  .withType("staff")
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
+      }
+      stage("Create New User") {
+        main.createOkapiUser(tenant, user)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

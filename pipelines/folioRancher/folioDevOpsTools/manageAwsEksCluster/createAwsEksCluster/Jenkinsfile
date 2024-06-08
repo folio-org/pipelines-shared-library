@@ -1,0 +1,70 @@
+#!groovy
+import org.folio.Constants
+import org.folio.models.TerraformConfig
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    string(name: 'INSTANCE_SHAPE', defaultValue: 'r5a.xlarge', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),
+    choice(name: 'INSTANCE_TYPE', choices: ['ON_DEMAND', 'SPOT'], description: 'Select capacity type associated with the EKS Node Group. (SPOT-for testing purposes only)'),
+    string(name: 'CLUSTER_MIN_SIZE', defaultValue: '2', description: 'Minimum size of node group for eks cluster', trim: true),
+    string(name: 'CLUSTER_MAX_SIZE', defaultValue: '3', description: 'Maximum size of node group for eks cluster', trim: true),
+    booleanParam(name: 'REGISTER', defaultValue: true, description: 'Register cluster in Rancher'),
+    booleanParam(name: 'KUBECOST', defaultValue: true, description: 'Deploy Kubecost to cluster'),
+    booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
+  .withWorkspace(params.CLUSTER)
+
+tfConfig.addVar('vpc_name', Constants.AWS_EKS_VPC_NAME)
+tfConfig.addVar('eks_nodes_type', params.INSTANCE_TYPE)
+tfConfig.addVar('asg_instance_types', params.INSTANCE_SHAPE.trim().split(',').collect { "\"${it}\"" })
+tfConfig.addVar('eks_nodes_group_size', _getClusterSize())
+tfConfig.addVar('admin_users', Constants.AWS_EKS_ADMIN_USERS)
+tfConfig.addVar('register_in_rancher', params.REGISTER)
+tfConfig.addVar('deploy_kubecost', params.KUBECOST)
+tfConfig.addVar('deploy_sorry_cypress', params.SORRY_CYPRESS)
+
+ansiColor('xterm') {
+  if (params.REFRESH_PARAMETERS) {
+    currentBuild.result = 'ABORTED'
+    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+  }
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}.${env.BUILD_ID}"
+        buildDescription "Type: ${params.INSTANCE_TYPE}\nShape: ${params.INSTANCE_SHAPE}\nSize: ${params.CLUSTER_MIN_SIZE}/${params.CLUSTER_MAX_SIZE}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      folioTerraformFlow.manageCluster('apply', tfConfig)
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+
+private String _getClusterSize() {
+  if (params.CLUSTER_MIN_SIZE.toInteger() >= params.CLUSTER_MAX_SIZE.toInteger()) {
+    error("The minimum cluster size (${params.CLUSTER_MIN_SIZE}) must be smaller than the maximum size (${params.CLUSTER_MAX_SIZE})")
+  }
+  return writeJSON(returnText: true, json: [min_size: params.CLUSTER_MIN_SIZE, max_size: params.CLUSTER_MAX_SIZE])
+}

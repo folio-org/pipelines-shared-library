@@ -4,9 +4,6 @@ import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-
 
 // A function that returns the last commit hash of a given repository and branch.
 String getLastCommitHash(String repository, String branch) {
@@ -92,7 +89,7 @@ String selectJavaBasedOnAgent(String agent_name){
 }
 
 void checkEcrRepoExistence(String repo_name) {
-    helm.k8sClient {
+    folioHelm.withK8sClient {
         if (awscli.isEcrRepoExist(Constants.AWS_REGION, repo_name)){
             println("ECR repo for ${repo_name} doesn't exist, starting creating...")
             awscli.createEcrRepo(Constants.AWS_REGION, repo_name)

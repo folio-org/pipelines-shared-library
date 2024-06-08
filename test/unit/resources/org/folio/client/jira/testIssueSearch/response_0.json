@@ -7,18 +7,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58933",
-      "self": "https://issues.folio.org/rest/api/2/issue/58933",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58933",
       "key": "KRD-418",
       "fields": {
         "summary": "Karate test fail: prokopovych/mod-users-bl/features/users-bl.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -30,18 +30,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58932",
-      "self": "https://issues.folio.org/rest/api/2/issue/58932",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58932",
       "key": "KRD-417",
       "fields": {
         "summary": "Karate test fail: folijet/mod-source-record-manager/features/mapping-rules.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -53,18 +53,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58931",
-      "self": "https://issues.folio.org/rest/api/2/issue/58931",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58931",
       "key": "KRD-416",
       "fields": {
         "summary": "Karate test fail: spitfire/mod-kb-ebsco-java/features/kb-credentials.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -76,18 +76,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58930",
-      "self": "https://issues.folio.org/rest/api/2/issue/58930",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58930",
       "key": "KRD-415",
       "fields": {
         "summary": "Karate test fail: vega/mod-circulation/features/root.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -99,18 +99,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58929",
-      "self": "https://issues.folio.org/rest/api/2/issue/58929",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58929",
       "key": "KRD-414",
       "fields": {
         "summary": "Karate test fail: prokopovych/edge-rtac/features/rtac.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -122,18 +122,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58928",
-      "self": "https://issues.folio.org/rest/api/2/issue/58928",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58928",
       "key": "KRD-413",
       "fields": {
         "summary": "Karate test fail: prokopovych/edge-patron/features/patrons.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -145,18 +145,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58927",
-      "self": "https://issues.folio.org/rest/api/2/issue/58927",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58927",
       "key": "KRD-412",
       "fields": {
         "summary": "Karate test fail: firebird/edge-dematic/features/lookup-new-asr-items.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -168,18 +168,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58926",
-      "self": "https://issues.folio.org/rest/api/2/issue/58926",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58926",
       "key": "KRD-411",
       "fields": {
         "summary": "Karate test fail: firebird/edge-dematic/features/update-asr-item-being-retrieved.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -191,18 +191,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58925",
-      "self": "https://issues.folio.org/rest/api/2/issue/58925",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58925",
       "key": "KRD-410",
       "fields": {
         "summary": "Karate test fail: firebird/edge-dematic/features/lookup-asr-requests.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",
@@ -214,18 +214,18 @@
     {
       "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
       "id": "58924",
-      "self": "https://issues.folio.org/rest/api/2/issue/58924",
+      "self": "https://folio-org.atlassian.net/rest/api/2/issue/58924",
       "key": "KRD-409",
       "fields": {
         "summary": "Karate test fail: firebird/edge-dematic/features/update-asr-item-status-available.feature",
         "status": {
-          "self": "https://issues.folio.org/rest/api/2/status/1",
+          "self": "https://folio-org.atlassian.net/rest/api/2/status/1",
           "description": "",
-          "iconUrl": "https://issues.folio.org/images/icons/statuses/open.png",
+          "iconUrl": "https://folio-org.atlassian.net/images/icons/statuses/open.png",
           "name": "Open",
           "id": "1",
           "statusCategory": {
-            "self": "https://issues.folio.org/rest/api/2/statuscategory/2",
+            "self": "https://folio-org.atlassian.net/rest/api/2/statuscategory/2",
             "id": 2,
             "key": "new",
             "colorName": "blue-gray",

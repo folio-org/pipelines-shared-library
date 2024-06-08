@@ -124,11 +124,20 @@ resource "rancher2_catalog_v2" "metrics-server" {
   url        = "https://kubernetes-sigs.github.io/metrics-server"
 }
 
-# Kubecost charts catalog
+# Sorry Cypress charts catalog
 resource "rancher2_catalog_v2" "sorry-cypress" {
   depends_on = [time_sleep.wait_300_seconds]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].cluster_id
   name       = "sorry-cypress"
   url        = "https://sorry-cypress.github.io/charts"
+}
+
+# MockServer charts catalog
+resource "rancher2_catalog_v2" "mock-server" {
+  depends_on = [time_sleep.wait_300_seconds]
+  count      = var.register_in_rancher ? 1 : 0
+  cluster_id = rancher2_cluster_sync.this[0].cluster_id
+  name       = "mock-server"
+  url        = "http://www.mock-server.com/"
 }

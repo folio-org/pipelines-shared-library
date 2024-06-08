@@ -1,0 +1,94 @@
+#!groovy
+import groovy.json.JsonOutput
+import org.folio.models.InstallRequestParams
+import org.folio.models.RancherNamespace
+import org.jenkinsci.plugins.workflow.libs.Library
+
+// Define a global variable for the library branch
+String DEPLOYMENT_CONFIG_BRANCH = 'RANCHER-1054'
+
+@Library('pipelines-shared-library@RANCHER-1054') _
+
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.configType(),
+    string(name: 'DEFAULT_TENANT_ID', defaultValue: 'diku', description: '(Required) Default tenant id'),
+    text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to update.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
+    booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+    folioParameters.loadReference(),
+    folioParameters.loadSample(),
+    folioParameters.simulate(),
+    folioParameters.reinstall(),
+    folioParameters.ignoreErrors(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+// Validate inputs
+validateInputs(params)
+
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+  .withSimulate(params.SIMULATE)
+  .withReinstall(params.REINSTALL)
+  .withIgnoreErrors(params.IGNORE_ERRORS)
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withDefaultTenant(params.DEFAULT_TENANT_ID)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.addDeploymentConfig(DEPLOYMENT_CONFIG_BRANCH)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${namespace.getDeploymentConfigType()}"
+      }
+
+      stage('Preparation') {
+        List newInstallJson = readJSON text: params.INSTALL_JSON
+        folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
+      }
+
+      stage('Update') {
+        folioDeployFlow.update(namespace)
+      }
+    } catch (Exception e) {
+      println "Caught exception: ${e}"
+      error "Pipeline failed due to error: ${e.getMessage()}"
+    } finally {
+      println(new JsonOutput().toJson(namespace))
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+
+// Function to validate input parameters
+void validateInputs(params) {
+  if (params.DEFAULT_TENANT_ID.trim().isEmpty()) {
+    error "DEFAULT_TENANT_ID parameter is required."
+  }
+}

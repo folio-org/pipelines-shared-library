@@ -1,0 +1,110 @@
+#!groovy
+import org.folio.models.RancherNamespace
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+
+properties([
+  pipelineTriggers([cron('H 20 * * *')]),
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
+final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
+final String folioBranch = 'snapshot'
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': folioBranch])[0]
+def ns
+
+RancherNamespace namespace = new RancherNamespace('folio-testing', 'cypress')
+
+Map cypressFlowParameters = [
+  customBuildName       : env.JOB_BASE_NAME,
+  branch                : params.CYPRESS_BRANCH,
+  tenantUrl             : "https://${namespace.generateDomain('diku')}",
+  okapiUrl              : "https://${namespace.generateDomain('okapi')}",
+  tenantId              : 'diku',
+  adminUsername         : 'diku_admin',
+  adminPassword         : 'admin',
+  parallelExecParameters: '--env grepTags="smoke criticalPath"',
+//  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
+  testsTimeout          : '8',
+  testrailProjectID     : '14',
+  testrailRunID         : '2108',
+  numberOfWorkers       : '12', //Changed form 10 to 6 according to instance resources capacity
+  agent                 : 'cypress',
+  runType               : 'night',
+  useReportPortal       : 'false'
+]
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    stage('Ini') {
+      buildName env.BUILD_ID
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
+      cleanWs()
+    }
+
+    stage('[Job] Destroy environment') {
+      script {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ns = kubectl.checkNamespaceExistence("${namespace.namespaceName}")
+        }
+        if (ns == namespace.namespaceName) {
+          build job: deleteNamespaceJobName,
+            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName())
+          println("${ns}")
+        } else {
+          println(namespace.namespaceName + ' namespace does not exists!')
+        }
+      }
+    }
+
+    stage('[Job] Provision environment') {
+      script {
+        try {
+          build job: createNamespaceJobName,
+            parameters: _defaultEnvironmentParameters(namespace.getClusterName(), namespace.getNamespaceName()) +
+              [string(name: 'FOLIO_BRANCH', value: folioBranch),
+               string(name: 'OKAPI_VERSION', value: okapiVersion),
+               string(name: 'CONFIG_TYPE', value: 'testing'),
+               booleanParam(name: 'LOAD_REFERENCE', value: true),
+               booleanParam(name: 'LOAD_SAMPLE', value: true),
+               booleanParam(name: 'CONSORTIA', value: true),
+               booleanParam(name: 'GREENMAIL', value: false),
+               string(name: 'MEMBERS', value: '')]
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+                    , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
+        }
+      }
+    }
+
+    stage('[Flow] Execute tests') {
+      folioCypressFlow(cypressFlowParameters)
+    }
+  }
+}
+
+private List _defaultEnvironmentParameters(String clusterName, String namespaceName) {
+  return [string(name: 'CLUSTER', value: clusterName),
+          string(name: 'NAMESPACE', value: namespaceName),
+          booleanParam(name: 'RW_SPLIT', value: false),
+          string(name: 'POSTGRESQL', value: 'built-in'),
+          string(name: 'KAFKA', value: 'built-in'),
+          string(name: 'OPENSEARCH', value: 'aws'),
+          string(name: 'S3_BUCKET', value: 'built-in'),
+          string(name: 'AGENT', value: 'rancher'),
+          booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+}
