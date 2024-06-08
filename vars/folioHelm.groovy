@@ -250,10 +250,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
     moduleConfig <<
       [
-        initContainer     : [enabled: true],
-        extraVolumes      : [extendedtmp: [enabled: true]],
-        extraVolumeMounts : [extendedtmp: [enabled: true]],
-        volumeClaims      : [extendedtmp: [enabled: true]]
+        initContainer    : [enabled: true],
+        extraVolumes     : [extendedtmp: [enabled: true]],
+        extraVolumeMounts: [extendedtmp: [enabled: true]],
+        volumeClaims     : [extendedtmp: [enabled: true]]
       ]
   }
 

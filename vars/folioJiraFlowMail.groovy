@@ -1,5 +1,4 @@
 import org.folio.Constants
-import org.folio.rest_v2.Common
 import org.folio.utilities.Logger
 
 void sendMailNotification(List emails, String subject, String body) {

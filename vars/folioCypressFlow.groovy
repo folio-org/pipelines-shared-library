@@ -87,14 +87,14 @@ void call(params) {
               case 'cypress-static':
                 workersLimit = 6
                 batchSize = 6
-                break;
+                break
               case 'cypress':
                 workersLimit = 12
                 batchSize = 4
-                break;
+                break
               default:
                 error("Worker agent label unknown! '${agent}'")
-                break;
+                break
             }
             int maxWorkers = Math.min(numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
             List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
@@ -116,7 +116,7 @@ void call(params) {
                   }
 
                   batch.eachWithIndex { copyBatch, copyBatchIndex ->
-                    if(copyBatchIndex > 0){
+                    if (copyBatchIndex > 0) {
                       sh "mkdir -p cypress-${copyBatch}"
                       sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
                     }
@@ -125,16 +125,16 @@ void call(params) {
                   Map<String, Closure> parallelWorkers = [failFast: false]
                   batch.each { workerNumber ->
                     parallelWorkers["Worker#${workerNumber}"] = {
-                      dir("cypress-${workerNumber}"){
+                      dir("cypress-${workerNumber}") {
                         executeTests(cypressImageVersion, "parallel_${customBuildName}"
-                                      , browserName, parallelExecParameters
-                                      , testrailProjectID, testrailRunID, workerNumber.toString())
+                          , browserName, parallelExecParameters
+                          , testrailProjectID, testrailRunID, workerNumber.toString())
                       }
                     }
                   }
                   parallel(parallelWorkers)
 
-                  batch.each {workerNumber ->
+                  batch.each { workerNumber ->
                     dir("cypress-${workerNumber}") {
                       resultPaths.add(archiveTestResults("${workerNumber}"))
                     }
@@ -155,7 +155,7 @@ void call(params) {
             compileTests(cypressImageVersion)
 
             executeTests(cypressImageVersion, "sequential_${customBuildName}", browserName
-                          , sequentialExecParameters, testrailProjectID, testrailRunID)
+              , sequentialExecParameters, testrailProjectID, testrailRunID)
 
             resultPaths.add(archiveTestResults((numberOfWorkers + 1).toString()))
           }
@@ -215,14 +215,14 @@ void call(params) {
         }
 
         slackSend(attachments: folioSlackNotificationUtils
-                                .renderBuildAndTestResultMessage_OLD(
-                                  TestType.CYPRESS
-                                  , statusCounts
-                                  , customBuildName
-                                  , useReportPortal
-                                  , "${env.BUILD_URL}allure/"
-                                )
-                  , channel: "#rancher_tests_notifications")
+          .renderBuildAndTestResultMessage_OLD(
+            TestType.CYPRESS
+            , statusCounts
+            , customBuildName
+            , useReportPortal
+            , "${env.BUILD_URL}allure/"
+          )
+          , channel: "#rancher_tests_notifications")
       }
     }
   }
@@ -260,7 +260,7 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
 void compileTests(String cypressImageVersion, String batchID = '') {
   stage('Compile tests') {
     runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}-${batchID}", {
-        sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+      sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
         node -v; yarn -v
         yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
         env; yarn install

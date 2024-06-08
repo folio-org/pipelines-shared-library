@@ -1,9 +1,9 @@
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.testing.TestType
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.TeamAssignment
-import org.folio.testing.TestType
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -143,18 +143,18 @@ def call(params) {
   stage('Send in slack test results notifications') {
     script {
       slackSend(attachments: folioSlackNotificationUtils
-                              .renderBuildAndTestResultMessage(
-                                TestType.KARATE
-                                , karateTestsExecutionSummary
-                                , ""
-                                , true
-                                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-                              )
-                , channel: "#rancher_tests_notifications")
+        .renderBuildAndTestResultMessage(
+          TestType.KARATE
+          , karateTestsExecutionSummary
+          , ""
+          , true
+          , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+        )
+        , channel: "#rancher_tests_notifications")
     }
   }
 
-  stage('Jira&Slack team notifications'){
+  stage('Jira&Slack team notifications') {
     stage("Parse teams assignment") {
       script {
         def jsonContents = readJSON file: "teams-assignment.json"
@@ -171,12 +171,12 @@ def call(params) {
     stage("Send slack notifications to teams") {
       script {
         folioSlackNotificationUtils.renderTeamsTestResultMessages(
-                                      TestType.KARATE
-                                      , karateTestsExecutionSummary
-                                      , teamAssignment
-                                      , ""
-                                      , true
-                                      , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+          TestType.KARATE
+          , karateTestsExecutionSummary
+          , teamAssignment
+          , ""
+          , true
+          , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
           .each {
             slackSend(attachments: it.value, channel: it.key.getSlackChannel())
           }
@@ -184,4 +184,3 @@ def call(params) {
     }
   }
 }
-

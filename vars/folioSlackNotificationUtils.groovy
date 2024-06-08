@@ -1,25 +1,21 @@
-import org.folio.jira.JiraConstants
 import org.folio.client.reportportal.ReportPortalTestType
+import org.folio.jira.JiraConstants
 import org.folio.slack.SlackBuildResultRenderer
 import org.folio.slack.SlackHelper
 import org.folio.slack.SlackTeamTestResultRenderer
 import org.folio.slack.SlackTestResultRenderer
+import org.folio.testing.*
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
-import org.folio.testing.IExecutionSummary
-import org.folio.testing.IModuleExecutionSummary
-import org.folio.testing.ITestExecutionSummary
-import org.folio.testing.TestExecutionResult
-import org.folio.testing.TestType
 
-String renderBuildResultSection(){
+String renderBuildResultSection() {
   SlackBuildResultRenderer slackBuildResult =
     SlackBuildResultRenderer.fromResult(currentBuild.result == null ? "SUCCESS" : currentBuild.result)
 
   return renderBuildResultSection(slackBuildResult)
 }
 
-String renderBuildResultSection(SlackBuildResultRenderer buildResult){
+String renderBuildResultSection(SlackBuildResultRenderer buildResult) {
   return buildResult.renderSection(
     env.JOB_NAME
     , env.BUILD_NUMBER
@@ -28,24 +24,24 @@ String renderBuildResultSection(SlackBuildResultRenderer buildResult){
   )
 }
 
-String renderBuildResultMessage(){
+String renderBuildResultMessage() {
   return SlackHelper
     .renderMessage([renderBuildResultSection()])
 }
 
-String renderSuccessBuildResultMessage(){
+String renderSuccessBuildResultMessage() {
   return SlackHelper
     .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.SUCCESS)])
 }
 
-String renderFailedBuildResultMessage(){
+String renderFailedBuildResultMessage() {
   return SlackHelper
     .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.FAILURE)])
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderTestResultSection(TestType type, IExecutionSummary summary
-                               , String buildName, boolean useReportPortal, String url){
+                               , String buildName, boolean useReportPortal, String url) {
 
   return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary))
     .renderSection(
@@ -58,7 +54,7 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
 }
 
 String renderBuildAndTestResultMessage(TestType type, IExecutionSummary summary
-                                       , String buildName, boolean useReportPortal, String url){
+                                       , String buildName, boolean useReportPortal, String url) {
   return SlackHelper.renderMessage(
     [
       renderBuildResultSection()
@@ -75,7 +71,7 @@ Map<Team, String> renderTeamsTestResultMessages(TestType type
   Map<Team, List<IModuleExecutionSummary>> teamsResults = summary.getModuleResultByTeam(teamAssignment)
   Map<Team, String> teamsRenderSection = [:]
 
-  teamsResults.each {teamResults ->
+  teamsResults.each { teamResults ->
     teamsRenderSection[teamResults.key] = SlackHelper.renderMessage(
       [
         renderBuildResultSection()
@@ -89,17 +85,17 @@ Map<Team, String> renderTeamsTestResultMessages(TestType type
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
-String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecutionSummary> results){
+String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecutionSummary> results) {
   List<String> existingTickets = []
   List<String> createdTickets = []
 
-  try{
+  try {
     // Existing tickets - created more than 1 hour ago
     existingTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created < -1h")
 
     // Created tickets by this run - Within the last 20 min
     createdTickets = karateTestUtils.getJiraIssuesByTeam(team.getName(), "created > -20m")
-  } catch (e){
+  } catch (e) {
     println("An error happened while fetching Jira issues for the team ${team.getName()}")
     println(e)
   }
@@ -117,7 +113,7 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
 
 @Deprecated
 String renderSlackTestResultMessageSection(TestType type, Map<String, Integer> testResults
-                                           , String buildName, boolean useReportPortal, String url){
+                                           , String buildName, boolean useReportPortal, String url) {
 
   def totalTestsCount = testResults.passed + testResults.failed + testResults.broken
   def passRateInDecimal = totalTestsCount > 0 ? (testResults.passed * 100) / totalTestsCount : 0
@@ -143,7 +139,7 @@ String renderSlackTestResultMessageSection(TestType type, Map<String, Integer> t
 
 @Deprecated
 String renderBuildAndTestResultMessage_OLD(TestType type, Map<String, Integer> testResults
-                                       , String buildName, boolean useReportPortal, String url){
+                                           , String buildName, boolean useReportPortal, String url) {
   return SlackHelper.renderMessage(
     [
       renderBuildResultSection()

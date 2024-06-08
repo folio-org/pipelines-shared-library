@@ -2,13 +2,13 @@ import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 
 static String getNamespaces() {
-    return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
+  return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
 """
 }
 
-static String getRepositoryBranches(String repository){
-    return """import groovy.json.JsonSlurperClassic
+static String getRepositoryBranches(String repository) {
+  return """import groovy.json.JsonSlurperClassic
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 100
 def fetchBranches(String url) {
@@ -45,8 +45,8 @@ fetchBranches("\${apiUrl}?per_page=\${perPage}")
 """
 }
 
-static String getOkapiVersions(){
-    return """import groovy.json.JsonSlurperClassic
+static String getOkapiVersions() {
+  return """import groovy.json.JsonSlurperClassic
 def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json").openConnection()
 if (installJson.getResponseCode().equals(200)) {
     String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
@@ -72,8 +72,8 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getBackendModulesList(){
-    return '''import groovy.json.JsonSlurperClassic
+static String getBackendModulesList() {
+  return '''import groovy.json.JsonSlurperClassic
 String nameGroup = "moduleName"
 String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
 def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
@@ -88,8 +88,8 @@ if (installJson.getResponseCode().equals(200)) {
 }'''
 }
 
-static String getModuleVersion(){
-    return '''import groovy.json.JsonSlurperClassic
+static String getModuleVersion() {
+  return '''import groovy.json.JsonSlurperClassic
 def versionType = ''
 switch(VERSION_TYPE){
   case 'release':
@@ -108,8 +108,8 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }'''
 }
 
-static String getPostgresqlVersion(){
-    return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
+static String getPostgresqlVersion() {
+  return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
 List pg_versions = []
 versions.each {version ->
 if(version == '13.13') {

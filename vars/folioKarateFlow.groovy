@@ -1,10 +1,10 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.models.parameters.KarateTestsParameters
 import org.folio.testing.TestType
 import org.folio.testing.karate.results.KarateTestsExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Logger
-import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.RestClient
 
 import java.time.Instant
@@ -74,7 +74,7 @@ void call(KarateTestsParameters args) {
       }
     }
 
-    stage('[Report] Analyze results'){
+    stage('[Report] Analyze results') {
       karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
       karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
     }
