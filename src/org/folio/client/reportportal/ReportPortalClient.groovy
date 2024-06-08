@@ -14,6 +14,7 @@ class ReportPortalClient {
   private def buildName
   private def buildNumber
   private def workspace
+  private def runType
   private def launchID = null
 
   ReportPortalClient(def pipeline, TestType testType, def buildName, def buildNumber, def workspace, def runType) throws Error{
