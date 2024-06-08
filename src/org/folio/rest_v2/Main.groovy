@@ -18,9 +18,8 @@ class Main extends Okapi {
         this.consortia = new Consortia(context, okapiDomain, debug)
     }
 
-    void preInstall(List installJson, List discoveryList) {
-        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
-        publishServiceDiscovery(discoveryList)
+    void publishDescriptors(List installJson){
+      publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
     }
 
     void simulateInstall(OkapiTenant tenant, Object installJson) {
@@ -28,7 +27,6 @@ class Main extends Okapi {
             logger.warning("Simulation not requested!")
             return
         }
-        publishModulesDescriptors(getUnregisteredModuleDescriptors(installJson))
         tenantInstall(tenant, installJson)
         tenant.installRequestParams.simulate = false
     }
@@ -73,7 +71,7 @@ class Main extends Okapi {
             configureTenant(tenant)
         }
     }
-  
+
     void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
         consortia.setUpConsortia(consortiaTenants)
     }

@@ -2,6 +2,18 @@ import org.folio.Constants
 import hudson.util.Secret
 import org.folio.rest.model.OkapiUser
 
+static List repositoriesList() {
+  return ['platform-complete',
+          'platform-core']
+}
+
+static OkapiUser defaultAdminUser() {
+  return new OkapiUser(
+    username: 'diku_admin',
+    password: 'admin'
+  )
+}
+
 private def _paramChoice(String name, List value, String description) {
     return choice(name: name, choices: value, description: description)
 }
@@ -59,6 +71,10 @@ def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-comp
     return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
+def branchWithRef(String paramName = 'FOLIO_BRANCH', String reference) {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches("\${${reference}}"), "(Required) Select what '${reference}' branch use for build")
+}
+
 def okapiVersion() {
     return _paramExtendedSingleSelect('OKAPI_VERSION', 'FOLIO_BRANCH', folioStringScripts.getOkapiVersions(), 'Select what Okapi version use for build')
 }
@@ -112,7 +128,7 @@ def uiBundleBuild(){
 }
 
 def uiBundleTag() {
-  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', getUIImagesList(), 'Select image tag/version for UI which will be deployed')
+  return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', folioStringScripts.getUIImagesList(), 'Select image tag/version for UI which will be deployed')
 }
 
 def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
@@ -121,55 +137,6 @@ def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
 
 def referenceTenantId(String tenant_id = 'diku') {
   return _paramString('REFERENCE_TENANT_ID', tenant_id, 'Reference Id used for tenant creation')
-}
-
-static List repositoriesList() {
-    return ['platform-complete',
-            'platform-core']
-}
-
-static String getUIImagesList() {
-  return """
-import com.amazonaws.services.ecr.AmazonECR
-import com.amazonaws.services.ecr.AmazonECRClientBuilder
-import com.amazonaws.services.ecr.model.ListImagesRequest
-
-AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
-
-String repositoryName = "ui-bundle"
-
-def result = []
-def final_result = []
-String nextToken = null
-
-while (nextToken != '') {
-    ListImagesRequest request = new ListImagesRequest()
-            .withRepositoryName(repositoryName)
-            .withNextToken(nextToken)
-
-    def res = client.listImages(request)
-    result.addAll(res.imageIds.collect { it.imageTag })
-    result.each {
-        if (!(it == null)) {
-            final_result.add(it)
-        }
-    }
-    nextToken = res.nextToken ?: ''
-}
-
-result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
-        .sort()
-        .reverse()
-
-return result
-"""
-}
-
-static OkapiUser defaultAdminUser() {
-  return new OkapiUser(
-    username: 'diku_admin',
-    password: 'admin'
-  )
 }
 
 def moduleName(){

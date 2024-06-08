@@ -9,44 +9,39 @@ return namespacesList[CLUSTER]
 
 static String getRepositoryBranches(String repository){
     return """import groovy.json.JsonSlurperClassic
+def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
+def perPage = 100
+def fetchBranches(String url) {
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
-def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
-def perPage = 500
-def fetchBranches = { String url ->
     def branches = []
-    def getNextPage = { nextPageUrl ->
+  def jsonSlurper = new JsonSlurperClassic()
+  def getNextPage
+  def processResponse = { connection ->
+    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
+    if (connection.responseCode == 200) {
+      def responseText = connection.getInputStream().getText()
+      branches += jsonSlurper.parseText(responseText).collect { it.name }
+      def linkHeader = connection.getHeaderField('Link')
+      if (linkHeader?.find('rel="next"')) {
+        def nextUrlMatcher = linkHeader =~ /<(http[^>]+)>; rel="next"/
+        if (nextUrlMatcher.find()) {
+          getNextPage(nextUrlMatcher[0][1])
+        }
+      }
+    } else {
+      println("Error fetching data: HTTP \${connection.responseCode}")
+    }
+  }
+  getNextPage = { nextPageUrl ->
         def nextConn = new URL(nextPageUrl).openConnection()
-        nextConn.setRequestProperty("Authorization", "Bearer \${secret_value}")
-        if (nextConn.responseCode.equals(200)) {
-            def nextResponseText = nextConn.getInputStream().getText()
-            branches += new JsonSlurperClassic().parseText(nextResponseText).name
-            def nextLinkHeader = nextConn.getHeaderField("Link")
-            if (nextLinkHeader && nextLinkHeader.contains('rel="next"')) {
-                def nextUrl = nextLinkHeader =~ /<(.*?)>/
-                if (nextUrl) {
-                    getNextPage(nextUrl[0][1])
-                }
+    processResponse(nextConn)
             }
-        }
-    }
-    def conn = new URL(url).openConnection()
-    conn.setRequestProperty("Authorization", "Bearer \${secret_value}")
-    if (conn.responseCode.equals(200)) {
-        def responseText = conn.getInputStream().getText()
-        branches += new JsonSlurperClassic().parseText(responseText).name
-        def linkHeader = conn.getHeaderField("Link")
-        if (linkHeader && linkHeader.contains('rel="next"')) {
-            def nextPageUrl = linkHeader =~ /<(.*?)>/
-            if (nextPageUrl) {
-                getNextPage(nextPageUrl[0][1])
-            }
-        }
-    }
+  processResponse(new URL(url).openConnection())
     return branches
 }
-fetchBranches("\$apiUrl?per_page=\$perPage")
+fetchBranches("\${apiUrl}?per_page=\${perPage}")
 """
 }
 
@@ -124,4 +119,41 @@ if(version == '13.13') {
  }
 }
 return (pg_versions)'''
+}
+
+static String getUIImagesList() {
+  return """
+import com.amazonaws.services.ecr.AmazonECR
+import com.amazonaws.services.ecr.AmazonECRClientBuilder
+import com.amazonaws.services.ecr.model.ListImagesRequest
+
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
+
+String repositoryName = "ui-bundle"
+
+def result = []
+def final_result = []
+String nextToken = null
+
+while (nextToken != '') {
+    ListImagesRequest request = new ListImagesRequest()
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
+
+    def res = client.listImages(request)
+    result.addAll(res.imageIds.collect { it.imageTag })
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
+    nextToken = res.nextToken ?: ''
+}
+
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
+        .sort()
+        .reverse()
+
+return result
+"""
 }
