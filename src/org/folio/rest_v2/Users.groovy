@@ -239,7 +239,7 @@ class Users extends Authorization {
         String url = generateUrl("/authn/reset-password")
         Map<String, String> headers = getAuthorizedHeaders(tenant)
         Map body = [passwordResetActionId: resetPasswordAction(tenant, user),
-                    newPassword          : user.password]
+                    newPassword          : user.password.getPlainText()]
 
         logger.info("Changing password for ${user.username} user...")
         restClient.post(url, body, headers)

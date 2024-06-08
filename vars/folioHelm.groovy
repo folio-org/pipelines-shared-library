@@ -125,7 +125,13 @@ void checkAllPodsRunning(String ns) {
       notAllRunning = result.split('\n').any { status -> status != 'Running' }
 
       if (notAllRunning) {
+        def evictedPodsList
         println('Not all pods are running. Retrying...')
+        try {
+          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
+        } catch (Error err) {
+          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+        }
       } else {
         println('All pods are running.')
       }
@@ -166,11 +172,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [readWriteSplitEnabled: "true"]
   }
 
-  //Enable extra env
-  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
-    moduleConfig << [consortiumEnabled: "true"]
-  }
-
   //Override default mdi-slicing, in case of minio
   if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
     moduleConfig << [disEnabled: false]
@@ -187,7 +188,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-file-size=40MB'
     moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-request-size=40MB'
   }
-
   //Enable RTR functionality with env value
   if (params.RTR) {
     moduleConfig << [rtrEnabled: "true"]
@@ -197,6 +197,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig << [modSearchDev: "true"]
     moduleConfig << [modInventoryStorageDev: "true"]
     moduleConfig << [modEntitiesLinksDev: "true"]
+  }
+
+  //Enable DIS
+  if (params.DI_SLICING && moduleName == 'mod-data-import') {
+    moduleConfig << [disEnabled: 'true']
+    moduleConfig << [awsConnectParameters: 's3-credentials']
   }
 
   // Enable ingress
