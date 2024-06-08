@@ -65,6 +65,7 @@ void call(Map params, boolean releaseVersion = false) {
     }
 }
 
+//TODO temporary solution should be revised
 static String getModuleVersion(String moduleName, boolean releaseVersion = false) {
     String versionType = 'only'
     if(releaseVersion){

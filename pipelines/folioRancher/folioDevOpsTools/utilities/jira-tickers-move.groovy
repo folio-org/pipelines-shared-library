@@ -12,10 +12,12 @@ LinkedHashMap bugfest_map = [:]
 JiraClient jiraClient = JiraClient.getJiraClient(this)
 LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.folio.org",
                           "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
+                          "Poppy"        :"https://okapi-bugfest-poppy.int.aws.folio.org",
                           "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
-                          "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org"
+                          "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org",
+                          "Quesnelia"    :"https://okapi-bugfest-quesnelia.int.aws.folio.org"
                     ] as LinkedHashMap
-ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Morning-Glory"]
+ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Poppy","Morning-Glory","Quesnelia"]
 String tenant="fs09000000"
 
 properties([

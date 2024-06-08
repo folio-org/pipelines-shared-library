@@ -1,5 +1,6 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
@@ -26,11 +27,15 @@ static String generateDomain(String cluster_name, String project_name, String pr
 }
 
 // A function that waits for a service to be available.
-void healthCheck(String url, String status_codes='200,403'){
+void healthCheck(String url, String status_codes='200,403', OkapiTenant tenant){
     timeout(15) {
         waitUntil(initialRecurrencePeriod: 20000, quiet: true) {
             try {
-                httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes
+                ArrayList headers = [
+                    [name: 'X-Okapi-Tenant', value: tenant.getId()],
+                    [name: 'X-Okapi-Token', value: tenant.getAdminUser().getToken() ? tenant.getAdminUser().getToken() : '', maskValue: true]
+                ]
+                httpRequest ignoreSslErrors: true, quiet: true, responseHandle: 'NONE', timeout: 1000, url: url, validResponseCodes: status_codes, customHeaders: headers
                 return true
             } catch (exception) {
                 println(exception.getMessage())
