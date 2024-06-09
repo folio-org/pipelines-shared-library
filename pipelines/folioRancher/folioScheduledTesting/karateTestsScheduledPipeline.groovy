@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@DEPRECATED-RANCHER-741-Jenkins-Enhancements') _
 
 
 import org.folio.utilities.Tools

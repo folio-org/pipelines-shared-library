@@ -3,7 +3,7 @@
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@DEPRECATED-RANCHER-741-Jenkins-Enhancements') _
 
 properties([
   //pipelineTriggers([cron('H 0 * * *')]),  # need to implement cron time

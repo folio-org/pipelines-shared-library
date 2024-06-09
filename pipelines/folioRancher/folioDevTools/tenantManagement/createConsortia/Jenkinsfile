@@ -6,7 +6,7 @@ import org.folio.models.TenantUi
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library@DEPRECATED-RANCHER-741-Jenkins-Enhancements') _
 
 CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
 
