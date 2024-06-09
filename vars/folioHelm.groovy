@@ -18,9 +18,7 @@ void withK8sClient(Closure closure) {
 void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-    //TODO change repository back to stable
-    addHelmRepository(Constants.FOLIO_HELM_V2_TEST_REPO_NAME, Constants.FOLIO_HELM_V2_TEST_REPO_URL, true)
-//        addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
     closure.call()
   }
 }
@@ -66,9 +64,7 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
       break
   }
-//    upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
-  //TODO change repository back to stable
-  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_TEST_REPO_NAME, chartName)
+  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
 }
 
 void deployFolioModules(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
