@@ -504,6 +504,21 @@ mod-calendar:
       memory: 512Mi
     requests:
       memory: 300Mi
+mod-camunda:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 400Mi
 mod-circulation:
   extraEnvVars:
   - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
