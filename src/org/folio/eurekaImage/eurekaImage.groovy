@@ -4,6 +4,13 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 
 class eurekaImage {
+
+  private Object context
+
+  eurekaImage(context) {
+    this.context = context
+  }
+
   Logger logger = new Logger(this, 'eurekaImage')
 
   String moduleName
