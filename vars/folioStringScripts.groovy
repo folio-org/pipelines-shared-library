@@ -74,18 +74,40 @@ static String getModuleId(String moduleName) {
 
 static String getBackendModulesList() {
   return '''import groovy.json.JsonSlurperClassic
-String nameGroup = "moduleName"
-String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
-def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
-if (installJson.getResponseCode().equals(200)) {
-    List modules_list = ['okapi']
-    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*|edge-.*/ }.each { value ->
-        def matcherModule = value =~ patternModuleVersion
-        assert matcherModule.matches()
-        modules_list.add(matcherModule.group(nameGroup))
+def apiUrl = "https://api.github.com/orgs/folio-org/repos"
+def perPage = 100
+def fetchModules(String url) {
+  def credentialId = "id-jenkins-github-personal-token"
+  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+  def secret_value = credential.getSecret().getPlainText()
+  def modules = []
+  def jsonSlurper = new JsonSlurperClassic()
+  def getNextPage
+  def processResponse = { connection ->
+    connection.setRequestProperty("Authorization", "Bearer ${secret_value}")
+    if (connection.responseCode == 200) {
+      def responseText = connection.getInputStream().getText()
+      def json = jsonSlurper.parseText(responseText)
+      modules.addAll(json*.name)
+      def linkHeader = connection.getHeaderField('Link')
+      if (linkHeader) {
+        def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
+        if (nextPageUrl) {
+          getNextPage(nextPageUrl)
+        }
+      }
+    } else {
+      println("Error fetching data: HTTP ${connection.responseCode}")
     }
-    return modules_list.sort()
-}'''
+  }
+  getNextPage = { nextPageUrl ->
+    def nextConn = new URL(nextPageUrl).openConnection()
+    processResponse(nextConn)
+  }
+  processResponse(new URL(url).openConnection())
+  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') }.sort()
+}
+fetchModules("${apiUrl}?per_page=${perPage}")'''
 }
 
 static String getModuleVersion() {
