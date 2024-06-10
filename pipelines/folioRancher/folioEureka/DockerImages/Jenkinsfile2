@@ -26,7 +26,7 @@ ansiColor('xterm') {
       stage('Build Docker Image'){
         dir('folio-kong'){
           EurekaImage image = new EurekaImage(this)
-          image.setModuleName('folio-kong')
+          image.setModuleName('folio-keycloak')
           image.makeImage()
         }
       }
