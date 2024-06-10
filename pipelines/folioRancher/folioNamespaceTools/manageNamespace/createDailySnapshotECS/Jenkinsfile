@@ -114,11 +114,11 @@ ansiColor('xterm') {
         }
 
         folioHelm.withKubeConfig(params.CLUSTER) {
-          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 2 hours", "green")
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.5", "ecs-snapshot-users",
+          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
             "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
             "ecs-snapshot", "${params.NAMESPACE}")
-          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-connect-modules', 'SYSTEM_USER_PASSWORD')
+          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
         }
       }
 
