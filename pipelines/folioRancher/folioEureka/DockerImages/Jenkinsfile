@@ -29,6 +29,7 @@ ansiColor('xterm') {
         dir("${params.MODULE_NAME}"){
           EurekaImage image = new EurekaImage(this)
           image.setModuleName("${params.MODULE_NAME}")
+          image.setBranch("${params.BRANCH}")
           image.makeImage()
         }
       }
