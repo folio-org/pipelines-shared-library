@@ -1,5 +1,11 @@
+data "rancher2_secret" "keycloak_credentials" {
+  name         = "keycloak-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+}
+
 locals {
-  kc_admin_user_name  = "admin"
+  kc_admin_user_name  = lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin")
   kc_target_http_port = "8080"
 }
 
