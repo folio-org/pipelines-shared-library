@@ -1,4 +1,4 @@
-package org.folio.eurekaImage
+package org.folio.eureka
 
 import org.folio.Constants
 import org.folio.utilities.Logger
@@ -36,7 +36,6 @@ class EurekaImage implements Serializable {
       context.withMaven(
         jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME
-        //,options: [artifactsPublisher(disabled: true)]
       ) {
         context.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
       }
