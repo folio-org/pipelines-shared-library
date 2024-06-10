@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioEureka.dockerBuild
+package folioRancher.folioEureka.DockerImages
 
 import org.jenkinsci.plugins.workflow.libs.Library
 
