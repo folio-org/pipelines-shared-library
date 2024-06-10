@@ -8,6 +8,10 @@ class eurekaImage {
 
   String moduleName
 
+  def prepare() {
+    checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/" + moduleName + ".git"]]])
+  }
+
   def compile() {
     withMaven(jdk: "openjdk-17-jenkins-slave-all", maven: Constants.MAVEN_TOOL_NAME, options: [artifactsPublisher(disabled: true)]) {
       sh(script: "mvn clean install -DskipTests", returnStdOut: true)
@@ -28,12 +32,15 @@ class eurekaImage {
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
+        prepare()
         build("--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       case 'folio-keycloak':
+        prepare()
         build("-f ./Dockerfile .")
         break
       default:
+        prepare()
         compile()
         build("-f ./Dockerfile .")
         break
