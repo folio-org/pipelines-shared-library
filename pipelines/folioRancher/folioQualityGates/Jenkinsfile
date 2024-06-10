@@ -110,7 +110,7 @@ ansiColor('xterm') {
             testrailRunID         : '', //TODO Add testrail Run ID
             numberOfWorkers       : '4',
             useReportPortal       : 'false',
-            agent                 : 'rancher']
+            agent                 : 'cypress']
           folioCypressFlow(cypressParams)
         }
         branches['Karate'] = { ->
