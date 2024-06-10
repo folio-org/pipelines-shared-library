@@ -36,6 +36,7 @@ ansiColor('xterm') {
     } finally {
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        input("Paused for a review...")
         common.removeImage("${params.MODULE_NAME}")
         cleanWs notFailBuild: true
       }
