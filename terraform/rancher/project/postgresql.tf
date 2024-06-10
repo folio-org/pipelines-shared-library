@@ -43,7 +43,7 @@ resource "rancher2_secret" "kong-credentials" {
   count        = var.eureka ? 1 : 0
 }
 
-resource "rancher2_secret" "keycloak-credentials" {
+resource "rancher2_secret_2" "keycloak-credentials" {
   data = {
     KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     KC_DB_URL_PORT                  = base64encode("5432")
@@ -55,10 +55,10 @@ resource "rancher2_secret" "keycloak-credentials" {
     KEYCLOAK_ADMIN_USER             = base64encode("admin")
     KEYCLOAK_ADMIN_PASSWORD         = base64encode("SecretPassword")
   }
-  project_id   = rancher2_project.this.id
-  namespace_id = rancher2_namespace.this.id
-  name         = "keycloak-credentials"
-  count        = var.eureka ? 1 : 0
+  cluster_id = data.rancher2_cluster.this.id
+  name       = "keycloak-credentials"
+  namespace  = rancher2_namespace.this.name
+  count      = var.eureka ? 1 : 0
 }
 
 locals {
