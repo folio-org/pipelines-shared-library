@@ -10,7 +10,7 @@ class eurekaImage {
 
   def prepare() {
     try {
-      checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/" + moduleName + ".git"]]])
+      checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
     } catch (Exception e) {
       logger.warning(e.getMessage())
     }
@@ -27,33 +27,33 @@ class eurekaImage {
   }
 
 
-def build(String ARGS) {
-  logger.info("Build started for ${moduleName} image...")
-  docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-    def image = docker.build(
-      moduleName,
-      ARGS
-    )
-    image.push()
+  def build(String ARGS) {
+    logger.info("Build started for ${moduleName} image...")
+    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+      def image = docker.build(
+        moduleName,
+        ARGS
+      )
+      image.push()
+    }
+    common.removeImage("${moduleName}")
   }
-}
 
-def makeImage() {
-  switch (moduleName) {
-    case 'folio-kong':
-      prepare()
-      build("--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
-      break
-    case 'folio-keycloak':
-      prepare()
-      build("-f ./Dockerfile .")
-      break
-    default:
-      prepare()
-      compile()
-      build("-f ./Dockerfile .")
-      break
+  def makeImage() {
+    switch ("${moduleName}") {
+      case 'folio-kong':
+        prepare()
+        build("--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        break
+      case 'folio-keycloak':
+        prepare()
+        build("-f ./Dockerfile .")
+        break
+      default:
+        prepare()
+        compile()
+        build("-f ./Dockerfile .")
+        break
+    }
   }
-}
-
 }
