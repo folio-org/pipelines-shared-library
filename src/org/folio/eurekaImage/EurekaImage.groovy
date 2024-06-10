@@ -27,7 +27,6 @@ class EurekaImage implements Serializable {
       logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Exception e) {
       logger.warning("Checkout failed: ${e.getMessage()}")
-      e.printStackTrace()
     }
   }
 
@@ -44,7 +43,6 @@ class EurekaImage implements Serializable {
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Exception e) {
       logger.warning("Maven compile failed: ${e.getMessage()}")
-      e.printStackTrace()
     }
   }
 
@@ -63,7 +61,6 @@ class EurekaImage implements Serializable {
       logger.info("Docker image removed for ${moduleName}")
     } catch (Exception e) {
       logger.warning("Docker build failed: ${e.getMessage()}")
-      e.printStackTrace()  // Print stack trace for debugging
     }
   }
 
