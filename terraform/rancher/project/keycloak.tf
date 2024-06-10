@@ -18,7 +18,7 @@ image:
   repository: folio-keycloak
   tag: latest
   pullPolicy: Always
-  debug: true
+  debug: false
 
 auth:
   adminUser: ${local.kc_admin_user_name}
