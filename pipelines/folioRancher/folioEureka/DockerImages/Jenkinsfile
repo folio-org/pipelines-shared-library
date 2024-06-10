@@ -1,19 +1,18 @@
 #!groovy
 package folioRancher.folioEureka.DockerImages
 
+import org.folio.eureka.EurekaImage
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1502') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.eurekaModules(),
-    string(name: 'BRANCH', defaultValue: 'master', description: '(Optional) Branch to build with Maven, default master'),
-    booleanParam(name: 'MAVEN', defaultValue: false, description: '(Optional) Set true to compile app, if needed'),
     folioParameters.agent(),
-    folioParameters.refreshParameters()
+    folioParameters.refreshParameters(),
+    folioParameters.eurekaModules()
   ])
 ])
 
@@ -25,26 +24,19 @@ if (params.REFRESH_PARAMETERS) {
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Ini') {
-        buildName "${params.MODULE_NAME}-${env.BUILD_ID}"
-        buildDescription "image build"
+      stage('Build Docker Image'){
+        dir("${params.MODULE_NAME}"){
+          EurekaImage image = new EurekaImage(this)
+          image.setModuleName("${params.MODULE_NAME}")
+          image.makeImage()
+        }
       }
-
-      Map eurekaParams = [
-        NAME         : "${params.MODULE_NAME}",
-        buildRequired: params.MAVEN,
-        BRANCH: params.BRANCH
-      ]
-
-      folioDockerImageBuild(eurekaParams)
-
     } catch (e) {
       println("Caught exception: ${e}")
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        common.removeImage("${params.MODULE_NAME}")
         cleanWs notFailBuild: true
       }
     }
