@@ -1587,6 +1587,21 @@ mod-users-bl:
       memory: 640Mi
     requests:
       memory: 512Mi
+mod-workflow:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 400Mi
 mod-z3950:
   extraEnvVars: []
   integrations: {}
