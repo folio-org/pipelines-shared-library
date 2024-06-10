@@ -7,7 +7,7 @@ void call(Map params) {
 
   stage('checkout') {
     dir("${params.NAME}") {
-      checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/" + params.NAME + ".git"]]])
+      checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH}"]], extensions: [], userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/" + params.NAME + ".git"]]])
     }
   }
   if (params.buildRequired) {
