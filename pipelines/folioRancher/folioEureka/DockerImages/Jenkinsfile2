@@ -1,7 +1,7 @@
 #!groovy
 package folioRancher.folioEureka.DockerImages
 
-import org.folio.eurekaImage.eurekaImage
+import org.folio.eurekaImage.EurekaImage
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-1502') _
@@ -25,7 +25,7 @@ ansiColor('xterm') {
     try {
       stage('Build Docker Image'){
         dir('folio-kong'){
-          eurekaImage image = new eurekaImage(this)
+          EurekaImage image = new EurekaImage(this)
           image.setModuleName('folio-kong')
           image.makeImage()
         }
