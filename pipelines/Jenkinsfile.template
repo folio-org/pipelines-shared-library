@@ -4,10 +4,12 @@
 
 #!groovy
 import org.folio.utilities.Logger
-import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
+/**
+ * Job properties and parameters
+ */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
@@ -25,8 +27,14 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+/**
+ * Job variables
+ */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+/**
+ * Pipeline
+ */
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
@@ -38,11 +46,11 @@ ansiColor('xterm') {
        * Placeholder for stages
        */
     } catch (e) {
-      println("Caught exception: ${e}")
+      logger.warning("Caught exception: ${e}")
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
-        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
     }
