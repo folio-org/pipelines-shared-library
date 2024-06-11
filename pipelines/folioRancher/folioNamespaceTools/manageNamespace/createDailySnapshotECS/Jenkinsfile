@@ -121,15 +121,15 @@ ansiColor('xterm') {
 //          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
 //        }
 //      }
-
-      stage('Restore') {
-        folioHelm.withK8sClient {
-          namespace.getModules().setInstallJson(new Tools(this)
-            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-        }
-        folioDeployFlow.restore(namespace)
-      }
+//
+//      stage('Restore') {
+//        folioHelm.withK8sClient {
+//          namespace.getModules().setInstallJson(new Tools(this)
+//            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+//          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+//        }
+//        folioDeployFlow.restore(namespace)
+//      }
 
       stage('Prepare update') {
         main.getTenantsList().each {
@@ -164,7 +164,8 @@ ansiColor('xterm') {
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
-        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+        main.publishDescriptors(namespace.getModules().getInstallJson())
       }
 
       stage('Update') {
