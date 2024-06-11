@@ -5,6 +5,7 @@ import org.folio.utilities.Logger
 
 class EurekaImage implements Serializable {
   private Object context
+  String branch = 'master'
   String moduleName
   Logger logger
 
@@ -18,7 +19,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting checkout for ${moduleName}...")
       context.checkout([
         $class: 'GitSCM',
-        branches: [[name: '*/master']],
+        branches: [[name: "*/${branch}"]],
         extensions: [],
         userRemoteConfigs: [[
                               url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"
