@@ -1044,6 +1044,12 @@ mod-lists:
     s3:
       enabled: true
       existingSecret: s3-mod-lists-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-lists
   replicaCount: 1
   resources:
     limits:
