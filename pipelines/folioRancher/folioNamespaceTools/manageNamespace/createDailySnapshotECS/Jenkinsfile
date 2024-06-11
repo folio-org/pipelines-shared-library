@@ -9,7 +9,7 @@ import org.folio.rest_v2.Users
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1517') _
+@Library('pipelines-shared-library') _
 
 CONFIG_BRANCH = 'master'
 
@@ -231,7 +231,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'warning', message: 'ecs-snapshot env build failed...', channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
