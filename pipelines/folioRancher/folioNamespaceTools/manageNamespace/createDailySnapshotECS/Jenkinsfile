@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'RANCHER-ecs-snapshot-bugfixes'
+CONFIG_BRANCH = 'master'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -81,7 +81,7 @@ ansiColor('xterm') {
 
       stage('[TF] Destroy') {
         folioHelm.withKubeConfig(params.CLUSTER) {
-          if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+          if ((kubectl.checkNamespaceExistence('ecs-snapshot'))) {
             folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
             try {
               build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
