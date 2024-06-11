@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'RANCHER-ecs-snapshot-bugfixes'
+CONFIG_BRANCH = 'master'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -26,7 +26,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 22 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=performance;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 22 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -81,7 +81,7 @@ ansiColor('xterm') {
 
       stage('[TF] Destroy') {
         folioHelm.withKubeConfig(params.CLUSTER) {
-          if ((kubectl.checkNamespaceExistence('ecs-snapshot')) == 'ecs-snapshot') {
+          if ((kubectl.checkNamespaceExistence('ecs-snapshot'))) {
             folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
             try {
               build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
@@ -98,7 +98,7 @@ ansiColor('xterm') {
               folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
             }
           } else {
-            folioPrint.colored("ecs-snapshot environment does not exist...\ncontinuing to work...", "green")
+            folioPrint.colored("ecs-snapshot environment does not exist...\nContinuing to work...", "green")
           }
         }
       }
@@ -164,7 +164,8 @@ ansiColor('xterm') {
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
-        main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+        main.publishDescriptors(namespace.getModules().getInstallJson())
       }
 
       stage('Update') {
@@ -183,7 +184,7 @@ ansiColor('xterm') {
       }
 
       stage('Enable') {
-        retry(3) {
+        retry(2) {
           folioHelm.withKubeConfig(namespace.getClusterName()) {
             kubectl.scaleDownResources(namespace.getNamespaceName(), "deployment")
             sleep time: 2, unit: 'MINUTES'
@@ -231,7 +232,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'warning', message: 'ecs-snapshot env build failed...', channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
