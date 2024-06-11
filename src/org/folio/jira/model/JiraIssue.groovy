@@ -2,18 +2,18 @@ package org.folio.jira.model
 
 class JiraIssue {
 
-    String id
+  String id
 
-    String key
+  String key
 
-    String summary
+  String summary
 
-    String description
+  String description
 
-    String status
+  String status
 
-    String project
+  String project
 
-    String fixVersions
+  String fixVersions
 
 }

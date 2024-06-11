@@ -190,7 +190,7 @@ class Constants {
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',
                                   'snapshot'      : '',
-                                  'leipzig'       : 'leipzig' ]
+                                  'leipzig'       : 'leipzig']
 
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
@@ -201,8 +201,8 @@ class Constants {
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
-  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
-  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
   static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
@@ -251,6 +251,7 @@ class Constants {
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                 "oleksandr_haimanov@epam.com",
+                                "renat_safiulin@epam.com",
                                 "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",

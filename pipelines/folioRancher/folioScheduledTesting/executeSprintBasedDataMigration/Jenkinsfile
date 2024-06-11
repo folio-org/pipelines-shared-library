@@ -1,9 +1,8 @@
 #!groovy
-
-import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library') _
 
 properties([
   //pipelineTriggers([cron('H 0 * * *')]),  # need to implement cron time
@@ -23,10 +22,10 @@ if (params.REFRESH_PARAMETERS) {
 }
 // TODO: Thinkings If We need this parameters here,Does we sometimes manually run this job ? strugle and made comment this,please attention
 Map Parameters = [
-  FOLIO_REPOSITORY                  : params.FOLIO_REPOSITORY,
-  FOLIO_BRANCH_SRC                  : params.FOLIO_BRANCH_SRC,
-  FOLIO_BRANCH_DST                  : params.FOLIO_BRANCH_DST,
-  BACKUP_NAME                       : params.BACKUP_NAME,
+  FOLIO_REPOSITORY: params.FOLIO_REPOSITORY,
+  FOLIO_BRANCH_SRC: params.FOLIO_BRANCH_SRC,
+  FOLIO_BRANCH_DST: params.FOLIO_BRANCH_DST,
+  BACKUP_NAME     : params.BACKUP_NAME,
 ]
 
 ansiColor('xterm') {
@@ -48,7 +47,7 @@ ansiColor('xterm') {
                string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
         } catch (Exception new_ex) {
           slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-                    , channel: "#folioschemacompare")
+            , channel: "#folioschemacompare")
           throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
         }
       }

@@ -2,7 +2,7 @@
 import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library') _
 
 properties([
   pipelineTriggers([cron('H 20 * * *')]),
@@ -29,28 +29,29 @@ def ns
 RancherNamespace namespace = new RancherNamespace('folio-testing', 'cypress')
 
 Map cypressFlowParameters = [
-  customBuildName         : env.JOB_BASE_NAME,
-  branch                  : params.CYPRESS_BRANCH,
-  tenantUrl               : "https://${namespace.generateDomain('diku')}",
-  okapiUrl                : "https://${namespace.generateDomain('okapi')}",
-  tenantId                : 'diku',
-  adminUsername           : 'diku_admin',
-  adminPassword           : 'admin',
-  parallelExecParameters  : '--env grepTags="smoke criticalPath --nonParallel"',
+  customBuildName       : env.JOB_BASE_NAME,
+  branch                : params.CYPRESS_BRANCH,
+  tenantUrl             : "https://${namespace.generateDomain('diku')}",
+  okapiUrl              : "https://${namespace.generateDomain('okapi')}",
+  tenantId              : 'diku',
+  adminUsername         : 'diku_admin',
+  adminPassword         : 'admin',
+  parallelExecParameters: '--env grepTags="smoke criticalPath"',
 //  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
-  testsTimeout            : '14',
-  testrailProjectID       : '14',
-  testrailRunID           : '2108',
-  numberOfWorkers         : '10',
-  agent                   : 'rancher',
-  useReportPortal         : 'true'
+  testsTimeout          : '8',
+  testrailProjectID     : '14',
+  testrailRunID         : '2108',
+  numberOfWorkers       : '12', //Changed form 10 to 6 according to instance resources capacity
+  agent                 : 'cypress',
+  runType               : 'night',
+  useReportPortal       : 'false'
 ]
 
 ansiColor('xterm') {
   node(params.AGENT) {
     stage('Ini') {
       buildName env.BUILD_ID
-      buildDescription ""
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
       cleanWs()
     }
 
@@ -84,7 +85,7 @@ ansiColor('xterm') {
                string(name: 'MEMBERS', value: '')]
         } catch (Exception new_ex) {
           slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-                    , channel: "#rancher_tests_notifications")
+            , channel: "#rancher_tests_notifications")
           throw new Exception("Provision of the environment is failed: " + new_ex)
         }
       }

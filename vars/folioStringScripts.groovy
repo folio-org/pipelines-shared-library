@@ -2,56 +2,51 @@ import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 
 static String getNamespaces() {
-    return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
+  return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
 """
 }
 
-static String getRepositoryBranches(String repository){
-    return """import groovy.json.JsonSlurperClassic
+static String getRepositoryBranches(String repository) {
+  return """import groovy.json.JsonSlurperClassic
+def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
+def perPage = 100
+def fetchBranches(String url) {
 def credentialId = "id-jenkins-github-personal-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
-def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
-def perPage = 500
-def fetchBranches = { String url ->
     def branches = []
-    def getNextPage = { nextPageUrl ->
+  def jsonSlurper = new JsonSlurperClassic()
+  def getNextPage
+  def processResponse = { connection ->
+    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
+    if (connection.responseCode == 200) {
+      def responseText = connection.getInputStream().getText()
+      branches += jsonSlurper.parseText(responseText).collect { it.name }
+      def linkHeader = connection.getHeaderField('Link')
+      if (linkHeader?.find('rel="next"')) {
+        def nextUrlMatcher = linkHeader =~ /<(http[^>]+)>; rel="next"/
+        if (nextUrlMatcher.find()) {
+          getNextPage(nextUrlMatcher[0][1])
+        }
+      }
+    } else {
+      println("Error fetching data: HTTP \${connection.responseCode}")
+    }
+  }
+  getNextPage = { nextPageUrl ->
         def nextConn = new URL(nextPageUrl).openConnection()
-        nextConn.setRequestProperty("Authorization", "Bearer \${secret_value}")
-        if (nextConn.responseCode.equals(200)) {
-            def nextResponseText = nextConn.getInputStream().getText()
-            branches += new JsonSlurperClassic().parseText(nextResponseText).name
-            def nextLinkHeader = nextConn.getHeaderField("Link")
-            if (nextLinkHeader && nextLinkHeader.contains('rel="next"')) {
-                def nextUrl = nextLinkHeader =~ /<(.*?)>/
-                if (nextUrl) {
-                    getNextPage(nextUrl[0][1])
-                }
+    processResponse(nextConn)
             }
-        }
-    }
-    def conn = new URL(url).openConnection()
-    conn.setRequestProperty("Authorization", "Bearer \${secret_value}")
-    if (conn.responseCode.equals(200)) {
-        def responseText = conn.getInputStream().getText()
-        branches += new JsonSlurperClassic().parseText(responseText).name
-        def linkHeader = conn.getHeaderField("Link")
-        if (linkHeader && linkHeader.contains('rel="next"')) {
-            def nextPageUrl = linkHeader =~ /<(.*?)>/
-            if (nextPageUrl) {
-                getNextPage(nextPageUrl[0][1])
-            }
-        }
-    }
+  processResponse(new URL(url).openConnection())
     return branches
 }
-fetchBranches("\$apiUrl?per_page=\$perPage")
+fetchBranches("\${apiUrl}?per_page=\${perPage}")
 """
 }
 
-static String getOkapiVersions(){
-    return """import groovy.json.JsonSlurperClassic
+static String getOkapiVersions() {
+  return """import groovy.json.JsonSlurperClassic
 def installJson = new URL("${Constants.FOLIO_GITHUB_RAW_URL}/platform-complete/\${FOLIO_BRANCH}/install.json").openConnection()
 if (installJson.getResponseCode().equals(200)) {
     String okapi = new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.find{it ==~ /okapi-.*/}
@@ -77,24 +72,46 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getBackendModulesList(){
-    return '''import groovy.json.JsonSlurperClassic
-String nameGroup = "moduleName"
-String patternModuleVersion = /^(?<moduleName>.*)-(?<moduleVersion>(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*).*)$/
-def installJson = new URL('https://raw.githubusercontent.com/folio-org/platform-complete/snapshot/install.json').openConnection()
-if (installJson.getResponseCode().equals(200)) {
-    List modules_list = ['okapi']
-    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*|edge-.*/ }.each { value ->
-        def matcherModule = value =~ patternModuleVersion
-        assert matcherModule.matches()
-        modules_list.add(matcherModule.group(nameGroup))
+static String getBackendModulesList() {
+  return '''import groovy.json.JsonSlurperClassic
+def apiUrl = "https://api.github.com/orgs/folio-org/repos"
+def perPage = 100
+def fetchModules(String url) {
+  def credentialId = "id-jenkins-github-personal-token"
+  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+  def secret_value = credential.getSecret().getPlainText()
+  def modules = []
+  def jsonSlurper = new JsonSlurperClassic()
+  def getNextPage
+  def processResponse = { connection ->
+    connection.setRequestProperty("Authorization", "Bearer ${secret_value}")
+    if (connection.responseCode == 200) {
+      def responseText = connection.getInputStream().getText()
+      def json = jsonSlurper.parseText(responseText)
+      modules.addAll(json*.name)
+      def linkHeader = connection.getHeaderField('Link')
+      if (linkHeader) {
+        def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
+        if (nextPageUrl) {
+          getNextPage(nextPageUrl)
+        }
+      }
+    } else {
+      println("Error fetching data: HTTP ${connection.responseCode}")
     }
-    return modules_list.sort()
-}'''
+  }
+  getNextPage = { nextPageUrl ->
+    def nextConn = new URL(nextPageUrl).openConnection()
+    processResponse(nextConn)
+  }
+  processResponse(new URL(url).openConnection())
+  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') }.sort()
+}
+fetchModules("${apiUrl}?per_page=${perPage}")'''
 }
 
-static String getModuleVersion(){
-    return '''import groovy.json.JsonSlurperClassic
+static String getModuleVersion() {
+  return '''import groovy.json.JsonSlurperClassic
 def versionType = ''
 switch(VERSION_TYPE){
   case 'release':
@@ -113,8 +130,8 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }'''
 }
 
-static String getPostgresqlVersion(){
-    return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
+static String getPostgresqlVersion() {
+  return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
 List pg_versions = []
 versions.each {version ->
 if(version == '13.13') {
@@ -124,4 +141,41 @@ if(version == '13.13') {
  }
 }
 return (pg_versions)'''
+}
+
+static String getUIImagesList() {
+  return """
+import com.amazonaws.services.ecr.AmazonECR
+import com.amazonaws.services.ecr.AmazonECRClientBuilder
+import com.amazonaws.services.ecr.model.ListImagesRequest
+
+AmazonECR client = AmazonECRClientBuilder.standard().withRegion("us-west-2").build()
+
+String repositoryName = "ui-bundle"
+
+def result = []
+def final_result = []
+String nextToken = null
+
+while (nextToken != '') {
+    ListImagesRequest request = new ListImagesRequest()
+            .withRepositoryName(repositoryName)
+            .withNextToken(nextToken)
+
+    def res = client.listImages(request)
+    result.addAll(res.imageIds.collect { it.imageTag })
+    result.each {
+        if (!(it == null)) {
+            final_result.add(it)
+        }
+    }
+    nextToken = res.nextToken ?: ''
+}
+
+result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
+        .sort()
+        .reverse()
+
+return result
+"""
 }

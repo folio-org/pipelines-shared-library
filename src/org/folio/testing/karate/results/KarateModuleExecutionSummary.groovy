@@ -55,7 +55,7 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   @Override
   int getPassedCount() {
     int count = 0
-    for(IExecutionSummary feature: features){
+    for (IExecutionSummary feature : features) {
       count += feature.getPassedCount()
     }
 
@@ -65,7 +65,7 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   @Override
   int getFailedCount() {
     int count = 0
-    for(IExecutionSummary feature: features){
+    for (IExecutionSummary feature : features) {
       count += feature.getFailedCount()
     }
 
@@ -75,7 +75,7 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   @Override
   int getSkippedCount() {
     int count = 0
-    for(IExecutionSummary feature: features){
+    for (IExecutionSummary feature : features) {
       count += feature.getSkippedCount()
     }
 
@@ -115,7 +115,7 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return "KarateModuleExecutionSummary{" +
       "name='" + name + '\'' +
       ", executionResult=" + executionResult +
@@ -123,6 +123,6 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
       ", featuresPassed=" + featuresPassedCount +
       ", featuresFailed=" + featuresFailedCount +
       ", featuresSkipped=" + featuresSkippedCount +
-      '}';
+      '}'
   }
 }

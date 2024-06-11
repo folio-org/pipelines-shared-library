@@ -161,7 +161,7 @@ variable "kafka_ebs_volume_size" {
 
 variable "kafka_max_mem_size" {
   type    = number
-  default = 4096
+  default = 8192
 }
 
 # Elasticsearch variables

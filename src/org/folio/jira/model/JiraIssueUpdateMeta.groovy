@@ -2,10 +2,10 @@ package org.folio.jira.model
 
 class JiraIssueUpdateMeta {
 
-    List<JiraField> fields = []
+  List<JiraField> fields = []
 
-    Map<String, JiraField> getFieldsByName() {
-        fields.collectEntries { [it.name, it] }
-    }
+  Map<String, JiraField> getFieldsByName() {
+    fields.collectEntries { [it.name, it] }
+  }
 
 }

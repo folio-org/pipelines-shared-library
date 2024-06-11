@@ -1,12 +1,13 @@
 #!groovy
-
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
-
+import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
+
+@Library('pipelines-shared-library') _
+
+
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.models.InstallRequestParams
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -35,7 +36,7 @@ if (!main.isTenantExist(params.TENANT_ID)) {
 }
 
 InstallRequestParams installRequestParams = new InstallRequestParams()
-    .withTenantParameters("purge=true")
+  .withTenantParameters("purge=true")
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))

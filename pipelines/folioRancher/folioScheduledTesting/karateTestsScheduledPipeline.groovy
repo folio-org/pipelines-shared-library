@@ -1,4 +1,4 @@
-@Library('pipelines-shared-library@RANCHER-1054') _
+@Library('pipelines-shared-library') _
 
 import org.folio.utilities.Tools
 
@@ -10,11 +10,8 @@ def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 def prototypeTenant = "consortium"
 
-//TODO switch back before merge
-//def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
-def spinUpEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/createNamespaceFromBranch-RANCHER-1054"
-//def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
-def destroyEnvironmentJobName = "/folioRancher/tmpFolderForDraftPipelines/deleteNamespace-RANCHER-1054"
+def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
+def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 
@@ -62,7 +59,7 @@ pipeline {
             spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
           } catch (Exception new_ex) {
             slackSend(attachments: folioSlackNotificationUtils.renderSlackFailedResultMessage()
-                      , channel: "#rancher_tests_notifications")
+              , channel: "#rancher_tests_notifications")
             throw new Exception("Creation of the environment is failed: " + new_ex)
           }
         }
@@ -86,7 +83,7 @@ pipeline {
               spinUpEnvironmentJob = build job: spinUpEnvironmentJobName, parameters: jobParameters, wait: true, propagate: false
             } catch (Exception e) {
               slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-                        , channel: "#rancher_tests_notifications")
+                , channel: "#rancher_tests_notifications")
               throw new Exception("Creation of the environment is failed: " + e.getMessage())
             }
           }

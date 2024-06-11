@@ -18,9 +18,7 @@ void withK8sClient(Closure closure) {
 void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-    //TODO change repository back to stable
-    addHelmRepository(Constants.FOLIO_HELM_V2_TEST_REPO_NAME, Constants.FOLIO_HELM_V2_TEST_REPO_URL, true)
-//        addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
     closure.call()
   }
 }
@@ -66,9 +64,7 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
       break
   }
-//    upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
-  //TODO change repository back to stable
-  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_TEST_REPO_NAME, chartName)
+  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
 }
 
 void deployFolioModules(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -129,7 +125,13 @@ void checkAllPodsRunning(String ns) {
       notAllRunning = result.split('\n').any { status -> status != 'Running' }
 
       if (notAllRunning) {
+        def evictedPodsList
         println('Not all pods are running. Retrying...')
+        try {
+          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
+        } catch (Error err) {
+          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+        }
       } else {
         println('All pods are running.')
       }
@@ -244,10 +246,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
     moduleConfig <<
       [
-        initContainer     : [enabled: true],
-        extraVolumes      : [extendedtmp: [enabled: true]],
-        extraVolumeMounts : [extendedtmp: [enabled: true]],
-        volumeClaims      : [extendedtmp: [enabled: true]]
+        initContainer    : [enabled: true],
+        extraVolumes     : [extendedtmp: [enabled: true]],
+        extraVolumeMounts: [extendedtmp: [enabled: true]],
+        volumeClaims     : [extendedtmp: [enabled: true]]
       ]
   }
 

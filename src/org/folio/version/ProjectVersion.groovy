@@ -1,6 +1,7 @@
 package org.folio.version
 
 import com.cloudbees.groovy.cps.NonCPS
+
 import static org.folio.version.VersionConstants.*
 
 /**
