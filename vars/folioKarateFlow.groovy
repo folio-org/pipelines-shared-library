@@ -9,13 +9,9 @@ import org.folio.utilities.RestClient
 
 import java.time.Instant
 
-import static groovy.json.JsonOutput.prettyPrint
-import static groovy.json.JsonOutput.toJson
-
 void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   KarateTestsExecutionSummary karateTestsExecutionSummary
-//  TeamAssignment teamAssignment
 
   dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {
@@ -44,7 +40,6 @@ void call(KarateTestsParameters args) {
         args.reportPortalProjectId = startReportPortalRun(args.reportPortalProjectName)
       }
     }
-
 
     stage('[Maven] Execute karate tests') {
       timeout(time: args.timeout, unit: 'HOURS') {
