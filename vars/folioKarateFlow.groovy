@@ -94,10 +94,6 @@ void call(KarateTestsParameters args) {
 
     if (args.syncWithJira) {
       stage('[Jira] Sync issues') {
-        println(prettyPrint(toJson(karateTestsExecutionSummary)))
-        println(prettyPrint(toJson(args.teamAssignment)))
-//        def jsonContents = readJSON file: "teams-assignment.json"
-//        teamAssignment = new TeamAssignment(jsonContents)
         karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
       }
     }

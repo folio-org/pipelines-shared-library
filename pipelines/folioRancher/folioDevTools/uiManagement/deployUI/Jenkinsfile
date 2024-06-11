@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'master'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

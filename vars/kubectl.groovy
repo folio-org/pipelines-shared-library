@@ -220,7 +220,7 @@ def scaleUpResources(String namespace, String resource_type) {
 
 boolean checkNamespaceExistence(String namespace) {
   try {
-    String result = sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.name}'", returnStdout: true)
+    String result = sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.name}'", returnStdout: true).trim()
     return result == namespace
   }
   catch (Exception e) {
