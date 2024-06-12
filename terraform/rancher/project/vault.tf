@@ -52,9 +52,9 @@ ui:
   ]
 }
 
-resource "kubernetes_ingress" "vault-ingress-ui" {
+resource "kubernetes_ingress_v1" "vault-ingress-ui" {
   metadata {
-    name = "vault-${var.rancher_project_name}-ui"
+    name      = "vault-${var.rancher_project_name}-ui"
     namespace = var.rancher_project_name
     annotations = {
       "kubernetes.io/ingress.class" : "alb"
@@ -67,9 +67,21 @@ resource "kubernetes_ingress" "vault-ingress-ui" {
     }
   }
   spec {
-    backend {
-      service_name = "vault-${var.rancher_project_name}-ui"
-      service_port = "8200"
+    ingress_class_name = "alb"
+    rule {
+      http {
+        path {
+          path = "/*"
+          backend {
+            service {
+              name = "vault-${var.rancher_project_name}-ui"
+              port {
+                number = 8200
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
