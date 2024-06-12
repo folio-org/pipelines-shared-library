@@ -21,7 +21,7 @@ server:
       alb.ingress.kubernetes.io/healthcheck-port: "8200"
     ingressClassName: ""
     pathType: ImplementationSpecific
-    activeService: true
+    activeService: false
     hosts:
       - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
         paths: /
