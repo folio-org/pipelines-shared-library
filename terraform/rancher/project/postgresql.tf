@@ -31,11 +31,15 @@ resource "rancher2_secret" "db-credentials" {
 
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
-    KEYCLOAK_PG_USER     = base64encode("kong")
-    KEYCLOAK_PG_HOST     = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
-    KEYCLOAK_PG_PASSWORD = base64encode(local.pg_password)
-    KEYCLOAK_PG_PORT     = base64encode("5432")
-    KEYCLOAK_DATABASE    = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    KC_DB_URL_PORT                  = base64encode("5432")
+    KC_DB_URL_DATABASE              = base64encode("keycloak")
+    KC_DB_USERNAME                  = base64encode("keycloak")
+    KC_DB_PASSWORD                  = base64encode(local.pg_password)
+    KC_FOLIO_BE_ADMIN_CLIENT_SECRET = base64encode("SecretPassword")
+    KC_HTTPS_KEY_STORE_PASSWORD     = base64encode("SecretPassword")
+    KEYCLOAK_ADMIN_USER             = base64encode("admin")
+    KEYCLOAK_ADMIN_PASSWORD         = base64encode("SecretPassword")
   }
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
