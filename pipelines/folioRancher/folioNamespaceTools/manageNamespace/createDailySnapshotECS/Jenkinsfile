@@ -184,15 +184,8 @@ ansiColor('xterm') {
       }
 
       stage('Enable') {
-        retry(2) {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            kubectl.scaleDownResources(namespace.getNamespaceName(), "deployment")
-            sleep time: 2, unit: 'MINUTES'
-            kubectl.scaleUpResources(namespace.getNamespaceName(), "deployment")
-          }
-          sleep time: 5, unit: 'MINUTES'
-          main.update(namespace.getTenants())
-        }
+        sleep time: 11, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+        main.update(namespace.getTenants())
       }
 
       stage('Build and deploy UI') {
