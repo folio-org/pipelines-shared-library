@@ -55,6 +55,7 @@ ui:
 resource "kubernetes_ingress" "vault-ingress-ui" {
   metadata {
     name = "vault-${var.rancher_project_name}-ui"
+    namespace = var.rancher_project_name
     annotations = {
       "kubernetes.io/ingress.class" : "alb"
       "alb.ingress.kubernetes.io/scheme" : "internet-facing"
