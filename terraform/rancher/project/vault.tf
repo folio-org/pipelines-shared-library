@@ -24,14 +24,13 @@ server:
     activeService: false
     hosts:
       - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
-        paths: /
-    extraPaths:
-     - path: /*
-       backend:
-         service:
-           name: vault-${var.rancher_project_name}-ui
-           port:
-             number: 8200
+        paths:
+         - path: /*
+           backend:
+             service:
+               name: vault-${var.rancher_project_name}-ui
+               port:
+                 number: 8200
     tls: []
   dev:
     enabled: true
