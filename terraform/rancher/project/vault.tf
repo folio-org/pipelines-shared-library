@@ -95,7 +95,7 @@ resource "kubernetes_ingress_v1" "vault-ingress-ui" {
           path = "/*"
           backend {
             service {
-              name = kubernetes_service.vault-svc.id
+              name = "vault-svc"
               port {
                 number = 80
               }
