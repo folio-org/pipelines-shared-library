@@ -2,6 +2,7 @@ data "rancher2_secret_v2" "keycloak_credentials" {
   cluster_id = data.rancher2_cluster.this.id
   name       = "keycloak-credentials"
   namespace  = rancher2_namespace.this.name
+  depends_on = [rancher2_secret_v2.keycloak-credentials]
 }
 
 locals {
