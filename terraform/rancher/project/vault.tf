@@ -10,17 +10,6 @@ global:
   enabled: true
 server:
   ingress:
-    extraPaths:
-     - path: /*
-       backend:
-         service:
-           name: vault-${var.rancher_project_name}-ui
-           port:
-             number: 8200
-    ingressClassName: ""
-    pathType: ImplementationSpecific
-    path: /
-    hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
     enabled: true
     annotations:
       kubernetes.io/ingress.class: "alb"
@@ -30,6 +19,20 @@ server:
       alb.ingress.kubernetes.io/success-codes: "200-399"
       alb.ingress.kubernetes.io/healthcheck-path: "/"
       alb.ingress.kubernetes.io/healthcheck-port: "8200"
+    ingressClassName: ""
+    pathType: Prefix
+    activeService: true
+    hosts:
+      - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
+        paths: []
+    extraPaths:
+     - path: /*
+       backend:
+         service:
+           name: vault-${var.rancher_project_name}-ui
+           port:
+             number: 8200
+    tls: []
   dev:
     enabled: true
   ha:
