@@ -22,7 +22,9 @@ void deleteKafkaTopics(String cluster, String namespace) {
 
   kubectl.runPodWithCommand('kafka', 'bitnami/kafka:2.8.0')
   kubectl.waitPodIsRunning('kafka')
-  kubectl.execCommand('kafka', delete_topic_command)
+  retry(3) {
+    kubectl.execCommand('kafka', delete_topic_command)
+  }
   kubectl.deletePod('kafka')
 }
 

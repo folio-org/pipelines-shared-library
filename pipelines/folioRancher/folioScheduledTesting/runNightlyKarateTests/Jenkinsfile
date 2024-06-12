@@ -26,11 +26,11 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
 /**
  * Job variables
  */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
 final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
 final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
@@ -60,16 +60,16 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .rtr(false)
   .build()
 
-RancherNamespace karateNamespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
-karateNamespace.withSuperTenantAdminUser()
+RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
+namespace.withSuperTenantAdminUser()
 
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-karateTestsParams.okapiUrl = "https://${karateNamespace.getDomains().okapi}"
-karateTestsParams.edgeUrl = "https://${karateNamespace.getDomains().edge}"
-karateTestsParams.tenant = karateNamespace.getSuperTenant().getTenantId()
+karateTestsParams.okapiUrl = "https://${namespace.getDomains().okapi}"
+karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
+karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()
 karateTestsParams.prototypeTenant = 'consortium'
-karateTestsParams.adminUserName = karateNamespace.getSuperTenant().getAdminUser().getUsername()
-karateTestsParams.adminPassword = karateNamespace.getSuperTenant().getAdminUser().getPassword()
+karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
+karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'junit5-integration'
 karateTestsParams.sendSlackNotification = true
@@ -82,10 +82,10 @@ karateTestsParams.timeout = '2'
 ansiColor('xterm') {
   node('jenkins-agent-java17') {
     try {
-//      stage('Ini') {
-//        buildName ""
-//        buildDescription ""
-//      }
+      stage('Ini') {
+        buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
+        cleanWs()
+      }
 
       stage('[Job] Destroy environment (before)') {
         def nsExists
@@ -93,14 +93,14 @@ ansiColor('xterm') {
           nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
         }
         if (nsExists) {
-          _deleteJob(deleteNamespaceJobName, namespaceBaseParams)
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
       stage('[Job] Provision environment') {
-        _createJob(createNamespaceJobName, namespaceFromBranchParams)
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
       }
 
       stage('[Flow] Execute tests') {
@@ -109,7 +109,7 @@ ansiColor('xterm') {
 
       if (params.DESTROY_AFTER) {
         stage('[Job] Destroy environment (after)') {
-          _deleteJob(deleteNamespaceJobName, namespaceBaseParams)
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         }
       }
     } catch (e) {
@@ -117,48 +117,9 @@ ansiColor('xterm') {
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
-        logger.info("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
     }
   }
-}
-
-private def _deleteJob(String jobName, CreateNamespaceParameters namespaceParams) {
-  def jobResult = build job: jobName,
-    parameters: [
-      string(name: 'CLUSTER', value: namespaceParams.getClusterName()),
-      string(name: 'NAMESPACE', value: namespaceParams.getNamespaceName()),
-      booleanParam(name: 'RW_SPLIT', value: namespaceParams.getRwSplit()),
-      string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
-      string(name: 'KAFKA', value: namespaceParams.getKafkaType()),
-      string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
-      string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
-      string(name: 'AGENT', value: namespaceParams.getWorker())]
-  return jobResult
-}
-
-private def _createJob(String jobName, CreateNamespaceParameters namespaceParams) {
-  def jobResult = build job: jobName,
-    parameters: [
-      string(name: 'CLUSTER', value: namespaceParams.getClusterName()),
-      string(name: 'NAMESPACE', value: namespaceParams.getNamespaceName()),
-      string(name: 'FOLIO_BRANCH', value: namespaceParams.getFolioBranch()),
-      string(name: 'OKAPI_VERSION', value: namespaceParams.getOkapiVersion()),
-      string(name: 'CONFIG_TYPE', value: namespaceParams.getConfigType()),
-      booleanParam(name: 'LOAD_REFERENCE', value: namespaceParams.getLoadReference()),
-      booleanParam(name: 'LOAD_SAMPLE', value: namespaceParams.getLoadSample()),
-      booleanParam(name: 'CONSORTIA', value: namespaceParams.getConsortia()),
-      booleanParam(name: 'RW_SPLIT', value: namespaceParams.getRwSplit()),
-      booleanParam(name: 'GREENMAIL', value: namespaceParams.getGreenmail()),
-      booleanParam(name: 'MOCK_SERVER', value: namespaceParams.getMockServer()),
-      booleanParam(name: 'RTR', value: namespaceParams.getRtr()),
-      string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
-      string(name: 'DB_VERSION', value: namespaceParams.getPgVersion()),
-      string(name: 'KAFKA', value: namespaceParams.getKafkaType()),
-      string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
-      string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
-      string(name: 'MEMBERS', value: namespaceParams.getMembers()),
-      string(name: 'AGENT', value: namespaceParams.getWorker())]
-  return jobResult
 }

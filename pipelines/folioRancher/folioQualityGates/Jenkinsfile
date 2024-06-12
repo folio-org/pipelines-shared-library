@@ -32,7 +32,7 @@ String deleteNamespaceJob = '/folioRancher/folioNamespaceTools/deleteNamespace'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-tmp', namespace: 'cikarate'],
+  karate : [cluster: 'folio-testing', namespace: 'cikarate'],
   cypress: [cluster: 'folio-perf', namespace: 'cicypress'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
