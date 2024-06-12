@@ -54,7 +54,8 @@ ui:
 
 resource "kubernetes_service" "vault-svc" {
   metadata {
-    name = "vault-node-port"
+    name = "vault-svc"
+    namespace = rancher2_namespace.this.id
   }
   spec {
     selector = {
