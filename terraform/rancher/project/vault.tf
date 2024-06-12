@@ -54,7 +54,7 @@ ui:
 
 resource "kubernetes_service" "vault-svc" {
   metadata {
-    name = "vault-svc"
+    name = "vault-${var.rancher_project_name}-np"
     namespace = rancher2_namespace.this.id
   }
   spec {
@@ -95,7 +95,7 @@ resource "kubernetes_ingress_v1" "vault-ingress-ui" {
           path = "/*"
           backend {
             service {
-              name = "vault-svc"
+              name = "vault-${var.rancher_project_name}-np"
               port {
                 number = 80
               }
