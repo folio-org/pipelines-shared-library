@@ -10,28 +10,7 @@ global:
   enabled: true
 server:
   ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "alb"
-      alb.ingress.kubernetes.io/scheme: "internet-facing"
-      alb.ingress.kubernetes.io/group.name: "${local.group_name}"
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/success-codes: "200-399"
-      alb.ingress.kubernetes.io/healthcheck-path: "/"
-      alb.ingress.kubernetes.io/healthcheck-port: "8200"
-    ingressClassName: ""
-    pathType: ImplementationSpecific
-    activeService: false
-    hosts:
-      - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
-        paths:
-         - path: /
-           backend:
-             service:
-               name: vault-${var.rancher_project_name}-ui
-               port:
-                 number: 8200
-    tls: []
+    enabled: false
   dev:
     enabled: true
   ha:
@@ -71,4 +50,25 @@ ui:
   enabled: true
   EOF
   ]
+}
+
+resource "kubernetes_ingress" "vault-ingress-ui" {
+  metadata {
+    name = "vault-${var.rancher_project_name}-ui"
+    annotations = {
+      "kubernetes.io/ingress.class" : "alb"
+      "alb.ingress.kubernetes.io/scheme" : "internet-facing"
+      "alb.ingress.kubernetes.io/group.name" : local.group_name
+      "alb.ingress.kubernetes.io/listen-ports" : "[{\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/success-codes" : "200-399"
+      "alb.ingress.kubernetes.io/healthcheck-path" : "/"
+      "alb.ingress.kubernetes.io/healthcheck-port" : "8200"
+    }
+  }
+  spec {
+    backend {
+      service_name = "vault-${var.rancher_project_name}-ui"
+      service_port = "8200"
+    }
+  }
 }
