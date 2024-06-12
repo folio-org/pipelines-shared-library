@@ -29,20 +29,6 @@ resource "rancher2_secret" "db-credentials" {
   }
 }
 
-resource "rancher2_secret" "kong-credentials" {
-  data = {
-    KONG_PG_USER     = base64encode("kong")
-    KONG_PG_HOST     = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
-    KONG_PG_PASSWORD = base64encode(local.pg_password)
-    KONG_PG_PORT     = base64encode("5432")
-    KONG_PG_DATABASE = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
-  }
-  project_id   = rancher2_project.this.id
-  namespace_id = rancher2_namespace.this.id
-  name         = "kong-credentials"
-  count        = var.eureka ? 1 : 0
-}
-
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
     KEYCLOAK_PG_USER     = base64encode("kong")

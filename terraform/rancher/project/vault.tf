@@ -1,10 +1,10 @@
 resource "helm_release" "vault" {
-  count = var.eureka ? 1 : 0
-  chart = "vault"
-  name  = "vault-${var.rancher_project_name}"
-  namespace = rancher2_namespace.this.id
+  count      = var.eureka ? 1 : 0
+  chart      = "vault"
+  name       = "vault-${var.rancher_project_name}"
+  namespace  = rancher2_namespace.this.id
   repository = "https://helm.releases.hashicorp.com"
-  version = "0.28.0"
+  version    = "0.28.0"
   values = [<<-EOF
 global:
   enabled: true
