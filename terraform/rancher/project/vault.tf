@@ -26,11 +26,11 @@ server:
     VAULT_DEV_ROOT_TOKEN_ID: "root"
   resources:
     requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
       memory: "1Gi"
       cpu: "1024m"
-    limits:
-      memory: "256Mi"
-      cpu: "200m"
   backup:
     enabled: false
   logLevel: "debug"
