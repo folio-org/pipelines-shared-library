@@ -20,11 +20,11 @@ server:
       alb.ingress.kubernetes.io/healthcheck-path: "/"
       alb.ingress.kubernetes.io/healthcheck-port: "8200"
     ingressClassName: ""
-    pathType: Prefix
+    pathType: ImplementationSpecific
     activeService: true
     hosts:
       - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])}
-        paths: []
+        paths: /
     extraPaths:
      - path: /*
        backend:
