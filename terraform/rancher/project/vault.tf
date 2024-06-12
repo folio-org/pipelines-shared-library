@@ -55,14 +55,6 @@ server:
   backup:
     enabled: false
   logLevel: "debug"
-  ingress:
-    enabled: false
-    annotations: {}
-    hosts:
-      - host: vault.local
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
   dataStorage:
     enabled: false
   auditLog:
