@@ -144,7 +144,7 @@ ansiColor('xterm') {
         }
         Users users = new Users(this, namespace.generateDomain('okapi'))
         namespace.getModules().setInstallJson(newInstallJson)
-        OkapiUser okapiUser = new OkapiUser('mod-consortia-system', sys_psswd)
+        OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
           switch (id.getTenantId()) {
