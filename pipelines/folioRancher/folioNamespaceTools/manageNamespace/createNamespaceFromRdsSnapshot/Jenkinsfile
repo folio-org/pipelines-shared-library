@@ -1,19 +1,13 @@
 #!groovy
-import groovy.json.JsonOutput
+
 import org.folio.Constants
-import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiConfig
-import org.folio.models.OkapiTenant
-import org.folio.models.OkapiTenantConsortia
-import org.folio.models.RancherNamespace
-import org.folio.models.TenantUi
-import org.folio.models.TerraformConfig
+import org.folio.models.*
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+@Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'master'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

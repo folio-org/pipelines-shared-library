@@ -190,7 +190,7 @@ class Constants {
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',
                                   'snapshot'      : '',
-                                  'leipzig'       : 'leipzig' ]
+                                  'leipzig'       : 'leipzig']
 
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
@@ -201,8 +201,8 @@ class Constants {
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
 
-  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
-  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
   static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
@@ -263,4 +263,15 @@ class Constants {
 
   static List SYSTEM_USER_MODULES = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
                                      "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub"]
+
+  static List EUREKA_MODULES = ['mod-scheduler',
+                                'mod-roles-keycloak',
+                                'mod-users-keycloak',
+                                'mod-login-keycloak',
+                                'mgr-tenants',
+                                'mgr-tenant-entitlements',
+                                'mgr-applications',
+                                'folio-module-sidecar',
+                                'folio-kong',
+                                'folio-keycloak']
 }

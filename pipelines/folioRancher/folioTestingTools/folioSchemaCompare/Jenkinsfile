@@ -1,23 +1,21 @@
 #!groovy
-import hudson.util.Secret
-import org.jenkinsci.plugins.workflow.libs.Library
-import java.time.*
-import org.folio.rest.GitHubUtility
-import org.folio.Constants
-import groovy.json.JsonSlurperClassic
 
-@Library('pipelines-shared-library@RANCHER-741-Jenkins-Enhancements') _
+import org.folio.Constants
+import org.folio.rest.GitHubUtility
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
 
 properties([
-    buildDiscarder(logRotator(numToKeepStr: '20')),
-    disableConcurrentBuilds(),
-    parameters([
-        folioParameters.repository(),
-        folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
-        folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
-        string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
-        string(name: 'SLACK_CHANNEL', defaultValue: 'folioschemacompare', description: 'Slack channel name where send report (without #)', trim: true)])])
-        folioParameters.refreshParameters()
+  buildDiscarder(logRotator(numToKeepStr: '20')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.repository(),
+    folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
+    folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
+    string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
+    string(name: 'SLACK_CHANNEL', defaultValue: 'folioschemacompare', description: 'Slack channel name where send report (without #)', trim: true)])])
+folioParameters.refreshParameters()
 
 def clusterName = 'folio-perf'
 def projectName = 'data-migration'
@@ -25,195 +23,195 @@ def configType = 'performance'
 def tenantId
 def adminUsername
 def adminPassword
-def tenantdIdClean ='clean'
+def tenantdIdClean = 'clean'
 def diff = [:]
 def resultMap = [:]
 def pgadminURL = "https://${clusterName}-${projectName}-pgadmin.ci.folio.org/"
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH_SRC])[0]
 
 ansiColor('xterm') {
-    if (params.refresh_parameters) {
-        currentBuild.result = 'ABORTED'
-        println('REFRESH JOB PARAMETERS!')
-        return
-    }
-    node('rancher') {
-        try {
-            stage('Init') {
-                currentBuild.result = 'SUCCESS'
-                if (params.BACKUP_NAME) {
-                    tenantId = 'fs09000000'
-                    adminUsername = 'folio'
-                    adminPassword = 'folio'
-                    buildName tenantId + '-' + params.BACKUP_NAME + '.' + env.BUILD_ID
-                } else {
-                    tenantId = 'diku'
-                    adminUsername = 'diku'
-                    adminPassword = 'diku_admin'
-                    buildName tenantId + '.' + 'without-restore' + '.' + env.BUILD_ID
-                }
-
-                // Create map with moduleName, source and destination version for this module
-                // This map used for schemaDiff reports
-                def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
-                def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
-
-              srcInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                    resultMap[moduleName] = [srcVersion: moduleVersion]
-                }
-
-                dstInstallJson.each { item ->
-                    def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
-                    if (!resultMap.containsKey(moduleName)) {
-                        // Create an empty map if it doesn't exist
-                        resultMap[moduleName] = [:]
-                    }
-                    resultMap[moduleName]['dstVersion'] = moduleVersion
-                }
-            }
-
-            stage('Destroy data-migration project') {
-                def jobParameters = getEnvironmentJobParameters(
-                       'destroy',
-                        clusterName,
-                        projectName,
-                        params.FOLIO_REPOSITORY,
-                        params.FOLIO_BRANCH_SRC,
-                        okapiVersion,
-                        tenantId,
-                        adminUsername,
-                        adminPassword,
-                        params.BACKUP_NAME)
-
-                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-            }
-
-            stage('Restore data-migration project from backup') {
-                if (params.BACKUP_NAME) {
-                    def jobParameters = getEnvironmentJobParameters(
-                            'apply',
-                             clusterName,
-                             projectName,
-                             params.FOLIO_REPOSITORY,
-                             params.FOLIO_BRANCH_SRC,
-                             okapiVersion,
-                             tenantId,
-                             adminUsername,
-                             adminPassword,
-                             params.BACKUP_NAME,
-                             true)
-
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-
-            stage('Create data-migration project') {
-                if (!params.BACKUP_NAME) {
-                    def jobParameters = getEnvironmentJobParameters(
-                            'apply',
-                             clusterName,
-                             projectName,
-                             params.FOLIO_REPOSITORY,
-                             params.FOLIO_BRANCH_SRC,
-                             okapiVersion,
-                             tenantId,
-                             adminUsername,
-                             adminPassword,
-                             params.BACKUP_NAME,
-                             false,
-                             true,
-                             true,
-                             true)
-
-                    build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-                }
-            }
-
-            stage('Update with dst release versions') {
-                build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
-                    parameters: [
-                        string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
-                        string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
-                        string(name: 'rancher_cluster_name', value: clusterName),
-                        string(name: 'rancher_project_name', value: projectName),
-                        string(name: 'config_type', value: configType),
-                        string(name: 'tenant_id', value: tenantId),
-                        string(name: 'admin_username', value: adminUsername),
-                        string(name: 'admin_password', value: adminPassword)
-                    ]
-            }
-
-            stage('Create clean tenant') {
-                build job: Constants.JENKINS_JOB_CREATE_TENANT,
-                parameters: [
-                    string(name: 'rancher_cluster_name', value: clusterName),
-                    string(name: 'rancher_project_name', value: projectName),
-                    string(name: 'reference_tenant_id', value: tenantId),
-                    string(name: 'tenant_id', value: tenantdIdClean),
-                    string(name: 'tenant_name', value: "Clean tenant"),
-                    string(name: 'admin_username', value: adminUsername),
-                    string(name: 'admin_password', value: adminPassword),
-                    booleanParam(name: 'deploy_ui', value: false),
-                    string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
-                    string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST)
-                ]
-            }
-
-            stage('Get schemas difference') {
-                folioHelm.withK8sClient {
-                    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-                    folioSchemaCompareUtils.getSchemasDifference(
-                        projectName,
-                        tenantId,
-                        tenantdIdClean,
-                        pgadminURL,
-                        resultMap,
-                        diff
-                        )
-
-                }
-            }
-        } catch (exception) {
-            currentBuild.result = 'FAILURE'
-            error(exception.getMessage())
-        } finally {
-            stage('Publish HTML Reports') {
-                publishHTML([
-                    reportDir: 'reportSchemas',
-                    reportFiles: '*.html',
-                    reportName: 'Schemas Diff',
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true ])
-
-            }
-
-            stage('Send Slack notification') {
-                folioSchemaCompareUtils.sendSlackNotification("#${params.SLACK_CHANNEL}")
-            }
-
-            stage('Destroy data-migration project') {
-                def jobParameters = getEnvironmentJobParameters(
-                        'destroy',
-                         clusterName,
-                         projectName,
-                         params.FOLIO_REPOSITORY,
-                         params.FOLIO_BRANCH_SRC,
-                         okapiVersion,
-                         tenantId,
-                         adminUsername,
-                         adminPassword,
-                         params.BACKUP_NAME)
-
-                build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
-            }
-
-            stage('Cleanup') {
-                cleanWs notFailBuild: true
-            }
+  if (params.refresh_parameters) {
+    currentBuild.result = 'ABORTED'
+    println('REFRESH JOB PARAMETERS!')
+    return
+  }
+  node('rancher') {
+    try {
+      stage('Init') {
+        currentBuild.result = 'SUCCESS'
+        if (params.BACKUP_NAME) {
+          tenantId = 'fs09000000'
+          adminUsername = 'folio'
+          adminPassword = 'folio'
+          buildName tenantId + '-' + params.BACKUP_NAME + '.' + env.BUILD_ID
+        } else {
+          tenantId = 'diku'
+          adminUsername = 'diku'
+          adminPassword = 'diku_admin'
+          buildName tenantId + '.' + 'without-restore' + '.' + env.BUILD_ID
         }
+
+        // Create map with moduleName, source and destination version for this module
+        // This map used for schemaDiff reports
+        def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
+        def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
+
+        srcInstallJson.each { item ->
+          def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
+          resultMap[moduleName] = [srcVersion: moduleVersion]
+        }
+
+        dstInstallJson.each { item ->
+          def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
+          if (!resultMap.containsKey(moduleName)) {
+            // Create an empty map if it doesn't exist
+            resultMap[moduleName] = [:]
+          }
+          resultMap[moduleName]['dstVersion'] = moduleVersion
+        }
+      }
+
+      stage('Destroy data-migration project') {
+        def jobParameters = getEnvironmentJobParameters(
+          'destroy',
+          clusterName,
+          projectName,
+          params.FOLIO_REPOSITORY,
+          params.FOLIO_BRANCH_SRC,
+          okapiVersion,
+          tenantId,
+          adminUsername,
+          adminPassword,
+          params.BACKUP_NAME)
+
+        build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+      }
+
+      stage('Restore data-migration project from backup') {
+        if (params.BACKUP_NAME) {
+          def jobParameters = getEnvironmentJobParameters(
+            'apply',
+            clusterName,
+            projectName,
+            params.FOLIO_REPOSITORY,
+            params.FOLIO_BRANCH_SRC,
+            okapiVersion,
+            tenantId,
+            adminUsername,
+            adminPassword,
+            params.BACKUP_NAME,
+            true)
+
+          build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+        }
+      }
+
+      stage('Create data-migration project') {
+        if (!params.BACKUP_NAME) {
+          def jobParameters = getEnvironmentJobParameters(
+            'apply',
+            clusterName,
+            projectName,
+            params.FOLIO_REPOSITORY,
+            params.FOLIO_BRANCH_SRC,
+            okapiVersion,
+            tenantId,
+            adminUsername,
+            adminPassword,
+            params.BACKUP_NAME,
+            false,
+            true,
+            true,
+            true)
+
+          build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+        }
+      }
+
+      stage('Update with dst release versions') {
+        build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+          parameters: [
+            string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
+            string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
+            string(name: 'rancher_cluster_name', value: clusterName),
+            string(name: 'rancher_project_name', value: projectName),
+            string(name: 'config_type', value: configType),
+            string(name: 'tenant_id', value: tenantId),
+            string(name: 'admin_username', value: adminUsername),
+            string(name: 'admin_password', value: adminPassword)
+          ]
+      }
+
+      stage('Create clean tenant') {
+        build job: Constants.JENKINS_JOB_CREATE_TENANT,
+          parameters: [
+            string(name: 'rancher_cluster_name', value: clusterName),
+            string(name: 'rancher_project_name', value: projectName),
+            string(name: 'reference_tenant_id', value: tenantId),
+            string(name: 'tenant_id', value: tenantdIdClean),
+            string(name: 'tenant_name', value: "Clean tenant"),
+            string(name: 'admin_username', value: adminUsername),
+            string(name: 'admin_password', value: adminPassword),
+            booleanParam(name: 'deploy_ui', value: false),
+            string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
+            string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST)
+          ]
+      }
+
+      stage('Get schemas difference') {
+        folioHelm.withK8sClient {
+          awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+          folioSchemaCompareUtils.getSchemasDifference(
+            projectName,
+            tenantId,
+            tenantdIdClean,
+            pgadminURL,
+            resultMap,
+            diff
+          )
+
+        }
+      }
+    } catch (exception) {
+      currentBuild.result = 'FAILURE'
+      error(exception.getMessage())
+    } finally {
+      stage('Publish HTML Reports') {
+        publishHTML([
+          reportDir            : 'reportSchemas',
+          reportFiles          : '*.html',
+          reportName           : 'Schemas Diff',
+          allowMissing         : true,
+          alwaysLinkToLastBuild: true,
+          keepAll              : true])
+
+      }
+
+      stage('Send Slack notification') {
+        folioSchemaCompareUtils.sendSlackNotification("#${params.SLACK_CHANNEL}")
+      }
+
+      stage('Destroy data-migration project') {
+        def jobParameters = getEnvironmentJobParameters(
+          'destroy',
+          clusterName,
+          projectName,
+          params.FOLIO_REPOSITORY,
+          params.FOLIO_BRANCH_SRC,
+          okapiVersion,
+          tenantId,
+          adminUsername,
+          adminPassword,
+          params.BACKUP_NAME)
+
+        build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+      }
+
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
     }
+  }
 }
 
 private List getEnvironmentJobParameters(String action,
@@ -233,25 +231,25 @@ private List getEnvironmentJobParameters(String action,
                                          boolean kafkaShared = true,
                                          boolean opensearchShared = true,
                                          boolean s3Embedded = false) {
-    [
-        string(name: 'action', value: action),
-        string(name: 'rancher_cluster_name', value: clusterName),
-        string(name: 'rancher_project_name', value: projectName),
-        string(name: 'folio_repository', value: folioRepository),
-        string(name: 'folio_branch', value: folioBranch),
-        string(name: 'okapi_version', value: okapiVersion),
-        string(name: 'config_type', value: 'performance'),
-        string(name: 'tenant_id', value: tenantId),
-        string(name: 'admin_username', value: adminUsername),
-        string(name: 'admin_password', value: adminPassword),
-        string(name: 'backup_type', value: 'rds'),
-        string(name: 'backup_name', value: backupName),
-        booleanParam(name: 'restore_from_backup', value: restoreFromBackup),
-        booleanParam(name: 'load_reference', value: loadReference),
-        booleanParam(name: 'load_sample', value: loadSample),
-        booleanParam(name: 'pg_embedded', value: pgEmbedded),
-        booleanParam(name: 'kafka_shared', value: kafkaShared),
-        booleanParam(name: 'opensearch_shared', value: opensearchShared),
-        booleanParam(name: 's3_embedded', value: s3Embedded)
-    ]
+  [
+    string(name: 'action', value: action),
+    string(name: 'rancher_cluster_name', value: clusterName),
+    string(name: 'rancher_project_name', value: projectName),
+    string(name: 'folio_repository', value: folioRepository),
+    string(name: 'folio_branch', value: folioBranch),
+    string(name: 'okapi_version', value: okapiVersion),
+    string(name: 'config_type', value: 'performance'),
+    string(name: 'tenant_id', value: tenantId),
+    string(name: 'admin_username', value: adminUsername),
+    string(name: 'admin_password', value: adminPassword),
+    string(name: 'backup_type', value: 'rds'),
+    string(name: 'backup_name', value: backupName),
+    booleanParam(name: 'restore_from_backup', value: restoreFromBackup),
+    booleanParam(name: 'load_reference', value: loadReference),
+    booleanParam(name: 'load_sample', value: loadSample),
+    booleanParam(name: 'pg_embedded', value: pgEmbedded),
+    booleanParam(name: 'kafka_shared', value: kafkaShared),
+    booleanParam(name: 'opensearch_shared', value: opensearchShared),
+    booleanParam(name: 's3_embedded', value: s3Embedded)
+  ]
 }

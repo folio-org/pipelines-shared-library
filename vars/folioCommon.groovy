@@ -1,5 +1,3 @@
-import hudson.util.Secret
-
 void defaultJobWrapper(Closure stages, boolean checkoutGit = true) {
   try {
     if (checkoutGit) {

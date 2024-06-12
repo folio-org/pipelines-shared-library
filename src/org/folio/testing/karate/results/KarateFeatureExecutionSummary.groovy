@@ -47,7 +47,7 @@ class KarateFeatureExecutionSummary implements IExecutionSummary {
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return "KarateFeatureExecutionSummary{" +
       "name='" + name + '\'' +
       ", displayName='" + displayName + '\'' +
@@ -59,6 +59,6 @@ class KarateFeatureExecutionSummary implements IExecutionSummary {
       ", scenarioCount=" + scenarioCount +
       ", cucumberReportFile='" + cucumberReportFile + '\'' +
       ", failed=" + failed +
-      '}';
+      '}'
   }
 }

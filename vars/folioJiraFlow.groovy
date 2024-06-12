@@ -19,11 +19,11 @@ void createJiraTicket(String summary, String DevTeamId, String type) {
     ]
     String body = """{
     "fields": {
-       "project": {"key": "${Constants.DM_JIRA_PROJECT}"},
-       "summary": "${summary}",
-       "description": "Automatic Jira ticket created via Jenkins",
-       "customfield_10501": {"id":"${DevTeamId}"},
-       "issuetype": {"name": "${type}"}
+      "project": {"key": "${Constants.DM_JIRA_PROJECT}"},
+      "summary": "${summary}",
+      "description": "Automatic Jira ticket created via Jenkins",
+      "customfield_10501": {"id":"${DevTeamId}"},
+      "issuetype": {"name": "${type}"}
         }
     }"""
     def body_data = new JsonSlurperClassic().parseText(body)
@@ -77,7 +77,7 @@ void addLabelJiraTicket(String ticketNumber, List labels) {
   }
 }
 
-void moveJiraTicket(List ticketNumbers, String moveId){
+void moveJiraTicket(List ticketNumbers, String moveId) {
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -97,7 +97,7 @@ void moveJiraTicket(List ticketNumbers, String moveId){
 void processJiraTicketStatus(String summary) {
   new Tools(this).copyResourceFileToWorkspace('jiraFlow/teamsInfo.json')
   def teamsInfo = new JsonSlurperClassic().parseText(readJSON file: "teamsInfo.json")
-  Logger logger = new Logger(this,'common')
+  Logger logger = new Logger(this, 'common')
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -112,7 +112,8 @@ void processJiraTicketStatus(String summary) {
       "In review"     : 31,
       "In code review": 91
     ]
-    teamsInfo.each { -> team
+    teamsInfo.each { ->
+      team
       String body
       def ticketNumbers = new JsonSlurperClassic().parseText(searchForExistingJiraTickets(jiraFlowJQL.getOpenTickets(summary, "${team.keySet().first()}")))
       if (ticketNumbers["total"] != 0) {
@@ -120,19 +121,19 @@ void processJiraTicketStatus(String summary) {
           switch (ticket["fields"]["status"]["name"]) {
             case "Open":
               logger.info("Similar ticket already exists, summary: ${summary}")
-              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              addJiraComment("${ticket[key]}", "This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             case "Closed":
-              if(ticket["fields"]["summary"].contains(summary)) {
+              if (ticket["fields"]["summary"].contains(summary)) {
                 createJiraTicket(summary, team["${team.keySet().first()}"]["info"]["id"], "Task")
                 addJiraComment("${ticket[key]}", "This issue opened on " + new Date().format("MM/dd/YYYY"))
               }
               break
             case "In progress":
-              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              addJiraComment("${ticket[key]}", "This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             case "In review":
-              addJiraComment("${ticket[key]}","This issue is still active as of " + new Date().format("MM/dd/YYYY"))
+              addJiraComment("${ticket[key]}", "This issue is still active as of " + new Date().format("MM/dd/YYYY"))
               break
             default:
               logger.warning("No suitable state was supplied to flow...\nClosing this ${ticket[key]} ticket...")

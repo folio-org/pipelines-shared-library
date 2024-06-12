@@ -2,7 +2,7 @@ package org.folio.slack.templates
 
 class SlackMessageTemplates {
 
-  private SlackMessageTemplates(){}
+  private SlackMessageTemplates() {}
 
   static final SECTION = '''
 {
@@ -31,27 +31,27 @@ class SlackMessageTemplates {
 }
 '''
 
-  static Map<String, String> getActionParams(String url, String text){
+  static Map<String, String> getActionParams(String url, String text) {
     [
       'AC_TEXT' : text
       , 'AC_URL': url
     ]
   }
 
-  static Map<String, String> getFieldParams(String title, String value, boolean isShort){
+  static Map<String, String> getFieldParams(String title, String value, boolean isShort) {
     [
-      'FL_TITLE' : title
-      , 'FL_VALUE': value
+      'FL_TITLE'     : title
+      , 'FL_VALUE'   : value
       , 'FL_IS_SHORT': isShort.toString()
     ]
   }
 
-  static Map<String, String> getSectionParams(String title, String message, String color, String actions, String fields){
+  static Map<String, String> getSectionParams(String title, String message, String color, String actions, String fields) {
     [
-      'SC_TITLE': title
-      , 'SC_TEXT': message
-      , 'SC_COLOR': color
-      , 'SC_FIELDS': fields
+      'SC_TITLE'    : title
+      , 'SC_TEXT'   : message
+      , 'SC_COLOR'  : color
+      , 'SC_FIELDS' : fields
       , 'SC_ACTIONS': actions
     ]
   }

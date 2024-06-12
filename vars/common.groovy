@@ -57,7 +57,7 @@ def getOkapiLatestSnapshotVersion(String okapi_version) {
 // Removing the image from the local machine.
 void removeImage(String image_name) {
   String image_id = sh returnStdout: true, script: "docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' | grep '${image_name}' | cut -d' ' -f1 | head -n 1"
-  sh(script: "docker rmi --force ${image_id.trim()}", returnStdout: true)
+  sh "docker rmi --force ${image_id.trim()} || exit 0"
 }
 
 void refreshBuidParameters(Boolean refresh) {
@@ -97,4 +97,3 @@ void throwErrorIfStringIsEmpty(def variable, String error_message = "Variable is
     error(error_message)
   }
 }
-

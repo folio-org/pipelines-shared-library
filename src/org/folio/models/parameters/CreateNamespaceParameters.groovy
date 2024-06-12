@@ -63,27 +63,27 @@ class CreateNamespaceParameters implements Cloneable {
     }
   }
 
-  public Builder toBuilder() {
-    return new Builder(this);
+  Builder toBuilder() {
+    return new Builder(this)
   }
 
   /**
    * Builder class for CreateNamespaceParameters to facilitate the fluent building of parameter objects.
    */
-  public static class Builder {
+  static class Builder {
 
     private CreateNamespaceParameters parameters = new CreateNamespaceParameters()
 
     /**
      * Constructor for Builder, initializes with default parameters.
      */
-    public Builder() {}
+    Builder() {}
 
     /**
      * Initializes the builder with an existing set of parameters for cloning or modification.
      * @param existingParameters The existing parameters to initialize the builder with.
      */
-    public Builder(CreateNamespaceParameters existingParameters) {
+    Builder(CreateNamespaceParameters existingParameters) {
       this.parameters = existingParameters.clone()
     }
 
@@ -93,7 +93,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param clusterName The name of the Kubernetes cluster.
      * @return Builder instance for method chaining.
      */
-    public Builder clusterName(String clusterName) {
+    Builder clusterName(String clusterName) {
       parameters.clusterName = clusterName
       return this
     }
@@ -104,7 +104,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param namespaceName The unique name for the namespace.
      * @return Builder instance for method chaining.
      */
-    public Builder namespaceName(String namespaceName) {
+    Builder namespaceName(String namespaceName) {
       parameters.namespaceName = namespaceName
       return this
     }
@@ -115,7 +115,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param folioBranch The branch name of the FOLIO repository.
      * @return Builder instance for method chaining.
      */
-    public Builder folioBranch(String folioBranch) {
+    Builder folioBranch(String folioBranch) {
       parameters.folioBranch = folioBranch
       return this
     }
@@ -126,7 +126,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param okapiVersion The version number of Okapi.
      * @return Builder instance for method chaining.
      */
-    public Builder okapiVersion(String okapiVersion) {
+    Builder okapiVersion(String okapiVersion) {
       parameters.okapiVersion = okapiVersion
       return this
     }
@@ -136,7 +136,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param configType A string indicating the configuration profile to apply.
      * @return Builder instance for method chaining.
      */
-    public Builder configType(String configType) {
+    Builder configType(String configType) {
       parameters.configType = configType
       return this
     }
@@ -147,7 +147,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param loadReference `true` to load reference data; `false` otherwise.
      * @return Builder instance for method chaining.
      */
-    public Builder loadReference(boolean loadReference) {
+    Builder loadReference(boolean loadReference) {
       parameters.loadReference = loadReference
       return this
     }
@@ -158,7 +158,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param loadSample `true` to load sample data; `false` otherwise.
      * @return Builder instance for method chaining.
      */
-    public Builder loadSample(boolean loadSample) {
+    Builder loadSample(boolean loadSample) {
       parameters.loadSample = loadSample
       return this
     }
@@ -169,7 +169,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param consortia `true` to enable consortia features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    public Builder consortia(boolean consortia) {
+    Builder consortia(boolean consortia) {
       parameters.consortia = consortia
       return this
     }
@@ -191,7 +191,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param rwSplit `true` to enable read-write splitting; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    public Builder rwSplit(boolean rwSplit) {
+    Builder rwSplit(boolean rwSplit) {
       parameters.rwSplit = rwSplit
       return this
     }
@@ -202,7 +202,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param greenmail `true` to enable GreenMail; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    public Builder greenmail(boolean greenmail) {
+    Builder greenmail(boolean greenmail) {
       parameters.greenmail = greenmail
       return this
     }
@@ -213,7 +213,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param mockServer `true` to enable the mock server; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    public Builder mockServer(boolean mockServer) {
+    Builder mockServer(boolean mockServer) {
       parameters.mockServer = mockServer
       return this
     }
@@ -223,7 +223,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param rtr `true` to enable RTR; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    public Builder rtr(boolean rtr) {
+    Builder rtr(boolean rtr) {
       parameters.rtr = rtr
       return this
     }
@@ -233,7 +233,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param pgType The type of PostgreSQL deployment, e.g., "built-in" or a specific cloud provider's service.
      * @return Builder instance for method chaining.
      */
-    public Builder pgType(String pgType) {
+    Builder pgType(String pgType) {
       parameters.pgType = pgType
       return this
     }
@@ -243,7 +243,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param pgVersion The version number of PostgreSQL to use.
      * @return Builder instance for method chaining.
      */
-    public Builder pgVersion(String pgVersion) {
+    Builder pgVersion(String pgVersion) {
       parameters.pgVersion = pgVersion
       return this
     }
@@ -253,7 +253,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param kafkaType The type of Kafka deployment, e.g., "built-in" or managed service.
      * @return Builder instance for method chaining.
      */
-    public Builder kafkaType(String kafkaType) {
+    Builder kafkaType(String kafkaType) {
       parameters.kafkaType = kafkaType
       return this
     }
@@ -263,7 +263,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param opensearchType The deployment option for OpenSearch, such as "built-in" or a cloud service.
      * @return Builder instance for method chaining.
      */
-    public Builder opensearchType(String opensearchType) {
+    Builder opensearchType(String opensearchType) {
       parameters.opensearchType = opensearchType
       return this
     }
@@ -273,7 +273,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param s3Type The storage option for S3, indicating whether it's "built-in" or a specific provider.
      * @return Builder instance for method chaining.
      */
-    public Builder s3Type(String s3Type) {
+    Builder s3Type(String s3Type) {
       parameters.s3Type = s3Type
       return this
     }
@@ -283,7 +283,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param members A comma-separated list of members.
      * @return Builder instance for method chaining.
      */
-    public Builder members(String members) {
+    Builder members(String members) {
       parameters.members = members
       return this
     }
@@ -294,7 +294,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param namespaceOnly `true` to indicate only namespace creation/deletion; `false` for full deployment.
      * @return Builder instance for method chaining.
      */
-    public Builder namespaceOnly(boolean namespaceOnly) {
+    Builder namespaceOnly(boolean namespaceOnly) {
       parameters.namespaceOnly = namespaceOnly
       return this
     }
@@ -305,7 +305,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param worker The name of the Jenkins worker node.
      * @return Builder instance for method chaining.
      */
-    public Builder worker(String worker) {
+    Builder worker(String worker) {
       parameters.worker = worker
       return this
     }
@@ -314,7 +314,7 @@ class CreateNamespaceParameters implements Cloneable {
      * Builds the CreateNamespaceParameters instance.
      * @return A new instance of CreateNamespaceParameters based on the builder settings.
      */
-    public CreateNamespaceParameters build() {
+    CreateNamespaceParameters build() {
       return parameters
     }
   }

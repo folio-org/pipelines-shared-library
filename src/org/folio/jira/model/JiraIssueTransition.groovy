@@ -2,12 +2,12 @@ package org.folio.jira.model
 
 class JiraIssueTransition {
 
-    String id
+  String id
 
-    String name
+  String name
 
-    String statusId
+  String statusId
 
-    String statusName
+  String statusName
 
 }

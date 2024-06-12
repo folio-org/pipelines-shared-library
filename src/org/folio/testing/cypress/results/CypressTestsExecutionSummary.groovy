@@ -1,15 +1,15 @@
 package org.folio.testing.cypress.results
 
 import org.folio.testing.IModuleExecutionSummary
+import org.folio.testing.ITestExecutionSummary
+import org.folio.testing.TestExecutionResult
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
-import org.folio.testing.ITestExecutionSummary
-import org.folio.testing.TestExecutionResult
 
 class CypressTestsExecutionSummary implements ITestExecutionSummary {
 
-  Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:];
+  Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:]
 
   //TBD
 
@@ -72,9 +72,9 @@ class CypressTestsExecutionSummary implements ITestExecutionSummary {
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return "CypressTestsResult{" +
-            "modulesTestResult=" + modulesExecutionSummary +
-            '}';
+      "modulesTestResult=" + modulesExecutionSummary +
+      '}'
   }
 }

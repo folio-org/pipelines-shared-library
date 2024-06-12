@@ -157,13 +157,16 @@ void update(RancherNamespace namespace, boolean debug = false) {
     stage('[Rest] refresh service discovery') {
       main.refreshServicesDiscovery()
     }
+    stage('[Rest] Publish descriptors') {
+      main.publishDescriptors(namespace.getModules().getInstallJson())
+    }
     stage('[Rest] Simulate installation') {
       namespace.getTenants().each { tenantId, tenant ->
         main.simulateInstall(tenant, tenant.getModules().getInstallJson())
       }
     }
-    stage('[Rest] Preinstall') {
-      main.preInstall(namespace.getModules().getInstallJson(), namespace.getModules().getDiscoveryList())
+    stage('[Rest] Publish discovery') {
+      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
     }
 
     //Deploy backend modules
@@ -195,7 +198,6 @@ void update(RancherNamespace namespace, boolean debug = false) {
     }
 
     stage('[Rest] Update') {
-      input 'Pause for test'
       main.update(namespace.getTenants())
     }
 

@@ -7,59 +7,59 @@ import org.folio.rest_v2.Constants
  */
 class TenantUi implements Cloneable {
 
-    /** Default name for the image. */
-    private static final String IMAGE_NAME = 'ui-bundle'
+  /** Default name for the image. */
+  private static final String IMAGE_NAME = 'ui-bundle'
 
-    /** Identifier of the tenant. */
-    String tenantId
+  /** Identifier of the tenant. */
+  String tenantId
 
-    /** Domain of the tenant. */
-    String domain
+  /** Domain of the tenant. */
+  String domain
 
-    /** Branch name of the tenant's repository. */
-    String branch
+  /** Branch name of the tenant's repository. */
+  String branch
 
-    /** Hash of the tenant's repository. */
-    String hash
+  /** Hash of the tenant's repository. */
+  String hash
 
-    /** Tag for the tenant's image. */
-    String tag
+  /** Tag for the tenant's image. */
+  String tag
 
-    /** Name of the tenant's image. */
-    String imageName
+  /** Name of the tenant's image. */
+  String imageName
 
-    /** Workspace of the tenant. */
-    String workspace
+  /** Workspace of the tenant. */
+  String workspace
 
-    /**
-     * Constructor that sets the workspace, hash, and branch for the TenantUi.
-     * @param workspace The workspace of the tenant.
-     * @param hash The hash of the tenant's repository.
-     * @param branch The branch name of the tenant's repository.
-     */
-    TenantUi(String workspace, String hash, String branch) {
-        this.workspace = workspace
-        this.hash = hash
-        this.branch = branch
+  /**
+   * Constructor that sets the workspace, hash, and branch for the TenantUi.
+   * @param workspace The workspace of the tenant.
+   * @param hash The hash of the tenant's repository.
+   * @param branch The branch name of the tenant's repository.
+   */
+  TenantUi(String workspace, String hash, String branch) {
+    this.workspace = workspace
+    this.hash = hash
+    this.branch = branch
+  }
+
+  /**
+   * Sets the tenantId and updates the tag and image name accordingly.
+   * @param tenantId Identifier of the tenant.
+   */
+  void setTenantId(String tenantId) {
+    this.tenantId = tenantId
+    updateTagAndImageName()
+  }
+
+  /**
+   * Updates the tag and image name for this TenantUi.
+   * This method is invoked when the tenantId is set.
+   */
+  private void updateTagAndImageName() {
+    if (this.tenantId && this.hash) {
+      this.tag = "${this.workspace}.${this.tenantId}.${this.hash.take(7)}"
+      this.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${IMAGE_NAME}:${this.tag}"
     }
-
-    /**
-     * Sets the tenantId and updates the tag and image name accordingly.
-     * @param tenantId Identifier of the tenant.
-     */
-    void setTenantId(String tenantId) {
-        this.tenantId = tenantId
-        updateTagAndImageName()
-    }
-
-    /**
-     * Updates the tag and image name for this TenantUi.
-     * This method is invoked when the tenantId is set.
-     */
-    private void updateTagAndImageName() {
-        if (this.tenantId && this.hash) {
-            this.tag = "${this.workspace}.${this.tenantId}.${this.hash.take(7)}"
-            this.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${IMAGE_NAME}:${this.tag}"
-        }
-    }
+  }
 }

@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters

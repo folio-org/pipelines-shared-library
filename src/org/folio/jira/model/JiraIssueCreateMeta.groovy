@@ -2,18 +2,18 @@ package org.folio.jira.model
 
 class JiraIssueCreateMeta {
 
-    String projectId
+  String projectId
 
-    String projectKey
+  String projectKey
 
-    String issueTypeId
+  String issueTypeId
 
-    String issueTypeName
+  String issueTypeName
 
-    List<JiraField> fields = []
+  List<JiraField> fields = []
 
-    Map<String, JiraField> getFieldsByName() {
-        fields.collectEntries { [it.name, it] }
-    }
+  Map<String, JiraField> getFieldsByName() {
+    fields.collectEntries { [it.name, it] }
+  }
 
 }

@@ -13,7 +13,7 @@ class KarateConstants {
 
   public static final String ISSUE_LABEL = "karateRegressionPipeline"
 
-  public static final String ISSUE_SUMMARY_PREFIX =  "Karate test fail:"
+  public static final String ISSUE_SUMMARY_PREFIX = "Karate test fail:"
 
   public static final String ISSUE_OPEN_STATUS = "Open"
 

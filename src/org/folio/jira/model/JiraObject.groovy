@@ -2,10 +2,10 @@ package org.folio.jira.model
 
 abstract class JiraObject {
 
-    String id
+  String id
 
-    String name
+  String name
 
-    String description
+  String description
 
 }

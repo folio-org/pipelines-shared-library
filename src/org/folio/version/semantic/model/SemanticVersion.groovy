@@ -2,18 +2,18 @@ package org.folio.version.semantic.model
 
 class SemanticVersion implements Serializable {
 
-    String value
+  String value
 
-    SemanticVersionType type
+  SemanticVersionType type
 
-    Integer major
+  Integer major
 
-    Integer minor
+  Integer minor
 
-    Integer patch
+  Integer patch
 
-    String timestamp
+  String timestamp
 
-    String branch
+  String branch
 
 }
