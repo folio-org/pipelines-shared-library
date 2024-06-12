@@ -52,6 +52,25 @@ ui:
   ]
 }
 
+resource "kubernetes_service" "vault-svc" {
+  metadata {
+    name = "vault-node-port"
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/instance" : "vault-${var.rancher_project_name}"
+      "app.kubernetes.io/name" : "vault"
+    }
+    session_affinity = "ClientIP"
+    port {
+      port        = 80
+      target_port = 8200
+    }
+    type = "NodePort"
+  }
+}
+
+
 resource "kubernetes_ingress_v1" "vault-ingress-ui" {
   metadata {
     name      = "vault-${var.rancher_project_name}-ui"
@@ -67,16 +86,17 @@ resource "kubernetes_ingress_v1" "vault-ingress-ui" {
     }
   }
   spec {
-    ingress_class_name = "alb"
+    ingress_class_name = ""
     rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "vault"]), var.root_domain])
       http {
         path {
           path = "/*"
           backend {
             service {
-              name = "vault-${var.rancher_project_name}-ui"
+              name = kubernetes_service.vault-svc.id
               port {
-                number = 8200
+                number = 80
               }
             }
           }
