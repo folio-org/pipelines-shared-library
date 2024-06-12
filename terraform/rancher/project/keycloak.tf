@@ -1,19 +1,19 @@
-data "rancher2_secret_v2" "keycloak_credentials" {
-  cluster_id = data.rancher2_cluster.this.id
-  name       = "keycloak-credentials"
-  namespace  = rancher2_namespace.this.name
-  depends_on = [rancher2_secret_v2.keycloak-credentials]
+data "rancher2_secret" "keycloak_credentials" {
+  name         = "keycloak-credentials"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  depends_on   = [rancher2_secret.keycloak-credentials]
 }
 
 locals {
-  kc_admin_user_name  = lookup(data.rancher2_secret_v2.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin")
+  kc_admin_user_name  = lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin")
   kc_target_http_port = "8080"
 }
 
 resource "helm_release" "keycloak" {
   count      = (var.eureka ? 1 : 0)
   chart      = "keycloak"
-  depends_on = [rancher2_secret_v2.keycloak-credentials, helm_release.postgresql]
+  depends_on = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
   name       = "keycloak-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "21.0.4"
