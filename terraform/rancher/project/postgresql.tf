@@ -43,7 +43,7 @@ resource "rancher2_secret" "kong-credentials" {
   count        = var.eureka ? 1 : 0
 }
 
-resource "rancher2_secret_2" "keycloak-credentials" {
+resource "rancher2_secret_v2" "keycloak-credentials" {
   data = {
     KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     KC_DB_URL_PORT                  = base64encode("5432")
