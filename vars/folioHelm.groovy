@@ -167,76 +167,33 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
     }
   }
-//    if (customModule || moduleName == 'ui-bundle') {
-//        repository = Constants.ECR_FOLIO_REPOSITORY
-//    } else if (moduleName == 'mod-graphql' && moduleVersion ==~ /\d{1,2}.\d{1,3}.\d{3,10}/) {
-//        repository = "folioci"
-//    } else {
-//        repository = moduleVersion.contains('SNAPSHOT') ? "folioci" : "folioorg"
-//    }
+
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
-// Enable R/W split
-//  if (ns.enableRwSplit && Constants.READ_WRITE_MODULES.contains(moduleName)) {
-//    moduleConfig << [readWriteSplitEnabled: "true"]
-//  }
+/**
+ * Modules feature switcher
+ */
 
-//    // Enable JMX metrics
+// TODO Enable JMX metrics once prometheus will work
 //    if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
 //        def action = compare.compareVersion(Constants.JMX_METRICS_AVAILABLE[moduleName], moduleVersion)
 //        if (action == "upgrade" || action == "equal") {
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+  //Enable RTR functionality
+  if (ns.enableRtr) {
+    moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
+  }
 
-//Enable extra env
-//  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
-//    moduleConfig << [consortiumEnabled: "true"]
-//  }
-//
-//  //Enable cross tenant extra env
-//  if (moduleName == 'mod-authtoken' && ns.enableConsortia) {
-//    moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
-//  }
-//  //Enable RTR functionality with env value
-//  if (params.RTR) {
-//    moduleConfig << [rtrEnabled: "true"]
-//  }
+  //Bulk operations bucket configuration
+  if (moduleName == 'mod-bulk-operations' && ns.getNamespaceName() == 'sprint') {
+    moduleConfig['extraJavaOpts'] += ['-Dspring.servlet.multipart.max-file-size=40MB',
+                                      '-Dspring.servlet.multipart.max-request-size=40MB']
+  }
 
-//  if (Constants.CONSORTIUM_ENABLED.contains(moduleName) && ns.enableConsortia) {
-//    moduleConfig << [consortiumEnabled: "true"]
-//  }
-//
-//  //Override default mdi-slicing, in case of minio
-//  if (params.S3_BUCKET == 'built-in' && moduleName == 'mod-data-import') {
-//    moduleConfig << [disEnabled: false]
-//    println("mod-data-import slicing was not requested...!")
-//  }
-//
-//  //Enable cross tenant extra env as default option
-//  if (moduleName == 'mod-authtoken') {
-//    moduleConfig['javaOptions'] += ' -Dallow.cross.tenant.requests=true'
-//  }
-//
-//  //Enable cross tenant extra env as default option
-//  if (moduleName == 'mod-bulk-operations' && params.NAMESPACE == 'sprint') {
-//    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-file-size=40MB'
-//    moduleConfig['javaOptions'] += ' -Dspring.servlet.multipart.max-request-size=40MB'
-//  }
-//
-//  //Enable RTR functionality with env value
-//  if (params.RTR) {
-//    moduleConfig << [rtrEnabled: "true"]
-//  }
-//
-//  if (ns.getClusterName() == 'folio-dev') {
-//    moduleConfig << [modSearchDev: "true"]
-//    moduleConfig << [modInventoryStorageDev: "true"]
-//    moduleConfig << [modEntitiesLinksDev: "true"]
-//  }
-//
   // Enable extra PVC and initContainer for folio-perf with firebird namespace and folio-testing and sprint namespace
   boolean isSuitableNamespaceAndCluster =
     (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
@@ -259,17 +216,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['ingress']['hosts'][0] += [host: domain]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
   }
-//  if (ns.getClusterName() == 'folio-dev') {
-//    moduleConfig << [modSearchDev: "true"]
-//    moduleConfig << [modInventoryStorageDev: "true"]
-//    moduleConfig << [modEntitiesLinksDev: "true"]
-//  }
-//
-//  //Enable DIS
-//  if(params.DI_SLICING && moduleName == 'mod-data-import') {
-//    moduleConfig << [disEnabled: 'true']
-//    moduleConfig << [awsConnectParameters: 's3-credentials']
-//  }
 
   //Enable edge NLB
   String serviceType = moduleConfig.containsKey('service') ? moduleConfig['service']['type'] : ""
