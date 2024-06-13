@@ -201,7 +201,7 @@ ingress:
 
 initdbScripts:
   kc_init_script.sh: |
-    ${file("resources/kc_init_script.sh")}
+    ${yamlencode(file("resources/kc_init_script.sh"))}
 EOF
   ]
 }
