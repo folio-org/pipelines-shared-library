@@ -253,6 +253,7 @@ module "rds" {
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
+  force_new  = true
   depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
   count      = var.pgadmin4 ? 1 : 0
   namespace  = rancher2_namespace.this.name
