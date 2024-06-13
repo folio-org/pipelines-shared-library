@@ -13,6 +13,7 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_PG_DATABASE = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
     KONG_PASSWORD    = base64encode("admin")
     KONG_ADMIN_USER  = base64encode("kong_admin")
+    KONG_URL         = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
   }
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
