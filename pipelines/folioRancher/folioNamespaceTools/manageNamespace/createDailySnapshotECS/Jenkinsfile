@@ -83,7 +83,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .pgType('built-in')
   .pgVersion('12.15')
   .kafkaType('built-in')
-  .opensearchType('built-in')
+  .opensearchType('aws')
   .s3Type('built-in')
   .members('')
   .worker('rancher')
