@@ -105,7 +105,6 @@ ansiColor('xterm') {
 
       stage('[TF] Provision') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
-        sleep time: 5, unit: "MINUTES"
       }
 
       stage('[DB and Indices] Restore') {
@@ -131,6 +130,7 @@ ansiColor('xterm') {
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
         }
         folioDeployFlow.restore(namespace)
+        sleep time: 5, unit: "MINUTES"
       }
 
       stage('Prepare update') {
