@@ -201,8 +201,8 @@ ingress:
 
 initdbScripts:
   kc_init_script.sh: |
-    #!/usr/bin/env bash
-    sleep 20
+    #!/bin/env bash
+    sleep 60
     /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
 EOF
   ]
