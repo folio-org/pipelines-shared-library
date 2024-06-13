@@ -200,8 +200,11 @@ ingress:
     alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
 
 initdbScripts:
-  kc_init_script.sh: 
-    ${yamlencode(file("resources/kc_init_script.sh"))}
+  kc_init_script.sh: |
+    #!/usr/bin/env bash
+    sleep 20
+    /opt/keycloak/bin/kcadm.sh config credentials --realm master --user ${KEYCLOAK_ADMIN} --password ${KEYCLOAK_ADMIN_PASSWORD} --server http://localhost:8080
+    /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
 EOF
   ]
 }
