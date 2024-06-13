@@ -65,6 +65,7 @@ const getClientConfig = (options) => {
       description: options.description,
       launchUuidPrint: options.launchUuidPrint,
       launchUuidPrintOutput,
+      launchId: options.launchId,
     };
   } catch (error) {
     // don't throw the error up to not break the entire process
