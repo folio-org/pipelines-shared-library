@@ -7,7 +7,7 @@ data "rancher2_secret" "keycloak_credentials" {
 }
 
 locals {
-  kc_admin_user_name  = (var.eureka ? base64decode(lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin")) : "")
+  kc_admin_user_name  = (var.eureka ? base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin")) : "")
   kc_target_http_port = "8080"
 }
 
