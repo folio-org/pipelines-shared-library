@@ -200,8 +200,7 @@ ingress:
     alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
 
 initdbScripts:
-  kc_init_script.sh: |
-    ${yamlencode(file("resources/kc_init_script.sh"))}
+  kc_init_script.sh: ${yamlencode(file("resources/kc_init_script.sh"))}
 EOF
   ]
 }
