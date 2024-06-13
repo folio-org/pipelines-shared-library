@@ -1,4 +1,5 @@
 data "rancher2_secret" "keycloak_credentials" {
+  count        = (var.eureka ? 1 : 0)
   name         = "keycloak-credentials"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
@@ -6,7 +7,7 @@ data "rancher2_secret" "keycloak_credentials" {
 }
 
 locals {
-  kc_admin_user_name  = base64decode(lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin"))
+  kc_admin_user_name  = (var.eureka ? base64decode(lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin")) : "")
   kc_target_http_port = "8080"
 }
 
