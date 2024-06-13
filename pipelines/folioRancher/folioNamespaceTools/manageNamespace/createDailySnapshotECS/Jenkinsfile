@@ -9,9 +9,9 @@ import org.folio.rest_v2.Users
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@ecs-snapshot-stabilization') _
 
-CONFIG_BRANCH = 'master'
+CONFIG_BRANCH = 'ecs-snapshot-stabilization'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -105,6 +105,7 @@ ansiColor('xterm') {
 
       stage('[TF] Provision') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
+        sleep time: 5, unit: "MINUTES"
       }
 
       stage('[DB and Indices] Restore') {
@@ -185,8 +186,10 @@ ansiColor('xterm') {
       }
 
       stage('Enable') {
-        sleep time: 11, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-        main.update(namespace.getTenants())
+        retry(2) {
+          sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+          main.update(namespace.getTenants())
+        }
       }
 
       stage('Build and deploy UI') {
