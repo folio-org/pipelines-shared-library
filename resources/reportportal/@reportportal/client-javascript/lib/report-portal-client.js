@@ -259,6 +259,13 @@ class RPClient {
         launchObj.promiseStart.then(
           () => {
             this.logDebug(`Finish launch with tempId ${launchTempId}`, finishExecutionData);
+
+            if(this.config.launchId){
+              this.logDebug(`Success finish launch (without actually finishing) with tempId ${launchTempId}`);
+              launchObj.resolveFinish({});
+              return;
+            }
+
             const url = ['launch', launchObj.realId, 'finish'].join('/');
             this.restClient.update(url, finishExecutionData, { headers: this.headers }).then(
               (response) => {
