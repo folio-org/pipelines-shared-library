@@ -30,13 +30,14 @@ locals {
 }
 
 resource "helm_release" "keycloak" {
-  count      = (var.eureka ? 1 : 0)
-  chart      = "keycloak"
-  depends_on = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
-  name       = "keycloak-${var.rancher_project_name}"
-  namespace  = rancher2_namespace.this.id
-  version    = "21.0.4"
-  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  count        = (var.eureka ? 1 : 0)
+  chart        = "keycloak"
+  depends_on   = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
+  name         = "keycloak-${var.rancher_project_name}"
+  namespace    = rancher2_namespace.this.id
+  version      = "21.0.4"
+  force_update = true
+  repository   = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [
     <<-EOF
 image:
