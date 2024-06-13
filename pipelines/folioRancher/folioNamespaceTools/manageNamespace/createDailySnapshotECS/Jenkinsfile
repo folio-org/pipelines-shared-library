@@ -3,9 +3,11 @@ package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
 
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
 import org.folio.rest_v2.Users
+import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -62,11 +64,30 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 namespace.addDeploymentConfig(CONFIG_BRANCH)
 
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+
+final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-testing')
+  .namespaceName('ecs-snapshot')
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .pgType('built-in')
+  .pgVersion('12.15')
+  .kafkaType('built-in')
+  .opensearchType('built-in')
+  .s3Type('built-in')
+  .members('')
+  .worker('rancher')
+  .build()
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -80,26 +101,14 @@ ansiColor('xterm') {
       }
 
       stage('[TF] Destroy') {
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          if ((kubectl.checkNamespaceExistence('ecs-snapshot'))) {
-            folioPrint.colored("ecs-snapshot environment exists!\nproceeding with destroy operation...", "red")
-            try {
-              build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-                parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                             string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                             booleanParam(name: 'RW_SPLIT', value: false),
-                             string(name: 'POSTGRESQL', value: 'built-in'),
-                             string(name: 'KAFKA', value: 'built-in'),
-                             string(name: 'OPENSEARCH', value: 'aws'),
-                             string(name: 'S3_BUCKET', value: 'built-in'),
-                             string(name: 'AGENT', value: 'rancher'),
-                             booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-            } catch (Exception exception) {
-              folioPrint.colored("Existing environment has not been destroyed, error: ${exception.getMessage()}", "red")
-            }
-          } else {
-            folioPrint.colored("ecs-snapshot environment does not exist...\nContinuing to work...", "green")
-          }
+        def nsExists
+        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+        }
+        if (nsExists) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        } else {
+          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
