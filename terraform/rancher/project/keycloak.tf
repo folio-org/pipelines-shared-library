@@ -3,7 +3,7 @@ data "rancher2_secret" "keycloak_credentials" {
   name         = "keycloak-credentials"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
-  depends_on   = [rancher2_secret.keycloak-credentials]
+  depends_on   = [helm_release.pgadmin, rancher2_secret.keycloak-credentials]
 }
 
 locals {
