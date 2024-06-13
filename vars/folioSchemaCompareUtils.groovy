@@ -10,11 +10,11 @@ void getSchemasDifference(rancher_project_name, tenant_id, tenant_id_clean, pgad
   //def diff = [:]
 
   Map psqlConnection = [
-    password: kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PASSWORD'),
-    host    : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_HOST'),
-    user    : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_USERNAME'),
-    db      : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_DATABASE'),
-    port    : kubectl.getSecretValue(rancher_project_name, 'db-connect-modules', 'DB_PORT')
+    password: kubectl.getSecretValue(rancher_project_name, 'db-credentials', 'DB_PASSWORD'),
+    host    : kubectl.getSecretValue(rancher_project_name, 'db-credentials', 'DB_HOST'),
+    user    : kubectl.getSecretValue(rancher_project_name, 'db-credentials', 'DB_USERNAME'),
+    db      : kubectl.getSecretValue(rancher_project_name, 'db-credentials', 'DB_DATABASE'),
+    port    : kubectl.getSecretValue(rancher_project_name, 'db-credentials', 'DB_PORT')
   ]
 
   def teamAssignment = getTeamAssignment()
