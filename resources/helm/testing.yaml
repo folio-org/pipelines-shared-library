@@ -709,7 +709,7 @@ mod-data-import:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-lists-credentials
+      existingSecret: s3-mod-data-import-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
