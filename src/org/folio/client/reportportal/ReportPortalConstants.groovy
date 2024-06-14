@@ -14,6 +14,6 @@ class ReportPortalConstants {
   public static final String KARATE_EXEC_PARAM_TEMPLATE = '-Drp.launch.uuid="${launch_id}"'
   public static final String CYPRESS_EXEC_PARAM_TEMPLATE = '''--reporter "@reportportal/agent-js-cypress" \
    --reporter-options \
-   endpoint="${api_url}",apiKey="${api_key}",project="${project_name}",description="${description}",launch="${launch_name}",launchId="${launch_id}",mode="DEFAULT",isLaunchMergeRequired="true",debug="true",restClientConfig="{timeout: 360000}",attributes="${attributes}"
+   endpoint="${api_url}",apiKey="${api_key}",project="${project_name}",description="${description}",launch="${launch_name}",launchId="${launch_id}",mode="DEFAULT",attributes="${attributes}"
 '''
 }
