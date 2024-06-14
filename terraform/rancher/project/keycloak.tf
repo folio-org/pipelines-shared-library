@@ -203,7 +203,7 @@ ingress:
 lifecycleHooks:
   postStart:
     exec:
-      command: ["/bin/sh", "-c", "sleep 240 && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
+      command: ["/bin/sh", "-c", "sleep 180 && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
 EOF
   ]
 }
