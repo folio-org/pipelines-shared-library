@@ -39,6 +39,11 @@ String renderFailedBuildResultMessage() {
     .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.FAILURE)])
 }
 
+String renderAbortedBuildResultMessage() {
+  return SlackHelper
+    .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.ABORTED)])
+}
+
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderTestResultSection(TestType type, IExecutionSummary summary
                                , String buildName, boolean useReportPortal, String url) {
