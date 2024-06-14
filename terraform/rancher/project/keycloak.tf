@@ -204,6 +204,7 @@ initdbScripts:
   kc_init_script.sh: |
     #!/bin/env bash
     sleep 180
+    /opt/keycloak/bin/kcadm.sh config credentials --realm master --user admin --password SecretPassword --server http://localhost:8080
     /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
 EOF
   ]
