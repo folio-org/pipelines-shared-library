@@ -113,6 +113,8 @@ void call(params) {
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
                     compileTests(cypressImageVersion, "${batch[0]}")
+
+                    tuneWorkspaceForRP()
                   }
 
                   batch.eachWithIndex { copyBatch, copyBatchIndex ->
@@ -284,7 +286,6 @@ void executeTests(String cypressImageVersion, String customBuildName, String bro
       env; npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
       pkill Xvfb
     """
-//    String execString = "npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}"
 
     runInDocker(cypressImageVersion, "worker-${runId}", {
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
@@ -345,3 +346,16 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
     }
   }
 }
+
+//TODO: Temporary solution. Should be refactored via RANCHER-1528 and RANCHER-1529 tickets
+@Deprecated
+void tuneWorkspaceForRP(){
+  String cypressReporter = "reportportal/@reportportal/agent-js-cypress/lib/cypressReporter.js"
+  String report_portal_client = "reportportal/@reportportal/client-javascript/lib/report-portal-client.js"
+  String config = "reportportal/@reportportal/client-javascript/lib/commons/config.js"
+
+  writeFile file: "./node_modules/${report_portal_client}", text: libraryResource("${report_portal_client}")
+  writeFile file: "./node_modules/${cypressReporter}", text: libraryResource("${cypressReporter}")
+  writeFile file: "./node_modules/${config}", text: libraryResource("${config}")
+}
+
