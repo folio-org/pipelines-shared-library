@@ -43,6 +43,8 @@ class RancherNamespace {
 
   boolean enableSplitFiles = false
 
+  boolean enableRtr = false
+
   RancherNamespace(String clusterName, String namespaceName) {
     this.clusterName = clusterName
     this.namespaceName = namespaceName
