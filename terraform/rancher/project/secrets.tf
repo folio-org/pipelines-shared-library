@@ -48,7 +48,7 @@ resource "random_password" "system_user_password" {
 }
 
 resource "rancher2_secret" "eureka_common" {
-  name         = "eureka_common"
+  name         = "eureka-common"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
   data = {
