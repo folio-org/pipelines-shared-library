@@ -1634,6 +1634,60 @@ mod-z3950:
       memory: 256Mi
   postJob:
     enabled: false
+mgr-applications:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mgr-tenants:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mgr-tenant-entitlements:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
 okapi:
   ingress:
     enabled: true
