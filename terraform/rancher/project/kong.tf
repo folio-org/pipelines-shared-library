@@ -11,7 +11,9 @@ resource "rancher2_secret" "kong-credentials" {
     KONG_PG_PASSWORD = base64encode(local.pg_password)
     KONG_PG_PORT     = base64encode("5432")
     KONG_PG_DATABASE = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
-    KONG_HOST        = base64encode("kong-admin-api-${var.rancher_project_name}")
+    KONG_PASSWORD    = base64encode("admin")
+    KONG_ADMIN_USER  = base64encode("kong_admin")
+    KONG_URL         = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
   }
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
@@ -29,7 +31,8 @@ resource "helm_release" "kong" {
     helm_release.postgresql,
     helm_release.pgadmin,
     postgresql_database.kong,
-    postgresql_role.kong
+    postgresql_role.kong,
+    rancher2_secret.kong-credentials
   ]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
@@ -106,6 +109,11 @@ kong:
   startupProbe:
     enabled: false
   extraEnvVars:
+   - name: KONG_PASSWORD
+     valueFrom:
+       secretKeyRef:
+         name: kong-credentials
+         key: KONG_PASSWORD
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
