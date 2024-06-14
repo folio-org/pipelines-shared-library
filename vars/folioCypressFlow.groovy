@@ -20,6 +20,8 @@ import org.folio.testing.TestType
  * - testrailRunID
  * - numberOfWorkers
  * - agent
+ * - useReportPortal
+ * - runType
  * @param params
  */
 void call(params) {
