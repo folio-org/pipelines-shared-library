@@ -136,7 +136,7 @@ ansiColor('xterm') {
       logger.error("Caught exception: ${e}")
     } finally {
       if (!autoCanceled) {
-        destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams)
+        destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
       }
       stage('Cleanup') {
         println("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
@@ -156,7 +156,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
           .namespaceName(metadata['namespace'])
           .build()
         branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.createNamespaceFromBranch(namespaceCreateParams, jobName)
+          folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
         }
       }
       parallel(branches)
@@ -178,7 +178,7 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
           .namespaceName(metadata['namespace'])
           .build()
         branches["${namespaceDeleteParams.getClusterName()}-${namespaceDeleteParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.deleteNamespace(namespaceDeleteParams, jobName)
+          folioTriggerJob.deleteNamespace(jobName, namespaceDeleteParams)
         }
       }
       parallel(branches)
