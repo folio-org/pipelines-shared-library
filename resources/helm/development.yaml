@@ -709,7 +709,7 @@ mod-data-import:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-lists-credentials
+      existingSecret: s3-mod-data-import-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -758,6 +758,10 @@ mod-entities-links:
     value: '50'
   - name: AUTHORITY_ARCHIVES_EXPIRATION_PERIOD
     value: '7'
+  - name: KAFKA_INSTANCE_AUTHORITY_TOPIC_PARTITIONS
+    value: '2'
+  - name: KAFKA_INSTANCE_AUTHORITY_STATS_TOPIC_PARTITIONS
+    value: '2'
   integrations:
     db:
       enabled: true
@@ -940,6 +944,8 @@ mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
     value: '1'
+  - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
+    value: '2'
   integrations:
     db:
       enabled: true
@@ -1435,6 +1441,12 @@ mod-search:
     value: '25s'
   - name: MAX_BROWSE_REQUEST_OFFSET
     value: '500'
+  - name: KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS
+    value: '2'
+  - name: KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS
+    value: '2'
+  - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
+    value: '2'
   integrations:
     db:
       enabled: true

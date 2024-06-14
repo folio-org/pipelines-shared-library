@@ -236,9 +236,6 @@ class Constants {
                                     'mod-template-engine',
                                     'mod-users']
 
-  // List of module for CONSORTIUM_ENABLED=true
-  static List CONSORTIUM_ENABLED = ["mod-search"]
-
   // Data Migration Jira tickets (used for Schema Diff)
   static String DM_ISSUE_SUMMARY_PREFIX = 'Schema Difference found after migration:'
   static String DM_JIRA_ISSUE_PRIORITY = 'P2'
