@@ -39,5 +39,7 @@ class KarateTestsParameters {
 
   boolean sendSlackNotification = false
 
+  boolean sendTeamsSlackNotification = true
+
   String timeout
 }

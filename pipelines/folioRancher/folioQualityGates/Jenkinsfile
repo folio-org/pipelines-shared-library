@@ -122,8 +122,10 @@ ansiColor('xterm') {
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
           karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'karate-quality-gate'
+          karateTestsParams.reportPortalProjectName = 'junit5-integration'
           karateTestsParams.sendSlackNotification = true
+          karateTestsParams.sendTeamsSlackNotification = true
+          karateTestsParams.syncWithJira = true
           karateTestsParams.timeout = '2'
           folioKarateFlow(karateTestsParams)
         }

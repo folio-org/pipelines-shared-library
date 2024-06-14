@@ -106,6 +106,23 @@ void call(KarateTestsParameters args) {
           , channel: "#rancher_tests_notifications")
       }
     }
+
+    if (args.sendTeamsSlackNotification) {
+      stage("Send slack notifications to teams") {
+        script {
+          folioSlackNotificationUtils.renderTeamsTestResultMessages(
+            TestType.KARATE
+            , karateTestsExecutionSummary
+            , args.teamAssignment
+            , ""
+            , true
+            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+            .each {
+              slackSend(attachments: it.value, channel: it.key.getSlackChannel())
+            }
+        }
+      }
+    }
   }
 }
 
