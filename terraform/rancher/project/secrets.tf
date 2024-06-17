@@ -53,7 +53,7 @@ resource "rancher2_secret" "eureka_common" {
   namespace_id = rancher2_namespace.this.name
   data = {
     EUREKA_RESOLVE_SIDECAR_IP   = base64encode("false")
-    FOLIO_CLIENT_READ_TIMEOUT   = "120s"
+    FOLIO_CLIENT_READ_TIMEOUT   = base64encode("120s")
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED      = base64encode("true")
