@@ -62,5 +62,7 @@ resource "rancher2_secret" "eureka_common" {
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
     SECRET_STORE_TYPE           = base64encode("AWS_SSM")
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
+    SECRET_STORE_AWS_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
+    SECRET_STORE_AWS_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
   }
 }

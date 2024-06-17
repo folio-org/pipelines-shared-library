@@ -1676,12 +1676,15 @@ mgr-tenant-entitlements:
     db:
       enabled: true
       existingSecret: db-credentials
-    okapi:
-      enabled: true
-      existingSecret: okapi-credentials
     eureka:
       enabled: true
       existingSecret: eureka-common
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
