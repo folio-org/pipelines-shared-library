@@ -53,6 +53,7 @@ resource "rancher2_secret" "eureka_common" {
   namespace_id = rancher2_namespace.this.name
   data = {
     EUREKA_RESOLVE_SIDECAR_IP   = base64encode("false")
+    FOLIO_CLIENT_READ_TIMEOUT   = "120s"
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED      = base64encode("true")
@@ -64,5 +65,8 @@ resource "rancher2_secret" "eureka_common" {
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
     SECRET_STORE_AWS_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
     SECRET_STORE_AWS_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
+    SECURITY_ENABLED            = base64encode("true")
+    tenant.url                  = base64encode("http://mgr-tenants")
+    TE_URL                      = base64encode("http://mgr-tenant-entitlements")
   }
 }
