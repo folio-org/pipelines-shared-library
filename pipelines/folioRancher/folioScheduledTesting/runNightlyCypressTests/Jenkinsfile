@@ -77,7 +77,7 @@ Map cypressFlowParameters = [
   numberOfWorkers       : '12',
   agent                 : 'cypress',
   runType               : 'night',
-  useReportPortal       : 'false'
+  useReportPortal       : 'true'
 ]
 
 /**
