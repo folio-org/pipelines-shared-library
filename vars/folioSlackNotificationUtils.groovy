@@ -17,7 +17,7 @@ String renderBuildResultSection() {
 
 String renderBuildResultSection(SlackBuildResultRenderer buildResult) {
   return buildResult.renderSection(
-    env.JOB_NAME
+    env.JOB_BASE_NAME
     , env.BUILD_NUMBER
     , STAGE_NAME
     , "${env.BUILD_URL}console"
@@ -37,6 +37,11 @@ String renderSuccessBuildResultMessage() {
 String renderFailedBuildResultMessage() {
   return SlackHelper
     .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.FAILURE)])
+}
+
+String renderAbortedBuildResultMessage() {
+  return SlackHelper
+    .renderMessage([renderBuildResultSection(SlackBuildResultRenderer.ABORTED)])
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')

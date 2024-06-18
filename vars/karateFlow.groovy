@@ -11,6 +11,7 @@ import java.time.Instant
 
 @Library('pipelines-shared-library') _
 
+@Deprecated
 def call(params) {
   def id
 
