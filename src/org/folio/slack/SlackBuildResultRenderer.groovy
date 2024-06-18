@@ -8,7 +8,7 @@ enum SlackBuildResultRenderer {
   , UNSTABLE("#E9D502", SlackBuildResultTemplates.UNSTABLE_TEXT)
   , FAILURE("#FF0000", SlackBuildResultTemplates.FAILED_TEXT)
   , NOT_BUILT("#FF0000", SlackBuildResultTemplates.FAILED_TEXT)
-  , ABORTED("#FF0000", SlackBuildResultTemplates.FAILED_TEXT)
+  , ABORTED("#808080", SlackBuildResultTemplates.ABORTED_TEXT)
 
   final String color
   final String textTemplate

@@ -69,6 +69,7 @@ void call(CreateNamespaceParameters args) {
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
     namespace.setEnableRwSplit(args.rwSplit)
+    namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     namespace.getModules().setInstallJson(installJson)
 
@@ -113,13 +114,16 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        sleep time: 5, unit: "MINUTES"
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
 
     stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES'
-      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      retry(2) {
+        sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
     }
 
     stage('[Rest] Configure edge') {
