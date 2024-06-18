@@ -17,25 +17,27 @@ resource "rancher2_secret" "keycloak-credentials" {
 }
 
 data "rancher2_secret" "keycloak_credentials" {
+  count        = (var.eureka ? 1 : 0)
   name         = "keycloak-credentials"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
-  depends_on   = [rancher2_secret.keycloak-credentials]
+  depends_on   = [helm_release.postgresql, rancher2_secret.keycloak-credentials]
 }
 
 locals {
-  kc_admin_user_name  = base64decode(lookup(data.rancher2_secret.keycloak_credentials.data, "KEYCLOAK_ADMIN_USER", "admin"))
+  kc_admin_user_name  = (var.eureka ? base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin")) : "")
   kc_target_http_port = "8080"
 }
 
 resource "helm_release" "keycloak" {
-  count      = (var.eureka ? 1 : 0)
-  chart      = "keycloak"
-  depends_on = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
-  name       = "keycloak-${var.rancher_project_name}"
-  namespace  = rancher2_namespace.this.id
-  version    = "21.0.4"
-  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  count        = (var.eureka ? 1 : 0)
+  chart        = "keycloak"
+  depends_on   = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
+  name         = "keycloak-${var.rancher_project_name}"
+  namespace    = rancher2_namespace.this.id
+  version      = "21.0.4"
+  force_update = false
+  repository   = "https://repository.folio.org/repository/helm-bitnami-proxy"
   values = [
     <<-EOF
 image:
@@ -197,6 +199,11 @@ ingress:
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /health/ready
     alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
+
+lifecycleHooks:
+  postStart:
+    exec:
+      command: ["/bin/sh", "-c", "sleep 120 && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
 EOF
   ]
 }
