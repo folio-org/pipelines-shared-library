@@ -33,7 +33,7 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 Map envsMap = [
   karate : [cluster: 'folio-testing', namespace: 'cikarate'],
-  cypress: [cluster: 'folio-perf', namespace: 'cicypress'],
+  cypress: [cluster: 'folio-testing', namespace: 'cicypress'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
