@@ -128,7 +128,8 @@ ansiColor('xterm') {
             "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
             "ecs-snapshot", "${params.NAMESPACE}")
           sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
-          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", namespace.getNamespaceName())
+          kubectl.patchSecret("db-credentials", "DB_MAXPOOLSIZE", "50", namespace.getNamespaceName())
         }
       }
 
