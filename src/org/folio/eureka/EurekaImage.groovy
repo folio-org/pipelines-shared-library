@@ -63,10 +63,9 @@ class EurekaImage implements Serializable {
     }
   }
 
-  String imageTag() {
-    context.sh(script: "ls -la" ,returnStdOut: true)
-    context.input("Paused for review...")
-    def tag = context.(((new FileNameFinder().getFileNames(".", "target/" + moduleName + "*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", ""))
+  final String imageTag() {
+    context.sh(script: "ls -la", returnStdOut: true)
+    def tag = context.(((new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", ""))
     return tag
   }
 
