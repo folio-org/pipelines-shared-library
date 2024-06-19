@@ -59,6 +59,7 @@ class EurekaImage implements Serializable {
     def tag
     try {
       tag = steps.script((((new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")).split("-").find { it.contains(["."]) })
+      tag += '-SNAPSHOT'
     } catch (Error e) {
       logger.error(e.getMessage())
       tag = 'unknown'
