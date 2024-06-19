@@ -57,12 +57,12 @@ class EurekaImage implements Serializable {
 
   def imageTag() {
     context.sh(script: "ls -la", returnStdOut: true)
-    def fileNames = new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar")
+    def fileNames = context.(new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))
     if (fileNames.size() > 0) {
       def jarFileName = fileNames[0]
-      def jarName = jarFileName.split("/").find { it.endsWith(".jar") }
+      def jarName = context.(jarFileName.split("/").find { it.endsWith(".jar") })
       if (jarName != null) {
-        def tag = jarName.replace(".jar", "")
+        def tag = context.(jarName.replace(".jar", ""))
         logger.info("Module name: $tag")
         return tag
       } else {
@@ -77,16 +77,16 @@ class EurekaImage implements Serializable {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        build(imageTag().toString(), "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        build(imageTag(), "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       case 'folio-keycloak':
         prepare()
-        build(imageTag().toString(), "-f ./Dockerfile .")
+        build(imageTag(), "-f ./Dockerfile .")
         break
       default:
         prepare()
         compile()
-        build(imageTag().toString(), "-f ./Dockerfile .")
+        build(imageTag(), "-f ./Dockerfile .")
         break
     }
   }
