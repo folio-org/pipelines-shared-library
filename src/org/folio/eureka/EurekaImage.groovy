@@ -63,13 +63,13 @@ class EurekaImage implements Serializable {
       def jarName = jarFileName.split("/").find { it.endsWith(".jar") }
       if (jarName != null) {
         def tag = jarName.replace(".jar", "")
-        println "Module name: $tag"
+        logger.info("Module name: $tag")
         return tag
       } else {
-        println "No .jar file found in the path target"
+        logger.warning("No .jar file found in the path target")
       }
     } else {
-      println "No files found matching the pattern *.jar"
+      logger.error("No files found matching the pattern *.jar")
     }
   }
 
