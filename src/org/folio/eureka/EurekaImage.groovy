@@ -17,9 +17,9 @@ class EurekaImage implements Serializable {
     try {
       logger.info("Starting checkout for ${moduleName}...")
       steps.checkout([$class           : 'GitSCM',
-                        branches         : [[name: '*/master']],
-                        extensions       : [],
-                        userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
+                      branches         : [[name: '*/master']],
+                      extensions       : [],
+                      userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
       logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Error e) {
       logger.error("Checkout failed: ${e.getMessage()}")
@@ -58,7 +58,7 @@ class EurekaImage implements Serializable {
   def imageTag() {
     def tag
     try {
-      tag = steps.sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdout: true)
+      tag = steps.script((((new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")).split("-").find { it.contains(["."]) })
     } catch (Error e) {
       logger.error(e.getMessage())
       tag = 'unknown'
