@@ -42,6 +42,7 @@ class EurekaImage implements Serializable {
   def build(String tag, String ARGS) {
     try {
       logger.info("Starting Docker build for ${moduleName} image...")
+      steps.common.checkEcrRepoExistence(moduleName)
       steps.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
         "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
         def image = steps.docker.build(moduleName, ARGS)
