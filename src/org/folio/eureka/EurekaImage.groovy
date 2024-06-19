@@ -21,8 +21,8 @@ class EurekaImage implements Serializable {
                         extensions       : [],
                         userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
       logger.info("Checkout completed successfully for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Checkout failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Checkout failed: ${e.getMessage()}")
     }
   }
 
@@ -34,8 +34,8 @@ class EurekaImage implements Serializable {
         steps.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Maven compile failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Maven compile failed: ${e.getMessage()}")
     }
   }
 
@@ -50,18 +50,17 @@ class EurekaImage implements Serializable {
       }
       steps.common.removeImage(moduleName)
       logger.info("Docker image removed for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Docker build failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Docker build failed: ${e.getMessage()}")
     }
   }
 
   def imageTag() {
-    steps.sh("ls -la")
     def tag
     try {
-      tag = steps.sh("find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
-    } catch (Exception e) {
-      logger.warning(e.getMessage())
+      tag = steps.sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
+    } catch (Error e) {
+      logger.error(e.getMessage())
       tag = 'unknown'
     }
     return tag
