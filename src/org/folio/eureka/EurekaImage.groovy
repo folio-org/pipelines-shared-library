@@ -61,7 +61,7 @@ class EurekaImage implements Serializable {
     context.sh("ls -la")
     def tag
     try {
-      tag = steps.sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
+      tag = sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
     } catch (Exception e) {
       logger.warning(e.getMessage())
       tag = 'unknown'
