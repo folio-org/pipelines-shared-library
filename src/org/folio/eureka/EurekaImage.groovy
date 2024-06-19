@@ -73,16 +73,16 @@ class EurekaImage implements Serializable {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        build(imageTag(), "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       case 'folio-keycloak':
         prepare()
-        build(imageTag(), "-f ./Dockerfile .")
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
       default:
         prepare()
         compile()
-        build(imageTag(), "-f ./Dockerfile .")
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
     }
   }
