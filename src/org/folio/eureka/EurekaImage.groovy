@@ -1,6 +1,5 @@
 package org.folio.eureka
 
-import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
 import org.folio.utilities.Logger
 
@@ -56,11 +55,14 @@ class EurekaImage implements Serializable {
     }
   }
 
-  @NonCPS
   def imageTag() {
-    sh(script: "ls -la", returnStdOut: true)
-    def tag = ((new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))[0].split("/").find{it.endsWith(".jar")}).replace(".jar", "")
-    return tag
+    context.sh("ls -la")
+    try {
+      def tag = context.sh("find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'")
+      return tag
+    } catch (Exception e) {
+      logger.warning(e.getMessage())
+    }
   }
 
   def makeImage() {
