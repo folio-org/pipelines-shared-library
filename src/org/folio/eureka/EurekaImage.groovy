@@ -4,21 +4,19 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 
 class EurekaImage implements Serializable {
-  private Object context
-  private Object steps
+  public Object steps
   String moduleName
   Logger logger
 
-  EurekaImage(context) {
-    this.context = context
+  EurekaImage(Object context) {
+    this.steps = context
     this.logger = new Logger(context, 'EurekaImage')
-    this.steps = steps
   }
 
   def prepare() {
     try {
       logger.info("Starting checkout for ${moduleName}...")
-      context.checkout([$class           : 'GitSCM',
+      steps.checkout([$class           : 'GitSCM',
                         branches         : [[name: '*/master']],
                         extensions       : [],
                         userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
@@ -31,9 +29,9 @@ class EurekaImage implements Serializable {
   def compile() {
     try {
       logger.info("Starting Maven compile for ${moduleName}...")
-      context.withMaven(jdk: "openjdk-17-jenkins-slave-all",
+      steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
-        context.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
+        steps.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Exception e) {
@@ -44,13 +42,13 @@ class EurekaImage implements Serializable {
   def build(String tag, String ARGS) {
     try {
       logger.info("Starting Docker build for ${moduleName} image...")
-      context.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
+      steps.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
         "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        def image = context.docker.build(moduleName, ARGS)
+        def image = steps.docker.build(moduleName, ARGS)
         image.push(tag)
         logger.info("Docker image pushed successfully for ${moduleName}")
       }
-      context.common.removeImage(moduleName)
+      steps.common.removeImage(moduleName)
       logger.info("Docker image removed for ${moduleName}")
     } catch (Exception e) {
       logger.warning("Docker build failed: ${e.getMessage()}")
@@ -58,10 +56,10 @@ class EurekaImage implements Serializable {
   }
 
   def imageTag() {
-    context.sh("ls -la")
+    steps.sh("ls -la")
     def tag
     try {
-      tag = sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
+      tag = steps.sh("find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
     } catch (Exception e) {
       logger.warning(e.getMessage())
       tag = 'unknown'
