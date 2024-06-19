@@ -64,7 +64,7 @@ class EurekaImage implements Serializable {
   }
 
   def imageTag() {
-    def tag = ((new FileNameFinder().getFileNames(".", "target/" + moduleName + "*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")
+    def tag = context.(((new FileNameFinder().getFileNames(".", "target/" + moduleName + "*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", ""))
     return tag
   }
 
