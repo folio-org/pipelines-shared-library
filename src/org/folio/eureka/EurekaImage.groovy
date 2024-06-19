@@ -10,7 +10,6 @@ class EurekaImage implements Serializable {
 
   EurekaImage(context) {
     this.context = context
-    this.moduleName = moduleName
     this.logger = new Logger(context, 'EurekaImage')
   }
 
@@ -65,7 +64,7 @@ class EurekaImage implements Serializable {
   }
 
   static def imageTag() {
-    def tag = ((new FileNameFinder().getFileNames(".", "target/" + "${context.moduleName}" + "*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")
+    def tag = ((new FileNameFinder().getFileNames(".", "target/" + EurekaImage.getModuleName() + "*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")
     return tag
   }
 
