@@ -5,12 +5,14 @@ import org.folio.utilities.Logger
 
 class EurekaImage implements Serializable {
   private Object context
+  private Object steps
   String moduleName
   Logger logger
 
   EurekaImage(context) {
     this.context = context
     this.logger = new Logger(context, 'EurekaImage')
+    this.steps = steps
   }
 
   def prepare() {
@@ -59,7 +61,7 @@ class EurekaImage implements Serializable {
     context.sh("ls -la")
     def tag
     try {
-      tag = context.sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
+      tag = steps.sh(script: "find target -name *.jar | cut -d \"/\" -f 2 | sed 's/....\$//'", returnStdOut: true)
     } catch (Exception e) {
       logger.warning(e.getMessage())
       tag = 'unknown'
