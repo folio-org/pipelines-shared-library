@@ -17,9 +17,9 @@ class EurekaImage implements Serializable {
     try {
       logger.info("Starting checkout for ${moduleName}...")
       context.checkout([
-        $class: 'GitSCM',
-        branches: [[name: '*/master']],
-        extensions: [],
+        $class           : 'GitSCM',
+        branches         : [[name: '*/master']],
+        extensions       : [],
         userRemoteConfigs: [[
                               url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"
                             ]]
@@ -45,7 +45,7 @@ class EurekaImage implements Serializable {
     }
   }
 
-  def build(String ARGS) {
+  def build(String tag, String ARGS) {
     try {
       logger.info("Starting Docker build for ${moduleName} image...")
       context.docker.withRegistry(
@@ -53,7 +53,7 @@ class EurekaImage implements Serializable {
         "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
       ) {
         def image = context.docker.build(moduleName, ARGS)
-        image.push()
+        image.push(tag)
         logger.info("Docker image pushed successfully for ${moduleName}")
       }
       context.common.removeImage(moduleName)
@@ -63,20 +63,25 @@ class EurekaImage implements Serializable {
     }
   }
 
+  static def imageTag() {
+    def tag = ((new FileNameFinder().getFileNames(".", "target/${moduleName}*.jar"))[0].split("/").find { it.endsWith(".jar") }).replace(".jar", "")
+    return tag
+  }
+
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        build("--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        build(imageTag(), "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       case 'folio-keycloak':
         prepare()
-        build("-f ./Dockerfile .")
+        build(imageTag(), "-f ./Dockerfile .")
         break
       default:
         prepare()
         compile()
-        build("-f ./Dockerfile .")
+        build(imageTag(), "-f ./Dockerfile .")
         break
     }
   }
