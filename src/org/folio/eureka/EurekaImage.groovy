@@ -56,14 +56,24 @@ class EurekaImage implements Serializable {
   }
 
   def imageTag() {
-    def tag
+    def tag = 'unknown'
     try {
-      tag = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true)
-      logger.info(tag)
-      steps.input("Paused for review...")
-    } catch (Error e) {
+      def tmp = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+      if (tmp) {
+        steps.script {
+          def parts = tmp.split("-")
+          def foundTag = parts.find { it.contains(".") }
+          if (foundTag) {
+            tag = foundTag.toString() + '-SNAPSHOT'
+          } else {
+            tag = 'unknown'
+          }
+        }
+      } else {
+        logger.warning('No JAR file found or empty result from script.')
+      }
+    } catch (Exception e) {
       logger.error(e.getMessage())
-      tag = 'unknown'
     }
     return tag
   }
