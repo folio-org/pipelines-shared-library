@@ -6,6 +6,7 @@ import org.folio.utilities.Logger
 class EurekaImage implements Serializable {
   public Object steps
   String moduleName
+  String branch = 'master'
   Logger logger
 
   EurekaImage(Object context) {
@@ -17,7 +18,7 @@ class EurekaImage implements Serializable {
     try {
       logger.info("Starting checkout for ${moduleName}...")
       steps.checkout([$class           : 'GitSCM',
-                      branches         : [[name: '*/master']],
+                      branches         : [[name: "*/${branch}"]],
                       extensions       : [],
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
       logger.info("Checkout completed successfully for ${moduleName}")
@@ -31,7 +32,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting Maven compile for ${moduleName}...")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
-        steps.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
+        steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Error e) {
