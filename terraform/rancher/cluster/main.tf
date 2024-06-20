@@ -33,9 +33,3 @@ resource "rancher2_cluster_sync" "this" {
     delete = "60m"
   }
 }
-
-#Waiting for the cluster to be synced with Rancher.
-resource "time_sleep" "wait_300_seconds" {
-  depends_on      = [rancher2_cluster_sync.this]
-  create_duration = "300s"
-}

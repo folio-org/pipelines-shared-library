@@ -1,10 +1,9 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
-  depends_on                = [time_sleep.wait_300_seconds]
   count                     = var.register_in_rancher ? 1 : 0
   provider                  = rancher2
   name                      = "logging"
-  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
+  cluster_id                = rancher2_cluster_sync.this[0].id
   enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "1024Mi"
