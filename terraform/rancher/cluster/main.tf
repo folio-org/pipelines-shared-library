@@ -27,6 +27,11 @@ resource "rancher2_cluster" "this" {
 resource "rancher2_cluster_sync" "this" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster.this[0].id
+  timeouts {
+    create = "60m"
+    update = "60m"
+    delete = "60m"
+  }
 }
 
 #Waiting for the cluster to be synced with Rancher.
