@@ -82,7 +82,7 @@ class EurekaImage implements Serializable {
   }
 
   void publishMD() {
-    if (moduleName ==~ 'mod-') {
+    if (moduleName ==~ 'mod-*') {
       try {
         steps.script {
           def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
