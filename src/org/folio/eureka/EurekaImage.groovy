@@ -80,6 +80,18 @@ class EurekaImage implements Serializable {
     return tag
   }
 
+  void publishMD() {
+    if (moduleName =~ /mod-*/) {
+      try {
+        def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+        steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${name}.json --upload-file target/ModuleDescriptor.json", returnStdout: true)
+        logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${name}.json")
+      } catch (Exception e) {
+        logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
+      }
+    }
+  }
+
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
@@ -90,6 +102,7 @@ class EurekaImage implements Serializable {
       default:
         prepare()
         compile()
+        publishMD()
         build(imageTag() as String, "-f ./Dockerfile .")
         break
     }
