@@ -84,11 +84,9 @@ class EurekaImage implements Serializable {
   void publishMD() {
     if (moduleName ==~ 'mod-*') {
       try {
-        steps.script {
-          def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-          sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${name}.json --upload-file target/ModuleDescriptor.json", returnStdout: true)
-          logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${name}.json")
-        }
+        def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+        steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${name}.json --upload-file target/ModuleDescriptor.json", returnStdout: true)
+        logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${name}.json")
       } catch (Exception e) {
         logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
       }
