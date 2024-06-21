@@ -881,9 +881,9 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 427Mi
+      memory: 1400Mi
     requests:
-      memory: 341Mi
+      memory: 1000Mi
 mod-gobi:
   extraEnvVars: []
   integrations: {}
