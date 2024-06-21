@@ -46,3 +46,27 @@ resource "random_password" "system_user_password" {
   min_numeric = 1
   min_upper   = 1
 }
+
+resource "rancher2_secret" "eureka_common" {
+  name         = "eureka-common"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.name
+  data = {
+    EUREKA_RESOLVE_SIDECAR_IP       = base64encode("false")
+    FOLIO_CLIENT_READ_TIMEOUT       = base64encode("120s")
+    KC_IMPORT_ENABLED               = base64encode("true")
+    KC_URL                          = base64encode("https://${local.keycloak_url}")
+    KC_INTEGRATION_ENABLED          = base64encode("true")
+    KONG_ADMIN_URL                  = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
+    KONG_INTEGRATION_ENABLED        = base64encode("true")
+    OKAPI_INTEGRATION_ENABLED       = base64encode(var.okapi_integration_enabled)
+    SECRET_STORE_AWS_SSM_REGION     = base64encode(var.aws_region)
+    SECRET_STORE_TYPE               = base64encode("AWS_SSM")
+    SECRET_STORE_AWS_SSM_REGION     = base64encode(var.aws_region)
+    SECRET_STORE_AWS_SSM_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
+    SECRET_STORE_AWS_SSM_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
+    SECURITY_ENABLED                = base64encode("true")
+    tenant.url                      = base64encode("http://mgr-tenants")
+    TE_URL                          = base64encode("http://mgr-tenant-entitlements")
+  }
+}

@@ -43,8 +43,8 @@ resource "helm_release" "keycloak" {
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: folio-keycloak
-  tag: latest
-  pullPolicy: Always
+  tag: ${var.keycloak_image}
+  pullPolicy: IfNotPresent
   debug: false
 
 auth:

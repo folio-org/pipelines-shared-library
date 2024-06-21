@@ -54,7 +54,7 @@ ui:
 
 resource "kubernetes_service" "vault-svc" {
   metadata {
-    name = "vault-${var.rancher_project_name}-np"
+    name      = "vault-${var.rancher_project_name}-np"
     namespace = rancher2_namespace.this.id
   }
   spec {
