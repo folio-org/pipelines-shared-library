@@ -233,11 +233,11 @@ variable "eureka" {
 
 variable "kong_image" {
   type        = string
-  default     = "kong"
+  default     = "latest"
   description = "Kong image from param choice"
 }
 variable "keycloak_image" {
   type        = string
-  default     = "keycloak"
+  default     = "latest"
   description = "Keycloak image from param choice"
 }
