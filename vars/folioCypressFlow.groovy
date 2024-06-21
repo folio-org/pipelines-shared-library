@@ -86,6 +86,10 @@ void call(params) {
             int workersLimit
             int batchSize
             switch (agent) {
+              case 'cypress-ci':
+                workersLimit = 4
+                batchSize = 4
+                break
               case 'cypress-static':
                 workersLimit = 6
                 batchSize = 6
