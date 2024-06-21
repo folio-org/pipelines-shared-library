@@ -236,9 +236,3 @@ variable "kong_image" {
   default     = "kong"
   description = "Kong image from param choice"
 }
-
-variable "okapi_integration_enabled" {
-  type        = bool
-  default     = false
-  description = "Eureka Okapi integration"
-}
