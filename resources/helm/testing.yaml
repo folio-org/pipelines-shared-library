@@ -877,18 +877,18 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 2800Mi
     requests:
-      memory: 341Mi
+      memory: 2000Mi
 mod-gobi:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1400Mi
+      memory: 1024Mi
     requests:
-      memory: 1000Mi
+      memory: 824Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}
