@@ -2,7 +2,6 @@ package org.folio.eureka
 
 import org.folio.Constants
 import org.folio.utilities.Logger
-import org.folio.utilities.RestClient
 
 class EurekaImage implements Serializable {
   public Object steps
