@@ -886,9 +886,9 @@ mod-gobi:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1400Mi
     requests:
-      memory: 824Mi
+      memory: 1000Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}

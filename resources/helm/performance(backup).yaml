@@ -638,9 +638,9 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: '427Mi'
+      memory: '2800Mi'
     requests:
-      memory: '341Mi'
+      memory: '2000Mi'
 mod-gobi:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
