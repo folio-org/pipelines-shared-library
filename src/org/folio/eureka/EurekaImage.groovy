@@ -2,12 +2,14 @@ package org.folio.eureka
 
 import org.folio.Constants
 import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
 
 class EurekaImage implements Serializable {
   public Object steps
   String moduleName
   String branch = 'master'
   Logger logger
+  RestClient client
 
   EurekaImage(Object context) {
     this.steps = context
@@ -80,6 +82,20 @@ class EurekaImage implements Serializable {
     return tag
   }
 
+  void publishMD() {
+    if (moduleName ==~ 'mod-') {
+      try {
+        steps.script {
+          def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+          def json = new File('target/ModuleDescriptor.json').text
+          client.upload("${Constants.EUREKA_REGISTRY_URL}${name}.json", json as File)
+        }
+      } catch (Exception e) {
+        logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
+      }
+    }
+  }
+
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
@@ -90,6 +106,7 @@ class EurekaImage implements Serializable {
       default:
         prepare()
         compile()
+        publishMD()
         build(imageTag() as String, "-f ./Dockerfile .")
         break
     }
