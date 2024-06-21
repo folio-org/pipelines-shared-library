@@ -9,7 +9,6 @@ class EurekaImage implements Serializable {
   String moduleName
   String branch = 'master'
   Logger logger
-  RestClient client
 
   EurekaImage(Object context) {
     this.steps = context
@@ -87,8 +86,8 @@ class EurekaImage implements Serializable {
       try {
         steps.script {
           def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-          def json = new File('target/ModuleDescriptor.json').text
-          client.upload("${Constants.EUREKA_REGISTRY_URL}${name}.json", json as File)
+          sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${name}.json --upload-file target/ModuleDescriptor.json", returnStdout: true)
+          logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${name}.json")
         }
       } catch (Exception e) {
         logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
