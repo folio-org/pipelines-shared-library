@@ -236,3 +236,8 @@ variable "kong_image" {
   default     = "kong"
   description = "Kong image from param choice"
 }
+variable "keycloak_image" {
+  type        = string
+  default     = "keycloak"
+  description = "Keycloak image from param choice"
+}
