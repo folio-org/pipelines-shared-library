@@ -4,80 +4,93 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 
 class EurekaImage implements Serializable {
-  private Object context
-  String branch = 'master'
+  public Object steps
   String moduleName
+  String branch = 'master'
   Logger logger
 
-  EurekaImage(context) {
-    this.context = context
+  EurekaImage(Object context) {
+    this.steps = context
     this.logger = new Logger(context, 'EurekaImage')
   }
 
   def prepare() {
     try {
       logger.info("Starting checkout for ${moduleName}...")
-      context.checkout([
-        $class: 'GitSCM',
-        branches: [[name: "*/${branch}"]],
-        extensions: [],
-        userRemoteConfigs: [[
-                              url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"
-                            ]]
-      ])
+      steps.checkout([$class           : 'GitSCM',
+                      branches         : [[name: "*/${branch}"]],
+                      extensions       : [],
+                      userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
       logger.info("Checkout completed successfully for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Checkout failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Checkout failed: ${e.getMessage()}")
     }
   }
 
   def compile() {
     try {
       logger.info("Starting Maven compile for ${moduleName}...")
-      context.withMaven(
-        jdk: "openjdk-17-jenkins-slave-all",
-        maven: Constants.MAVEN_TOOL_NAME
-      ) {
-        context.sh(script: "mvn clean install -DskipTests", returnStdOut: true)
+      steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
+        maven: Constants.MAVEN_TOOL_NAME) {
+        steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Maven compile failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Maven compile failed: ${e.getMessage()}")
     }
   }
 
-  def build(String ARGS) {
+  def build(String tag, String ARGS) {
     try {
       logger.info("Starting Docker build for ${moduleName} image...")
-      context.docker.withRegistry(
-        "https://${Constants.ECR_FOLIO_REPOSITORY}",
-        "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
-      ) {
-        def image = context.docker.build(moduleName, ARGS)
-        image.push()
+      steps.common.checkEcrRepoExistence(moduleName)
+      steps.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
+        "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+        def image = steps.docker.build(moduleName, ARGS)
+        image.push(tag)
         logger.info("Docker image pushed successfully for ${moduleName}")
       }
-      context.common.removeImage(moduleName)
+      steps.common.removeImage(moduleName)
       logger.info("Docker image removed for ${moduleName}")
-    } catch (Exception e) {
-      logger.warning("Docker build failed: ${e.getMessage()}")
+    } catch (Error e) {
+      logger.error("Docker build failed: ${e.getMessage()}")
     }
+  }
+
+  def imageTag() {
+    def tag = 'unknown'
+    try {
+      def tmp = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+      if (tmp) {
+        steps.script {
+          def parts = tmp.split("-")
+          def foundTag = parts.find { it.contains(".") }
+          if (foundTag) {
+            tag = foundTag.toString() + '-SNAPSHOT'
+          } else {
+            tag = 'unknown'
+          }
+        }
+      } else {
+        logger.warning('No JAR file found or empty result from script.')
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage())
+    }
+    return tag
   }
 
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        build("--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
-        break
-      case 'folio-keycloak':
-        prepare()
-        build("-f ./Dockerfile .")
+        compile()
+        build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       default:
         prepare()
         compile()
-        build("-f ./Dockerfile .")
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
     }
   }

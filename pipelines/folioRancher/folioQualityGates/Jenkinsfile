@@ -112,7 +112,7 @@ ansiColor('xterm') {
             numberOfWorkers       : '4',
             useReportPortal       : 'true',
             runType               : 'ci',
-            agent                 : 'cypress']
+            agent                 : 'cypress-ci']
           folioCypressFlow(cypressParams)
         }
         branches['Karate'] = { ->
