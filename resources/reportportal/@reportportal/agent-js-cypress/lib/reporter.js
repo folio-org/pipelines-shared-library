@@ -74,10 +74,9 @@ class Reporter {
   }
 
   runEnd() {
-    const basePromise =
-      !this.config.reporterOptions.launchId
-        ? this.client.getPromiseFinishAllItems(this.tempLaunchId)
-        : this.client.finishLaunch(
+    const basePromise = this.config.reporterOptions.launchId
+      ? this.client.getPromiseFinishAllItems(this.tempLaunchId)
+      : this.client.finishLaunch(
           this.tempLaunchId,
           Object.assign(
             {
@@ -85,10 +84,10 @@ class Reporter {
             },
             this.launchStatus && { status: this.launchStatus },
           ),
-        );
+        ).promise;
 
     const finishLaunchPromise = basePromise
-      .promise.then(() => {
+      .then(() => {
         const { launch, isLaunchMergeRequired } = this.config.reporterOptions;
         if (isLaunchMergeRequired) {
           deleteMergeLaunchLockFile(launch, this.tempLaunchId);
