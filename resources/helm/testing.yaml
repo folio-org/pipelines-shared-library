@@ -1767,9 +1767,6 @@ ui-bundle:
     requests:
       memory: 256Mi
 mod-consortia-keycloak:
-  extraEnvVars:
-  - name: SECRET_STORE_TYPE
-    value: "AWS_SSM"
   integrations:
     db:
       enabled: true
@@ -1790,9 +1787,6 @@ mod-consortia-keycloak:
     requests:
       memory: 256Mi
 mod-login-keycloak:
-  extraEnvVars:
-    - name: SECRET_STORE_TYPE
-      value: "AWS_SSM"
   integrations:
     db:
       enabled: true
@@ -1813,8 +1807,6 @@ mod-roles-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_CLIENT_ID
       value: "folio-backend-admin-client"
-    - name: SECRET_STORE_TYPE
-      value: "AWS_SSM"
   integrations:
     db:
       enabled: true
@@ -1835,8 +1827,6 @@ mod-users-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_CLIENT_ID
       value: "folio-backend-admin-client"
-    - name: SECRET_STORE_TYPE
-      value: "AWS_SSM"
   integrations:
     db:
       enabled: true
