@@ -6,8 +6,11 @@ import java.time.LocalDateTime
 
 void deployEureka(String namespace) {
   folioHelm.addHelmRepository(Constants.BITNAMI_HELM_PROXY_REPO_NAME, Constants.BITNAMI_HELM_PROXY_REPO_URL, false)
-  folioHelm.upgrade("keycloak", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "keycloak")
-  folioHelm.upgrade("kong", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "kong")
+  folioHelm.upgrade("mod-login-keycloak", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-keycloak")
+  folioHelm.upgrade("mod-login-roles", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-roles")
+  folioHelm.upgrade("mod-login-users", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-users")
+  folioHelm.upgrade("mod-login-consortia", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-consortia")
+  folioHelm.upgrade("mod-scheduler", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-scheduler")
 }
 
 void deployGreenmail(String namespace) {
