@@ -103,6 +103,8 @@ class ReportPortalClient {
 
       writeFile encoding: 'utf-8', file: credFilePath,
         text: (new StreamingTemplateEngine().createTemplate(credFileSource).make(data)).toString()
+    } else if(testType == ReportPortalTestType.CYPRESS){
+      pipeline.env.CI_API_KEY = apiKey
     }
   }
 }
