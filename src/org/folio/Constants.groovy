@@ -122,6 +122,10 @@ class Constants {
   static String FOLIO_HELM_V2_TEST_REPO_NAME = "folio-helm-v2-test"
   static String FOLIO_HELM_V2_TEST_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2-test/'
 
+  // Bitnami Helm Proxy Repository
+  static String BITNAMI_HELM_PROXY_REPO_NAME = "helm-bitnami-proxy"
+  static String BITNAMI_HELM_PROXY_REPO_URL  = "https://repository.folio.org/repository/helm-bitnami-proxy/"
+
   // Docker
   static String DOCKERHUB_URL = 'https://hub.docker.com/v2'
   static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = 'folio-docker-dev'

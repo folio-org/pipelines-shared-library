@@ -4,6 +4,12 @@ import org.folio.models.RancherNamespace
 
 import java.time.LocalDateTime
 
+void deployEureka(String namespace) {
+  folioHelm.addHelmRepository(Constants.BITNAMI_HELM_PROXY_REPO_NAME, Constants.BITNAMI_HELM_PROXY_REPO_URL, false)
+  folioHelm.upgrade("keycloak", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "keycloak")
+  folioHelm.upgrade("kong", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "kong")
+}
+
 void deployGreenmail(String namespace) {
   addHelmRepository(Constants.FOLIO_HELM_HOSTED_REPO_NAME, Constants.FOLIO_HELM_HOSTED_REPO_URL, false)
   upgrade("greenmail", namespace, '', Constants.FOLIO_HELM_HOSTED_REPO_NAME, "greenmail")

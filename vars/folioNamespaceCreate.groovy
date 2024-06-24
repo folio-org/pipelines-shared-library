@@ -36,6 +36,14 @@ void call(CreateNamespaceParameters args) {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
     }
 
+    if (args.eureka) {
+      stage('[Helm] Deploy Eureka') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployEureka(namespace.getNamespaceName())
+        }
+      }
+    }
+
 //    if (args.greenmail) {
 //      stage('[Helm] Deploy greenmail') {
 //        folioHelm.withKubeConfig(namespace.getClusterName()) {
