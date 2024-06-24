@@ -241,3 +241,9 @@ variable "keycloak_image" {
   default     = "latest"
   description = "Keycloak image from param choice"
 }
+
+variable "okapi_integration_enabled" {
+  type = bool
+  default = true
+  description = "okapi integration Eureka"
+}
