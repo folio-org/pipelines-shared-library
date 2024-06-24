@@ -45,8 +45,6 @@ class RancherNamespace {
 
   boolean enableRtr = false
 
-  boolean enableEureka = false
-
   RancherNamespace(String clusterName, String namespaceName) {
     this.clusterName = clusterName
     this.namespaceName = namespaceName
