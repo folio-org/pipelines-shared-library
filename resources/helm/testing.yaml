@@ -1846,3 +1846,31 @@ mod-users-keycloak:
       memory: 1Gi
     requests:
       memory: 256Mi
+mod-scheduler:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: "be-admin-client"
+    - name: KC_IMPERSONATION_CLIENT
+      value: "impersonation-client"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi

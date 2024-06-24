@@ -23,7 +23,8 @@ locals {
     "mod-dcb",
     "mod-lists",
     "mod-consortia-keycloak",
-    "mod-users-keycloak"
+    "mod-users-keycloak",
+    "mod-scheduler"
   ]
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists", "mod-bulk-operations", "mod-oai-pmh"]
   s3_buckets_map = { for module in local.s3_integrated_modules :
