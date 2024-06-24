@@ -1766,3 +1766,93 @@ ui-bundle:
       memory: 512Mi
     requests:
       memory: 256Mi
+mod-consortia-keycloak:
+  extraEnvVars:
+  - name: SECRET_STORE_TYPE
+    value: "AWS_SSM"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-login-keycloak:
+  extraEnvVars:
+    - name: SECRET_STORE_TYPE
+      value: "AWS_SSM"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-roles-keycloak:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: "folio-backend-admin-client"
+    - name: SECRET_STORE_TYPE
+      value: "AWS_SSM"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-users-keycloak:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: "folio-backend-admin-client"
+    - name: SECRET_STORE_TYPE
+      value: "AWS_SSM"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi

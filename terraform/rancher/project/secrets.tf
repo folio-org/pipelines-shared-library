@@ -57,6 +57,8 @@ resource "rancher2_secret" "eureka_common" {
     KC_IMPORT_ENABLED               = base64encode("true")
     KC_URL                          = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED          = base64encode("true")
+    KC_ADMIN_USER                   = base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin"))
+    KC_ADMIN_PASSWORD               = base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_PASSWORD", ""))
     KONG_ADMIN_URL                  = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
     KONG_INTEGRATION_ENABLED        = base64encode("true")
     OKAPI_INTEGRATION_ENABLED       = base64encode(var.okapi_integration_enabled)
