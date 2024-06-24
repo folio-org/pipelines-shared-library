@@ -119,8 +119,6 @@ void call(params) {
                     cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
                     compileTests(cypressImageVersion, "${batch[0]}")
-
-                    tuneWorkspaceForRP()
                   }
 
                   batch.eachWithIndex { copyBatch, copyBatchIndex ->
@@ -352,14 +350,3 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
     }
   }
 }
-
-//TODO: Temporary solution. Should be refactored via RANCHER-1528 and RANCHER-1529 tickets
-@Deprecated
-void tuneWorkspaceForRP(){
-  String cypressReporter = "@reportportal/agent-js-cypress/lib/cypressReporter.js"
-  String reporter = "@reportportal/agent-js-cypress/lib/reporter.js"
-
-  writeFile file: "./node_modules/${cypressReporter}", text: libraryResource("reportportal/${cypressReporter}")
-  writeFile file: "./node_modules/${reporter}", text: libraryResource("reportportal/${reporter}")
-}
-
