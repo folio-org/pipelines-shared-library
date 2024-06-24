@@ -357,11 +357,9 @@ void runInDocker(String cypressImageVersion, String containerNameSuffix, Closure
 @Deprecated
 void tuneWorkspaceForRP(){
   String cypressReporter = "@reportportal/agent-js-cypress/lib/cypressReporter.js"
-  String report_portal_client = "@reportportal/client-javascript/lib/report-portal-client.js"
-  String config = "@reportportal/client-javascript/lib/commons/config.js"
+  String reporter = "@reportportal/agent-js-cypress/lib/reporter.js"
 
   writeFile file: "./node_modules/${cypressReporter}", text: libraryResource("reportportal/${cypressReporter}")
-  writeFile file: "./node_modules/${report_portal_client}", text: libraryResource("reportportal/${report_portal_client}")
-  writeFile file: "./node_modules/${config}", text: libraryResource("reportportal/${config}")
+  writeFile file: "./node_modules/${reporter}", text: libraryResource("reportportal/${reporter}")
 }
 
