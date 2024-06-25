@@ -92,18 +92,47 @@ class EurekaImage implements Serializable {
     }
   }
 
+  def updatePL() {
+    try {
+      def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+      logger.info("Starting git clone for platform-complete...")
+      steps.script {
+        steps.withCredentials([steps.usernamePassword(credentialsId: 'id-jenkins-github-personal-token-with-username', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+          steps.sh(script: "git clone -b snapshot --single-branch https://github.com/folio-org/platform-complete.git", returnStdout: true)
+          steps.dir('platform-complete') {
+            def eureka_platform = steps.readJSON file: "eureka-platform.json"
+            eureka_platform.each {
+              if (it['id'] =~ /${moduleName}/) {
+                it['id'] = name as String
+              }
+            }
+            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0) //pretty doesn't work correctly...
+            steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") //beatify JSON
+            steps.sh(script: "git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
+            steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
+            logger.info("Snapshot branch successfully updated: new module version: ${name}")
+          }
+        }
+      }
+    } catch (Error e) {
+      logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
+    }
+  }
+
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
         compile()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        updatePL()
         break
       default:
         prepare()
         compile()
         publishMD()
         build(imageTag() as String, "-f ./Dockerfile .")
+        updatePL()
         break
     }
   }
