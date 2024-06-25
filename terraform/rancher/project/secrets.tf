@@ -57,8 +57,13 @@ resource "rancher2_secret" "eureka_common" {
     KC_IMPORT_ENABLED               = base64encode("true")
     KC_URL                          = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED          = base64encode("true")
-    KC_ADMIN_USER                   = base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin"))
+    KC_ADMIN_USERNAME               = base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin"))
     KC_ADMIN_PASSWORD               = base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_PASSWORD", ""))
+    KC_CLIENT_TLS_ENABLED           = base64encode("false")
+    KC_CLIENT_ID_TTL                = base64encode("3600s")
+    KC_CONFIG_TTL                   = base64encode("3600s")
+    KC_ADMIN_TOKEN_TTL              = base64encode("60s")
+    KC_USER_ID_CACHE_TTL            = base64encode("10s")
     KONG_ADMIN_URL                  = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
     KONG_INTEGRATION_ENABLED        = base64encode("true")
     OKAPI_INTEGRATION_ENABLED       = base64encode(var.okapi_integration_enabled)
@@ -70,5 +75,6 @@ resource "rancher2_secret" "eureka_common" {
     SECURITY_ENABLED                = base64encode("true")
     tenant.url                      = base64encode("http://mgr-tenants")
     TE_URL                          = base64encode("http://mgr-tenant-entitlements")
+    KAFKA_SECURITY_PROTOCOL         = base64encode("PLAINTEXT")
   }
 }
