@@ -1,6 +1,5 @@
 package org.folio.eureka
 
-import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 
