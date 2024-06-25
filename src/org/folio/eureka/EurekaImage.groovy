@@ -106,7 +106,7 @@ class EurekaImage implements Serializable {
           def eureka_platform = steps.readJSON file: "eureka-platform.json"
           eureka_platform.each {
             if (it['id'] =~ /${moduleName}/) {
-              it['id'] = "${name}"
+              it['id'] = name as String
             }
           }
           steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 2)
