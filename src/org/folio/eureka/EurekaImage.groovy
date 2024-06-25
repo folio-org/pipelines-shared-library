@@ -110,7 +110,7 @@ class EurekaImage implements Serializable {
               it['id'] = "${name}"
             }
           }
-          steps.writeJSON(file: "eureka-platform.json", json: new JsonOutput().toJson("${eureka_platform}"), pretty: 2)
+          steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 2)
           steps.sh(script: "git commit -m '[PL] eureka-platform update' && git push", returnStdout: true)
         }
       }
