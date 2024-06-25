@@ -95,22 +95,24 @@ class EurekaImage implements Serializable {
 
   def updatePL() {
     try {
+      def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
       logger.info("Starting git clone for platform-complete...")
-      steps.checkout([$class           : 'GitSCM',
-                      branches         : [[name: '*/snapshot']],
-                      extensions       : [],
-                      userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
-      steps.script {
-        def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-        steps.input("Paused for review...")
-        def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
-        eureka_platform.each {
-          if (it['id'] =~ /${moduleName}/) {
-            it['id'] = "${name}"
+      steps.dir('platform-complete') {
+        steps.script {
+          steps.checkout([$class           : 'GitSCM',
+                          branches         : [[name: '*/snapshot']],
+                          extensions       : [],
+                          userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+          steps.input("Paused for dirs review...")
+          def eureka_platform = steps.readJSON file: "eureka-platform.json"
+          eureka_platform.each {
+            if (it['id'] =~ /${moduleName}/) {
+              it['id'] = "${name}"
+            }
           }
+          steps.writeJSON(file: "eureka-platform.json", json: new JsonOutput().toJson("${eureka_platform}"), pretty: 2)
+          steps.sh(script: "git commit -m '[PL] eureka-platform update' && git push", returnStdout: true)
         }
-        steps.writeJSON(file: "platform-complete/eureka-platform.json", json: new JsonOutput().toJson("${eureka_platform}"), pretty: 2)
-        steps.sh(script: "cd platform-complete && git commit -am '[PL] eureka-platform update' && git push", returnStdout: true)
       }
     } catch (Error e) {
       logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
