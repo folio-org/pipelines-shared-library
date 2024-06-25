@@ -110,9 +110,7 @@ class EurekaImage implements Serializable {
             }
           }
           steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 2)
-          steps.sh(script: "git branch", returnStdout: true)
-          steps.input("Paused for branch review...")
-          steps.sh(script: "git commit -am '[PL] eureka-platform update' && git push", returnStdout: true)
+          steps.sh(script: "git checkout snapshot && git commit -am '[PL] eureka-platform updated: ${name}' && git push origin", returnStdout: true)
         }
       }
     } catch (Error e) {
