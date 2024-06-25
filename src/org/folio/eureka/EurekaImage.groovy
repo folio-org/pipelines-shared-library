@@ -102,6 +102,7 @@ class EurekaImage implements Serializable {
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
       steps.script {
         def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+        input("Paused for review...")
         def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
         eureka_platform.each {
           if (it['id'] =~ /${moduleName}/) {
