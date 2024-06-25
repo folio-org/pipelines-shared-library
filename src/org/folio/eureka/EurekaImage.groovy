@@ -99,7 +99,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting git clone for platform-complete...")
       steps.script {
         steps.withCredentials([steps.usernamePassword(credentialsId: 'id-jenkins-github-personal-token-with-username', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-          steps.sh(script: "git clone https://github.com/folio-org/platform-complete.git", returnStdout: true)
+          steps.sh(script: "git clone -b snapshot --single-branch https://github.com/folio-org/platform-complete.git", returnStdout: true)
           def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
           eureka_platform.each {
             if (it['id'] =~ /${moduleName}/) {
@@ -107,7 +107,7 @@ class EurekaImage implements Serializable {
             }
           }
           steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
-          steps.sh(script: "cd platform-complete && git checkout snapshot && git commit -am '[PL] eureka-platform updated: ${name}' && git branch", returnStdout: true)
+          steps.sh(script: "cd platform-complete && git commit -am '[PL] eureka-platform updated: ${name}' && git branch", returnStdout: true)
           steps.input("Paused for branch review...")
           steps.sh(script: "git push https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git", returnStdout: true)
         }
