@@ -100,15 +100,18 @@ class EurekaImage implements Serializable {
       steps.script {
         steps.withCredentials([steps.usernamePassword(credentialsId: 'id-jenkins-github-personal-token-with-username', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
           steps.sh(script: "git clone -b snapshot --single-branch https://github.com/folio-org/platform-complete.git", returnStdout: true)
-          def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
-          eureka_platform.each {
-            if (it['id'] =~ /${moduleName}/) {
-              it['id'] = name as String
+          steps.dir('platform-complete') {
+            def eureka_platform = steps.readJSON file: "eureka-platform.json"
+            eureka_platform.each {
+              if (it['id'] =~ /${moduleName}/) {
+                it['id'] = name as String
+              }
             }
+            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform)
+            steps.sh(script: "git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
+            steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
+            logger.info("Snapshot branch successfully updated: new module version: ${name}")
           }
-          steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform)
-          steps.sh(script: "cd platform-complete && git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
-          steps.sh(script: "cd platform-complete && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
         }
       }
     } catch (Error e) {
