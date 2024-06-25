@@ -96,8 +96,8 @@ class EurekaImage implements Serializable {
     try {
       logger.info("Starting git clone for platform-complete...")
       steps.script {
-        withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-          withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+        steps.withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
+          steps.withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
             steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
           }
           logger.info("Checkout completed successfully for platform-complete:snapshot")
@@ -109,7 +109,7 @@ class EurekaImage implements Serializable {
             }
           }
           steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
-          withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+          steps.withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
             steps.sh(script: "cd platform-complete && git commit -am 'eureka-platform update' && git push", returnStdout: true)
           }
         }
