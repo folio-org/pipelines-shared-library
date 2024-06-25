@@ -107,7 +107,7 @@ class EurekaImage implements Serializable {
             }
           }
           steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
-          steps.sh(script: "cd platform-complete && git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
+          steps.sh(script: "cd platform-complete && git checkout snapshot && git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
           steps.sh(script: "git push https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot", returnStdout: true)
         }
       }
