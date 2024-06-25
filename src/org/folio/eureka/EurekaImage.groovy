@@ -91,32 +91,32 @@ class EurekaImage implements Serializable {
       }
     }
   }
-//TODO active testing is a must for below new method!
+
   def updatePL() {
-      try {
-        logger.info("Starting git clone for platform-complete...")
-        steps.script {
-          withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-            withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
-              steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
-            }
-            logger.info("Checkout completed successfully for platform-complete:snapshot")
-            def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-            def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
-            eureka_platform.each {
-              if (it['id'] =~ /${moduleName}/) {
-                it['id'] = "${name}"
-              }
-            }
-            steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
-            withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
-              steps.sh(script: "cd platform-complete && git commit -am 'eureka-platform update' && git push", returnStdout: true)
+    try {
+      logger.info("Starting git clone for platform-complete...")
+      steps.script {
+        withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
+          withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+            steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
+          }
+          logger.info("Checkout completed successfully for platform-complete:snapshot")
+          def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+          def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
+          eureka_platform.each {
+            if (it['id'] =~ /${moduleName}/) {
+              it['id'] = "${name}"
             }
           }
+          steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
+          withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+            steps.sh(script: "cd platform-complete && git commit -am 'eureka-platform update' && git push", returnStdout: true)
+          }
         }
-      } catch (Error e) {
-        logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
       }
+    } catch (Error e) {
+      logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
+    }
   }
 
   def makeImage() {
