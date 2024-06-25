@@ -103,7 +103,6 @@ class EurekaImage implements Serializable {
                           branches         : [[name: '*/snapshot']],
                           extensions       : [],
                           userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
-          steps.input("Paused for dirs review...")
           def eureka_platform = steps.readJSON file: "eureka-platform.json"
           eureka_platform.each {
             if (it['id'] =~ /${moduleName}/) {
@@ -111,6 +110,8 @@ class EurekaImage implements Serializable {
             }
           }
           steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 2)
+          steps.sh(script: "git branch", returnStdout: true)
+          steps.input("Paused for branch review...")
           steps.sh(script: "git commit -m '[PL] eureka-platform update' && git push", returnStdout: true)
         }
       }
