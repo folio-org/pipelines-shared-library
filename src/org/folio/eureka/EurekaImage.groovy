@@ -1,5 +1,6 @@
 package org.folio.eureka
 
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 
@@ -95,21 +96,22 @@ class EurekaImage implements Serializable {
   def updatePL() {
     try {
       logger.info("Starting git clone for platform-complete...")
+      steps.checkout([$class           : 'GitSCM',
+                      branches         : [[name: '*/snapshot']],
+                      extensions       : [],
+                      userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
       steps.script {
-        steps.withCredentials([[$class: 'SSHUserPrivateKeyBinding', credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY']]) {
-          String git_cmd = 'GIT_SSH_COMMAND=ssh -i $SSH_KEY'
-          steps.sh(script: "${git_cmd} git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
-          logger.info("Checkout completed successfully for platform-complete:snapshot")
-          def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-          def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
-          eureka_platform.each {
-            if (it['id'] =~ /${moduleName}/) {
-              it['id'] = "${name}"
-            }
+        steps.sh(script: "${git_cmd} git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
+        logger.info("Checkout completed successfully for platform-complete:snapshot")
+        def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+        def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
+        eureka_platform.each {
+          if (it['id'] =~ /${moduleName}/) {
+            it['id'] = "${name}"
           }
-          steps.writeJSON(file: "platform-complete/eureka-platform.json", json: eureka_platform, pretty: 2)
-          steps.sh(script: "cd platform-complete && ${git_cmd} git commit -am 'eureka-platform update' && ${git_cmd} git push", returnStdout: true)
         }
+        steps.writeJSON(file: "platform-complete/eureka-platform.json", json: new JsonOutput().toJson("${eureka_platform}"), pretty: 2)
+        steps.sh(script: "cd platform-complete && git commit -am '[PL] eureka-platform update' && git push", returnStdout: true)
       }
     } catch (Error e) {
       logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
