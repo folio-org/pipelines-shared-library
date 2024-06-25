@@ -106,7 +106,8 @@ class EurekaImage implements Serializable {
                 it['id'] = name as String
               }
             }
-            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
+            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0) //pretty doesn't work correctly...
+            steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") //beatify JSON
             steps.sh(script: "git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
             steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
             logger.info("Snapshot branch successfully updated: new module version: ${name}")
