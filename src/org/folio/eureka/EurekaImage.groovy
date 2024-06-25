@@ -91,6 +91,35 @@ class EurekaImage implements Serializable {
       }
     }
   }
+//TODO active testing is a must for below new method!
+  def updatePL() {
+    dir('platform-complete') {
+      try {
+        logger.info("Starting git clone for platform-complete...")
+        steps.script {
+          withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
+            withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+              steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
+            }
+            logger.info("Checkout completed successfully for platform-complete:snapshot")
+            def name = steps.sh(script: 'find ../target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
+            def eureka_platform = steps.readJSON file: "eureka-platform.json"
+            eureka_platform.each {
+              if (it['id'] =~ /${moduleName}/) {
+                it['id'] = "${name}"
+              }
+            }
+            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 2)
+            withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
+              steps.sh(script: "git commit -am 'eureka-platform update' && git push", returnStdout: true)
+            }
+          }
+        }
+      } catch (Error e) {
+        logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
+      }
+    }
+  }
 
   def makeImage() {
     switch (moduleName) {
@@ -98,12 +127,14 @@ class EurekaImage implements Serializable {
         prepare()
         compile()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        updatePL()
         break
       default:
         prepare()
         compile()
         publishMD()
         build(imageTag() as String, "-f ./Dockerfile .")
+        updatePL()
         break
     }
   }
