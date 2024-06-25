@@ -96,10 +96,9 @@ class EurekaImage implements Serializable {
     try {
       logger.info("Starting git clone for platform-complete...")
       steps.script {
-        steps.withCredentials([sshUserPrivateKey(credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
-          steps.withEnv(["GIT_SSH_COMMAND=ssh -i $SSH_KEY -o StrictHostKeyChecking=no"]) {
-            steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
-          }
+        steps.sshagent([Constants.GITHUB_SSH_CREDENTIALS_ID]) {
+          steps.sh(script: "git clone ${Constants.FOLIO_SSH_GITHUB_URL}/platform-complete.git -b snapshot --single-branch", returnStdout: false)
+
           logger.info("Checkout completed successfully for platform-complete:snapshot")
           def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
           def eureka_platform = steps.readJSON file: "platform-complete/eureka-platform.json"
