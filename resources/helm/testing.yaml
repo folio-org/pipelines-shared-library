@@ -638,7 +638,7 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: '2800i'
+      memory: '2800Mi'
     requests:
       memory: '2000Mi'
 mod-gobi:
