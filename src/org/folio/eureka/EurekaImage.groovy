@@ -72,7 +72,7 @@ class EurekaImage implements Serializable {
           }
         }
       } else {
-        logger.warning('No JAR file found or empty result from script.')
+        logger.error('No JAR file found or empty result from script.')
       }
     } catch (Exception e) {
       logger.error(e.getMessage())
