@@ -73,7 +73,7 @@ class EurekaImage implements Serializable {
   }
 
   void publishMD() {
-    if (moduleName = ~/^mod-.*$/) {
+    if (moduleName =~ /^mod-.*$/) {
       try {
         def pom = steps.readMavenPom file: 'pom.xml'
         if (pom) {
