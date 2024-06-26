@@ -65,10 +65,10 @@ class EurekaImage implements Serializable {
         steps.script {
           def parts = tmp.split("-")
           def foundTag = parts.find { it.contains(".") }
-          if (foundTag) {
+          if (foundTag && branch == 'master') {
             tag = foundTag.toString() + '-SNAPSHOT'
           } else {
-            tag = 'unknown'
+            tag = foundTag.toString()
           }
         }
       } else {
