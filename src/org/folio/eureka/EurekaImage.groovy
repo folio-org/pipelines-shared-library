@@ -72,7 +72,7 @@ class EurekaImage implements Serializable {
           }
         }
       } else {
-        logger.error('No JAR file found or empty result from script.')
+        tag = 'latest'
       }
     } catch (Exception e) {
       logger.error(e.getMessage())
@@ -123,9 +123,11 @@ class EurekaImage implements Serializable {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        compile()
-        updatePL()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        break
+      case 'folio-keycloak':
+        prepare()
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
       default:
         prepare()
