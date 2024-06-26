@@ -63,11 +63,10 @@ class EurekaImage implements Serializable {
       def pom = steps.readMavenPom file: 'pom.xml'
       if (pom) {
         tag = "${pom.getVersion()}"
-      } else {
-        tag = 'latest'
       }
     } catch (Exception e) {
-      logger.error(e.getMessage())
+      tag = 'latest'
+      logger.warning("Tag not found, falling back to tag=latest.\nError: " + e.getMessage())
     }
     return tag
   }
