@@ -95,7 +95,7 @@ class EurekaImage implements Serializable {
   def updatePL() {
     try {
       def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-      logger.info("Starting git clone for platform-complete...")
+      logger.info("Starting git clone for platform-complete.")
       steps.script {
         steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
           steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
@@ -108,9 +108,9 @@ class EurekaImage implements Serializable {
             }
             steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
             steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") //beatify JSON
-            steps.sh(script: "git commit -am '[PL] eureka-platform updated: ${name}'")
+            steps.sh(script: "git commit -am '[EPL] updated: ${name}'")
             steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
-            logger.info("Snapshot branch successfully updated: new module version: ${name}")
+            logger.info("Snapshot branch successfully updated\n${moduleName} version: ${name}")
           }
         }
       }
