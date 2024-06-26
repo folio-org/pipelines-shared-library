@@ -16,7 +16,7 @@ class EurekaImage implements Serializable {
 
   def prepare() {
     try {
-      logger.info("Starting checkout for ${moduleName}...")
+      logger.info("Starting checkout for ${moduleName}.")
       steps.checkout([$class           : 'GitSCM',
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
@@ -29,7 +29,7 @@ class EurekaImage implements Serializable {
 
   def compile() {
     try {
-      logger.info("Starting Maven compile for ${moduleName}...")
+      logger.info("Starting Maven compile for ${moduleName}.")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
         steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
@@ -42,7 +42,7 @@ class EurekaImage implements Serializable {
 
   def build(String tag, String ARGS) {
     try {
-      logger.info("Starting Docker build for ${moduleName} image...")
+      logger.info("Starting Docker build for ${moduleName} image.")
       steps.common.checkEcrRepoExistence(moduleName)
       steps.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
         "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
