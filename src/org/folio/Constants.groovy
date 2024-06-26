@@ -274,4 +274,11 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
+
+  static List EUREKA_MODULES_WITH_SIDECAR = [
+    'mod-scheduler',
+    'mod-roles-keycloak',
+    'mod-users-keycloak',
+    'mod-login-keycloak'
+  ]
 }

@@ -189,7 +189,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   // Switch on Eureka related configuration in Helm Charts for Modules
-  if (ns.enableEureka) {
+  if (ns.enableEureka && moduleName in Constants.EUREKA_MODULES_WITH_SIDECAR) {
     moduleConfig << [ eureka : [enabled: true] ]
   }
 
