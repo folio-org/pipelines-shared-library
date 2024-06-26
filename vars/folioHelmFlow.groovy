@@ -5,12 +5,7 @@ import org.folio.models.RancherNamespace
 import java.time.LocalDateTime
 
 void deployEureka(String namespace) {
-  folioHelm.addHelmRepository(Constants.BITNAMI_HELM_PROXY_REPO_NAME, Constants.BITNAMI_HELM_PROXY_REPO_URL, false)
-  folioHelm.upgrade("mod-login-keycloak", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-keycloak")
-  folioHelm.upgrade("mod-login-roles", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-roles")
-  folioHelm.upgrade("mod-login-users", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-users")
-  folioHelm.upgrade("mod-login-consortia", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-login-consortia")
-  folioHelm.upgrade("mod-scheduler", namespace, '', Constants.BITNAMI_HELM_PROXY_REPO_URL, "mod-scheduler")
+//  TODO: add Eureka specific deployment steps here, will be given a bit later
 }
 
 void deployGreenmail(String namespace) {
