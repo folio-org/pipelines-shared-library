@@ -16,7 +16,7 @@ class EurekaImage implements Serializable {
 
   def prepare() {
     try {
-      logger.info("Starting checkout for ${moduleName}...")
+      logger.info("Starting checkout for ${moduleName}.")
       steps.checkout([$class           : 'GitSCM',
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
@@ -29,7 +29,7 @@ class EurekaImage implements Serializable {
 
   def compile() {
     try {
-      logger.info("Starting Maven compile for ${moduleName}...")
+      logger.info("Starting Maven compile for ${moduleName}.")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
         steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
@@ -42,7 +42,7 @@ class EurekaImage implements Serializable {
 
   def build(String tag, String ARGS) {
     try {
-      logger.info("Starting Docker build for ${moduleName} image...")
+      logger.info("Starting Docker build for ${moduleName} image.")
       steps.common.checkEcrRepoExistence(moduleName)
       steps.docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
         "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
@@ -65,14 +65,14 @@ class EurekaImage implements Serializable {
         steps.script {
           def parts = tmp.split("-")
           def foundTag = parts.find { it.contains(".") }
-          if (foundTag) {
+          if (foundTag && branch == 'master') {
             tag = foundTag.toString() + '-SNAPSHOT'
           } else {
-            tag = 'unknown'
+            tag = foundTag.toString()
           }
         }
       } else {
-        logger.warning('No JAR file found or empty result from script.')
+        logger.error('No JAR file found or empty result from script.')
       }
     } catch (Exception e) {
       logger.error(e.getMessage())
@@ -95,10 +95,10 @@ class EurekaImage implements Serializable {
   def updatePL() {
     try {
       def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-      logger.info("Starting git clone for platform-complete...")
+      logger.info("Starting git clone for platform-complete.")
       steps.script {
-        steps.withCredentials([steps.usernamePassword(credentialsId: 'id-jenkins-github-personal-token-with-username', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-          steps.sh(script: "git clone -b snapshot --single-branch https://github.com/folio-org/platform-complete.git", returnStdout: true)
+        steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+          steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
           steps.dir('platform-complete') {
             def eureka_platform = steps.readJSON file: "eureka-platform.json"
             eureka_platform.each {
@@ -106,11 +106,11 @@ class EurekaImage implements Serializable {
                 it['id'] = name as String
               }
             }
-            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0) //pretty doesn't work correctly...
+            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
             steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") //beatify JSON
-            steps.sh(script: "git commit -am '[PL] eureka-platform updated: ${name}'", returnStdout: true)
+            steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${name}'")
             steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
-            logger.info("Snapshot branch successfully updated: new module version: ${name}")
+            logger.info("Snapshot branch successfully updated\n${moduleName} version: ${name}")
           }
         }
       }
@@ -124,15 +124,15 @@ class EurekaImage implements Serializable {
       case 'folio-kong':
         prepare()
         compile()
-        build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         updatePL()
+        build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       default:
         prepare()
         compile()
         publishMD()
-        build(imageTag() as String, "-f ./Dockerfile .")
         updatePL()
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
     }
   }
