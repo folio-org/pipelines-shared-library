@@ -1,5 +1,5 @@
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@move-jira') _
 
 import org.folio.client.jira.model.*
 import org.folio.client.jira.JiraClient
