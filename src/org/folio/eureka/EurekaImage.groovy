@@ -1,5 +1,6 @@
 package org.folio.eureka
 
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.Logger
 
@@ -94,17 +95,23 @@ class EurekaImage implements Serializable {
           steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
             steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
             steps.dir('platform-complete') {
-              def eureka_platform = steps.readJSON file: "eureka-platform.json"
-              eureka_platform.each {
-                if (it['id'] =~ /${moduleName}/) {
-                  it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+              def eureka_platform = steps.readFile file: "eureka-platform.json"
+              def check = new JsonSlurperClassic().parseText("${eureka_platform}")
+              def module = "${pom.getArtifactId()}-${pom.getVersion()}"
+              if (module.toString() in check['id']) {
+                logger.warning("${pom.getArtifactId()}-${pom.getVersion()} already exists!\nPlease update pom.xml to build a new image.")
+              } else {
+                check.each {
+                  if (it['id'] =~ /${moduleName}/) {
+                    it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+                  }
                 }
+                steps.writeJSON(file: "eureka-platform.json", json: check, pretty: 0)
+                steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
+                steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
+                steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
+                logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
               }
-              steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
-              steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") // beatify JSON
-              steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
-              steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
-              logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
             }
           }
         }
