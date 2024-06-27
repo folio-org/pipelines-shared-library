@@ -104,8 +104,8 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy Eureka') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getKeycloakModules())
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getKeycloakModules(), true)
 
 //        sleep time: 5, unit: "MINUTES"
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())

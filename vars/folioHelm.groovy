@@ -174,18 +174,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     }
   }
 
-  switch (moduleName) {
-    case ~/mgr-.*$/:
-      repository = Constants.ECR_FOLIO_REPOSITORY
-      break
-    case ~/mod-.*-keycloak-.*$/:
-      repository = Constants.ECR_FOLIO_REPOSITORY
-      break
-    case ~/mod-scheduler.*$/:
-      repository = Constants.ECR_FOLIO_REPOSITORY
-      break
-  }
-
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
