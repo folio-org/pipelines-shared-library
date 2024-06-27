@@ -101,6 +101,11 @@ class EurekaImage implements Serializable {
               if (module.toString() in check['id']) {
                 logger.warning("${pom.getArtifactId()}-${pom.getVersion()} already exists!\nPlease update pom.xml to build a new image.")
               } else {
+                check.each {
+                  if (it['id'] =~ /${moduleName}/) {
+                    it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+                  }
+                }
                 steps.writeJSON(file: "eureka-platform.json", json: check, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
                 steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
