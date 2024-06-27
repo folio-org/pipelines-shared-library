@@ -190,7 +190,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  if (moduleName =~ /mod-/ && ns.enableEureka) {
+  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
     moduleConfig <<
       [
         [eureka: [enabled         : true,
