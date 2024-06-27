@@ -175,13 +175,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   switch (moduleName) {
-    case ~/^mgr-.*$/:
+    case ~/mgr-.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
-    case ~/^mod-.*-keycloak.*$/:
+    case ~/mod-.*-keycloak-.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
-    case ~/^mod-scheduler.*$/:
+    case ~/mod-scheduler.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
   }
@@ -201,6 +201,16 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
+    moduleConfig <<
+      [
+        eureka: [enabled: true],
+        eureka: [sidecarContainer: [image: true]],
+        eureka: [sidecarContainer: [tag: '1.0.0-SNAPSHOT']],
+      ]
+  }
+
+
   //Enable RTR functionality
   if (ns.enableRtr) {
     moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']

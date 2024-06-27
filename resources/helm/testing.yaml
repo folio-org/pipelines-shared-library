@@ -1723,56 +1723,6 @@ mgr-tenant-entitlements:
       memory: 1Gi
     requests:
       memory: 256Mi
-okapi:
-  ingress:
-    enabled: true
-    annotations:
-      alb.ingress.kubernetes.io/healthcheck-path: /_/version
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/success-codes: 200-403
-      kubernetes.io/ingress.class: alb
-    hosts:
-      - paths:
-          - path: /*
-            pathType: ImplementationSpecific
-            servicePort: 9130
-  service:
-    type: NodePort
-  replicaCount: 1
-  resources:
-    limits:
-      memory: 1664Mi
-    requests:
-      memory: 1024Mi
-  integrations:
-    db:
-      enabled: true
-      existingSecret: db-credentials
-ui-bundle:
-  ingress:
-    enabled: true
-    annotations:
-      alb.ingress.kubernetes.io/healthcheck-path: /
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/success-codes: 200-399
-      kubernetes.io/ingress.class: alb
-    hosts:
-      - paths:
-          - path: /*
-            pathType: ImplementationSpecific
-            servicePort: 80
-  service:
-    type: NodePort
-  replicaCount: 1
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      memory: 256Mi
-#Eureka BE modules config
 mod-consortia-keycloak:
   extraEnvVars:
     - name: OKAPI_URL
@@ -1943,5 +1893,54 @@ mod-scheduler:
   resources:
     limits:
       memory: 1Gi
+    requests:
+      memory: 256Mi
+okapi:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /_/version
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-403
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 9130
+  service:
+    type: NodePort
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1664Mi
+    requests:
+      memory: 1024Mi
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+ui-bundle:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 80
+  service:
+    type: NodePort
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
     requests:
       memory: 256Mi
