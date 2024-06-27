@@ -178,16 +178,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     case ~/^mgr-.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
-    case ~/^mod-*-keycloak.*$/:
+    case ~/^mod-.*-keycloak.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
     case ~/^mod-scheduler.*$/:
       repository = Constants.ECR_FOLIO_REPOSITORY
       break
-  }
-
-  if (moduleName =~ /^mgr-.*$/) {
-    repository = Constants.ECR_FOLIO_REPOSITORY
   }
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
