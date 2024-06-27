@@ -106,6 +106,8 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getKeycloakModules(), true)
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+
 
 //        sleep time: 5, unit: "MINUTES"
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
