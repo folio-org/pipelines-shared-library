@@ -95,7 +95,8 @@ class EurekaImage implements Serializable {
             steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
             steps.dir('platform-complete') {
               def eureka_platform = steps.readJSON file: "eureka-platform.json"
-              if (!("${pom.getArtifactId()}-${pom.getVersion()}" in eureka_platform.values())) {
+              logger.warning(eureka_platform.getClass())
+              steps.input("Paused for file download...")
                 eureka_platform.each {
                   if (it['id'] =~ /${moduleName}/) {
                     it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
@@ -106,9 +107,7 @@ class EurekaImage implements Serializable {
                 steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
                 steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
                 logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
-              } else {
-                logger.info("Version ${pom.getArtifactId()}-${pom.getVersion()} already exists.")
-              }
+
             }
           }
         }
