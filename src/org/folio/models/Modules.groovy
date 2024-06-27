@@ -33,6 +33,7 @@ class Modules {
   /** A map of all mgr modules. */
   Map mgrModules
 
+  /** A map of all custom BE keycloak modules. */
   Map keycloakModules
 
   /** A map of all edge modules. */
