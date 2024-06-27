@@ -21,7 +21,7 @@ resource "rancher2_secret" "db-credentials" {
     DB_PORT         = base64encode("5432")
     DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD     = base64encode(local.pg_password)
-    DB_DATABASE     = base64encode(var.pg_dbname)
+    DB_DATABASE     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
     DB_MAXPOOLSIZE  = base64encode("5")
     DB_CHARSET      = base64encode("UTF-8")
     DB_QUERYTIMEOUT = base64encode("60000")
@@ -38,6 +38,7 @@ locals {
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
+  pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
 }
 
 # PostgreSQL database deployment
@@ -75,7 +76,7 @@ resource "helm_release" "postgresql" {
     image:
       tag: ${join(".", [var.pg_version, "0"])}
     auth:
-      database: ${var.pg_dbname}
+      database: ${local.pg_eureka_db_name}
       postgresPassword: ${var.pg_password}
       replicationPassword: ${var.pg_password}
       replicationUsername: ${var.pg_username}
@@ -84,6 +85,7 @@ resource "helm_release" "postgresql" {
       initdb:
         scripts:
           init.sql: |
+            ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
             CREATE DATABASE ldp;
             CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
             CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
@@ -212,7 +214,7 @@ module "rds" {
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
   db_subnet_group_name            = "folio-rancher-vpc"
-  database_name                   = var.pg_dbname
+  database_name                   = local.pg_eureka_db_name
   master_username                 = var.pg_username
   master_password                 = local.pg_password
   manage_master_user_password     = false
@@ -247,43 +249,47 @@ resource "helm_release" "pgadmin" {
   name       = "pgadmin4"
   chart      = "pgadmin4"
   version    = "1.10.1"
-  values = [<<-EOF
-    resources:
-      requests:
-        memory: 256Mi
-      limits:
-        memory: 512Mi
-    env:
-      email: ${var.pgadmin_username}
-      password: ${var.pgadmin_password}
-    service:
-      type: NodePort
-    ingress:
-      hosts:
-        - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pgadmin"]), var.root_domain])}
-          paths:
-            - path: /*
-              pathType: ImplementationSpecific
-      enabled: true
-      annotations:
-        kubernetes.io/ingress.class: alb
-        alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/group.name: ${local.group_name}
-        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-        alb.ingress.kubernetes.io/success-codes: 200-399
-        alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
-        alb.ingress.kubernetes.io/healthcheck-port: '80'
-    serverDefinitions:
-      enabled: true
-      servers:
-        pg:
-          Name: ${var.rancher_project_name}
-          Group: Servers
-          Port: 5432
-          Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
-          Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
-          SSLMode: prefer
-          MaintenanceDB: ${var.pg_dbname}
+  values = [
+    <<-EOF
+resources:
+  requests:
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+env:
+  email: ${var.pgadmin_username}
+  password: ${var.pgadmin_password}
+  variables:
+    - name: PGPASSWORD
+      value: ${var.pg_password}
+service:
+  type: NodePort
+ingress:
+  hosts:
+    - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pgadmin"]), var.root_domain])}
+      paths:
+        - path: /*
+          pathType: ImplementationSpecific
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/group.name: ${local.group_name}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/healthcheck-path: /misc/ping
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+serverDefinitions:
+  enabled: true
+  servers:
+    pg:
+      Name: ${var.rancher_project_name}
+      Group: Servers
+      Port: 5432
+      Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
+      Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
+      SSLMode: prefer
+      MaintenanceDB: ${local.pg_eureka_db_name}
 EOF
   ]
 }

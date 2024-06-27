@@ -163,3 +163,6 @@ def adminUsername(String admin_username = defaultAdminUser().username) {
 def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
   return _paramPassword('ADMIN_PASSWORD', admin_password, description)
 }
+def eurekaModules() {
+  return _paramChoice('MODULE_NAME', Constants.EUREKA_MODULES, 'Eureka module name to build')
+}

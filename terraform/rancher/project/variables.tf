@@ -225,3 +225,25 @@ variable "pg_ldp_user_password" {
   type        = string
   description = "Postgresql password for ldp user"
 }
+variable "eureka" {
+  type        = bool
+  default     = false
+  description = "Eureka base env setup feature enable"
+}
+
+variable "kong_image" {
+  type        = string
+  default     = "latest"
+  description = "Kong image from param choice"
+}
+variable "keycloak_image" {
+  type        = string
+  default     = "latest"
+  description = "Keycloak image from param choice"
+}
+
+variable "okapi_integration_enabled" {
+  type = bool
+  default = true
+  description = "okapi integration Eureka"
+}

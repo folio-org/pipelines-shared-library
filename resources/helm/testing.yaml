@@ -1634,6 +1634,89 @@ mod-z3950:
       memory: 256Mi
   postJob:
     enabled: false
+mgr-applications:
+  extraEnvVars:
+    - name: MODULE_URL
+      value: "http://mgr-applications"
+    - name: ROUTER_PATH_PREFIX
+      value: "mgr-applications"
+  extraJavaOpts:
+    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mgr-tenants:
+  extraEnvVars:
+    - name: MODULE_URL
+      value: "http://mgr-tenants"
+    - name: ROUTER_PATH_PREFIX
+      value: "mgr-tenants"
+    - name: KC_LOGIN_CLIENT_SUFFIX
+      value: "-application"
+  extraJavaOpts:
+    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mgr-tenant-entitlements:
+  extraJavaOpts:
+    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  extraEnvVars:
+    - name: DB_EXPLAIN_QUERY_THRESHOLD
+      value: "300000"
+    - name: MODULE_URL
+      value: "http://mgr-tenant-entitlements"
+    - name: ROUTER_PATH_PREFIX
+      value: "mgr-tenant-entitlements"
+    - name: KC_LOGIN_CLIENT_SUFFIX
+      value: "-application"
+    - name: AM_CLIENT_URL
+      value: "http://mgr-applications/mgr-applications"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
 okapi:
   ingress:
     enabled: true
