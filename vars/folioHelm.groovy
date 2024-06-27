@@ -195,7 +195,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       [
         [eureka: [enabled         : true,
                   sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                     tag  : ns.getModules().allModules['folio-module-sidecar']['version']]]]
+                                     tag  : ns.getModules().allModules['folio-module-sidecar']]]]
       ]
   }
 
