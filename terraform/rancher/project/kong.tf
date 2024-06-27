@@ -43,8 +43,8 @@ resource "helm_release" "kong" {
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: folio-kong
-  tag: ${var.kong_image}
-  pullPolicy: IfNotPresent
+  tag: latest
+  pullPolicy: Always
 useDaemonset: false
 replicaCount: 1
 containerSecurityContext:

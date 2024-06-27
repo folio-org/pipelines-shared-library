@@ -52,6 +52,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     case ~/mod-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
       break
+    case ~/mgr-.*/:
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      break
     case ~/edge-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule)
       break
