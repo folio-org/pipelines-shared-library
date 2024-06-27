@@ -84,7 +84,7 @@ class Modules {
     }
 
     this.edgeModules = this.allModules.findAll { name, version -> name.startsWith(EDGE_PREFIX) }
-    this.backendModules = this.allModules.findAll { name, version -> name.startsWith(MOD_PREFIX) && name !~ /^mod-.*-keycloak.*$/}
+    this.backendModules = this.allModules.findAll { name, version -> name.startsWith(MOD_PREFIX) }
     this.mgrModules = this.allModules.findAll { name, version -> name.startsWith(MGR_PREFIX) }
     this.keycloakModules = this.allModules.findAll { name, version -> name =~ /^mod-.*-keycloak.*$/ }
     this.backendModules.collect { name, version ->
