@@ -95,15 +95,14 @@ class EurekaImage implements Serializable {
             steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
             steps.dir('platform-complete') {
               def eureka_platform = steps.readJSON file: "eureka-platform.json"
-              eureka_platform.each {
-                if (it['id'] =~ /${moduleName}/) {
-                  it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
-                }
-              }
               if (!("${pom.getArtifactId()}-${pom.getVersion()}" in eureka_platform.values())) {
+                eureka_platform.each {
+                  if (it['id'] =~ /${moduleName}/) {
+                    it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+                  }
+                }
                 steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
-                // beatify JSON
                 steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
                 steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
                 logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
