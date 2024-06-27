@@ -100,7 +100,7 @@ class EurekaImage implements Serializable {
                   it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
                 }
               }
-              if (!("${pom.getArtifactId()}-${pom.getVersion()}" in eureka_platform['id'])) {
+              if (!("${pom.getArtifactId()}-${pom.getVersion()}" in eureka_platform.values())) {
                 steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
                 // beatify JSON
