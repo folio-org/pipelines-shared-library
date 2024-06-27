@@ -193,7 +193,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig <<
       [
         eureka: [enabled: true],
-        eureka: [sidecarContainer: [image: true]],
+        eureka: [sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar"]],
         eureka: [sidecarContainer: [tag: '1.0.0-SNAPSHOT']],
       ]
   }
