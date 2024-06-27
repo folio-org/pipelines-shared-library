@@ -174,6 +174,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     }
   }
 
+  switch (moduleName) {
+    case ~ /^mgr-.*$/:
+    repository = Constants.ECR_FOLIO_REPOSITORY
+    break
+  }
+
   if (moduleName =~ /^mgr-.*$/) {
     repository = Constants.ECR_FOLIO_REPOSITORY
   }
