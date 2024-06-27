@@ -96,19 +96,6 @@ void call(CreateNamespaceParameters args) {
 //    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 //    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
-//    stage('[Helm] Deploy Okapi') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-////        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
-//      }
-//    }
-
-//    stage('[Rest] Okapi healthcheck') {
-//      sleep time: 3, unit: 'MINUTES'
-//      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-//      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-//    }
-
 //    stage('[Rest] Preinstall') {
 //      main.publishDescriptors(namespace.getModules().getInstallJson())
 //      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())

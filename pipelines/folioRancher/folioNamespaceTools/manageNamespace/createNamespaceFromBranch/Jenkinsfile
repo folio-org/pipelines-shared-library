@@ -74,11 +74,7 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      if (params.EUREKA) {
-        folioNamespaceCreateEureka(namespaceParams)
-      } else {
-        folioNamespaceCreate(namespaceParams)
-      }
+      folioNamespaceCreateEureka(namespaceParams)
 
     } catch (e) {
       println "Caught exception: ${e}"
