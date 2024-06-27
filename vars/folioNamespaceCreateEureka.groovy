@@ -105,7 +105,6 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy Eureka') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getKeycloakModules(), true)
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 
 
