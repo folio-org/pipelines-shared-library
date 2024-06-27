@@ -175,9 +175,15 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   switch (moduleName) {
-    case ~ /^mgr-.*$/:
-    repository = Constants.ECR_FOLIO_REPOSITORY
-    break
+    case ~/^mgr-.*$/:
+      repository = Constants.ECR_FOLIO_REPOSITORY
+      break
+    case ~/^mod-*-keycloak.*$/:
+      repository = Constants.ECR_FOLIO_REPOSITORY
+      break
+    case ~/^mod-scheduler.*$/:
+      repository = Constants.ECR_FOLIO_REPOSITORY
+      break
   }
 
   if (moduleName =~ /^mgr-.*$/) {
