@@ -146,44 +146,11 @@ networkPolicy:
 livenessProbe:
   enabled: false
 
-customLivenessProbe:
-  httpGet:
-    path: /health/live
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 0
-  periodSeconds: 1
-  timeoutSeconds: 5
-  failureThreshold: 3
-  successThreshold: 1
-
 readinessProbe:
   enabled: false
 
-customReadinessProbe:
-  httpGet:
-    path: /health/ready
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 0
-  periodSeconds: 10
-  timeoutSeconds: 30
-  failureThreshold: 3
-  successThreshold: 1
-
 startupProbe:
   enabled: false
-
-customStartupProbe:
-  httpGet:
-    path: /health/started
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 30
-  periodSeconds: 5
-  timeoutSeconds: 1
-  failureThreshold: 60
-  successThreshold: 1
 
 ingress:
   enabled: true

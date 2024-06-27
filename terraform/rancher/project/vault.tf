@@ -1,5 +1,5 @@
 resource "helm_release" "vault" {
-  count      = var.eureka ? 1 : 0
+  count      = 0
   chart      = "vault"
   name       = "vault-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
