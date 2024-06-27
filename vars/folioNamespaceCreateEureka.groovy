@@ -63,7 +63,6 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
-    installJson.addAll(eurekaPlatform)
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
     InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -75,8 +74,9 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().setInstallJson(installJson)
     namespace.getModules().removeModule('mod-login')
+    installJson.addAll(eurekaPlatform)
+    namespace.getModules().setInstallJson(installJson)
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
@@ -91,7 +91,6 @@ void call(CreateNamespaceParameters args) {
           tenant.withTenantUi(tenantUi.clone())
         }
         namespace.addTenant(tenant)
-        namespace.getModules().removeModule('mod-consortia')
       }
     }
 
