@@ -76,6 +76,7 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     namespace.getModules().setInstallJson(installJson)
+    namespace.getModules().removeModule('mod-login')
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
@@ -83,7 +84,6 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
-
 //    if (args.consortia) {
 //      namespace.setEnableConsortia(true, releaseVersion)
 //      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
