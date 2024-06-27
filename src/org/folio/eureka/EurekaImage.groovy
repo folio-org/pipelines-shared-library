@@ -97,12 +97,9 @@ class EurekaImage implements Serializable {
             steps.dir('platform-complete') {
               def eureka_platform = steps.readFile file: "eureka-platform.json"
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
-              if (!("${pom.getArtifactId()}-${pom.getVersion()}" in check['id'])) {
-                check.each {
-                  if (it['id'] =~ /${moduleName}/) {
-                    it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
-                  }
-                }
+              if ("${pom.getArtifactId()}-${pom.getVersion()}" in check['id']) {
+                logger.warning("${pom.getArtifactId()}-${pom.getVersion()} already exists!\nPlease update pom.xml to build a new image.")
+              } else {
                 steps.writeJSON(file: "eureka-platform.json", json: check, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
                 steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
