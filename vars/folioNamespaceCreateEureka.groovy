@@ -84,15 +84,16 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
-//    if (args.consortia) {
-//      namespace.setEnableConsortia(true, releaseVersion)
-//      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-//        if (tenant.getIsCentralConsortiaTenant()) {
-//          tenant.withTenantUi(tenantUi.clone())
-//        }
-//        namespace.addTenant(tenant)
-//      }
-//    }
+    if (args.consortia) {
+      namespace.setEnableConsortia(true, releaseVersion)
+      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+        if (tenant.getIsCentralConsortiaTenant()) {
+          tenant.withTenantUi(tenantUi.clone())
+        }
+        namespace.addTenant(tenant)
+        namespace.getModules().removeModule('mod-consortia')
+      }
+    }
 
 //    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 //    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
