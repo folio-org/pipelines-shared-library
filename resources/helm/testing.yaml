@@ -1772,3 +1772,176 @@ ui-bundle:
       memory: 512Mi
     requests:
       memory: 256Mi
+#Eureka BE modules config
+mod-consortia-keycloak:
+  extraEnvVars:
+    - name: OKAPI_URL
+      value: 'http://sidecar:8081'
+    - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
+      value: '5000'
+    - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
+      value: '5'
+    - name: MOD_USERS_ID
+      value: 'NONE'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-login-keycloak:
+  extraEnvVars:
+    - name: KC_LOGIN_CLIENT_SUFFIX
+      value: '-login-application'
+    - name: KC_ADMIN_TOKEN_TTL
+      value: '410s'
+    - name: X_OKAPI_TOKEN_HEADER_ENABLED
+      value: 'false'
+    - name: LOGIN_COOKIE_SAMESITE
+      value: 'NONE'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-roles-keycloak:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: 'folio-backend-admin-client'
+    - name: KC_GRANT_TYPE
+      value: 'client_credentials'
+    - name: KC_LOGIN_CLIENT_SUFFIX
+      value: '-login-application'
+    - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
+    - name: CAPABILITY_TOPIC_RETRY_DELAY
+      value: '1s'
+    - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
+      value: '9223372036854775807'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-users-keycloak:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: 'folio-backend-admin-client'
+    - name: KC_LOGIN_CLIENT_SUFFIX
+      value: '-login-application'
+    - name: KAFKA_SYS_USER_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
+      value: '1s'
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
+      value: '9223372036854775807'
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
+      value: '5s'
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
+      value: '60'
+    - name: MIGRATION_BATCH_SIZE
+      value: '20'
+    - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
+      value: 'true'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+mod-scheduler:
+  extraEnvVars:
+    - name: KC_ADMIN_CLIENT_ID
+      value: 'folio-backend-admin-client'
+    - name: KC_IMPERSONATION_CLIENT
+      value: 'impersonation-client'
+    - name: KAFKA_JOB_CONSUMER_PATTERN
+      value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
+    - name: KAFKA_JOB_CONCURRENCY
+      value: '1'
+    - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
+      value: '200'
+    - name: OKAPI_URL
+      value: 'http://sidecar:8081'
+    - name: QUARTZ_STARTUP_DELAY
+      value: '0s'
+    - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
+      value: '10000'
+    - name: QUARTZ_MISFIRE_THRESHOLD
+      value: '250'
+    - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
+      value: '500'
+    - name: QUARTZ_POOL_THREAD_COUNT
+      value: '5'
+    - name: SYSTEM_USER_USERNAME_TEMPLATE
+      value: '{tenantId}-system-user'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    eureka:
+      enabled: true
+      existingSecret: eureka-common
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
