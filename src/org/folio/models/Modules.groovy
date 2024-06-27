@@ -67,7 +67,6 @@ class Modules {
     this.allModules = [:]
     this.backendModules = [:]
     this.mgrModules = [:]
-    this.keycloakModules = [:]
     this.edgeModules = [:]
     this.discoveryList = []
 
