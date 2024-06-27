@@ -189,12 +189,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+
   if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
     moduleConfig <<
       [
         [eureka: [enabled         : true,
                   sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                     tag  : "latest"]]]
+                                     tag  : ns.getModules().allModules['folio-module-sidecar']['version']]]]
       ]
   }
 
