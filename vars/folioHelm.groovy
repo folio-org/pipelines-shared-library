@@ -190,10 +190,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
   if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
-    moduleConfig['eureka'] <<
-      [[enabled: true],
-       [sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar"]],
-       [tag: '1.0.0-SNAPSHOT']]
+    moduleConfig <<
+      [
+        [eureka: [enabled: true]]
+      ]
   }
 
   //Enable RTR functionality
