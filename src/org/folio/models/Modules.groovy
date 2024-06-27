@@ -33,9 +33,6 @@ class Modules {
   /** A map of all mgr modules. */
   Map mgrModules
 
-  /** A map of all custom BE keycloak modules. */
-  Map keycloakModules
-
   /** A map of all edge modules. */
   Map edgeModules
 
@@ -86,7 +83,6 @@ class Modules {
     this.edgeModules = this.allModules.findAll { name, version -> name.startsWith(EDGE_PREFIX) }
     this.backendModules = this.allModules.findAll { name, version -> name.startsWith(MOD_PREFIX) }
     this.mgrModules = this.allModules.findAll { name, version -> name.startsWith(MGR_PREFIX) }
-    this.keycloakModules = this.allModules.findAll { name, version -> name =~ /^mod-.*-keycloak.*$/ }
     this.backendModules.collect { name, version ->
       String id = "${name}-${version}"
       String url = "http://${name}"
