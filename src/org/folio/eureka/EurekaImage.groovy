@@ -97,7 +97,7 @@ class EurekaImage implements Serializable {
             steps.dir('platform-complete') {
               def eureka_platform = steps.readJSON file: "eureka-platform.json"
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
-              if (!( "${pom.getArtifactId()}-${pom.getVersion()}" in check['id'])) {
+              if (!("${pom.getArtifactId()}-${pom.getVersion()}" in check['id'])) {
                 check.each {
                   if (it['id'] =~ /${moduleName}/) {
                     it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
