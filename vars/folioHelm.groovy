@@ -165,10 +165,17 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
       default:
         repository = "folioci"
         break
     }
+  }
+
+  if (moduleName =~ /^mgr-.*$/) {
+    repository = Constants.ECR_FOLIO_REPOSITORY
   }
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
