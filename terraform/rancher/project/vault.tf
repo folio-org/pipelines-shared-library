@@ -53,6 +53,7 @@ ui:
 }
 
 resource "kubernetes_service" "vault-svc" {
+  count = 0
   metadata {
     name      = "vault-${var.rancher_project_name}-np"
     namespace = rancher2_namespace.this.id
@@ -73,6 +74,7 @@ resource "kubernetes_service" "vault-svc" {
 
 
 resource "kubernetes_ingress_v1" "vault-ingress-ui" {
+  count = 0
   metadata {
     name      = "vault-${var.rancher_project_name}-ui"
     namespace = var.rancher_project_name
