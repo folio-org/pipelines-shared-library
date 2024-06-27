@@ -233,6 +233,6 @@ variable "eureka" {
 
 variable "okapi_integration_enabled" {
   type = bool
-  default = true
+  default = false
   description = "okapi integration Eureka"
 }
