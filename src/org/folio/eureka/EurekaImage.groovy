@@ -23,7 +23,7 @@ class EurekaImage implements Serializable {
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
       logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Error e) {
-      logger.error("Checkout failed: ${e.getMessage()}")
+      logger.warning("Checkout failed: ${e.getMessage()}")
     }
   }
 
@@ -36,7 +36,7 @@ class EurekaImage implements Serializable {
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Error e) {
-      logger.error("Maven compile failed: ${e.getMessage()}")
+      logger.warning("Maven compile failed: ${e.getMessage()}")
     }
   }
 
@@ -53,7 +53,7 @@ class EurekaImage implements Serializable {
       steps.common.removeImage(moduleName)
       logger.info("Docker image removed for ${moduleName}")
     } catch (Error e) {
-      logger.error("Docker build failed: ${e.getMessage()}")
+      logger.warning("Docker build failed: ${e.getMessage()}")
     }
   }
 
@@ -80,7 +80,7 @@ class EurekaImage implements Serializable {
           logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${pom.getArtifactId()}-${pom.getVersion()}.json")
         }
       } catch (Exception e) {
-        logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
+        logger.warning("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
       }
     }
   }
@@ -110,7 +110,7 @@ class EurekaImage implements Serializable {
         }
       }
     } catch (Error e) {
-      logger.error("Update of PL in snapshot branch failed: ${e.getMessage()}")
+      logger.warning("Update of PL in snapshot branch failed: ${e.getMessage()}")
     }
   }
 
