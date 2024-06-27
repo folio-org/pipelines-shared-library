@@ -95,7 +95,7 @@ class EurekaImage implements Serializable {
           steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
             steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
             steps.dir('platform-complete') {
-              def eureka_platform = steps.readJSON file: "eureka-platform.json"
+              def eureka_platform = steps.readFile file: "eureka-platform.json"
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
               if (!("${pom.getArtifactId()}-${pom.getVersion()}" in check['id'])) {
                 check.each {
@@ -103,7 +103,7 @@ class EurekaImage implements Serializable {
                     it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
                   }
                 }
-                steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
+                steps.writeJSON(file: "eureka-platform.json", json: check, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
                 steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
                 steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
