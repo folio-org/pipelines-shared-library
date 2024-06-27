@@ -60,32 +60,25 @@ class EurekaImage implements Serializable {
   def imageTag() {
     def tag = 'unknown'
     try {
-      def tmp = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-      if (tmp) {
-        steps.script {
-          def parts = tmp.split("-")
-          def foundTag = parts.find { it.contains(".") }
-          if (foundTag && branch == 'master') {
-            tag = foundTag.toString() + '-SNAPSHOT'
-          } else {
-            tag = foundTag.toString()
-          }
-        }
-      } else {
-        logger.error('No JAR file found or empty result from script.')
+      def pom = steps.readMavenPom file: 'pom.xml'
+      if (pom) {
+        tag = "${pom.getVersion()}"
       }
     } catch (Exception e) {
-      logger.error(e.getMessage())
+      tag = 'latest'
+      logger.warning("Tag not found, falling back to tag=latest.\nError: " + e.getMessage())
     }
     return tag
   }
 
   void publishMD() {
-    if (moduleName =~ /mod-*/) {
+    if (moduleName =~ /^mod-.*$/) {
       try {
-        def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-        steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${name}.json --upload-file target/ModuleDescriptor.json", returnStdout: true)
-        logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${name}.json")
+        def pom = steps.readMavenPom file: 'pom.xml'
+        if (pom) {
+          steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${pom.getArtifactId()}-${pom.getVersion()}.json --upload-file target/ModuleDescriptor.json")
+          logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${pom.getArtifactId()}-${pom.getVersion()}.json")
+        }
       } catch (Exception e) {
         logger.error("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
       }
@@ -94,23 +87,25 @@ class EurekaImage implements Serializable {
 
   def updatePL() {
     try {
-      def name = steps.sh(script: 'find target/ -name *.jar | cut -d "/" -f 2 | sed \'s/....$//\'', returnStdout: true).trim()
-      logger.info("Starting git clone for platform-complete.")
-      steps.script {
-        steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-          steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
-          steps.dir('platform-complete') {
-            def eureka_platform = steps.readJSON file: "eureka-platform.json"
-            eureka_platform.each {
-              if (it['id'] =~ /${moduleName}/) {
-                it['id'] = name as String
+      def pom = steps.readMavenPom file: 'pom.xml'
+      if (pom) {
+        logger.info("Starting git clone for platform-complete.")
+        steps.script {
+          steps.withCredentials([steps.usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+            steps.sh(script: "git clone -b snapshot --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git")
+            steps.dir('platform-complete') {
+              def eureka_platform = steps.readJSON file: "eureka-platform.json"
+              eureka_platform.each {
+                if (it['id'] =~ /${moduleName}/) {
+                  it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+                }
               }
+              steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
+              steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") // beatify JSON
+              steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
+              steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
+              logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
             }
-            steps.writeJSON(file: "eureka-platform.json", json: eureka_platform, pretty: 0)
-            steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json") //beatify JSON
-            steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${name}'")
-            steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
-            logger.info("Snapshot branch successfully updated\n${moduleName} version: ${name}")
           }
         }
       }
@@ -123,9 +118,11 @@ class EurekaImage implements Serializable {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
-        compile()
-        updatePL()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        break
+      case 'folio-keycloak':
+        prepare()
+        build(imageTag() as String, "-f ./Dockerfile .")
         break
       default:
         prepare()
