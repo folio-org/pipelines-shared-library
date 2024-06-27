@@ -74,7 +74,6 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().removeModule('mod-login')
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
 
