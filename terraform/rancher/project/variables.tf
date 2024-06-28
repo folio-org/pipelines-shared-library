@@ -232,7 +232,7 @@ variable "eureka" {
 }
 
 variable "okapi_integration_enabled" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "okapi integration Eureka"
 }
