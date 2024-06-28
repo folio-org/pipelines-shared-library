@@ -93,68 +93,27 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-//    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-//    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
-
-//    stage('[Rest] Preinstall') {
-//      main.publishDescriptors(namespace.getModules().getInstallJson())
-//      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-//    }
-
     stage('[Helm] Deploy Eureka') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+        sleep time: 3, unit: 'MINUTES'
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-
-
-//        sleep time: 5, unit: "MINUTES"
-//        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
 
-//    stage('[Rest] Initialize') {
-//      retry(2) {
-//        sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-//        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-//      }
-//    }
+    stage('[Rest] Configure edge') {
+      folioEdge.renderEphemeralProperties(namespace)
+      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
+    }
 
-//    stage('[Rest] Configure edge') {
-//      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
-//    }
-
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        namespace.getModules().getEdgeModules().each { name, version ->
-//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//        }
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//      }
-//    }
-
-//    stage('Build and deploy UI') {
-//      Map branches = [:]
-//      namespace.getTenants().each { tenantId, tenant ->
-//        if (tenant.getTenantUi()) {
-//          TenantUi ui = tenant.getTenantUi()
-//          branches[tenantId] = {
-//            def jobParameters = [
-//              tenant_id  : ui.getTenantId(),
-//              custom_hash: ui.getHash(),
-//              custom_url : "https://${namespace.getDomains()['okapi']}",
-//              custom_tag : ui.getTag(),
-//              consortia  : tenant instanceof OkapiTenantConsortia
-//            ]
-//            uiBuild(jobParameters, releaseVersion)
-//            folioHelm.withKubeConfig(namespace.getClusterName()) {
-//              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//            }
-//          }
-//        }
-//      }
-//      parallel branches
-//    }
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        namespace.getModules().getEdgeModules().each { name, version ->
+          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        }
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+      }
+    }
 
     stage('Deploy ldp') {
       println('LDP deployment')
