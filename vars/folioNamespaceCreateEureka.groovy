@@ -103,7 +103,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Configure edge') {
       folioEdge.renderEphemeralProperties(namespace)
-      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
     }
 
     stage('[Helm] Deploy edge') {
