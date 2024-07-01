@@ -1,6 +1,5 @@
 #Creating a cloud credential in Rancher.
 resource "rancher2_cloud_credential" "aws" {
-  depends_on  = [helm_release.alb_controller, helm_release.aws_cluster_autoscaler, helm_release.external_dns]
   count       = var.register_in_rancher ? 1 : 0
   name        = module.eks_cluster.cluster_name
   description = "AWS EKS Cluster"

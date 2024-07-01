@@ -1,6 +1,6 @@
 #Creating a monitoring project in Rancher.
 resource "rancher2_project" "monitoring" {
-  count                     = var.register_in_rancher ? 1 : 0
+  count                     = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   provider                  = rancher2
   name                      = "monitoring"
   cluster_id                = rancher2_cluster_sync.this[0].id
@@ -13,7 +13,7 @@ resource "rancher2_project" "monitoring" {
 
 # Create a namespace assigned to monitoring project
 resource "rancher2_namespace" "monitoring" {
-  count       = var.register_in_rancher ? 1 : 0
+  count       = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   name        = "monitoring"
   project_id  = rancher2_project.monitoring[0].id
   description = "Project monitoring namespace"
@@ -25,24 +25,22 @@ resource "rancher2_namespace" "monitoring" {
 
 # Create metrics-server app in monitoring namespace
 resource "rancher2_app_v2" "metrics-server" {
-  depends_on    = [rancher2_catalog_v2.metrics-server]
-  count         = var.register_in_rancher ? 1 : 0
+  count         = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = "kube-system"
   name          = "metrics-server"
-  repo_name     = "metrics-server"
+  repo_name     = rancher2_catalog_v2.metrics-server[0].name
   chart_name    = "metrics-server"
   chart_version = "3.8.2"
 }
 
 # Create prometheus app in monitoring namespace
 resource "rancher2_app_v2" "prometheus" {
-  depends_on    = [rancher2_catalog_v2.prometheus-community]
-  count         = var.register_in_rancher ? 1 : 0
+  count         = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.monitoring[0].name
   name          = "kube-prometheus-stack"
-  repo_name     = "prometheus-community"
+  repo_name     = rancher2_catalog_v2.prometheus-community[0].name
   chart_name    = "kube-prometheus-stack"
   chart_version = "45.8.0"
   force_upgrade = "true"

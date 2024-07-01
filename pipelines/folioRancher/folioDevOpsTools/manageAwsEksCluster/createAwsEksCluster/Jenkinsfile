@@ -16,6 +16,8 @@ properties([
     booleanParam(name: 'REGISTER', defaultValue: true, description: 'Register cluster in Rancher'),
     booleanParam(name: 'KUBECOST', defaultValue: true, description: 'Deploy Kubecost to cluster'),
     booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
+    booleanParam(name: 'ENABLE_LOGGING', defaultValue: false, description: 'Deploy ELK stack to cluster'),
+    booleanParam(name: 'ENABLE_MONITORING', defaultValue: true, description: 'Deploy Prometheus to cluster'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -32,6 +34,8 @@ tfConfig.addVar('admin_users', Constants.AWS_EKS_ADMIN_USERS)
 tfConfig.addVar('register_in_rancher', params.REGISTER)
 tfConfig.addVar('deploy_kubecost', params.KUBECOST)
 tfConfig.addVar('deploy_sorry_cypress', params.SORRY_CYPRESS)
+tfConfig.addVar('enable_logging', params.ENABLE_LOGGING)
+tfConfig.addVar('enable_monitoring', params.ENABLE_MONITORING)
 
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {

@@ -127,6 +127,18 @@ variable "deploy_sorry_cypress" {
   description = "Deploy Sorry Cypress tool if true"
 }
 
+variable "enable_logging" {
+  type        = bool
+  default     = false
+  description = "Deploy ELK stack if true"
+}
+
+variable "enable_monitoring" {
+  type        = bool
+  default     = true
+  description = "Deploy Prometheus monitor if true"
+}
+
 variable "slack_webhook_url" {
   type        = string
   description = "Apply slack api url for slack webhook"

@@ -11,7 +11,7 @@ resource "rancher2_catalog_v2" "folio-helm-service" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "folio-helm-service"
-  url        = "https://repository.folio.org/repository/helm-hosted/"
+  url        = "https://repository.folio.org/repository/helm-hosted"
 }
 
 # OpenSearch helm charts catalog
@@ -27,7 +27,7 @@ resource "rancher2_catalog_v2" "bitnami" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "bitnami"
-  url        = "https://repository.folio.org/repository/helm-bitnami-proxy/"
+  url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
 }
 
 # AWS ebs csi driver charts catalog
@@ -59,7 +59,7 @@ resource "rancher2_catalog_v2" "influx" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "influx"
-  url        = "https://helm.influxdata.com/"
+  url        = "https://helm.influxdata.com"
 }
 
 # Grafana charts catalog
@@ -83,7 +83,7 @@ resource "rancher2_catalog_v2" "kubecost" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "cost-analyzer"
-  url        = "https://kubecost.github.io/cost-analyzer/"
+  url        = "https://kubecost.github.io/cost-analyzer"
 }
 
 # Provectus charts catalog, for Kafka_ui
@@ -123,5 +123,5 @@ resource "rancher2_catalog_v2" "mock-server" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "mock-server"
-  url        = "http://www.mock-server.com/"
+  url        = "http://www.mock-server.com"
 }
