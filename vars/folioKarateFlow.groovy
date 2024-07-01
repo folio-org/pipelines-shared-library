@@ -75,23 +75,32 @@ void call(KarateTestsParameters args) {
     }
 
     stage('[Archive] Archive artifacts') {
+      logger.debug("[Archive] Archive artifacts step. currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')=${currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')}")
+      sleep time: 1, unit: 'MINUTES'
+
       if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
+        sleep time: 1, unit: 'MINUTES'
+
         zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
         zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
         zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+
+        sleep time: 1, unit: 'MINUTES'
 
         archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
         archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
         archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
         archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+
+        sleep time: 1, unit: 'MINUTES'
       }
     }
 
-    if (args.syncWithJira) {
-      stage('[Jira] Sync issues') {
-        karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
-      }
-    }
+//    if (args.syncWithJira) {
+//      stage('[Jira] Sync issues') {
+//        karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
+//      }
+//    }
 
     if (args.sendSlackNotification) {
       stage('[Slack] Send notification') {
@@ -103,26 +112,26 @@ void call(KarateTestsParameters args) {
             , true
             , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
           )
-          , channel: "#rancher_tests_notifications")
+          , channel: "#rancher-test-notifications")
       }
     }
 
-    if (args.sendTeamsSlackNotification) {
-      stage("Send slack notifications to teams") {
-        script {
-          folioSlackNotificationUtils.renderTeamsTestResultMessages(
-            TestType.KARATE
-            , karateTestsExecutionSummary
-            , args.teamAssignment
-            , ""
-            , true
-            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
-            .each {
-              slackSend(attachments: it.value, channel: it.key.getSlackChannel())
-            }
-        }
-      }
-    }
+//    if (args.sendTeamsSlackNotification) {
+//      stage("Send slack notifications to teams") {
+//        script {
+//          folioSlackNotificationUtils.renderTeamsTestResultMessages(
+//            TestType.KARATE
+//            , karateTestsExecutionSummary
+//            , args.teamAssignment
+//            , ""
+//            , true
+//            , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
+//            .each {
+//              slackSend(attachments: it.value, channel: it.key.getSlackChannel())
+//            }
+//        }
+//      }
+//    }
   }
 }
 
