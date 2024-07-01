@@ -62,6 +62,7 @@ resource "rancher2_secret" "eureka_common" {
     KONG_INTEGRATION_ENABLED        = base64encode("true")
     KC_ADMIN_USERNAME               = base64encode("admin")
     KC_ADMIN_PASSWORD               = base64encode("SecretPassword")
+    KC_GRANT_TYPE                   = base64encode("password")
     KC_CLIENT_TLS_ENABLED           = base64encode("false")
     KC_CLIENT_ID_TTL                = base64encode("3600s")
     KC_CONFIG_TTL                   = base64encode("3600s")

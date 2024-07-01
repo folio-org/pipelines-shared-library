@@ -1782,8 +1782,6 @@ mod-roles-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_CLIENT_ID
       value: 'folio-backend-admin-client'
-    - name: KC_GRANT_TYPE
-      value: 'client_credentials'
     - name: KC_LOGIN_CLIENT_SUFFIX
       value: '-login-application'
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
