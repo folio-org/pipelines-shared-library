@@ -102,17 +102,17 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
+//      folioEdge.renderEphemeralProperties(namespace)
 //      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
     }
 
     stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      }
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version ->
+//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
     }
 
     stage('Deploy ldp') {
