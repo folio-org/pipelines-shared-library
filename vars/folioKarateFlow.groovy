@@ -75,7 +75,7 @@ void call(KarateTestsParameters args) {
     }
 
     stage('[Archive] Archive artifacts') {
-      logger.debug("[Archive] Archive artifacts step. currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')=${currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')}")
+      logger.debug("[Archive] Archive artifacts step. currentBuild.getBuildCauses()=${currentBuild.getBuildCauses()}")
       sleep time: 1, unit: 'MINUTES'
 
       if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
