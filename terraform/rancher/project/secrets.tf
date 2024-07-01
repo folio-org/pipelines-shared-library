@@ -73,7 +73,7 @@ resource "rancher2_secret" "eureka_common" {
     SECRET_STORE_AWS_SSM_REGION     = base64encode(var.aws_region)
     SECRET_STORE_AWS_SSM_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
     SECRET_STORE_AWS_SSM_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
-    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("false")
+    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("true") //TODO remove permissions from EKS Node Group instance profile! | Tests purpose ONLY
     SECURITY_ENABLED                = base64encode("true")
     "tenant.url"                    = base64encode("http://mgr-tenants")
     TE_URL                          = base64encode("http://mgr-tenant-entitlements")
