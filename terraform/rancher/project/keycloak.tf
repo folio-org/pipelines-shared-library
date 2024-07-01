@@ -7,8 +7,8 @@ resource "rancher2_secret" "keycloak-credentials" {
     KC_DB_PASSWORD                  = base64encode(local.pg_password)
     KC_FOLIO_BE_ADMIN_CLIENT_SECRET = base64encode("SecretPassword")
     KC_HTTPS_KEY_STORE_PASSWORD     = base64encode("SecretPassword")
-    KEYCLOAK_ADMIN_USER             = base64encode("admin")
-    KEYCLOAK_ADMIN_PASSWORD         = base64encode("SecretPassword")
+    KC_ADMIN_USER                   = base64encode("admin")
+    KC_ADMIN_PASSWORD               = base64encode("SecretPassword")
   }
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id

@@ -1640,8 +1640,6 @@ mgr-applications:
       value: "http://mgr-applications"
     - name: ROUTER_PATH_PREFIX
       value: "mgr-applications"
-    - name: SECURITY_ENABLED
-      value: "true"
   extraJavaOpts:
     - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -1666,10 +1664,6 @@ mgr-tenants:
       value: "http://mgr-tenants"
     - name: ROUTER_PATH_PREFIX
       value: "mgr-tenants"
-    - name: KC_LOGIN_CLIENT_SUFFIX
-      value: "-application"
-    - name: SECURITY_ENABLED
-      value: "true"
   extraJavaOpts:
     - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -1692,18 +1686,10 @@ mgr-tenant-entitlements:
   extraJavaOpts:
     - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   extraEnvVars:
-    - name: SECURITY_ENABLED
-      value: "true"
-    - name: DB_EXPLAIN_QUERY_THRESHOLD
-      value: "300000"
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
     - name: ROUTER_PATH_PREFIX
       value: "mgr-tenant-entitlements"
-    - name: KC_LOGIN_CLIENT_SUFFIX
-      value: "-application"
-    - name: AM_CLIENT_URL
-      value: "http://mgr-applications/mgr-applications"
   integrations:
     db:
       enabled: true
@@ -1847,8 +1833,6 @@ mod-users-keycloak:
       memory: 256Mi
 mod-scheduler:
   extraEnvVars:
-    - name: KC_ADMIN_CLIENT_ID
-      value: 'folio-backend-admin-client'
     - name: KC_IMPERSONATION_CLIENT
       value: 'impersonation-client'
     - name: KAFKA_JOB_CONSUMER_PATTERN
