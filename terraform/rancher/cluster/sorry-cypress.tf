@@ -131,11 +131,14 @@ resource "rancher2_app_v2" "sorry-cypress" {
         enabled: false
       resources:
         requests:
-          cpu: 25m
-          memory: 90Mi
+          cpu: 512m
+          memory: 1024Mi
+        limits:
+          cpu: 2048m
+          memory: 4096Mi
       persistence:
         enabled: true
-        size: 10Gi
+        size: 50Gi
       externalAccess:
         enabled: true
         service:
