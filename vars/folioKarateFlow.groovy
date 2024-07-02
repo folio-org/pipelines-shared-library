@@ -75,16 +75,14 @@ void call(KarateTestsParameters args) {
     }
 
     stage('[Archive] Archive artifacts') {
-      if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+      zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+      zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+      zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
 
-        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
-      }
+      archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
     }
 
     if (args.syncWithJira) {
