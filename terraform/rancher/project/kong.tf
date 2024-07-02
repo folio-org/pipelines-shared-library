@@ -1,9 +1,8 @@
 resource "random_integer" "node_port" {
   max   = 32766
   min   = 30001
-  count = var.eureka ? 4 : 0
+  count = var.eureka ? 5 : 0
 }
-
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
@@ -20,8 +19,6 @@ resource "rancher2_secret" "kong-credentials" {
   name         = "kong-credentials"
   count        = var.eureka ? 1 : 0
 }
-
-
 resource "helm_release" "kong" {
   count = var.eureka ? 1 : 0
   chart = "kong"
@@ -75,24 +72,26 @@ networkPolicy:
   enabled: false
 service:
   type: NodePort
-  exposeAdmin: false
+  exposeAdmin: true
   disableHttpPort: false
   ports:
-    proxyHttp: 8000
+    clientHttp: 8000
+    proxyHttp: 80
     proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8443
+    adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result - 1)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result + 1)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result - 1)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result + 1)}"
+    clientHttp: "${tostring(random_integer.node_port[0].result + 1)}"
+    proxyHttp: "${tostring(random_integer.node_port[1].result - 1)}"
+    proxyHttps: "${tostring(random_integer.node_port[2].result + 1)}"
+    adminHttp: "${tostring(random_integer.node_port[3].result - 1)}"
+    adminHttps: "${tostring(random_integer.node_port[4].result + 1)}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
   path: /
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
-  enabled: false
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: "alb"
     alb.ingress.kubernetes.io/scheme: "internet-facing"
@@ -100,7 +99,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result - 1)}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result +1)}"
 kong:
   livenessProbe:
     enabled: false
@@ -154,8 +153,7 @@ migration:
 EOF
   ]
 }
-
-resource "kubernetes_service" "kong_svc" {
+resource "kubernetes_service" "kong_admin_api" {
   count = var.eureka ? 1 : 0
   metadata {
     name      = "kong-admin-api-${rancher2_namespace.this.id}"
@@ -172,26 +170,6 @@ resource "kubernetes_service" "kong_svc" {
       target_port = 8001
     }
     type = "ClusterIP"
-  }
-}
-
-resource "kubernetes_service" "kong_client" {
-  count = var.eureka ? 1 : 0
-  metadata {
-    name      = "kong-client-api-${rancher2_namespace.this.id}"
-    namespace = rancher2_namespace.this.id
-  }
-  spec {
-    selector = {
-      "app.kubernetes.io/component" = "server"
-      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
-      "app.kubernetes.io/name"      = "kong"
-    }
-    port {
-      port        = (random_integer.node_port[0].result - 1)
-      target_port = 8000
-    }
-    type = "NodePort"
   }
 }
 
@@ -212,34 +190,5 @@ resource "kubernetes_service" "kong_admin_ui" {
       target_port = 8002
     }
     type = "ClusterIP"
-  }
-}
-
-resource "kubernetes_ingress_v1" "kong_client_public" {
-  metadata {
-    name = "kong-client-public"
-    namespace = rancher2_namespace.this.id
-    annotations = {
-      "kubernetes.io/ingress.class" : "alb"
-      "alb.ingress.kubernetes.io/scheme" : "internet-facing"
-      "alb.ingress.kubernetes.io/group.name" : local.group_name
-      "alb.ingress.kubernetes.io/listen-ports" : "[{\"HTTPS\":443}]"
-      "alb.ingress.kubernetes.io/success-codes" : "200-399"
-      "alb.ingress.kubernetes.io/healthcheck-path" : "/"
-      "alb.ingress.kubernetes.io/healthcheck-port" : tostring(random_integer.node_port[2].result - 1)
-    }
-  }
-  spec {
-    rule {
-      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])
-    }
-    default_backend {
-      service {
-        name = kubernetes_service.kong_client[0].metadata.name
-        port {
-          number = 8080
-        }
-      }
-    }
   }
 }
