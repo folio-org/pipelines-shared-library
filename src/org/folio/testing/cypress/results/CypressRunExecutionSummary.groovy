@@ -60,6 +60,11 @@ class CypressRunExecutionSummary implements IRunExecutionSummary {
   }
 
   @Override
+  int getBrokenCount() {
+    return 0
+  }
+
+  @Override
   int getTotalCount() {
     return 0
   }

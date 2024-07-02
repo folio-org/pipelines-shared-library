@@ -109,6 +109,17 @@ class KarateRunExecutionSummary implements IRunExecutionSummary {
   }
 
   @Override
+  int getBrokenCount() {
+    int broken = 0
+
+    modulesExecutionSummary.values().each { moduleSummary ->
+      broken += ((IExecutionSummary) moduleSummary).getBrokenCount()
+    }
+
+    return broken
+  }
+
+  @Override
   int getTotalCount() {
     int total = 0
 
