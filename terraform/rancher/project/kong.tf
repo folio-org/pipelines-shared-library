@@ -217,16 +217,16 @@ resource "kubernetes_service" "kong_admin_ui" {
 
 resource "kubernetes_ingress_v1" "kong_client_public" {
   metadata {
-      name = "kong-client-public"
-      annotations = {
-        "kubernetes.io/ingress.class": "alb"
-        "alb.ingress.kubernetes.io/scheme": "internet-facing"
-        "alb.ingress.kubernetes.io/group.name": local.group_name
-        "alb.ingress.kubernetes.io/listen-ports": "[{\"HTTPS\":443}]"
-        "alb.ingress.kubernetes.io/success-codes": "200-399"
-        "alb.ingress.kubernetes.io/healthcheck-path": "/"
-        "alb.ingress.kubernetes.io/healthcheck-port": tostring(random_integer.node_port[2].result - 1)
-      }
+    name = "kong-client-public"
+    annotations = {
+      "kubernetes.io/ingress.class" : "alb"
+      "alb.ingress.kubernetes.io/scheme" : "internet-facing"
+      "alb.ingress.kubernetes.io/group.name" : local.group_name
+      "alb.ingress.kubernetes.io/listen-ports" : "[{\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/success-codes" : "200-399"
+      "alb.ingress.kubernetes.io/healthcheck-path" : "/"
+      "alb.ingress.kubernetes.io/healthcheck-port" : tostring(random_integer.node_port[2].result - 1)
+    }
   }
   spec {
     rule {
