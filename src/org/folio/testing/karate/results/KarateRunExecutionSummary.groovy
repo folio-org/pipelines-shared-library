@@ -2,12 +2,12 @@ package org.folio.testing.karate.results
 
 import org.folio.testing.IExecutionSummary
 import org.folio.testing.IModuleExecutionSummary
-import org.folio.testing.ITestExecutionSummary
+import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
-class KarateTestsExecutionSummary implements ITestExecutionSummary {
+class KarateRunExecutionSummary implements IRunExecutionSummary {
 
   Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:]
 

@@ -2,7 +2,7 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.testing.TestType
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -11,7 +11,7 @@ import java.time.Instant
 
 void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
-  KarateTestsExecutionSummary karateTestsExecutionSummary
+  KarateRunExecutionSummary karateTestsExecutionSummary
 
   dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {

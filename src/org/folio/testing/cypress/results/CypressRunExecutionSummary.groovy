@@ -1,13 +1,13 @@
 package org.folio.testing.cypress.results
 
 import org.folio.testing.IModuleExecutionSummary
-import org.folio.testing.ITestExecutionSummary
+import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
-class CypressTestsExecutionSummary implements ITestExecutionSummary {
+class CypressRunExecutionSummary implements IRunExecutionSummary {
 
   Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:]
 

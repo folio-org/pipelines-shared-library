@@ -2,7 +2,7 @@ import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.testing.TestType
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -15,7 +15,7 @@ import java.time.Instant
 def call(params) {
   def id
 
-  KarateTestsExecutionSummary karateTestsExecutionSummary
+  KarateRunExecutionSummary karateTestsExecutionSummary
   TeamAssignment teamAssignment
 
   stage("Checkout") {

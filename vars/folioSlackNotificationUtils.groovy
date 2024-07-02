@@ -69,7 +69,7 @@ String renderBuildAndTestResultMessage(TestType type, IExecutionSummary summary
 }
 
 Map<Team, String> renderTeamsTestResultMessages(TestType type
-                                                , ITestExecutionSummary summary
+                                                , IRunExecutionSummary summary
                                                 , TeamAssignment teamAssignment
                                                 , String buildName, boolean useReportPortal, String url) {
 
