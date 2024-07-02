@@ -208,7 +208,7 @@ resource "kubernetes_service" "kong_admin_ui" {
       "app.kubernetes.io/name"      = "kong"
     }
     port {
-      port        = 8002
+      port        = 80
       target_port = 8002
     }
     type = "ClusterIP"
@@ -218,6 +218,7 @@ resource "kubernetes_service" "kong_admin_ui" {
 resource "kubernetes_ingress_v1" "kong_client_public" {
   metadata {
     name = "kong-client-public"
+    namespace = rancher2_namespace.this.id
     annotations = {
       "kubernetes.io/ingress.class" : "alb"
       "alb.ingress.kubernetes.io/scheme" : "internet-facing"
@@ -234,7 +235,7 @@ resource "kubernetes_ingress_v1" "kong_client_public" {
     }
     default_backend {
       service {
-        name = kubernetes_service.kong_client[0].id
+        name = kubernetes_service.kong_client[0].metadata.name
         port {
           number = 8080
         }
