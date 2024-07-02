@@ -75,7 +75,7 @@ networkPolicy:
   enabled: false
 service:
   type: NodePort
-  exposeAdmin: true
+  exposeAdmin: false
   disableHttpPort: false
   ports:
     proxyHttp: 8000
@@ -92,7 +92,7 @@ ingress:
   pathType: ImplementationSpecific
   path: /
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
-  enabled: true
+  enabled: false
   annotations:
     kubernetes.io/ingress.class: "alb"
     alb.ingress.kubernetes.io/scheme: "internet-facing"
@@ -100,7 +100,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result -1)}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result - 1)}"
 kong:
   livenessProbe:
     enabled: false
