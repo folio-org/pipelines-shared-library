@@ -23,7 +23,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 
   karateSummaries.each { karateSummary, index ->
     String path = karateSummary.path
-    echo "Collecting tests execution result from '${path}' file with number in a row ${index+1} of ${karateSummaries.size()}"
+    echo "Collecting tests execution result from '${path}' file with number in a row ${index} of ${karateSummaries.size()}"
     String[] split = path.split("/")
     String moduleName = split[split.size() - 4]
 
