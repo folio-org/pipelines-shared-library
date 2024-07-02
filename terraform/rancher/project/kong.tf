@@ -78,10 +78,10 @@ service:
   exposeAdmin: true
   disableHttpPort: false
   ports:
-    proxyHttp: 80
+    proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8444
+    adminHttps: 8443
   nodePorts:
     proxyHttp: "${tostring(random_integer.node_port[0].result - 1)}"
     proxyHttps: "${tostring(random_integer.node_port[1].result + 1)}"
@@ -100,7 +100,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result)}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result -1)}"
 kong:
   livenessProbe:
     enabled: false
