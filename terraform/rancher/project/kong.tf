@@ -1,7 +1,7 @@
 resource "random_integer" "node_port" {
   max   = 32766
   min   = 30001
-  count = var.eureka ? 5 : 0
+  count = var.eureka ? 4 : 0
 }
 resource "rancher2_secret" "kong-credentials" {
   data = {
@@ -75,13 +75,11 @@ service:
   exposeAdmin: true
   disableHttpPort: false
   ports:
-    clientHttp: 8000
-    proxyHttp: 80
+    proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    clientHttp: "${tostring(random_integer.node_port[0].result + 1)}"
     proxyHttp: "${tostring(random_integer.node_port[1].result - 1)}"
     proxyHttps: "${tostring(random_integer.node_port[2].result + 1)}"
     adminHttp: "${tostring(random_integer.node_port[3].result - 1)}"
