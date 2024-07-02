@@ -12,22 +12,36 @@ class Eureka extends Authorization {
   }
 
 
-  void registerApplication(List descriptorsList) {
+  
+  void registerApplication(List descriptorsList, tenantId) {
+
     String url = generateUrl("/applications?check=false")
-    Map<String, String> headers = getAuthorizedHeaders(superTenant)
-// To do: work with headers. tenant id and token from new method getEurikaToken
-    //Check application descriptor .Define type list or map
+    Map<String, String> headers = getOkapiToken(tenantId)
+
+    def response = restClient.get(url, headers).body
+
     restClient.post(url, descriptorsList, headers)
-    logger.info("Application registered: ${descriptorsList.size()}")
+    logger.info("Application registered: ${descriptorsList}")
   }
 
-  void registerApplicationDiscovery(applicationId) {
-    String url = generateUrl("/applications/${applicationId}/discovery?limit=500")
-    Map<String, String> headers = getAuthorizedHeaders(superTenant)
+  void registerApplicationDiscovery(List descriptorsList, applicationId, tenantId) {
 
-//To do: get application and then post
-    restClient.get(url)
-    logger.info("Application discovery registered: ${url}")
+    String discoveryUrl = generateUrl("/applications/${applicationId}/discovery?limit=500")
+    Map<String, String> headers = getOkapiToken(tenantId)
+
+    def response = restClient.get(discoveryUrl, headers)
+    def content = response.body
+
+    if (content == descriptorsList) {
+      logger.info("All module discovery information are registered. Nothing to do.")
+    } else {
+      logger.info("Not all module discovery information is registered. Proceeding with registration.")
+
+      String registerUrl = generateUrl("/modules/discovery")
+
+      restClient.post(registerUrl, headers)
+      logger.info("Application discovery registered: ${registerUrl}")
+    }
   }
 }
 
