@@ -174,3 +174,71 @@ resource "kubernetes_service" "kong_svc" {
     type = "ClusterIP"
   }
 }
+
+resource "kubernetes_service" "kong_client" {
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-client-api-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
+      "app.kubernetes.io/name"      = "kong"
+    }
+    port {
+      port        = (random_integer.node_port[0].result - 1)
+      target_port = 8000
+    }
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_service" "kong_admin_ui" {
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-admin-ui-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
+      "app.kubernetes.io/name"      = "kong"
+    }
+    port {
+      port        = 8002
+      target_port = 8002
+    }
+    type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_ingress_v1" "kong_client_public" {
+  metadata {
+      name = "kong-client-public"
+      annotations = {
+        "kubernetes.io/ingress.class": "alb"
+        "alb.ingress.kubernetes.io/scheme": "internet-facing"
+        "alb.ingress.kubernetes.io/group.name": local.group_name
+        "alb.ingress.kubernetes.io/listen-ports": "[{\"HTTPS\":443}]"
+        "alb.ingress.kubernetes.io/success-codes": "200-399"
+        "alb.ingress.kubernetes.io/healthcheck-path": "/"
+        "alb.ingress.kubernetes.io/healthcheck-port": tostring(random_integer.node_port[2].result - 1)
+      }
+  }
+  spec {
+    rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])
+    }
+    default_backend {
+      service {
+        name = kubernetes_service.kong_client[0].id
+        port {
+          number = 8080
+        }
+      }
+    }
+  }
+}
