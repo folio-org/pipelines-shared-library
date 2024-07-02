@@ -11,6 +11,9 @@ class CypressRunExecutionSummary implements IRunExecutionSummary {
 
   Map<String, KarateModuleExecutionSummary> modulesExecutionSummary = [:]
 
+  static List<CypressExecutionDefect> defects = []
+
+
   //TBD
 
   Map<Team, List<IModuleExecutionSummary>> getModuleResultByTeam(TeamAssignment teamAssignment) {
@@ -76,5 +79,10 @@ class CypressRunExecutionSummary implements IRunExecutionSummary {
     return "CypressTestsResult{" +
       "modulesTestResult=" + modulesExecutionSummary +
       '}'
+  }
+
+  static void addDefect(CypressExecutionDefect defect){
+    if(!defects.contains(defect))
+      defects.add(defect)
   }
 }
