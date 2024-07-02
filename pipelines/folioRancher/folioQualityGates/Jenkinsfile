@@ -119,7 +119,7 @@ ansiColor('xterm') {
           karateTestsParams.sendTeamsSlackNotification = true
           karateTestsParams.syncWithJira = true
           karateTestsParams.timeout = '2'
-          karateTestsParams.modulesToTest = 'mod-ldp'
+          karateTestsParams.modulesToTest = 'mod-ldp,mod-data-export'
           folioKarateFlow(karateTestsParams)
         }
         parallel(branches)

@@ -49,7 +49,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 
     retVal.addModuleResult(moduleName, contents, displayNames)
 
-    println("karateTestUtils. collectTestsResults. overall results. total=${retVal.getTotalCount()} pass=${retVal.getPassRate()} failed=${retVal.getFailedCount()} skipped=${retVal.getFailedCount()}")
+    println("karateTestUtils. collectTestsResults. overall results. total=${retVal.getTotalCount()} pass=${retVal.getPassedCount()} failed=${retVal.getFailedCount()} skipped=${retVal.getFailedCount()}")
   }
 
   retVal
