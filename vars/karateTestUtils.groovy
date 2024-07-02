@@ -18,11 +18,16 @@ import org.folio.testing.teams.TeamAssignment
 KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
   def retVal = new KarateTestsExecutionSummary()
   def karateSummaries = findFiles(glob: karateSummaryFolder)
-  karateSummaries.each { karateSummary ->
+
+  println("karateTestUtils. collectTestsResults. karateSummaries.size()=${karateSummaries.size()}")
+
+  karateSummaries.each { karateSummary, index ->
     String path = karateSummary.path
-    echo "Collecting tests execution result from '${path}' file"
+    echo "Collecting tests execution result from '${path}' file with number in a row ${index+1} of ${karateSummaries.size()}"
     String[] split = path.split("/")
     String moduleName = split[split.size() - 4]
+
+    println("karateTestUtils. collectTestsResults. moduleName=${moduleName}")
 
     def contents = readJSON file: path
 
@@ -38,6 +43,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
       displayNames[nameSplit[nameSplit.size() - 1]] = displayName
     }
 
+    println("karateTestUtils. collectTestsResults. displayNames=${displayNames}")
     retVal.addModuleResult(moduleName, contents, displayNames)
   }
 
