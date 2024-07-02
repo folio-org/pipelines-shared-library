@@ -21,7 +21,9 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
 
   println("karateTestUtils. collectTestsResults. karateSummaries.size()=${karateSummaries.size()}")
 
-  karateSummaries.each { karateSummary, index ->
+  int index = 0
+  karateSummaries.each { karateSummary ->
+    index++
     String path = karateSummary.path
     echo "Collecting tests execution result from '${path}' file with number in a row ${index} of ${karateSummaries.size()}"
     String[] split = path.split("/")
