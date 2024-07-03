@@ -17,8 +17,8 @@ class Eureka extends Authorization {
     String url = generateUrl("/tenants")
     Map<String, String> headers = getMasterRealmHeaders(superTenant)
     Map body = [
-      name: tenantId,
-      description: description
+      name: tenant.tenantId,
+      description: tenant.tenantDescription
     ]
 
     logger.info("Creating tenant ${tenant.tenantId}...")
