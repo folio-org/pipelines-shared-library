@@ -100,13 +100,13 @@ ansiColor('xterm') {
         Map branches = [failFast: false]
         branches['Cypress'] = { ->
           Map cypressParams = [
-            branch                : 'master',
+            branch                : 'RANCHER-1365-v3-test',
             tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
             okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
             tenantId              : 'diku',
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
-            parallelExecParameters: '--env grepTags="shiftLeft"',
+            parallelExecParameters: '--env grepTags="test1365"',
             testsTimeout          : '2',
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
