@@ -48,6 +48,8 @@ String renderAbortedBuildResultMessage() {
 String renderTestResultSection(TestType type, IExecutionSummary summary
                                , String buildName, boolean useReportPortal, String url) {
 
+  println("folioSlackNotificationUtils.groovy renderTestResultSection summary=${summary}")
+
   return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary))
     .renderSection(
       "${buildName}"
