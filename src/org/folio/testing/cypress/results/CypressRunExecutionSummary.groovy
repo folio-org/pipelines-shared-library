@@ -1,6 +1,5 @@
 package org.folio.testing.cypress.results
 
-import com.cloudbees.groovy.cps.NonCPS
 import org.folio.testing.IExecutionSummary
 import org.folio.testing.IModuleExecutionSummary
 import org.folio.testing.IRunExecutionSummary
@@ -159,14 +158,14 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     return null
   }
 
-  @NonCPS
   @Override
   String toString() {
-    return "CypressRunExecutionSummary{" +
-      "uid='" + uid + '\'' +
-      ", children='" + children + '\'' +
-      ", defects='" + defects +
-      '}'
+    return """{
+      class_name: 'CypressRunExecutionSummary',
+      uid: '${uid}',
+      children: ${children},
+      defects: ${defects},
+    }"""
   }
 
   @Override

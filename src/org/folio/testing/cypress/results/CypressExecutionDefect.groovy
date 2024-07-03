@@ -31,12 +31,13 @@ class CypressExecutionDefect implements ITestParent, ITestChild {
   @NonCPS
   @Override
   String toString() {
-    return "CypressRunExecutionSummary{" +
-      "uid='" + uid + '\'' +
-      ", name='" + name + '\'' +
-      ", parent='" + parent.getUid() + '\'' +
-      ", children='" + children +
-      '}'
+    return """{
+      class_name: 'CypressExecutionDefect',
+      uid: '${uid}',
+      name: '${name}',
+      parent: '${parent.getUid()}',
+      children: ${children},
+    }"""
   }
 
   static CypressExecutionDefect addFromJSON(CypressRunExecutionSummary run, def json, ITestParent parent) {
