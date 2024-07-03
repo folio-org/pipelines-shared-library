@@ -48,6 +48,7 @@ resource "random_password" "system_user_password" {
 }
 
 resource "rancher2_secret" "eureka_common" {
+  count = var.eureka ? 1 : 0
   name         = "eureka-common"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
@@ -59,11 +60,13 @@ resource "rancher2_secret" "eureka_common" {
     KONG_INTEGRATION_ENABLED    = base64encode("true")
     OKAPI_INTEGRATION_ENABLED   = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
-    SECRET_STORE_TYPE           = base64encode("AWS_SSM")
+    SECRET_STORE_TYPE           = base64encode(var.store_type)
     SECURITY_ENABLED            = base64encode("true")
     "tenant.url"                = base64encode("http://mgr-tenants")
     "am.url"                    = base64encode("http://mgr-applications")
     TE_URL                      = base64encode("http://mgr-tenant-entitlements")
+    MOD_USERS_BL                = base64encode("http://mod-users-bl")
+    MOD_USERS_KEYCLOAK_URL      = base64encode("http://mod-users-keycloak")
     #    SECRET_STORE_AWS_SSM_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
     #    SECRET_STORE_AWS_SSM_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
     #    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("true") //TODO remove permissions from EKS Node Group instance profile! | Tests purpose ONLY
