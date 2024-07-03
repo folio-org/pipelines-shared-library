@@ -13,7 +13,7 @@ class Eureka extends Authorization {
     this.superTenant = superTenant
   }
 
-  def createTenant(OkapiTenant tenant) {
+  void createTenant(OkapiTenant tenant) {
     String url = generateUrl("/tenants")
     Map<String, String> headers = getMasterRealmHeaders(superTenant)
     Map body = [
