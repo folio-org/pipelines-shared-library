@@ -83,8 +83,18 @@ class KarateModuleExecutionSummary implements IModuleExecutionSummary {
   }
 
   @Override
+  int getBrokenCount() {
+    int count = 0
+    for (IExecutionSummary feature : features) {
+      count += feature.getBrokenCount()
+    }
+
+    return count
+  }
+
+  @Override
   int getTotalCount() {
-    return getPassedCount() + getFailedCount() + getSkippedCount()
+    return getPassedCount() + getFailedCount() + getSkippedCount() + getBrokenCount()
   }
 
   @Override

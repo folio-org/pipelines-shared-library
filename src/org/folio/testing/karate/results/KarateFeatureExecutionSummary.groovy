@@ -31,8 +31,13 @@ class KarateFeatureExecutionSummary implements IExecutionSummary {
   }
 
   @Override
+  int getBrokenCount() {
+    return 0
+  }
+
+  @Override
   int getTotalCount() {
-    return passedCount + failedCount
+    return passedCount + failedCount + getSkippedCount() + getBrokenCount()
   }
 
   @Override

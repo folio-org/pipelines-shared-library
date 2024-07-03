@@ -7,6 +7,8 @@ interface IExecutionSummary {
 
   int getSkippedCount()
 
+  int getBrokenCount()
+
   int getTotalCount()
 
   int getPassRate()

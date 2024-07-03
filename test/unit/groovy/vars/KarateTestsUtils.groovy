@@ -6,7 +6,7 @@ import jenkins.plugins.http_request.ResponseContentSupplier
 import org.folio.jira.JiraConstants
 import org.folio.testing.karate.results.KarateFeatureExecutionSummary
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.testharness.AbstractScriptTest
 import org.junit.jupiter.api.Assertions
@@ -118,7 +118,7 @@ class KarateTestsUtils extends AbstractScriptTest {
         def testsSummary = getResourceContent("karateTestUtils/karateTestsSummary.json")
         def summary = new JsonSlurper().parseText(testsSummary)
 
-        KarateTestsExecutionSummary retVal = new KarateTestsExecutionSummary()
+        KarateRunExecutionSummary retVal = new KarateRunExecutionSummary()
         Map<String, KarateModuleExecutionSummary> modules = retVal.modulesExecutionSummary
 
         summary.modulesExecutionSummary.each { name, module ->
