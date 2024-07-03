@@ -34,7 +34,7 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 Map envsMap = [
   karate : [cluster: 'folio-tmp', namespace: 'test-1'],
-  cypress: [cluster: 'folio-perf', namespace: 'cicypress'],
+  cypress: [cluster: 'folio-tmp', namespace: 'test-1'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
@@ -98,41 +98,41 @@ ansiColor('xterm') {
 
       stage('Execute quality gates') {
         Map branches = [failFast: false]
-//        branches['Cypress'] = { ->
-//          Map cypressParams = [
-//            branch                : 'master',
-//            tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
-//            okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
-//            tenantId              : 'diku',
-//            adminUsername         : 'diku_admin',
-//            adminPassword         : 'admin',
-//            parallelExecParameters: '--env grepTags="shiftLeft"',
-//            testsTimeout          : '2',
+        branches['Cypress'] = { ->
+          Map cypressParams = [
+            branch                : 'master',
+            tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
+            okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
+            tenantId              : 'diku',
+            adminUsername         : 'diku_admin',
+            adminPassword         : 'admin',
+            parallelExecParameters: '--env grepTags="shiftLeft"',
+            testsTimeout          : '2',
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
-//            numberOfWorkers       : '4',
-//            useReportPortal       : 'true',
-//            runType               : 'ci',
-//            agent                 : 'cypress-static']
-//          folioCypressFlow(cypressParams)
-//        }
-        branches['Karate'] = { ->
-          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.tenant = 'supertenant'
-          karateTestsParams.prototypeTenant = 'consortium'
-          karateTestsParams.adminUserName = 'super_admin'
-          karateTestsParams.adminPassword = 'admin'
-          karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'junit5-integration'
-          karateTestsParams.sendSlackNotification = true
-          karateTestsParams.sendTeamsSlackNotification = true
-          karateTestsParams.syncWithJira = true
-          karateTestsParams.timeout = '2'
-//          karateTestsParams.modulesToTest = 'mod-ldp,mod-data-export'
-          folioKarateFlow(karateTestsParams)
+            numberOfWorkers       : '6',
+            useReportPortal       : 'true',
+            runType               : 'ci',
+            agent                 : 'cypress-static']
+          folioCypressFlow(cypressParams)
         }
+//        branches['Karate'] = { ->
+//          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+//          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+//          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+//          karateTestsParams.tenant = 'supertenant'
+//          karateTestsParams.prototypeTenant = 'consortium'
+//          karateTestsParams.adminUserName = 'super_admin'
+//          karateTestsParams.adminPassword = 'admin'
+//          karateTestsParams.threadsCount = '4'
+//          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+//          karateTestsParams.sendSlackNotification = true
+//          karateTestsParams.sendTeamsSlackNotification = true
+//          karateTestsParams.syncWithJira = true
+//          karateTestsParams.timeout = '2'
+////          karateTestsParams.modulesToTest = 'mod-ldp,mod-data-export'
+//          folioKarateFlow(karateTestsParams)
+//        }
         parallel(branches)
       }
     } catch (e) {
