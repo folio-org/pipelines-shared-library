@@ -73,8 +73,8 @@ class Eureka extends Authorization {
 
   def getEurekaToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
     logger.info("Getting access token from Keycloak service")
-    def url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
-    def headers = ["Content-Type": "application/json"]
+    String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
+    Map<String,String> headers = ["Content-Type": "application/json"]
     def body = "client_id=${clientId}&grant_type=client_credentials&client_secret=${clientSecret}"
     def response = restClient.post(url, body, headers)
     def content = readJSON(text: response.content)
@@ -83,7 +83,7 @@ class Eureka extends Authorization {
   }
 
   def getOkapiHeaders(String tenantId, String token) {
-    def headers = []
+    Map<String,String> headers = [:]
     if (tenantId != null && !tenantId.isEmpty()) {
       // JWT contains information about the tenant and this header could be omitted
       // not in all places where the headers map is generated the tenantId passed to the function
