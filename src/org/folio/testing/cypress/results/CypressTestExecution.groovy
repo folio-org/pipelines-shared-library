@@ -99,15 +99,6 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
   @NonCPS
   @Override
   String toString() {
-    return "CypressTestExecution{" +
-      "uid='" + uid + '\'' +
-      ", name='" + name + '\'' +
-      ", parent='" + parent.getUid() + '\'' +
-      ", status='" + status + '\'' +
-      (status != CypressTestExecutionStatus.PASSED && status != CypressTestExecutionStatus.UNKNOWN ? "" : ", defect='" + defect + '\'') +
-      ", flaky='" + flaky +
-      '}'
-
     return """{
       class_name: 'CypressTestExecution',
       uid: '${uid}',
