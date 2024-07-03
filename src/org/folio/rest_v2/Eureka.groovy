@@ -82,7 +82,7 @@ class Eureka extends Authorization {
     return content.access_token
   }
 
-  def getOkapiHeaders(String tenantId, String token) {
+  Map<String,String> getOkapiHeaders(String tenantId, String token) {
     Map<String,String> headers = [:]
     if (tenantId != null && !tenantId.isEmpty()) {
       // JWT contains information about the tenant and this header could be omitted
