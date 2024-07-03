@@ -63,7 +63,7 @@ class Eureka extends Authorization {
   void registerApplicationDiscovery(List descriptorsList, String applicationId, OkapiTenant tenant) {
 
     if (isDiscoveryRegistered(tenant, applicationId, descriptorsList)) {
-      logger.info("All module discovery information are registered. Nothing to do.")
+      logger.warning("All module discovery information are registered. Nothing to do.")
       return
     }
 
