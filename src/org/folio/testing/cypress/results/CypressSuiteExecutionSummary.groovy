@@ -1,5 +1,6 @@
 package org.folio.testing.cypress.results
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.testing.IExecutionSummary
 import org.folio.testing.TestExecutionResult
 
@@ -78,6 +79,17 @@ class CypressSuiteExecutionSummary implements IExecutionSummary, ITestParent, IT
       return super.equals(obj)
 
     return !uid.isEmpty() && uid == ((CypressSuiteExecutionSummary)obj).uid
+  }
+
+  @NonCPS
+  @Override
+  String toString() {
+    return "CypressRunExecutionSummary{" +
+      "uid='" + uid + '\'' +
+      ", name='" + name + '\'' +
+      ", parent='" + parent.getUid() + '\'' +
+      ", children='" + children +
+      '}'
   }
 
   static CypressSuiteExecutionSummary addFromJSON(def json, ITestParent parent) {

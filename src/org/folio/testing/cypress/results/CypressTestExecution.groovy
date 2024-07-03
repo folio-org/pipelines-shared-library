@@ -96,6 +96,19 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
     return !uid.isEmpty() && uid == ((CypressTestExecution)obj).uid
   }
 
+  @NonCPS
+  @Override
+  String toString() {
+    return "CypressRunExecutionSummary{" +
+      "uid='" + uid + '\'' +
+      ", name='" + name + '\'' +
+      ", parent='" + parent.getUid() + '\'' +
+      ", status='" + status + '\'' +
+      (status != CypressTestExecutionStatus.PASSED && status != CypressTestExecutionStatus.UNKNOWN ? "" : ", defect='" + defect + '\'') +
+      ", flaky='" + flaky +
+      '}'
+  }
+
   static CypressTestExecution addFromJSON(def json, ITestParent parent) {
     if(!json?.children)
       return null
