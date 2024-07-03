@@ -53,7 +53,8 @@ resource "rancher2_secret" "eureka_common" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
   data = {
-    KC_ADMIN_CLIENT_ID          = base64encode("folio-backend-admin-client")
+    KC_ADMIN_CLIENT_SECRET      = base64encode("folio-backend-admin-client")
+    KC_LOGIN_CLIENT_SUFFIX      = base64encode("-application")
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED      = base64encode("true")
