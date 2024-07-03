@@ -45,6 +45,7 @@ void call(params) {
   String testrailRunID = params.testrailRunID
   String runType = params.runType
   IRunExecutionSummary testRunExecutionSummary
+  boolean sendSlackNotification = params.sendSlackNotification ? params?.sendSlackNotification?.trim()?.toLowerCase()?.toBoolean() : true
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
@@ -217,7 +218,7 @@ void call(params) {
       testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
     }
 
-    if (args.sendSlackNotification) {
+    if (sendSlackNotification) {
       stage('[Slack] Send notification') {
         slackSend(attachments: folioSlackNotificationUtils
           .renderBuildAndTestResultMessage(
