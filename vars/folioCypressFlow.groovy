@@ -214,7 +214,7 @@ void call(params) {
       def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
       def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
 
-      sleep time: 3, unit: 'MINUTES'
+      input message: "Analyze results. Do you want to proceed?"
 
       testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
       testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
