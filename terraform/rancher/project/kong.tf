@@ -97,7 +97,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result +1)}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result + 1)}"
 kong:
   livenessProbe:
     enabled: false

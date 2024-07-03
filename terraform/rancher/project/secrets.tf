@@ -48,11 +48,12 @@ resource "random_password" "system_user_password" {
 }
 
 resource "rancher2_secret" "eureka_common" {
-  count = var.eureka ? 1 : 0
+  count        = var.eureka ? 1 : 0
   name         = "eureka-common"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
   data = {
+    KC_ADMIN_CLIENT_ID          = base64encode("folio-backend-admin-client")
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED      = base64encode("true")

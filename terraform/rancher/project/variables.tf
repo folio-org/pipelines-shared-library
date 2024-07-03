@@ -238,7 +238,7 @@ variable "okapi_integration_enabled" {
 }
 
 variable "store_type" {
-  type = string
-  default = "AWS_SSM"
+  type        = string
+  default     = "AWS_SSM"
   description = "Secure store type"
 }
