@@ -190,6 +190,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
+  //Eureka related configs adjustment
   if (moduleName =~ /mod-.*$/ || /mgr-.*$/ && ns.enableEureka) {
     moduleConfig <<
       [
@@ -198,10 +199,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                      tag  : ns.getModules().allModules['folio-module-sidecar']]]]
 
       ]
-    moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                               existingSecret: 'eureka-common']]
   }
-//
+
+  if (moduleName =~ /mgr-.*$/ && ns.enableEureka) {
+    moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                              existingSecret: 'eureka-common']]
+  }
+
   //Enable RTR functionality
   if (ns.enableRtr) {
     moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
