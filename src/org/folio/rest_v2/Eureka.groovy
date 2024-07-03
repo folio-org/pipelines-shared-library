@@ -63,8 +63,9 @@ class Eureka extends Authorization {
 
   def getClientSecret(String tenantId, String clientId, String awsRegion) {
     def awsParameterName = "folio_${tenantId}_${clientId}"
+    def getSsmParamCmd = "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text"
     try {
-      return awscli.getSsmParameterValue(awsRegion, awsParameterName)
+      return sh(script: getSsmParamCmd, returnStdout: true).trim()
     } catch (Exception e) {
       logger.error("Error fetching '${awsParameterName}' parameter value from AWS SSM: ${e.message}")
     }
