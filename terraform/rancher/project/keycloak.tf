@@ -16,15 +16,6 @@ resource "rancher2_secret" "keycloak-credentials" {
   count        = var.eureka ? 1 : 0
 }
 
-# data "rancher2_secret" "keycloak_credentials" {
-#   count        = (var.eureka ? 1 : 0)
-#   name         = "keycloak-credentials"
-#   project_id   = rancher2_project.this.id
-#   namespace_id = rancher2_namespace.this.id
-#   depends_on   = [helm_release.postgresql, rancher2_secret.keycloak-credentials]
-# }
-#
-
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
   chart        = "keycloak"
