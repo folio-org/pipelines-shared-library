@@ -13,69 +13,64 @@ class Eureka extends Authorization {
 
   boolean isApplicationRegistered(String applicationId) {
 
-    String checkUrl = generateUrl("/applications/${applicationId}")
+    String url = generateUrl("/applications/${applicationId}")
+
     try {
-      def response = restClient.get(checkUrl, headers).body
-      int statusCode = response.status
-    } catch (RequestException e) {
-      if (statusCode == 200) {
-        def content = response.body
-        logger.info("Application already registered: ${content}")
-        return true
-
-      } else if (statusCode == 503) {
-        throw new RequestException("Application manager is unavailable", e.statusCode)
-
-      } else {
+      restClient.get(url, headers).body
+      logger.info("Application ${applicationId} is already registered.")
+      return true
+      } catch (RequestException e) {
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND){
         logger.info("Application id ${applicationId} not found in Application manager. Proceeding with registration.")
         return false
-
+      } else {
+        throw new RequestException("Application manager is unavailable", e.statusCode)
       }
     }
   }
 
-  boolean isDiscoveryRegistered(OkapiTenant tenant, String applicationId) {
+  boolean isDiscoveryRegistered(OkapiTenant tenant, String applicationId, List descriptorsList) {
 
-    String discoveryUrl = generateUrl("/applications/${applicationId}/discovery?limit=500")
+    String url = generateUrl("/applications/${applicationId}/discovery?limit=500")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
 
-    def response = restClient.get(discoveryUrl, headers)
-    def content = response.body
+      def response = restClient.get(url, headers)
+      def content = response.body
 
-    if (isDiscoveryRegistered.content == descriptorsList) {
-      logger.info("All module discovery information are registered. Nothing to do.")
-      return true
-    } else {
+      if (isDiscoveryRegistered.content == descriptorsList) {
+        logger.info("All module discovery information are registered. Nothing to do.")
+        return true
+      } else {
       logger.info("Not all module discovery information is registered. Proceeding with registration.")
       return false
-    }
+      }
   }
 
   void registerApplication(List descriptorsList, OkapiTenant tenant, String applicationId) {
 
-    if (!isApplicationRegistered(applicationId)) {
-
-      String url = generateUrl("/applications?check=false")
-      Map<String, String> headers = getAuthorizedHeaders(tenant)
-
-      restClient.post(url, descriptorsList, headers)
-      logger.info("Application registered: ${descriptorsList}")
-    } else {
-      logger.info("Application ${applicationId} is already registered.")
+    if (isApplicationRegistered(applicationId)) {
+      logger.warning("Application ${applicationId} is already registered.")
+      return
     }
+
+    String url = generateUrl("/applications?check=false")
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+    restClient.post(url, descriptorsList, headers)
+    logger.info("Application registered: ${descriptorsList}")
   }
 
   void registerApplicationDiscovery(List descriptorsList, String applicationId, OkapiTenant tenant) {
 
-    if (!isDiscoveryRegistered(tenant, applicationId)) {
-
-      String registerUrl = generateUrl("/modules/discovery")
-
-      restClient.post(registerUrl, descriptorsList, headers)
-      logger.info("Application discovery registered: ${registerUrl}")
-
-    } else {
+    if (isDiscoveryRegistered(tenant, applicationId, descriptorsList)) {
       logger.info("All module discovery information are registered. Nothing to do.")
+      return
     }
+
+    String url = generateUrl("/modules/discovery")
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+    restClient.post(registerUrl, descriptorsList, headers)
+    logger.info("Application discovery registered: ${url}")
   }
 }
