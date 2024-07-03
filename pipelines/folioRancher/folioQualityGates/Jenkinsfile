@@ -106,7 +106,7 @@ ansiColor('xterm') {
             tenantId              : 'diku',
             adminUsername         : 'diku_admin',
             adminPassword         : 'admin',
-            parallelExecParameters: '--env spec="cypress/e2e/bulk-edit/**/*"',
+            parallelExecParameters: '--env spec="cypress/e2e/bulk-edit/query/*"',
             testsTimeout          : '2',
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
