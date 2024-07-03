@@ -166,11 +166,6 @@ ingress:
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /health/ready
     alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
-
-lifecycleHooks:
-  postStart:
-    exec:
-      command: ["/bin/sh", "-c", "sleep 120 && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
 EOF
   ]
 }
