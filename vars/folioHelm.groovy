@@ -191,7 +191,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    }
 
   //Eureka related configs adjustment
-  if (moduleName =~ /mod-.*$/ || /mgr-.*$/ && ns.enableEureka) {
+  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
     moduleConfig <<
       [
         [eureka: [enabled         : true,
@@ -208,7 +208,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   //Enable RTR functionality
   if (ns.enableRtr) {
-    moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
+    moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
   }
 
   //Bulk operations bucket configuration
