@@ -12,22 +12,35 @@ class Eureka extends Authorization {
   }
 
 
-  
-  void registerApplication(List descriptorsList, tenantId) {
+  void registerApplication(List descriptorsList, OkapiTenant tenant, String applicationId) {
 
-    String url = generateUrl("/applications?check=false")
-    Map<String, String> headers = getOkapiToken(tenantId)
-
+    String checkUrl = generateUrl("/applications/${applicationId}")
     def response = restClient.get(url, headers).body
+    int statusCode = response.status
 
-    restClient.post(url, descriptorsList, headers)
-    logger.info("Application registered: ${descriptorsList}")
+    if (statusCode == 200) {
+      def content = response.body
+      logger.info("Application already registered: ${content}")
+
+    } else if (statusCode == 503) {
+      logger.error("Application manager is unavailable")
+
+    } else {
+      logger.info("Application id ${applicationId} not found in Application manager. Proceeding with registration.")
+
+      String url = generateUrl("/applications?check=false")
+      Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+
+      restClient.post(url, descriptorsList, headers)
+      logger.info("Application registered: ${descriptorsList}")
+    }
   }
 
-  void registerApplicationDiscovery(List descriptorsList, applicationId, tenantId) {
+  void registerApplicationDiscovery(List descriptorsList, String applicationId, OkapiTenant tenant) {
 
     String discoveryUrl = generateUrl("/applications/${applicationId}/discovery?limit=500")
-    Map<String, String> headers = getOkapiToken(tenantId)
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
 
     def response = restClient.get(discoveryUrl, headers)
     def content = response.body
@@ -39,7 +52,7 @@ class Eureka extends Authorization {
 
       String registerUrl = generateUrl("/modules/discovery")
 
-      restClient.post(registerUrl, headers)
+      restClient.post(registerUrl, descriptorsList, headers)
       logger.info("Application discovery registered: ${registerUrl}")
     }
   }
