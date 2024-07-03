@@ -84,12 +84,13 @@ class CypressSuiteExecutionSummary implements IExecutionSummary, ITestParent, IT
   @NonCPS
   @Override
   String toString() {
-    return "CypressRunExecutionSummary{" +
-      "uid='" + uid + '\'' +
-      ", name='" + name + '\'' +
-      ", parent='" + parent.getUid() + '\'' +
-      ", children='" + children +
-      '}'
+    return """{
+      class_name: 'CypressSuiteExecutionSummary',
+      uid: '${uid}',
+      name: '${name}',
+      parent: '${parent.getUid()}',
+      children: ${children},
+    }"""
   }
 
   static CypressSuiteExecutionSummary addFromJSON(def json, ITestParent parent) {

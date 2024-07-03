@@ -99,7 +99,7 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
   @NonCPS
   @Override
   String toString() {
-    return "CypressRunExecutionSummary{" +
+    return "CypressTestExecution{" +
       "uid='" + uid + '\'' +
       ", name='" + name + '\'' +
       ", parent='" + parent.getUid() + '\'' +
@@ -107,6 +107,17 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
       (status != CypressTestExecutionStatus.PASSED && status != CypressTestExecutionStatus.UNKNOWN ? "" : ", defect='" + defect + '\'') +
       ", flaky='" + flaky +
       '}'
+
+    return """{
+      class_name: 'CypressTestExecution',
+      uid: '${uid}',
+      name: '${name}',
+      parent: '${parent.getUid()}',
+      children: ${children},
+      status: ${status},
+      flaky: ${flaky},
+      defect: ${status != CypressTestExecutionStatus.PASSED && status != CypressTestExecutionStatus.UNKNOWN ? "" : defect}
+    }"""
   }
 
   static CypressTestExecution addFromJSON(def json, ITestParent parent) {

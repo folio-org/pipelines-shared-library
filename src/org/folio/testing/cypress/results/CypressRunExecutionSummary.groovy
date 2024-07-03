@@ -160,9 +160,12 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   @Override
   String toString() {
-    return "CypressTestsResult{" +
-      "modulesTestResult=" + modulesExecutionSummary +
-      '}'
+    return """{
+      class_name: 'CypressRunExecutionSummary',
+      uid: '${uid}',
+      children: ${children},
+      defects: ${defects},
+    }"""
   }
 
   @Override
