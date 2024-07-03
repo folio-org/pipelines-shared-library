@@ -57,10 +57,8 @@ class Eureka extends Authorization {
     return getOkapiHeaders(tenantId == 'master' ? '' : tenantId, eurekaToken)
   }
 
-  def getKeycloakUrl(RancherNamespace ns) {
-    def keycloakUrl = "https://${ns.generateDomain('keycloak')}"
-    logger.info("Keycloak URL: ${keycloakUrl}")
-    return keycloakUrl
+  String getKeycloakUrl(RancherNamespace ns) {
+    "https://${ns.generateDomain('keycloak')}"
   }
 
   def getClientSecret(String tenantId, String clientId, String awsRegion) {
