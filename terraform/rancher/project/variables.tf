@@ -237,7 +237,7 @@ variable "okapi_integration_enabled" {
   description = "okapi integration Eureka"
 }
 
-variable "store_type" {
+variable "secure_store_type" {
   type        = string
   default     = "AWS_SSM"
   description = "Secure store type"

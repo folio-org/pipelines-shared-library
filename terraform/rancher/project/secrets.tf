@@ -53,6 +53,7 @@ resource "rancher2_secret" "eureka_common" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
   data = {
+    KC_ADMIN_CLIENT_ID          = base64encode("folio-backend-admin-client")
     KC_ADMIN_CLIENT_SECRET      = base64encode("folio-backend-admin-client")
     KC_LOGIN_CLIENT_SUFFIX      = base64encode("-application")
     KC_IMPORT_ENABLED           = base64encode("true")
@@ -62,7 +63,7 @@ resource "rancher2_secret" "eureka_common" {
     KONG_INTEGRATION_ENABLED    = base64encode("true")
     OKAPI_INTEGRATION_ENABLED   = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
-    SECRET_STORE_TYPE           = base64encode(var.store_type)
+    SECRET_STORE_TYPE           = base64encode(var.secure_store_type)
     SECURITY_ENABLED            = base64encode("true")
     "tenant.url"                = base64encode("http://mgr-tenants")
     "am.url"                    = base64encode("http://mgr-applications")
