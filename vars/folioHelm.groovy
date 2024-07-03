@@ -198,10 +198,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                      tag  : ns.getModules().allModules['folio-module-sidecar']]]]
 
       ]
-    moduleConfig['integrations:'] += [eureka: [enabled       : true,
+    moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                existingSecret: 'eureka-common']]
   }
-
+//
   //Enable RTR functionality
   if (ns.enableRtr) {
     moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
