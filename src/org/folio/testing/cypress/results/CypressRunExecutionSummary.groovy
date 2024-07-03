@@ -173,10 +173,12 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     return !uid.isEmpty() && uid == ((CypressRunExecutionSummary)obj).uid
   }
 
-  static CypressRunExecutionSummary addFromJSON(def json){
+  static CypressRunExecutionSummary addFromJSON(def json, def context){
     CypressRunExecutionSummary ret = new CypressRunExecutionSummary(
       uid: json?.uid,
     )
+
+    context.println("CypressRunExecutionSummary.addFromJSON json=${json}")
 
     ret.children = json?.children ? addChildrenFromJSON(json?.children, ret) : []
 

@@ -110,7 +110,7 @@ ansiColor('xterm') {
             testsTimeout          : '2',
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
-            numberOfWorkers       : '1',
+            numberOfWorkers       : '2',
             useReportPortal       : 'true',
             runType               : 'ci',
             agent                 : 'cypress-static']
