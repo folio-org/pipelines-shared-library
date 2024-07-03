@@ -182,6 +182,9 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
     ret.children = json?.children ? addChildrenFromJSON(json?.children, ret) : []
 
+    context.println("CypressRunExecutionSummary.addFromJSON json?.children=${json?.children ? 'Y' : 'N'}")
+    context.println("CypressRunExecutionSummary.addFromJSON ret.children=${ret.children}")
+
     return ret
   }
 
