@@ -13,7 +13,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@DEPRECATED-RANCHER-741-Jenkins-Enhancements') _
 
-CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+CONFIG_BRANCH = 'DEPRECATED-RANCHER-741-Jenkins-Enhancements'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

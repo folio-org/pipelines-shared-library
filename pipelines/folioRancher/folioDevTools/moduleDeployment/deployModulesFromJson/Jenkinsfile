@@ -5,7 +5,7 @@ import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
 
 // Define a global variable for the library branch
-String DEPLOYMENT_CONFIG_BRANCH = 'RANCHER-741-Jenkins-Enhancements'
+String DEPLOYMENT_CONFIG_BRANCH = 'DEPRECATED-RANCHER-741-Jenkins-Enhancements'
 
 @Library('pipelines-shared-library@DEPRECATED-RANCHER-741-Jenkins-Enhancements') _
 
