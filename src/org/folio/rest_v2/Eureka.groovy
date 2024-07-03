@@ -46,7 +46,7 @@ class Eureka extends Authorization {
     }
   }
 
-  def getMasterRealmHeaders(RancherNamespace ns, OkapiTenant tenant, String awsRegion) {
+  def getMasterRealmHeaders(RancherNamespace ns, String awsRegion) {
     return getHttpHeaders(ns, 'master', 'folio-backend-admin-client', awsRegion)
   }
 
