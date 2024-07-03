@@ -15,7 +15,7 @@ class Eureka extends Authorization {
   void registerApplication(List descriptorsList, OkapiTenant tenant, String applicationId) {
 
     String checkUrl = generateUrl("/applications/${applicationId}")
-    def response = restClient.get(url, headers).body
+    def response = restClient.get(checkUrl, headers).body
     int statusCode = response.status
 
     if (statusCode == 200) {
