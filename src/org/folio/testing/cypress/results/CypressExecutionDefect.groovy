@@ -1,5 +1,7 @@
 package org.folio.testing.cypress.results
 
+import com.cloudbees.groovy.cps.NonCPS
+
 class CypressExecutionDefect implements ITestParent, ITestChild {
 
   List<ITestChild> children = []
@@ -24,6 +26,17 @@ class CypressExecutionDefect implements ITestParent, ITestChild {
       return super.equals(obj)
 
     return !uid.isEmpty() && uid == ((CypressExecutionDefect)obj).uid
+  }
+
+  @NonCPS
+  @Override
+  String toString() {
+    return "CypressRunExecutionSummary{" +
+      "uid='" + uid + '\'' +
+      ", name='" + name + '\'' +
+      ", parent='" + parent.getUid() + '\'' +
+      ", children='" + children +
+      '}'
   }
 
   static CypressExecutionDefect addFromJSON(CypressRunExecutionSummary run, def json, ITestParent parent) {
