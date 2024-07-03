@@ -227,7 +227,7 @@ void call(params) {
             , true
             , "${env.BUILD_URL}allure/"
           )
-          , channel: "#rancher_tests_notifications")
+          , channel: "#rancher-test-notifications")
       }
     }
   }
