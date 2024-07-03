@@ -110,9 +110,9 @@ ansiColor('xterm') {
             testsTimeout          : '2',
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
-            numberOfWorkers       : '1',
+            numberOfWorkers       : '6',
             useReportPortal       : 'true',
-            runType               : 'ci',
+            runType               : 'debug',
             agent                 : 'cypress-static']
           folioCypressFlow(cypressParams)
         }
