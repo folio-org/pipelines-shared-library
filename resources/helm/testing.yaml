@@ -1649,9 +1649,6 @@ mgr-applications:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
   replicaCount: 1
   resources:
     limits:
@@ -1673,9 +1670,6 @@ mgr-tenants:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
   replicaCount: 1
   resources:
     limits:
@@ -1694,9 +1688,6 @@ mgr-tenant-entitlements:
     db:
       enabled: true
       existingSecret: db-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -1726,9 +1717,6 @@ mod-consortia-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
     systemuser:
       enabled: true
       existingSecret: mod-consortia-keycloak-systemuser
@@ -1755,9 +1743,6 @@ mod-login-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
   replicaCount: 1
   resources:
     limits:
@@ -1783,9 +1768,6 @@ mod-roles-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
   replicaCount: 1
   resources:
     limits:
@@ -1819,9 +1801,6 @@ mod-users-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
     systemuser:
       enabled: true
       existingSecret: mod-users-keycloak-systemuser
@@ -1841,8 +1820,6 @@ mod-scheduler:
       value: '1'
     - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
       value: '200'
-    - name: OKAPI_URL
-      value: 'http://sidecar:8081'
     - name: QUARTZ_STARTUP_DELAY
       value: '0s'
     - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
@@ -1853,8 +1830,6 @@ mod-scheduler:
       value: '500'
     - name: QUARTZ_POOL_THREAD_COUNT
       value: '5'
-    - name: SYSTEM_USER_USERNAME_TEMPLATE
-      value: '{tenantId}-system-user'
   integrations:
     db:
       enabled: true
@@ -1862,12 +1837,9 @@ mod-scheduler:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
-    eureka:
-      enabled: true
-      existingSecret: eureka-common
     systemuser:
       enabled: true
-      existingSecret: mod-users-keycloak-systemuser
+      existingSecret: mod-scheduler-systemuser
     okapi:
       enabled: true
       existingSecret: okapi-credentials
