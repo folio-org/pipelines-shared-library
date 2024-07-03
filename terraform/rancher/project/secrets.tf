@@ -71,6 +71,6 @@ resource "rancher2_secret" "eureka_common" {
     MOD_USERS_KEYCLOAK_URL      = base64encode("http://mod-users-keycloak")
     #    SECRET_STORE_AWS_SSM_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
     #    SECRET_STORE_AWS_SSM_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
-    #    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("true") //TODO remove permissions from EKS Node Group instance profile! | Tests purpose ONLY
+    #    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("false") //TODO could be switched on upon EUREKA-210 completion
   }
 }

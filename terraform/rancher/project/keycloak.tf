@@ -24,10 +24,6 @@ resource "rancher2_secret" "keycloak-credentials" {
 #   depends_on   = [helm_release.postgresql, rancher2_secret.keycloak-credentials]
 # }
 #
-locals {
-  kc_admin_user_name  = "admin"
-  kc_target_http_port = "8080"
-}
 
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
@@ -48,7 +44,7 @@ image:
   debug: false
 
 auth:
-  adminUser: ${local.kc_admin_user_name}
+  adminUser: "admin"
   existingSecret: keycloak-credentials
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
@@ -107,7 +103,7 @@ extraEnvVars:
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
-    value: "${local.kc_target_http_port}"
+    value: "8080"
   - name: KC_HEALTH_ENABLED
     value: "true"
 
@@ -165,12 +161,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /health/ready
-    alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
-
-lifecycleHooks:
-  postStart:
-    exec:
-      command: ["/bin/sh", "-c", "/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
+    alb.ingress.kubernetes.io/healthcheck-port: "8080"
 EOF
   ]
 }
