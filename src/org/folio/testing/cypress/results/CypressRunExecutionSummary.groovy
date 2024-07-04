@@ -155,6 +155,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   CypressTestExecution getChildById(def json, ITestParent parent, def context=null){
     context?.println("CypressRunExecutionSummary.getChildById I'm in. json=${json}")
+    context?.println("CypressRunExecutionSummary.getChildById parent.getChildren()=${parent.getChildren()}")
 
     for(ITestChild child in parent.getChildren()){
       ITestChild checkChild = child
