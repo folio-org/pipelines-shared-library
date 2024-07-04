@@ -124,7 +124,7 @@ void call(params) {
                   input message: "Analyze results. Do you want to proceed?"
 
                   testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
-                  testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+                  testRunExecutionSummary.addDefectsFromJSON(jsonDefects, this)
 
                   if (sendSlackNotification) {
                     stage('[Slack] Send notification') {

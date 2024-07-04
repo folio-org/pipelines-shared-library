@@ -121,25 +121,33 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       defects.add(defect)
   }
 
-  void addDefectsFromJSON(def json){
+  void addDefectsFromJSON(def json, def context=null){
     if(!json?.children)
       return
 
-    defects = json?.children ? addDefectChildrenFromJSON(json?.children, this) : []
+    defects = json?.children ? addDefectChildrenFromJSON(json?.children, this, context) : []
   }
 
-  List<ITestChild> addDefectChildrenFromJSON(def json, ITestParent parent){
+  List<ITestChild> addDefectChildrenFromJSON(def json, ITestParent parent, def context=null){
     List<ITestChild> ret = []
 
+    context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON I'm in. json=${json}")
+
     json.each { child ->
+      context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON child=${child}")
+
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent))
       else {
         CypressTestExecution test = getChildById(child, parent)
 
+        context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test=${test}")
+
         if(test && parent.getClass() == CypressExecutionDefect.class)
           test.defect = parent as CypressExecutionDefect
       }
+
+      context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON ret=${ret}")
     }
 
     return ret
