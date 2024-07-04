@@ -196,7 +196,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
   static List<IExecutionSummary> addChildrenFromJSON(def json, ITestParent parent, def context=null) {
     List<IExecutionSummary> ret = []
 
-    context?.println("CypressRunExecutionSummary.addChildrenFromJSON I'm in")
+    context?.println("CypressRunExecutionSummary.addChildrenFromJSON I'm in. json=${json}")
 
     json.children.each { child ->
       context?.println("CypressRunExecutionSummary.addChildrenFromJSON child=${child}")
