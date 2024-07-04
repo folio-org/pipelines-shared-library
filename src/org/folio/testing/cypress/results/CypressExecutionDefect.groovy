@@ -40,9 +40,13 @@ class CypressExecutionDefect implements ITestParent, ITestChild {
     }"""
   }
 
-  static CypressExecutionDefect addFromJSON(CypressRunExecutionSummary run, def json, ITestParent parent) {
+  static CypressExecutionDefect addFromJSON(CypressRunExecutionSummary run, def json, ITestParent parent, def context=null) {
+    context?.println("CypressExecutionDefect.addFromJSON json=${json}")
+
     if(!json?.children)
       return null
+
+    context?.println("CypressExecutionDefect.addFromJSON Add new")
 
     CypressExecutionDefect ret = new CypressExecutionDefect(
       (String)(json?.name),
@@ -50,7 +54,9 @@ class CypressExecutionDefect implements ITestParent, ITestChild {
       parent
     )
 
-    ret.children = run.addDefectChildrenFromJSON(json.children, ret)
+    ret.children = run.addDefectChildrenFromJSON(json.children, ret, context)
+
+    context?.println("CypressExecutionDefect.addFromJSON ret=${ret}")
 
     return ret
   }
