@@ -53,6 +53,13 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
 //  TestExecutionResult lll = TestExecutionResult.byPassRate(summary)
 
   println("folioSlackNotificationUtils.groovy renderTestResultSection summary.children=${summary.children}")
+
+  for(IExecutionSummary child: summary.children){
+    println("folioSlackNotificationUtils.groovy renderTestResultSection child=${child}")
+
+    println("folioSlackNotificationUtils.groovy renderTestResultSection child.getPassedCount()=${child.getPassedCount()}")
+  }
+
   println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getPassRate()=${summary.getPassRate()}")
 
   return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary), this)
