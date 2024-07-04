@@ -100,6 +100,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     return getPassedCount() + getFailedCount() + getSkippedCount() + getBrokenCount()
   }
 
+  @NonCPS
   @Override
   int getPassRate() {
     def passRateInDecimal = getTotalCount() > 0 ? (getPassedCount() * 100) / getTotalCount() : 0
