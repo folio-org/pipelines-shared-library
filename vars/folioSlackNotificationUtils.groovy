@@ -60,6 +60,8 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
     println("folioSlackNotificationUtils.groovy renderTestResultSection child.getPassedCount()=${child.getPassedCount()}")
   }
 
+  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getPassedCount()=${summary.getPassedCount()}")
+  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getTotalCount()=${summary.getTotalCount()}")
   println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getPassRate()=${summary.getPassRate()}")
 
   return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary), this)
