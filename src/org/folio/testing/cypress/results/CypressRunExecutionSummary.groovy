@@ -163,8 +163,9 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
       context?.println("CypressRunExecutionSummary.getChildById child=${child}")
       context?.println("CypressRunExecutionSummary.getChildById child.getClass()=${child.getClass()}")
+      context?.println("CypressRunExecutionSummary.getChildById child instanceof ITestParent=${child instanceof ITestParent}")
 
-      if (child.getClass() == ITestParent.class)
+      if (child instanceof ITestParent)
         checkChild = getChildById(json, child as ITestParent, null)
 
       if (checkChild.equalsUID(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
