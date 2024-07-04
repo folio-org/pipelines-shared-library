@@ -191,7 +191,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
   static List<IExecutionSummary> addChildrenFromJSON(def json, ITestParent parent) {
     List<IExecutionSummary> ret = []
 
-    json.children.each { child ->
+    json.each { child ->
       if (child?.children)
         ret.add(CypressSuiteExecutionSummary.addFromJSON(child, parent))
       else
