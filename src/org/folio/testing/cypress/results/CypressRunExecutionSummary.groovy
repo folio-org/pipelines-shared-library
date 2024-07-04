@@ -135,7 +135,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent))
       else {
-        CypressTestExecution test = getChildById(child, parent)
+        CypressTestExecution test = getChildById(child, this)
 
         if(test && parent.getClass() == CypressExecutionDefect.class)
           test.defect = parent as CypressExecutionDefect
@@ -149,7 +149,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     for(ITestChild child in parent.getChildren()){
       ITestChild checkChild = child
 
-      if (child.getClass() == ITestParent.class)
+      if (child instanceof ITestParent)
         checkChild = getChildById(json, child as ITestParent)
 
       if (checkChild.equalsUID(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
