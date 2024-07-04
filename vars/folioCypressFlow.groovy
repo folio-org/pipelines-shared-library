@@ -118,12 +118,35 @@ void call(params) {
                 node(agent) {
 //                  cleanWs notFailBuild: true
 
-                  dir("cypress-${batch[0]}") {
+                  def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
+                  def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
+
+                  input message: "Analyze results. Do you want to proceed?"
+
+                  testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
+
+                  if (sendSlackNotification) {
+                    stage('[Slack] Send notification') {
+                      slackSend(attachments: folioSlackNotificationUtils
+                        .renderBuildAndTestResultMessage(
+                          TestType.CYPRESS
+                          , testRunExecutionSummary
+                          , ""
+                          , true
+                          , "${env.BUILD_URL}allure/"
+                        )
+                        , channel: "#rancher-test-notifications")
+                    }
+                  }
+
+
+
+//                  dir("cypress-${batch[0]}") {
 //                    cloneCypressRepo(branch)
 //                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 //
 //                    compileTests(cypressImageVersion, "${batch[0]}")
-                  }
+//                  }
 
 //                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
 //                    if (copyBatchIndex > 0) {
@@ -210,29 +233,29 @@ void call(params) {
 //      }
 //    }
 
-    stage('[Report] Analyze results') {
-      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
-      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
-
-      input message: "Analyze results. Do you want to proceed?"
-
-      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
-//      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
-    }
-
-    if (sendSlackNotification) {
-      stage('[Slack] Send notification') {
-        slackSend(attachments: folioSlackNotificationUtils
-          .renderBuildAndTestResultMessage(
-            TestType.CYPRESS
-            , testRunExecutionSummary
-            , ""
-            , true
-            , "${env.BUILD_URL}allure/"
-          )
-          , channel: "#rancher-test-notifications")
-      }
-    }
+//    stage('[Report] Analyze results') {
+//      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
+//      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
+//
+//      input message: "Analyze results. Do you want to proceed?"
+//
+//      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
+////      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+//    }
+//
+//    if (sendSlackNotification) {
+//      stage('[Slack] Send notification') {
+//        slackSend(attachments: folioSlackNotificationUtils
+//          .renderBuildAndTestResultMessage(
+//            TestType.CYPRESS
+//            , testRunExecutionSummary
+//            , ""
+//            , true
+//            , "${env.BUILD_URL}allure/"
+//          )
+//          , channel: "#rancher-test-notifications")
+//      }
+//    }
   }
 }
 

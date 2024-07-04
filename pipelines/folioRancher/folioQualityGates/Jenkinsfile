@@ -111,7 +111,7 @@ ansiColor('xterm') {
 //            testrailProjectID     : '', //TODO Add testrail Project ID
 //            testrailRunID         : '', //TODO Add testrail Run ID
             customBuildName       : env.JOB_BASE_NAME,
-            numberOfWorkers       : '6',
+            numberOfWorkers       : '1',
             useReportPortal       : 'true',
             runType               : 'debug',
             agent                 : 'cypress-static']
