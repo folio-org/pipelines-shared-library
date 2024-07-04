@@ -104,7 +104,6 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
       uid: '${uid}',
       name: '${name}',
       parent: '${parent.getUid()}',
-      children: ${children},
       status: ${status},
       flaky: ${flaky},
       defect: ${status != CypressTestExecutionStatus.PASSED && status != CypressTestExecutionStatus.UNKNOWN ? "" : defect}
