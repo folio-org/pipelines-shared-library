@@ -50,7 +50,9 @@ enum SlackTestResultRenderer {
   }
 
   String renderSection(String buildName, IExecutionSummary summary
-                       , String buildUrl, boolean useReportPortal, String rpUrl) {
+                       , String buildUrl, boolean useReportPortal, String rpUrl, def context) {
+
+    context.println("SlackTestResultRenderer.renderSection summary=${summary}")
 
     return renderSection(buildName
       , summary.passedCount as String
