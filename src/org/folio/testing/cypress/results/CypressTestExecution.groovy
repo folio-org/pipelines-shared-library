@@ -111,7 +111,7 @@ class CypressTestExecution implements IExecutionSummary, ITestChild {
   }
 
   static CypressTestExecution addFromJSON(def json, ITestParent parent) {
-    if(!json?.children)
+    if(json?.children)
       return null
 
     CypressTestExecution ret = new CypressTestExecution(
