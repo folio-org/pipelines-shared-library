@@ -54,7 +54,7 @@ enum SlackTestResultRenderer {
 
     return renderSection(buildName
       , summary.passedCount as String
-      , summary.skippedCount as String
+      , (summary.skippedCount + summary.brokenCount) as String
       , summary.failedCount as String
       , summary.passRate as String
       , buildUrl, useReportPortal, rpUrl)
