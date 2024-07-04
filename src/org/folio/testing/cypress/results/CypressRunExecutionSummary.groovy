@@ -185,7 +185,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
     context.println("CypressRunExecutionSummary.addFromJSON json=${json}")
 
-    ret.children = json?.children ? addChildrenFromJSON(json?.children, ret) : []
+    ret.children = json?.children ? addChildrenFromJSON(json?.children, ret, context) : []
 
     context.println("CypressRunExecutionSummary.addFromJSON json?.children=${json?.children ? 'Y' : 'N'}")
     context.println("CypressRunExecutionSummary.addFromJSON ret.children=${ret.children}")
@@ -193,14 +193,20 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     return ret
   }
 
-  static List<IExecutionSummary> addChildrenFromJSON(def json, ITestParent parent) {
+  static List<IExecutionSummary> addChildrenFromJSON(def json, ITestParent parent, def context=null) {
     List<IExecutionSummary> ret = []
 
+    context?.println("CypressRunExecutionSummary.addChildrenFromJSON I'm in")
+
     json.children.each { child ->
+      context?.println("CypressRunExecutionSummary.addChildrenFromJSON child=${child}")
+
       if (child?.children)
         ret.add(CypressSuiteExecutionSummary.addFromJSON(child, parent))
       else
         ret.add(CypressTestExecution.addFromJSON(child, parent))
+
+      context?.println("CypressRunExecutionSummary.addChildrenFromJSON ret=${ret}")
     }
 
     return ret
