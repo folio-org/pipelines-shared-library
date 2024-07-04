@@ -63,7 +63,8 @@ enum SlackTestResultRenderer {
   }
 
   @NonCPS
-  static SlackTestResultRenderer fromType(TestType type, TestExecutionResult result) throws Error {
+  static SlackTestResultRenderer fromType(TestType type, TestExecutionResult result, def context) throws Error {
+    context.println("SlackTestResultRenderer.fromType I am here.")
     for (SlackTestResultRenderer elem : values()) {
       if (elem.baseType == type && elem.testResult == result) {
         return elem

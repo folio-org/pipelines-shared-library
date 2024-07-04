@@ -50,7 +50,7 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
 
   println("folioSlackNotificationUtils.groovy renderTestResultSection summary=${summary}")
 
-  return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary))
+  return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary), this)
     .renderSection(
       "${buildName}"
       , summary
