@@ -142,9 +142,12 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
         CypressTestExecution test = getChildById(child, this, context)
 
         context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test=${test}")
+        context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON parent.getClass() == CypressExecutionDefect.class=${parent.getClass() == CypressExecutionDefect.class}")
 
         if(test && parent.getClass() == CypressExecutionDefect.class)
           test.defect = parent as CypressExecutionDefect
+
+        context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test=${test}")
       }
 
       context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON ret=${ret}")
