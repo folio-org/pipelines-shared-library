@@ -57,13 +57,12 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   @Override
   int getPassedCount() {
-//    int count = 0
-//    for (IExecutionSummary child : children) {
-//      count += child.getPassedCount()
-//    }
-//
-//    return count
-    return 123
+    int count = 0
+    for (IExecutionSummary child : children) {
+      count += child.getPassedCount()
+    }
+
+    return count
   }
 
   @Override
@@ -103,9 +102,8 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   @Override
   int getPassRate() {
-    return getTotalCount()
-//    def passRateInDecimal = getTotalCount() > 0 ? (getPassedCount() * 100) / getTotalCount() : 0
-//    return passRateInDecimal.intValue()
+    def passRateInDecimal = getTotalCount() > 0 ? (getPassedCount() * 100) / getTotalCount() : 0
+    return passRateInDecimal.intValue()
   }
 
   @Override
