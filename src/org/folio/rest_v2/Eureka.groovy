@@ -5,17 +5,16 @@ import org.folio.utilities.RequestException
 
 class Eureka extends Authorization {
 
+  /**
+   * EurekaTenant object contains Master Tenant configuration for Eureka.
+   * @attribute 'tenantId'     Default: "master"
+   * @attribute 'clientId'     Default: "folio-backend-admin-client"
+   */
   public EurekaTenant masterTenant
-  static String keycloakUrl
-  static String clientSecret
-  static String masterTenantId = "master"
-  static String masterClientId = "folio-backend-admin-client"
 
-  Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false, String keycloakUrl, String clientSecret) {
+  Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false) {
     super(context, eurekaDomain, debug)
     this.masterTenant = masterTenant
-    this.keycloakUrl = keycloakUrl
-    this.clientSecret = clientSecret
   }
 
   void createTenant(EurekaTenant tenant) {
@@ -24,7 +23,7 @@ class Eureka extends Authorization {
       return
     }
 
-    String url = generateUrl("/tenants")
+    String url = generateUrl("/tenants")  // Tenant Manager URL
     Map<String, String> headers = getMasterHeaders()
     Map body = [
       name: tenant.tenantId,
@@ -57,19 +56,16 @@ class Eureka extends Authorization {
   }
 
   def getMasterHeaders() {
-    return getHttpHeaders(masterTenantId, masterClientId)
+    return getHttpHeaders(masterTenant)
   }
 
-  def getHttpHeaders(String tenantId, String clientId) {
-    def eurekaToken = getEurekaToken(tenantId, clientId)
-    if (tenantId == masterTenantId) {
-      return getOkapiHeaders(null, null)
-    } else {
-      return getOkapiHeaders(tenantId, eurekaToken)
-    }
+  def getHttpHeaders(EurekaTenant tenant) {
+    def tenantId = (tenant.tenantId == masterTenant.tenantId) ? "" : tenant.tenantId
+    def eurekaToken = getEurekaToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
+    return getOkapiHeaders(tenantId, eurekaToken)
   }
 
-  String getEurekaToken(String tenantId, String clientId) {
+  String getEurekaToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
     logger.info("Getting access token from Keycloak service")
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"

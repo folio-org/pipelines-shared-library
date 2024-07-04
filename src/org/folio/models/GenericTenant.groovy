@@ -1,6 +1,6 @@
 package org.folio.models
 
-class Tenant {
+class GenericTenant {
   /** Tenant's identifier. */
   String tenantId
 
@@ -26,7 +26,7 @@ class Tenant {
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.
    */
-  Tenant(String tenantId) {
+  GenericTenant(String tenantId) {
     this.tenantId = tenantId
     this.modules = new Modules()
   }
@@ -36,7 +36,7 @@ class Tenant {
    * @param tenantName Name of the tenant.
    * @return The Tenant object.
    */
-  Tenant withTenantName(String tenantName) {
+  GenericTenant withTenantName(String tenantName) {
     this.tenantName = tenantName
     return this
   }
@@ -46,7 +46,7 @@ class Tenant {
    * @param tenantDescription Description of the tenant.
    * @return The Tenant object.
    */
-  Tenant withTenantDescription(String tenantDescription) {
+  GenericTenant withTenantDescription(String tenantDescription) {
     this.tenantDescription = tenantDescription
     return this
   }
@@ -56,7 +56,7 @@ class Tenant {
    * @param index Index information associated with the tenant.
    * @return The Tenant object.
    */
-  Tenant withIndex(Index index) {
+  GenericTenant withIndex(Index index) {
     this.index = index
     return this
   }
@@ -66,7 +66,7 @@ class Tenant {
    * @param installRequestParams Parameters for installation requests for the tenant.
    * @return The Tenant object.
    */
-  Tenant withInstallRequestParams(InstallRequestParams installRequestParams) {
+  GenericTenant withInstallRequestParams(InstallRequestParams installRequestParams) {
     this.installRequestParams = installRequestParams
     return this
   }
@@ -76,7 +76,7 @@ class Tenant {
    * @param tenantUi User Interface (UI) details for the tenant.
    * @return The Tenant object.
    */
-  Tenant withTenantUi(TenantUi tenantUi) {
+  GenericTenant withTenantUi(TenantUi tenantUi) {
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
     return this
