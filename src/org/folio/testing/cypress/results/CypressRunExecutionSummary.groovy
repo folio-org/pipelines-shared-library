@@ -152,7 +152,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       if (child instanceof ITestParent)
         checkChild = getChildById(json, child as ITestParent)
 
-      if (checkChild.equalsUID(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
+      if (checkChild.same(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
         return checkChild as CypressTestExecution
     }
 
@@ -172,10 +172,15 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   @Override
   boolean equals(Object obj){
-    if(getClass() != obj.class)
+    if(getClass() != obj.getClass())
       return super.equals(obj)
 
-    return !uid.isEmpty() && uid == ((CypressRunExecutionSummary)obj).uid
+    return same((obj as CypressRunExecutionSummary).uid)
+  }
+
+  @Override
+  boolean same(String uid) {
+    return !getUid().isEmpty() && getUid().trim() == uid.trim()
   }
 
   static CypressRunExecutionSummary addFromJSON(def json){

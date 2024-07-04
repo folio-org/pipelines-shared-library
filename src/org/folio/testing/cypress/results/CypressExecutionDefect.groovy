@@ -22,10 +22,15 @@ class CypressExecutionDefect implements ITestParent, ITestChild {
 
   @Override
   boolean equals(Object obj){
-    if(getClass() != obj.class)
+    if(getClass() != obj.getClass())
       return super.equals(obj)
 
-    return !uid.isEmpty() && uid == ((CypressExecutionDefect)obj).uid
+    return same((obj as CypressExecutionDefect).uid)
+  }
+
+  @Override
+  boolean same(String uid) {
+    return !getUid().isEmpty() && getUid().trim() == uid.trim()
   }
 
   @NonCPS
