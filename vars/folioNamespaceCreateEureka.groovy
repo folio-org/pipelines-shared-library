@@ -126,6 +126,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    stage('[Build and deploy UI]') {
+      // placeholder
+    }
+
     stage('Deploy ldp') {
       println('LDP deployment')
     }
