@@ -131,7 +131,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
   List<ITestChild> addDefectChildrenFromJSON(def json, ITestParent parent){
     List<ITestChild> ret = []
 
-    json.children.each { child ->
+    json.each { child ->
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent))
       else {
