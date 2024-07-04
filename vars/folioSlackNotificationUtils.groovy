@@ -56,7 +56,7 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
       , summary
       , "${url}"
       , useReportPortal
-      , ReportPortalTestType.fromType(type).reportPortalLaunchesURL()
+      , ReportPortalTestType.fromType(type).reportPortalLaunchesURL(), this
     )
 }
 
