@@ -177,7 +177,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass()=${checkChild.getClass()}")
       context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass() == CypressTestExecution.class=${checkChild.getClass() == CypressTestExecution.class}")
 
-      if (checkChild.same(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
+      if (checkChild && checkChild.getClass() == CypressTestExecution.class && checkChild.same(json?.uid))
         return checkChild as CypressTestExecution
     }
 
