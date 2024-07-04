@@ -93,9 +93,13 @@ class CypressSuiteExecutionSummary implements IExecutionSummary, ITestParent, IT
     }"""
   }
 
-  static CypressSuiteExecutionSummary addFromJSON(def json, ITestParent parent) {
+  static CypressSuiteExecutionSummary addFromJSON(def json, ITestParent parent, def context=null) {
+    context?.println("CypressSuiteExecutionSummary.addFromJSON json=${json}")
+
     if(!json?.children)
       return null
+
+    context?.println("CypressSuiteExecutionSummary.addFromJSON Add new")
 
     CypressSuiteExecutionSummary ret = new CypressSuiteExecutionSummary(
       name: json?.name,
@@ -103,7 +107,9 @@ class CypressSuiteExecutionSummary implements IExecutionSummary, ITestParent, IT
       parent: parent,
     )
 
-    ret.children = CypressRunExecutionSummary.addChildrenFromJSON(json.children, ret)
+    ret.children = CypressRunExecutionSummary.addChildrenFromJSON(json.children, ret, context)
+
+    context?.println("CypressSuiteExecutionSummary.addFromJSON ret=${ret}")
 
     return ret
   }
