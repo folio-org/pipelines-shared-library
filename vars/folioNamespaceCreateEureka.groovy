@@ -34,6 +34,10 @@ void call(CreateNamespaceParameters args) {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
     }
 
+    stage('[Wait] for keycloak initialization') {
+      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+    }
+
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -96,8 +100,6 @@ void call(CreateNamespaceParameters args) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
       }
     }
-
-    sleep time: 3, unit: 'MINUTES'
 
     stage('[Rest] MDs and SVC') {
       //tbd
