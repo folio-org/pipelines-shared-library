@@ -1,8 +1,5 @@
 package org.folio.testing.cypress.results
 
-import org.folio.testing.IExecutionSummary
-
-interface ITestParent {
+interface ITestParent extends ITest {
   List<ITestChild> getChildren()
-  String getUid()
 }

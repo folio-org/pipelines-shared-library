@@ -75,10 +75,15 @@ class CypressSuiteExecutionSummary implements IExecutionSummary, ITestParent, IT
 
   @Override
   boolean equals(Object obj){
-    if(getClass() != obj.class)
+    if(getClass() != obj.getClass())
       return super.equals(obj)
 
-    return !uid.isEmpty() && uid == ((CypressSuiteExecutionSummary)obj).uid
+    return same((obj as CypressSuiteExecutionSummary).uid)
+  }
+
+  @Override
+  boolean same(String uid) {
+    return !getUid().isEmpty() && getUid().trim() == uid.trim()
   }
 
   @NonCPS

@@ -161,14 +161,16 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     for(ITestChild child in parent.getChildren()){
       ITestChild checkChild = child
 
+      if (child instanceof ITestParent)
+        checkChild = getChildById(json, child as ITestParent)
       context?.println("CypressRunExecutionSummary.getChildById child=${child}")
       context?.println("CypressRunExecutionSummary.getChildById child.getClass()=${child.getClass()}")
       context?.println("CypressRunExecutionSummary.getChildById child instanceof ITestParent=${child instanceof ITestParent}")
 
       if (child instanceof ITestParent)
-        checkChild = getChildById(json, child as ITestParent, null)
+        checkChild = getChildById(json, child as ITestParent, context)
 
-      if (checkChild.equalsUID(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
+      if (checkChild.same(json?.uid) && checkChild.getClass() == CypressTestExecution.class)
         return checkChild as CypressTestExecution
     }
 
@@ -188,10 +190,15 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   @Override
   boolean equals(Object obj){
-    if(getClass() != obj.class)
+    if(getClass() != obj.getClass())
       return super.equals(obj)
 
-    return !uid.isEmpty() && uid == ((CypressRunExecutionSummary)obj).uid
+    return same((obj as CypressRunExecutionSummary).uid)
+  }
+
+  @Override
+  boolean same(String uid) {
+    return !getUid().isEmpty() && getUid().trim() == uid.trim()
   }
 
   static CypressRunExecutionSummary addFromJSON(def json, def context){
