@@ -75,3 +75,10 @@ resource "rancher2_secret" "eureka_common" {
     #    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("false") //TODO could be switched on upon EUREKA-210 completion
   }
 }
+#Must have SSM Eureka parameters
+resource "aws_ssm_parameter" "ssm_param" {
+  for_each = var.eureka ? toset(local.ssm_params) : []
+  name     = join("_", [join("-", [var.rancher_cluster_name, rancher2_namespace.this.name]), each.value])
+  type     = "SecureString"
+  value    = "SecretPassword"
+}
