@@ -141,6 +141,8 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent, context))
       else {
+        context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON tests=${tests}")
+
         CypressTestExecution test = tests.get(json?.uid)
 
         context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test=${test}")
