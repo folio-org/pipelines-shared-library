@@ -13,6 +13,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
   Map<String, IModuleExecutionSummary> modulesExecutionSummary = [:]
   List<IExecutionSummary> children = []
   List<ITestChild> defects = []
+  Map<String, CypressTestExecution> tests = [:]
 
   String uid = ""
 
@@ -139,14 +140,14 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent, context))
       else {
-        CypressTestExecution test = getChildById(child, this, context)
+        CypressTestExecution test = tests.get(json?.uid)
 
         context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test=${test}")
         context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON parent.getClass() == CypressExecutionDefect.class=${parent.getClass() == CypressExecutionDefect.class}")
 
         context?.println("CypressRunExecutionSummary.addDefectChildrenFromJSON test.defect=${test.defect}")
 
-        if(test && parent.getClass() == CypressExecutionDefect.class) {
+        if(test) {
           test.defect = parent as CypressExecutionDefect
           ret.add(test)
         }
@@ -162,36 +163,36 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     return ret
   }
 
-  CypressTestExecution getChildById(def json, ITestParent parent, def context=null){
-    context?.println("CypressRunExecutionSummary.getChildById I'm in. json=${json}")
-    context?.println("CypressRunExecutionSummary.getChildById parent=${parent}")
-    context?.println("CypressRunExecutionSummary.getChildById parent.getChildren()=${parent.getChildren()}")
-
-    for(ITestChild child in parent.getChildren()){
-      ITestChild checkChild = child
-
-      context?.println("CypressRunExecutionSummary.getChildById child=${child}")
-      context?.println("CypressRunExecutionSummary.getChildById child.getClass()=${child.getClass()}")
-      context?.println("CypressRunExecutionSummary.getChildById child instanceof ITestParent=${child instanceof ITestParent}")
-
-      if (child instanceof ITestParent)
-        checkChild = getChildById(json, child as ITestParent, context)
-
-      context?.println("CypressRunExecutionSummary.getChildById AFTER child instanceof ITestParent checkChild=${checkChild}")
-
-      context?.println("CypressRunExecutionSummary.getChildById json?.uid=${json?.uid}")
-      context?.println("CypressRunExecutionSummary.getChildById checkChild.getUID()=${checkChild?.getUid()}")
-      context?.println("CypressRunExecutionSummary.getChildById checkChild.same(json?.uid)=${checkChild?.same(json?.uid)}")
-
-      context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass()=${checkChild?.getClass()}")
-      context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass() == CypressTestExecution.class=${checkChild?.getClass() == CypressTestExecution.class}")
-
-      if (checkChild && checkChild.getClass() == CypressTestExecution.class && checkChild.same(json?.uid))
-        return checkChild as CypressTestExecution
-    }
-
-    return null
-  }
+//  CypressTestExecution getChildById(def json, ITestParent parent, def context=null){
+//    context?.println("CypressRunExecutionSummary.getChildById I'm in. json=${json}")
+//    context?.println("CypressRunExecutionSummary.getChildById parent=${parent}")
+//    context?.println("CypressRunExecutionSummary.getChildById parent.getChildren()=${parent.getChildren()}")
+//
+//    for(ITestChild child in parent.getChildren()){
+//      ITestChild checkChild = child
+//
+//      context?.println("CypressRunExecutionSummary.getChildById child=${child}")
+//      context?.println("CypressRunExecutionSummary.getChildById child.getClass()=${child.getClass()}")
+//      context?.println("CypressRunExecutionSummary.getChildById child instanceof ITestParent=${child instanceof ITestParent}")
+//
+//      if (child instanceof ITestParent)
+//        checkChild = getChildById(json, child as ITestParent, context)
+//
+//      context?.println("CypressRunExecutionSummary.getChildById AFTER child instanceof ITestParent checkChild=${checkChild}")
+//
+//      context?.println("CypressRunExecutionSummary.getChildById json?.uid=${json?.uid}")
+//      context?.println("CypressRunExecutionSummary.getChildById checkChild.getUID()=${checkChild?.getUid()}")
+//      context?.println("CypressRunExecutionSummary.getChildById checkChild.same(json?.uid)=${checkChild?.same(json?.uid)}")
+//
+//      context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass()=${checkChild?.getClass()}")
+//      context?.println("CypressRunExecutionSummary.getChildById checkChild.getClass() == CypressTestExecution.class=${checkChild?.getClass() == CypressTestExecution.class}")
+//
+//      if (checkChild && checkChild.getClass() == CypressTestExecution.class && checkChild.same(json?.uid))
+//        return checkChild as CypressTestExecution
+//    }
+//
+//    return null
+//  }
 
   @NonCPS
   @Override
@@ -242,10 +243,14 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
       if (child?.children)
         ret.add(CypressSuiteExecutionSummary.addFromJSON(child, parent))
-      else
-        ret.add(CypressTestExecution.addFromJSON(child, parent))
+      else {
+        CypressTestExecution test = CypressTestExecution.addFromJSON(child, parent)
+        ret.add(test)
+        tests.put(test.getUid(), test)
+      }
 
       context?.println("CypressRunExecutionSummary.addChildrenFromJSON ret=${ret}")
+      context?.println("CypressRunExecutionSummary.addChildrenFromJSON tests=${tests}")
     }
 
     return ret
