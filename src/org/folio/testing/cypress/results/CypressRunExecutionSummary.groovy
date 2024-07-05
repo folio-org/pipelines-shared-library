@@ -10,6 +10,8 @@ import org.folio.testing.teams.TeamAssignment
 
 class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
+  static Map<String, CypressTestExecution> tests = [:]
+
   Map<String, IModuleExecutionSummary> modulesExecutionSummary = [:]
   List<IExecutionSummary> children = []
   List<ITestChild> defects = []
@@ -135,9 +137,9 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
       if (child?.children)
         ret.add(CypressExecutionDefect.addFromJSON(this, child, parent))
       else {
-        CypressTestExecution test = getChildById(child, this)
+        CypressTestExecution test = tests.get(child?.uid)
 
-        if(test && parent.getClass() == CypressExecutionDefect.class) {
+        if(test) {
           test.defect = parent as CypressExecutionDefect
           ret.add(test)
         }
@@ -145,20 +147,6 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     }
 
     return ret
-  }
-
-  CypressTestExecution getChildById(def json, ITestParent parent){
-    for(ITestChild child in parent.getChildren()){
-      ITestChild checkChild = child
-
-      if (child instanceof ITestParent)
-        checkChild = getChildById(json, child as ITestParent)
-
-      if (checkChild && checkChild.getClass() == CypressTestExecution.class && checkChild.same(json?.uid))
-        return checkChild as CypressTestExecution
-    }
-
-    return null
   }
 
   @NonCPS
@@ -201,8 +189,11 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
     json.each { child ->
       if (child?.children)
         ret.add(CypressSuiteExecutionSummary.addFromJSON(child, parent))
-      else
-        ret.add(CypressTestExecution.addFromJSON(child, parent))
+      else {
+        CypressTestExecution test = CypressTestExecution.addFromJSON(child, parent)
+        ret.add(test)
+        tests.put(test.getUid(), test)
+      }
     }
 
     return ret
