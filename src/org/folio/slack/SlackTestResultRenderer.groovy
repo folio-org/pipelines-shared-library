@@ -42,10 +42,10 @@ enum SlackTestResultRenderer {
     return SlackHelper.renderSection(titleTemplate, text, color, actions, [])
   }
 
-  String renderSection(String buildName, String passedCnt, String brokenCnt, String failCnt, String passRate
+  String renderSection(String buildName, String passedCnt, String brokenCnt, String failCnt, String skippedCnt, String passRate
                        , String buildUrl, boolean useReportPortal, String rpUrl) {
 
-    return renderSection(SlackTestResultTemplates.getTextParams(buildName, passedCnt, brokenCnt, failCnt, passRate)
+    return renderSection(SlackTestResultTemplates.getTextParams(buildName, passedCnt, brokenCnt, failCnt, skippedCnt, passRate)
       , buildUrl, useReportPortal, rpUrl)
   }
 
@@ -54,8 +54,9 @@ enum SlackTestResultRenderer {
 
     return renderSection(buildName
       , summary.passedCount as String
-      , (summary.skippedCount + summary.brokenCount) as String
+      , summary.brokenCount as String
       , summary.failedCount as String
+      , summary.skippedCount as String
       , summary.passRate as String
       , buildUrl, useReportPortal, rpUrl)
   }
