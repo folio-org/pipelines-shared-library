@@ -10,10 +10,11 @@ import org.folio.testing.teams.TeamAssignment
 
 class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
+  static Map<String, CypressTestExecution> tests = [:]
+
   Map<String, IModuleExecutionSummary> modulesExecutionSummary = [:]
   List<IExecutionSummary> children = []
   List<ITestChild> defects = []
-  Map<String, CypressTestExecution> tests = [:]
 
   String uid = ""
 
