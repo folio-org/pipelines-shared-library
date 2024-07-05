@@ -60,27 +60,27 @@ void call(params) {
 
   buildName customBuildName
 
-//  if (useReportPortal) {
-//    stage('[ReportPortal config bind & launch]') {
-//      try {
-//        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
-//
-//        rpLaunchID = reportPortal.launch()
-//        println("${rpLaunchID}")
-//
-//        String portalExecParams = reportPortal.getExecParams()
-//        println("Report portal execution parameters: ${portalExecParams}")
-//
-//        parallelExecParameters = parallelExecParameters?.trim() ?
-//          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
-//
-//        sequentialExecParameters = sequentialExecParameters?.trim() ?
-//          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
-//      } catch (Exception e) {
-//        println("Error: " + e.getMessage())
-//      }
-//    }
-//  }
+  if (useReportPortal) {
+    stage('[ReportPortal config bind & launch]') {
+      try {
+        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
+
+        rpLaunchID = reportPortal.launch()
+        println("${rpLaunchID}")
+
+        String portalExecParams = reportPortal.getExecParams()
+        println("Report portal execution parameters: ${portalExecParams}")
+
+        parallelExecParameters = parallelExecParameters?.trim() ?
+          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
+
+        sequentialExecParameters = sequentialExecParameters?.trim() ?
+          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
+      } catch (Exception e) {
+        println("Error: " + e.getMessage())
+      }
+    }
+  }
 
   try {
     timeout(time: testsTimeout, unit: 'HOURS') {
@@ -116,63 +116,39 @@ void call(params) {
             batches.eachWithIndex { batch, batchIndex ->
               batchExecutions["Batch#${batchIndex + 1}"] = {
                 node(agent) {
-//                  cleanWs notFailBuild: true
+                  cleanWs notFailBuild: true
 
-                  def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
-                  def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
+                  dir("cypress-${batch[0]}") {
+                    cloneCypressRepo(branch)
+                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
-                  input message: "Analyze results. Do you want to proceed?"
+                    compileTests(cypressImageVersion, "${batch[0]}")
+                  }
 
-                  testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
-                  testRunExecutionSummary.addDefectsFromJSON(jsonDefects, this)
-
-                  if (sendSlackNotification) {
-                    stage('[Slack] Send notification') {
-                      slackSend(attachments: folioSlackNotificationUtils
-                        .renderBuildAndTestResultMessage(
-                          TestType.CYPRESS
-                          , testRunExecutionSummary
-                          , ""
-                          , true
-                          , "${env.BUILD_URL}allure/"
-                        )
-                        , channel: "#rancher-test-notifications")
+                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
+                    if (copyBatchIndex > 0) {
+                      sh "mkdir -p cypress-${copyBatch}"
+                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
                     }
                   }
 
+                  Map<String, Closure> parallelWorkers = [failFast: false]
+                  batch.each { workerNumber ->
+                    parallelWorkers["Worker#${workerNumber}"] = {
+                      dir("cypress-${workerNumber}") {
+                        executeTests(cypressImageVersion, "parallel_${customBuildName}"
+                          , browserName, parallelExecParameters
+                          , testrailProjectID, testrailRunID, workerNumber.toString())
+                      }
+                    }
+                  }
+                  parallel(parallelWorkers)
 
-
-//                  dir("cypress-${batch[0]}") {
-//                    cloneCypressRepo(branch)
-//                    cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
-//
-//                    compileTests(cypressImageVersion, "${batch[0]}")
-//                  }
-
-//                  batch.eachWithIndex { copyBatch, copyBatchIndex ->
-//                    if (copyBatchIndex > 0) {
-//                      sh "mkdir -p cypress-${copyBatch}"
-//                      sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
-//                    }
-//                  }
-
-//                  Map<String, Closure> parallelWorkers = [failFast: false]
-//                  batch.each { workerNumber ->
-//                    parallelWorkers["Worker#${workerNumber}"] = {
-//                      dir("cypress-${workerNumber}") {
-//                        executeTests(cypressImageVersion, "parallel_${customBuildName}"
-//                          , browserName, parallelExecParameters
-//                          , testrailProjectID, testrailRunID, workerNumber.toString())
-//                      }
-//                    }
-//                  }
-//                  parallel(parallelWorkers)
-
-//                  batch.each { workerNumber ->
-//                    dir("cypress-${workerNumber}") {
-//                      resultPaths.add(archiveTestResults("${workerNumber}"))
-//                    }
-//                  }
+                  batch.each { workerNumber ->
+                    dir("cypress-${workerNumber}") {
+                      resultPaths.add(archiveTestResults("${workerNumber}"))
+                    }
+                  }
                 }
               }
             }
@@ -200,63 +176,61 @@ void call(params) {
     println(e)
     error("Tests execution stage failed")
   } finally {
-//    if (useReportPortal) {
-//      stage("[ReportPortal] Finish run") {
-//        try {
-//          def res_end = reportPortal.launchFinish()
-//          println("${res_end}")
-//        } catch (Exception e) {
-//          println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-//        }
-//      }
-//    }
-//    stage('[Allure] Generate report') {
-//      script {
-//        for (path in resultPaths) {
-//          unstash name: path
-//          unzip zipFile: "${path}.zip", dir: path
-//        }
-//        def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-//        sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-//      }
-//    }
-//
-//    stage('[Allure] Publish report') {
-//      script {
-//        allure([
-//          includeProperties: false,
-//          jdk              : '',
-//          commandline      : Constants.CYPRESS_ALLURE_VERSION,
-//          properties       : [],
-//          reportBuildPolicy: 'ALWAYS',
-//          results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
-//        ])
-//      }
-//    }
+    if (useReportPortal) {
+      stage("[ReportPortal] Finish run") {
+        try {
+          def res_end = reportPortal.launchFinish()
+          println("${res_end}")
+        } catch (Exception e) {
+          println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+        }
+      }
+    }
+    stage('[Allure] Generate report') {
+      script {
+        for (path in resultPaths) {
+          unstash name: path
+          unzip zipFile: "${path}.zip", dir: path
+        }
+        def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+        sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+      }
+    }
 
-//    stage('[Report] Analyze results') {
-//      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
-//      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
-//
-//      input message: "Analyze results. Do you want to proceed?"
-//
-//      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites, this)
-//      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
-//    }
-//
-//    if (sendSlackNotification) {
-//      stage('[Slack] Send notification') {
-//        slackSend(attachments: folioSlackNotificationUtils
-//          .renderBuildAndTestResultMessage(
-//            TestType.CYPRESS
-//            , testRunExecutionSummary
-//            , ""
-//            , true
-//            , "${env.BUILD_URL}allure/"
-//          )
-//          , channel: "#rancher-test-notifications")
-//      }
-//    }
+    stage('[Allure] Publish report') {
+      script {
+        allure([
+          includeProperties: false,
+          jdk              : '',
+          commandline      : Constants.CYPRESS_ALLURE_VERSION,
+          properties       : [],
+          reportBuildPolicy: 'ALWAYS',
+          results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+        ])
+      }
+    }
+
+    stage('[Report] Analyze results') {
+      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
+      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
+
+      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
+      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+    }
+
+    if (sendSlackNotification) {
+      stage('[Slack] Send notification') {
+        slackSend(attachments: folioSlackNotificationUtils
+          .renderBuildAndTestResultMessage(
+            TestType.CYPRESS
+            , testRunExecutionSummary
+            , ""
+            , true
+            , "${env.BUILD_URL}allure/"
+          )
+          , channel: "#rancher-test-notifications")
+      }
+    }
   }
 }
 

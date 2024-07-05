@@ -48,29 +48,13 @@ String renderAbortedBuildResultMessage() {
 String renderTestResultSection(TestType type, IExecutionSummary summary
                                , String buildName, boolean useReportPortal, String url) {
 
-  println("folioSlackNotificationUtils.groovy renderTestResultSection summary=${summary}")
-
-//  TestExecutionResult lll = TestExecutionResult.byPassRate(summary)
-
-  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.children=${summary.children}")
-
-  for(IExecutionSummary child: summary.children){
-    println("folioSlackNotificationUtils.groovy renderTestResultSection child=${child}")
-
-    println("folioSlackNotificationUtils.groovy renderTestResultSection child.getPassedCount()=${child.getPassedCount()}")
-  }
-
-  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getPassedCount()=${summary.getPassedCount()}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getTotalCount()=${summary.getTotalCount()}")
-  println("folioSlackNotificationUtils.groovy renderTestResultSection summary.getPassRate()=${summary.getPassRate()}")
-
-  return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary), this)
+  return SlackTestResultRenderer.fromType(type, TestExecutionResult.byPassRate(summary))
     .renderSection(
       "${buildName}"
       , summary
       , "${url}"
       , useReportPortal
-      , ReportPortalTestType.fromType(type).reportPortalLaunchesURL(), this
+      , ReportPortalTestType.fromType(type).reportPortalLaunchesURL()
     )
 }
 

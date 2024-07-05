@@ -50,9 +50,7 @@ enum SlackTestResultRenderer {
   }
 
   String renderSection(String buildName, IExecutionSummary summary
-                       , String buildUrl, boolean useReportPortal, String rpUrl, def context) {
-
-    context.println("SlackTestResultRenderer.renderSection summary=${summary}")
+                       , String buildUrl, boolean useReportPortal, String rpUrl) {
 
     return renderSection(buildName
       , summary.passedCount as String
@@ -64,8 +62,7 @@ enum SlackTestResultRenderer {
   }
 
   @NonCPS
-  static SlackTestResultRenderer fromType(TestType type, TestExecutionResult result, def context) throws Error {
-    context.println("SlackTestResultRenderer.fromType I am here.")
+  static SlackTestResultRenderer fromType(TestType type, TestExecutionResult result) throws Error {
     for (SlackTestResultRenderer elem : values()) {
       if (elem.baseType == type && elem.testResult == result) {
         return elem
