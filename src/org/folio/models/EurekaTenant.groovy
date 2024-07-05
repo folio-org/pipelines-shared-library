@@ -4,7 +4,7 @@ package org.folio.models
  * EurekaTenant class representing a tenant configuration for Eureka.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
-class EurekaTenant extends GenericTenant {
+class EurekaTenant extends Tenant {
   /**
    * Keycloak client identifier.
    * Deafault: 'sidecar-module-access-client'

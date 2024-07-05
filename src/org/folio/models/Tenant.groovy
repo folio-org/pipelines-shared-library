@@ -1,6 +1,6 @@
 package org.folio.models
 
-class GenericTenant {
+class Tenant {
   /** Tenant's identifier. */
   String tenantId
 
@@ -26,7 +26,7 @@ class GenericTenant {
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.
    */
-  GenericTenant(String tenantId) {
+  Tenant(String tenantId) {
     this.tenantId = tenantId
     this.modules = new Modules()
   }
@@ -36,7 +36,7 @@ class GenericTenant {
    * @param tenantName Name of the tenant.
    * @return The Tenant object.
    */
-  GenericTenant withTenantName(String tenantName) {
+  Tenant withTenantName(String tenantName) {
     this.tenantName = tenantName
     return this
   }
@@ -46,7 +46,7 @@ class GenericTenant {
    * @param tenantDescription Description of the tenant.
    * @return The Tenant object.
    */
-  GenericTenant withTenantDescription(String tenantDescription) {
+  Tenant withTenantDescription(String tenantDescription) {
     this.tenantDescription = tenantDescription
     return this
   }
@@ -56,7 +56,7 @@ class GenericTenant {
    * @param index Index information associated with the tenant.
    * @return The Tenant object.
    */
-  GenericTenant withIndex(Index index) {
+  Tenant withIndex(Index index) {
     this.index = index
     return this
   }
@@ -66,7 +66,7 @@ class GenericTenant {
    * @param installRequestParams Parameters for installation requests for the tenant.
    * @return The Tenant object.
    */
-  GenericTenant withInstallRequestParams(InstallRequestParams installRequestParams) {
+  Tenant withInstallRequestParams(InstallRequestParams installRequestParams) {
     this.installRequestParams = installRequestParams
     return this
   }
@@ -76,7 +76,7 @@ class GenericTenant {
    * @param tenantUi User Interface (UI) details for the tenant.
    * @return The Tenant object.
    */
-  GenericTenant withTenantUi(TenantUi tenantUi) {
+  Tenant withTenantUi(TenantUi tenantUi) {
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
     return this
