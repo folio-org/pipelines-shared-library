@@ -224,8 +224,8 @@ void call(params) {
           .renderBuildAndTestResultMessage(
             TestType.CYPRESS
             , testRunExecutionSummary
-            , ""
-            , true
+            , customBuildName
+            , useReportPortal
             , "${env.BUILD_URL}allure/"
           )
           , channel: "#rancher_tests_notifications")
