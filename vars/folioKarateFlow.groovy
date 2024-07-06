@@ -2,7 +2,7 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.testing.TestType
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -11,7 +11,7 @@ import java.time.Instant
 
 void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
-  KarateTestsExecutionSummary karateTestsExecutionSummary
+  KarateRunExecutionSummary karateTestsExecutionSummary
 
   dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {
@@ -75,16 +75,14 @@ void call(KarateTestsParameters args) {
     }
 
     stage('[Archive] Archive artifacts') {
-      if (currentBuild.getBuildCauses('org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause')) {
-        zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-        zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-        zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+      zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
+      zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
+      zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
 
-        archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
-        archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
-      }
+      archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
+      archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
     }
 
     if (args.syncWithJira) {
