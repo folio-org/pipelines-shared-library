@@ -138,7 +138,7 @@ void checkAllPodsRunning(String ns) {
 }
 
 static String valuesPathOption(String path) {
-  return "-f ${path}"
+  return path.trim() ? "-f ${path}" : ''
 }
 
 String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {

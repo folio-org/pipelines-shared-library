@@ -13,6 +13,14 @@ void call(CreateNamespaceParameters args) {
     println("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
+    LdpConfig ldpConfig = new LdpConfig()
+    withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD'),
+                     string(credentialsId: 'ldp_queries_gh_token', variable: 'LDP_SQCONFIG_TOKEN')]) {
+      ldpConfig.setLdpDbUserPassword(LDP_DB_PASSWORD)
+      ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
+      ldpConfig.setLdpConfigDbUserPassword(LDP_DB_PASSWORD)
+      ldpConfig.setSqconfigRepoToken(LDP_SQCONFIG_TOKEN)
+    }
     //Set terraform configuration
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
       .withWorkspace("${args.clusterName}-${args.namespaceName}")
@@ -27,12 +35,15 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
     tfConfig.addVar('pgadmin4', 'true')
     tfConfig.addVar('enable_rw_split', args.rwSplit)
-    tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+    tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpDbUserPassword())
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
 
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
+      }
     }
 
     if (args.greenmail) {
@@ -79,12 +90,14 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
+    namespace.getTenants()[namespace.getDefaultTenantId()].okapiConfig.setLdpConfig(ldpConfig)
 
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
+          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
         namespace.addTenant(tenant)
       }
@@ -164,7 +177,9 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('Deploy ldp') {
-      println('LDP deployment')
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelmFlow.deployLdp(namespace)
+      }
     }
   } catch (Exception e) {
     println(e)
