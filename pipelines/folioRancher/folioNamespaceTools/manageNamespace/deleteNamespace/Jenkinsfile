@@ -1,14 +1,16 @@
 #!groovy
 import org.folio.models.parameters.CreateNamespaceParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@haimanov-poc') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
-    folioParameters.namespace(),
+//    folioParameters.cluster(),
+    string(name: 'CLUSTER', defaultValue: 'folio-haimanov', description: '(Required) Select cluster for current job'),
+//    folioParameters.namespace(),
+    string(name: 'NAMESPACE', defaultValue: 'poc', description: '(Required) Select cluster namespace for current job'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     folioParameters.pgType(),
     folioParameters.kafkaType(),

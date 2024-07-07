@@ -160,6 +160,20 @@ resource "rancher2_app_v2" "prometheus" {
               path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
+          # https://grafana.com/grafana/dashboards/15758-kubernetes-views-namespaces/
+          kubernetes-views-namespaces:
+            gnetId: 15758
+            revision: 35
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
+          # https://grafana.com/grafana/dashboards/15761-kubernetes-system-api-server/
+          kubernetes-system-api-server:
+            gnetId: 15761
+            revision: 17
+            datasource:
+            - name: DS_PROMETHEUS
+              value: Prometheus
           # https://grafana.com/grafana/dashboards/9628-postgresql-database/
           postgresql-dashboard:
             gnetId: 9628
