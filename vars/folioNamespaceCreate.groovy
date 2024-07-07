@@ -38,6 +38,11 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpDbUserPassword())
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
+    /**
+     * Temp parameters
+     */
+    tfConfig.addVar('opensearch_shared_name', 'folio-opensearch-haimanov')
+    tfConfig.addVar('kafka_shared_name', 'folio-kafka-haimanov')
 
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
