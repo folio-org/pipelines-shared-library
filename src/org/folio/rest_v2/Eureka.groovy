@@ -92,4 +92,121 @@ class Eureka extends Authorization {
     }
     return headers
   }
+
+  /**
+   * Get Data for provided Role Name.
+   *
+   * @param tenantHeaders HTTP Headers for Tenant.
+   * @param roleName Role Name to get data for.
+   * @param roleDescription Description for requested Role.
+   * @return Created Role Data as a JSON object.
+   */
+  def createRole(Map<String, String> tenantHeaders, String roleName, String roleDescription='') {
+    // Check if role exists
+    def existingRole = getRole(tenantHeaders, roleName)
+    if (existingRole) {
+      return existingRole.id
+    } else {
+      // Create new role
+      logger.info("Creating role ${roleName}...")
+      String url = "${masterTenant.kongUrl}/roles"
+      Map body = [
+        name: roleName,
+        description: roleDescription ?: roleName
+      ]
+      def response = restClient.post(url, body, tenantHeaders).body
+      logger.info("Role ${roleName} created successfully")
+      return readJSON(text: response)
+    }
+  }
+
+  /**
+   * Get Data for provided Role Name.
+   *
+   * @param tenantHeaders HTTP Headers for Tenant.
+   * @param roleName Role Name to get data for.
+   * @return Role Data as a JSON object.
+   */
+  def getRole(Map<String, String> tenantHeaders, String roleName) {
+    logger.info("Checking if role ${roleName} exists...")
+
+    String url = "${masterTenant.kongUrl}/roles?query=name==${roleName}"
+    String response = restClient.get(url, tenantHeaders).body
+    List<Object> roles = (readJSON text: response).roles
+
+    if (roles) {
+      logger.info("Role ${roleName} exists")
+      return roles.first()
+    } else {
+      logger.info("Role ${roleName} does not exist")
+      return null
+    }
+  }
+
+  /**
+   * Get Data for requested Capabilities.
+   *
+   * @param tenantHeaders HTTP Headers for Tenant.
+   * @param query Query to pick requested Capabilities. Default is empty.
+   * @param limit Limit of data to get. Default is 10000.
+   * @return Capabilities as a List of JSON objects.
+   */
+  List<Object> getCapabilities(Map<String, String> tenantHeaders, String query = '', Integer limit = 10000) {
+    logger.info("Getting capabilities...")
+
+    String url = "${masterTenant.kongUrl}/capabilities${query}&limit=${limit}\" : \"${masterTenant.kongUrl}/capabilities?limit=${limit}"
+    String response = restClient.get(url, tenantHeaders).body
+
+    logger.info("Capabilities received successfully")
+
+    return readJSON(text: response).capabilities
+  }
+
+  /**
+   * Assign Capabilities to Role.
+   *
+   * @param tenantHeaders HTTP Headers for Tenant.
+   * @param roleId Uniq Role ID.
+   * @param type Capability Type.
+   * @param resourceIds List of Capabilities IDs to assign.
+   */
+  void assignCapabilitiesToRole(Map<String, String> tenantHeaders, String roleId, String type, List resourceIds) {
+    logger.info("Assigning capabilities to role ${roleId}...")
+
+    String url
+    String body
+
+    if (type == 'capability') {
+      url = "${masterTenant.kongUrl}/roles/capabilities"
+      body = [
+        "roleId": roleId,
+        "capabilityIds": resourceIds
+      ]
+    } else if (type == 'capability-set') {
+      url = "${masterTenant.kongUrl}/roles/capability-sets"
+      body = [
+        "roleId": roleId,
+        "capabilitySetIds": resourceIds
+      ]
+    } else {
+      throw new Exception("Unsupported type of assigment")
+    }
+
+    logger.debug("Body: ${body}, RoleId: ${roleId}, ResourceIds: ${resourceIds}")
+
+    try {
+      String response = restClient.post(url, body, tenantHeaders).body
+
+      if (response.status == 201) {
+        logger.info("Relation between role ${roleId} and ${type} ${resourceIds} created!")
+      }
+      else if (response.status == 400 && response.contains("Relation")) {
+        logger.info("Relation between role ${roleId} and ${type} ${resourceIds} already exist!")
+      } else {
+        throw new Exception("Error happened during assigning ${type} to role. Error: ${response}")
+      }
+    } catch(ex) {
+      logger.error("Not able to assign ${resourceIds} to ${roleId}")
+    }
+  }
 }
