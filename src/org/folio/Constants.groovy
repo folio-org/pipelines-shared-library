@@ -93,7 +93,6 @@ class Constants {
   static String EBSCO_KB_CREDENTIALS_ID = 'cypress_api_key_apidvcorp'
 
   static String PG_ROOT_DEFAULT_PASSWORD = 'postgres_password_123!'
-  static String PG_LDP_DEFAULT_PASSWORD = 'diku_ldp9367'
   static String PGADMIN_DEFAULT_PASSWORD = 'SuperSecret'
 
   //ECS Snapshot Edge credentials

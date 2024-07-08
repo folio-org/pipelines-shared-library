@@ -1,6 +1,5 @@
 #Creating a sorry-cypress project in Rancher.
 resource "rancher2_project" "sorry-cypress" {
-  depends_on                = [rancher2_cluster_sync.this]
   count                     = var.deploy_sorry_cypress ? 1 : 0
   provider                  = rancher2
   name                      = "sorry-cypress"
@@ -14,7 +13,6 @@ resource "rancher2_project" "sorry-cypress" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "sorry-cypress" {
-  depends_on  = [rancher2_cluster_sync.this]
   count       = var.deploy_sorry_cypress ? 1 : 0
   name        = "sorry-cypress"
   project_id  = rancher2_project.sorry-cypress[0].id
@@ -26,12 +24,11 @@ resource "rancher2_namespace" "sorry-cypress" {
 }
 
 resource "rancher2_app_v2" "sorry-cypress" {
-  depends_on    = [rancher2_catalog_v2.sorry-cypress]
   count         = var.deploy_sorry_cypress ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.sorry-cypress[0].name
   name          = "sorry-cypress"
-  repo_name     = "sorry-cypress"
+  repo_name     = rancher2_catalog_v2.sorry-cypress[0].name
   chart_name    = "sorry-cypress"
   chart_version = "1.9.0"
   values        = <<-EOT
@@ -134,11 +131,14 @@ resource "rancher2_app_v2" "sorry-cypress" {
         enabled: false
       resources:
         requests:
-          cpu: 25m
-          memory: 90Mi
+          cpu: 512m
+          memory: 1024Mi
+        limits:
+          cpu: 2048m
+          memory: 4096Mi
       persistence:
         enabled: true
-        size: 10Gi
+        size: 50Gi
       externalAccess:
         enabled: true
         service:

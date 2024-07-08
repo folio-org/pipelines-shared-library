@@ -17,4 +17,24 @@ locals {
     module => "${data.rancher2_cluster.this.name}-${var.rancher_project_name}-${replace(module, "mod-", "")}"
   }
   s3_buckets_string = join(",", values(local.s3_buckets_map))
+
+  schedule_namespaces = ["cicypress", "cikarate"]
+  schedule_object     = <<-EOF
+nodeSelector:
+  "folio.org/qualitygate": ${var.rancher_project_name}
+tolerations:
+- key : "folio.org/qualitygate"
+  operator : "Equal"
+  value : ${var.rancher_project_name}
+  effect : "NoSchedule"
+EOF
+
+  schedule_value = contains(local.schedule_namespaces, var.rancher_project_name) ? local.schedule_object : ""
+
+  catalogs = {
+    bitnami    = "https://repository.folio.org/repository/helm-bitnami-proxy",
+    provectus  = "https://provectus.github.io/kafka-ui-charts",
+    opensearch = "https://opensearch-project.github.io/helm-charts",
+    runix      = "https://helm.runix.net"
+  }
 }

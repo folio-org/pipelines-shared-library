@@ -5,7 +5,7 @@ import org.folio.jira.model.JiraIssue
 import org.folio.testing.karate.KarateConstants
 import org.folio.testing.karate.results.KarateFeatureExecutionSummary
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
@@ -15,8 +15,8 @@ import org.folio.testing.teams.TeamAssignment
  * @param karateSummaryFolder karate summary folder (ant-style)
  * @return collected statistics
  */
-KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
-  def retVal = new KarateTestsExecutionSummary()
+KarateRunExecutionSummary collectTestsResults(String karateSummaryFolder) {
+  def retVal = new KarateRunExecutionSummary()
   def karateSummaries = findFiles(glob: karateSummaryFolder)
   karateSummaries.each { karateSummary ->
     String path = karateSummary.path
@@ -48,7 +48,7 @@ KarateTestsExecutionSummary collectTestsResults(String karateSummaryFolder) {
  * Add cucumber reports feature report urls to karate tests execution statistics
  * @param summary karate tests execution statistics
  */
-void attachCucumberReports(KarateTestsExecutionSummary summary) {
+void attachCucumberReports(KarateRunExecutionSummary summary) {
   copyCucumberReports()
 
   List<KarateFeatureExecutionSummary> features = summary.modulesExecutionSummary.collect { name, moduleSummary ->
@@ -105,7 +105,7 @@ void copyCucumberReports() {
  * @param karateTestsExecutionSummary karate tests execution statistics
  * @param teamAssignment teams assignment to modules
  */
-void syncJiraIssues(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+void syncJiraIssues(KarateRunExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
   JiraClient jiraClient = JiraClient.getJiraClient(this)
 
   // find existing karate issues

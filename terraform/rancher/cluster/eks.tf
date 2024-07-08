@@ -29,6 +29,7 @@ locals {
       groups   = ["system:masters"]
     }
   ]
+  testing_cluster = "folio-testing"
 }
 
 module "eks_cluster" {
@@ -86,6 +87,7 @@ module "eks_cluster" {
       type                       = "ingress"
       source_node_security_group = true
     }
+
     egress_nodes_ephemeral_ports_tcp = {
       description                = "To node 1025-65535"
       protocol                   = "tcp"
@@ -108,11 +110,12 @@ module "eks_cluster" {
     }
   }
 
-  eks_managed_node_groups = {
+  eks_managed_node_groups = merge({
     eks_node_group = {
-      name        = terraform.workspace
-      description = "EKS managed node group"
-      ami_type    = "AL2_x86_64"
+      cluster_name = terraform.workspace
+      name         = terraform.workspace
+      description  = "EKS managed node group"
+      ami_type     = "AL2_x86_64"
 
       capacity_type  = var.eks_nodes_type
       disk_size      = 50
@@ -126,7 +129,82 @@ module "eks_cluster" {
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
-  }
+    },
+    terraform.workspace == local.testing_cluster ? {
+      eks_node_group_cicypress = {
+        cluster_name = terraform.workspace
+        name         = "cicypress"
+        description  = "EKS managed node group for CI Cypress env"
+        ami_type     = "AL2_x86_64"
+
+        capacity_type  = var.eks_nodes_type
+        disk_size      = 100
+        instance_types = var.asg_instance_types
+
+        enable_monitoring = false
+
+        min_size     = 1
+        max_size     = 4
+        desired_size = 1
+
+        taints = {
+          qualitygate = {
+            key    = "folio.org/qualitygate"
+            value  = "cicypress"
+            effect = "NO_SCHEDULE"
+          }
+        }
+
+        labels = {
+          "folio.org/qualitygate" = "cicypress"
+        }
+
+        tags = merge(
+          var.tags,
+          {
+            kubernetes_cluster = terraform.workspace
+        })
+
+        # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
+      },
+      eks_node_group_cikarate = {
+        cluster_name = terraform.workspace
+        name         = "cikarate"
+        description  = "EKS managed node group for CI Karate env"
+        ami_type     = "AL2_x86_64"
+
+        capacity_type  = var.eks_nodes_type
+        disk_size      = 100
+        instance_types = var.asg_instance_types
+
+        enable_monitoring = false
+
+        min_size     = 1
+        max_size     = 4
+        desired_size = 1
+
+        taints = {
+          qualitygate = {
+            key    = "folio.org/qualitygate"
+            value  = "cikarate"
+            effect = "NO_SCHEDULE"
+          }
+        }
+
+        labels = {
+          "folio.org/qualitygate" = "cikarate"
+        }
+
+        tags = merge(
+          var.tags,
+          {
+            kubernetes_cluster = terraform.workspace
+        })
+
+        # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
+      }
+    } : {}
+  )
 
   tags = merge(
     var.tags,
