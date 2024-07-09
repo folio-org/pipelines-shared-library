@@ -20,7 +20,7 @@ class EurekaTenant extends Tenant {
    * Keycloak service URL.
    * Is the same for all Tenants
    */
-  static String keycloakUrl
+  String keycloakUrl
 
   /**
    * Constructor that sets the tenantId and initializes modules.
