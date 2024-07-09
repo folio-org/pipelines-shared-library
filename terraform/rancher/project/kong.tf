@@ -87,7 +87,7 @@ service:
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
-  path: /
+  path: /*
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
   enabled: true
   annotations:
@@ -96,7 +96,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: "${local.group_name}"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
-    alb.ingress.kubernetes.io/healthcheck-path: "/"
+    alb.ingress.kubernetes.io/healthcheck-path: "/version"
     alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result + 1)}"
 kong:
   livenessProbe:
