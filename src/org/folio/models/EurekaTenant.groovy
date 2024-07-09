@@ -22,12 +22,17 @@ class EurekaTenant extends Tenant {
    */
   String keycloakUrl
 
-
   /**
    * Kong service URL.
    * Is the same for all Tenants
    */
   String kongUrl
+
+  /**
+   * Tenant Manager Service URL.
+   * Is the same for all Tenants.
+   */
+  static String tenantManagerUrl = "http://mgr-tenants"
 
   /**
    * Constructor that sets the tenantId and initializes modules.
