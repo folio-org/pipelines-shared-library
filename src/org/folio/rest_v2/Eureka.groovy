@@ -51,7 +51,8 @@ class Eureka extends Authorization {
         logger.info("Tenant ${tenantId} is not exists")
         return false
       } else {
-        throw new RequestException("Can not able to check tenant ${tenantId} existence: ${e.getMessage()}", e.statusCode)
+        logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
+        return false
       }
     }
   }
