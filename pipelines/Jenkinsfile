@@ -28,7 +28,7 @@ ansiColor('xterm') {
     try {
 
       stage('Testing application creation') {
-        folioEurekaApp.generateApplicationDescriptorFile(applicationId)
+        folioEurekaApp.generateApplicationDescriptorFile(params.applicationId)
       }
 
     } catch (e) {
