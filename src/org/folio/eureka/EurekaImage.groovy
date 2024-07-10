@@ -99,7 +99,7 @@ class EurekaImage implements Serializable {
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
               def module = "${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
               if (module.toString() in check['id']) {
-                logger.warning("${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}.${steps.env.BUILD_NUMBER} already exists!\nPlease update pom.xml to build a new image.")
+                logger.warning("${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER} already exists!\nPlease update pom.xml to build a new image.")
               } else {
                 check.each {
                   if (it['id'] =~ /${moduleName}/) {
