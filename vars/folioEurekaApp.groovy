@@ -50,15 +50,16 @@ void generateApplicationDescriptorFile(String applicationId) {
   dir(applicationId) {
     //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"okapi::${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
     sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
-
-    def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
-    def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
-    try {
-      sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
-      logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
-      //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
-    } catch (Exception e) {
-      logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+    dir('target') {
+      def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
+      def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
+      try {
+        sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
+        logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
+        //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
+      } catch (Exception e) {
+        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+      }
     }
   }
 }
