@@ -47,17 +47,17 @@ void generateApplicationDescriptorFile(String applicationId) {
   logger.info("Going to build application descriptor for ${applicationId}")
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
-  dir(applicationId)
-  sh(script: "mvn clean install -U DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}/eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
+  dir(applicationId) {
+    sh(script: "mvn clean install -U DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}/eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
 
-  def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
-  def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
-
-  try {
-    sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
-    logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
-    //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
-  } catch (Exception e) {
-    logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+    def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
+    def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
+    try {
+      sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
+      logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
+      //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
+    } catch (Exception e) {
+      logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+    }
   }
 }
