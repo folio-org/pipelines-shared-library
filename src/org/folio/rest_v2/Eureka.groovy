@@ -45,13 +45,8 @@ class Eureka extends Authorization {
       logger.info("Tenant ${tenantId} exists")
       return true
     } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-        logger.info("Tenant ${tenantId} is not exists")
-        return false
-      } else {
         logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
         return false
-      }
     }
   }
 
