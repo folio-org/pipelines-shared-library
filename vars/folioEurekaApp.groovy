@@ -56,7 +56,7 @@ void generateApplicationDescriptorFile(applicationId) {
   try {
     sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
     logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
-    logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
+    //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
   } catch (Exception e) {
     logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
   }
