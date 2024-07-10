@@ -144,6 +144,10 @@ class Main extends Okapi {
     if (tenant.index?.run) {
       runIndexInstance(tenant)
     }
+    if(tenant.okapiConfig.ldpConfig){
+      config.setLdpDbSettings(tenant)
+      config.setLdpSqConfig(tenant)
+    }
   }
 
   private Map requiredModules() {

@@ -1,6 +1,5 @@
 #AWS Load Balancer controller Helm chart for Kubernetes
 resource "helm_release" "alb_controller" {
-  depends_on = [module.eks_cluster, module.load_balancer_controller_irsa_role]
   name       = "aws-load-balancer-controller"
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
@@ -16,7 +15,7 @@ resource "helm_release" "alb_controller" {
   }
   set {
     name  = "clusterName"
-    value = terraform.workspace
+    value = module.eks_cluster.cluster_name
   }
   set {
     name  = "rbac.create"
@@ -36,31 +35,8 @@ resource "helm_release" "alb_controller" {
   }
 }
 
-##CSI interface used by Container Orchestrators to manage the lifecycle of Amazon EBS volumes.
-#resource "helm_release" "aws_ebs_csi" {
-#  depends_on = [module.eks_cluster, module.ebs_csi_irsa_role]
-#  name       = "aws-ebs-csi-driver"
-#  namespace  = "kube-system"
-#  repository = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
-#  chart      = "aws-ebs-csi-driver"
-#  version    = "2.12.1"
-#  set {
-#    name  = "controller.region"
-#    value = var.aws_region
-#  }
-#  set {
-#    name  = "controller.serviceAccount.name"
-#    value = "aws-ebs-csi-driver"
-#  }
-#  set {
-#    name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-#    value = module.ebs_csi_irsa_role.iam_role_arn
-#  }
-#}
-
 #Add External DNS
 resource "helm_release" "external_dns" {
-  depends_on = [module.eks_cluster, module.external_dns_irsa_role]
   name       = "external-dns"
   namespace  = "kube-system"
   repository = "https://charts.bitnami.com/bitnami"
@@ -80,7 +56,7 @@ resource "helm_release" "external_dns" {
   }
   set {
     name  = "txtOwnerId"
-    value = terraform.workspace
+    value = module.eks_cluster.cluster_name
   }
   set {
     name  = "rbac.create"
@@ -101,7 +77,6 @@ resource "helm_release" "external_dns" {
 }
 
 resource "helm_release" "aws_cluster_autoscaler" {
-  depends_on = [module.eks_cluster, module.cluster_autoscaler_role]
   name       = "aws-cluster-autoscaler"
   namespace  = "kube-system"
   repository = "https://kubernetes.github.io/autoscaler"
@@ -119,7 +94,7 @@ resource "helm_release" "aws_cluster_autoscaler" {
   }
   set {
     name  = "autoDiscovery.clusterName"
-    value = terraform.workspace
+    value = module.eks_cluster.cluster_name
   }
   set {
     name  = "extraArgs.balance-similar-node-groups"
@@ -128,6 +103,10 @@ resource "helm_release" "aws_cluster_autoscaler" {
   set {
     name  = "extraArgs.scale-down-enabled"
     value = true
+  }
+  set {
+    name  = "extraArgs.expander"
+    value = "least-waste"
   }
   set {
     name  = "rbac.create"

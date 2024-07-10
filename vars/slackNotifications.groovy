@@ -4,7 +4,7 @@ import org.folio.client.reportportal.ReportPortalTestType
 import org.folio.testing.TestExecutionResult
 import org.folio.testing.TestType
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
-import org.folio.testing.karate.results.KarateTestsExecutionSummary
+import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
@@ -125,7 +125,7 @@ def renderSlackMessage(TestType testType, buildStatus, testsStatus, message, boo
  * @param teamAssignment teams assignment to modules
  */
 @Deprecated
-void sendKarateTeamSlackNotification(KarateTestsExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
+void sendKarateTeamSlackNotification(KarateRunExecutionSummary karateTestsExecutionSummary, TeamAssignment teamAssignment) {
   // collect modules tests execution results by team
   Map<Team, List<KarateModuleExecutionSummary>> teamResults = [:]
   def teamByModule = teamAssignment.getTeamsByModules()

@@ -21,7 +21,7 @@ resource "rancher2_secret" "db-credentials" {
     DB_PORT         = base64encode("5432")
     DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD     = base64encode(local.pg_password)
-    DB_DATABASE     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    DB_DATABASE     = base64encode(var.pg_dbname)
     DB_MAXPOOLSIZE  = base64encode("5")
     DB_CHARSET      = base64encode("UTF-8")
     DB_QUERYTIMEOUT = base64encode("60000")
@@ -38,113 +38,112 @@ locals {
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
-  pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
 }
+
 
 # PostgreSQL database deployment
 resource "helm_release" "postgresql" {
-  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
   count      = var.pg_embedded ? 1 : 0
   namespace  = rancher2_namespace.this.name
   name       = "postgresql-${var.rancher_project_name}"
-  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  repository = local.catalogs.bitnami
   chart      = "postgresql"
   version    = "13.2.19"
   values = [<<-EOF
-    architecture: ${local.pg_architecture}
-    readReplicas:
-      replicaCount: 1
-      resources:
-        requests:
-          memory: 512Mi
-        limits:
-          memory: 10240Mi
-      extendedConfiguration: |-
-        shared_buffers = '2560MB'
-        max_connections = '${var.pg_max_conn}'
-        listen_addresses = '0.0.0.0'
-        effective_cache_size = '7680MB'
-        maintenance_work_mem = '640MB'
-        checkpoint_completion_target = '0.9'
-        wal_buffers = '16MB'
-        default_statistics_target = '100'
-        random_page_cost = '1.1'
-        effective_io_concurrency = '200'
-        work_mem = '1310kB'
-        min_wal_size = '1GB'
-        max_wal_size = '4GB'
-    image:
-      tag: ${join(".", [var.pg_version, "0"])}
-    auth:
-      database: ${local.pg_eureka_db_name}
-      postgresPassword: ${var.pg_password}
-      replicationPassword: ${var.pg_password}
-      replicationUsername: ${var.pg_username}
-      usePasswordFiles: ${local.pg_auth}
-    primary:
-      initdb:
-        scripts:
-          init.sql: |
-            ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
-            CREATE DATABASE ldp;
-            CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
-            CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
-            CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
-            ALTER DATABASE ldp OWNER TO ldpadmin;
-            ALTER DATABASE ldp SET search_path TO public;
-            REVOKE CREATE ON SCHEMA public FROM public;
-            GRANT ALL ON SCHEMA public TO ldpadmin;
-            GRANT USAGE ON SCHEMA public TO ldpconfig;
-            GRANT USAGE ON SCHEMA public TO ldp;
-      persistence:
-        enabled: true
-        size: '${var.pg_vol_size}Gi'
-        storageClass: gp2
-      resources:
-        requests:
-          memory: 512Mi
-        limits:
-          memory: 10240Mi
-      podSecurityContext:
-        fsGroup: 1001
-      containerSecurityContext:
-        runAsUser: 1001
-      extendedConfiguration: |-
-        shared_buffers = '2560MB'
-        max_connections = '${var.pg_max_conn}'
-        listen_addresses = '0.0.0.0'
-        effective_cache_size = '7680MB'
-        maintenance_work_mem = '640MB'
-        checkpoint_completion_target = '0.9'
-        wal_buffers = '16MB'
-        default_statistics_target = '100'
-        random_page_cost = '1.1'
-        effective_io_concurrency = '200'
-        work_mem = '1310kB'
-        min_wal_size = '1GB'
-        max_wal_size = '4GB'
-    volumePermissions:
-      enabled: true
-    metrics:
-      enabled: ${local.pg_auth}
-      resources:
-        requests:
-          memory: 512Mi
-        limits:
-          memory: 4096Mi
-      serviceMonitor:
-        enabled: true
-        namespace: monitoring
-        interval: 30s
-        scrapeTimeout: 30s
-  EOF
+architecture: ${local.pg_architecture}
+readReplicas:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 10240Mi
+  extendedConfiguration: |-
+    shared_buffers = '2560MB'
+    max_connections = '${var.pg_max_conn}'
+    listen_addresses = '0.0.0.0'
+    effective_cache_size = '7680MB'
+    maintenance_work_mem = '640MB'
+    checkpoint_completion_target = '0.9'
+    wal_buffers = '16MB'
+    default_statistics_target = '100'
+    random_page_cost = '1.1'
+    effective_io_concurrency = '200'
+    work_mem = '1310kB'
+    min_wal_size = '1GB'
+    max_wal_size = '4GB'
+  ${indent(2, local.schedule_value)}
+image:
+  tag: ${join(".", [var.pg_version, "0"])}
+auth:
+  database: ${var.pg_dbname}
+  postgresPassword: ${var.pg_password}
+  replicationPassword: ${var.pg_password}
+  replicationUsername: ${var.pg_username}
+  usePasswordFiles: ${local.pg_auth}
+primary:
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE DATABASE ldp;
+        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+        ALTER DATABASE ldp OWNER TO ldpadmin;
+        ALTER DATABASE ldp SET search_path TO public;
+        REVOKE CREATE ON SCHEMA public FROM public;
+        GRANT ALL ON SCHEMA public TO ldpadmin;
+        GRANT USAGE ON SCHEMA public TO ldpconfig;
+        GRANT USAGE ON SCHEMA public TO ldp;
+  persistence:
+    enabled: true
+    size: '${var.pg_vol_size}Gi'
+    storageClass: gp2
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 10240Mi
+  podSecurityContext:
+    fsGroup: 1001
+  containerSecurityContext:
+    runAsUser: 1001
+  extendedConfiguration: |-
+    shared_buffers = '2560MB'
+    max_connections = '${var.pg_max_conn}'
+    listen_addresses = '0.0.0.0'
+    effective_cache_size = '7680MB'
+    maintenance_work_mem = '640MB'
+    checkpoint_completion_target = '0.9'
+    wal_buffers = '16MB'
+    default_statistics_target = '100'
+    random_page_cost = '1.1'
+    effective_io_concurrency = '200'
+    work_mem = '1310kB'
+    min_wal_size = '1GB'
+    max_wal_size = '4GB'
+  ${indent(2, local.schedule_value)}
+volumePermissions:
+  enabled: true
+metrics:
+  enabled: ${local.pg_auth}
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 4096Mi
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 30s
+EOF
   ]
-}
 
-# Delay for db initialization
-resource "time_sleep" "wait_for_db" {
-  depends_on      = [helm_release.postgresql]
-  create_duration = "30s"
+  provisioner "local-exec" {
+    command = "sleep 30"
+    when    = create
+  }
 }
 
 #Security group for RDS instance
@@ -214,7 +213,7 @@ module "rds" {
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
   db_subnet_group_name            = "folio-rancher-vpc"
-  database_name                   = local.pg_eureka_db_name
+  database_name                   = var.pg_dbname
   master_username                 = var.pg_username
   master_password                 = local.pg_password
   manage_master_user_password     = false
@@ -242,15 +241,13 @@ module "rds" {
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
-  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
   count      = var.pgadmin4 ? 1 : 0
   namespace  = rancher2_namespace.this.name
-  repository = "https://helm.runix.net"
+  repository = local.catalogs.runix
   name       = "pgadmin4"
   chart      = "pgadmin4"
   version    = "1.10.1"
-  values = [
-    <<-EOF
+  values = [<<-EOF
 resources:
   requests:
     memory: 256Mi
@@ -259,9 +256,6 @@ resources:
 env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
-  variables:
-    - name: PGPASSWORD
-      value: ${var.pg_password}
 service:
   type: NodePort
 ingress:
@@ -289,7 +283,8 @@ serverDefinitions:
       Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
       Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
       SSLMode: prefer
-      MaintenanceDB: ${local.pg_eureka_db_name}
+      MaintenanceDB: ${var.pg_dbname}
+${local.schedule_value}
 EOF
   ]
 }
