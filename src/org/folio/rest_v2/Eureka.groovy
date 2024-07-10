@@ -18,9 +18,7 @@ class Eureka extends Authorization {
   }
 
   void createTenant(EurekaTenant tenant) {
-    String tenantsEndpointUrl = "${tenant.tenantManagerUrl}/tenants"
-
-    if (isTenantExist(tenantsEndpointUrl, tenant.tenantId)) {
+    if (isTenantExist(tenant.tenantManagerUrl, tenant.tenantId)) {
       logger.warning("Tenant ${tenant.tenantId} already exists!")
       return
     }
@@ -33,7 +31,7 @@ class Eureka extends Authorization {
 
     logger.info("Creating tenant ${tenant.tenantId}...")
 
-    restClient.post(tenantsEndpointUrl, body, headers)
+    restClient.post(tenant.tenantManagerUrl, body, headers)
 
     logger.info("Tenant (${tenant.tenantId}) successfully created")
   }

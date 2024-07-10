@@ -32,7 +32,7 @@ class EurekaTenant extends Tenant {
    * Tenant Manager Service URL.
    * Is the same for all Tenants.
    */
-  static String tenantManagerUrl = "http://mgr-tenants"
+  String tenantManagerUrl
 
   /**
    * Constructor that sets the tenantId and initializes modules.
@@ -48,5 +48,6 @@ class EurekaTenant extends Tenant {
     this.clientSecret = clientSecret
     this.keycloakUrl = keycloakUrl
     this.kongUrl = kongUrl
+    this.tenantManagerUrl = "${kongUrl}/tenants"
   }
 }
