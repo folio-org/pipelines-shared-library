@@ -139,10 +139,13 @@ metrics:
     scrapeTimeout: 30s
 EOF
   ]
+}
 
-  provisioner "local-exec" {
-    command = "sleep 30"
-    when    = create
+resource "time_sleep" "ram_resource_propagation" {
+  create_duration = "30s"
+
+  triggers = {
+    resource_id = helm_release.postgresql[0].id
   }
 }
 
