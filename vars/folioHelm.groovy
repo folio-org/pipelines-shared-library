@@ -52,6 +52,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     case ~/mod-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
       break
+    case ~/mgr-.*/:
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      break
     case ~/edge-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule)
       break
@@ -146,7 +149,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = ""
 
-  if (customModule || moduleName == 'ui-bundle') {
+  if (customModule || moduleName == 'ui-bundle' || moduleName =~ /^mod-.*-keycloak.*$/ || (moduleName == 'mod-scheduler' && ns.enableEureka)) {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
@@ -157,6 +160,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         repository = "folioci"
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       default:
@@ -179,9 +185,26 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+
+  //Eureka related configs adjustment
+  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
+    moduleConfig <<
+      [
+        [eureka: [enabled         : true,
+                  sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                     tag  : ns.getModules().allModules['folio-module-sidecar']]]]
+
+      ]
+  }
+
+  if (moduleName =~ /mgr-.*$/ || /mod-.*-keycloak/ && ns.enableEureka) {
+    moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                              existingSecret: 'eureka-common']]
+  }
+
   //Enable RTR functionality
   if (ns.enableRtr) {
-    moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
+    moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
   }
 
   //Bulk operations bucket configuration

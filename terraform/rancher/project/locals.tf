@@ -16,8 +16,8 @@ locals {
   s3_buckets_map = { for module in local.s3_integrated_modules :
     module => "${data.rancher2_cluster.this.name}-${var.rancher_project_name}-${replace(module, "mod-", "")}"
   }
-  s3_buckets_string = join(",", values(local.s3_buckets_map))
-
+  s3_buckets_string   = join(",", values(local.s3_buckets_map))
+  ssm_params          = ["master_folio-backend-admin-client", "master_mgr-applications", "master_mgr-tenant-entitlements", "master_mgr-tenants"]
   schedule_namespaces = ["cicypress", "cikarate"]
   schedule_object     = <<-EOF
 nodeSelector:

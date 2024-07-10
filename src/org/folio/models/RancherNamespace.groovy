@@ -37,6 +37,8 @@ class RancherNamespace {
 
   Map domains = [:]
 
+  boolean enableEureka = false
+
   boolean enableRwSplit = false
 
   boolean enableConsortia = false

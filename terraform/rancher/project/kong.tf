@@ -3,7 +3,6 @@ resource "random_integer" "node_port" {
   min   = 30001
   count = var.eureka ? 4 : 0
 }
-
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
@@ -20,8 +19,6 @@ resource "rancher2_secret" "kong-credentials" {
   name         = "kong-credentials"
   count        = var.eureka ? 1 : 0
 }
-
-
 resource "helm_release" "kong" {
   count = var.eureka ? 1 : 0
   chart = "kong"
@@ -43,8 +40,8 @@ resource "helm_release" "kong" {
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: folio-kong
-  tag: ${var.kong_image}
-  pullPolicy: IfNotPresent
+  tag: latest
+  pullPolicy: Always
 useDaemonset: false
 replicaCount: 1
 containerSecurityContext:
@@ -78,7 +75,7 @@ service:
   exposeAdmin: true
   disableHttpPort: false
   ports:
-    proxyHttp: 80
+    proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
     adminHttps: 8444
@@ -90,7 +87,7 @@ service:
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
-  path: /
+  path: /*
   hostname: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
   enabled: true
   annotations:
@@ -99,8 +96,8 @@ ingress:
     alb.ingress.kubernetes.io/group.name: "${local.group_name}"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
-    alb.ingress.kubernetes.io/healthcheck-path: "/"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[2].result)}"
+    alb.ingress.kubernetes.io/healthcheck-path: "/version"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result + 1)}"
 kong:
   livenessProbe:
     enabled: false
@@ -154,8 +151,7 @@ migration:
 EOF
   ]
 }
-
-resource "kubernetes_service" "kong_svc" {
+resource "kubernetes_service" "kong_admin_api" {
   count = var.eureka ? 1 : 0
   metadata {
     name      = "kong-admin-api-${rancher2_namespace.this.id}"
@@ -170,6 +166,26 @@ resource "kubernetes_service" "kong_svc" {
     port {
       port        = 80
       target_port = 8001
+    }
+    type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_service" "kong_admin_ui" {
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-admin-ui-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
+      "app.kubernetes.io/name"      = "kong"
+    }
+    port {
+      port        = 80
+      target_port = 8002
     }
     type = "ClusterIP"
   }
