@@ -53,17 +53,17 @@ class Eureka extends Authorization {
 
     logger.info("Going to build application descriptor for ${applicationId}")
 
-    steps.withCredentials([steps.usernamePassword(credentialsId: org.folio.Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-      steps.sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
-    }
+    steps.sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
     steps.dir(applicationId)
-    steps.sh(script: "mvn clean install -U -DbeRegistries=\"${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}/eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
+    steps.sh(script: "mvn clean install -U DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}/eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
+
     def applicationDescriptorFilename = steps.sh(script: "ls -1t | head -1", returnStdout: true)
     def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
 
     try {
       steps.sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilePath}")
       logger.info("File ${applicationDescriptorFilePath} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
+      logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
     } catch (Exception e) {
       logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
     }

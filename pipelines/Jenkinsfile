@@ -15,7 +15,8 @@ properties([
     folioParameters.namespace(),
     folioParameters.branch(),
     folioParameters.agent(),
-    folioParameters.refreshParameters()
+    folioParameters.refreshParameters(),
+    folioParameters.applicationId()
   ])
 ])
 
@@ -28,9 +29,8 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
 
-      stage('Tests start...') {
-        Eureka eureka = new Eureka(this, "", new OkapiTenant('supertenant'), false)
-        eureka.generateApplicationDescriptorFile('complete')
+      stage('Testing application creation') {
+        folioEurekaApp.generateApplicationDescriptorFile(applicationId)
       }
 
     } catch (e) {
