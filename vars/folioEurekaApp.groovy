@@ -43,14 +43,14 @@ void generateApplicationDescriptorFile(String applicationId) {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
   def publicMdr = "https://folio-registry.dev.folio.org"
-  def mdrBucket = "fse-eureka-application-registry"
+  def mdrBucket = "eureka-application-registry"
   logger.info("Going to build application descriptor for ${applicationId}")
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
     //input message: "Do you want to proceed?"
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::/,s3::${mdrBucket}::eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
+      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"okapi::${publicMdr}::/,s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
       //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     }
     dir('target') {
