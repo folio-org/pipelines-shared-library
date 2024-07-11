@@ -48,7 +48,7 @@ void generateApplicationDescriptorFile(String applicationId) {
 
   sh(script: "git clone -b snapshot --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
-    //input message: "Do you want to proceed?"
+    input message: "Do you want to proceed?"
     awscli.withAwsClient() {
       sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/,okapi::${publicMdr}::/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
       //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
