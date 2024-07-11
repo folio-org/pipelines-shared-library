@@ -48,7 +48,7 @@ void generateApplicationDescriptorFile(String applicationId) {
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
-    sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
+    sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
     //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     dir('target') {
       sh(script: "ls -la")
