@@ -50,7 +50,7 @@ void generateApplicationDescriptorFile(String applicationId) {
   dir(applicationId) {
     //input message: "Do you want to proceed?"
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -X -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
+      sh(script: "mvn clean install -U -X -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::/,s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
       //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     }
     dir('target') {
