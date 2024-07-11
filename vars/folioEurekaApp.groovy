@@ -51,8 +51,8 @@ void generateApplicationDescriptorFile(String applicationId) {
     //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"okapi::${org.folio.Constants.EUREKA_REGISTRY_URL},${org.folio.Constants.EUREKA_REGISTRY_URL}eureka/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
     sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     dir('target') {
-      def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
-      //def applicationDescriptorFilePath = "target/${applicationDescriptorFilename}"
+      //def applicationDescriptorFilename = sh(script: "ls -1t | head -1", returnStdout: true)
+      def applicationDescriptorFilename = "target/*${BUILD_NUMBER}.json}"
       try {
         sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
