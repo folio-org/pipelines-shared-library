@@ -42,9 +42,7 @@ Logger logger = new Logger(this, 'folioEurekaApp')
 void generateApplicationDescriptorFile(String applicationId) {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
-  def publicMdr = "" +
-    "" +
-    ""
+  def publicMdr = "https://folio-registry.dev.folio.org"
   def mdrBucket = "eureka-application-registry"
   logger.info("Going to build application descriptor for ${applicationId}")
 
@@ -52,7 +50,7 @@ void generateApplicationDescriptorFile(String applicationId) {
   dir(applicationId) {
     //input message: "Do you want to proceed?"
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\"")
+      sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
       //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     }
     dir('target') {
