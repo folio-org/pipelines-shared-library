@@ -77,7 +77,7 @@ class EurekaImage implements Serializable {
       try {
         def pom = steps.readMavenPom file: 'pom.xml'
         if (pom) {
-          def module = "${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
+          def module = "${pom.getArtifactId()}-${pom.getVersion()}"
           steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module}.json --upload-file target/ModuleDescriptor.json")
           logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${module}.json")
         }
