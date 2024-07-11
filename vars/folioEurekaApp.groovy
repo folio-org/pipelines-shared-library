@@ -48,6 +48,7 @@ void generateApplicationDescriptorFile(String applicationId) {
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
+    input message: "Do you want to proceed?"
     sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DawsRegion=us-west-2 -DoverrideConfigRegistries=true")
     //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     dir('target') {
@@ -56,7 +57,6 @@ void generateApplicationDescriptorFile(String applicationId) {
       try {
         sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
-        //logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(applicationDescriptorFilename)))
       } catch (Exception e) {
         logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
