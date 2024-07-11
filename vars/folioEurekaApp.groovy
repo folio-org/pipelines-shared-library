@@ -43,12 +43,12 @@ void generateApplicationDescriptorFile(String applicationId) {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
   def publicMdr = "https://folio-registry.dev.folio.org"
-  def mdrBucket = "s3://eureka-application-registry/descriptors"
+  def mdrBucket = "eureka-application-registry"
   logger.info("Going to build application descriptor for ${applicationId}")
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
-    sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
+    sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DuiRegistries=\"okapi::${publicMdr}\" -DoverrideConfigRegistries=true")
     //sh(script: "mvn clean install -U -DbuildNumber=${BUILD_NUMBER}")
     dir('target') {
       sh(script: "ls -la")
