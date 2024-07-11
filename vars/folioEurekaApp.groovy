@@ -46,7 +46,7 @@ void generateApplicationDescriptorFile(String applicationId) {
   def mdrBucket = "fse-eureka-application-registry"
   logger.info("Going to build application descriptor for ${applicationId}")
 
-  sh(script: "git clone -b snapshot --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
+  sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
     input message: "Do you want to proceed?"
     awscli.withAwsClient() {
