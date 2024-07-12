@@ -118,7 +118,7 @@ class Eureka extends Authorization {
   def GetDescriptotsList(applicationId) {
 
     String bucketName = 'eureka-application-registry/apps/'
-    steps.withCredentials([steps.usernamePassword(credentialsId: org.folio.Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+    awscli.withAwsClient(){
       steps.sh(script: "s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
     }
     logger.warning(readJSON(file: "${applicationId}.json"))
