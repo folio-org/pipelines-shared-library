@@ -4,20 +4,25 @@ import org.folio.utilities.Logger
 
 Logger logger = new Logger(this, 'folioEurekaApp')
 
-void generateApplicationDescriptorFile() {
+def generateAppPlatformMibimalDescriptor() {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
-  String platformComplete = 'app-platform-complete'
   String platformMinimal = 'app-platform-minimal'
 
   logger.info("Going to build application descriptor for ${platformMinimal}")
-  applicationDescriptorFileGenerator(platformMinimal)
-  logger.info("Going to build application descriptor for ${platformComplete}")
-  applicationDescriptorFileGenerator(platformComplete)
-
+  return  applicationDescriptorFileGenerator(platformMinimal)
 }
 
-void applicationDescriptorFileGenerator(String applicationId) {
+def generateAppPlatformCompleteDescriptor() {
+  Logger logger = new Logger(this, 'folioEurekaApp')
+
+  String platformComplete = 'app-platform-complete'
+
+  logger.info("Going to build application descriptor for ${platformComplete}")
+  return applicationDescriptorFileGenerator(platformComplete)
+}
+
+def applicationDescriptorFileGenerator(String applicationId) {
 
   Logger logger = new Logger(this, 'folioEurekaApp')
   String mdrBucket = "eureka-application-registry"
@@ -33,6 +38,7 @@ void applicationDescriptorFileGenerator(String applicationId) {
       try {
         sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
+        return readJSON(file: applicationDescriptorFilename)
       } catch (Exception e) {
         logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
