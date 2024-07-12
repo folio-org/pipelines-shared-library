@@ -27,7 +27,7 @@ ansiColor('xterm') {
     try {
 
       stage('Tests start...') {
-        Eureka.registerApplication('app-platform-complete')
+        Eureka.registerApplication('app-platform-complete-1.0.0-SNAPSHOT.62')
       }
 
     } catch (e) {
