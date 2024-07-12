@@ -17,7 +17,7 @@ void generateApplicationDescriptorFile() {
 
   }
 
-  def applicationDescriptorFileGenerator(String applicationId){
+  def applicationDescriptorFileGenerator(applicationId){
 
     Logger logger = new Logger(this, 'folioEurekaApp')
     String mdrBucket = "eureka-application-registry"
