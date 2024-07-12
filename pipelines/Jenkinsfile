@@ -1,8 +1,6 @@
 #!groovy
-import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1574') _
