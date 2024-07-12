@@ -42,9 +42,9 @@ Logger logger = new Logger(this, 'folioEurekaApp')
 void generateApplicationDescriptorFile(String applicationId) {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
-  def publicMdr = "https://folio-registry.dev.folio.org"
+  //def publicMdr = "https://folio-registry.dev.folio.org"
   def mdrBucket = "eureka-application-registry"
-  def
+
   logger.info("Going to build application descriptor for ${applicationId}")
 
   sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
