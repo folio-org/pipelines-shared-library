@@ -82,7 +82,7 @@ class Eureka extends Authorization {
       headers.putAll(["x-okapi-token": token])
     }
     if (!headers.isEmpty()) {
-      logger.info("Important 'X-Okapi' Http Headers are configured")
+      logger.info("Important 'X-Okapi' HTTP Headers are populated")
     }
     return headers
   }
