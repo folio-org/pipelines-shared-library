@@ -108,7 +108,7 @@ class Eureka extends Authorization {
             throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
           }
         }
-        logger.info("Info on the newly created discovery table for id ${applicationId}\\n" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
+        logger.info("Info on the newly created discovery table for id ${applicationId}" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
       } else {
         throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
       }
