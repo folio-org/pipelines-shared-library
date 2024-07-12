@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import org.folio.Constants
 import org.folio.utilities.Logger
 
 
@@ -27,17 +28,17 @@ def applicationDescriptorFileGenerator(String applicationId) {
   Logger logger = new Logger(this, 'folioEurekaApp')
   String mdrBucket = "eureka-application-registry"
 
-  sh(script: "git clone -b master --single-branch ${org.folio.Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
+  sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
     awscli.withAwsClient() {
       sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DawsRegion=us-west-2")
     }
     dir('target') {
       sh(script: "ls -la")
-      def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true)
+      def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
       try {
-        sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
+        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
+        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
         logger.warning(applicationDescriptorFilename)
         input("txttxx")
         return readJSON(file: "${applicationDescriptorFilename}")
