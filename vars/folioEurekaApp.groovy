@@ -38,7 +38,9 @@ def applicationDescriptorFileGenerator(String applicationId) {
       try {
         sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${org.folio.Constants.EUREKA_APPLICATIONS_URL}")
-        return readJSON(file: "target/${applicationDescriptorFilename}")
+        logger.warning(applicationDescriptorFilename)
+        input("txttxx")
+        return readJSON(file: "${applicationDescriptorFilename}")
       } catch (Exception e) {
         logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
