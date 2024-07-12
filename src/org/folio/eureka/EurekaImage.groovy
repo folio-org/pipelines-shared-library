@@ -63,7 +63,7 @@ class EurekaImage implements Serializable {
     try {
       def pom = steps.readMavenPom file: 'pom.xml'
       if (pom) {
-        tag = "${pom.getVersion()}"
+        tag = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
       }
     } catch (Exception e) {
       tag = 'latest'
@@ -77,8 +77,9 @@ class EurekaImage implements Serializable {
       try {
         def pom = steps.readMavenPom file: 'pom.xml'
         if (pom) {
-          steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${pom.getArtifactId()}-${pom.getVersion()}.json --upload-file target/ModuleDescriptor.json")
-          logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${pom.getArtifactId()}-${pom.getVersion()}.json")
+          def module = "${pom.getArtifactId()}-${pom.getVersion()}"
+          steps.sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module}.json --upload-file target/ModuleDescriptor.json")
+          logger.info("ModuleDescriptor: ${Constants.EUREKA_REGISTRY_URL}${module}.json")
         }
       } catch (Exception e) {
         logger.warning("Failed to publish MD for ${moduleName}\nError: ${e.getMessage()}")
@@ -97,20 +98,20 @@ class EurekaImage implements Serializable {
             steps.dir('platform-complete') {
               def eureka_platform = steps.readFile file: "eureka-platform.json"
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
-              def module = "${pom.getArtifactId()}-${pom.getVersion()}"
+              def module = "${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
               if (module.toString() in check['id']) {
-                logger.warning("${pom.getArtifactId()}-${pom.getVersion()} already exists!\nPlease update pom.xml to build a new image.")
+                logger.warning("${module} already exists!\nPlease update pom.xml to build a new image.")
               } else {
                 check.each {
                   if (it['id'] =~ /${moduleName}/) {
-                    it['id'] = "${pom.getArtifactId()}-${pom.getVersion()}" as String
+                    it['id'] = "${module}" as String
                   }
                 }
                 steps.writeJSON(file: "eureka-platform.json", json: check, pretty: 0)
                 steps.sh(script: "mv eureka-platform.json data.json && jq '.' data.json > eureka-platform.json")
-                steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${pom.getArtifactId()}-${pom.getVersion()}'")
+                steps.sh(script: "rm -f data.json && git commit -am '[EPL] updated: ${module}'")
                 steps.sh(script: "set +x && git push --set-upstream https://${steps.env.GIT_USER}:${steps.env.GIT_PASS}@github.com/folio-org/platform-complete.git snapshot")
-                logger.info("Snapshot branch successfully updated\n${moduleName} version: ${pom.getArtifactId()}-${pom.getVersion()}")
+                logger.info("Snapshot branch successfully updated\n${moduleName} version: ${module}")
               }
             }
           }
