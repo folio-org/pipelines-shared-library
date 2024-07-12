@@ -1,6 +1,5 @@
 package org.folio.rest_v2
 
-import groovy.json.JsonOutput
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
 
@@ -118,7 +117,7 @@ class Eureka extends Authorization {
   def GetDescriptotsList(applicationId) {
 
     String bucketName = 'eureka-application-registry/apps/'
-    awscli.withAwsClient(){
+    steps.awscli.withAwsClient(){
       steps.sh(script: "s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
     }
     logger.warning(readJSON(file: "${applicationId}.json"))
