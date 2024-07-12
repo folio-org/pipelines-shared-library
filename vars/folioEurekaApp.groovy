@@ -11,9 +11,9 @@ void generateApplicationDescriptorFile() {
   String platformMinimal= 'app-platform-minimal'
 
   logger.info("Going to build application descriptor for ${platformMinimal}")
-  applicationDescriptorFileGenerator(platformMinimal)
+  folioEurekaApp.applicationDescriptorFileGenerator(platformMinimal)
   logger.info("Going to build application descriptor for ${platformComplete}")
-  applicationDescriptorFileGenerator(platformComplete)
+  folioEurekaApp.applicationDescriptorFileGenerator(platformComplete)
 
   }
 
