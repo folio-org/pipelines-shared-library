@@ -4,7 +4,7 @@ import org.folio.utilities.Logger
 
 Logger logger = new Logger(this, 'folioEurekaApp')
 
-def generateAppPlatformMibimalDescriptor() {
+def generateAppPlatformMinimalDescriptor() {
   Logger logger = new Logger(this, 'folioEurekaApp')
 
   String platformMinimal = 'app-platform-minimal'

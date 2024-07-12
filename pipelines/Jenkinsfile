@@ -27,8 +27,11 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
 
-      stage('Testing application creation') {
-        folioEurekaApp.generateApplicationDescriptorFile()
+      stage('Testing minimal creation') {
+        folioEurekaApp.generateAppPlatformMinimalDescriptor()
+      }
+      stage('Testing complete creation') {
+        folioEurekaApp.generateAppPlatformCompleteDescriptor()
       }
 
     } catch (e) {
