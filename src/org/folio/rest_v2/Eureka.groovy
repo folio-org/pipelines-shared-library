@@ -66,7 +66,7 @@ class Eureka extends Authorization {
 //  }
 
   def registerApplication(String applicationId) {
-    String descriptorsList = GetDescriptotsList(applicationId)
+    String descriptorsList = getDescriptorsList(applicationId)
     if (isApplicationRegistered(applicationId)) {
       logger.warning("Application ${applicationId} is already registered.")
       return
@@ -114,11 +114,11 @@ class Eureka extends Authorization {
 //    }
 //  }
 
-  def GetDescriptotsList(applicationId) {
+  def getDescriptorsList(applicationId) {
 
     String bucketName = 'eureka-application-registry/apps/'
     steps.awscli.withAwsClient(){
-      steps.sh(script: "s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
+      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
     }
     logger.warning(readJSON(file: "${applicationId}.json"))
     return readJSON(file: "${applicationId}.json")
