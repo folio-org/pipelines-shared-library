@@ -14,7 +14,7 @@ class Eureka extends Authorization {
 
   boolean isApplicationRegistered(String applicationId) {
 
-    String url = generateUrl("/applications/${applicationId}")
+    String url = generateKongUrl("/applications/${applicationId}")
 
     try {
       restClient.get(url, headers).body
@@ -66,22 +66,22 @@ class Eureka extends Authorization {
     }
   }
 
-  void registerApplication(List descriptorsList, OkapiTenant tenant, String applicationId) {
-
+  void registerApplication(String applicationId) {
+    String descriptorsList = GetDescriptotsList(applicationId)
     if (isApplicationRegistered(applicationId)) {
       logger.warning("Application ${applicationId} is already registered.")
       return
     }
 
-    String url = generateUrl("/applications?check=false")
-    Map<String, String> headers = getAuthorizedHeaders(tenant)
+    String url = generateKongUrl("/applications?check=false")
+    Map<String, String> headers = getAuthorizedHeaders(superTenant)
 
     restClient.post(url, descriptorsList, headers)
     logger.info("Application registered: ${descriptorsList}")
   }
 
-  void registerApplicationDiscovery(List descriptorsList, String applicationId, OkapiTenant tenant) {
-
+  void registerApplicationDiscovery(String applicationId, OkapiTenant tenant) {
+    String descriptorsList = GetDescriptotsList(applicationId)
     if (isDiscoveryRegistered(tenant, applicationId, descriptorsList)) {
       logger.warning("All module discovery information are registered. Nothing to do.")
       return
@@ -92,7 +92,7 @@ class Eureka extends Authorization {
 
     String url = generateUrl("/modules/discovery")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
-
+// add port
     descriptorsList.each() { service ->
       if (service['url'] && service['srvcId'] && service['instId']) {
         try {
@@ -114,4 +114,17 @@ class Eureka extends Authorization {
       }
     }
   }
+
+  def GetDescriptotsList(applicationId){
+
+    String bucketName = 'eureka-application-registry/apps/'
+    steps.withCredentials([steps.usernamePassword(credentialsId: org.folio.Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+      steps.sh(script: "s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
+    }
+    logger.warning(readJSON(file: "${applicationId}.json"))
+    return readJSON(file: "${applicationId}.json")
+  }
 }
+
+
+//https://folio-eureka-scout-kong.ci.folio.org/
