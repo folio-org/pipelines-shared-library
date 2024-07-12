@@ -73,7 +73,7 @@ class Eureka extends Authorization {
     return response.access_token
   }
 
-  static Map<String,String> getOkapiHeaders(String tenantId, String token) {
+  Map<String,String> getOkapiHeaders(String tenantId, String token) {
     Map<String,String> headers = [:]
     if (tenantId != null && !tenantId.isEmpty()) {
       headers.putAll(['x-okapi-tenant': tenantId])
@@ -81,6 +81,12 @@ class Eureka extends Authorization {
     if (token != null && !token.isEmpty() && token != "Could not get x-okapi-token") {
       headers.putAll(["x-okapi-token": token])
     }
-    return headers
+    if (headers.isEmpty()) {
+      logger.info("No 'X-Okapi' headers were set")
+      return null
+    } else {
+      logger.info("'X-Okapi' Headers: ${headers}")
+      return headers
+    }
   }
 }
