@@ -8,7 +8,7 @@ class Eureka extends Authorization {
 
   public OkapiTenant superTenant
 
-  Eureka(Object context, String okapiDomain, OkapiTenant superTenant, boolean debug = false) {
+  Eureka(Object context, String okapiDomain, boolean debug = false) {
     super(context, okapiDomain, debug)
   }
 

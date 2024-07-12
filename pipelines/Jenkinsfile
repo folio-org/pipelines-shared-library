@@ -27,7 +27,7 @@ ansiColor('xterm') {
     try {
 
       stage('Tests start...') {
-        def eureka = new Eureka(this, 'https://folio-eureka-scout-kong.ci.folio.org/', new OkapiTenant(), false)
+        def eureka = new Eureka(this, 'https://folio-eureka-scout-kong.ci.folio.org/', false)
         eureka.registerApplication('app-platform-complete-1.0.0-SNAPSHOT.62')
       }
 
