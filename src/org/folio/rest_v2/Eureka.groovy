@@ -64,11 +64,10 @@ class Eureka extends Authorization {
     logger.info("Getting access token from Keycloak service")
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
-    Map<String,String> headers = ["Content-Type":"application/x-www-form-urlencoded"]
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     Map body = [
-      'grant_type':'password',
-      'client_id':"${clientId}",
-      'client_secret':"${clientSecret}"
+      'client_id':clientId,
+      'client_secret':clientSecret
     ]
 
     def response = restClient.post(url, body, headers).body
