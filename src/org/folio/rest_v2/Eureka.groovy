@@ -65,7 +65,8 @@ class Eureka extends Authorization {
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    Map body = [
+    Map<String> body = [
+      'grant_type':'client_credentials', // 'client_credentials' or 'password
       'client_id':clientId,
       'client_secret':clientSecret
     ]
