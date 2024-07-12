@@ -116,9 +116,9 @@ class Eureka extends Authorization {
 
   def getDescriptorsList(applicationId) {
 
-    String bucketName = 'eureka-application-registry/apps/'
+    String bucketName = 'eureka-application-registry'
     steps.awscli.withAwsClient(){
-      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key ${applicationId} ${applicationId}.json")
+      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key /apps/${applicationId} ${applicationId}.json")
     }
     logger.warning(readJSON(file: "${applicationId}.json"))
     return readJSON(file: "${applicationId}.json")
