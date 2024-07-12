@@ -166,6 +166,3 @@ def adminPassword(String admin_password = defaultAdminUser().password, String de
 def eurekaModules() {
   return _paramChoice('MODULE_NAME', Constants.EUREKA_MODULES, 'Eureka module name to build')
 }
-def applicationId(String applicationId = 'app-platform-complete') {
-  return _paramString('EUREKA_APP_ID', applicationId, 'Application Id used for app creation')
-}

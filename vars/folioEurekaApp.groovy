@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 
@@ -6,8 +5,6 @@ import org.folio.utilities.Logger
 Logger logger = new Logger(this, 'folioEurekaApp')
 
 def generateAppPlatformMinimalDescriptor() {
-  Logger logger = new Logger(this, 'folioEurekaApp')
-
   String platformMinimal = 'app-platform-minimal'
 
   logger.info("Going to build application descriptor for ${platformMinimal}")
@@ -15,8 +12,6 @@ def generateAppPlatformMinimalDescriptor() {
 }
 
 def generateAppPlatformCompleteDescriptor() {
-  Logger logger = new Logger(this, 'folioEurekaApp')
-
   String platformComplete = 'app-platform-complete'
 
   logger.info("Going to build application descriptor for ${platformComplete}")
@@ -24,8 +19,6 @@ def generateAppPlatformCompleteDescriptor() {
 }
 
 def applicationDescriptorFileGenerator(String applicationId) {
-
-  Logger logger = new Logger(this, 'folioEurekaApp')
   String mdrBucket = "eureka-application-registry"
 
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
@@ -39,8 +32,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
       try {
         sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-        logger.warning(applicationDescriptorFilename)
-        input("txttxx")
         return readJSON(file: "${applicationDescriptorFilename}")
       } catch (Exception e) {
         logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
@@ -48,38 +39,3 @@ def applicationDescriptorFileGenerator(String applicationId) {
     }
   }
 }
-
-//def getApplicationDescriptor(String applicationId) {
-//  try {
-//    String response = steps.sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL}${applicationId}", returnStdout: true)
-//    logger.info("Application descriptor: ${response}")
-//    return response
-//
-//  } catch (Exception e) {
-//    logger.warning("Failed to get applicationDescriptor ${applicationId}\nError: ${e.getMessage()}")
-//  }
-//}
-//
-//def listApplicationDescriptors() {
-//  try {
-//
-//    String response = steps.sh(script: "curl ${org.folio.Constants.EUREKA_APPLICATIONS_URL}", returnStdout: true)
-//    logger.info("Application descriptors list:" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
-//    return response
-//
-//  } catch (Exception e) {
-//    logger.warning("Failed to get application dscriptors \nError: ${e.getMessage()}")
-//  }
-//}
-//
-//def deleteApplicationDescriptor(String applicationId) {
-//  try {
-//
-//    String response = steps.sh(script: "curl -X DELETE${org.folio.Constants.EUREKA_APPLICATIONS_URL}${applicationId}", returnStdout: true)
-//    logger.info("Application descriptor deleted:" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
-//    return response
-//
-//  } catch (Exception e) {
-//    logger.warning("Failed to get application dscriptors \nError: ${e.getMessage()}")
-//  }
-//}
