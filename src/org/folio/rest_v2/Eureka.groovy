@@ -65,13 +65,9 @@ class Eureka extends Authorization {
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    Map<String> body = [
-      'grant_type':'client_credentials', // 'client_credentials' or 'password
-      'client_id':clientId,
-      'client_secret':clientSecret
-    ]
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
-    def response = restClient.post(url, body, headers).body
+    def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
 
     return response.access_token
