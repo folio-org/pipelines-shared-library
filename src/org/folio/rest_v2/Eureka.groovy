@@ -66,7 +66,7 @@ class Eureka extends Authorization {
 //    }
 //  }
 
-  static def registerApplication(String applicationId) {
+  def registerApplication(String applicationId) {
     String descriptorsList = GetDescriptotsList(applicationId)
     if (isApplicationRegistered(applicationId)) {
       logger.warning("Application ${applicationId} is already registered.")
@@ -115,7 +115,7 @@ class Eureka extends Authorization {
 //    }
 //  }
 
-  static def GetDescriptotsList(applicationId){
+  def GetDescriptotsList(applicationId) {
 
     String bucketName = 'eureka-application-registry/apps/'
     steps.withCredentials([steps.usernamePassword(credentialsId: org.folio.Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
