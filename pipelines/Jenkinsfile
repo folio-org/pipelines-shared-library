@@ -28,7 +28,7 @@ ansiColor('xterm') {
     try {
 
       stage('Testing application creation') {
-        folioEurekaApp.generateApplicationDescriptorFile('app-platform-minimal')
+        folioEurekaApp.generateApplicationDescriptorFile()
       }
 
     } catch (e) {
