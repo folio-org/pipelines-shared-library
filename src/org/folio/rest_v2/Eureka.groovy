@@ -18,12 +18,13 @@ class Eureka extends Authorization {
   }
 
   void createTenant(EurekaTenant tenant) {
-    if (isTenantExist(tenant.tenantManagerUrl, tenant.tenantId)) {
+    Map<String, String> headers = getMasterHeaders()
+
+    if (isTenantExist(tenant.tenantManagerUrl, tenant.tenantId, headers)) {
       logger.warning("Tenant ${tenant.tenantId} already exists!")
       return
     }
 
-    Map<String, String> headers = getMasterHeaders()
     Map body = [
       name: tenant.tenantId,
       description: tenant.tenantDescription
@@ -36,12 +37,11 @@ class Eureka extends Authorization {
     logger.info("Tenant (${tenant.tenantId}) successfully created")
   }
 
-  boolean isTenantExist(String endpointUrl, String tenantId) {
+  boolean isTenantExist(String endpointUrl, String tenantId, Map<String, String> httpHeaders) {
     String tenantUrl = "${endpointUrl}/${tenantId}"
-    Map<String, String> headers = getMasterHeaders()
 
     try {
-      restClient.get(tenantUrl, headers)
+      restClient.get(tenantUrl, httpHeaders)
       logger.info("Tenant ${tenantId} exists")
       return true
     } catch (RequestException e) {
