@@ -57,7 +57,7 @@ resource "rancher2_secret" "eureka_common" {
     KC_ADMIN_CLIENT_SECRET      = base64encode("folio-backend-admin-client")
     KC_LOGIN_CLIENT_SUFFIX      = base64encode("-application")
     KC_IMPORT_ENABLED           = base64encode("true")
-    KC_URL                      = base64encode("http://keycloak-${rancher2_namespace.this.id}-headless:8080")
+    KC_URL                      = base64encode(local.keycloak_url)
     KC_INTEGRATION_ENABLED      = base64encode("true")
     KONG_ADMIN_URL              = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
     KONG_INTEGRATION_ENABLED    = base64encode("true")
