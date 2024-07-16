@@ -34,7 +34,7 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "Eureka UI Branch: ${params.FOLIO_BRANCH}"
+        buildDescription "Eureka UI Branch: ${params.FOLIO_BRANCH}.${env.BUILD_NUMBER}"
       }
 
       stage('Build and Push') {
@@ -48,11 +48,11 @@ ansiColor('xterm') {
           keycloakgUrl: "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
           tenantUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}"
         ]
-        dir("${params.FOLIO_BRANCH}") {
-          println(attributes)
-          folioEurekaUI(attributes, false)
-          input("Paused for review...")
-        }
+
+        println(attributes)
+        folioEurekaUI(attributes, false)
+        input("Paused for review...")
+
       }
 
     } catch (e) {
