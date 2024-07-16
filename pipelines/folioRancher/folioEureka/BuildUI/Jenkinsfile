@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioEureka.BuildUI
 
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -30,7 +31,7 @@ if (params.REFRESH_PARAMETERS) {
 Logger logger = new Logger(this, 'EurekaBuildUI')
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  node(params.AGENT as String) {
     try {
       stage('Ini') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
@@ -49,10 +50,8 @@ ansiColor('xterm') {
           tenantUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}"
         ]
 
-        println(attributes)
+        println(JsonOutput.prettyPrint(attributes as String))
         folioEurekaUI(attributes, false)
-        input("Paused for review...")
-
       }
 
     } catch (e) {
@@ -60,7 +59,7 @@ ansiColor('xterm') {
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        logger.debug("Workspace size: ${sh(script: 'du -sh .', returnStdout: true).trim()}")
         cleanWs notFailBuild: true
       }
     }
