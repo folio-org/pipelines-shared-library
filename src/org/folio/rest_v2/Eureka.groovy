@@ -130,7 +130,7 @@ class Eureka extends Authorization {
   String getTestToken() {
 
     String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-    Map<String, String> headers = ['Content-Type': 'application/x-www-form-urlencoded']
+    Map<String, String> headers = ['Content-Type: application/x-www-form-urlencoded']
     Map<String, String> body = [
       client_id    : 'folio-backend-admin-client',
       grant_type   : 'client_credentials',
