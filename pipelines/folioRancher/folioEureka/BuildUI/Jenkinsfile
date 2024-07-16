@@ -1,0 +1,56 @@
+/**
+ * This is a common template for folio pipelines
+ */
+
+#!groovy
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant id like fs00000000, fs00000001, and etc', trim: true)
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Job variables
+ */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName ""
+        buildDescription ""
+      }
+      /**
+       * Placeholder for stages
+       */
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
