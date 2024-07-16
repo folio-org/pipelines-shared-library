@@ -55,10 +55,6 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Cleanup') {
-        //common.removeImage(image.getImageName()) TODO clean fresh image.
-      }
-
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
