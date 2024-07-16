@@ -72,8 +72,17 @@ class Eureka extends Authorization {
       return
     }
 
-    String json_response = steps.sh(script: "curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=folio-backend-admin-client' --data-urlencode 'grant_type=client_credentials' --data-urlencode 'client_secret=SecretPassword'")
-    String token = steps.sh(script: "echo $json_response | jq -r '.access_token'")
+    def json_response = sh(returnStdout: true, script: """
+        curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data-urlencode 'client_id=folio-backend-admin-client' \
+        --data-urlencode 'grant_type=client_credentials' \
+        --data-urlencode 'client_secret=SecretPassword'
+    """).trim()
+
+    def token = sh(returnStdout: true, script: "echo '${json_response}' | jq -r '.access_token'").trim()
+    //String json_response = steps.sh(script: "curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=folio-backend-admin-client' --data-urlencode 'grant_type=client_credentials' --data-urlencode 'client_secret=SecretPassword'")
+    //String token = steps.sh(script: "echo $json_response | jq -r '.access_token'")
 
 
     String url = generateKongUrl("/applications?check=false")
