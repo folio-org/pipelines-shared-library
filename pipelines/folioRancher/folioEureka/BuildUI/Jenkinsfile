@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioEureka.BuildUI
 
+import org.folio.Constants
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -12,7 +13,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set true to create consortium'),
     string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant id like fs00000000, fs00000001, and etc', trim: true),
     booleanParam(name: 'HAS_ALL_PERMS', defaultValue: false, description: 'Whether to assign all permissions.'),
     folioParameters.branch(),
@@ -37,11 +38,13 @@ ansiColor('xterm') {
       }
 
       stage('Checkout') {
-        checkout scm
+        sh(script: "git clone ${Constants.FOLIO_GITHUB_URL}/platform-complete.git --branch ${params.FOLIO_BRANCH} --single-branch ${params.FOLIO_BRANCH}" as String)
       }
 
       stage('Build and Push') {
-        input("Paused for review...")
+        dir("${params.FOLIO_BRANCH}") {
+          input("Paused for review...")
+        }
       }
 
       stage('Cleanup') {
