@@ -7,7 +7,7 @@ import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1569') _
 
 CONFIG_BRANCH = 'master'
 
