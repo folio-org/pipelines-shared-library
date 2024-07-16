@@ -137,7 +137,7 @@ class Eureka extends Authorization {
     ]
 
     try {
-      def response = restClient.post(url, body)
+      def response = restClient.post(url, headers: ['Content-Type': 'application/x-www-form-urlencoded'], body)
       if (response) {
         def token_data = response.headers['Set-Cookie'][1]
         headers.put("Cookie", token_data)
