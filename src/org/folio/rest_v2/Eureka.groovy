@@ -16,7 +16,7 @@ class Eureka extends Authorization {
     String url = generateKongUrl("/applications/${applicationId}")
 
     try {
-      restClient.get(url, headers).body
+      restClient.get(url).body
       logger.info("Application ${applicationId} is already registered.")
       return true
     } catch (RequestException e) {
@@ -121,7 +121,7 @@ class Eureka extends Authorization {
       //steps.sh(script: "aws s3api list-objects --bucket eureka-application-registry --prefix apps/")
       steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key apps/${applicationId}.json ${applicationId}.json")
     }
-    logger.warning(steps.readJSON(file: "${applicationId}.json"))
+    logger.info(steps.readJSON(file: "${applicationId}.json"))
     return steps.readJSON(file: "${applicationId}.json")
   }
 }
