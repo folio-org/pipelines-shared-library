@@ -30,7 +30,7 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "Eureka UI Branch: ${params.FOLIO_BRANCH}.${env.BUILD_NUMBER}"
+        buildDescription "branch: ${params.FOLIO_BRANCH}\ntenantId: ${params.TENANT_ID}\nconsortia: ${params.CONSORTIA}\nallPermissions: ${params.ALL_PERMS}"
       }
 
       Map attributes = [allPerms    : "${params.ALL_PERMS}",
