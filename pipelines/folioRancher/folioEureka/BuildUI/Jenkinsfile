@@ -2,8 +2,6 @@
 package folioRancher.folioEureka.BuildUI
 
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
