@@ -34,19 +34,17 @@ ansiColor('xterm') {
         buildDescription "Eureka UI Branch: ${params.FOLIO_BRANCH}.${env.BUILD_NUMBER}"
       }
 
-      stage('Build and Push') {
-        Map attributes = [allPerms    : "${params.ALL_PERMS}",
-                          branch      : "${params.FOLIO_BRANCH}",
-                          consortia   : "${params.CONSORTIA}",
-                          clientId    : "${params.TENANT_ID}-application",
-                          tenantId    : params.TENANT_ID,
-                          kongUrl     : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-                          keycloakgUrl: "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
-                          tenantUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}"]
+      Map attributes = [allPerms    : "${params.ALL_PERMS}",
+                        branch      : "${params.FOLIO_BRANCH}",
+                        consortia   : "${params.CONSORTIA}",
+                        clientId    : "${params.TENANT_ID}-application",
+                        tenantId    : params.TENANT_ID,
+                        kongUrl     : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
+                        keycloakgUrl: "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
+                        tenantUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}"]
 
-        println(JsonOutput.prettyPrint(JsonOutput.toJson(attributes)))
-        folioEurekaUI(attributes, false)
-      }
+      println(JsonOutput.prettyPrint(JsonOutput.toJson(attributes)))
+      folioEurekaUI(attributes, false)
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
