@@ -73,11 +73,12 @@ class Eureka extends Authorization {
     }
 
     String url = generateKongUrl("/applications?check=false")
-    //Map<String, String> headers = getAuthorizedHeaders(tenant)
+    Map<String, String> headers = getTestToken()
 
     restClient.post(url, descriptorsList)
     logger.info("Application registered: ${descriptorsList}")
   }
+
 
 //  void registerApplicationDiscovery(String applicationId, OkapiTenant tenant) {
 //    String descriptorsList = GetDescriptotsList(applicationId)
@@ -117,11 +118,36 @@ class Eureka extends Authorization {
   def getDescriptorsList(applicationId) {
 
     String bucketName = 'eureka-application-registry'
-    steps.awscli.withAwsClient(){
+    steps.awscli.withAwsClient() {
       //steps.sh(script: "aws s3api list-objects --bucket eureka-application-registry --prefix apps/")
       steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key apps/${applicationId}.json ${applicationId}.json")
     }
     logger.info(steps.readJSON(file: "${applicationId}.json"))
     return steps.readJSON(file: "${applicationId}.json")
+  }
+
+
+  String getTestToken() {
+
+    String url = generateKongUrl("/realms/master/protocol/openid-connect/token")
+    Map<String, String> body = [
+      client_id    : 'folio-backend-admin-client',
+      grant_type   : 'client_credentials',
+      client_secret: 'SecretPassword'
+    ]
+
+    try {
+      def response = restClient.post(url, body)
+      if (response) {
+        def token_data = response.headers['Set-Cookie'][1]
+        headers.put("Cookie", token_data)
+        tenant.adminUser.cookie = headers
+        return headers
+      }
+    } catch (RequestException e){
+      if (e.statusCode != HttpURLConnection.HTTP_NOT_FOUND && e.statusCode != HttpURLConnection.HTTP_BAD_REQUEST) {
+        throw new RequestException(e.getMessage(), e.statusCode)
+      }
+    }
   }
 }
