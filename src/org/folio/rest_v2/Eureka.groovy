@@ -65,7 +65,7 @@ class Eureka extends Authorization {
 //    }
 //  }
 
-  def registerApplication(String applicationId) {
+  def registerApplication(String applicationId, OkapiTenant tenant) {
     String descriptorsList = getDescriptorsList(applicationId)
     if (isApplicationRegistered(applicationId)) {
       logger.warning("Application ${applicationId} is already registered.")
@@ -73,9 +73,9 @@ class Eureka extends Authorization {
     }
 
     String url = generateKongUrl("/applications?check=false")
-    Map<String, String> headers = getAuthorizedHeaders(superTenant)
+    //Map<String, String> headers = getAuthorizedHeaders(tenant)
 
-    restClient.post(url, descriptorsList, headers)
+    restClient.post(url, descriptorsList)
     logger.info("Application registered: ${descriptorsList}")
   }
 
@@ -125,6 +125,3 @@ class Eureka extends Authorization {
     return steps.readJSON(file: "${applicationId}.json")
   }
 }
-
-
-//https://folio-eureka-scout-kong.ci.folio.org/
