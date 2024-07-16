@@ -2,10 +2,11 @@
 import groovy.json.JsonOutput
 import org.folio.Constants
 
-void call(Map params, boolean releaseVersion = false) {
+void call(Map params) {
   stage('Checkout') {
     sh(script: "git clone --branch ${params.branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/platform-complete.git" as String)
   }
+
   stage('Prepare') {
     dir('platform-complete') {
       sh(script: "cp -R -f eureka-tpl/* .")
@@ -16,12 +17,12 @@ void call(Map params, boolean releaseVersion = false) {
       input("Paused for review...")
     }
   }
+
   stage('Build and Push') {
     dir('platform-complete') {
       // Docker & Helm stuff goes here
+      //common.removeImage(image.getImageName()) TODO: clean fresh image.
     }
   }
-  stage('Cleanup') {
-    //common.removeImage(image.getImageName()) TODO clean fresh image.
-  }
+
 }

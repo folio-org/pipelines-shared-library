@@ -42,7 +42,7 @@ ansiColor('xterm') {
                         keycloakgUrl: "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
                         tenantUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}"]
 
-      folioEurekaUI(attributes, false)
+      folioEurekaUI(attributes)
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
