@@ -1,20 +1,21 @@
-/**
- * This is a common template for folio pipelines
- */
-
 #!groovy
+package folioRancher.folioEureka.BuildUI
+
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1557') _
 
-/**
- * Job properties and parameters
- */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant id like fs00000000, fs00000001, and etc', trim: true)
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant id like fs00000000, fs00000001, and etc', trim: true),
+    booleanParam(name: 'HAS_ALL_PERMS', defaultValue: false, description: 'Whether to assign all permissions.'),
+    folioParameters.branch(),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -25,24 +26,28 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-/**
- * Job variables
- */
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+Logger logger = new Logger(this, 'EurekaBuildUI')
 
-/**
- * Pipeline
- */
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName ""
-        buildDescription ""
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "Eureka UI Branch: ${params.FOLIO_BRANCH}"
       }
-      /**
-       * Placeholder for stages
-       */
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('Build and Push') {
+        input("Paused for review...")
+      }
+
+      stage('Cleanup') {
+        //common.removeImage(image.getImageName()) TODO clean fresh image.
+      }
+
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
