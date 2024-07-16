@@ -72,8 +72,12 @@ class Eureka extends Authorization {
       return
     }
 
+    String json_response = steps.sh(script: "curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=folio-backend-admin-client' --data-urlencode 'grant_type=client_credentials' --data-urlencode 'client_secret=SecretPassword'")
+    String token = steps.sh(script: "echo $json_response | jq -r '.access_token'")
+
+
     String url = generateKongUrl("/applications?check=false")
-    Map<String, String> headers = getTestToken()
+    Map<String, String> headers = token
 
     restClient.post(url, descriptorsList)
     logger.info("Application registered: ${descriptorsList}")
@@ -124,31 +128,5 @@ class Eureka extends Authorization {
     }
     logger.info(steps.readJSON(file: "${applicationId}.json"))
     return steps.readJSON(file: "${applicationId}.json")
-  }
-
-
-  String getTestToken() {
-
-    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-    Map<String, String> headers = ['Content-Type: application/x-www-form-urlencoded']
-    Map<String, String> body = [
-      client_id    : 'folio-backend-admin-client',
-      grant_type   : 'client_credentials',
-      client_secret: 'SecretPassword'
-    ]
-
-    try {
-      def response = restClient.post(url, headers, body)
-      if (response) {
-        def token_data = response.headers['Set-Cookie'][1]
-        headers.put("Cookie", token_data)
-        tenant.adminUser.cookie = headers
-        return headers
-      }
-    } catch (RequestException e){
-      if (e.statusCode != HttpURLConnection.HTTP_NOT_FOUND && e.statusCode != HttpURLConnection.HTTP_BAD_REQUEST) {
-        throw new RequestException(e.getMessage(), e.statusCode)
-      }
-    }
   }
 }
