@@ -102,7 +102,7 @@ ansiColor('xterm') {
         }
       }
       stage('Update UI Modules') {
-        main.preInstall(uiModuleList, [])
+        main.publishDescriptors(uiModuleList)
         main.update(namespace.getTenants())
       }
     } catch (e) {

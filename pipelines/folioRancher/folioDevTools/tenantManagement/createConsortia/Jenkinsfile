@@ -78,7 +78,8 @@ ansiColor('xterm') {
       stage('[Rest] Create tenants') {
         List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
         List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
-        main.preInstall(consortiaInstallJson, consortiaDiscovery)
+        main.publishDescriptors(consortiaInstallJson)
+        main.publishServiceDiscovery(consortiaDiscovery)
         namespace.getTenants().each { tenantId, tenant ->
           main.createTenantFlow(tenant)
         }
