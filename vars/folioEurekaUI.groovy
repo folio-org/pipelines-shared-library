@@ -1,4 +1,5 @@
 #!groovy
+import groovy.json.JsonOutput
 import org.folio.Constants
 
 void call(Map params, boolean releaseVersion = false) {
@@ -8,7 +9,10 @@ void call(Map params, boolean releaseVersion = false) {
   stage('Prepare') {
     dir('platform-complete') {
       sh(script: "cp -R -f eureka-tpl/* .")
+      def tenantOpts = JsonOutput.prettyPrint(JsonOutput.toJson(["${params.tenantId}",
+                                                                 ["name": "${params.tenantId}", "clientId": "${params.tenantId}-application"]]))
       //templating goes here...
+      println(tenantOpts)
       input("Paused for review...")
     }
   }
