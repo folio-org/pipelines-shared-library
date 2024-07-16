@@ -130,6 +130,7 @@ class Eureka extends Authorization {
   String getTestToken() {
 
     String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
+    Map<String, String> headers = ['Content-Type': 'application/x-www-form-urlencoded']
     Map<String, String> body = [
       client_id    : 'folio-backend-admin-client',
       grant_type   : 'client_credentials',
@@ -137,7 +138,7 @@ class Eureka extends Authorization {
     ]
 
     try {
-      def response = restClient.post(url, headers: ['Content-Type': 'application/x-www-form-urlencoded'], body)
+      def response = restClient.post(url, headers, body)
       if (response) {
         def token_data = response.headers['Set-Cookie'][1]
         headers.put("Cookie", token_data)
