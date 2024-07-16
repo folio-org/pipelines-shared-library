@@ -119,7 +119,7 @@ class Eureka extends Authorization {
     String bucketName = 'eureka-application-registry'
     steps.awscli.withAwsClient(){
       steps.sh(script: "aws s3api list-objects --bucket eureka-application-registry --prefix apps/")
-      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key "/apps/${applicationId}" ${applicationId}.json")
+      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key /apps/${applicationId} ${applicationId}.json")
     }
     logger.warning(readJSON(file: "${applicationId}.json"))
     return readJSON(file: "${applicationId}.json")
