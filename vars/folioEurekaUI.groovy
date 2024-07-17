@@ -1,5 +1,6 @@
 #!groovy
 import groovy.json.JsonOutput
+import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 
 void call(Map params) {
@@ -10,11 +11,10 @@ void call(Map params) {
   stage('Prepare') {
     dir('platform-complete') {
       sh(script: "cp -R -f eureka-tpl/* .")
-      def tenantOpts = JsonOutput.prettyPrint(JsonOutput.toJson(["${params.tenantId}",
-                                                                 ["name": "${params.tenantId}", "clientId": "${params.tenantId}-application"]]))
-      println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}\ntenantOpts:\n${tenantOpts}")
-      //templating goes here...
-      input("Paused for review...")
+      println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+      def ui_tpl = (new StreamingTemplateEngine().createTemplate(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String)).make(params)
+      println(ui_tpl)
+      input("Test review...")
     }
   }
 
