@@ -1,4 +1,5 @@
 #!groovy
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
@@ -12,8 +13,8 @@ void call(Map params) {
     dir('platform-complete') {
       sh(script: "cp -R -f eureka-tpl/* .")
       println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-      def ui_tpl = (new StreamingTemplateEngine().createTemplate(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String)).make(params)
-      println(ui_tpl)
+      def data = readFile(file: 'stripes.config.js', encoding: "UTF-8")
+      make_tpl(data as String, params)
       input("Test review...")
     }
   }
@@ -25,4 +26,10 @@ void call(Map params) {
     }
   }
 
+}
+
+@NonCPS
+def make_tpl(String tpl, Map data) {
+  def ui_tpl = (new StreamingTemplateEngine().createTemplate(tpl)).make(data)
+  println(ui_tpl)
 }
