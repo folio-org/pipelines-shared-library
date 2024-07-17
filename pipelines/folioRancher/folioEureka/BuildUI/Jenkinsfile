@@ -34,12 +34,14 @@ ansiColor('xterm') {
         buildDescription "branch: ${params.FOLIO_BRANCH}\ntenantId: ${params.TENANT_ID}\nconsortia: ${params.CONSORTIA}\nallPermissions: ${params.ALL_PERMS}"
       }
 
-      Map attributes = [hasAllPerms   : "${params.ALL_PERMS}",
-                        branch        : "${params.FOLIO_BRANCH}",
-                        consortia     : "${params.CONSORTIA}",
+      Map attributes = [hasAllPerms   : params.ALL_PERMS,
+                        branch        : params.FOLIO_BRANCH,
+                        consortia     : params.CONSORTIA,
                         clientId      : "${params.TENANT_ID}-application",
+                        cluster       : params.CLUSTER,
+                        namespace     : params.NAMESPACE,
                         tenantId      : params.TENANT_ID,
-                        isSingleTenant: "true",
+                        isSingleTenant: true,
                         kongUrl       : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
                         keycloakUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
                         tenantUrl     : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}",
