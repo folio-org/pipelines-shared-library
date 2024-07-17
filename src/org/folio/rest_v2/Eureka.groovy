@@ -39,20 +39,20 @@ class Eureka extends Authorization {
     return steps.readJSON(file: "${applicationId}.json")
   }
 
-  String getEurekaToken() {
+  String getEurekaToken(String client_id, String client_secret, String grant_type) {
     logger.info("Getting access token from Keycloak service")
 
     String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
     Map<String,String> headers = [
       'Content-Type':'application/x-www-form-urlencoded'
     ]
-    String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
+    String requestBody = "client_id=$client_id&client_secret=$client_secret&grant_type=$grant_type"
 
     try {
-    def response = restClient.post(url, requestBody, headers).body
-    logger.info("Access token received successfully from Keycloak service")
-    logger.info("${response.access_token}")
-    return response.access_token
+      def response = restClient.post(url, requestBody, headers).body
+      logger.info("Access token received successfully from Keycloak service")
+      logger.info("${response.access_token}")
+      return response.access_token
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
         logger.info("Cant get token.")
@@ -61,29 +61,6 @@ class Eureka extends Authorization {
       }
     }
   }
-
-//  String getEurekaToken(String client_id, String client_secret, String grant_type) {
-//    logger.info("Getting access token from Keycloak service")
-//
-//    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-//    Map<String,String> headers = [
-//      'Content-Type':'application/x-www-form-urlencoded'
-//    ]
-//    String requestBody = "client_id=$client_id&client_secret=$client_secret&grant_type=$grant_type"
-//
-//    try {
-//      def response = restClient.post(url, requestBody, headers).body
-//      logger.info("Access token received successfully from Keycloak service")
-//      logger.info("${response.access_token}")
-//      return response.access_token
-//    } catch (RequestException e) {
-//      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-//        logger.info("Cant get token.")
-//      } else {
-//        throw new RequestException("Keycloak is unavailable", e.statusCode)
-//      }
-//    }
-//  }
 
   def registerApplication(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
@@ -104,6 +81,29 @@ class Eureka extends Authorization {
         throw new RequestException("Application is not registered", e.statusCode)
       }
     }
+
+  //  String getEurekaToken() {
+//    logger.info("Getting access token from Keycloak service")
+//
+//    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
+//    Map<String,String> headers = [
+//      'Content-Type':'application/x-www-form-urlencoded'
+//    ]
+//    String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
+//
+//    try {
+//    def response = restClient.post(url, requestBody, headers).body
+//    logger.info("Access token received successfully from Keycloak service")
+//    logger.info("${response.access_token}")
+//    return response.access_token
+//    } catch (RequestException e) {
+//      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+//        logger.info("Cant get token.")
+//      } else {
+//        throw new RequestException("Keycloak is unavailable", e.statusCode)
+//      }
+//    }
+//  }
 
 //  boolean isDiscoveryRegistered(OkapiTenant tenant, String applicationId, List descriptorsList) {
 //
