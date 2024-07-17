@@ -29,6 +29,44 @@ class Eureka extends Authorization {
     }
   }
 
+  def getDescriptorsList(applicationId) {
+
+    String bucketName = 'eureka-application-registry'
+    steps.awscli.withAwsClient() {
+      //steps.sh(script: "aws s3api list-objects --bucket eureka-application-registry --prefix apps/")
+      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key apps/${applicationId}.json ${applicationId}.json")
+    }
+    logger.info(steps.readJSON(file: "${applicationId}.json"))
+    return steps.readJSON(file: "${applicationId}.json")
+  }
+
+  String getEurekaToken() {
+    logger.info("Getting access token from Keycloak service")
+
+    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
+
+    def response = restClient.post(url, requestBody, headers).body
+    logger.info("Access token received successfully from Keycloak service")
+    logger.info("${response.access_token}")
+    return response.access_token
+  }
+
+  def registerApplication(String applicationId) {
+    String descriptorsList = getDescriptorsList(applicationId)
+    if (isApplicationRegistered(applicationId)) {
+      logger.warning("Application ${applicationId} is already registered.")
+      return
+    }
+
+    String url = generateKongUrl("/applications?check=false")
+    Map<String,String> headers = ["x-okapi-token":getEurekaToken()]
+
+    restClient.post(url, descriptorsList, headers)
+    logger.info("Application registered: ${descriptorsList}")
+  }
+
 //  boolean isDiscoveryRegistered(OkapiTenant tenant, String applicationId, List descriptorsList) {
 //
 //    String url = generateUrl("/applications/${applicationId}/discovery?limit=500")
@@ -64,47 +102,6 @@ class Eureka extends Authorization {
 //      }
 //    }
 //  }
-
-  def registerApplication(String applicationId) {
-    String descriptorsList = getDescriptorsList(applicationId)
-    if (isApplicationRegistered(applicationId)) {
-      logger.warning("Application ${applicationId} is already registered.")
-      return
-    }
-
-//    def response = steps.sh(returnStdout: true, script: """
-//        curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' \
-//        --header 'Content-Type: application/x-www-form-urlencoded' \
-//        --data-urlencode 'client_id=folio-backend-admin-client' \
-//        --data-urlencode 'grant_type=client_credentials' \
-//        --data-urlencode 'client_secret=SecretPassword'
-//    """).trim()
-//    logger.info("${response}.access_token")
-    //def token = steps.sh(returnStdout: true, script: "echo '${json_response}' | jq -r '.access_token'").trim()
-    //String json_response = steps.sh(script: "curl --location 'https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'client_id=folio-backend-admin-client' --data-urlencode 'grant_type=client_credentials' --data-urlencode 'client_secret=SecretPassword'")
-    //String token = steps.sh(script: "echo $json_response | jq -r '.access_token'")
-
-
-    String url = generateKongUrl("/applications?check=false")
-    Map<String,String> headers = ["x-okapi-token":getEurekaToken()]
-
-    restClient.post(url, headers, descriptorsList)
-    logger.info("Application registered: ${descriptorsList}")
-  }
-
-  String getEurekaToken() {
-    logger.info("Getting access token from Keycloak service")
-
-    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
-
-    def response = restClient.post(url, requestBody, headers).body
-    logger.info("Access token received successfully from Keycloak service")
-    logger.info("${response.access_token}")
-    return response.access_token
-  }
-
 //  void registerApplicationDiscovery(String applicationId, OkapiTenant tenant) {
 //    String descriptorsList = GetDescriptotsList(applicationId)
 //    if (isDiscoveryRegistered(tenant, applicationId, descriptorsList)) {
@@ -139,15 +136,4 @@ class Eureka extends Authorization {
 //      }
 //    }
 //  }
-
-  def getDescriptorsList(applicationId) {
-
-    String bucketName = 'eureka-application-registry'
-    steps.awscli.withAwsClient() {
-      //steps.sh(script: "aws s3api list-objects --bucket eureka-application-registry --prefix apps/")
-      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key apps/${applicationId}.json ${applicationId}.json")
-    }
-    logger.info(steps.readJSON(file: "${applicationId}.json"))
-    return steps.readJSON(file: "${applicationId}.json")
-  }
 }
