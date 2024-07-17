@@ -42,8 +42,8 @@ class EurekaTenant extends Tenant {
    * @param keycloakUrl Keycloak service URL.
    * @param kongUrl Kong service URL.
    */
-  EurekaTenant(String tenantId, String clientId, String clientSecret, String keycloakUrl, String kongUrl) {
-    super(tenantId)
+  EurekaTenant(String tenantId, String tenantDescription, String clientId, String clientSecret, String keycloakUrl, String kongUrl) {
+    super(tenantId, tenantDescription)
     this.clientId = clientId
     this.clientSecret = clientSecret
     this.keycloakUrl = keycloakUrl
