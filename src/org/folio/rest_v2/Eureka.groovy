@@ -101,9 +101,8 @@ class Eureka extends Authorization {
 
     def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
-
-    return token = response.access_token
-    logger.info("${response}.access_token")
+    logger.info("${response.access_token}")
+    return response.access_token
   }
 
 //  void registerApplicationDiscovery(String applicationId, OkapiTenant tenant) {
