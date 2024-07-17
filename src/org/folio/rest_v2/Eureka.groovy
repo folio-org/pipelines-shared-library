@@ -152,8 +152,9 @@ class Eureka extends Authorization {
         'Content-Type': 'application/json'
       ]
       try {
+        def requestBody = writeJSON(json: descriptorsList, returnText: true, pretty: 2)
         logger.warning("HERE")
-        restClient.post(url, descriptorsList, headers)
+        restClient.post(url, requestBody, headers)
         logger.info("Modules discovery registered: ${descriptorsList}")
       } catch (RequestException e) {
         throw new RequestException("Application is not registered", e.statusCode)
