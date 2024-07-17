@@ -43,7 +43,7 @@ ansiColor('xterm') {
                         kongUrl       : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
                         keycloakUrl   : "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
                         tenantUrl     : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}",
-                        tenantOptions : JsonOutput.toJson(["${params.TENANT_ID}", ["name": "${params.TENANT_ID}", "clientId": "${params.TENANT_ID}-application"]])]
+                        tenantOptions : JsonOutput.toJson(["${params.TENANT_ID}" as String: ["name": "${params.TENANT_ID}", "clientId": "${params.TENANT_ID}-application"]])]
 
       folioEurekaUI(attributes)
 

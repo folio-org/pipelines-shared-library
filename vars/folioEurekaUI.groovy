@@ -13,8 +13,7 @@ void call(Map params) {
     dir('platform-complete') {
       sh(script: "cp -R -f eureka-tpl/* .")
       println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-      def data = readFile(file: 'stripes.config.js', encoding: "UTF-8")
-      make_tpl(data as String, params)
+      make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params)
       input("Test review...")
     }
   }
@@ -31,5 +30,6 @@ void call(Map params) {
 @NonCPS
 def make_tpl(String tpl, Map data) {
   def ui_tpl = (new StreamingTemplateEngine().createTemplate(tpl)).make(data)
+  writeFile file: 'stripes.config.js', text: ui_tpl, encoding: 'UTF-8'
   println(ui_tpl)
 }
