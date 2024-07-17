@@ -105,7 +105,7 @@ class Eureka extends Authorization {
 //    }
 //  }
 
-  boolean isDiscoveryRegistered(String applicationId, List descriptorsList) {
+  boolean isDiscoveryRegistered(String applicationId, String descriptorsList) {
 
     String url = generateUrl("/applications/${applicationId}/discovery?limit=500")
 //    Map<String, String> headers = getAuthorizedHeaders(tenant)
