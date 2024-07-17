@@ -86,7 +86,7 @@ class Eureka extends Authorization {
 
 
     String url = generateKongUrl("/applications?check=false")
-    Map<String, String> headers = getEurekaToken()
+    String headers = getEurekaToken()
 
     restClient.post(url, headers, descriptorsList)
     logger.info("Application registered: ${descriptorsList}")
@@ -101,9 +101,8 @@ class Eureka extends Authorization {
 
     def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
-    String token = response.access_token
-    logger.info("Access token: ${token}")
-    return token
+    logger.info("${response.access_token}")
+    return response.access_token
   }
 
 //  void registerApplicationDiscovery(String applicationId, OkapiTenant tenant) {
