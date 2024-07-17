@@ -54,7 +54,7 @@ class Eureka extends Authorization {
   }
 
   def registerApplication(String applicationId) {
-    String descriptorsList = getDescriptorsList(applicationId)
+    Map descriptorsList = getDescriptorsList(applicationId)
     if (isApplicationRegistered(applicationId)) {
       logger.warning("Application ${applicationId} is already registered.")
       return
