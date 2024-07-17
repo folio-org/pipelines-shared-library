@@ -104,7 +104,6 @@ class Eureka extends Authorization {
         throw new RequestException("Application is not registered", e.statusCode)
       }
     }
-  }
 
 //  boolean isDiscoveryRegistered(OkapiTenant tenant, String applicationId, List descriptorsList) {
 //
