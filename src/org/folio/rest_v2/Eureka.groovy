@@ -61,7 +61,10 @@ class Eureka extends Authorization {
     }
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false/applications?check=false"
-    Map<String,String> headers = ["x-okapi-token":getEurekaToken()]
+    Map<String,String> headers = [
+        "x-okapi-token": getEurekaToken(),
+        "Content-Type": "application/json"
+      ]
 
     restClient.post(url, descriptorsList, headers)
     logger.info("Application registered: ${descriptorsList}")
