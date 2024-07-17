@@ -48,7 +48,7 @@ void call(Map params) {
         }
       }
       folioHelm.withKubeConfig(ns.getClusterName()) {
-        folioHelm.deployFolioModule(ns, 'ui-bundle', ui_bundle.getTag(), false)
+        folioHelm.deployFolioModule(ns, 'ui-bundle', ui_bundle.getTag(), false, ns.defaultTenantId)
       }
 
       common.removeImage(ui_bundle.getImageName())
