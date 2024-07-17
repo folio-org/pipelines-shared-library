@@ -151,28 +151,28 @@ class Eureka extends Authorization {
       return
     }
 
-    String url = generateUrl("/modules/discovery")
-    Map<String, String> headers = getAuthorizedHeaders(tenant)
-// add port
-    descriptorsList.each() { service ->
-      if (service['url'] && service['srvcId'] && service['instId']) {
-        try {
-          restClient.post(url, service, headers)
-          logger.info("${service['srvcId']} registered successfully")
-        } catch (RequestException e) {
-          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-            logger.info("${service['srvcId']} is not registered. ${e.getMessage()}")
-            logger.info("Repeat ${service['srvcId']} retry in 3 seconds.")
-            sleep(3000)
-            restClient.post(url, service, headers)
-          } else {
-            throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
-          }
-        }
-        logger.info("Info on the newly created discovery table for id ${applicationId}" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
-      } else {
-        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
-      }
-    }
+//    String url = generateUrl("/modules/discovery")
+//    Map<String, String> headers = getAuthorizedHeaders(tenant)
+//// add port
+//    descriptorsList.each() { service ->
+//      if (service['url'] && service['srvcId'] && service['instId']) {
+//        try {
+//          restClient.post(url, service, headers)
+//          logger.info("${service['srvcId']} registered successfully")
+//        } catch (RequestException e) {
+//          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+//            logger.info("${service['srvcId']} is not registered. ${e.getMessage()}")
+//            logger.info("Repeat ${service['srvcId']} retry in 3 seconds.")
+//            sleep(3000)
+//            restClient.post(url, service, headers)
+//          } else {
+//            throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
+//          }
+//        }
+//        logger.info("Info on the newly created discovery table for id ${applicationId}" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
+//      } else {
+//        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
+//      }
+//    }
   }
 }
