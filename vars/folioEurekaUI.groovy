@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.Modules
+import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.utilities.model.Module
@@ -33,7 +34,10 @@ void call(Map params) {
 
       RancherNamespace ns = new RancherNamespace(params.cluster as String, params.namespace as String)
         .withDeploymentConfigType(params.config as String)
-        .withDefaultTenant(params.tenantId as String)
+
+      ns.addTenant(new OkapiTenant(params.tenantId as String)
+        .withTenantUi(tenantUi))
+
 
       if (params.consortia) {
         def packageJson = readJSON file: 'package.json'
