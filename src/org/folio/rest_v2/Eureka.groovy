@@ -86,7 +86,7 @@ class Eureka extends Authorization {
 
 
     String url = generateKongUrl("/applications?check=false")
-    String headers = getEurekaToken()
+    Map<String,String> headers = ["x-okapi-token":getEurekaToken()]
 
     restClient.post(url, headers, descriptorsList)
     logger.info("Application registered: ${descriptorsList}")
