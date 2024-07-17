@@ -65,6 +65,7 @@ class Eureka extends Authorization {
         "x-okapi-token": getEurekaToken(),
        // "Content-Type":"application/x-www-form-urlencoded"
 //        "Content-Type": "application/json"
+        'contentType': 'APPLICATION_JSON'
       ]
 
     restClient.post(url, descriptorsList, headers)
