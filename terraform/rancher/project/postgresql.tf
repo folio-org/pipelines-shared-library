@@ -142,6 +142,7 @@ EOF
 }
 
 resource "time_sleep" "ram_resource_propagation" {
+  count           = var.pg_embedded ? 1 : 0
   create_duration = "30s"
 
   triggers = {
