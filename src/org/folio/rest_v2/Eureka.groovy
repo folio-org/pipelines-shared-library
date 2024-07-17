@@ -60,7 +60,7 @@ class Eureka extends Authorization {
       return
     }
 
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false/applications?check=false")
+    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false/applications?check=false"
     Map<String,String> headers = ["x-okapi-token":getEurekaToken()]
 
     restClient.post(url, descriptorsList, headers)
