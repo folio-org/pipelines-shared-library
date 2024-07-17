@@ -18,12 +18,8 @@ class Eureka extends Authorization {
   }
 
   void createTenant(EurekaTenant tenant) {
-    Map<String, String> headers = getMasterHeaders()
-
-    if (isTenantExist(tenant.tenantManagerUrl, tenant.tenantId, headers)) {
-      logger.warning("Tenant ${tenant.tenantId} already exists!")
-      return
-    }
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
 
     Map body = [
       name: tenant.tenantId,
@@ -32,6 +28,7 @@ class Eureka extends Authorization {
 
     logger.info("Creating tenant ${tenant.tenantId}...")
 
+    // Run POST request to create a new tenant
     restClient.post(tenant.tenantManagerUrl, body, headers)
 
     logger.info("Tenant (${tenant.tenantId}) successfully created")
@@ -50,17 +47,13 @@ class Eureka extends Authorization {
     }
   }
 
-  def getMasterHeaders() {
-    return getHttpHeaders(masterTenant)
-  }
-
   def getHttpHeaders(EurekaTenant tenant) {
     def tenantId = (tenant.tenantId == masterTenant.tenantId) ? "" : tenant.tenantId
-    def eurekaToken = getEurekaToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
-    return getOkapiHeaders(tenantId, eurekaToken)
+    def tenantToken = getAuthToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
+    return getAuthHeaders(tenantId, tenantToken)
   }
 
-  String getEurekaToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
+  String getAuthToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
     logger.info("Getting access token from Keycloak service")
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
@@ -70,20 +63,24 @@ class Eureka extends Authorization {
     def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
 
-    return response.access_token
+    return response['access_token']
   }
 
-  Map<String,String> getOkapiHeaders(String tenantId, String token) {
+  Map<String,String> getAuthHeaders(String tenantId, String token) {
     Map<String,String> headers = [:]
+
     if (tenantId != null && !tenantId.isEmpty()) {
       headers.putAll(['x-okapi-tenant': tenantId])
     }
-    if (token != null && !token.isEmpty() && token != "Could not get x-okapi-token") {
-      headers.putAll(["x-okapi-token": token])
+
+    if (token != null && !token.isEmpty()) {
+      headers.putAll(['Authorization' : "Bearer ${token}"])
     }
+
     if (!headers.isEmpty()) {
-      logger.info("Important 'X-Okapi' HTTP Headers are populated")
+      logger.info("Auth HTTP Headers are populated")
     }
+
     return headers
   }
 }
