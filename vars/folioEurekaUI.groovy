@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.Modules
+import org.folio.models.RancherNamespace
 import org.folio.utilities.model.Module
 
 void call(Map params) {
@@ -21,12 +22,14 @@ void call(Map params) {
 
   stage('Build and Push') {
     dir('platform-complete') {
-      Module ui_bundle = new Module(
-        name: "ui-bundle",
-        hash: common.getLastCommitHash('platform-complete', params.branch as String)
-      )
+      Module ui_bundle = new Module(name: "ui-bundle",
+        hash: common.getLastCommitHash('platform-complete', params.branch as String))
       ui_bundle.tag = "${params.cluster}-${params.namespace}.${params.tenantId}.${common.getLastCommitHash('platform-complete', params.branch as String).take(7)}"
       ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
+
+      RancherNamespace ns = new RancherNamespace(params.cluster as String, params.namespace as String)
+        .withDeploymentConfigType(params.config as String)
+        .withDefaultTenant(params.tenantId as String)
 
       if (params.consortia) {
         def packageJson = readJSON file: 'package.json'
@@ -39,16 +42,15 @@ void call(Map params) {
 
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
         retry(2) {
-          def image = docker.build(
-            ui_bundle.getImageName(),
-            "--build-arg OKAPI_URL=${params.kongUrl} " +
-              "--build-arg TENANT_ID=${params.tenantId} " +
-              "-f docker/Dockerfile  " +
-              "."
-          )
+          def image = docker.build(ui_bundle.getImageName(),
+            "--build-arg OKAPI_URL=${params.kongUrl} " + "--build-arg TENANT_ID=${params.tenantId} " + "-f docker/Dockerfile  " + ".")
           image.push()
         }
       }
+      folioHelm.withKubeConfig(ns.getClusterName()) {
+        folioHelm.deployFolioModule(ns, 'ui-bundle', ui_bundle.getTag(), false)
+      }
+
       common.removeImage(ui_bundle.getImageName())
     }
   }
