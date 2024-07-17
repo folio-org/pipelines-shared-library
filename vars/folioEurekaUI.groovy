@@ -29,7 +29,7 @@ void call(Map params) {
 
 @NonCPS
 def make_tpl(String tpl, Map data) {
-  def ui_tpl = (new StreamingTemplateEngine().createTemplate(tpl)).make(data)
+  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
   writeFile file: 'stripes.config.js', text: ui_tpl, encoding: 'UTF-8'
   println(ui_tpl)
 }
