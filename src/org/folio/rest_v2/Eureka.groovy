@@ -157,7 +157,7 @@ class Eureka extends Authorization {
     def modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
 
 
-      logger.info(JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
+    logger.info(JsonOutput.toJson(modulesJson))
 //    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
 //      logger.info("do")
 ////      modulesJson.modules.each() { module ->
