@@ -187,7 +187,6 @@ class Eureka extends Authorization {
 //        logger.info("Modules discovery registered: ${descriptorsList}")
 //      } catch (RequestException e) {
 //        throw new RequestException("Application is not registered", e.statusCode)
-      }
     }
 
 
