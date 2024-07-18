@@ -113,17 +113,13 @@ class Eureka extends Authorization {
 
     def response = restClient.get(url)
     def content = response.body
-    logger.warning("!!!!!!!!!")
-    logger.info("${content}")
-    logger.info("${modulesJson}")
+    logger.warning("Do comparison")
     if(content == modulesJson) {
       logger.info("All module discovery information are registered. Nothing to do.")
       return false
-      logger.warning("false")
     } else {
       logger.info("Not all module discovery information is registered. Proceeding with registration.")
       return true
-      logger.warning("true")
     }
   }
 
@@ -157,13 +153,27 @@ class Eureka extends Authorization {
     }
 
     def modulesJson = ['discovery': modules]
-    String x = (JsonOutput.toJson(modulesJson))
+    String modulesList = (JsonOutput.toJson(modulesJson))
 
-    logger.info(JsonOutput.toJson(modulesJson))
-    if (isDiscoveryModulesRegistered(applicationId, x)) {
+    logger.info(JsonOutput.toJson(modulesList))
+    if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
       logger.info("do")
+
+      Map<String, String> headers = [
+        'Content-Type': 'application/json'
+      ]
+
+      modulesJson.discovery.each { modDiscovery ->
+
+        String url = generateKongUrl(":8082/modules/${modDiscovery.id}/discovery")
+
+        def requestBody = writeJSON(json: modDiscovery, returnText: true, pretty: 2)
+        def response = restClient.post(url, requestBody, headers).body
+
+        logger.info("Registered module discovery: ${modDiscovery.id}")
+      }
 //      modulesJson.modules.each() { module ->
-//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
+//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/modules/:id/discovery
 //        module.put('location', moduleUrl)
 //        modulesJson.add(module)
 //      }
