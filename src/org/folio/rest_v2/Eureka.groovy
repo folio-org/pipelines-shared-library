@@ -160,6 +160,7 @@ class Eureka extends Authorization {
       logger.info("do")
 
       Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
       ]
 
