@@ -78,7 +78,7 @@ readReplicas:
 image:
   tag: ${join(".", [var.pg_version, "0"])}
 auth:
-  database: ${var.pg_dbname}
+  database: ${local.pg_eureka_db_name}
   postgresPassword: ${var.pg_password}
   replicationPassword: ${var.pg_password}
   replicationUsername: ${var.pg_username}
