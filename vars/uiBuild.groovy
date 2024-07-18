@@ -5,6 +5,7 @@ import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.RestClient
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
@@ -75,6 +76,28 @@ void call(Map params, boolean releaseVersion = false) {
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
   }
+
+  if (params.eureka) {
+    stage('KC and UI') {
+      RestClient client = new RestClient(this)
+      Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+      def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+      def token = client.post("${params.keycloakUrl}/realms/master/protocol/openid-connect/token", body, headers).body
+      Map updates = [
+        rootUrl: params.tenantUrl,
+        baseUrl: params.tenantUrl,
+        adminUrl: params.tenantUrl,
+        redirectUris: ["${params.tenantUrl}/*"],
+        webOrigins: ["/*"],
+        authorizationServicesEnabled: true,
+        serviceAccountsEnabled: true,
+        attributes: ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme'] // TODO check theme source.
+      ]
+      Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${params.tenant_id}-application", JsonOutput.toJson(updates), updatesHeaders)
+    }
+  }
+
 }
 
 //TODO temporary solution should be revised
