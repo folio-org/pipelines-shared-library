@@ -151,14 +151,14 @@ class Eureka extends Authorization {
     def modules = parsedJson.modules
 
     def modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
-    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
 
       modulesJson.each { module ->
         modulesJson.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
       }
 
       logger.info(JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
-
+    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
+      logger.info("do")
 //      modulesJson.modules.each() { module ->
 //        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
 //        module.put('location', moduleUrl)
