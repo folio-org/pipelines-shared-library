@@ -174,7 +174,7 @@ class Eureka extends Authorization {
 
           logger.info("Registered module discovery: ${modDiscovery.id}")
         } catch (RequestException e) {
-          if (e.status == 409) {
+          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
             // Handle conflict error (module already registered)
             logger.info("Module already registered (skipped): ${modDiscovery.id}")
           } else {
