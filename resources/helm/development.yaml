@@ -754,6 +754,8 @@ mod-licenses:
       memory: '576Mi'
 mod-lists:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
+  okapiConnectParameters: db-connect-modules
+  systemUser: true
   postJob:
     enabled: false
   replicaCount: 1
