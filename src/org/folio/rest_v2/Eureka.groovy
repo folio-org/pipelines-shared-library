@@ -157,15 +157,15 @@ class Eureka extends Authorization {
       }
 
       logger.info(JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
-    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
-      logger.info("do")
-//      modulesJson.modules.each() { module ->
-//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
-//        module.put('location', moduleUrl)
-//        modulesJson.add(module)
-//      }
-    }else {
-      logger.info("nothing to do")
+//    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
+//      logger.info("do")
+////      modulesJson.modules.each() { module ->
+////        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
+////        module.put('location', moduleUrl)
+////        modulesJson.add(module)
+////      }
+//    }else {
+//      logger.info("nothing to do")
     }
 
 
