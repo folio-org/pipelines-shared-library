@@ -151,7 +151,7 @@ class Eureka extends Authorization {
     def modules = parsedJson.modules
 
     modules.each { module ->
-      modules = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
+      module = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
     }
 
     def modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
