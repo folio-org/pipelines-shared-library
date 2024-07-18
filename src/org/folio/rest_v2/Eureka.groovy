@@ -156,9 +156,9 @@ class Eureka extends Authorization {
     String modulesList = (JsonOutput.toJson(modulesJson))
 
     logger.info(JsonOutput.toJson(modulesList))
-    if (!isDiscoveryModulesRegistered(applicationId, modulesList)) {
+    if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
       logger.info("do")
-    }else{
+
       Map<String, String> headers = [
         'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
@@ -167,25 +167,23 @@ class Eureka extends Authorization {
       modulesJson.discovery.each { modDiscovery ->
 
         String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
-
         String requestBody = JsonOutput.toJson(modDiscovery)
-        try {
-          def response = restClient.post(url, requestBody, headers).body
 
+        try {
+          restClient.post(url, requestBody, headers).body
           logger.info("Registered module discovery: ${modDiscovery.id}")
         } catch (RequestException e) {
           if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
-            // Handle conflict error (module already registered)
             logger.info("Module already registered (skipped): ${modDiscovery.id}")
           } else {
-            // Handle other exceptions
             logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
           }
         }
       }
+    }else{
+      logger.info("No modules to register")
     }
   }
-}
 
 
 //      try {
