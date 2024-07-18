@@ -165,7 +165,7 @@ class Eureka extends Authorization {
 
       modulesJson.discovery.each { modDiscovery ->
 
-        String url = generateKongUrl(":8082/modules/${modDiscovery.id}/discovery")
+        String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
 
         String requestBody = JsonOutput.toJson(modDiscovery)
         def response = restClient.post(url, requestBody, headers).body
