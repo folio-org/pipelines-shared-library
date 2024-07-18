@@ -2,6 +2,8 @@ package org.folio.rest_v2
 
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 class Eureka extends Authorization {
 
@@ -112,16 +114,23 @@ class Eureka extends Authorization {
     def response = restClient.get(url)
     def content = response.body
 
-    if (content.totalRecords == descriptorsList.modules.size()) {
-      logger.info("All module discovery information are registered. Nothing to do.")
-      return
-    } else {
-      def body = ['discovery': []]
-      descriptorsList.modules.each() { module ->
-        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
-        module.put('location', moduleUrl)
-        body.discovery.add(module)
-      }
+    def jsonSlurper = new JsonSlurper()
+    def parsedJson = jsonSlurper.parseText(descriptorsList)
+
+    def modules = parsedJson.modules
+
+    String modulesJson = JsonOutput.prettyPrint(JsonOutput.toJson(modules))
+//    println(modulesJson)
+//    if (content.totalRecords == descriptorsList.modules.size()) {
+//      logger.info("All module discovery information are registered. Nothing to do.")
+//      return
+//    } else {
+//      def body = ['discovery': []]
+//      descriptorsList.modules.each() { module ->
+//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
+//        module.put('location', moduleUrl)
+//        body.discovery.add(module)
+//      }
       logger.warning(body)
 //    if (content == descriptorsList) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
@@ -130,7 +139,7 @@ class Eureka extends Authorization {
 //      logger.info("Not all module discovery information is registered. Proceeding with registration.")
 //      return content
 //    }
-    }
+//    }
   }
 
 //  boolean isDiscoveryModulesRegistered(List descriptorsList, OkapiTenant tenant) {
