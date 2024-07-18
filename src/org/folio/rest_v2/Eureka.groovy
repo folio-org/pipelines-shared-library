@@ -150,11 +150,12 @@ class Eureka extends Authorization {
     def parsedJson = jsonSlurper.parseText(descriptorsList)
     def modules = parsedJson.modules
 
+    modules.each { module ->
+      modules = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
+    }
+
     def modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
 
-      modulesJson.each { module ->
-        modulesJson.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
-      }
 
       logger.info(JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
 //    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
