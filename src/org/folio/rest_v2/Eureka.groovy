@@ -120,6 +120,7 @@ class Eureka extends Authorization {
     def modules = parsedJson.modules
 
     String modulesJson = JsonOutput.prettyPrint(JsonOutput.toJson(modules))
+    logger.warning(${modulesJson})
 //    println(modulesJson)
 //    if (content.totalRecords == descriptorsList.modules.size()) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
@@ -173,9 +174,7 @@ class Eureka extends Authorization {
 //        def customHeaders = getMasterHeaders(account, region, folio)
 //        def body = ['discovery': []]
 
-    } else {
-      logger.warning("Hi")
-
+//    } else {
 //      def content = readJSON(text: response.content)
 //      String url = generateKongUrl("/modules/discovery")
 //      Map<String, String> headers = [
