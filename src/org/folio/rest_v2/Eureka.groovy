@@ -118,7 +118,7 @@ class Eureka extends Authorization {
     def parsedJson = jsonSlurper.parseText(descriptorsList)
     def modules = parsedJson.modules
 
-    String modulesJson = ['discovery': [JsonOutput.prettyPrint(JsonOutput.toJson(modules))]]
+    String modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
     logger.info("${modulesJson}")
 //    println(modulesJson)
 //    if (content.totalRecords == descriptorsList.modules.size()) {
