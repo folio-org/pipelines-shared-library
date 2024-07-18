@@ -153,16 +153,16 @@ class Eureka extends Authorization {
 //  }
   void registerApplicationDiscovery(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
-    if (isDiscoveryRegistered(applicationId, descriptorsList)) {
+    if (isDiscoveryModulesRegistered(applicationId, descriptorsList)) {
       logger.warning("All module discovery information are registered. Nothing to do.")
       return
 
-      if (content.totalRecords == descriptorsList.modules.size()) {
-        fseLog.info("All module discovery information are registered. Nothing to do.")
-        return
-      } else {
-        def customHeaders = getMasterHeaders(account, region, folio)
-        def body = ['discovery': []]
+//      if (content.totalRecords == descriptorsList.modules.size()) {
+//        fseLog.info("All module discovery information are registered. Nothing to do.")
+//        return
+//      } else {
+//        def customHeaders = getMasterHeaders(account, region, folio)
+//        def body = ['discovery': []]
 
 //    } else {
 //      def content = readJSON(text: response.content)
