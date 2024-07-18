@@ -152,24 +152,24 @@ class Eureka extends Authorization {
 
     String modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
     if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
-      logger.warning("Just do it")
-      return
 
-//      descriptorsList.modules.each() { module ->
+      modulesJson.each { module ->
+        modulesJson.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
+      }
+
+      logger.info(JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
+
+//      modulesJson.modules.each() { module ->
 //        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
 //        module.put('location', moduleUrl)
-//        body.discovery.add(module)
+//        modulesJson.add(module)
 //      }
+    }else {
+      logger.info("nothing to do")
+    }
 
 
 
-//      def body = ['discovery':[]]
-//      descriptorsList.modules.each() { module ->
-//        def moduleUrl = "https://${module.name}-b.${folio}.folio-eis.${region}:8082/${module.name}".toString()
-//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
-//        module.put('location', moduleUrl)
-//        body.discovery.add(module)
-//      }
 //      try {
 //        body.discovery.each() { modDiscovery ->
 //            response = httpRequest(
