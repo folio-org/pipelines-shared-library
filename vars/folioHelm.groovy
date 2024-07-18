@@ -197,7 +197,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
   }
 
-  if (moduleName =~ /mgr-.*$/ || /mod-.*-keycloak/ && ns.enableEureka) {
+  if ((moduleName =~ /mgr-.*$/ || /mod-.*-keycloak/) && ns.enableEureka) {
     moduleConfig['integrations'] += [eureka: [enabled       : true,
                                               existingSecret: 'eureka-common']]
   }
