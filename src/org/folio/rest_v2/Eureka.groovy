@@ -39,7 +39,7 @@ class Eureka extends Authorization {
   String getEurekaToken(String client_id, String client_secret, String grant_type) {
     logger.info("Getting access token from Keycloak service")
 
-    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
+    String url = "${Constants.EUREKA_KEYCLOAK_URL}realms/master/protocol/openid-connect/token"
     Map<String,String> headers = [
       'Content-Type':'application/x-www-form-urlencoded'
     ]
@@ -66,7 +66,7 @@ class Eureka extends Authorization {
       return
     }
 
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
+    String url = "${Constants.EUREKA_KONG_URL}applications?check=false"
     Map<String,String> headers = [
       'x-okapi-token': getEurekaToken(),
       'Content-Type': 'application/json'
