@@ -113,7 +113,9 @@ class Eureka extends Authorization {
 
     def response = restClient.get(url)
     def content = response.body
-
+    logger.warning("!!!!!!!!!")
+    logger.info(${content})
+    logger.info(${modulesJson})
     if(content == modulesJson) {
       logger.info("All module discovery information are registered. Nothing to do.")
       return false
