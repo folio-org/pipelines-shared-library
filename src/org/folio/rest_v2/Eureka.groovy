@@ -224,4 +224,3 @@ class Eureka extends Authorization {
 //        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
 //      }
 //    }
-}
