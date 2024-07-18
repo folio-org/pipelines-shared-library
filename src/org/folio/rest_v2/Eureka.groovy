@@ -107,39 +107,22 @@ class Eureka extends Authorization {
     }
   }
 
-  def isDiscoveryModulesRegistered(String applicationId, String descriptorsList) {
+  boolean isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
 
     String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
 
     def response = restClient.get(url)
     def content = response.body
 
-    def jsonSlurper = new JsonSlurper()
-    def parsedJson = jsonSlurper.parseText(descriptorsList)
-    def modules = parsedJson.modules
-
-    String modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
-    logger.info("${modulesJson}")
-//    println(modulesJson)
-//    if (content.totalRecords == descriptorsList.modules.size()) {
-//      logger.info("All module discovery information are registered. Nothing to do.")
-//      return
-//    } else {
-//      def body = ['discovery': []]
-//      descriptorsList.modules.each() { module ->
-//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
-//        module.put('location', moduleUrl)
-//        body.discovery.add(module)
-//      }
-      logger.warning("here")
-//    if (content == descriptorsList) {
-//      logger.info("All module discovery information are registered. Nothing to do.")
-//      return true
-//    } else {
-//      logger.info("Not all module discovery information is registered. Proceeding with registration.")
-//      return content
-//    }
-//    }
+    if(content == modulesJson) {
+      logger.info("All module discovery information are registered. Nothing to do.")
+      return false
+      logger.warning("false")
+    } else {
+      logger.info("Not all module discovery information is registered. Proceeding with registration.")
+      return true
+      logger.warning("true")
+    }
   }
 
 //  boolean isDiscoveryModulesRegistered(List descriptorsList, OkapiTenant tenant) {
@@ -162,24 +145,26 @@ class Eureka extends Authorization {
 //  }
   void registerApplicationDiscovery(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
-    if (isDiscoveryModulesRegistered(applicationId, descriptorsList)) {
-      logger.warning("All module discovery information are registered. Nothing to do.")
+
+    def jsonSlurper = new JsonSlurper()
+    def parsedJson = jsonSlurper.parseText(descriptorsList)
+    def modules = parsedJson.modules
+
+    modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
+
+    String modulesJson = ['discovery': JsonOutput.prettyPrint(JsonOutput.toJson(modules))]
+    if (isDiscoveryModulesRegistered(applicationId, modulesJson)) {
+      logger.warning("Just do it")
       return
 
-//      if (content.totalRecords == descriptorsList.modules.size()) {
-//        fseLog.info("All module discovery information are registered. Nothing to do.")
-//        return
-//      } else {
-//        def customHeaders = getMasterHeaders(account, region, folio)
-//        def body = ['discovery': []]
+//      descriptorsList.modules.each() { module ->
+//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}".toString()
+//        module.put('location', moduleUrl)
+//        body.discovery.add(module)
+//      }
 
-//    } else {
-//      def content = readJSON(text: response.content)
-//      String url = generateKongUrl("/modules/discovery")
-//      Map<String, String> headers = [
-//        'x-okapi-token': getEurekaToken(),
-//        'Content-Type' : 'application/json'
-//      ]
+
+
 //      def body = ['discovery':[]]
 //      descriptorsList.modules.each() { module ->
 //        def moduleUrl = "https://${module.name}-b.${folio}.folio-eis.${region}:8082/${module.name}".toString()
