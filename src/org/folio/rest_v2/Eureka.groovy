@@ -62,25 +62,25 @@ class Eureka extends Authorization {
 //    }
 //  }
 //
-  def registerApplication(String applicationId) {
-    String descriptorsList = getDescriptorsList(applicationId)
-    if (isApplicationRegistered(applicationId)) {
-      logger.warning("Application ${applicationId} is already registered.")
-      return
-    }
-
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
-    Map<String,String> headers = [
-        'x-okapi-token': getEurekaToken(),
-        'Content-Type': 'application/json'
-      ]
-    try {
-    restClient.post(url, descriptorsList, headers)
-    logger.info("Application registered: ${descriptorsList}")
-    } catch (RequestException e) {
-        throw new RequestException("Application is not registered", e.statusCode)
-      }
-    }
+//  def registerApplication(String applicationId) {
+//    String descriptorsList = getDescriptorsList(applicationId)
+//    if (isApplicationRegistered(applicationId)) {
+//      logger.warning("Application ${applicationId} is already registered.")
+//      return
+//    }
+//
+//    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
+//    Map<String,String> headers = [
+//        'x-okapi-token': getEurekaToken(),
+//        'Content-Type': 'application/json'
+//      ]
+//    try {
+//    restClient.post(url, descriptorsList, headers)
+//    logger.info("Application registered: ${descriptorsList}")
+//    } catch (RequestException e) {
+//        throw new RequestException("Application is not registered", e.statusCode)
+//      }
+//    }
 
     String getEurekaToken() {
     logger.info("Getting access token from Keycloak service")
@@ -147,9 +147,9 @@ class Eureka extends Authorization {
 
     } else {
       String url = generateKongUrl("/modules/discovery")
-      Map<String,String> headers = [
+      Map<String, String> headers = [
         'x-okapi-token': getEurekaToken(),
-        'Content-Type': 'application/json'
+        'Content-Type' : 'application/json'
       ]
       try {
         def requestBody = writeJSON(json: descriptorsList, returnText: true, pretty: 2)
@@ -164,39 +164,27 @@ class Eureka extends Authorization {
 
 
 
+    String url = generateUrl("/modules/discovery")
 
-
-
-
-
-//    } else (isDiscoveryModulesRegistered(tenant, descriptorsList)) {
-//      logger.warning("HERE")
-//      logger.info("Application discovery registered")
-//      return
-//    }
-
-//    String url = generateUrl("/modules/discovery")
-//    Map<String, String> headers = getAuthorizedHeaders(tenant)
-//// add port
-//    descriptorsList.each() { service ->
-//      if (service['url'] && service['srvcId'] && service['instId']) {
-//        try {
-//          restClient.post(url, service, headers)
-//          logger.info("${service['srvcId']} registered successfully")
-//        } catch (RequestException e) {
-//          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-//            logger.info("${service['srvcId']} is not registered. ${e.getMessage()}")
-//            logger.info("Repeat ${service['srvcId']} retry in 3 seconds.")
-//            sleep(3000)
-//            restClient.post(url, service, headers)
-//          } else {
-//            throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
-//          }
-//        }
-//        logger.info("Info on the newly created discovery table for id ${applicationId}" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
-//      } else {
-//        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
-//      }
-//    }
+    descriptorsList.each() { service ->
+      if (service['url'] && service['srvcId'] && service['instId']) {
+        try {
+          restClient.post(url, service, headers)
+          logger.info("${service['srvcId']} registered successfully")
+        } catch (RequestException e) {
+          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+            logger.info("${service['srvcId']} is not registered. ${e.getMessage()}")
+            logger.info("Repeat ${service['srvcId']} retry in 3 seconds.")
+            sleep(3000)
+            restClient.post(url, service, headers)
+          } else {
+            throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
+          }
+        }
+        logger.info("Info on the newly created discovery table for id ${applicationId}" JsonOutput.prettyPrint(JsonOutput.toJson(response)))
+      } else {
+        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
+      }
+    }
   }
 }
