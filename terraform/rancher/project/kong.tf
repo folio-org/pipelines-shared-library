@@ -143,6 +143,11 @@ kong:
      value: "2"
    - name: EUREKA_RESOLVE_SIDECAR_IP
      value: "false"
+resources:
+  requests:
+    memory: 2Gi
+  limits:
+    memory: 3Gi
 ingressController:
   enabled: false
 migration:
