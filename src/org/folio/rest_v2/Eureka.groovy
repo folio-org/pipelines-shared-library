@@ -167,10 +167,8 @@ class Eureka extends Authorization {
 //        module.put('location', moduleUrl)
 //        modulesJson.add(module)
 //      }
-    }else {
+    } else {
       logger.info("nothing to do")
-
-
 
 
 //      try {
@@ -191,6 +189,7 @@ class Eureka extends Authorization {
 //      } catch (RequestException e) {
 //        throw new RequestException("Application is not registered", e.statusCode)
     }
+  }
 
 
 
