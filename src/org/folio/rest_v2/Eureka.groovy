@@ -167,18 +167,18 @@ class Eureka extends Authorization {
 
         String url = generateKongUrl(":8082/modules/${modDiscovery.id}/discovery")
 
-        def requestBody = writeJSON(json: modDiscovery, returnText: true, pretty: 2)
+        String requestBody = JsonOutput.toJson(modDiscovery)
         def response = restClient.post(url, requestBody, headers).body
 
         logger.info("Registered module discovery: ${modDiscovery.id}")
       }
-//      modulesJson.modules.each() { module ->
-//        def moduleUrl = "https://folio-eureka-scout-kong.ci.folio.org:8082/modules/:id/discovery
-//        module.put('location', moduleUrl)
-//        modulesJson.add(module)
-//      }
     } else {
       logger.info("nothing to do")
+
+    }
+  }
+}
+
 
 
 //      try {
@@ -198,13 +198,6 @@ class Eureka extends Authorization {
 //        logger.info("Modules discovery registered: ${descriptorsList}")
 //      } catch (RequestException e) {
 //        throw new RequestException("Application is not registered", e.statusCode)
-    }
-  }
-}
-
-
-
-
 
 //    String url = generateUrl("/modules/discovery")
 //
