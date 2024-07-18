@@ -180,10 +180,11 @@ class Eureka extends Authorization {
           }
         }
       }
-    }else{
+    } else {
       logger.info("No modules to register")
     }
   }
+}
 
 
 //      try {
