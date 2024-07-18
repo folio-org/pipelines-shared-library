@@ -84,20 +84,20 @@ class Eureka extends Authorization {
 //      }
 //    }
 
-    String getEurekaToken() {
+  String getEurekaToken() {
     logger.info("Getting access token from Keycloak service")
 
     String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-    Map<String,String> headers = [
-      'Content-Type':'application/x-www-form-urlencoded'
+    Map<String, String> headers = [
+      'Content-Type': 'application/x-www-form-urlencoded'
     ]
     String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
 
     try {
-    def response = restClient.post(url, requestBody, headers).body
-    logger.info("Access token received successfully from Keycloak service")
-    logger.info("${response.access_token}")
-    return response.access_token
+      def response = restClient.post(url, requestBody, headers).body
+      logger.info("Access token received successfully from Keycloak service")
+      logger.info("${response.access_token}")
+      return response.access_token
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
         logger.info("Cant get token.")
@@ -114,7 +114,7 @@ class Eureka extends Authorization {
     def response = restClient.get(url)
     def content = response.body
     logger.warning("Do comparison")
-    if(content == modulesJson) {
+    if (content == modulesJson) {
       logger.info("All module discovery information are registered. Nothing to do.")
       return false
     } else {
@@ -169,25 +169,23 @@ class Eureka extends Authorization {
         String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
 
         String requestBody = JsonOutput.toJson(modDiscovery)
-        try{
-        def response = restClient.post(url, requestBody, headers).body
+        try {
+          def response = restClient.post(url, requestBody, headers).body
 
-        logger.info("Registered module discovery: ${modDiscovery.id}")
-      } catch (RequestException e) {
-        if (e.status == 409) {
-          // Handle conflict error (module already registered)
-          logger.info("Module already registered (skipped): ${modDiscovery.id}")
-        } else {
-          // Handle other exceptions
-          logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
+          logger.info("Registered module discovery: ${modDiscovery.id}")
+        } catch (RequestException e) {
+          if (e.status == 409) {
+            // Handle conflict error (module already registered)
+            logger.info("Module already registered (skipped): ${modDiscovery.id}")
+          } else {
+            // Handle other exceptions
+            logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
+          }
+        }
       }
-    } else {
-      logger.info("nothing to do")
-
     }
   }
 }
-
 
 
 //      try {
