@@ -1650,9 +1650,9 @@ mgr-applications:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2Gi
     requests:
-      memory: 256Mi
+      memory: 1Gi
 mgr-tenants:
   extraEnvVars:
     - name: MODULE_URL
@@ -1666,9 +1666,9 @@ mgr-tenants:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2Gi
     requests:
-      memory: 256Mi
+      memory: 1Gi
 mgr-tenant-entitlements:
   extraJavaOpts:
     - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
@@ -1685,9 +1685,9 @@ mgr-tenant-entitlements:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2Gi
     requests:
-      memory: 256Mi
+      memory: 1Gi
 mod-consortia-keycloak:
   extraEnvVars:
     - name: OKAPI_URL
