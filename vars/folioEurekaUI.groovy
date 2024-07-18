@@ -4,9 +4,6 @@ import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.Modules
-import org.folio.models.OkapiTenant
-import org.folio.models.RancherNamespace
-import org.folio.models.TenantUi
 import org.folio.utilities.model.Module
 
 void call(Map params) {
@@ -29,16 +26,6 @@ void call(Map params) {
       ui_bundle.tag = "${params.cluster}-${params.namespace}.${params.tenantId}.${common.getLastCommitHash('platform-complete', params.branch as String).take(7)}"
       ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
-      TenantUi tenantUi = new TenantUi("${params.cluster}-${params.namespace}", ui_bundle.getHash(), params.branch as String)
-      tenantUi.setTenantId(params.tenantId as String)
-
-      RancherNamespace ns = new RancherNamespace(params.cluster as String, params.namespace as String)
-        .withDeploymentConfigType(params.config as String)
-
-      ns.addTenant(new OkapiTenant(params.tenantId as String)
-        .withTenantUi(tenantUi))
-
-
       if (params.consortia) {
         def packageJson = readJSON file: 'package.json'
         String moduleId = new Modules().getModuleVersion('folio_consortia-settings')
@@ -54,9 +41,6 @@ void call(Map params) {
             "--build-arg OKAPI_URL=${params.kongUrl} " + "--build-arg TENANT_ID=${params.tenantId} " + "-f docker/Dockerfile  " + ".")
           image.push()
         }
-      }
-      folioHelm.withKubeConfig(ns.getClusterName()) {
-        folioHelm.deployFolioModule(ns, 'ui-bundle', ui_bundle.getTag(), false, tenantUi.getTenantId())
       }
 
       common.removeImage(ui_bundle.getImageName())
