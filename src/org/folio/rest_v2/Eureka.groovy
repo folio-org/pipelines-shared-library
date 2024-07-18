@@ -156,9 +156,9 @@ class Eureka extends Authorization {
     String modulesList = (JsonOutput.toJson(modulesJson))
 
     logger.info(JsonOutput.toJson(modulesList))
-    if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
+    if (!isDiscoveryModulesRegistered(applicationId, modulesList)) {
       logger.info("do")
-
+    }else{
       Map<String, String> headers = [
         'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
