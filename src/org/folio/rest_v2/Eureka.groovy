@@ -173,7 +173,9 @@ class Eureka extends Authorization {
 //        def customHeaders = getMasterHeaders(account, region, folio)
 //        def body = ['discovery': []]
 
-//    } else {
+    } else {
+      logger.warning("Hi")
+
 //      def content = readJSON(text: response.content)
 //      String url = generateKongUrl("/modules/discovery")
 //      Map<String, String> headers = [
