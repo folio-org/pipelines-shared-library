@@ -120,7 +120,7 @@ class Eureka extends Authorization {
     def modules = parsedJson.modules
 
     String modulesJson = JsonOutput.prettyPrint(JsonOutput.toJson(modules))
-    logger.warning(${modulesJson})
+    logger.info("${modulesJson}")
 //    println(modulesJson)
 //    if (content.totalRecords == descriptorsList.modules.size()) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
