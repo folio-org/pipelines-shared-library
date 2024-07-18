@@ -19,12 +19,11 @@ def generateAppPlatformCompleteDescriptor() {
 }
 
 def applicationDescriptorFileGenerator(String applicationId) {
-  String mdrBucket = "eureka-application-registry"
 
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DawsRegion=us-west-2")
+      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${Constants.EUREKA_MDR_BUCKET}::descriptors/\" -DawsRegion=us-west-2")
     }
     dir('target') {
       sh(script: "ls -la")
