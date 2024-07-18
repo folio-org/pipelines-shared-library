@@ -169,9 +169,17 @@ class Eureka extends Authorization {
         String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
 
         String requestBody = JsonOutput.toJson(modDiscovery)
+        try{
         def response = restClient.post(url, requestBody, headers).body
 
         logger.info("Registered module discovery: ${modDiscovery.id}")
+      } catch (RequestException e) {
+        if (e.status == 409) {
+          // Handle conflict error (module already registered)
+          logger.info("Module already registered (skipped): ${modDiscovery.id}")
+        } else {
+          // Handle other exceptions
+          logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
       }
     } else {
       logger.info("nothing to do")
