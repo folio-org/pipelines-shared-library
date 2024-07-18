@@ -2,7 +2,7 @@ package org.folio.rest_v2
 
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
-import groovy.json.JsonSlurper
+import groovy.json.JsonSlurperClassic
 import groovy.json.JsonOutput
 
 class Eureka extends Authorization {
@@ -95,7 +95,7 @@ class Eureka extends Authorization {
 
     try {
       def response = restClient.post(url, requestBody, headers).body
-      logger.info("Access token received successfully from Keycloak service")
+      logger.info("Access token received successfully from Keycloak service") )
       return response.access_token
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -140,54 +140,42 @@ class Eureka extends Authorization {
 //      }
 //    }
 //  }
-//
   void registerApplicationDiscovery(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
 
-    def jsonSlurper = new JsonSlurper()
+    def jsonSlurper = new JsonSlurperClassic()
     def parsedJson = jsonSlurper.parseText(descriptorsList)
+    def modules = parsedJson.modules
 
-    // Convert LazyMap to a standard Map
-    def modules = parsedJson.modules.collectEntries { module ->
-      [module.name, module]
+    modules.each { module ->
+      module.location = generateKongUrl(":8082/${module.name}")
     }
 
-    // Add location to each module
-    modules.each { moduleName, module ->
-      module.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${moduleName}"
-    }
+    def modulesJson = ['discovery': modules]
+    String modulesList = (JsonOutput.toJson(modulesJson))
 
-    // Prepare JSON string for modules
-    def modulesJson = [discovery: modules.values()]
-    String modulesList = JsonOutput.toJson(modulesJson)
-
-    logger.info("Modules JSON: ${modulesList}") // Log the JSON
-
+    logger.info(JsonOutput.toJson(modulesList))
     if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
-      logger.info("Starting registration process...")
+      logger.info("do")
 
       Map<String, String> headers = [
-        'Content-Type': 'application/json',
         'x-okapi-token': getEurekaToken(),
+        'Content-Type': 'application/json'
       ]
 
-      // Register each module discovery
       modulesJson.discovery.each { modDiscovery ->
-        String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
 
-        // Convert each module to JSON
-        def requestBody = JsonOutput.toJson(modDiscovery)
+        String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+        String requestBody = JsonOutput.toJson(modDiscovery)
 
         try {
-          def response = restClient.post(url, requestBody, headers).body
-          logger.info("Successfully registered module discovery: ${modDiscovery.id}")
+          restClient.post(url, requestBody, headers).body
+          logger.info("Registered module discovery: ${modDiscovery.id}")
         } catch (RequestException e) {
-          if (e.message?.contains("EntityExistsException") || e.message?.contains("already present")) {
-            // Handle conflict error (module already registered)
+          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
             logger.info("Module already registered (skipped): ${modDiscovery.id}")
           } else {
-            // Handle other exceptions
-            logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
+            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
           }
         }
       }
@@ -197,26 +185,6 @@ class Eureka extends Authorization {
   }
 }
 
-
-//      try {
-//        body.discovery.each() { modDiscovery ->
-//            response = httpRequest(
-//              httpMode: 'POST',
-//              url: "${appUrl}/modules/${modDiscovery.id}/discovery",
-//
-//              requestBody: writeJSON(json: modDiscovery, returnText: true, pretty: 2),
-//
-//          restClient.post(url, requestBody, headers)
-//            content = readJSON(text: response.content)
-//        }
-//        def requestBody = writeJSON(json: descriptorsList, returnText: true, pretty: 2)
-//        logger.warning("HERE")
-//        restClient.post(url, requestBody, headers)
-//        logger.info("Modules discovery registered: ${descriptorsList}")
-//      } catch (RequestException e) {
-//        throw new RequestException("Application is not registered", e.statusCode)
-
-//    String url = generateUrl("/modules/discovery")
 //
 //    descriptorsList.each() { service ->
 //      if (service['url'] && service['srvcId'] && service['instId']) {
