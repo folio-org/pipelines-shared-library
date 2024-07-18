@@ -95,44 +95,68 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+//      }
+//    }
 
     stage('[Rest] MDs and SVC') {
       //tbd
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}") // Workaround for mog-login-keycloak
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+//        // Workaround for mog-login-keycloak
+//      }
+//    }
 
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
+//    stage('[Rest] Configure edge') {
+//      folioEdge.renderEphemeralProperties(namespace)
+////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+//    }
 
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version ->
+//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
+//    }
+
+    stage('Build and deploy UI') {
+      Map branches = [:]
+      namespace.getTenants().each { tenantId, tenant ->
+        if (tenant.getTenantUi()) {
+          TenantUi ui = tenant.getTenantUi()
+          branches[tenantId] = {
+            def jobParameters = [
+              eureka     : args.eureka,
+              tenant_id  : ui.getTenantId(),
+              custom_hash: ui.getHash(),
+              custom_url : "https://${namespace.getDomains()['kong']}",
+              custom_tag : ui.getTag(),
+              consortia  : tenant instanceof OkapiTenantConsortia
+            ]
+            uiBuild(jobParameters, releaseVersion)
+            folioHelm.withKubeConfig(namespace.getClusterName()) {
+              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+            }
+          }
         }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
+      parallel branches
     }
 
-    stage('[Build and deploy UI]') {
-      // placeholder
-    }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
 
-    stage('Deploy ldp') {
-      println('LDP deployment')
-    }
   } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')

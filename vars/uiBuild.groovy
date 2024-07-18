@@ -1,5 +1,8 @@
 #!groovy
+import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
+import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.model.Module
@@ -43,7 +46,16 @@ void call(Map params, boolean releaseVersion = false) {
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
       }
     }
+
+    if (params.eureka) {
+      dir("platform-complete-${params.tenant_id}") {
+        sh(script: "cp -R -f eureka-tpl/* .")
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
   }
+
   stage('Build and Push') {
     dir("platform-complete-${params.tenant_id}") {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
@@ -77,4 +89,10 @@ static String getModuleVersion(String moduleName, boolean releaseVersion = false
   } else {
     throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
   }
+}
+
+@NonCPS
+static def make_tpl(String tpl, Map data) {
+  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
+  return ui_tpl
 }
