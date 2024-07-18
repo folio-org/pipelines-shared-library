@@ -30,13 +30,13 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
-
-    stage('[Wait] for keycloak initialization') {
-      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
+//
+//    stage('[Wait] for keycloak initialization') {
+//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+//    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
@@ -134,12 +134,18 @@ void call(CreateNamespaceParameters args) {
           TenantUi ui = tenant.getTenantUi()
           branches[tenantId] = {
             def jobParameters = [
-              eureka     : args.eureka,
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['kong']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
+              eureka        : args.eureka,
+              kongUrl       : "https://${namespace.getDomains()['kong']}",
+              keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+              tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+              hasAllPerms   : true,
+              isSingleTenant: true,
+              tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+              tenant_id     : ui.getTenantId(),
+              custom_hash   : ui.getHash(),
+              custom_url    : "https://${namespace.getDomains()['kong']}",
+              custom_tag    : ui.getTag(),
+              consortia     : tenant instanceof OkapiTenantConsortia
             ]
             uiBuild(jobParameters, releaseVersion)
             folioHelm.withKubeConfig(namespace.getClusterName()) {
