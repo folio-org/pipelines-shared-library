@@ -167,13 +167,13 @@ class Eureka extends Authorization {
       logger.info("Starting registration process...")
 
       Map<String, String> headers = [
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-okapi-token': getEurekaToken(),
       ]
 
       // Register each module discovery
       modulesJson.discovery.each { modDiscovery ->
         String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
-        logger.info("URL: ${url}")
 
         // Convert each module to JSON
         def requestBody = JsonOutput.toJson(modDiscovery)
