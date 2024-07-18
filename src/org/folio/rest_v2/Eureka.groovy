@@ -95,7 +95,7 @@ class Eureka extends Authorization {
 
     try {
       def response = restClient.post(url, requestBody, headers).body
-      logger.info("Access token received successfully from Keycloak service") )
+      logger.info("Access token received successfully from Keycloak service")
       return response.access_token
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
