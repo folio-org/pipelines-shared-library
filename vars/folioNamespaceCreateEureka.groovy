@@ -156,11 +156,11 @@ void call(CreateNamespaceParameters args) {
       parallel branches
     }
 
-    stage('Deploy ldp') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelmFlow.deployLdp(namespace)
-      }
-    }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
 
   } catch (Exception e) {
     println(e)
