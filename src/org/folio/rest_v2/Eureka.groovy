@@ -190,6 +190,8 @@ class Eureka extends Authorization {
 //        throw new RequestException("Application is not registered", e.statusCode)
     }
   }
+}
+
 
 
 
