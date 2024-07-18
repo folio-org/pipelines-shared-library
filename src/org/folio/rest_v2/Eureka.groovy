@@ -131,7 +131,7 @@ class Eureka extends Authorization {
 //        module.put('location', moduleUrl)
 //        body.discovery.add(module)
 //      }
-      logger.warning(body)
+      logger.warning("here")
 //    if (content == descriptorsList) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
 //      return true
