@@ -98,6 +98,12 @@ extraEnvVars:
   - name: KC_HEALTH_ENABLED
     value: "true"
 
+resources:
+  requests:
+    memory: 2Gi
+  limits:
+    memory: 3Gi
+
 postgresql:
   enabled: false
 

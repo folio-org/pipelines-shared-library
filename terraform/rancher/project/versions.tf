@@ -21,6 +21,11 @@ terraform {
       source  = "hashicorp/helm"
       version = "2.12.1"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.11.2"
+    }
+
     postgresql = {
       source  = "cyrilgdn/postgresql"
       version = "1.22.0"
