@@ -103,6 +103,7 @@ class Constants {
   //Eureka base constants
   static  String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
   static  String EUREKA_APPLICATIONS_URL = 'https://eureka-registry.ci.folio.org/apps/'
+  static  String EUREKA_BUCKET_NAME = 'eureka-application-registry'
 
 
   //SMTP
