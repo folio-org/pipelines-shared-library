@@ -95,8 +95,7 @@ class Eureka extends Authorization {
 
     try {
       def response = restClient.post(url, requestBody, headers).body
-      logger.info("Access token received successfully from Keycloak service")
-      logger.info("${response.access_token}")
+      logger.info("Access token received successfully from Keycloak service") )
       return response.access_token
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -141,49 +140,60 @@ class Eureka extends Authorization {
 //      }
 //    }
 //  }
+//
   void registerApplicationDiscovery(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
 
     def jsonSlurper = new JsonSlurper()
     def parsedJson = jsonSlurper.parseText(descriptorsList)
-    def modules = parsedJson.modules
 
-    modules.each { module ->
-      module.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${module.name}"
+    // Convert LazyMap to a standard Map
+    def modules = parsedJson.modules.collectEntries { module ->
+      [module.name, module]
     }
 
-    def modulesJson = ['discovery': modules]
-    String modulesList = (JsonOutput.toJson(modulesJson))
+    // Add location to each module
+    modules.each { moduleName, module ->
+      module.location = "https://folio-eureka-scout-kong.ci.folio.org:8082/${moduleName}"
+    }
 
-    logger.info(JsonOutput.toJson(modulesList))
+    // Prepare JSON string for modules
+    def modulesJson = [discovery: modules.values()]
+    String modulesList = JsonOutput.toJson(modulesJson)
+
+    logger.info("Modules JSON: ${modulesList}") // Log the JSON
+
     if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
-      logger.info("do")
+      logger.info("Starting registration process...")
 
       Map<String, String> headers = [
-        'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
       ]
 
+      // Register each module discovery
       modulesJson.discovery.each { modDiscovery ->
-
         String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
-        String requestBody = JsonOutput.toJson(modDiscovery)
+        logger.info("URL: ${url}")
+
+        // Convert each module to JSON
+        def requestBody = JsonOutput.toJson(modDiscovery)
 
         try {
-          restClient.post(url, requestBody, headers).body
-          logger.info("Registered module discovery: ${modDiscovery.id}")
+          def response = restClient.post(url, requestBody, headers).body
+          logger.info("Successfully registered module discovery: ${modDiscovery.id}")
         } catch (RequestException e) {
-          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+          if (e.message?.contains("EntityExistsException") || e.message?.contains("already present")) {
+            // Handle conflict error (module already registered)
             logger.info("Module already registered (skipped): ${modDiscovery.id}")
           } else {
-            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
+            // Handle other exceptions
+            logger.error("Error registering module: ${modDiscovery.id}, error: ${e.message}")
           }
         }
       }
+    } else {
+      logger.info("No modules to register")
     }
-//    } else {
-//      logger.info("No modules to register")
-//    }
   }
 }
 
