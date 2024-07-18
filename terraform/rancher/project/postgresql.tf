@@ -78,7 +78,7 @@ readReplicas:
 image:
   tag: ${join(".", [var.pg_version, "0"])}
 auth:
-  database: ${var.pg_dbname}
+  database: ${local.pg_eureka_db_name}
   postgresPassword: ${var.pg_password}
   replicationPassword: ${var.pg_password}
   replicationUsername: ${var.pg_username}
@@ -87,6 +87,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
         CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
