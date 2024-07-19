@@ -163,6 +163,7 @@ class Eureka extends Authorization {
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
     logger.warning("${modulesJson}")
     logger.warning("${modulesList}")
+    logger.warning("${modules}")
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
     } else if (result == null) {
