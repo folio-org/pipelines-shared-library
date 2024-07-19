@@ -157,7 +157,7 @@ class Eureka extends Authorization {
     }
 
     def modulesJson = ['discovery': modules]
-    String modulesList = (JsonOutput.toJson(modulesJson))
+    String modulesList = JsonOutput.toJson(modulesJson)
 
 
     logger.info(JsonOutput.toJson(modulesList))
@@ -176,6 +176,11 @@ class Eureka extends Authorization {
       } catch (RequestException e) {
         throw new RequestException("Error registering module ${e.statusCode}")
       }
+    } else if (result == null) {
+      Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type' : 'application/json'
+      ]
     } else {
 
       Map<String, String> headers = [
