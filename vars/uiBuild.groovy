@@ -94,7 +94,8 @@ void call(Map params, boolean releaseVersion = false) {
         attributes: ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme'] // TODO check theme source.
       ]
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
-      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?query=name=${params.tenant_id}-application", updatesHeaders)
+      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?query=name=${params.tenant_id}-application", updatesHeaders).body
+      println(JsonOutput.prettyPrint(realm as String))
       client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id']}", JsonOutput.toJson(updates), updatesHeaders)
     }
   }
