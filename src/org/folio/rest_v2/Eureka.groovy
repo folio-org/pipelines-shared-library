@@ -174,9 +174,10 @@ class Eureka extends Authorization {
       ]
       logger.warning("here")
       logger.warning("${modules}")
+      logger.warning("${modulesList}")
       try {
         String url = generateKongUrl("/modules/discovery")
-        restClient.post(url, modules, headers).body
+        restClient.post(url, modulesList, headers).body
       } catch (RequestException e) {
         throw new RequestException("Error registering module ${e.statusCode}")
       }
