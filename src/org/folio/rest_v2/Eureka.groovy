@@ -157,7 +157,7 @@ class Eureka extends Authorization {
     }
 
     def modulesJson = ['discovery': modules]
-    String modulesList = (JsonOutput.toJson(modulesJson))
+    String modulesList = (JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
     def modulesd = parsedJson.modules
 
 
@@ -175,7 +175,6 @@ class Eureka extends Authorization {
       try {
         String url = generateKongUrl("/modules/discovery")
         logger.info("Going to register modules\n ${modulesJson}")
-        super.steps.input("Paused for review...")
         restClient.post(url, modulesJson, headers).body
 
       } catch (RequestException e) {
