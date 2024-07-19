@@ -117,7 +117,7 @@ class Eureka extends Authorization {
 
     if (content.totalRecords == modulesMap.discovery.size()) {
       logger.info("All module discovery information are registered. Nothing to do.")
-      return
+      return false
     } else if (content.totalRecords == 0) {
       logger.info("Any discovery modules is registerd. Proceeding with registration.")
       return null
