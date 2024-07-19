@@ -1,5 +1,6 @@
 package org.folio.rest_v2
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
 import groovy.json.JsonSlurperClassic
@@ -157,8 +158,9 @@ class Eureka extends Authorization {
     }
 
     def modulesJson = ['discovery': modules]
-    String modulesList = (JsonOutput.prettyPrint(JsonOutput.toJson(modulesJson)))
-    def modulesd = parsedJson.modules
+
+    String modulesList = (JsonOutput.toJson(modulesJson))
+//    def modulesd = parsedJson.modules
 
 
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
@@ -175,7 +177,7 @@ class Eureka extends Authorization {
       try {
         String url = generateKongUrl("/modules/discovery")
         logger.info("Going to register modules\n ${modulesJson}")
-        restClient.post(url, modulesJson, headers).body
+        restClient.post(url, modulesList, headers).body
 
       } catch (RequestException e) {
         if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
