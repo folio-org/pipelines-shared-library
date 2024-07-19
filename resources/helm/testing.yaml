@@ -1355,6 +1355,9 @@ mod-record-specifications:
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   resources:
     limits:
       memory: 650Mi
