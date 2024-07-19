@@ -27,55 +27,55 @@ void call(Map params, boolean releaseVersion = false) {
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
   //TODO Temporary solution should be revised during refactoring
-//  stage('Checkout') {
-//    dir("platform-complete-${params.tenant_id}") {
-//      cleanWs()
-//    }
-//    checkout([$class           : 'GitSCM',
-//              branches         : [[name: ui_bundle.hash]],
-//              extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
-//                                  [$class: 'CleanBeforeCheckout'],
-//                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
-//              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-//    if (params.consortia) {
-//      dir("platform-complete-${params.tenant_id}") {
-//        def packageJson = readJSON file: 'package.json'
-//        String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
-//        String moduleVersion = moduleId - 'folio_consortia-settings-'
-//        packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
-//        writeJSON file: 'package.json', json: packageJson, pretty: 2
-//        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
-//      }
-//    }
-//
-//    if (params.eureka) {
-//      dir("platform-complete-${params.tenant_id}") {
-//        sh(script: "cp -R -f eureka-tpl/* .")
-//        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-//        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
-//      }
-//    }
-//  }
+  stage('Checkout') {
+    dir("platform-complete-${params.tenant_id}") {
+      cleanWs()
+    }
+    checkout([$class           : 'GitSCM',
+              branches         : [[name: ui_bundle.hash]],
+              extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
+                                  [$class: 'CleanBeforeCheckout'],
+                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
+              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+    if (params.consortia) {
+      dir("platform-complete-${params.tenant_id}") {
+        def packageJson = readJSON file: 'package.json'
+        String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
+        String moduleVersion = moduleId - 'folio_consortia-settings-'
+        packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
+        writeJSON file: 'package.json', json: packageJson, pretty: 2
+        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
+      }
+    }
 
-//  stage('Build and Push') {
-//    dir("platform-complete-${params.tenant_id}") {
-//      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-//        retry(2) {
-//          def image = docker.build(
-//            ui_bundle.getImageName(),
-//            "--build-arg OKAPI_URL=${okapi_url} " +
-//              "--build-arg TENANT_ID=${tenant.getId()} " +
-//              "-f docker/Dockerfile  " +
-//              "."
-//          )
-//          image.push()
-//        }
-//      }
-//    }
-//  }
-//  stage('Cleanup') {
-//    common.removeImage(ui_bundle.getImageName())
-//  }
+    if (params.eureka) {
+      dir("platform-complete-${params.tenant_id}") {
+        sh(script: "cp -R -f eureka-tpl/* .")
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
+  }
+
+  stage('Build and Push') {
+    dir("platform-complete-${params.tenant_id}") {
+      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+        retry(2) {
+          def image = docker.build(
+            ui_bundle.getImageName(),
+            "--build-arg OKAPI_URL=${okapi_url} " +
+              "--build-arg TENANT_ID=${tenant.getId()} " +
+              "-f docker/Dockerfile  " +
+              "."
+          )
+          image.push()
+        }
+      }
+    }
+  }
+  stage('Cleanup') {
+    common.removeImage(ui_bundle.getImageName())
+  }
 
   if (params.eureka) {
     stage('KC and UI') {
@@ -91,7 +91,7 @@ void call(Map params, boolean releaseVersion = false) {
         webOrigins: ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled: true,
-        attributes: ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme'] // TODO check theme source.
+        attributes: ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme']
       ]
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
