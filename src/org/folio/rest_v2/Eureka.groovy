@@ -106,20 +106,25 @@ class Eureka extends Authorization {
     }
   }
 
-  boolean isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
+  def isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
 
     String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
 
     def response = restClient.get(url)
     def content = response.body
     logger.warning("Do comparison")
-    if (content == modulesJson) {
-      logger.info("All module discovery information are registered. Nothing to do.")
-      return false
-    } else {
-      logger.info("Not all module discovery information is registered. Proceeding with registration.")
-      return true
-    }
+    logger.warning("${content}")
+    logger.warning("${modulesJson}")
+//    if (content == modulesJson) {
+//      logger.info("All module discovery information are registered. Nothing to do.")
+//      return
+//    } else if (!content || content.trim().isEmpty()) {
+//      logger.info("Any discovery modules is registerd. Proceeding with registration.")
+//      return null
+//    } else {
+//      logger.info("Not all modules discovery is registered. Proceeding with registration.")
+//      return content
+//    }
   }
 
 //  boolean isDiscoveryModulesRegistered(List descriptorsList, OkapiTenant tenant) {
@@ -151,58 +156,83 @@ class Eureka extends Authorization {
       module.location = generateKongUrl(":8082/${module.name}")
     }
 
-    def modulesJson = ['discovery': modules]
-    String modulesList = (JsonOutput.toJson(modulesJson))
+//    def modulesJson = ['discovery': modules]
+//    String modulesList = (JsonOutput.toJson(modulesJson))
+    String modulesList = JsonOutput.toJson([discovery: modules])
 
     logger.info(JsonOutput.toJson(modulesList))
-    if (isDiscoveryModulesRegistered(applicationId, modulesList)) {
-      logger.info("do")
+    def result = isDiscoveryModulesRegistered(applicationId, modulesJson)
 
-      Map<String, String> headers = [
-        'x-okapi-token': getEurekaToken(),
-        'Content-Type': 'application/json'
-      ]
-
-      modulesJson.discovery.each { modDiscovery ->
-
-        String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
-        String requestBody = JsonOutput.toJson(modDiscovery)
-
-        try {
-          restClient.post(url, requestBody, headers).body
-          logger.info("Registered module discovery: ${modDiscovery.id}")
-        } catch (RequestException e) {
-          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
-            logger.info("Module already registered (skipped): ${modDiscovery.id}")
-          } else {
-            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
-          }
-        }
-      }
-    } else {
-      logger.info("No modules to register")
-    }
+//    if (result == false) {
+//      logger.info("All modules are already registered. No further action needed.")
+//      return
+//    } else if (result == null) {
+//      // Handle the case where no modules are registered
+//      Map<String, String> headers = [
+//        'x-okapi-token': getEurekaToken(),
+//        'Content-Type' : 'application/json'
+//      ]
+//      try {
+//        String url = generateKongUrl("/modules/discovery")
+//        restClient.post(url, modulesList, headers).body
+//      } catch (RequestException e) {
+//        throw new RequestException("Error registering module ${e.statusCode}")
+//      }
+//    } else {
+//
+//      Map<String, String> headers = [
+//        'x-okapi-token': getEurekaToken(),
+//        'Content-Type' : 'application/json'
+//      ]
+//      modulesJson.discovery.each { modDiscovery ->
+//
+//        String requestBody = JsonOutput.toJson(modDiscovery)
+//
+//        try {
+//          String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+//          restClient.post(url, requestBody, headers).body
+//          logger.info("Registered module discovery: ${modDiscovery.id}")
+//        } catch (RequestException e) {
+//          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+//            logger.info("Module already registered (skipped): ${modDiscovery.id}")
+//          } else {
+//            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
+//          }
+//        }
+//      }
+//    }
   }
 }
 
+
+//modulesJson.discovery.each { modDiscovery ->
 //
-//    descriptorsList.each() { service ->
-//      if (service['url'] && service['srvcId'] && service['instId']) {
-//        try {
-//          restClient.post(url, service, headers)
-//          logger.info("${service['srvcId']} registered successfully")
-//        } catch (RequestException e) {
-//          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-//            logger.info("${service['srvcId']} is not registered. ${e.getMessage()}")
-//            logger.info("Repeat ${service['srvcId']} retry in 3 seconds.")
-//            sleep(3000)
-//            restClient.post(url, service, headers)
-//          } else {
-//            throw new RequestException("${service['srvcId']} is not registered. ${e.getMessage()}", e.statusCode)
-//          }
-//        }
-//        logger.info("Info on the newly created discovery table for id ${applicationId}" ${service})))
-//      } else {
-//        throw new IllegalArgumentException("${service}: One of required field (srvcId, instId or url) are missing")
-//      }
+//  String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+//  String requestBody = JsonOutput.toJson(modDiscovery)
+//
+//  try {
+//    String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+//    restClient.post(url, requestBody, headers).body
+//    logger.info("Registered module discovery: ${modDiscovery.id}")
+//  } catch (RequestException e) {
+//    if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+//      logger.info("Module already registered (skipped): ${modDiscovery.id}")
+//    } else {
+//      throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
 //    }
+//  }
+//}
+//} else {
+//  logger.info("Not all of the module discovery information is registered. Going to register one by one.")
+//  String url = generateKongUrl("/modules/discovery")
+//  def registeredDiscoveryId = content.discovery.collect() { it.id }
+//  body.discovery.each() { modDiscovery ->
+//    if (!registeredDiscoveryId.contains(modDiscovery.id)) {
+//      restClient.post(url, requestBody, headers).body
+//
+//      logger.info("Info on the newly created discovery table for id ${applicationId}\n Status: ${response.status}\n Response content:")
+//      logger.info("${content}")
+//    }
+//  }
+//}
+//}
