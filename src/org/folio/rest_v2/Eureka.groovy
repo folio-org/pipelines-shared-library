@@ -71,7 +71,7 @@ class Eureka extends Authorization {
       return
     }
 
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
+    String url = generateKongUrl("/applications?check=false")
     Map<String,String> headers = [
         'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
