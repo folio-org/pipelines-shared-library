@@ -161,7 +161,7 @@ class Eureka extends Authorization {
     String modulesList = JsonOutput.toJson([discovery: modules])
 
     logger.info(JsonOutput.toJson(modulesList))
-    def result = isDiscoveryModulesRegistered(applicationId, modulesJson)
+    def result = isDiscoveryModulesRegistered(applicationId, modulesList)
 
 //    if (result == false) {
 //      logger.info("All modules are already registered. No further action needed.")
