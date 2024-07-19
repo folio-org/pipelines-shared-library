@@ -173,7 +173,7 @@ class Eureka extends Authorization {
       try {
         String url = generateKongUrl("/modules/discovery")
         logger.info("Going to register modules")
-        restClient.post(url, modulesList, headers).body
+        restClient.post(url, modulesJson, headers).body
 
       } catch (RequestException e) {
         if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
