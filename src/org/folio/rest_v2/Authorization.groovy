@@ -33,7 +33,7 @@ class Authorization extends Common {
   }
 
   String generateKongUrl(String path) {
-    "https://folio-eureka-scout-kong.ci.folio.org/${path}"
+    "https://folio-eureka-scout-kong.ci.folio.org${path}"
   }
 
   /**
