@@ -166,14 +166,10 @@ class Eureka extends Authorization {
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
     } else if (result == null) {
-      // Handle the case where no modules are registered
       Map<String, String> headers = [
         'x-okapi-token': getEurekaToken(),
         'Content-Type' : 'application/json'
       ]
-      logger.warning("here")
-      logger.warning("${modules}")
-      logger.warning("${modulesList}")
       try {
         String url = generateKongUrl("/modules/discovery")
         restClient.post(url, modulesList, headers).body
