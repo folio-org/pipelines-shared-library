@@ -162,9 +162,9 @@ class Eureka extends Authorization {
 
 
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
-    logger.warning("${modulesJson}")
-    logger.warning("${modulesList}")
-    logger.warning("${modulesd}")
+//    logger.warning("${modulesJson}")
+//    logger.warning("${modulesList}")
+//    logger.warning("${modulesd}")
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
     } else if (result == null) {
@@ -174,8 +174,9 @@ class Eureka extends Authorization {
       ]
       try {
         String url = generateKongUrl("/modules/discovery")
-        logger.info("Going to register modules")
-        restClient.post(url, modulesd, headers).body
+        logger.info("Going to register modules\n ${modulesJson}")
+        super.steps.input("Paused for review...")
+        restClient.post(url, modulesJson, headers).body
 
       } catch (RequestException e) {
         if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
