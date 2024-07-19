@@ -87,7 +87,7 @@ class Eureka extends Authorization {
   String getEurekaToken() {
     logger.info("Getting access token from Keycloak service")
 
-    String url = "https://folio-eureka-scout-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
+    String url = "https://folio-eureka-veselka-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
     Map<String, String> headers = [
       'Content-Type': 'application/x-www-form-urlencoded'
     ]
