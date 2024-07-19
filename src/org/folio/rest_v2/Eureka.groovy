@@ -164,21 +164,21 @@ class Eureka extends Authorization {
 
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
-    } else if (result == null) {
-      Map<String, String> headers = [
-        'x-okapi-token': getEurekaToken(),
-        'Content-Type' : 'application/json'
-      ]
-      try {
-        String url = generateKongUrl("/modules/discovery")
-        restClient.post(url, modulesList, headers).body
-      } catch (RequestException e) {
-        if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
-          logger.info("Modules already registered (skipped)")
-        } else {
-          throw new RequestException("Error registering module ${e.statusCode}")
-        }
-      }
+//    } else if (result == null) {
+//      Map<String, String> headers = [
+//        'x-okapi-token': getEurekaToken(),
+//        'Content-Type' : 'application/json'
+//      ]
+//      try {
+//        String url = generateKongUrl("/modules/discovery")
+//        restClient.post(url, modulesList, headers).body
+//      } catch (RequestException e) {
+//        if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+//          logger.info("Modules already registered (skipped)")
+//        } else {
+//          throw new RequestException("Error registering module ${e.statusCode}")
+//        }
+//      }
     } else {
 
       Map<String, String> headers = [
