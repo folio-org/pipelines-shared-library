@@ -96,7 +96,7 @@ void call(Map params, boolean releaseVersion = false) {
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
       def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?clientId=${params.tenant_id}-application", headers).body
-      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id']}", JsonOutput.toJson(updates), updatesHeaders)
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id'].toString()}", JsonOutput.toJson(updates), updatesHeaders)
     }
   }
 }
