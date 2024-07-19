@@ -179,11 +179,6 @@ class Eureka extends Authorization {
           throw new RequestException("Error registering module ${e.statusCode}")
         }
       }
-    } else if (result == null) {
-      Map<String, String> headers = [
-        'x-okapi-token': getEurekaToken(),
-        'Content-Type' : 'application/json'
-      ]
     } else {
 
       Map<String, String> headers = [
