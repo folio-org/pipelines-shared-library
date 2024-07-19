@@ -156,12 +156,12 @@ class Eureka extends Authorization {
       module.location = generateKongUrl(":8082/${module.name}")
     }
 
-//    def modulesJson = ['discovery': modules]
-//    String modulesList = (JsonOutput.toJson(modulesJson))
-    String modulesList = JsonOutput.toJson([discovery: modules])
+    def modulesJson = ['discovery': modules]
+    String modulesList = (JsonOutput.toJson(modulesJson))
+
 
     logger.info(JsonOutput.toJson(modulesList))
-    def result = isDiscoveryModulesRegistered(applicationId, modulesList)
+    def result = isDiscoveryModulesRegistered(applicationId, modulesJson)
 
 //    if (result == false) {
 //      logger.info("All modules are already registered. No further action needed.")
