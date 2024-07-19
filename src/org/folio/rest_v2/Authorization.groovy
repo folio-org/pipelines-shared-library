@@ -31,6 +31,9 @@ class Authorization extends Common {
   String generateUrl(String path) {
     "https://${okapiDomain}${path}"
   }
+  String generateKongUrl(String path) {
+    "https://folio-eureka-veselka-kong.ci.folio.org/${path}"
+  }
 
   /**
    * Gets the default headers for the specified tenant.
