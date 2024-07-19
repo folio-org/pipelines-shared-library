@@ -172,6 +172,7 @@ class Eureka extends Authorization {
         'x-okapi-token': getEurekaToken(),
         'Content-Type' : 'application/json'
       ]
+      logger.warning("here")
       try {
         String url = generateKongUrl("/modules/discovery")
         restClient.post(url, modulesList, headers).body
