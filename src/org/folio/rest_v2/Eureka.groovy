@@ -13,24 +13,24 @@ class Eureka extends Authorization {
     super(context, okapiDomain, debug)
   }
 
-//  boolean isApplicationRegistered(String applicationId) {
-//
-//    String url = generateKongUrl("/applications/${applicationId}")
-//
-//    try {
-//      restClient.get(url).body
-//      logger.info("Application ${applicationId} is already registered.")
-//      return true
-//    } catch (RequestException e) {
-//      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-//        logger.info("Application id ${applicationId} not found in Application manager. Proceeding with registration.")
-//        return false
-//      } else {
-//        throw new RequestException("Application manager is unavailable", e.statusCode)
-//      }
-//    }
-//  }
-//
+  boolean isApplicationRegistered(String applicationId) {
+
+    String url = generateKongUrl("/applications/${applicationId}")
+
+    try {
+      restClient.get(url).body
+      logger.info("Application ${applicationId} is already registered.")
+      return true
+    } catch (RequestException e) {
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        logger.info("Application id ${applicationId} not found in Application manager. Proceeding with registration.")
+        return false
+      } else {
+        throw new RequestException("Application manager is unavailable", e.statusCode)
+      }
+    }
+  }
+
   def getDescriptorsList(applicationId) {
 
     String bucketName = 'eureka-application-registry'
