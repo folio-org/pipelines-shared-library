@@ -109,12 +109,15 @@ class Eureka extends Authorization {
   def isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
 
     String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
+    def jsonSlurper = new JsonSlurperClassic()
+    def modulesMap = jsonSlurper.parseText(modulesJson)
 
     def response = restClient.get(url)
     def content = response.body
+
     logger.warning("Do comparison")
     logger.warning("${content.totalRecords}")
-    logger.warning("${modulesJson.modules.size()}")
+    logger.warning("${modulesMap.modules.size()}")
 //    if (content == modulesJson) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
 //      return
