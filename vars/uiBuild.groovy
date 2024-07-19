@@ -5,6 +5,7 @@ import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
@@ -96,7 +97,7 @@ void call(Map params, boolean releaseVersion = false) {
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
       def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?query=name=${params.tenant_id}-application", headers)
-      println("realm: " + JsonOutput.prettyPrint(realm as String))
+      new Logger(this, 'test').warning("realm: " + JsonOutput.prettyPrint(realm as String))
       client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id']}", JsonOutput.toJson(updates), updatesHeaders)
     }
   }
