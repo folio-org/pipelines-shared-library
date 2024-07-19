@@ -64,25 +64,25 @@ class Eureka extends Authorization {
 //    }
 //  }
 //
-//  def registerApplication(String applicationId) {
-//    String descriptorsList = getDescriptorsList(applicationId)
-//    if (isApplicationRegistered(applicationId)) {
-//      logger.warning("Application ${applicationId} is already registered.")
-//      return
-//    }
-//
-//    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
-//    Map<String,String> headers = [
-//        'x-okapi-token': getEurekaToken(),
-//        'Content-Type': 'application/json'
-//      ]
-//    try {
-//    restClient.post(url, descriptorsList, headers)
-//    logger.info("Application registered: ${descriptorsList}")
-//    } catch (RequestException e) {
-//        throw new RequestException("Application is not registered", e.statusCode)
-//      }
-//    }
+  def registerApplication(String applicationId) {
+    String descriptorsList = getDescriptorsList(applicationId)
+    if (isApplicationRegistered(applicationId)) {
+      logger.warning("Application ${applicationId} is already registered.")
+      return
+    }
+
+    String url = "https://folio-eureka-scout-kong.ci.folio.org/applications?check=false"
+    Map<String,String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type': 'application/json'
+      ]
+    try {
+    restClient.post(url, descriptorsList, headers)
+    logger.info("Application registered: ${descriptorsList}")
+    } catch (RequestException e) {
+        throw new RequestException("Application is not registered", e.statusCode)
+      }
+    }
 
   String getEurekaToken() {
     logger.info("Getting access token from Keycloak service")
