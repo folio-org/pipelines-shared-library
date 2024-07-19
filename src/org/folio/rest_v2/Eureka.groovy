@@ -153,7 +153,7 @@ class Eureka extends Authorization {
     def modules = parsedJson.modules
 
     modules.each { module ->
-      module.location = generateKongUrl( "http://${module.name}:8082")
+      module.location = "http://${module.name}:8082"
     }
 
     def modulesJson = ['discovery': modules]
