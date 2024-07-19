@@ -173,6 +173,7 @@ class Eureka extends Authorization {
         'Content-Type' : 'application/json'
       ]
       logger.warning("here")
+      logger.warning("${modules}")
       try {
         String url = generateKongUrl("/modules/discovery")
         restClient.post(url, modulesList, headers).body
