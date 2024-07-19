@@ -108,7 +108,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}") // Workaround for mog-login-keycloak
+        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        // Workaround for mog-login-keycloak
       }
     }
 

@@ -84,14 +84,14 @@ void call(Map params, boolean releaseVersion = false) {
       def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
       def token = client.post("${params.keycloakUrl}/realms/master/protocol/openid-connect/token", body, headers).body
       Map updates = [
-        rootUrl: params.tenantUrl,
-        baseUrl: params.tenantUrl,
-        adminUrl: params.tenantUrl,
-        redirectUris: ["${params.tenantUrl}/*"],
-        webOrigins: ["/*"],
+        rootUrl                     : params.tenantUrl,
+        baseUrl                     : params.tenantUrl,
+        adminUrl                    : params.tenantUrl,
+        redirectUris                : ["${params.tenantUrl}/*"],
+        webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
-        serviceAccountsEnabled: true,
-        attributes: ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme']
+        serviceAccountsEnabled      : true,
+        attributes                  : ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme']
       ]
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
