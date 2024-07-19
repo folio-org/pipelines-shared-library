@@ -128,24 +128,6 @@ class Eureka extends Authorization {
     }
   }
 
-//  boolean isDiscoveryModulesRegistered(List descriptorsList, OkapiTenant tenant) {
-//
-//    String url = generateUrl("/modules/discovery")
-//    Map<String, String> headers = getAuthorizedHeaders(tenant)
-//
-//    try {
-//      restClient.post(url, descriptorsList, headers)
-//      logger.info("Application discovery registered: ${url}")
-//      return true
-//    } catch (RequestException e) {
-//      if (e.statusCode == !HttpURLConnection.HTTP_CREATED) {
-//        logger.info("Not all of the module discovery information is registered. Going to register one by one")
-//        return false
-//      } else {
-//        throw new RequestException("Discovery modules is unavailable", e.statusCode)
-//      }
-//    }
-//  }
   void registerApplicationDiscovery(String applicationId) {
     String descriptorsList = getDescriptorsList(applicationId)
 
@@ -160,13 +142,11 @@ class Eureka extends Authorization {
     def modulesJson = ['discovery': modules]
 
     String modulesList = (JsonOutput.toJson(modulesJson))
-//    def modulesd = parsedJson.modules
+
 
 
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
-//    logger.warning("${modulesJson}")
-//    logger.warning("${modulesList}")
-//    logger.warning("${modulesd}")
+
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
     } else if (result == null) {
@@ -174,19 +154,10 @@ class Eureka extends Authorization {
         'x-okapi-token': getEurekaToken(),
         'Content-Type' : 'application/json'
       ]
-      try {
         String url = generateKongUrl("/modules/discovery")
         logger.info("Going to register modules\n ${modulesJson}")
         restClient.post(url, modulesList, headers).body
 
-      } catch (RequestException e) {
-        if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
-          logger.warning("Some modules already register modules. Proceed with registration one by one")
-        } else {
-          logger.info("here")
-          throw new RequestException("Error registering module ${e.statusCode}")
-        }
-      }
     } else {
 
       Map<String, String> headers = [
