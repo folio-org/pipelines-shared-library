@@ -173,7 +173,7 @@ class Eureka extends Authorization {
         String url = generateKongUrl("/modules/discovery")
         restClient.post(url, modulesList, headers).body
       } catch (RequestException e) {
-        throw new RequestException("Error registering module ${e.statusCode}")
+        throw new RequestException("Error registering module ${e.statusCode}".toString())
       }
     } else if (result == null) {
       Map<String, String> headers = [
@@ -198,7 +198,7 @@ class Eureka extends Authorization {
           if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
             logger.info("Module already registered (skipped): ${modDiscovery.id}")
           } else {
-            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
+            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}".toString())
           }
         }
       }
