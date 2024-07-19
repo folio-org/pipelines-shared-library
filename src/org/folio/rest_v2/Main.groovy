@@ -141,8 +141,10 @@ class Main extends Okapi {
     } else {
       logger.warning("Module (mod-kb-ebsco-java) not enabled for tenant ${tenant.tenantId}")
     }
-    if (tenant.index?.run) {
-      runIndexInstance(tenant)
+    if (tenant.indexes) {
+      tenant.indexes.each { index ->
+        runIndex(tenant, index)
+      }
     }
     if(tenant.okapiConfig.ldpConfig){
       config.setLdpDbSettings(tenant)
