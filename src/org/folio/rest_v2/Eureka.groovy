@@ -117,7 +117,7 @@ class Eureka extends Authorization {
 
     logger.warning("Do comparison")
     logger.warning("${content.totalRecords}")
-    logger.warning("${modulesMap.modules}")
+    logger.warning("${modulesMap}")
     logger.warning("${modulesMap.modules.size()}")
 //    if (content == modulesJson) {
 //      logger.info("All module discovery information are registered. Nothing to do.")
