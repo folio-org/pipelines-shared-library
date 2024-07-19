@@ -165,7 +165,6 @@ class Eureka extends Authorization {
 
     if (result == false) {
       logger.info("All modules are already registered. No further action needed.")
-      return
     } else if (result == null) {
       // Handle the case where no modules are registered
       Map<String, String> headers = [
