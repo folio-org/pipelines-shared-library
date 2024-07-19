@@ -115,20 +115,16 @@ class Eureka extends Authorization {
     def response = restClient.get(url)
     def content = response.body
 
-    logger.warning("Do comparison")
-    logger.warning("${content.totalRecords}")
-    logger.warning("${modulesMap.discovery}")
-    logger.warning("${modulesMap.discovery.size()}")
-//    if (content == modulesJson) {
-//      logger.info("All module discovery information are registered. Nothing to do.")
-//      return
-//    } else if (content.totalRecords == 0) {
-//      logger.info("Any discovery modules is registerd. Proceeding with registration.")
-//      return null
-//    } else {
-//      logger.info("Not all modules discovery is registered. Proceeding with registration.")
-//      return content
-//    }
+    if (content.totalRecords == modulesMap.discovery.size()) {
+      logger.info("All module discovery information are registered. Nothing to do.")
+      return
+    } else if (content.totalRecords == 0) {
+      logger.info("Any discovery modules is registerd. Proceeding with registration.")
+      return null
+    } else {
+      logger.info("Not all modules discovery is registered. Proceeding with registration.")
+      return content
+    }
   }
 
 //  boolean isDiscoveryModulesRegistered(List descriptorsList, OkapiTenant tenant) {
@@ -167,44 +163,44 @@ class Eureka extends Authorization {
     logger.info(JsonOutput.toJson(modulesList))
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
 
-//    if (result == false) {
-//      logger.info("All modules are already registered. No further action needed.")
-//      return
-//    } else if (result == null) {
-//      // Handle the case where no modules are registered
-//      Map<String, String> headers = [
-//        'x-okapi-token': getEurekaToken(),
-//        'Content-Type' : 'application/json'
-//      ]
-//      try {
-//        String url = generateKongUrl("/modules/discovery")
-//        restClient.post(url, modulesList, headers).body
-//      } catch (RequestException e) {
-//        throw new RequestException("Error registering module ${e.statusCode}")
-//      }
-//    } else {
-//
-//      Map<String, String> headers = [
-//        'x-okapi-token': getEurekaToken(),
-//        'Content-Type' : 'application/json'
-//      ]
-//      modulesJson.discovery.each { modDiscovery ->
-//
-//        String requestBody = JsonOutput.toJson(modDiscovery)
-//
-//        try {
-//          String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
-//          restClient.post(url, requestBody, headers).body
-//          logger.info("Registered module discovery: ${modDiscovery.id}")
-//        } catch (RequestException e) {
-//          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
-//            logger.info("Module already registered (skipped): ${modDiscovery.id}")
-//          } else {
-//            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
-//          }
-//        }
-//      }
-//    }
+    if (result == false) {
+      logger.info("All modules are already registered. No further action needed.")
+      return
+    } else if (result == null) {
+      // Handle the case where no modules are registered
+      Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type' : 'application/json'
+      ]
+      try {
+        String url = generateKongUrl("/modules/discovery")
+        restClient.post(url, modulesList, headers).body
+      } catch (RequestException e) {
+        throw new RequestException("Error registering module ${e.statusCode}")
+      }
+    } else {
+
+      Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type' : 'application/json'
+      ]
+      modulesJson.discovery.each { modDiscovery ->
+
+        String requestBody = JsonOutput.toJson(modDiscovery)
+
+        try {
+          String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+          restClient.post(url, requestBody, headers).body
+          logger.info("Registered module discovery: ${modDiscovery.id}")
+        } catch (RequestException e) {
+          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+            logger.info("Module already registered (skipped): ${modDiscovery.id}")
+          } else {
+            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
+          }
+        }
+      }
+    }
   }
 }
 
