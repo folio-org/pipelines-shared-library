@@ -108,7 +108,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}") // Workaround for mog-login-keycloak
+        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        // Workaround for mog-login-keycloak
       }
     }
 
@@ -126,13 +127,42 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Build and deploy UI]') {
-      // placeholder
+    stage('Build and deploy UI') {
+      Map branches = [:]
+      namespace.getTenants().each { tenantId, tenant ->
+        if (tenant.getTenantUi()) {
+          TenantUi ui = tenant.getTenantUi()
+          branches[tenantId] = {
+            def jobParameters = [
+              eureka        : args.eureka,
+              kongUrl       : "https://${namespace.getDomains()['kong']}",
+              keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+              tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+              hasAllPerms   : true,
+              isSingleTenant: true,
+              tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+              tenant_id     : ui.getTenantId(),
+              custom_hash   : ui.getHash(),
+              custom_url    : "https://${namespace.getDomains()['kong']}",
+              custom_tag    : ui.getTag(),
+              consortia     : tenant instanceof OkapiTenantConsortia
+            ]
+            uiBuild(jobParameters, releaseVersion)
+            folioHelm.withKubeConfig(namespace.getClusterName()) {
+              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+            }
+          }
+        }
+      }
+      parallel branches
     }
 
-    stage('Deploy ldp') {
-      println('LDP deployment')
-    }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
+
   } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')

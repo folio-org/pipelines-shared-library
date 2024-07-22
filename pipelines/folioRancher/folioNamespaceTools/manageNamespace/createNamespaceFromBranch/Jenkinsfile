@@ -1,4 +1,5 @@
 #!groovy
+
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
