@@ -46,7 +46,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
           }
         }
 //        println(id)
-      }
       logger.warning("${data}")
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
