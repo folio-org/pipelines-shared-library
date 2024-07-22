@@ -31,56 +31,19 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
-// Ensure JsonSlurperClassic is used locally and not captured in a closure
       def appFileContent = readJSON(file: applicationDescriptorFilename)
-      //def appParsedJson = new JsonSlurperClassic().parseText(appFileContent)
 
-      // Modify the JSON data
-      if (appFileContent.containsKey('modules')) {
         appFileContent['modules'].each { module ->
           module.version = module.version.replaceAll(/(\.\d+)$/, "")
         }
-        println(appFileContent)
-        input("Paused for review...")
+
+      try {
+        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${appFileContent}")
+        logger.info("File ${applicationId}*.json successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
+        return readJSON(file: "${applicationId}*.json}")
+      } catch (Exception e) {
+        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
-
-
-      // Write the modified content back to the file
-      def modifiedAppJsonContent = JsonOutput.prettyPrint(JsonOutput.toJson(appParsedJson))
-      writeFile(file: applicationDescriptorFilename, text: modifiedAppJsonContent)
-
-      // Verify the changes
-      def modifiedContent = sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true).trim()
-      println "Modified file content:\n${modifiedContent}"
-
-//      def fileContent = readFile(file: applicationDescriptorFilename)
-
-//      def data = new JsonSlurperClassic().parseText(fileContent)
-//      if (data.containsKey('modules')) {
-//        data['modules'].each { module ->
-//          if (module.containsKey('version')) {
-//            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
-//            println("Modified module: ${module}")
-//          } else {
-//            println("Module does not contain 'version': ${module}")
-//          }
-//        }
-//      } else {
-//        println "The 'modules' key does not exist in the JSON data."
-//      }
-//      println(data)
-//      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
-//      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-//      println(applicationDescriptorFilename)
-
-
-//      try {
-//        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-//        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-//        return readJSON(file: "${applicationDescriptorFilename}")
-//      } catch (Exception e) {
-//        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
-//      }
     }
   }
 }
