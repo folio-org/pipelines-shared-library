@@ -41,6 +41,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
           if (module.containsKey('version')) {
             // Remove trailing numeric suffix after the first period
             module['version'] = module['version'].toString().replaceAll(/(\.\d+)(-\S+)?$/, "")
+            println(module)
           } else {
             println("Module does not contain 'version': ${module}")
           }
