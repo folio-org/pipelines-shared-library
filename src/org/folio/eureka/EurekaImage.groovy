@@ -33,7 +33,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting Maven compile for ${moduleName}.")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
-        steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
+        steps.sh(script: "mvn clean install -DbuildNumber=${BUILD_NUMBER} -DskipTests", returnStdout: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Error e) {
