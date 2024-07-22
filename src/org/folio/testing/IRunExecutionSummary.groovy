@@ -3,7 +3,7 @@ package org.folio.testing
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
-interface ITestExecutionSummary extends IExecutionSummary {
+interface IRunExecutionSummary extends IExecutionSummary {
 
   Map<Team, List<IModuleExecutionSummary>> getModuleResultByTeam(TeamAssignment teamAssignment)
 

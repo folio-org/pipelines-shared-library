@@ -38,6 +38,7 @@ if (params.REFRESH_PARAMETERS) {
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.modulesToTest = params.TESTS
 karateTestsParams.okapiUrl = params.OKAPI_URL
 karateTestsParams.edgeUrl = params.EDGE_URL

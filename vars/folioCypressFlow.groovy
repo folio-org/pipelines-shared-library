@@ -1,6 +1,8 @@
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
+import org.folio.testing.cypress.results.CypressRunExecutionSummary
 
 /**
  * !Attention! This method should be called inside node block in parent
@@ -42,6 +44,8 @@ void call(params) {
   String testrailProjectID = params.testrailProjectID
   String testrailRunID = params.testrailRunID
   String runType = params.runType
+  IRunExecutionSummary testRunExecutionSummary
+  boolean sendSlackNotification = params.sendSlackNotification ? params?.sendSlackNotification?.trim()?.toLowerCase()?.toBoolean() : true
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
 
@@ -173,7 +177,7 @@ void call(params) {
     error("Tests execution stage failed")
   } finally {
     if (useReportPortal) {
-      stage("[ReportPortal Run stop]") {
+      stage("[ReportPortal] Finish run") {
         try {
           def res_end = reportPortal.launchFinish()
           println("${res_end}")
@@ -206,24 +210,20 @@ void call(params) {
       }
     }
 
-    stage('[Allure] Send slack notifications') {
-      script {
-        def parseAllureReport = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+    stage('[Report] Analyze results') {
+      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
+      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
 
-        Map<String, Integer> statusCounts = [failed: 0, passed: 0, broken: 0]
-        parseAllureReport.children.each { child ->
-          child.children.each { testCase ->
-            def status = testCase.status
-            if (statusCounts[status] != null) {
-              statusCounts[status] += 1
-            }
-          }
-        }
+      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
+      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+    }
 
+    if (sendSlackNotification) {
+      stage('[Slack] Send notification') {
         slackSend(attachments: folioSlackNotificationUtils
-          .renderBuildAndTestResultMessage_OLD(
+          .renderBuildAndTestResultMessage(
             TestType.CYPRESS
-            , statusCounts
+            , testRunExecutionSummary
             , customBuildName
             , useReportPortal
             , "${env.BUILD_URL}allure/"

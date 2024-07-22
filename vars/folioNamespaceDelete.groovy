@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.LdpConfig
 import org.folio.models.TerraformConfig
 import org.folio.models.parameters.CreateNamespaceParameters
 
@@ -8,6 +9,10 @@ import static groovy.json.JsonOutput.toJson
 void call(CreateNamespaceParameters args) {
   println("Delete operation parameters:\n${prettyPrint(toJson(args))}")
 
+  LdpConfig ldpConfig = new LdpConfig()
+  withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD')]) {
+    ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
+  }
   //Set terraform configuration
   TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
     .withWorkspace("${args.clusterName}-${args.namespaceName}")
@@ -22,7 +27,7 @@ void call(CreateNamespaceParameters args) {
   tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
   tfConfig.addVar('pgadmin4', 'true')
   tfConfig.addVar('enable_rw_split', args.rwSplit)
-  tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+  tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpAdminDbUserPassword())
   tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
 
   folioHelm.withKubeConfig(args.clusterName) {

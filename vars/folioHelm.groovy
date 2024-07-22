@@ -52,6 +52,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
     case ~/mod-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
       break
+    case ~/mgr-.*/:
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      break
     case ~/edge-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule)
       break
@@ -68,9 +71,7 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
 }
 
 void deployFolioModules(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
-  folioModules.each { moduleName, moduleVersion ->
-    deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
-  }
+  folioModules.each { moduleName, moduleVersion -> deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId) }
 }
 
 void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -140,16 +141,15 @@ void checkAllPodsRunning(String ns) {
 }
 
 static String valuesPathOption(String path) {
-  return "-f ${path}"
+  return path.trim() ? "-f ${path}" : ''
 }
 
 String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
-  Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] :
-    new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
+  Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = ""
 
-  if (customModule || moduleName == 'ui-bundle') {
+  if (customModule || moduleName == 'ui-bundle' || moduleName =~ /^mod-.*-keycloak.*$/ || (moduleName == 'mod-scheduler' && ns.enableEureka)) {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
@@ -160,6 +160,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         repository = "folioci"
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       default:
@@ -173,8 +176,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
 /**
- * Modules feature switcher
- */
+ * Modules feature switcher*/
 
 // TODO Enable JMX metrics once prometheus will work
 //    if (Constants.JMX_METRICS_AVAILABLE[moduleName]) {
@@ -183,9 +185,26 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+
+  //Eureka related configs adjustment
+  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
+    moduleConfig <<
+      [
+        [eureka: [enabled         : true,
+                  sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                     tag  : ns.getModules().allModules['folio-module-sidecar']]]]
+
+      ]
+  }
+
+  if (moduleName =~ /mgr-.*$/ || /mod-.*-keycloak/ && ns.enableEureka) {
+    moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                              existingSecret: 'eureka-common']]
+  }
+
   //Enable RTR functionality
   if (ns.enableRtr) {
-    moduleConfig['extraEnvVars:'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
+    moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
   }
 
   //Bulk operations bucket configuration
@@ -201,13 +220,19 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint')
 
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
-    moduleConfig <<
-      [
-        initContainer    : [enabled: true],
-        extraVolumes     : [extendedtmp: [enabled: true]],
-        extraVolumeMounts: [extendedtmp: [enabled: true]],
-        volumeClaims     : [extendedtmp: [enabled: true]]
-      ]
+    moduleConfig << [initContainer    : [enabled: true],
+                     extraVolumes     : [extendedtmp: [enabled: true]],
+                     extraVolumeMounts: [extendedtmp: [enabled: true]],
+                     volumeClaims     : [extendedtmp: [enabled: true]]]
+  }
+
+  //Toleration and NodeSelector
+  if ((ns.getClusterName() == 'folio-testing') && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
+    moduleConfig['nodeSelector'] = ["folio.org/qualitygate": ns.getNamespaceName()]
+    moduleConfig['tolerations'] = [[key     : "folio.org/qualitygate",
+                                    operator: "Equal",
+                                    value   : ns.getNamespaceName(),
+                                    effect  : "NoSchedule"]]
   }
 
   // Enable ingress
@@ -235,8 +260,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       "charset": "ISO-8859-1"
     }
   ]
-}"""
-        ]
+}"""]
         break
       case 'edge-connexion':
         edgeNlbDomain = common.generateDomain(ns.clusterName, ns.namespaceName, 'connexion', Constants.CI_ROOT_DOMAIN)

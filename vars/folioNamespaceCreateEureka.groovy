@@ -2,8 +2,6 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
-import org.folio.rest_v2.Edge
-import org.folio.rest_v2.Main
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
@@ -13,14 +11,6 @@ void call(CreateNamespaceParameters args) {
     println("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
-    LdpConfig ldpConfig = new LdpConfig()
-    withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD'),
-                     string(credentialsId: 'ldp_queries_gh_token', variable: 'LDP_SQCONFIG_TOKEN')]) {
-      ldpConfig.setLdpDbUserPassword(LDP_DB_PASSWORD)
-      ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
-      ldpConfig.setLdpConfigDbUserPassword(LDP_DB_PASSWORD)
-      ldpConfig.setSqconfigRepoToken(LDP_SQCONFIG_TOKEN)
-    }
     //Set terraform configuration
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
       .withWorkspace("${args.clusterName}-${args.namespaceName}")
@@ -35,15 +25,17 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
     tfConfig.addVar('pgadmin4', 'true')
     tfConfig.addVar('enable_rw_split', args.rwSplit)
-    tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpDbUserPassword())
+    tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
+    tfConfig.addVar('eureka', args.eureka)
 
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
-      }
+    }
+
+    stage('[Wait] for keycloak initialization') {
+      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
     }
 
     if (args.greenmail) {
@@ -72,6 +64,7 @@ void call(CreateNamespaceParameters args) {
     boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
     InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -79,9 +72,11 @@ void call(CreateNamespaceParameters args) {
 
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
+    namespace.setEnableEureka(args.eureka)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+    installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -90,58 +85,36 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
-    namespace.getTenants()[namespace.getDefaultTenantId()].okapiConfig.setLdpConfig(ldpConfig)
-
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
-          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
         namespace.addTenant(tenant)
       }
     }
 
-    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-    Edge edge = new Edge(this, namespace.getDomains()['okapi'])
-
-    stage('[Helm] Deploy Okapi') {
+    stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-//        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
       }
     }
 
-    stage('[Rest] Okapi healthcheck') {
-      sleep time: 3, unit: 'MINUTES'
-      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+    stage('[Rest] MDs and SVC') {
+      //tbd
     }
 
-    stage('[Rest] Preinstall') {
-      main.publishDescriptors(namespace.getModules().getInstallJson())
-      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-    }
-
-    stage('[Helm] Deploy backend') {
+    stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sleep time: 5, unit: "MINUTES"
-//        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-      }
-    }
-
-    stage('[Rest] Initialize') {
-      retry(2) {
-        sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}") // Workaround for mog-login-keycloak
       }
     }
 
     stage('[Rest] Configure edge') {
       folioEdge.renderEphemeralProperties(namespace)
-      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
     }
 
     stage('[Helm] Deploy edge') {
@@ -153,33 +126,12 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('Build and deploy UI') {
-      Map branches = [:]
-      namespace.getTenants().each { tenantId, tenant ->
-        if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
-          branches[tenantId] = {
-            def jobParameters = [
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['okapi']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, releaseVersion)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-            }
-          }
-        }
-      }
-      parallel branches
+    stage('[Build and deploy UI]') {
+      // placeholder
     }
 
     stage('Deploy ldp') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelmFlow.deployLdp(namespace)
-      }
+      println('LDP deployment')
     }
   } catch (Exception e) {
     println(e)
@@ -187,3 +139,4 @@ void call(CreateNamespaceParameters args) {
     throw new Exception(e)
   }
 }
+

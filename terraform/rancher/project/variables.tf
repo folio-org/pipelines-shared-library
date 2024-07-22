@@ -231,19 +231,14 @@ variable "eureka" {
   description = "Eureka base env setup feature enable"
 }
 
-variable "kong_image" {
-  type        = string
-  default     = "latest"
-  description = "Kong image from param choice"
-}
-variable "keycloak_image" {
-  type        = string
-  default     = "latest"
-  description = "Keycloak image from param choice"
+variable "okapi_integration_enabled" {
+  type        = bool
+  default     = false
+  description = "okapi integration Eureka"
 }
 
-variable "okapi_integration_enabled" {
-  type = bool
-  default = true
-  description = "okapi integration Eureka"
+variable "secure_store_type" {
+  type        = string
+  default     = "AWS_SSM"
+  description = "Secure store type"
 }
