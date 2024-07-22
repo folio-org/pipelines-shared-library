@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
+import groovy.json.JsonSlurperClassic
 
 
 Logger logger = new Logger(this, 'folioEurekaApp')
@@ -28,13 +29,22 @@ def applicationDescriptorFileGenerator(String applicationId) {
     dir('target') {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
-      try {
-        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-        return readJSON(file: "${applicationDescriptorFilename}")
-      } catch (Exception e) {
-        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+
+      def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
+      data['applicationDescriptors']['modules'].each { id ->
+        id.each { module ->
+          module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
+        }
+//        println(id)
       }
+//      logger.warning("${data}")
+//      try {
+//        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
+//        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
+//        return readJSON(file: "${applicationDescriptorFilename}")
+//      } catch (Exception e) {
+//        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+//      }
     }
   }
 }
