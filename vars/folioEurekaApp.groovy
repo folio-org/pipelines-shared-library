@@ -36,14 +36,9 @@ def applicationDescriptorFileGenerator(String applicationId) {
         appFileContent['modules'].each { module ->
           module.version = module.version.replaceAll(/(\.\d+)$/, "")
         }
-      println(appFileContent)
-
 
       def modifiedJsonContent = JsonOutput.prettyPrint(JsonOutput.toJson(appFileContent))
-      println("Modified JSON string: ${modifiedJsonContent}")
-
       writeFile(file: applicationDescriptorFilename, text: modifiedJsonContent)
-      println("Written modified JSON to file: ${applicationDescriptorFilename}")
 
       try {
         sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
