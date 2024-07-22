@@ -139,7 +139,7 @@ class Eureka extends Authorization {
       module.location = "http://${module.name}:8082"
       // Log the version before and after the regex replacement
       logger.info("Original version: ${module.version}")
-      module.version = module.version.replaceAll(/-\d+(\.\d+)*$/, "")
+      module.version = module.version.replaceAll(/(\.\d+)$/, "")
       logger.info("Updated version: ${module.version}")
     }
 
