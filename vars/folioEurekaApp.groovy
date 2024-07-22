@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
 import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
 
 
 Logger logger = new Logger(this, 'folioEurekaApp')
