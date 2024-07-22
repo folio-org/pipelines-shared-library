@@ -33,7 +33,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def fileContent = readFile(file: applicationDescriptorFilename)
       def data = new JsonSlurperClassic().parseText(fileContent)
       //def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
-      data['applicationDescriptors']['modules'].each { id ->
+      data['modules'].each { id ->
         id.each { module ->
           module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
         }
