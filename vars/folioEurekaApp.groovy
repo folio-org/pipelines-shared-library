@@ -32,28 +32,34 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
 
-
+      def jsonSlurper = new JsonSlurperClassic()
       def fileContent = readFile(file: applicationDescriptorFilename)
+      def parsedJson = jsonSlurper.parseText(fileContent)
 
-      def data = new JsonSlurperClassic().parseText(fileContent)
-
-
-      if (data.containsKey('modules')) {
-        data['modules'].each { module ->
-          if (module.containsKey('version')) {
-            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
-            println("Modified module: ${module}")
-          } else {
-            println("Module does not contain 'version': ${module}")
-          }
-        }
-      } else {
-        println "The 'modules' key does not exist in the JSON data."
+      parsedJson['modules'].each { module ->
+        module.version = module.version.replaceAll(/(\.\d+)$/, "")
       }
-      println(data)
-      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
-      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-      println(applicationDescriptorFilename)
+      println(parsedJson)
+
+//      def fileContent = readFile(file: applicationDescriptorFilename)
+
+//      def data = new JsonSlurperClassic().parseText(fileContent)
+//      if (data.containsKey('modules')) {
+//        data['modules'].each { module ->
+//          if (module.containsKey('version')) {
+//            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
+//            println("Modified module: ${module}")
+//          } else {
+//            println("Module does not contain 'version': ${module}")
+//          }
+//        }
+//      } else {
+//        println "The 'modules' key does not exist in the JSON data."
+//      }
+//      println(data)
+//      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
+//      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
+//      println(applicationDescriptorFilename)
 
 
 //      try {
