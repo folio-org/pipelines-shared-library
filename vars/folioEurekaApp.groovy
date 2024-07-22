@@ -30,14 +30,16 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
-      def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
+      def fileContent = readFile(file: applicationDescriptorFilename)
+      def data = new JsonSlurperClassic().parseText(fileContent)
+      //def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
       data['applicationDescriptors']['modules'].each { id ->
         id.each { module ->
           module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
         }
 //        println(id)
       }
-//      logger.warning("${data}")
+      logger.warning("${data}")
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
 //        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
