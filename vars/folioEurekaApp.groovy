@@ -33,9 +33,17 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def fileContent = readFile(file: applicationDescriptorFilename)
       def data = new JsonSlurperClassic().parseText(fileContent)
       //def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
-      data['modules'].each { id ->
-        id.each { module ->
-          module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
+//      data['modules'].each { id ->
+//        id.each { module ->
+//          module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
+//        }
+        data['modules'].each { module ->
+          if (module.containsKey('version')) {
+            // Remove trailing numeric suffix after the first period
+            module['version'] = module['version'].toString().replaceAll(/(\.\d+)(-\S+)?$/, "")
+          } else {
+            logger.warning("Module does not contain 'version': ${module}")
+          }
         }
 //        println(id)
       }
