@@ -38,7 +38,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def data = new JsonSlurperClassic().parseText(fileContent)
 
 
-      if (data.containsKey('modules')) {
+      if (data('modules')) {
         data['modules'].each { module ->
           if (module.containsKey('version')) {
             module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
@@ -50,16 +50,19 @@ def applicationDescriptorFileGenerator(String applicationId) {
       } else {
         println "The 'modules' key does not exist in the JSON data."
       }
-
+      println(data)
       def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
       writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-      try {
-        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-        return readJSON(file: "${applicationDescriptorFilename}")
-      } catch (Exception e) {
-        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
-      }
+      println(applicationDescriptorFilename)
+
+
+//      try {
+//        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
+//        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
+//        return readJSON(file: "${applicationDescriptorFilename}")
+//      } catch (Exception e) {
+//        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
+//      }
     }
   }
 }
