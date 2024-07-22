@@ -30,16 +30,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
     dir('target') {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
-
-      def appFileContent = readJSON(file: applicationDescriptorFilename)
-
-        appFileContent['modules'].each { module ->
-          module.version = module.version.replaceAll(/(\.\d+)$/, "")
-        }
-
-      def modifiedJsonContent = JsonOutput.prettyPrint(JsonOutput.toJson(appFileContent))
-      writeFile(file: applicationDescriptorFilename, text: modifiedJsonContent)
-
       try {
         sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
