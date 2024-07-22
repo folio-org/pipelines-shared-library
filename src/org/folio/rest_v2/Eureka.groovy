@@ -77,6 +77,7 @@ class Eureka extends Authorization {
         'x-okapi-token': getEurekaToken(),
         'Content-Type': 'application/json'
       ]
+    logger.warning("${descriptorsList}")
     try {
     restClient.post(url, descriptorsList, headers)
     logger.info("Application registered: ${descriptorsList}")
