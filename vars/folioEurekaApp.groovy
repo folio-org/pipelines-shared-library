@@ -34,12 +34,10 @@ def applicationDescriptorFileGenerator(String applicationId) {
 
 
       def fileContent = readFile(file: applicationDescriptorFilename)
-      println "File content before parsing:\n${fileContent}"
 
       def data = new JsonSlurperClassic().parseText(fileContent)
-      println "Parsed JSON data:\n${data}"
 
-      // Modify the JSON data
+
       if (data.containsKey('modules')) {
         data['modules'].each { module ->
           if (module.containsKey('version')) {
@@ -53,39 +51,16 @@ def applicationDescriptorFileGenerator(String applicationId) {
         println "The 'modules' key does not exist in the JSON data."
       }
 
-      // Convert modified data back to JSON and write it to the file
       def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
-      println "Modified file content:\n${modifiedFileContent}"
-
       writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-      println "File ${applicationDescriptorFilename} has been written with modified content."
 
-
-
-
-
-//      def fileContent = readFile(file: applicationDescriptorFilename)
-//      def data = new JsonSlurperClassic().parseText(fileContent)
-//        data['modules'].each { module ->
-//            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
-//            println(module)
-//
-//        }
-//      // Convert modified data back to JSON and write to the file
-//      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
-//      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-//
-//      // Print the modified file content to verify
-//      def modifiedContent = sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true).trim()
-//      println "Modified file content:\n${modifiedContent}"
-
-//      try {
-//        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-//        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-//        return readJSON(file: "${applicationDescriptorFilename}")
-//      } catch (Exception e) {
-//        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
-//      }
+      try {
+        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
+        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
+        return readJSON(file: "${applicationDescriptorFilename}")
+      } catch (Exception e) {
+        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+      }
     }
   }
 }
