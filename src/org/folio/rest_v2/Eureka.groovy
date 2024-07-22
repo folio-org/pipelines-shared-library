@@ -82,7 +82,8 @@ class Eureka extends Authorization {
     restClient.post(url, descriptorsList, headers)
     logger.info("Application registered: ${descriptorsList}")
     } catch (RequestException e) {
-        throw new RequestException("Application is not registered", e.statusCode)
+      logger.error("Failed to register application ${applicationId}: ${e.getMessage()}")
+      throw new RequestException("Application is not registered", e.statusCode)
       }
     }
 
