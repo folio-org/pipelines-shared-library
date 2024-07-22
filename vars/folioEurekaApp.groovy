@@ -31,10 +31,8 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
-
-      def jsonSlurper = new JsonSlurperClassic()
       def fileContent = readFile(file: applicationDescriptorFilename)
-      def parsedJson = jsonSlurper.parseText(fileContent)
+      def parsedJson = new JsonSlurperClassic().parseText(fileContent)
 
       parsedJson['modules'].each { module ->
         module.version = module.version.replaceAll(/(\.\d+)$/, "")
