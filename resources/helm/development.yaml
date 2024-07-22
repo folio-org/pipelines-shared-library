@@ -775,6 +775,9 @@ mod-entities-links:
     systemuser:
       enabled: true
       existingSecret: mod-entities-links-systemuser
+    s3:
+      enabled: true
+      existingSecret: s3-mod-marc-migrations-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1092,6 +1095,9 @@ mod-marc-migrations:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-marc-migrations-credentials
   replicaCount: 1
   resources:
     limits:
