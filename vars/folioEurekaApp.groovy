@@ -31,18 +31,24 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
-      def jsonSlurper = new JsonSlurperClassic()
-      def fileContent = readFile(file: applicationDescriptorFilename)
-      def parsedJson = jsonSlurper.parseText(fileContent)
+// Ensure JsonSlurperClassic is used locally and not captured in a closure
+      def appFileContent = readFile(file: appDescriptorFilename)
+      def appParsedJson = new JsonSlurperClassic().parseText(appFileContent)
 
-      parsedJson['modules'].each { module ->
-        module.version = module.version.replaceAll(/(\.\d+)$/, "")
+      // Modify the JSON data
+      if (appParsedJson.containsKey('modules')) {
+        appParsedJson['modules'].each { module ->
+          module.version = module.version.replaceAll(/(\.\d+)$/, "")
+        }
       }
 
-      def modifiedJsonContent = JsonOutput.prettyPrint(JsonOutput.toJson(parsedJson))
-      writeFile(file: applicationDescriptorFilename, text: modifiedJsonContent)
+      // Write the modified content back to the file
+      def modifiedAppJsonContent = JsonOutput.prettyPrint(JsonOutput.toJson(appParsedJson))
+      writeFile(file: appDescriptorFilename, text: modifiedAppJsonContent)
 
-      println(modifiedJsonContent)
+      // Verify the changes
+      def modifiedContent = sh(script: "cat ${appDescriptorFilename}", returnStdout: true).trim()
+      println "Modified file content:\n${modifiedContent}"
 
 //      def fileContent = readFile(file: applicationDescriptorFilename)
 
