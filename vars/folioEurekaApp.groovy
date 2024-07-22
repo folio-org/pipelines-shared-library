@@ -31,24 +31,49 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
+
+
       def fileContent = readFile(file: applicationDescriptorFilename)
+      println "File content before parsing:\n${fileContent}"
+
       def data = new JsonSlurperClassic().parseText(fileContent)
+      println "Parsed JSON data:\n${data}"
+
+      // Modify the JSON data
+      if (data.containsKey('modules')) {
         data['modules'].each { module ->
           if (module.containsKey('version')) {
-            // Remove trailing numeric suffix after the first period
             module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
-            println(module)
+            println("Modified module: ${module}")
           } else {
             println("Module does not contain 'version': ${module}")
           }
         }
-      // Convert modified data back to JSON and write to the file
-      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
-      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
+      } else {
+        println "The 'modules' key does not exist in the JSON data."
+      }
 
-      // Print the modified file content to verify
-      def modifiedContent = sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true).trim()
-      println "Modified file content:\n${modifiedContent}"
+      // Convert modified data back to JSON and write it to the file
+      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
+      println "Modified file content:\n${modifiedFileContent}"
+
+
+
+
+//      def fileContent = readFile(file: applicationDescriptorFilename)
+//      def data = new JsonSlurperClassic().parseText(fileContent)
+//        data['modules'].each { module ->
+//            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
+//            println(module)
+//
+//        }
+//      // Convert modified data back to JSON and write to the file
+//      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
+//      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
+//
+//      // Print the modified file content to verify
+//      def modifiedContent = sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true).trim()
+//      println "Modified file content:\n${modifiedContent}"
 
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
