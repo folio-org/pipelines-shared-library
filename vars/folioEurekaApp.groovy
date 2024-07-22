@@ -31,17 +31,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
       sh(script: "ls -la")
       def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
 
-      // Read and parse the JSON file
-      def fileContent = readFile(file: applicationDescriptorFilename)
-      def parsedJson = new JsonSlurperClassic().parseText(fileContent)
-
-      // Modify the JSON data
-      if (parsedJson.containsKey('modules')) {
-        parsedJson['modules'].each { module ->
-          module.version = module.version.replaceAll(/(\.\d+)$/, "")
-        }
-      }
-
       def jsonSlurper = new JsonSlurperClassic()
       def fileContent = readFile(file: applicationDescriptorFilename)
       def parsedJson = jsonSlurper.parseText(fileContent)
