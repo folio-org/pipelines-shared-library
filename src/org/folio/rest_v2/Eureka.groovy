@@ -3,7 +3,7 @@ package org.folio.rest_v2
 import org.folio.models.EurekaTenant
 import org.folio.utilities.RequestException
 
-class Eureka extends Authorization {
+class Eureka extends Common {
 
   /**
    * EurekaTenant object contains Master Tenant configuration for Eureka.
