@@ -137,7 +137,10 @@ class Eureka extends Authorization {
 
     modules.each { module ->
       module.location = "http://${module.name}:8082"
-      module.version = module.version.replaceAll(/-\d+$/, "")
+      // Log the version before and after the regex replacement
+      logger.info("Original version: ${module.version}")
+      module.version = module.version.replaceAll(/-\d+(\.\d+)*$/, "")
+      logger.info("Updated version: ${module.version}")
     }
 
     def modulesJson = ['discovery': modules]
