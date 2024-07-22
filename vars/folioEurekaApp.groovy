@@ -58,7 +58,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
         return readJSON(file: "${applicationDescriptorFilename}")
       } catch (Exception e) {
-        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
     }
   }
