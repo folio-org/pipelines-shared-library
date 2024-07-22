@@ -57,6 +57,10 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
       println "Modified file content:\n${modifiedFileContent}"
 
+      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
+      println "File ${applicationDescriptorFilename} has been written with modified content."
+
+
 
 
 
