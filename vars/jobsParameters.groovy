@@ -123,6 +123,11 @@ static List perfEnvironmentsList() {
 }
 
 @NonCPS
+static List relEnvironmentsList() {
+    return ['poppy', 'quesnelia']
+}
+
+@NonCPS
 static List testEnvironmentsList() {
     return ['test', 'test-1', 'test-2']
 }
@@ -131,7 +136,7 @@ static List testEnvironmentsList() {
 static String generateProjectNamesMap() {
     return JsonOutput.toJson(['folio-testing': testingEnvironmentsList().sort(),
                               'folio-dev'    : devEnvironmentsList().sort(),
-                              'folio-perf'   : perfEnvironmentsList().sort(),
+                              'folio-perf'   : perfEnvironmentsList().sort() + relEnvironmentsList(),
                               'folio-tmp'    : testEnvironmentsList().sort()])
 }
 
