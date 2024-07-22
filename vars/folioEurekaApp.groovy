@@ -40,14 +40,14 @@ def applicationDescriptorFileGenerator(String applicationId) {
         data['modules'].each { module ->
           if (module.containsKey('version')) {
             // Remove trailing numeric suffix after the first period
-            module['version'] = module['version'].toString().replaceAll(/(\.\d+)(-\S+)?$/, "")
+            module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
             println(module)
           } else {
             println("Module does not contain 'version': ${module}")
           }
         }
 //        println(id)
-      println("${data}")
+      println(data)
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
 //        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
