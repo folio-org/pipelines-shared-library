@@ -32,11 +32,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
 
       def fileContent = readFile(file: applicationDescriptorFilename)
       def data = new JsonSlurperClassic().parseText(fileContent)
-      //def data = new JsonSlurperClassic().parseText(new File("${applicationDescriptorFilename}").text)
-//      data['modules'].each { id ->
-//        id.each { module ->
-//          module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
-//        }
         data['modules'].each { module ->
           if (module.containsKey('version')) {
             // Remove trailing numeric suffix after the first period
@@ -46,8 +41,11 @@ def applicationDescriptorFileGenerator(String applicationId) {
             println("Module does not contain 'version': ${module}")
           }
         }
-//        println(id)
-      println(data)
+
+      def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
+      writeFile file: applicationDescriptorFilename, text: modifiedFileContent
+      sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true)
+
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
 //        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
