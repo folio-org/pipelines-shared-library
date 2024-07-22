@@ -42,10 +42,13 @@ def applicationDescriptorFileGenerator(String applicationId) {
             println("Module does not contain 'version': ${module}")
           }
         }
-
+      // Convert modified data back to JSON and write to the file
       def modifiedFileContent = JsonOutput.prettyPrint(JsonOutput.toJson(data))
       writeFile file: applicationDescriptorFilename, text: modifiedFileContent
-      sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true)
+
+      // Print the modified file content to verify
+      def modifiedContent = sh(script: "cat ${applicationDescriptorFilename}", returnStdout: true).trim()
+      println "Modified file content:\n${modifiedContent}"
 
 //      try {
 //        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
