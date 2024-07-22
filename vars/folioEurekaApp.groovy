@@ -38,7 +38,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
       def data = new JsonSlurperClassic().parseText(fileContent)
 
 
-      if (data('modules')) {
+      if (data.containsKey('modules')) {
         data['modules'].each { module ->
           if (module.containsKey('version')) {
             module['version'] = module['version'].toString().replaceAll(/(\.\d+)$/, "")
