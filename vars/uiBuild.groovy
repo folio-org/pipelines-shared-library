@@ -115,6 +115,7 @@ static String getModuleVersion(String moduleName, boolean releaseVersion = false
   }
 }
 
+//TODO refactoring and reviewing required.
 @NonCPS
 static def make_tpl(String tpl, Map data) {
   def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
