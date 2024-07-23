@@ -34,6 +34,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtr
 
+  boolean uiBuild
+
   String pgType
 
   String pgVersion
@@ -307,6 +309,17 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder worker(String worker) {
       parameters.worker = worker
+      return this
+    }
+
+    /**
+     * Specifies whether UI  bundle should be build.
+     * This allows to exclude\include UI-bundle
+     * @param uiBuild default true.
+     * @return decision for UI.
+     */
+    Builder uiBuild(boolean uiBuild) {
+      parameters.uiBuild = uiBuild
       return this
     }
 

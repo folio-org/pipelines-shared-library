@@ -126,35 +126,36 @@ void call(CreateNamespaceParameters args) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
-
-    stage('Build and deploy UI') {
-      Map branches = [:]
-      namespace.getTenants().each { tenantId, tenant ->
-        if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
-          branches[tenantId] = {
-            def jobParameters = [
-              eureka        : args.eureka,
-              kongUrl       : "https://${namespace.getDomains()['kong']}",
-              keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-              tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
-              hasAllPerms   : true,
-              isSingleTenant: true,
-              tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-              tenant_id     : ui.getTenantId(),
-              custom_hash   : ui.getHash(),
-              custom_url    : "https://${namespace.getDomains()['kong']}",
-              custom_tag    : ui.getTag(),
-              consortia     : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, releaseVersion)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+    if (args.uiBuild) {
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [
+                eureka        : args.eureka,
+                kongUrl       : "https://${namespace.getDomains()['kong']}",
+                keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+                tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+                hasAllPerms   : true,
+                isSingleTenant: true,
+                tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                tenant_id     : ui.getTenantId(),
+                custom_hash   : ui.getHash(),
+                custom_url    : "https://${namespace.getDomains()['kong']}",
+                custom_tag    : ui.getTag(),
+                consortia     : tenant instanceof OkapiTenantConsortia
+              ]
+              uiBuild(jobParameters, releaseVersion)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
             }
           }
         }
+        parallel branches
       }
-      parallel branches
     }
 
 //    stage('Deploy ldp') {
