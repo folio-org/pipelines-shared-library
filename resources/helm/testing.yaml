@@ -1716,8 +1716,6 @@ mod-consortia-keycloak:
       memory: 256Mi
 mod-login-keycloak:
   extraEnvVars:
-    - name: KC_LOGIN_CLIENT_SUFFIX
-      value: '-login-application'
     - name: KC_ADMIN_TOKEN_TTL
       value: '410s'
     - name: X_OKAPI_TOKEN_HEADER_ENABLED
@@ -1739,10 +1737,6 @@ mod-login-keycloak:
       memory: 256Mi
 mod-roles-keycloak:
   extraEnvVars:
-    - name: KC_ADMIN_CLIENT_ID
-      value: 'folio-backend-admin-client'
-    - name: KC_LOGIN_CLIENT_SUFFIX
-      value: '-login-application'
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
@@ -1766,8 +1760,6 @@ mod-users-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_CLIENT_ID
       value: 'folio-backend-admin-client'
-    - name: KC_LOGIN_CLIENT_SUFFIX
-      value: '-login-application'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
