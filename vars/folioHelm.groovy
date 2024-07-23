@@ -206,6 +206,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case 'mod-scheduler':
         moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                   existingSecret: 'eureka-common']]
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
+
+          ]
         break
       case ~/mod-.*$/:
         moduleConfig <<
