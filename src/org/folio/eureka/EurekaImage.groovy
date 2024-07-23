@@ -22,9 +22,11 @@ class EurekaImage implements Serializable {
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
-      def pom = steps.readMavenPom file: 'pom.xml'
-      pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
-      steps.writeMavenPom model: pom
+      if (moduleName != 'folio-keycloak') {
+        def pom = steps.readMavenPom file: 'pom.xml'
+        pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
+        steps.writeMavenPom model: pom
+      }
       logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Error e) {
       logger.warning("Checkout failed: ${e.getMessage()}")
@@ -36,7 +38,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting Maven compile for ${moduleName}.")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
-          steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
+        steps.sh(script: "mvn clean install -DskipTests", returnStdout: true)
       }
       logger.info("Maven compile completed successfully for ${moduleName}")
     } catch (Error e) {
