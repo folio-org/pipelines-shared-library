@@ -1758,8 +1758,6 @@ mod-roles-keycloak:
       memory: 256Mi
 mod-users-keycloak:
   extraEnvVars:
-    - name: KC_ADMIN_CLIENT_ID
-      value: 'folio-backend-admin-client'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
