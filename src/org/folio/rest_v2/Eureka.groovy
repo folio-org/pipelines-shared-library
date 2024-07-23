@@ -13,38 +13,6 @@ class Eureka extends Authorization {
     super(context, okapiDomain, debug)
   }
 
-  def getDescriptorsList(applicationId) {
-
-    String bucketName = 'eureka-application-registry'
-    steps.awscli.withAwsClient() {
-      steps.sh(script: "aws s3api get-object --bucket ${bucketName} --key apps/${applicationId}.json ${applicationId}.json")
-    }
-    logger.info(steps.readJSON(file: "${applicationId}.json"))
-    return steps.readJSON(file: "${applicationId}.json")
-  }
-
-  String getEurekaToken() {
-    logger.info("Getting access token from Keycloak service")
-
-    String url = "https://folio-eureka-veselka-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
-    Map<String, String> headers = [
-      'Content-Type': 'application/x-www-form-urlencoded'
-    ]
-    String requestBody = "client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials"
-
-    try {
-      def response = restClient.post(url, requestBody, headers).body
-      logger.info("Access token received successfully from Keycloak service")
-      return response.access_token
-    } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-        logger.info("Cant get token.")
-      } else {
-        throw new RequestException("Keycloak is unavailable", e.statusCode)
-      }
-    }
-  }
-
   def isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
 
     String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
@@ -80,8 +48,6 @@ class Eureka extends Authorization {
     def modulesJson = ['discovery': modules]
 
     String modulesList = (JsonOutput.toJson(modulesJson))
-
-
 
     def result = isDiscoveryModulesRegistered(applicationId, modulesList)
 
