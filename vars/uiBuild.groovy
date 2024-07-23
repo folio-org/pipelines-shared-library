@@ -1,7 +1,11 @@
 #!groovy
+import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
+import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.RestClient
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
@@ -43,7 +47,16 @@ void call(Map params, boolean releaseVersion = false) {
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
       }
     }
+
+    if (params.eureka) {
+      dir("platform-complete-${params.tenant_id}") {
+        sh(script: "cp -R -f eureka-tpl/* .")
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
   }
+
   stage('Build and Push') {
     dir("platform-complete-${params.tenant_id}") {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
@@ -63,6 +76,29 @@ void call(Map params, boolean releaseVersion = false) {
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
   }
+
+  if (params.eureka) {
+    stage('KC and UI') {
+      RestClient client = new RestClient(this)
+      Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+      def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+      def token = client.post("${params.keycloakUrl}/realms/master/protocol/openid-connect/token", body, headers).body
+      Map updates = [
+        rootUrl                     : params.tenantUrl,
+        baseUrl                     : params.tenantUrl,
+        adminUrl                    : params.tenantUrl,
+        redirectUris                : ["${params.tenantUrl}/*"],
+        webOrigins                  : ["/*"],
+        authorizationServicesEnabled: true,
+        serviceAccountsEnabled      : true,
+        attributes                  : ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme']
+      ]
+      Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
+      headers.put("Authorization", "Bearer ${token['access_token']}")
+      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?clientId=${params.tenant_id}-application", headers).body
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
+    }
+  }
 }
 
 //TODO temporary solution should be revised
@@ -77,4 +113,11 @@ static String getModuleVersion(String moduleName, boolean releaseVersion = false
   } else {
     throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
   }
+}
+
+//TODO refactoring and reviewing required.
+@NonCPS
+static def make_tpl(String tpl, Map data) {
+  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
+  return ui_tpl
 }
