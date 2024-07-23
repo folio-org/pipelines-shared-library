@@ -203,6 +203,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
           ]
         break
+      case 'mod-scheduler':
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        break
       case ~/mod-.*$/:
         moduleConfig <<
           [
