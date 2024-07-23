@@ -33,7 +33,7 @@ class EurekaImage implements Serializable {
       logger.info("Starting Maven compile for ${moduleName}.")
       steps.withMaven(jdk: "openjdk-17-jenkins-slave-all",
         maven: Constants.MAVEN_TOOL_NAME) {
-        if (moduleName =~ /mod-*.$/) {
+        if (moduleName =~ /^mod-*.$/) {
           def pom = steps.readMavenPom file: 'pom.xml'
           pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
           steps.writeMavenPom model: pom
@@ -69,7 +69,7 @@ class EurekaImage implements Serializable {
     def tag = 'unknown'
     try {
       def pom = steps.readMavenPom file: 'pom.xml'
-      if (pom && moduleName =~ /mod-.*$/) {
+      if (pom && moduleName =~ /^mod-.*$/) {
         tag = "${pom.getVersion()}"
       } else {
         tag = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
