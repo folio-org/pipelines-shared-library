@@ -25,7 +25,7 @@ class EurekaImage implements Serializable {
       def pom = steps.readMavenPom file: 'pom.xml'
       pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
       steps.writeMavenPom model: pom
-      logger.info("Checkout completed successfully for ${moduleName}\n${pom}")
+      logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Error e) {
       logger.warning("Checkout failed: ${e.getMessage()}")
     }
@@ -131,6 +131,7 @@ class EurekaImage implements Serializable {
     switch (moduleName) {
       case 'folio-kong':
         prepare()
+        compile()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break
       case 'folio-keycloak':
