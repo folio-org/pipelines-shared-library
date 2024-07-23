@@ -40,6 +40,23 @@ locals {
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
 }
 
+resource "kubectl_manifest" "postgresql-pdb" {
+  count              = var.pg_embedded ? 1 : 0
+  provider           = kubectl
+  override_namespace = rancher2_namespace.this.name
+  yaml_body          = <<YAML
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgresql-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/instance: postgresql-${var.rancher_project_name}
+YAML
+}
 
 # PostgreSQL database deployment
 resource "helm_release" "postgresql" {
@@ -55,9 +72,10 @@ readReplicas:
   replicaCount: 1
   resources:
     requests:
-      memory: 512Mi
+      memory: 8192Mi
     limits:
       memory: 10240Mi
+  podAffinityPreset: soft
   persistence:
     enabled: true
     size: '${var.pg_vol_size}Gi'
@@ -105,13 +123,14 @@ primary:
     storageClass: gp2
   resources:
     requests:
-      memory: 512Mi
+      memory: 8192Mi
     limits:
       memory: 10240Mi
   podSecurityContext:
     fsGroup: 1001
   containerSecurityContext:
     runAsUser: 1001
+  podAffinityPreset: soft
   extendedConfiguration: |-
     shared_buffers = '2560MB'
     max_connections = '${var.pg_max_conn}'
@@ -130,12 +149,12 @@ primary:
 volumePermissions:
   enabled: true
 metrics:
-  enabled: ${local.pg_auth}
+  enabled: false
   resources:
     requests:
-      memory: 512Mi
+      memory: 1024Mi
     limits:
-      memory: 4096Mi
+      memory: 3072Mi
   serviceMonitor:
     enabled: true
     namespace: monitoring
