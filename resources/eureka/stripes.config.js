@@ -9,16 +9,16 @@ module.exports = {
   config: {
     hasAllPerms: ${hasAllPerms},
     useSecureTokens: true,
-    idleSessionWarningSeconds: 360,
     logCategories: 'core,path,action,xhr',
     logPrefix: '--',
     maxUnpagedResourceCount: 2000,
     showPerms: false,
     isSingleTenant: ${isSingleTenant},
-    tenantOptions: ${tenantOptions}
+    isEureka: true,
+    tenantOptions: ${tenantOptions},
     rtr: {
       idleSessionTTL: '1h',
-      idleModalTTL: '360s',
+      idleModalTTL: '30s',
     }
   },
 modules: {
