@@ -186,20 +186,46 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  //Eureka related configs adjustment
-  if (moduleName =~ /mod-.*$/ && ns.enableEureka) {
-    moduleConfig <<
-      [
-        [eureka: [enabled         : true,
-                  sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                     tag  : ns.getModules().allModules['folio-module-sidecar']]]]
+  if (ns.enableEureka) {
+    switch (moduleName) {
+      case ~/mgr-.*$/:
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        break
+      case ~/mod-.*-keycloak/:
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
 
-      ]
-  }
+          ]
+        break
+      case 'mod-scheduler':
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
 
-  if (moduleName =~ /mgr-.*$/ || /mod-.*-keycloak/ && ns.enableEureka) {
-    moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                              existingSecret: 'eureka-common']]
+          ]
+        break
+      case ~/mod-.*$/:
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
+                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
+
+          ]
+        break
+      case ~/ui-bundle/:
+        break
+    }
   }
 
   //Enable RTR functionality
