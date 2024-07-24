@@ -63,7 +63,7 @@ void call(CreateNamespaceParameters args) {
     String defaultTenantId = 'diku'
     String folioRepository = 'application-descriptors'
     boolean releaseVersion = true
-    String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
+    String commitHash = common.getLastCommitHash('platform-complete', 'R1-2024')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
     def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
@@ -148,7 +148,8 @@ void call(CreateNamespaceParameters args) {
                 custom_hash   : ui.getHash(),
                 custom_url    : "https://${namespace.getDomains()['kong']}",
                 custom_tag    : ui.getTag(),
-                consortia     : tenant instanceof OkapiTenantConsortia
+                consortia     : tenant instanceof OkapiTenantConsortia,
+                clientId      : ui.getTenantId() + "-application"
               ]
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {

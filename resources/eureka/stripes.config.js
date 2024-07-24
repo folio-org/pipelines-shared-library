@@ -2,21 +2,24 @@ module.exports = {
   okapi: {
     'url': '${kongUrl}',
     'uiUrl': '${tenantUrl}',
-    'authnUrl': '${keycloakUrl}'
+    'tenant': '${tenantId}',
+    'authnUrl': '${keycloakUrl}',
+    'clientId': '${clientId}',
   },
   config: {
     hasAllPerms: ${hasAllPerms},
     useSecureTokens: true,
+    idleSessionWarningSeconds: 360,
     logCategories: 'core,path,action,xhr',
     logPrefix: '--',
     maxUnpagedResourceCount: 2000,
     showPerms: false,
     isSingleTenant: ${isSingleTenant},
-    isEureka: true,
-    tenantOptions: ${tenantOptions},
+    tenantOptions: ${tenantOptions}
+  },
     rtr: {
       idleSessionTTL: '1h',
-      idleModalTTL: '30s',
+      idleModalTTL: '360s',
     }
   },
 modules: {

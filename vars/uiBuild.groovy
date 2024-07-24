@@ -53,7 +53,7 @@ void call(Map params, boolean releaseVersion = true) {
       dir("platform-complete-${params.tenant_id}") {
         sh(script: "rm -f package.json")
         sh(script: "rm -f stripes.config.json")
-//        sh(script: "rm -f yarn.lock")
+        sh(script: "rm -f yarn.lock")
         sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/package.json -o package.json")
         sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/stripes.config.js -o stripes.config.js")
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
