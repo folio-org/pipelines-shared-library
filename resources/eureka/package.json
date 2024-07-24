@@ -12,6 +12,7 @@
     "lint": "eslint test/ui-testing"
   },
   "dependencies": {
+    "@folio/stripes-marc-components": "1.0.1",
     "@folio/serials-management": "1.0.4",
     "@folio/acquisition-units": "5.0.0",
     "@folio/agreements": "10.0.1",
