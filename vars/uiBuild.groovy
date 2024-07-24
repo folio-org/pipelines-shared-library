@@ -6,6 +6,7 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.RestClient
+import org.folio.utilities.Tools
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
@@ -50,9 +51,12 @@ void call(Map params, boolean releaseVersion = false) {
 
     if (params.eureka) {
       dir("platform-complete-${params.tenant_id}") {
-        sh(script: "cp -R -f eureka-tpl/* .")
+        sh(script: "rm -f package.json")
+        sh(script: "rm -f stripes.config.json")
+        new Tools(this).copyResourceFileToCurrentDirectory('eureka/package.json')
+        new Tools(this).copyResourceFileToCurrentDirectory('eureka/stripes.config.json')
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+//        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
       }
     }
   }
