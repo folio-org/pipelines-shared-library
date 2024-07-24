@@ -10,7 +10,7 @@ import org.folio.utilities.Tools
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
-void call(Map params, boolean releaseVersion = false) {
+void call(Map params, boolean releaseVersion = true) {
   OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
   Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
