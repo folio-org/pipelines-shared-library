@@ -68,6 +68,11 @@ Map<String, OkapiTenant> tenants() {
     kbApiKey = KB_API_KEY
   }
   return [
+    test           : new OkapiTenant('test')
+      .withTenantName('test')
+      .withTenantDescription('test')
+      .withAdminUser(adminOkapiUser('test_admin', 'admin'))
+      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
     diku           : new OkapiTenant('diku')
       .withTenantName('Datalogisk Institut')
       .withTenantDescription('Danish Library Technology Institute')
