@@ -36,7 +36,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Wait] for keycloak initialization') {
-      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
     }
 
     if (args.greenmail) {
@@ -64,7 +64,7 @@ void call(CreateNamespaceParameters args) {
     String folioRepository = 'application-descriptors'
     boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, 'master')
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master')
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
     def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
