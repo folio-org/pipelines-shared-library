@@ -4,7 +4,7 @@ module.exports = {
     'uiUrl': '${tenantUrl}',
     'tenant': '${tenantId}',
     'authnUrl': '${keycloakUrl}',
-    'clientId': '${clientId}',
+    'clientId': '${clientId}'
   },
   config: {
     hasAllPerms: ${hasAllPerms},
