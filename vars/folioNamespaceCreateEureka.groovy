@@ -31,9 +31,9 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
 
     stage('[Wait] for keycloak initialization') {
 //      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
@@ -96,39 +96,39 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+//      }
+//    }
 
     stage('[Rest] MDs and SVC') {
       //tbd
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        //sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        //sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+//      }
+//    }
 
-    stage('[Rest] Configure edge') {
-      namespace.getModules().removeModule('edge-inventory')
-      namespace.getModules().removeModule('edge-erm')
-      namespace.getModules().removeModule('edge-users')
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
+//    stage('[Rest] Configure edge') {
+//      namespace.getModules().removeModule('edge-inventory')
+//      namespace.getModules().removeModule('edge-erm')
+//      namespace.getModules().removeModule('edge-users')
+//      folioEdge.renderEphemeralProperties(namespace)
+////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+//    }
 
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      }
-    }
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version ->
+//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
+//    }
     if (args.uiBuild) {
       stage('Build and deploy UI') {
         Map branches = [:]
