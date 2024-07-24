@@ -95,7 +95,7 @@ modules: {
       alt: 'Opentown Libraries'
     },
     favicon: {
-      src: './tenant-assets/folio-favicon.png'
+      src: './tenant-assets/opentown-libraries-favicon.png'
     },
   }
 };
