@@ -144,7 +144,7 @@ void call(CreateNamespaceParameters args) {
                 hasAllPerms   : true,
                 isSingleTenant: true,
                 tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                tenant_id     : ui.getTenantId(),
+                tenantId     : ui.getTenantId(),
                 custom_hash   : ui.getHash(),
                 custom_url    : "https://${namespace.getDomains()['kong']}",
                 custom_tag    : ui.getTag(),
