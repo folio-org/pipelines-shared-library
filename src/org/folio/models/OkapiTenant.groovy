@@ -4,6 +4,7 @@ package org.folio.models
  * OkapiTenant class representing a tenant configuration for Okapi.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
+// TODO: we need to extend this clase from the base class "Tenant"
 class OkapiTenant {
   /** Tenant's identifier. */
   String tenantId
