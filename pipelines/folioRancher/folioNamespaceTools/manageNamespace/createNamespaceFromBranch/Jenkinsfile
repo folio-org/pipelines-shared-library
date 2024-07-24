@@ -1,4 +1,5 @@
 #!groovy
+
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
@@ -16,6 +17,7 @@ properties([
     folioParameters.configType(),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
+    booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
@@ -58,6 +60,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
   .members(params.MEMBERS)
+  .uiBuild(params.BUILD_UI)
   .build()
 
 ansiColor('xterm') {
