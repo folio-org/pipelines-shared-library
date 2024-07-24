@@ -60,7 +60,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     //Set install configuration
-    String defaultTenantId = 'diku'
+    String defaultTenantId = 'test'
     String folioRepository = 'application-descriptors'
     boolean releaseVersion = true
     String commitHash = common.getLastCommitHash('platform-complete', 'R1-2024')
