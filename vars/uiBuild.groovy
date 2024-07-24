@@ -11,7 +11,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
 void call(Map params, boolean releaseVersion = true) {
-  OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+  OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
   Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -29,17 +29,17 @@ void call(Map params, boolean releaseVersion = true) {
 
   //TODO Temporary solution should be revised during refactoring
   stage('Checkout') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       cleanWs()
     }
     checkout([$class           : 'GitSCM',
               branches         : [[name: ui_bundle.hash]],
               extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
                                   [$class: 'CleanBeforeCheckout'],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
+                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenantId}"]],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
     if (params.consortia) {
-      dir("platform-complete-${params.tenant_id}") {
+      dir("platform-complete-${params.tenantId}") {
         def packageJson = readJSON file: 'package.json'
         String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
         String moduleVersion = moduleId - 'folio_consortia-settings-'
@@ -50,7 +50,7 @@ void call(Map params, boolean releaseVersion = true) {
     }
 
     if (params.eureka) {
-      dir("platform-complete-${params.tenant_id}") {
+      dir("platform-complete-${params.tenantId}") {
         sh(script: "rm -f package.json")
         sh(script: "rm -f stripes.config.json")
         sh(script: "rm -f yarn.lock")
@@ -63,13 +63,13 @@ void call(Map params, boolean releaseVersion = true) {
   }
 
   stage('Build and Push') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
         retry(2) {
           def image = docker.build(
             ui_bundle.getImageName(),
             "--build-arg OKAPI_URL=${okapi_url} " +
-              "--build-arg TENANT_ID=${tenant.getId()} " +
+              "--build-arg tenantId=${tenant.getId()} " +
               "-f docker/Dockerfile  " +
               "."
           )
@@ -100,8 +100,8 @@ void call(Map params, boolean releaseVersion = true) {
       ]
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
-      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?clientId=${params.tenant_id}-application", headers).body
-      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
+      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients?clientId=${params.tenantId}-application", headers).body
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
     }
   }
 }
