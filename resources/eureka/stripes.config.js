@@ -8,7 +8,7 @@ module.exports = {
     'tenant': '${tenantId}',
     // authentication details: url, secret, clientId
     'authnUrl': '${keycloakUrl}',
-    'clientId': '${clientId}',
+    'clientId': '${clientId}'
   },
   config: {
     hasAllPerms: ${hasAllPerms},
