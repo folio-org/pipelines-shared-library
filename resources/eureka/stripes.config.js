@@ -11,7 +11,7 @@ module.exports = {
     logPrefix: '--',
     maxUnpagedResourceCount: 2000,
     showPerms: false,
-    isSingleTenant: true,
+    isSingleTenant: ${isSingleTenant},
     isEureka: true,
     tenantOptions: ${tenantOptions},
     rtr: {
