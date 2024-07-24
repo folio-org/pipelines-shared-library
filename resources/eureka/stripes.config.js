@@ -25,7 +25,7 @@ module.exports = {
   branding: {
     logo: {
       src: './tenant-assets/opentown-libraries-logo.png',
-      alt: '${tenant_name}'
+      alt: '${tenantId}'
     },
     favicon: {
       src: './tenant-assets/opentown-libraries-favicon.png'
