@@ -53,8 +53,8 @@ void call(Map params, boolean releaseVersion = false) {
       dir("platform-complete-${params.tenant_id}") {
         sh(script: "rm -f package.json")
         sh(script: "rm -f stripes.config.json")
-        new Tools(this).copyResourceFileToCurrentDirectory('eureka/package.json')
-        new Tools(this).copyResourceFileToCurrentDirectory('eureka/stripes.config.json')
+        sh("curl https://github.com/folio-org/platform-complete/blob/snapshot/eureka-tpl/package.json -o package.json")
+        sh("curl https://github.com/folio-org/platform-complete/blob/snapshot/eureka-tpl/stripes.config.json -o stripes.config.json")
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
 //        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
       }
