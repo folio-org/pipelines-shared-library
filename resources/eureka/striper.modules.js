@@ -61,7 +61,6 @@ module.exports = {
   '@folio/stripes-acq-components' : {},
   '@folio/stripes-authority-components' : {},
   '@folio/stripes-erm-components' : {},
-  '@folio/stripes-inventory-components' : {},
   '@folio/stripes-marc-components' : {},
   '@folio/tags': {},
   '@folio/tenant-settings' : {},
