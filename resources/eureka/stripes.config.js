@@ -16,7 +16,6 @@ module.exports = {
     showPerms: false,
     isSingleTenant: ${isSingleTenant},
     tenantOptions: ${tenantOptions}
-  },
     rtr: {
       idleSessionTTL: '1h',
       idleModalTTL: '360s',
