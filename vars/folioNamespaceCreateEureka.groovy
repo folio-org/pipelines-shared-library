@@ -2,6 +2,7 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
+import org.folio.utilities.Tools
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
@@ -60,11 +61,11 @@ void call(CreateNamespaceParameters args) {
 
     //Set install configuration
     String defaultTenantId = 'diku'
-    String folioRepository = 'platform-complete'
+    String folioRepository = 'application-descriptors'
     boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
-    String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-    List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+    String commitHash = common.getLastCommitHash(folioRepository, 'master')
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master')
+    def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
     InstallRequestParams installRequestParams = new InstallRequestParams()
