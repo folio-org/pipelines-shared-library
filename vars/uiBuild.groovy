@@ -56,7 +56,7 @@ void call(Map params, boolean releaseVersion = true) {
         sh(script: "rm -f yarn.lock")
         sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/package.json -o package.json")
         sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/stripes.config.js -o stripes.config.js")
-        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/yarn.lock -o yarn.lock")
+//        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/yarn.lock -o yarn.lock")
         sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/stripes.modules.js -o stripes.modules.js")
 
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")

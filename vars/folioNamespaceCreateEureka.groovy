@@ -63,11 +63,11 @@ void call(CreateNamespaceParameters args) {
     String defaultTenantId = 'diku'
     String folioRepository = 'application-descriptors'
     boolean releaseVersion = true
-    String commitHash = common.getLastCommitHash('platform-complete', 'R1-2024')
+    String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
     def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-      commitHash, 'R1-2024')
+      commitHash, 'snapshot')
     InstallRequestParams installRequestParams = new InstallRequestParams()
       .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
 
