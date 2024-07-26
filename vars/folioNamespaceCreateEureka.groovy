@@ -113,7 +113,7 @@ void call(CreateNamespaceParameters args) {
         println(namespace.getModules().getBackendModules())
         input("Paused for review...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+//        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
       }
     }
 
