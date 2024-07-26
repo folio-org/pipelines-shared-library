@@ -104,7 +104,7 @@ void call(CreateNamespaceParameters args) {
         if (namespace.getModules().getBackendModules()['mod-login']) {
           sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
         }
-        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules()['mod-users']} --namespace=${namespace.getNamespaceName()}")
+        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
 
