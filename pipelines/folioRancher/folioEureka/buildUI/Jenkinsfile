@@ -1,3 +1,5 @@
+#!groovy
+
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
@@ -15,6 +17,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
+    string(name: 'TENANT_ID', defaultValue: '', description: '(Required) Tenant ID for building UI'),
     folioParameters.branch(),
     folioParameters.configType(),
     folioParameters.agent(),
@@ -22,43 +25,53 @@ properties([
   ])
 ])
 
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
+      }
+      String folioRepository = 'application-descriptors'
+      boolean releaseVersion = true
+      String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
+      List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
+      def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
+      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+        commitHash, 'snapshot')
+      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMEPSPACE}")
+      namespace.setDefaultTenantId("${params.TENANT_ID}")
 
-    String defaultTenantId = 'diku'
-    String folioRepository = 'application-descriptors'
-    boolean releaseVersion = true
-    String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
-    def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
-    TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-      commitHash, 'snapshot')
-    InstallRequestParams installRequestParams = new InstallRequestParams()
-      .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
-
-stage('Build and deploy UI') {
-        Map branches = [:]
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
-            branches[tenantId] = {
+      stage('Build and deploy UI') {
               def jobParameters = [eureka        : true,
                                    kongUrl       : "https://${namespace.getDomains()['kong']}",
                                    keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+                                   tenantUrl     : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
                                    hasAllPerms   : true,
                                    isSingleTenant: true,
-                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                                   tenantId      : ui.getTenantId(),
-                                   custom_hash   : ui.getHash(),
+                                   tenantOptions : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
+                                   tenantId      : namespace.defaultTenantId,
+                                   custom_hash   : commitHash,
                                    custom_url    : "https://${namespace.getDomains()['kong']}",
-                                   custom_tag    : ui.getTag(),
-                                   consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application"]
+                                   custom_tag    : commitHash.toString().take(7),
+                                   consortia     : false,
+                                   clientId      : "${params.TENANT_ID}" + "-application"]
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
               }
-            }
-          }
-        }
-        parallel branches
       }
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
