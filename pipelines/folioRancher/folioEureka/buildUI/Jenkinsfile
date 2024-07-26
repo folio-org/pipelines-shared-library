@@ -1,0 +1,47 @@
+import org.folio.Constants
+import org.folio.models.*
+import org.folio.rest.GitHubUtility
+import org.folio.utilities.Tools
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
+
+
+    String defaultTenantId = 'diku'
+    String folioRepository = 'application-descriptors'
+    boolean releaseVersion = true
+    String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
+    def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
+    TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+      commitHash, 'snapshot')
+    InstallRequestParams installRequestParams = new InstallRequestParams()
+      .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
+
+stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [eureka        : args.eureka,
+                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
+                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+                                   hasAllPerms   : true,
+                                   isSingleTenant: true,
+                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                                   tenantId      : ui.getTenantId(),
+                                   custom_hash   : ui.getHash(),
+                                   custom_url    : "https://${namespace.getDomains()['kong']}",
+                                   custom_tag    : ui.getTag(),
+                                   consortia     : tenant instanceof OkapiTenantConsortia,
+                                   clientId      : ui.getTenantId() + "-application"]
+              uiBuild(jobParameters, releaseVersion)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
+            }
+          }
+        }
+        parallel branches
+      }

@@ -1,10 +1,8 @@
-import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.utilities.Tools
-
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
