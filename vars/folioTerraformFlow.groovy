@@ -11,7 +11,7 @@ void manageCluster(String action, TerraformConfig config) {
         case 'destroy':
           Closure preAction = {
             try {
-              folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
+//              folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
               folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_catalog_v2.metrics-server[0]')
               folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_catalog_v2.prometheus-community[0]')
             } catch (e) {
