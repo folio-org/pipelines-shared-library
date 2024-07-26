@@ -32,13 +32,13 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply', tfConfig)
-//    }
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply', tfConfig)
+    }
 
-//    stage('[Wait] for keycloak initialization') {
-//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
-//    }
+    stage('[Wait] for keycloak initialization') {
+      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
@@ -88,21 +88,12 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
-//    if (args.consortia) {
-//      namespace.setEnableConsortia(true, true)
-//      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-//        if (tenant.getIsCentralConsortiaTenant()) {
-//          tenant.withTenantUi(tenantUi.clone())
-//        }
-//        namespace.addTenant(tenant)
-//      }
-//    }
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+      }
+    }
 
     stage('[Rest] MDs and SVC') {
       //tbd
@@ -113,7 +104,9 @@ void call(CreateNamespaceParameters args) {
         println(namespace.getModules().getBackendModules())
         input("Paused for review...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        if (namespace.getModules().getBackendModules()['mod-login']) {
+          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        }
       }
     }
 
@@ -148,7 +141,7 @@ void call(CreateNamespaceParameters args) {
                 hasAllPerms   : true,
                 isSingleTenant: true,
                 tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                tenantId     : ui.getTenantId(),
+                tenantId      : ui.getTenantId(),
                 custom_hash   : ui.getHash(),
                 custom_url    : "https://${namespace.getDomains()['kong']}",
                 custom_tag    : ui.getTag(),
