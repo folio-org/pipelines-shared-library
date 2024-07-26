@@ -204,6 +204,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case 'mod-scheduler':
         moduleConfig['integrations'] += [eureka: [enabled       : true,
@@ -216,6 +218,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case ~/mod-.*$/:
         moduleConfig <<
@@ -226,6 +230,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case ~/ui-bundle/:
         break
