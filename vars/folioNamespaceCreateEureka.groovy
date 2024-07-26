@@ -32,13 +32,13 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
 
-    stage('[Wait] for keycloak initialization') {
-      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
-    }
+//    stage('[Wait] for keycloak initialization') {
+//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+//    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
@@ -75,12 +75,11 @@ void call(CreateNamespaceParameters args) {
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
     namespace.setEnableEureka(args.eureka)
-    namespace.setEnableConsortia(true, true)
-    namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
+    namespace.setEnableConsortia(true, true)
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
