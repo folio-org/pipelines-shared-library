@@ -79,7 +79,8 @@ void call(CreateNamespaceParameters args) {
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
-    namespace.setEnableConsortia(true, true)
+    namespace.getModules().addModule('mod-consortia-1.1.0')
+    namespace.getModules().addModule('folio_consortia-settings-1.1.0')
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
@@ -97,11 +98,11 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules(), true)
+//      }
+//    }
 
     stage('[Rest] MDs and SVC') {
       //tbd
