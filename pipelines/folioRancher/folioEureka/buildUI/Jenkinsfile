@@ -4,6 +4,23 @@ import org.folio.rest.GitHubUtility
 import org.folio.utilities.Tools
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
+import org.jenkinsci.plugins.workflow.libs.Library
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-1334-Q') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+//  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.branch(),
+    folioParameters.configType(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
 
 
     String defaultTenantId = 'diku'
@@ -23,7 +40,7 @@ stage('Build and deploy UI') {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
-              def jobParameters = [eureka        : args.eureka,
+              def jobParameters = [eureka        : true,
                                    kongUrl       : "https://${namespace.getDomains()['kong']}",
                                    keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
                                    tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
