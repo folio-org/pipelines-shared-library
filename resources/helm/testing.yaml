@@ -1792,8 +1792,6 @@ mod-consortia-keycloak:
       value: '5000'
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
       value: '5'
-    - name: MOD_USERS_ID
-      value: 'NONE'
     - name: SERVER_PORT
       value: '8080'
   integrations:

@@ -84,8 +84,7 @@ void call(CreateNamespaceParameters args) {
       .withInstallJson(namespace.getModules().getInstallJson().collect())
       .withIndex(new Index(true, true))
       .withInstallRequestParams(installRequestParams.clone())
-      .withTenantUi(tenantUi.clone())
-    )
+      .withTenantUi(tenantUi.clone()))
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -105,6 +104,7 @@ void call(CreateNamespaceParameters args) {
         if (namespace.getModules().getBackendModules()['mod-login']) {
           sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
         }
+        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules()['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
 
@@ -118,8 +118,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
@@ -131,21 +130,19 @@ void call(CreateNamespaceParameters args) {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
-              def jobParameters = [
-                eureka        : args.eureka,
-                kongUrl       : "https://${namespace.getDomains()['kong']}",
-                keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-                tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
-                hasAllPerms   : true,
-                isSingleTenant: true,
-                tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                tenantId      : ui.getTenantId(),
-                custom_hash   : ui.getHash(),
-                custom_url    : "https://${namespace.getDomains()['kong']}",
-                custom_tag    : ui.getTag(),
-                consortia     : tenant instanceof OkapiTenantConsortia,
-                clientId      : ui.getTenantId() + "-application"
-              ]
+              def jobParameters = [eureka        : args.eureka,
+                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
+                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+                                   hasAllPerms   : true,
+                                   isSingleTenant: true,
+                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                                   tenantId      : ui.getTenantId(),
+                                   custom_hash   : ui.getHash(),
+                                   custom_url    : "https://${namespace.getDomains()['kong']}",
+                                   custom_tag    : ui.getTag(),
+                                   consortia     : tenant instanceof OkapiTenantConsortia,
+                                   clientId      : ui.getTenantId() + "-application"]
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
