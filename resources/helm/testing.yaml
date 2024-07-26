@@ -1787,13 +1787,15 @@ mgr-tenant-entitlements:
 mod-consortia-keycloak:
   extraEnvVars:
     - name: OKAPI_URL
-      value: 'http://sidecar:8081'
+      value: 'http://sidecar:8082'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: '5000'
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
       value: '5'
     - name: MOD_USERS_ID
       value: 'NONE'
+    - name: SERVER_PORT
+      value: '8080'
   integrations:
     db:
       enabled: true
