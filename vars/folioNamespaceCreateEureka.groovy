@@ -79,8 +79,6 @@ void call(CreateNamespaceParameters args) {
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
-    namespace.getModules().addModule('mod-consortia-1.1.0')
-    namespace.getModules().addModule('folio_consortia-settings-1.1.0')
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
