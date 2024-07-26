@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -87,7 +88,7 @@ void call(CreateNamespaceParameters args) {
       .withTenantUi(tenantUi.clone())
     )
     if (args.consortia) {
-      namespace.setEnableConsortia(true, releaseVersion)
+      namespace.setEnableConsortia(true, true)
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
@@ -108,8 +109,10 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(namespace.getModules().getBackendModules())
+        input("Paused for review...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        //sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
       }
     }
 
