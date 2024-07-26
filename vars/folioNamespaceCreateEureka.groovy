@@ -75,6 +75,7 @@ void call(CreateNamespaceParameters args) {
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
     namespace.setEnableEureka(args.eureka)
+    namespace.setEnableConsortia(true, true)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
@@ -87,15 +88,15 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
     )
-    if (args.consortia) {
-      namespace.setEnableConsortia(true, true)
-      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-        if (tenant.getIsCentralConsortiaTenant()) {
-          tenant.withTenantUi(tenantUi.clone())
-        }
-        namespace.addTenant(tenant)
-      }
-    }
+//    if (args.consortia) {
+//      namespace.setEnableConsortia(true, true)
+//      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+//        if (tenant.getIsCentralConsortiaTenant()) {
+//          tenant.withTenantUi(tenantUi.clone())
+//        }
+//        namespace.addTenant(tenant)
+//      }
+//    }
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
