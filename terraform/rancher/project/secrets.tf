@@ -56,6 +56,7 @@ resource "rancher2_secret" "eureka_common" {
     KC_ADMIN_CLIENT_ID          = base64encode("folio-backend-admin-client")
     KC_ADMIN_CLIENT_SECRET      = base64encode("folio-backend-admin-client")
     KC_LOGIN_CLIENT_SUFFIX      = base64encode("-application")
+    KC_SERVICE_CLIENT_ID        = base64encode("sidecar-module-access-client")
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
     KC_INTEGRATION_ENABLED      = base64encode("true")
@@ -70,9 +71,6 @@ resource "rancher2_secret" "eureka_common" {
     TE_URL                      = base64encode("http://mgr-tenant-entitlements")
     MOD_USERS_BL                = base64encode("http://mod-users-bl")
     MOD_USERS_KEYCLOAK_URL      = base64encode("http://mod-users-keycloak")
-    #    SECRET_STORE_AWS_SSM_ACCESS_KEY = base64encode(var.s3_postgres_backups_access_key)
-    #    SECRET_STORE_AWS_SSM_SECRET_KEY = base64encode(var.s3_postgres_backups_secret_key)
-    #    SECRET_STORE_AWS_SSM_USE_IAM    = base64encode("false") //TODO could be switched on upon EUREKA-210 completion
   }
 }
 #Must have SSM Eureka parameters
