@@ -51,23 +51,26 @@ ansiColor('xterm') {
 
 
       stage('Build and deploy UI') {
-              def jobParameters = [eureka        : true,
-                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
-                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-                                   tenantUrl     : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
-                                   hasAllPerms   : true,
-                                   isSingleTenant: true,
-                                   tenantOptions : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
-                                   tenantId      : "${params.TENANT_ID}",
-                                   custom_hash   : commitHash,
-                                   custom_url    : "https://${namespace.getDomains()['kong']}",
-                                   custom_tag    : commitHash.toString().take(7),
-                                   consortia     : false,
-                                   clientId      : "${params.TENANT_ID}" + "-application"]
-              uiBuild(jobParameters, releaseVersion)
-              folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
-              }
+        def jobParameters = [eureka              : true,
+                             kongUrl             : "https://${namespace.getDomains()['kong']}",
+                             keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
+                             tenantUrl           : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
+                             hasAllPerms         : true,
+                             isSingleTenant      : true,
+                             tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
+                             tenantId            : "${params.TENANT_ID}",
+                             custom_hash         : commitHash,
+                             custom_url          : "https://${namespace.getDomains()['kong']}",
+                             custom_tag          : commitHash.toString().take(7),
+                             consortia           : false,
+                             clientId            : "${params.TENANT_ID}" + "-application",
+                             rancher_cluster_name: params.CLUSTER,
+                             rancher_project_name: params.NAMESPACE,
+                             folio_branch        : params.FOLIO_BRANCH]
+        uiBuild(jobParameters, releaseVersion)
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
+        }
       }
     } catch (e) {
       println "Caught exception: ${e}"
