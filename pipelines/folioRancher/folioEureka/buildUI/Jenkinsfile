@@ -49,7 +49,6 @@ ansiColor('xterm') {
         .withTenantUi(tenantUi.clone())
       )
 
-
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
                              kongUrl             : "https://${namespace.getDomains()['kong']}",
