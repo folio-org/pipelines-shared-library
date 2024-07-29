@@ -39,7 +39,7 @@ ansiColor('xterm') {
       }
       String folioRepository = 'application-descriptors'
       boolean releaseVersion = true
-      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMEPSPACE}")
+      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
       namespace.setDefaultTenantId("${params.TENANT_ID}")
       namespace.withDeploymentConfigType('testing')
       namespace.addDeploymentConfig('RANCHER-1334-Q')
