@@ -55,7 +55,7 @@ ansiColor('xterm') {
                                    hasAllPerms   : true,
                                    isSingleTenant: true,
                                    tenantOptions : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
-                                   tenantId      : namespace.defaultTenantId,
+                                   tenantId      : "${params.TENANT_ID}",
                                    custom_hash   : commitHash,
                                    custom_url    : "https://${namespace.getDomains()['kong']}",
                                    custom_tag    : commitHash.toString().take(7),
