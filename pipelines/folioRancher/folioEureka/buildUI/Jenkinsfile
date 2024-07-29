@@ -1,11 +1,7 @@
 #!groovy
 
-import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
-import org.folio.utilities.Tools
-import static groovy.json.JsonOutput.prettyPrint
-import static groovy.json.JsonOutput.toJson
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
