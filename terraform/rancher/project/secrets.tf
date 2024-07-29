@@ -56,6 +56,8 @@ resource "rancher2_secret" "eureka_common" {
     KC_ADMIN_CLIENT_ID          = base64encode("folio-backend-admin-client")
     KC_ADMIN_CLIENT_SECRET      = base64encode("folio-backend-admin-client")
     KC_LOGIN_CLIENT_SUFFIX      = base64encode("-application")
+    KC_ADMIN_PASSWORD           = base64encode("SecretPassword")
+    KC_CONFIG_TTL               = base64encode("3600s")
     KC_SERVICE_CLIENT_ID        = base64encode("sidecar-module-access-client")
     KC_IMPORT_ENABLED           = base64encode("true")
     KC_URL                      = base64encode("https://${local.keycloak_url}")
