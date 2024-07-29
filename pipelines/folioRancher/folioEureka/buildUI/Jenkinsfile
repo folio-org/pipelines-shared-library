@@ -38,13 +38,14 @@ ansiColor('xterm') {
       }
       String folioRepository = 'application-descriptors'
       boolean releaseVersion = true
+      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMEPSPACE}")
+      namespace.setDefaultTenantId("${params.TENANT_ID}")
+      namespace.withDeploymentConfigType('testing')
+      namespace.addDeploymentConfig('RANCHER-1334-Q')
       String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
       def eurekaPlatform = readJSON(file: new Tools(this).copyResourceFileToWorkspace('eureka/eureka-platform.json'))
-      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        commitHash, 'snapshot')
-      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMEPSPACE}")
-      namespace.setDefaultTenantId("${params.TENANT_ID}")
+
 
       stage('Build and deploy UI') {
               def jobParameters = [eureka        : true,
