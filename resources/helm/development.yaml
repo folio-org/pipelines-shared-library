@@ -966,6 +966,7 @@ mod-reading-room:
       memory: '384Mi'
 mod-record-specifications:
   javaOptions: '-XX:MaxRAMPercentage=85.0'
+  kafkaConnectParameters: db-connect-modules
   postJob:
     enabled: false
   replicaCount: 1
