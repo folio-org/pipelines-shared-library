@@ -149,7 +149,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = ""
 
-  if (customModule || moduleName == 'ui-bundle' || moduleName =~ /^mod-.*-keycloak.*$/ || (moduleName == 'mod-scheduler' && ns.enableEureka)) {
+  if (customModule || moduleName == 'ui-bundle') {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
