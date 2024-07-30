@@ -34,9 +34,9 @@ void call(CreateNamespaceParameters args) {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
     }
 
-    stage('[Wait] for keycloak initialization') {
-      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
-    }
+//    stage('[Wait] for keycloak initialization') {
+//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
+//    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
