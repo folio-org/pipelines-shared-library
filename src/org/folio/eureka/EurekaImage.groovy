@@ -22,7 +22,7 @@ class EurekaImage implements Serializable {
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
-      if (moduleName != 'folio-keycloak') {
+      if (moduleName != 'folio-keycloak' || 'folio-kong') {
         def pom = steps.readMavenPom file: 'pom.xml'
         pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
         steps.writeMavenPom model: pom
