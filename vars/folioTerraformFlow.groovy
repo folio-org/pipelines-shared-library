@@ -16,7 +16,7 @@ void manageCluster(String action, TerraformConfig config) {
 //              folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_catalog_v2.prometheus-community[0]')
 //              folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_app_v2.metrics-server[0]')
 //              folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_app_v2.prometheus[0]')
-              folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_namespace.monitoring[0]')
+//              folioTerraform.removeFromState(config.getWorkDir(), 'rancher2_namespace.monitoring[0]')
             } catch (e) {
               println(e.getMessage())
             }
