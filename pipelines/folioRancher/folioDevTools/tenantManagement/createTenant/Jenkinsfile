@@ -57,7 +57,8 @@ OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
   .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
   .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
   .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
-  .withIndex(new Index(true, true))
+  .withIndex(new Index('instance', true, true))
+  .withIndex(new Index('authority', true, false))
   .withInstallRequestParams(installRequestParams.clone())
 
 ansiColor('xterm') {

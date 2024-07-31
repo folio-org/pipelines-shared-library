@@ -32,7 +32,8 @@ Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson = [], Inst
       .withConsortiaName('Mobius')
       .withAdminUser(adminOkapiUser('consortium_admin', 'admin'))
       .withInstallJson(installJson.collect())
-      .withIndex(new Index(true, true))
+      .withIndex(new Index('instance', true, true))
+      .withIndex(new Index('authority', true, false))
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
     university: new OkapiTenantConsortia('university')
