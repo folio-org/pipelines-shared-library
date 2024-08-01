@@ -96,15 +96,16 @@ class Eureka extends Common {
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
-    try {
-      restClient.post(url, body, headers)
-      logger.info("Enable applications for tenant ${tenantId}")
-    } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-        logger.info("Failed to perform doPostTenant call")
-      } else {
-        throw new RequestException("Not able to check tenant ${tenantId}, existence: ${e.statusCode}")
-      }
+    response = restClient.post(url, body, headers)
+    if (response.status == 201) {
+      logger.info("Application for tenant enabled: ${response.content}")
+    } else if (response.status == 400 && response.content.contains("Application is already entitled")) {
+      def content = readJSON(text: response.content)
+      logger.info("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+      return
+    } else {
+      logger.error("Enabling application for tenant failed: ${response.content}")
+      throw new Exception("Build failed: " + response.content)
     }
   }
 }
