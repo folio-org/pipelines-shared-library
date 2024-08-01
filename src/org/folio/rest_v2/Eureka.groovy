@@ -22,7 +22,7 @@ class Eureka extends Common {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
     Map body = [
-      name: tenant.tenantId,
+      name       : tenant.tenantId,
       description: tenant.tenantDescription
     ]
 
@@ -42,8 +42,8 @@ class Eureka extends Common {
       logger.info("Tenant ${tenantId} exists")
       return true
     } catch (RequestException e) {
-        logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
-        return false
+      logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
+      return false
     }
   }
 
@@ -57,7 +57,7 @@ class Eureka extends Common {
     logger.info("Getting access token from Keycloak service")
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
-    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    Map<String, String> headers = ['Content-Type': 'application/x-www-form-urlencoded']
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
     logger.info("${url},${headers},${requestBody}")
@@ -67,15 +67,15 @@ class Eureka extends Common {
     return response['access_token']
   }
 
-  Map<String,String> getAuthHeaders(String tenantId, String token) {
-    Map<String,String> headers = [:]
+  Map<String, String> getAuthHeaders(String tenantId, String token) {
+    Map<String, String> headers = [:]
 
     if (tenantId != null && !tenantId.isEmpty()) {
       headers.putAll(['x-okapi-tenant': tenantId])
     }
 
     if (token != null && !token.isEmpty()) {
-      headers.putAll(['Authorization' : "Bearer ${token}"])
+      headers.putAll(['Authorization': "Bearer ${token}"])
     }
 
     if (!headers.isEmpty()) {
@@ -84,13 +84,17 @@ class Eureka extends Common {
 
     return headers
   }
+
   void enableApplicationForTenant(String tenantId) {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    Map body = [
-      tenantId: tenantId,
-      applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
-      ]
+    String body = """
+      {
+    "tenantId": ${tenantId},
+    "applications": [
+    "app-platform-minimal-1.0.0-SNAPSHOT.38","app-platform-complete-1.0.0-SNAPSHOT.53"
+    ]
+}"""
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true"
 
