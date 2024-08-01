@@ -60,7 +60,6 @@ class Eureka extends Common {
     Map<String, String> headers = ['Content-Type': 'application/x-www-form-urlencoded']
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
-    logger.info("${url},${headers},${requestBody}")
     def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
 
@@ -97,15 +96,12 @@ class Eureka extends Common {
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
-    def response = restClient.post(url, body, headers)
-    if (response.status == 201) {
+    try {
+      restClient.post(url, body, headers)
       logger.info("Enable applications for tenant ${tenantId}")
-    } else if (response.status == 400) {
-      logger.warning("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+    } catch (RequestException e) {
+      logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
       return
-    } else {
-      logger.error("Enabling application for tenant failed: ${response.content}")
-      throw new Exception("Build failed: " + response.content)
     }
   }
 }
