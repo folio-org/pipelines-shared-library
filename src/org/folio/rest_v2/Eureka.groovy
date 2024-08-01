@@ -95,7 +95,7 @@ class Eureka extends Common {
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
-
+    logger.info("${headers}")
     def response = restClient.post(url, body, headers)
     logger.info("${response}")
     logger.info("Enable applications for tenant ${tenantId}")
