@@ -87,12 +87,12 @@ class Eureka extends Common {
   void enableApplicationForTenant(String tenantId, List applications) {
 
     Map<String, String> headers = getHttpHeaders(masterTenant)
-    headers['x-okapi-token']=headers['Authorization'].replace('Bearer ' , '')
+    headers['x-okapi-token'] = headers['Authorization'].replace('Bearer ', '')
 
     Map body = [
-      tenantId: tenantId,
+      tenantId    : tenantId,
       applications: applications
-      ]
+    ]
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
@@ -100,7 +100,11 @@ class Eureka extends Common {
       restClient.post(url, body, headers)
       logger.info("Enable applications for tenant ${tenantId}")
     } catch (RequestException e) {
-      logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
+      if (e.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        logger.info("Failed to get Token")
+      } else {
+        throw new RequestException("Not able to check tenant ${tenantId} existence: ${e.statusCode}")
+      }
     }
   }
 }
