@@ -1,4 +1,5 @@
 #!groovy
+import org.folio.models.EurekaTenant
 import org.folio.rest_v2.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -27,7 +28,9 @@ ansiColor('xterm') {
     try {
 
       stage('Tests start...') {
-        def eureka = new Eureka(this, 'https://folio-eureka-scout-kong.ci.folio.org/', false)
+        def masterTenant = new EurekaTenant("folio-backend-admin-client", "SecretPassword", "https://folio-eureka-scout-keycloak.ci.folio.org", "https://folio-eureka-scout-kong.ci.folio.org", "")
+        def eureka = new Eureka(this, 'https://folio-eureka-scout-kong.ci.folio.org', masterTenant, false)
+
 //        eureka.registerApplicationDiscovery('app-platform-minimal-1.0.0-SNAPSHOT.142')
         Eureka.enableApplicationForTenant('3bdc231f-5482-486e-9cf4-e89d028d2331')
       }
