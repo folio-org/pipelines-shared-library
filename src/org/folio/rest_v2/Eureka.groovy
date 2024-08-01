@@ -101,7 +101,6 @@ class Eureka extends Common {
       logger.info("Enable applications for tenant ${tenantId}")
     } catch (RequestException e) {
       logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
-      return
     }
   }
 }
