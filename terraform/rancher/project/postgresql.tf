@@ -60,6 +60,10 @@ readReplicas:
       memory: 512Mi
     limits:
       memory: 10240Mi
+  persistence:
+    enabled: true
+    size: '${var.pg_vol_size}Gi'
+    storageClass: gp2
   extendedConfiguration: |-
     shared_buffers = '2560MB'
     max_connections = '${var.pg_max_conn}'
@@ -145,6 +149,7 @@ EOF
 }
 
 resource "time_sleep" "ram_resource_propagation" {
+  count           = var.pg_embedded ? 1 : 0
   create_duration = "30s"
 
   triggers = {

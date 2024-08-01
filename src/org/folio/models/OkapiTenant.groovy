@@ -21,7 +21,9 @@ class OkapiTenant {
   /** Modules that are installed for the tenant. */
   Modules modules
 
-  /** Index information associated with the tenant. */
+  /** List of index information associated with the tenant. */
+  List<Index> indexes
+
   Index index
 
   /** Parameters for installation requests for the tenant. */
@@ -40,6 +42,7 @@ class OkapiTenant {
   OkapiTenant(String tenantId) {
     this.tenantId = tenantId
     this.modules = new Modules()
+    this.indexes = new ArrayList<>()
   }
 
   /**
@@ -85,12 +88,12 @@ class OkapiTenant {
   }
 
   /**
-   * Chainable setter for index information.
-   * @param index Index information associated with the tenant.
-   * @return The OkapiTenant object.
+   * Method to add an index to the tenant.
+   * @param index The Index object to add.
+   * @return The OkapiTenant instance for method chaining.
    */
   OkapiTenant withIndex(Index index) {
-    this.index = index
+    this.indexes.add(index)
     return this
   }
 
