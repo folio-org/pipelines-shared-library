@@ -91,7 +91,7 @@ class Eureka extends Common {
       applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
       ]
 
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true&"
+    String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true"
 
 
     def response = restClient.post(url, headers, body)
