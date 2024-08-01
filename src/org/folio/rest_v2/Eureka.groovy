@@ -87,13 +87,14 @@ class Eureka extends Common {
 
   void enableApplicationForTenant(String tenantId) {
     Map<String, String> headers = getHttpHeaders(masterTenant)
-
+    headers['x-okapi-token']=headers['Authorization']
     Map body = [
       tenantId: tenantId,
       applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
       ]
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
+
 
     logger.info("${headers}")
     def response = restClient.post(url, body, headers)
