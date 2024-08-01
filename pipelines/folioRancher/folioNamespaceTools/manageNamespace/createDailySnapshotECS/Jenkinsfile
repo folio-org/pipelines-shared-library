@@ -199,6 +199,7 @@ ansiColor('xterm') {
           sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
           main.update(namespace.getTenants())
         }
+        main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
       }
 
       stage('Build and deploy UI') {

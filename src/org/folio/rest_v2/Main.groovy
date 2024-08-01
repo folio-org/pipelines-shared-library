@@ -86,6 +86,13 @@ class Main extends Okapi {
     if (enableConsortia) {
       setUpConsortia(tenants.values().findAll { it instanceof OkapiTenantConsortia })
     }
+    tenants.each { tenantId, tenant ->
+      if (tenant.indexes) {
+        tenant.indexes.each { index ->
+          runIndex(tenant, index)
+        }
+      }
+    }
   }
 
   void update(Map<String, OkapiTenant> tenants) {
@@ -141,11 +148,14 @@ class Main extends Okapi {
     } else {
       logger.warning("Module (mod-kb-ebsco-java) not enabled for tenant ${tenant.tenantId}")
     }
-    if (tenant.indexes) {
-      tenant.indexes.each { index ->
-        runIndex(tenant, index)
-      }
-    }
+    /**
+     * Moved to initializeFromScratch method
+     */
+//    if (tenant.indexes) {
+//      tenant.indexes.each { index ->
+//        runIndex(tenant, index)
+//      }
+//    }
     if(tenant.okapiConfig.ldpConfig){
       config.setLdpDbSettings(tenant)
       config.setLdpSqConfig(tenant)
