@@ -87,7 +87,7 @@ class Eureka extends Common {
 
   void enableApplicationForTenant(String tenantId) {
     Map<String, String> headers = getHttpHeaders(masterTenant)
-    headers['x-okapi-token']=headers['Authorization'].reolace('Bearer ' , '')
+    headers['x-okapi-token']=headers['Authorization'].replace('Bearer ' , '')
     Map body = [
       tenantId: tenantId,
       applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
