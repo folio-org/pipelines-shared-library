@@ -98,17 +98,14 @@ class Eureka extends Common {
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
     def response = restClient.post(url, body, headers)
-    logger.info("Enable applications for tenant ${tenantId}")
-//    if (response.status == 201) {
-//      def flowId = readJSON(text: response.content).flowId
-//      checkAppFlowStatus(tenantEntitlementUrl, headers, 'enable', flowId)
-//    } else if (response.status == 400 && response.content.contains("Application is already entitled")) {
-//      def content = readJSON(text: response.content)
-//      fseLog.info("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
-//      return
-//    } else {
-//      fseLog.error("Enabling application for tenant failed: ${response.content}")
-//      throw new Exception("Build failed: " + response.content)
-//    }
+    if (response.status == 201) {
+      logger.info("Enable applications for tenant ${tenantId}")
+    } else if (response.status == 400) {
+      logger.warning("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+      return
+    } else {
+      logger.error("Enabling application for tenant failed: ${response.content}")
+      throw new Exception("Build failed: " + response.content)
+    }
   }
 }
