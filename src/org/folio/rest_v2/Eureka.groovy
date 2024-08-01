@@ -83,4 +83,29 @@ class Eureka extends Common {
 
     return headers
   }
+  void enableApplicationForTenant(EurekaTenant tenant) {
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    Map body = [
+      name       : tenant.tenantId,
+      description: tenant.tenantDescription
+    ]
+
+    String url = "https://folio-eureka-siphon-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true&"
+
+    logger.info("Enable applications for tenant ${tenant.tenantId}")
+    def response = restClient.post(url, headers, body)
+    logger.info("${response}")
+//    if (response.status == 201) {
+//      def flowId = readJSON(text: response.content).flowId
+//      checkAppFlowStatus(tenantEntitlementUrl, headers, 'enable', flowId)
+//    } else if (response.status == 400 && response.content.contains("Application is already entitled")) {
+//      def content = readJSON(text: response.content)
+//      fseLog.info("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+//      return
+//    } else {
+//      fseLog.error("Enabling application for tenant failed: ${response.content}")
+//      throw new Exception("Build failed: " + response.content)
+//    }
+  }
 }
