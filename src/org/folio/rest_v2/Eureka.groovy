@@ -88,13 +88,10 @@ class Eureka extends Common {
   void enableApplicationForTenant(String tenantId) {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    String body = """
-      {
-    "tenantId": ${tenantId},
-    "applications": [
-    "app-platform-minimal-1.0.0-SNAPSHOT.38","app-platform-complete-1.0.0-SNAPSHOT.53"
-    ]
-}"""
+    Map body = [
+      tenantId: tenantId,
+      applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
+      ]
 
     String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true"
 
