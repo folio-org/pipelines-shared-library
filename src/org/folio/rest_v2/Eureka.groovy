@@ -100,10 +100,10 @@ class Eureka extends Common {
       restClient.post(url, body, headers)
       logger.info("Enable applications for tenant ${tenantId}")
     } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        logger.info("Failed to get Token")
+      if (e.statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+        logger.info("Failed to perform doPostTenant call")
       } else {
-        throw new RequestException("Not able to check tenant ${tenantId} existence: ${e.statusCode}")
+        throw new RequestException("Not able to check tenant ${tenantId}, existence: ${e.statusCode}")
       }
     }
   }
