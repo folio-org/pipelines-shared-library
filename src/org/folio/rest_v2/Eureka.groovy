@@ -60,6 +60,7 @@ class Eureka extends Common {
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
+    logger.info("${url},${headers},${requestBody}")
     def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
 
