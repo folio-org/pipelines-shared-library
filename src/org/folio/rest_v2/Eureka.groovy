@@ -83,19 +83,20 @@ class Eureka extends Common {
 
     return headers
   }
-  void enableApplicationForTenant(EurekaTenant tenant) {
+  void enableApplicationForTenant(String tenantId) {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
     Map body = [
-      name       : tenant.tenantId,
-      description: tenant.tenantDescription
-    ]
+      tenantId: tenantId,
+      applications: ["app-platform-minimal-1.0.0-SNAPSHOT.38", "app-platform-complete-1.0.0-SNAPSHOT.53"]
+      ]
 
-    String url = "https://folio-eureka-siphon-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true&"
+    String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?async=true&ignoreErrors=false&purgeOnRollback=true&"
 
-    logger.info("Enable applications for tenant ${tenant.tenantId}")
+
     def response = restClient.post(url, headers, body)
     logger.info("${response}")
+    logger.info("Enable applications for tenant ${tenantId}")
 //    if (response.status == 201) {
 //      def flowId = readJSON(text: response.content).flowId
 //      checkAppFlowStatus(tenantEntitlementUrl, headers, 'enable', flowId)
