@@ -47,6 +47,7 @@ karateTestsParams.adminUserName = params.SUPER_ADMIN_USERNAME
 karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
+karateTestsParams.sendTeamsSlackNotification = false
 karateTestsParams.timeout = '2'
 
 /**
