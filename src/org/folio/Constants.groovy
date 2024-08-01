@@ -10,10 +10,11 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko'
+  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-eureka']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
+  static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
@@ -56,7 +57,7 @@ class Constants {
                                         'rtr']
   static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'    : AWS_EKS_DEV_NAMESPACES,
                                           'folio-testing': AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-perf'   : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-perf'   : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
                                           'folio-tmp'    : AWS_EKS_TMP_NAMESPACES,
                                           'folio-eureka' : AWS_EKS_DEV_NAMESPACES]
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
