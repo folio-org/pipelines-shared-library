@@ -7,6 +7,7 @@ package org.folio.models
 class EurekaTenant extends Tenant {
   /**
    * Keycloak client identifier.
+   * Deafault: 'sidecar-module-access-client'
    */
   String clientId
 
