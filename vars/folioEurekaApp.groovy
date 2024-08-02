@@ -1,5 +1,7 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonOutput
 
 
 Logger logger = new Logger(this, 'folioEurekaApp')
@@ -19,12 +21,11 @@ def generateAppPlatformCompleteDescriptor() {
 }
 
 def applicationDescriptorFileGenerator(String applicationId) {
-  String mdrBucket = "eureka-application-registry"
 
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
   dir(applicationId) {
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${mdrBucket}::descriptors/\" -DawsRegion=us-west-2")
+      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DbeRegistries=\"s3::${Constants.EUREKA_MDR_BUCKET}::descriptors/\" -DawsRegion=us-west-2")
     }
     dir('target') {
       sh(script: "ls -la")
@@ -34,7 +35,7 @@ def applicationDescriptorFileGenerator(String applicationId) {
         logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
         return readJSON(file: "${applicationDescriptorFilename}")
       } catch (Exception e) {
-        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
+        println("Failed to generat application descriptor\nError: ${e.getMessage()}")
       }
     }
   }
