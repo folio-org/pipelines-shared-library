@@ -1,6 +1,10 @@
-package org.folio.rest_v2
+package org.folio.rest_v2.eureka
 
+import hudson.util.Secret
 import org.folio.models.EurekaTenant
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.rest_v2.Common
 import org.folio.utilities.RequestException
 
 class Eureka extends Common {
@@ -15,6 +19,14 @@ class Eureka extends Common {
   Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false) {
     super(context, eurekaDomain, debug)
     this.masterTenant = masterTenant
+  }
+
+  Eureka(Object context, String kongUrl, String keycloakUrl, boolean debug = false) {
+    super(context, kongUrl, debug)
+  }
+
+  void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
+    //TODO
   }
 
   void createTenant(EurekaTenant tenant) {
