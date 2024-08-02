@@ -1,0 +1,74 @@
+package org.folio.rest_v2.eureka
+
+import groovy.text.StreamingTemplateEngine
+import hudson.util.Secret
+import org.folio.rest_v2.Common
+
+/**
+ * The Keycloak class is responsible for various operations related to
+ * user and tenant authorization and related to the Keycloak IAM/SSO product.
+ * This includes generating headers, and tokens, checking user credentials,
+ * setting user credentials, and logging in.
+ */
+class Keycloak extends Common {
+
+  static String REALM_TOKEN_PATH_TEMPLATE = 'realms/${tenant}/protocol/openid-connect/token'
+  static String MASTER_TENANT_CLIENT_ID = "folio-backend-admin-client"
+  static Secret MASTER_TENANT_CLIENT_SECRET = Secret.fromString("SecretPassword")
+  static String TENANT_CLIENT_ID = "sidecar-module-access-client"
+  static Secret TENANT_CLIENT_SECRET = Secret.fromString("c0D3f9pjd7d1ZDmeH3WkhaJSp2mQ1WnP")
+
+  String keycloakURL
+
+  /**
+   * Initializes a new instance of the Authorization class.
+   *
+   * @param context The current context.
+   * @param kongURL The api gateway (KONG) URL.
+   * @param keycloakURL The SSO/IAM (KeyCloak) URL.
+   * @param debug Debug flag indicating whether debugging is enabled.
+   */
+  Keycloak(Object context, String keycloakURL, boolean debug = false) {
+    super(context, "", debug)
+    this.keycloakURL = keycloakURL
+  }
+
+  String getAuthMasterTenantToken() {
+    return getAuthToken("master", MASTER_TENANT_CLIENT_ID, MASTER_TENANT_CLIENT_SECRET)
+  }
+
+  String getAuthTenantToken(String tenantName) {
+    return getAuthToken(tenantName, TENANT_CLIENT_ID, TENANT_CLIENT_SECRET)
+  }
+
+  String getAuthToken(String tenantName, String clientId, Secret clientSecret){
+    logger.info("Getting access token from Keycloak service")
+
+    String url = getRealmTokenPath(tenantName)
+
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    String requestBody = """
+      {
+          mode: 'urlencoded',
+          urlencoded: [
+              { key: "client_id", value: ${clientId} },
+              { key: "client_secret", value: ${clientSecret},
+              { key: "grant_type", value: "client_credentials" }
+          ]
+      }
+    """
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("Access token obtained successfully from Keycloak service")
+
+    return response['access_token']
+  }
+
+  static String getRealmTokenPath(String tenantName){
+    return (new StreamingTemplateEngine()
+      .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
+      .make(["tenant": tenantName])
+    ).toString()
+  }
+}
