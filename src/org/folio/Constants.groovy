@@ -104,6 +104,7 @@ class Constants {
   static  String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
   static  String EUREKA_APPLICATIONS_URL = 'https://eureka-registry.ci.folio.org/apps/'
 
+
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
   static String EMAIL_SMTP_SERVER = 'email-smtp.us-west-2.amazonaws.com'

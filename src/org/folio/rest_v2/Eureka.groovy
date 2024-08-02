@@ -202,6 +202,30 @@ class Eureka extends Common {
       logger.error("Not able to assign ${resourceIds} to ${roleId}")
     }
   }
+
+  void enableApplicationForTenant(String tenantId, List applications) {
+
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+    headers['x-okapi-token'] = headers['Authorization'].replace('Bearer ', '')
+
+    Map body = [
+      tenantId    : tenantId,
+      applications: applications
+    ]
+
+    String url = "https://${okapiDomain}/entitlements?ignoreErrors=false&purgeOnRollback=true"
+
+    response = restClient.post(url, body, headers)
+    if (response.status == 201) {
+      logger.info("Application for tenant enabled: ${response.content}")
+    } else if (response.status == 400 && response.content.contains("Application is already entitled")) {
+      def content = readJSON(text: response.content)
+      logger.info("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+      return
+    } else {
+      logger.error("Enabling application for tenant failed: ${response.content}")
+      throw new Exception("Build failed: " + response.content)
+
   def isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
 
     String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
