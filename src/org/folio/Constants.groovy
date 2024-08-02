@@ -101,8 +101,10 @@ class Constants {
   static String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
   //Eureka base constants
-  static  String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
-  static  String EUREKA_APPLICATIONS_URL = 'https://eureka-registry.ci.folio.org/apps/'
+  static  String EUREKA_REGISTRY_URL = "${EUREKA_REGISTRY_BASE_URL}/descriptors/"
+  static  String EUREKA_APPLICATIONS_URL = "${EUREKA_REGISTRY_BASE_URL}/apps/"
+  static String  EUREKA_REGISTRY_BASE_URL = 'https://eureka-registry.ci.folio.org'
+  static  String EUREKA_MDR_BUCKET = 'eureka-application-registry'
 
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
