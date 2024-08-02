@@ -1,6 +1,7 @@
 package org.folio.rest_v2
 
 import groovy.text.GStringTemplateEngine
+import org.folio.models.LdpConfig
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
 
@@ -157,6 +158,56 @@ class Configurations extends Authorization {
         } else {
           logger.error("Template ${it} can not be applied: ${e.getMessage()}. Status code: ${e.statusCode}")
         }
+      }
+    }
+  }
+
+  void setLdpDbSettings(OkapiTenant tenant) {
+    String url = generateUrl("/ldp/config/dbinfo")
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+    Map binding = [
+      tenant_id           : tenant.getTenantId(),
+      db_host             : tenant.okapiConfig.ldpConfig.getDbHost(),
+      ldp_db_name         : tenant.okapiConfig.ldpConfig.getLdpDbName(),
+      ldp_db_user_name    : tenant.okapiConfig.ldpConfig.getLdpDbUserName(),
+      ldp_db_user_password: tenant.okapiConfig.ldpConfig.getLdpDbUserPassword()
+    ]
+    def content = steps.readFile file: tools.copyResourceFileToCurrentDirectory('okapi/configurations/ldp_db_info.json.template')
+    String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
+
+    try {
+      restClient.put(url, body, headers)
+    } catch (RequestException e) {
+      if (e.statusCode == 422) {
+        logger.warning("Configuration already presented. ${e.getMessage()}")
+      } else {
+        logger.error("Template ldp_db_info can not be applied: ${e.getMessage()}. Status code: ${e.statusCode}")
+      }
+    }
+  }
+
+  void setLdpSqConfig(OkapiTenant tenant) {
+    String url = generateUrl("/ldp/config/sqconfig")
+    Map<String, String> headers = getAuthorizedHeaders(tenant)
+
+
+    Map binding = [
+      tenant_id          : tenant.getTenantId(),
+      sqconfig_repo_owner: tenant.okapiConfig.ldpConfig.getSqconfigRepoOwner(),
+      sqconfig_repo_name : tenant.okapiConfig.ldpConfig.getSqconfigRepoName(),
+      sqconfig_repo_token: tenant.okapiConfig.ldpConfig.getSqconfigRepoToken()
+    ]
+    def content = steps.readFile file: tools.copyResourceFileToCurrentDirectory('okapi/configurations/ldp_sqconfig.json.template')
+    String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
+
+    try {
+      restClient.put(url, body, headers)
+    } catch (RequestException e) {
+      if (e.statusCode == 422) {
+        logger.warning("Configuration already presented. ${e.getMessage()}")
+      } else {
+        logger.error("Template ldp_db_info can not be applied: ${e.getMessage()}. Status code: ${e.statusCode}")
       }
     }
   }

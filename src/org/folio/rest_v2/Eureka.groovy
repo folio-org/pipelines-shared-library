@@ -3,7 +3,7 @@ package org.folio.rest_v2
 import org.folio.models.EurekaTenant
 import org.folio.utilities.RequestException
 
-class Eureka extends Authorization {
+class Eureka extends Common {
 
   /**
    * EurekaTenant object contains Master Tenant configuration for Eureka.
@@ -18,13 +18,9 @@ class Eureka extends Authorization {
   }
 
   void createTenant(EurekaTenant tenant) {
-    if (isTenantExist(tenant.tenantId)) {
-      logger.warning("Tenant ${tenant.tenantId} already exists!")
-      return
-    }
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    String url = generateUrl("/tenants")  // Tenant Manager URL
-    Map<String, String> headers = getMasterHeaders()
     Map body = [
       name: tenant.tenantId,
       description: tenant.tenantDescription
@@ -32,64 +28,59 @@ class Eureka extends Authorization {
 
     logger.info("Creating tenant ${tenant.tenantId}...")
 
-    restClient.post(url, body, headers)
+    // Run POST request to create a new tenant
+    restClient.post(tenant.tenantManagerUrl, body, headers)
 
     logger.info("Tenant (${tenant.tenantId}) successfully created")
   }
 
-  boolean isTenantExist(String tenantId) {
-    String url = generateUrl("/tenants/${tenantId}")
-    Map<String, String> headers = getMasterHeaders()
+  boolean isTenantExist(String endpointUrl, String tenantId, Map<String, String> httpHeaders) {
+    String tenantUrl = "${endpointUrl}/${tenantId}"
 
     try {
-      restClient.get(url, headers)
+      restClient.get(tenantUrl, httpHeaders)
       logger.info("Tenant ${tenantId} exists")
       return true
     } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-        logger.info("Tenant ${tenantId} is not exists")
+        logger.warning("statusCode: ${e.statusCode}: Not able to check tenant ${tenantId} existence: ${e.getMessage()}")
         return false
-      } else {
-        throw new RequestException("Can not able to check tenant ${tenantId} existence: ${e.getMessage()}", e.statusCode)
-      }
     }
-  }
-
-  def getMasterHeaders() {
-    return getHttpHeaders(masterTenant)
   }
 
   def getHttpHeaders(EurekaTenant tenant) {
     def tenantId = (tenant.tenantId == masterTenant.tenantId) ? "" : tenant.tenantId
-    def eurekaToken = getEurekaToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
-    return getOkapiHeaders(tenantId, eurekaToken)
+    def tenantToken = getAuthToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
+    return getAuthHeaders(tenantId, tenantToken)
   }
 
-  String getEurekaToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
+  String getAuthToken(String keycloakUrl, String tenantId, String clientId, String clientSecret) {
     logger.info("Getting access token from Keycloak service")
 
     String url = "${keycloakUrl}/realms/${tenantId}/protocol/openid-connect/token"
-    Map<String,String> headers = ["Content-Type": "application/json"]
-    Map body = [
-      client_id     : "${clientId}",
-      grant_type    : "client_credentials",
-      client_secret : "${clientSecret}"
-    ]
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
-    def response = restClient.post(url, body, headers).body
+    def response = restClient.post(url, requestBody, headers).body
     logger.info("Access token received successfully from Keycloak service")
 
-    return response.access_token
+    return response['access_token']
   }
 
-  static Map<String,String> getOkapiHeaders(String tenantId, String token) {
+  Map<String,String> getAuthHeaders(String tenantId, String token) {
     Map<String,String> headers = [:]
+
     if (tenantId != null && !tenantId.isEmpty()) {
       headers.putAll(['x-okapi-tenant': tenantId])
     }
-    if (token != null && !token.isEmpty() && token != "Could not get x-okapi-token") {
-      headers.putAll(["x-okapi-token": token])
+
+    if (token != null && !token.isEmpty()) {
+      headers.putAll(['Authorization' : "Bearer ${token}"])
     }
+
+    if (!headers.isEmpty()) {
+      logger.info("Auth HTTP Headers are populated")
+    }
+
     return headers
   }
 

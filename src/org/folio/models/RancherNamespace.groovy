@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.error.YAMLException
 class RancherNamespace {
   private static final String DEPLOYMENT_CONFIG_BRANCH = "master"
 
-  private static final List DOMAINS_LIST = ['okapi', 'edge']
+  private static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
 
   private static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/"
 
@@ -36,6 +36,8 @@ class RancherNamespace {
   Map<String, OkapiTenant> tenants = [:]
 
   Map domains = [:]
+
+  boolean enableEureka = false
 
   boolean enableRwSplit = false
 

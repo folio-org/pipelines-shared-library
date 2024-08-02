@@ -21,7 +21,19 @@ class EurekaTenant extends Tenant {
    * Keycloak service URL.
    * Is the same for all Tenants
    */
-  static String keycloakUrl
+  String keycloakUrl
+
+  /**
+   * Kong service URL.
+   * Is the same for all Tenants
+   */
+  String kongUrl
+
+  /**
+   * Tenant Manager Service URL.
+   * Is the same for all Tenants.
+   */
+  String tenantManagerUrl
 
   /**
    * Constructor that sets the tenantId and initializes modules.
@@ -29,11 +41,14 @@ class EurekaTenant extends Tenant {
    * @param clientId Keycloak client identifier.
    * @param clientSecret Some secret phrase to authenticate in Keycloak.
    * @param keycloakUrl Keycloak service URL.
+   * @param kongUrl Kong service URL.
    */
-  EurekaTenant(String tenantId, String clientId, String clientSecret, String keycloakUrl) {
-    super(tenantId)
+  EurekaTenant(String tenantId, String tenantDescription, String clientId, String clientSecret, String keycloakUrl, String kongUrl) {
+    super(tenantId, tenantDescription)
     this.clientId = clientId
     this.clientSecret = clientSecret
     this.keycloakUrl = keycloakUrl
+    this.kongUrl = kongUrl
+    this.tenantManagerUrl = "${kongUrl}/tenants"
   }
 }

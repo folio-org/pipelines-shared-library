@@ -1,12 +1,17 @@
 #!groovy
+import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
+import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
+import org.folio.utilities.RestClient
+import org.folio.utilities.Tools
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
-void call(Map params, boolean releaseVersion = false) {
-  OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+void call(Map params, boolean releaseVersion = true) {
+  OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
   Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -19,22 +24,22 @@ void call(Map params, boolean releaseVersion = false) {
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
   )
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
-  ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
+  ui_bundle.tag = "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
   //TODO Temporary solution should be revised during refactoring
   stage('Checkout') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       cleanWs()
     }
     checkout([$class           : 'GitSCM',
               branches         : [[name: ui_bundle.hash]],
               extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
                                   [$class: 'CleanBeforeCheckout'],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
+                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenantId}"]],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
     if (params.consortia) {
-      dir("platform-complete-${params.tenant_id}") {
+      dir("platform-complete-${params.tenantId}") {
         def packageJson = readJSON file: 'package.json'
         String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
         String moduleVersion = moduleId - 'folio_consortia-settings-'
@@ -43,15 +48,31 @@ void call(Map params, boolean releaseVersion = false) {
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
       }
     }
+
+    if (params.eureka) {
+      dir("platform-complete-${params.tenantId}") {
+        sh(script: "rm -f package.json")
+        sh(script: "rm -f stripes.config.json")
+        sh(script: "rm -f yarn.lock")
+        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/package.json -o package.json")
+        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/stripes.config.js -o stripes.config.js")
+//        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/yarn.lock -o yarn.lock")
+        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/stripes.modules.js -o stripes.modules.js")
+
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
   }
+
   stage('Build and Push') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
         retry(2) {
           def image = docker.build(
             ui_bundle.getImageName(),
             "--build-arg OKAPI_URL=${okapi_url} " +
-              "--build-arg TENANT_ID=${tenant.getId()} " +
+              "--build-arg tenantId=${tenant.getId()} " +
               "-f docker/Dockerfile  " +
               "."
           )
@@ -62,6 +83,29 @@ void call(Map params, boolean releaseVersion = false) {
   }
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
+  }
+
+  if (params.eureka) {
+    stage('KC and UI') {
+      RestClient client = new RestClient(this)
+      Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+      def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+      def token = client.post("${params.keycloakUrl}/realms/master/protocol/openid-connect/token", body, headers).body
+      Map updates = [
+        rootUrl                     : params.tenantUrl,
+        baseUrl                     : params.tenantUrl,
+        adminUrl                    : params.tenantUrl,
+        redirectUris                : ["${params.tenantUrl}/*"],
+        webOrigins                  : ["/*"],
+        authorizationServicesEnabled: true,
+        serviceAccountsEnabled      : true,
+        attributes                  : ['post.logout.redirect.uris': "/*##${params.tenantUrl}/*", login_theme: 'custom-theme']
+      ]
+      Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
+      headers.put("Authorization", "Bearer ${token['access_token']}")
+      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients?clientId=${params.tenantId}-application", headers).body
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
+    }
   }
 }
 
@@ -77,4 +121,11 @@ static String getModuleVersion(String moduleName, boolean releaseVersion = false
   } else {
     throw new RuntimeException("Unable to get ${moduleName} version. Url: ${registry.getURL()}. Status code: ${registry.getResponseCode()}.")
   }
+}
+
+//TODO refactoring and reviewing required.
+@NonCPS
+static def make_tpl(String tpl, Map data) {
+  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
+  return ui_tpl
 }

@@ -16,19 +16,6 @@ resource "rancher2_secret" "keycloak-credentials" {
   count        = var.eureka ? 1 : 0
 }
 
-data "rancher2_secret" "keycloak_credentials" {
-  count        = (var.eureka ? 1 : 0)
-  name         = "keycloak-credentials"
-  project_id   = rancher2_project.this.id
-  namespace_id = rancher2_namespace.this.id
-  depends_on   = [helm_release.postgresql, rancher2_secret.keycloak-credentials]
-}
-
-locals {
-  kc_admin_user_name  = (var.eureka ? base64decode(lookup(data.rancher2_secret.keycloak_credentials[0].data, "KEYCLOAK_ADMIN_USER", "admin")) : "")
-  kc_target_http_port = "8080"
-}
-
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
   chart        = "keycloak"
@@ -43,12 +30,12 @@ resource "helm_release" "keycloak" {
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: folio-keycloak
-  tag: ${var.keycloak_image}
-  pullPolicy: IfNotPresent
+  tag: latest
+  pullPolicy: Always
   debug: false
 
 auth:
-  adminUser: ${local.kc_admin_user_name}
+  adminUser: "admin"
   existingSecret: keycloak-credentials
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
@@ -107,9 +94,15 @@ extraEnvVars:
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
-    value: "${local.kc_target_http_port}"
+    value: "8080"
   - name: KC_HEALTH_ENABLED
     value: "true"
+
+resources:
+  requests:
+    memory: 2Gi
+  limits:
+    memory: 3Gi
 
 postgresql:
   enabled: false
@@ -146,44 +139,11 @@ networkPolicy:
 livenessProbe:
   enabled: false
 
-customLivenessProbe:
-  httpGet:
-    path: /health/live
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 0
-  periodSeconds: 1
-  timeoutSeconds: 5
-  failureThreshold: 3
-  successThreshold: 1
-
 readinessProbe:
   enabled: false
 
-customReadinessProbe:
-  httpGet:
-    path: /health/ready
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 0
-  periodSeconds: 10
-  timeoutSeconds: 30
-  failureThreshold: 3
-  successThreshold: 1
-
 startupProbe:
   enabled: false
-
-customStartupProbe:
-  httpGet:
-    path: /health/started
-    port: ${local.kc_target_http_port}
-    scheme: HTTP
-  initialDelaySeconds: 30
-  periodSeconds: 5
-  timeoutSeconds: 1
-  failureThreshold: 60
-  successThreshold: 1
 
 ingress:
   enabled: true
@@ -195,15 +155,10 @@ ingress:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/group.name: "${local.group_name}"
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /health/ready
-    alb.ingress.kubernetes.io/healthcheck-port: "${local.kc_target_http_port}"
-
-lifecycleHooks:
-  postStart:
-    exec:
-      command: ["/bin/sh", "-c", "sleep 120 && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE"]
+    alb.ingress.kubernetes.io/healthcheck-port: "8080"
 EOF
   ]
 }

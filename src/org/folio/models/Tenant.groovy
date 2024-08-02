@@ -26,8 +26,9 @@ class Tenant {
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.
    */
-  Tenant(String tenantId) {
+  Tenant(String tenantId, String tenantDescription = "") {
     this.tenantId = tenantId
+    this.tenantDescription = tenantDescription
     this.modules = new Modules()
   }
 
