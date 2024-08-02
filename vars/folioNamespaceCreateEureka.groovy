@@ -2,7 +2,8 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
-import org.folio.utilities.Tools
+import org.folio.rest_v2.eureka.Eureka
+
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
@@ -121,6 +122,15 @@ void call(CreateNamespaceParameters args) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
+
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+
+    stage('[Rest] Initialize') {
+      retry(2) {
+        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
+    }
+
     if (args.uiBuild) {
       stage('Build and deploy UI') {
         Map branches = [:]
