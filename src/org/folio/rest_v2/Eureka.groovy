@@ -211,7 +211,7 @@ class Eureka extends Common {
       applications: applications
     ]
 
-    String url = Authorization.generateUrl("/entitlements?ignoreErrors=false&purgeOnRollback=true")
+    String url = "https://${okapiDomain}/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
     response = restClient.post(url, body, headers)
     if (response.status == 201) {
