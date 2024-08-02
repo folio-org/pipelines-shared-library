@@ -9,6 +9,8 @@ import org.folio.utilities.RequestException
 
 class Eureka extends Common {
 
+  private Kong kong
+
   /**
    * EurekaTenant object contains Master Tenant configuration for Eureka.
    * @attribute 'tenantId'     Default: "master"
@@ -16,13 +18,10 @@ class Eureka extends Common {
    */
   public EurekaTenant masterTenant
 
-  Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false) {
-    super(context, eurekaDomain, debug)
-    this.masterTenant = masterTenant
-  }
-
   Eureka(Object context, String kongUrl, String keycloakUrl, boolean debug = false) {
     super(context, kongUrl, debug)
+
+    this.kong = new Kong(context, kongUrl, keycloakUrl, debug)
   }
 
   void initializeFromScratch(Map<String, OkapiTenant> tenants, boolean enableConsortia) {
