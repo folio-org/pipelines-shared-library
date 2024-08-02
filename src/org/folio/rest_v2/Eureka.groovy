@@ -2,6 +2,7 @@ package org.folio.rest_v2
 
 import org.folio.models.EurekaTenant
 import org.folio.utilities.RequestException
+import org.folio.Constants
 
 class Eureka extends Common {
 
@@ -211,7 +212,7 @@ class Eureka extends Common {
       applications: applications
     ]
 
-    String url = "https://folio-eureka-scout-kong.ci.folio.org/entitlements?ignoreErrors=false&purgeOnRollback=true"
+    String url = "${Constants.EUREKA_KONG_URL}/entitlements?ignoreErrors=false&purgeOnRollback=true"
 
     response = restClient.post(url, body, headers)
     if (response.status == 201) {
