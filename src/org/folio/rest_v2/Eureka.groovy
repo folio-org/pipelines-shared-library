@@ -203,7 +203,7 @@ class Eureka extends Common {
 
   boolean isApplicationRegistered(String applicationId) {
 
-    String url = generateKongUrl("/applications/${applicationId}")
+    String url = "https://${okapiDomain}/applications/${applicationId}"
 
     try {
       restClient.get(url).body
@@ -235,7 +235,7 @@ class Eureka extends Common {
       return
     }
 
-    String url = "${Constants.EUREKA_KONG_URL}applications?check=false"
+    String url = "https://${okapiDomain}/applications?check=false"
     Map<String,String> headers = [
       'x-okapi-token': getEurekaToken(),
       'Content-Type': 'application/json'
