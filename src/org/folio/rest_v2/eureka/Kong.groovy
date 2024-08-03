@@ -43,7 +43,7 @@ class Kong extends Common {
   }
 
   Tenant createTenant(Tenant tenant) {
-    logger.info("Creating tenant ${tenant.tenantId}...")
+    logger.info("Creating tenant ${tenant.tenantName}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
@@ -58,7 +58,7 @@ class Kong extends Common {
     if (response.status == 400) {
       if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
-          Tenant \"${tenantId}\" is invalid.
+          Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.status}
           "Response content:
           ${writeJSON(json: content, returnText: true, pretty: 2)}""")
@@ -66,15 +66,15 @@ class Kong extends Common {
         throw new Exception("Build failed: " + response.content)
       } else if (content.contains("Tenant's name already taken")) {
         logger.info("""
-          Tenant \"${tenantId}\" already exists
+          Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.status}
           Response content:
           ${writeJSON(json: content, returnText: true, pretty: 2)}""")
 
-        def eurekaTenantId = getEurekaTenantId(account, region, folio, tenantId)
-        fseLog.info("Continue with existing Eureka tenant id -> ${eurekaTenantId}")
+        Tenant existedTenant = getTenantByName(tenant.tenantName)
+        logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
 
-        return eurekaTenantId
+        return existedTenant
       } else {
         logger.error("""
           Create new tenant results
@@ -99,12 +99,18 @@ class Kong extends Common {
     return getTenants(tenantId)[0]
   }
 
-  List<Tenant> getTenants(String tenantId = ""){
-    logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}...")
+  Tenant getTenantByName(String name){
+    return getTenants("", "name==${name}")[0]
+  }
+
+  List<Tenant> getTenants(String tenantId = "", String query = ""){
+    logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    def response = restClient.get(generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}"), headers)
+    String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
+
+    def response = restClient.get(url, headers)
     def content = readJSON(text: response.content)
 
     if (content.totalRecords > 0) {
