@@ -53,7 +53,7 @@ class Kong extends Common {
     ]
 
     def response = restClient.post(generateUrl("/tenants"), body, headers)
-    def content = readJSON(text: response.content)
+    def content = steps.readJSON(text: response.content)
 
     if (response.status == 400) {
       if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
@@ -61,7 +61,7 @@ class Kong extends Common {
           Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.status}
           "Response content:
-          ${writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
         throw new Exception("Build failed: " + response.content)
       } else if (content.contains("Tenant's name already taken")) {
@@ -69,7 +69,7 @@ class Kong extends Common {
           Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.status}
           Response content:
-          ${writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
         Tenant existedTenant = getTenantByName(tenant.tenantName)
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
@@ -80,7 +80,7 @@ class Kong extends Common {
           Create new tenant results
           Status: ${response.status}
           Response content:
-          ${writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
         throw new Exception("Build failed: " + response.content)
       }
@@ -90,7 +90,7 @@ class Kong extends Common {
       Info on the newly created tenant \"${tenantId}\"
       Status: ${response.status}
       Response content:
-      ${writeJSON(json: content, returnText: true, pretty: 2)}""")
+      ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
     return Tenant.getTenantFromJson(content)
   }
@@ -111,7 +111,7 @@ class Kong extends Common {
     String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
 
     def response = restClient.get(url, headers)
-    def content = readJSON(text: response.content)
+    def content = steps.readJSON(text: response.content)
 
     if (content.totalRecords > 0) {
       logger.debug("Found tenants: ${content.tenants}")
