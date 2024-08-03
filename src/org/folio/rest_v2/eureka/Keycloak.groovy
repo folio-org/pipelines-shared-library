@@ -51,7 +51,7 @@ class Keycloak extends Common {
    * @return The authorized headers.
    */
   static Map<String, String> getAuthorizedHeaders(String token, boolean addOkapiAuth = false) {
-    return ['Authorization' : "Bearer ${token}"] + addOkapiAuth ? ["X-Okapi-Token": token] : [:]
+    return ['Authorization': "Bearer ${token}"] + (addOkapiAuth ? ["X-Okapi-Token": token] : [:]) as Map<String, String>
   }
 
   Map<String,String> getAuthMasterTenantHeaders(boolean addOkapiAuth = false) {
