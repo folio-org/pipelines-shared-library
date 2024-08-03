@@ -2,6 +2,7 @@ package org.folio.rest_v2.eureka
 
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
+import org.folio.models.Tenant
 import org.folio.rest_v2.Common
 
 /**
@@ -33,11 +34,29 @@ class Keycloak extends Common {
     this.keycloakURL = keycloakURL
   }
 
-  String getAuthMasterTenantToken() {
+  /**
+   * Gets the authorized headers for the specified tenant.
+   *
+   * @param tenant The tenant for which to get the authorized headers.
+   * @return The authorized headers.
+   */
+  static Map<String, String> getAuthorizedHeaders(String token, boolean addOkapiAuth = false) {
+    return ['Authorization' : "Bearer ${token}"] + addOkapiAuth ? ["X-Okapi-Token": token] : [:]
+  }
+
+  Map<String,String> getAuthMasterTenantHeaders(boolean addOkapiAuth = false) {
+    return getAuthorizedHeaders(getAuthMasterTenantToken(addOkapiAuth), addOkapiAuth)
+  }
+
+  Map<String,String> getAuthTenantHeaders(Tenant tenant, boolean addOkapiAuth = false) {
+    return getAuthorizedHeaders(getAuthTenantToken(tenant.tenantName, addOkapiAuth), addOkapiAuth)
+  }
+
+  String getAuthMasterTenantToken(boolean addOkapiAuth = false) {
     return getAuthToken("master", MASTER_TENANT_CLIENT_ID, MASTER_TENANT_CLIENT_SECRET)
   }
 
-  String getAuthTenantToken(String tenantName) {
+  String getAuthTenantToken(String tenantName, boolean addOkapiAuth = false) {
     return getAuthToken(tenantName, TENANT_CLIENT_ID, TENANT_CLIENT_SECRET)
   }
 
