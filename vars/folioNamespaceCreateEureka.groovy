@@ -31,29 +31,29 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
 
 //    stage('[Wait] for keycloak initialization') {
 //      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
 //    }
 
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
 
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
 
     if (args.namespaceOnly) {
       return
@@ -83,45 +83,47 @@ void call(CreateNamespaceParameters args) {
       .withInstallJson(namespace.getModules().getInstallJson().collect())
       .withIndex(new Index(true, true))
       .withInstallRequestParams(installRequestParams.clone())
-      .withTenantUi(tenantUi.clone()))
+      .withTenantUi(tenantUi.clone())
+      .withTenantName("diku2")
+    )
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//      }
+//    }
 
     stage('[Rest] MDs and SVC') {
       //tbd
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        println(namespace.getModules().getBackendModules())
-        input("Paused for review...")
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        if (namespace.getModules().getBackendModules()['mod-login']) {
-          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
-        }
-        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        println(namespace.getModules().getBackendModules())
+//        input("Paused for review...")
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        if (namespace.getModules().getBackendModules()['mod-login']) {
+//          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+//        }
+//        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
+//      }
+//    }
+//
+//    stage('[Rest] Configure edge') {
+//      namespace.getModules().removeModule('edge-inventory')
+//      namespace.getModules().removeModule('edge-erm')
+//      namespace.getModules().removeModule('edge-users')
+//      folioEdge.renderEphemeralProperties(namespace)
+////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+//    }
 
-    stage('[Rest] Configure edge') {
-      namespace.getModules().removeModule('edge-inventory')
-      namespace.getModules().removeModule('edge-erm')
-      namespace.getModules().removeModule('edge-users')
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      }
-    }
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
+//    }
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
@@ -131,36 +133,36 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    if (args.uiBuild) {
-      stage('Build and deploy UI') {
-        Map branches = [:]
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
-            branches[tenantId] = {
-              def jobParameters = [eureka        : args.eureka,
-                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
-                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms   : true,
-                                   isSingleTenant: true,
-                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                                   tenantId      : ui.getTenantId(),
-                                   custom_hash   : ui.getHash(),
-                                   custom_url    : "https://${namespace.getDomains()['kong']}",
-                                   custom_tag    : ui.getTag(),
-                                   consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application"]
-              uiBuild(jobParameters, releaseVersion)
-              folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-              }
-            }
-          }
-        }
-        parallel branches
-      }
-    }
+//    if (args.uiBuild) {
+//      stage('Build and deploy UI') {
+//        Map branches = [:]
+//        namespace.getTenants().each { tenantId, tenant ->
+//          if (tenant.getTenantUi()) {
+//            TenantUi ui = tenant.getTenantUi()
+//            branches[tenantId] = {
+//              def jobParameters = [eureka        : args.eureka,
+//                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
+//                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+//                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+//                                   hasAllPerms   : true,
+//                                   isSingleTenant: true,
+//                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+//                                   tenantId      : ui.getTenantId(),
+//                                   custom_hash   : ui.getHash(),
+//                                   custom_url    : "https://${namespace.getDomains()['kong']}",
+//                                   custom_tag    : ui.getTag(),
+//                                   consortia     : tenant instanceof OkapiTenantConsortia,
+//                                   clientId      : ui.getTenantId() + "-application"]
+//              uiBuild(jobParameters, releaseVersion)
+//              folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//              }
+//            }
+//          }
+//        }
+//        parallel branches
+//      }
+//    }
 
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
