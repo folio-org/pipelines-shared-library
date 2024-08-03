@@ -77,12 +77,9 @@ class Keycloak extends Common {
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     Map requestBody = [
-      mode: "urlencoded",
-      urlencoded: [
-              client_id: clientId,
-              client_secret: clientSecret,
-              grant_type: "client_credentials"
-          ]
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "client_credentials"
     ]
 
     logger.info("""
