@@ -77,6 +77,12 @@ class Keycloak extends Common {
       }
     """
 
+    logger.info("""
+      url: ${url}
+      headers: ${headers}
+      requestBody: ${requestBody}
+    """)
+
     def response = restClient.post(url, requestBody, headers).body
 
     logger.info("Access token obtained successfully from Keycloak service")
