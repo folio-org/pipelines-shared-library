@@ -35,6 +35,16 @@ class Keycloak extends Common {
   }
 
   /**
+   * Generates a URL for the specified path.
+   *
+   * @param path The path for which to generate the URL.
+   * @return The generated URL.
+   */
+  String generateUrl(String path) {
+    "https://${keycloakURL}${path}"
+  }
+
+  /**
    * Gets the authorized headers for the specified tenant.
    *
    * @param tenant The tenant for which to get the authorized headers.
@@ -63,7 +73,7 @@ class Keycloak extends Common {
   String getAuthToken(String tenantName, String clientId, Secret clientSecret){
     logger.info("Getting access token from Keycloak service")
 
-    String url = getRealmTokenPath(tenantName)
+    String url = generateUrl(getRealmTokenPath(tenantName))
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     String requestBody = """
