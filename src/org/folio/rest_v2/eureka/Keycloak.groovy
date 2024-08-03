@@ -73,7 +73,7 @@ class Keycloak extends Common {
   String getAuthToken(String tenantName, String clientId, Secret clientSecret){
     logger.info("Getting access token from Keycloak service")
 
-    String url = generateUrl(getRealmTokenPath(tenantName))
+    String url = generateUrl("/${getRealmTokenPath(tenantName)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     String requestBody = """
