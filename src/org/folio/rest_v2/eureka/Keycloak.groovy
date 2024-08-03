@@ -76,16 +76,14 @@ class Keycloak extends Common {
     String url = generateUrl("/${getRealmTokenPath(tenantName)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    String requestBody = """
-      {
-          mode: 'urlencoded',
-          urlencoded: [
-              { key: "client_id", value: ${clientId} },
-              { key: "client_secret", value: ${clientSecret},
-              { key: "grant_type", value: "client_credentials" }
+    Map requestBody = [
+      mode: "urlencoded",
+      urlencoded: [
+              client_id: clientId,
+              client_secret: clientSecret,
+              grant_type: "client_credentials"
           ]
-      }
-    """
+    ]
 
     logger.info("""
       url: ${url}
