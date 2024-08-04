@@ -129,7 +129,7 @@ EOF
 
 # Opensearch dashboards deployment
 resource "helm_release" "opensearch-dashboards" {
-  count      = var.s3_embedded ? 1 : 0
+  count      = var.opensearch_shared ? 0 : 1
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.opensearch
   name       = "opensearch-dashboards"
