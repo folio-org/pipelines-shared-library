@@ -53,23 +53,24 @@ class Kong extends Common {
     ]
 
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
-    String content = response.body.toString()
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
 
     if (response.responseCode == 400) {
-      if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
+      if (contentStr.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.responseCode}
           "Response content:
-          ${content}""")
+          ${contentStr}""")
 
-        throw new Exception("Build failed: " + response.content)
-      } else if (content.contains("Tenant's name already taken")) {
+        throw new Exception("Build failed: " + response.contentStr)
+      } else if (contentStr.contains("Tenant's name already taken")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.responseCode}
           Response content:
-          ${content}""")
+          ${contentStr}""")
 
         Tenant existedTenant = getTenantByName(tenant.tenantName)
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
@@ -80,17 +81,17 @@ class Kong extends Common {
           Create new tenant results
           Status: ${response.responseCode}
           Response content:
-          ${content}""")
+          ${contentStr}""")
 
-        throw new Exception("Build failed: " + response.content)
+        throw new Exception("Build failed: " + response.contentStr)
       }
     }
 
     logger.info("""
-      Info on the newly created tenant \"${tenantId}\"
+      Info on the newly created tenant \"${content.id}\"
       Status: ${response.responseCode}
       Response content:
-      ${content}""")
+      ${contentStr}""")
 
     return Tenant.getTenantFromJson(content)
   }
