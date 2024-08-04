@@ -14,7 +14,7 @@ class Eureka extends Common {
   }
 
   void createTenantFlow(Tenant tenant, List<String> applications) {
-    kong.createTenant(tenant)
+    tenant = kong.createTenant(tenant)
 
     kong.enableApplicationsOnTenant(tenant,applications)
 
