@@ -56,18 +56,16 @@ class Kong extends Common {
     logger.info(response)
     logger.info(response.body)
 
-    Map<String, String> content = response.body as Map<String, String>
-
-    logger.info("content.toString()=${content.toString()}")
+    String content = response.body.toString()
 
     if (response.responseCode == 400) {
-      if (content.toString().contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
+      if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.responseCode}""")
 
         throw new Exception("Build failed: " + response.content)
-      } else if (content.toString().contains("Tenant's name already taken")) {
+      } else if (content.contains("Tenant's name already taken")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.responseCode}}""")
