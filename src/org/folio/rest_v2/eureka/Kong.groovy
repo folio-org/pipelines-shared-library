@@ -107,19 +107,18 @@ class Kong extends Common {
 
     String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
 
-    def response = restClient.get(url, headers)
-    def content = steps.readJSON(text: response.content)
+    def response = restClient.get(url, headers).body
 
-    if (content.totalRecords > 0) {
-      logger.debug("Found tenants: ${content.tenants}")
+    if (response.totalRecords > 0) {
+      logger.debug("Found tenants: ${response.tenants}")
       List<Tenant> tenants = []
-      content.tenants.each { tenantJson ->
+      response.tenants.each { tenantJson ->
         tenants.add(Tenant.getTenantFromJson(tenantJson))
       }
       return tenants
     } else {
       logger.debug("Buy the url ${url} tenant(s) not found")
-      logger.debug("HTTP response is: ${response.content}")
+      logger.debug("HTTP response is: ${response}")
       throw new Exception("Tenant(s) not found")
     }
   }
