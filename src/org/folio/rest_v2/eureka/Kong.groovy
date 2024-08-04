@@ -54,11 +54,12 @@ class Kong extends Common {
 
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
     logger.info(response)
-    logger.info(response.context)
-    def content = response.body
+    logger.info(response.body)
+
+    Map<String, String> content = response.body as Map<String, String>
 
     if (response.responseCode == 400) {
-      if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
+      if (content.containsValue("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.responseCode}
@@ -66,7 +67,7 @@ class Kong extends Common {
           ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
         throw new Exception("Build failed: " + response.content)
-      } else if (content.contains("Tenant's name already taken")) {
+      } else if (content.containsValue("Tenant's name already taken")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.responseCode}
