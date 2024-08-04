@@ -152,14 +152,14 @@ class Kong extends Common {
     Map content = response.body as Map
 
     if (response.responseCode == 400) {
-      if (contentStr.contains("Application is already entitled")) {
+      if (contentStr.contains("finished with status: CANCELLED")) {
         logger.info("""
           Application is already entitled, no actions needed..
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
 
-        throw new Exception("Build failed: " + contentStr)
+        return
       } else {
         logger.error("Enabling application for tenant failed: ${contentStr}")
 
