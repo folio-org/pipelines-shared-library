@@ -118,7 +118,7 @@ class Consortia extends Authorization {
   void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant) {
     Map headers = getAuthorizedHeaders(centralConsortiaTenant)
     String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
-    def response = restClient.get(url, headers, 5000).body
+    def response = restClient.get(url, headers, [], 5000).body
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
