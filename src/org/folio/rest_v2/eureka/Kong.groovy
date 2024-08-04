@@ -134,7 +134,7 @@ class Kong extends Common {
   void enableApplicationsOnTenant(Tenant tenant, List<String> applications) {
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId}...")
 
-    Map<String, String> headers = getMasterHttpHeaders()
+    Map<String, String> headers = getMasterHttpHeaders(true)
 
     Map body = [
       tenantId: tenant.tenantId,
