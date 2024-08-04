@@ -87,7 +87,7 @@ class Kong extends Common {
     }
 
     logger.info("""
-      Info on the newly created tenant \"${response.id}\"
+      Info on the newly created tenant \"${response.body.id}\"
       Status: ${response.responseCode}
       Response content:
       ${content}""")
