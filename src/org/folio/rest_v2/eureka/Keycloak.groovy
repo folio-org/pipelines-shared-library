@@ -51,7 +51,7 @@ class Keycloak extends Common {
    * @return The authorized headers.
    */
   static Map<String, String> getAuthorizedHeaders(String token, boolean addOkapiAuth = false) {
-    return ['Authorization' : "Bearer ${token}"] + addOkapiAuth ? ["X-Okapi-Token": token] : [:]
+    return ['Authorization': "Bearer ${token}"] + (addOkapiAuth ? ["X-Okapi-Token": token] : [:]) as Map<String, String>
   }
 
   Map<String,String> getAuthMasterTenantHeaders(boolean addOkapiAuth = false) {
@@ -76,16 +76,7 @@ class Keycloak extends Common {
     String url = generateUrl("/${getRealmTokenPath(tenantName)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    String requestBody = """
-      {
-          mode: 'urlencoded',
-          urlencoded: [
-              { key: "client_id", value: ${clientId} },
-              { key: "client_secret", value: ${clientSecret},
-              { key: "grant_type", value: "client_credentials" }
-          ]
-      }
-    """
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
 
     def response = restClient.post(url, requestBody, headers).body
 
