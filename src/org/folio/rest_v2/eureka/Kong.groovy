@@ -55,13 +55,13 @@ class Kong extends Common {
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
     logger.info(response)
     logger.info(response.context)
-    def content = steps.readJSON(text: response.content)
+    def content = response.body
 
-    if (response.status == 400) {
+    if (response.responseCode == 400) {
       if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" is invalid.
-          "Status: ${response.status}
+          "Status: ${response.responseCode}
           "Response content:
           ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
@@ -69,7 +69,7 @@ class Kong extends Common {
       } else if (content.contains("Tenant's name already taken")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" already exists
-          Status: ${response.status}
+          Status: ${response.responseCode}
           Response content:
           ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
@@ -80,7 +80,7 @@ class Kong extends Common {
       } else {
         logger.error("""
           Create new tenant results
-          Status: ${response.status}
+          Status: ${response.responseCode}
           Response content:
           ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
@@ -90,7 +90,7 @@ class Kong extends Common {
 
     logger.info("""
       Info on the newly created tenant \"${tenantId}\"
-      Status: ${response.status}
+      Status: ${response.responseCode}
       Response content:
       ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
 
