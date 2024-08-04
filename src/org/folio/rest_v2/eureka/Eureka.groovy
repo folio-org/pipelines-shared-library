@@ -13,9 +13,22 @@ class Eureka extends Common {
     this.kong = new Kong(context, kongUrl, keycloakUrl, debug)
   }
 
+  void createTenantFlow(Tenant tenant, List<String> applications) {
+    kong.createTenant(tenant)
+
+    kong.enableApplicationsOnTenant(tenant,applications)
+
+//    createAdminUser(tenant, "admin", Secret.fromString("admin"))
+  }
+
   void initializeFromScratch(Map<String, Tenant> tenants, boolean enableConsortia) {
     tenants.each { tenantId, tenant ->
-      kong.createTenant(tenant)
+      createTenantFlow(tenant,
+        [
+          "app-platform-minimal-1.0.0-SNAPSHOT.38"
+          , "app-platform-complete-1.0.0-SNAPSHOT.53"
+        ]
+      )
     }
   }
 }
