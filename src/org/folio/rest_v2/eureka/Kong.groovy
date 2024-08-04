@@ -53,7 +53,7 @@ class Kong extends Common {
     ]
 
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
-    def content = response.body
+    String content = response.body.toString()
 
     if (response.responseCode == 400) {
       if (content.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
@@ -61,7 +61,7 @@ class Kong extends Common {
           Tenant \"${tenant.tenantName}\" is invalid.
           "Status: ${response.responseCode}
           "Response content:
-          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${content}""")
 
         throw new Exception("Build failed: " + response.content)
       } else if (content.contains("Tenant's name already taken")) {
@@ -69,7 +69,7 @@ class Kong extends Common {
           Tenant \"${tenant.tenantName}\" already exists
           Status: ${response.responseCode}
           Response content:
-          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${content}""")
 
         Tenant existedTenant = getTenantByName(tenant.tenantName)
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
@@ -80,7 +80,7 @@ class Kong extends Common {
           Create new tenant results
           Status: ${response.responseCode}
           Response content:
-          ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
+          ${content}""")
 
         throw new Exception("Build failed: " + response.content)
       }
@@ -90,7 +90,7 @@ class Kong extends Common {
       Info on the newly created tenant \"${tenantId}\"
       Status: ${response.responseCode}
       Response content:
-      ${steps.writeJSON(json: content, returnText: true, pretty: 2)}""")
+      ${content}""")
 
     return Tenant.getTenantFromJson(content)
   }
@@ -110,19 +110,18 @@ class Kong extends Common {
 
     String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
 
-    def response = restClient.get(url, headers)
-    def content = steps.readJSON(text: response.content)
+    def response = restClient.get(url, headers).body
 
-    if (content.totalRecords > 0) {
-      logger.debug("Found tenants: ${content.tenants}")
+    if (response.totalRecords > 0) {
+      logger.debug("Found tenants: ${response.tenants}")
       List<Tenant> tenants = []
-      content.tenants.each { tenantJson ->
+      response.tenants.each { tenantJson ->
         tenants.add(Tenant.getTenantFromJson(tenantJson))
       }
       return tenants
     } else {
       logger.debug("Buy the url ${url} tenant(s) not found")
-      logger.debug("HTTP response is: ${response.content}")
+      logger.debug("HTTP response is: ${response}")
       throw new Exception("Tenant(s) not found")
     }
   }
