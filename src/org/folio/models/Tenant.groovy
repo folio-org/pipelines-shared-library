@@ -1,5 +1,7 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 class Tenant {
   /** Tenant's identifier. */
   String tenantId
@@ -21,6 +23,16 @@ class Tenant {
   void setTenantUi(TenantUi tenantUi) {
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
+  }
+
+  @NonCPS
+  String toString(){
+    return """
+      class_name: 'Tenant',
+      tenantId: '${tenantId}',
+      tenantName: '${tenantName}',
+      tenantDescription: '${tenantDescription}'
+    """
   }
 
   static Tenant getTenantFromJson(def json){
