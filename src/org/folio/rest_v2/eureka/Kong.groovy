@@ -54,7 +54,7 @@ class Kong extends Common {
 
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
     String contentStr = response.body.toString()
-    Map content = response.body
+    Map content = response.body as Map
 
     if (response.responseCode == 400) {
       if (contentStr.contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
