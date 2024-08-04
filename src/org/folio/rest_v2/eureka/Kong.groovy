@@ -58,6 +58,8 @@ class Kong extends Common {
 
     Map<String, String> content = response.body as Map<String, String>
 
+    logger.info("content.toString()=${content.toString()}")
+
     if (response.responseCode == 400) {
       if (content.containsValue("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
