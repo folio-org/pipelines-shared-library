@@ -110,7 +110,7 @@ class RestClient {
     String responseBody = inputStream.text
 
     if (responseBody == null || responseBody.trim().isEmpty()) {
-      return [body: null, headers: connection.getHeaderFields()]
+      return [body: null, headers: connection.getHeaderFields(), responseCode: responseCode]
     } else {
       String contentType = connection.getHeaderField("Content-Type")
       if (contentType != null && contentType.contains("application/json")) {
@@ -120,9 +120,9 @@ class RestClient {
         } else if (parsedResponse instanceof List && !parsedResponse.isEmpty() && parsedResponse[0] instanceof LazyMap) {
           parsedResponse = parsedResponse.collect { new HashMap(it) }
         }
-        return [body: parsedResponse, headers: connection.getHeaderFields()]
+        return [body: parsedResponse, headers: connection.getHeaderFields(), responseCode: responseCode]
       } else {
-        return [body: responseBody, headers: connection.getHeaderFields()]
+        return [body: responseBody, headers: connection.getHeaderFields(), responseCode: responseCode]
       }
     }
   }
