@@ -105,9 +105,9 @@ extraEnvs:
     value: "true"
 resources:
   requests:
-    memory: 1024Mi
-  limits:
     memory: 1536Mi
+  limits:
+    memory: 2048Mi
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
@@ -153,9 +153,9 @@ extraEnvs:
     value: "admin"
 resources:
   requests:
-    memory: 2048Mi
+    memory: 512Mi
   limits:
-    memory: 3072Mi
+    memory: 2048Mi
 ingress:
   enabled: true
   hosts:

@@ -42,63 +42,63 @@ resource "rancher2_app_v2" "prometheus" {
   name          = "kube-prometheus-stack"
   repo_name     = rancher2_catalog_v2.prometheus-community[0].name
   chart_name    = "kube-prometheus-stack"
-  chart_version = "45.8.0"
+  chart_version = "60.5.0"
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
-    alertmanager:
-      config:
-        global:
-          resolve_timeout: 1m
-          slack_api_url: "${var.slack_webhook_url}"
-        route:
-          group_by: ['alertname', 'namespace']
-          group_wait: 30s
-          group_interval: 40s
-          repeat_interval: 30m
-          receiver: 'null'
-          routes:
-          - receiver: 'slack'
-            matchers:
-              - alertname =~ "Watchdog|InfoInhibitor"
-        receivers:
-        - name: 'null'
-        - name: 'slack'
-          slack_configs:
-          - channel: "#prom-slack-notif"
-            title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
-            text: >-
-              {{ range .Alerts }}
-                *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
-                *Details:*
-                {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
-                {{ end }}
-              {{ end }}
-            send_resolved: true
-      alertmanagerSpec:
-        storage:
-          volumeClaimTemplate:
-            spec:
-              storageClassName: gp2
-              resources:
-                requests:
-                  storage: 10Gi
+#     alertmanager:
+#       config:
+#         global:
+#           resolve_timeout: 5m
+#           slack_api_url: "${var.slack_webhook_url}"
+#         route:
+#           group_by: ['alertname', 'namespace']
+#           group_wait: 30s
+#           group_interval: 40s
+#           repeat_interval: 30m
+#           receiver: 'null'
+#           routes:
+#           - receiver: 'slack'
+#             matchers:
+#               - alertname =~ "Watchdog|InfoInhibitor"
+#         receivers:
+#         - name: 'null'
+#         - name: 'slack'
+#           slack_configs:
+#           - channel: "#prom-slack-notif"
+#             title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+#             text: >-
+#               {{ range .Alerts }}
+#                 *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+#                 *Details:*
+#                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+#                 {{ end }}
+#               {{ end }}
+#             send_resolved: true
+#       alertmanagerSpec:
+#         storage:
+#           volumeClaimTemplate:
+#             spec:
+#               storageClassName: gp2
+#               resources:
+#                 requests:
+#                   storage: 10Gi
     prometheus:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         resources:
           requests:
-            memory: 1024Mi
+            memory: 3072Mi
           limits:
-            memory: 5120Mi
+            memory: 6144Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
               storageClassName: gp2
               resources:
                requests:
-                 storage: 100Gi
+                 storage: 50Gi
         additionalScrapeConfigs:
         - job_name: kubecost
           honor_labels: true
@@ -134,18 +134,18 @@ resource "rancher2_app_v2" "prometheus" {
       grafana.ini:
         server:
           root_url: https://${module.eks_cluster.cluster_name}-grafana.${var.root_domain}
-        auth.github:
-          enabled: ${var.github_client_id != "" && var.github_client_secret != "" ? true : false}
-          allow_sign_up: false
-          scopes: user:email,read:org
-          auth_url: https://github.com/login/oauth/authorize
-          token_url: https://github.com/login/oauth/access_token
-          api_url: https://api.github.com/user
-          allowed_organizations: "folio-org"
-          client_id: ${var.github_client_id}
-          client_secret: ${var.github_client_secret}
-          allow_assign_grafana_admin: true
-          role_attribute_path: contains(groups[*], 'folio-devops') && 'Admin' || 'Viewer'
+#         auth.github:
+#           enabled: ${var.github_client_id != "" && var.github_client_secret != "" ? true : false}
+#           allow_sign_up: false
+#           scopes: user:email,read:org
+#           auth_url: https://github.com/login/oauth/authorize
+#           token_url: https://github.com/login/oauth/access_token
+#           api_url: https://api.github.com/user
+#           allowed_organizations: "folio-org"
+#           client_id: ${var.github_client_id}
+#           client_secret: ${var.github_client_secret}
+#           allow_assign_grafana_admin: true
+#           role_attribute_path: contains(groups[*], 'folio-devops') && 'Admin' || 'Viewer'
       dashboardProviders:
         dashboardproviders.yaml:
           apiVersion: 1
@@ -157,7 +157,7 @@ resource "rancher2_app_v2" "prometheus" {
             disableDeletion: false
             editable: true
             options:
-             path: /var/lib/grafana/dashboards/default
+              path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
           # https://grafana.com/grafana/dashboards/9628-postgresql-database/
@@ -224,5 +224,3 @@ resource "rancher2_app_v2" "prometheus" {
           targetLabel: instance
   EOT
 }
-
-

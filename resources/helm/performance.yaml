@@ -33,7 +33,7 @@ edge-caiasoft:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-connexion:
   service:
@@ -60,7 +60,7 @@ edge-connexion:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-courses:
   ingress:
@@ -105,7 +105,7 @@ edge-courses:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-dcb:
   ingress:
@@ -142,7 +142,7 @@ edge-dcb:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-dematic:
   ingress:
@@ -216,7 +216,7 @@ edge-fqm:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-inn-reach:
   ingress:
@@ -253,7 +253,7 @@ edge-inn-reach:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-ncip:
   ingress:
@@ -290,7 +290,7 @@ edge-ncip:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-oai-pmh:
   ingress:
@@ -327,7 +327,7 @@ edge-oai-pmh:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-orders:
   ingress:
@@ -364,7 +364,7 @@ edge-orders:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-patron:
   ingress:
@@ -401,7 +401,7 @@ edge-patron:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-rtac:
   ingress:
@@ -438,7 +438,7 @@ edge-rtac:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 edge-sip2:
   service:
@@ -462,7 +462,7 @@ edge-sip2:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-aes:
   extraEnvVars: []
@@ -490,7 +490,7 @@ mod-agreements:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-audit:
   extraEnvVars: []
@@ -510,7 +510,7 @@ mod-audit:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-authtoken:
   extraEnvVars: []
@@ -532,7 +532,7 @@ mod-authtoken:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-batch-print:
   extraEnvVars: []
@@ -549,7 +549,7 @@ mod-batch-print:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-bulk-operations:
   extraEnvVars:
@@ -574,7 +574,7 @@ mod-bulk-operations:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-calendar:
   extraEnvVars: []
@@ -591,7 +591,7 @@ mod-calendar:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-camunda:
   extraEnvVars: []
@@ -630,7 +630,7 @@ mod-circulation:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-circulation-storage:
   extraEnvVars:
@@ -652,7 +652,7 @@ mod-circulation-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-codex-ekb:
   extraEnvVars: []
@@ -696,7 +696,7 @@ mod-configuration:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-consortia:
   extraEnvVars: []
@@ -722,7 +722,7 @@ mod-consortia:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-copycat:
   extraEnvVars: []
@@ -739,7 +739,7 @@ mod-copycat:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-courses:
   extraEnvVars: []
@@ -756,7 +756,7 @@ mod-courses:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-data-export:
   extraEnvVars: []
@@ -818,7 +818,7 @@ mod-data-export-worker:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-data-import:
   extraEnvVars:
@@ -858,7 +858,7 @@ mod-di-converter-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-ebsconet:
   extraEnvVars: []
@@ -872,7 +872,7 @@ mod-ebsconet:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-email:
   extraEnvVars: []
@@ -889,7 +889,7 @@ mod-email:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-entities-links:
   extraEnvVars:
@@ -926,7 +926,7 @@ mod-entities-links:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-erm-usage:
   extraEnvVars: []
@@ -943,7 +943,7 @@ mod-erm-usage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-erm-usage-harvester:
   extraEnvVars: []
@@ -966,7 +966,7 @@ mod-erm-usage-harvester:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-eusage-reports:
   extraEnvVars: []
@@ -983,7 +983,7 @@ mod-eusage-reports:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-event-config:
   extraEnvVars: []
@@ -1000,7 +1000,7 @@ mod-event-config:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-feesfines:
   extraEnvVars: []
@@ -1017,7 +1017,7 @@ mod-feesfines:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-finance:
   extraEnvVars: []
@@ -1031,7 +1031,7 @@ mod-finance:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-finance-storage:
   extraEnvVars: []
@@ -1048,7 +1048,7 @@ mod-finance-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-fqm-manager:
   extraEnvVars:
@@ -1069,7 +1069,7 @@ mod-fqm-manager:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-gobi:
   extraEnvVars: []
@@ -1083,7 +1083,7 @@ mod-gobi:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-graphql:
   extraEnvVars: []
@@ -1097,7 +1097,7 @@ mod-graphql:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-inn-reach:
   extraEnvVars:
@@ -1125,7 +1125,7 @@ mod-inn-reach:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-inventory:
   extraEnvVars: []
@@ -1145,7 +1145,7 @@ mod-inventory:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-inventory-storage:
   extraEnvVars:
@@ -1169,7 +1169,7 @@ mod-inventory-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-inventory-update:
   extraEnvVars: []
@@ -1183,7 +1183,7 @@ mod-inventory-update:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-invoice:
   extraEnvVars:
@@ -1207,7 +1207,7 @@ mod-invoice:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-invoice-storage:
   extraEnvVars: []
@@ -1224,7 +1224,7 @@ mod-invoice-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-kb-ebsco-java:
   extraEnvVars: []
@@ -1241,7 +1241,7 @@ mod-kb-ebsco-java:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-ldp:
   extraEnvVars: []
@@ -1258,7 +1258,7 @@ mod-ldp:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-licenses:
   extraEnvVars: []
@@ -1275,7 +1275,7 @@ mod-licenses:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-lists:
   extraEnvVars:
@@ -1307,7 +1307,7 @@ mod-lists:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-login:
   extraEnvVars: []
@@ -1324,7 +1324,7 @@ mod-login:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-login-saml:
   extraEnvVars: []
@@ -1338,7 +1338,7 @@ mod-login-saml:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-marc-migrations:
   extraEnvVars: []
@@ -1361,7 +1361,7 @@ mod-marc-migrations:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-marccat:
   extraEnvVars: []
@@ -1387,7 +1387,7 @@ mod-ncip:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-notes:
   extraEnvVars: []
@@ -1404,7 +1404,7 @@ mod-notes:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-notify:
   extraEnvVars: []
@@ -1421,7 +1421,7 @@ mod-notify:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-oa:
   extraEnvVars: []
@@ -1438,7 +1438,7 @@ mod-oa:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-oai-pmh:
   extraEnvVars:
@@ -1460,7 +1460,7 @@ mod-oai-pmh:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-orders:
   extraEnvVars: []
@@ -1480,7 +1480,7 @@ mod-orders:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-orders-storage:
   extraEnvVars:
@@ -1502,7 +1502,7 @@ mod-orders-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-dcb:
   extraEnvVars:
@@ -1527,7 +1527,7 @@ mod-dcb:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-circulation-item:
   extraEnvVars:
@@ -1546,7 +1546,7 @@ mod-circulation-item:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-organizations:
   extraEnvVars: []
@@ -1560,7 +1560,7 @@ mod-organizations:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-organizations-storage:
   extraEnvVars: []
@@ -1577,7 +1577,7 @@ mod-organizations-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-password-validator:
   extraEnvVars: []
@@ -1594,7 +1594,7 @@ mod-password-validator:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-patron:
   extraEnvVars: []
@@ -1608,7 +1608,7 @@ mod-patron:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-patron-blocks:
   extraEnvVars: []
@@ -1625,7 +1625,7 @@ mod-patron-blocks:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-permissions:
   extraEnvVars: []
@@ -1642,7 +1642,7 @@ mod-permissions:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-pubsub:
   extraEnvVars: []
@@ -1668,7 +1668,7 @@ mod-pubsub:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-quick-marc:
   extraEnvVars:
@@ -1704,7 +1704,7 @@ mod-reading-room:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-record-specifications:
   integrations:
@@ -1722,7 +1722,7 @@ mod-record-specifications:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-remote-storage:
   extraEnvVars: []
@@ -1745,7 +1745,7 @@ mod-remote-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-requests-mediated:
   extraEnvVars: []
@@ -1762,7 +1762,7 @@ mod-requests-mediated:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-rtac:
   extraEnvVars: []
@@ -1776,7 +1776,7 @@ mod-rtac:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-search:
   extraEnvVars:
@@ -1845,7 +1845,7 @@ mod-search:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-sender:
   extraEnvVars: []
@@ -1859,7 +1859,7 @@ mod-sender:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-serials-management:
   extraEnvVars:
@@ -1878,7 +1878,7 @@ mod-serials-management:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-service-interaction:
   extraEnvVars:
@@ -1900,7 +1900,7 @@ mod-service-interaction:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-settings:
   extraEnvVars: []
@@ -1917,7 +1917,7 @@ mod-settings:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-source-record-manager:
   extraEnvVars: []
@@ -1937,7 +1937,7 @@ mod-source-record-manager:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-source-record-storage:
   extraEnvVars: []
@@ -1957,7 +1957,7 @@ mod-source-record-storage:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-tags:
   extraEnvVars: []
@@ -1974,7 +1974,7 @@ mod-tags:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-template-engine:
   extraEnvVars: []
@@ -1991,7 +1991,7 @@ mod-template-engine:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-tlr:
   extraEnvVars: []
@@ -2008,7 +2008,7 @@ mod-tlr:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-user-import:
   extraEnvVars: []
@@ -2022,7 +2022,7 @@ mod-user-import:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-users:
   extraEnvVars: []
@@ -2042,7 +2042,7 @@ mod-users:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-users-bl:
   extraEnvVars: []
@@ -2056,7 +2056,7 @@ mod-users-bl:
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 2
+    maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-workflow:
   extraEnvVars: []
@@ -2118,8 +2118,8 @@ okapi:
   autoscaling:
     enabled: true
     minReplicas: 2
-    maxReplicas: 3
-    targetMemoryUtilizationPercentage: 75
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 85
 ui-bundle:
   ingress:
     enabled: true

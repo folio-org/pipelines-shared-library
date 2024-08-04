@@ -59,7 +59,9 @@ edge-connexion:
   - copycat.all
 edge-sip2: {}
 edge-courses: {}
-edge-fqm: {}
+edge-fqm:
+  permissions:
+  - fqm.query.all
 edge-dcb:
   tenants:
   - tenant: testedgedcb
