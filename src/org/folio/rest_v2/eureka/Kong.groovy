@@ -87,12 +87,15 @@ class Kong extends Common {
     }
 
     logger.info("""
-      Info on the newly created tenant \"${tenantId}\"
+      Info on the newly created tenant \"${response.id}\"
       Status: ${response.responseCode}
       Response content:
       ${content}""")
 
-    return Tenant.getTenantFromJson(content)
+    Tenant createdTenant = Tenant.getTenantFromJson(content)
+    logger.info(createdTenant)
+
+    return createdTenant
   }
 
   Tenant getTenant(String tenantId){

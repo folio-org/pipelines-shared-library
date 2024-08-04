@@ -23,6 +23,15 @@ class Tenant {
     this.tenantUi.tenantId = this.tenantId
   }
 
+  String toString(){
+    return """
+      class_name: 'Tenant',
+      tenantId: '${tenantId}',
+      tenantName: '${tenantName}',
+      tenantDescription: '${tenantDescription}'
+    """
+  }
+
   static Tenant getTenantFromJson(def json){
     return new Tenant(
       tenantId: json.id
