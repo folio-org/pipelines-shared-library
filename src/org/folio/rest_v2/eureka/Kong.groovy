@@ -64,17 +64,13 @@ class Kong extends Common {
       if (content.toString().contains("must match \\\"[a-z][a-z0-9]{0,30}\\\"")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" is invalid.
-          "Status: ${response.responseCode}
-          "Response content:
-          ${steps.writeJSON(json: content.toString(), returnText: true, pretty: 2)}""")
+          "Status: ${response.responseCode}""")
 
         throw new Exception("Build failed: " + response.content)
       } else if (content.toString().contains("Tenant's name already taken")) {
         logger.info("""
           Tenant \"${tenant.tenantName}\" already exists
-          Status: ${response.responseCode}
-          Response content:
-          ${steps.writeJSON(json: content.toString(), returnText: true, pretty: 2)}""")
+          Status: ${response.responseCode}}""")
 
         Tenant existedTenant = getTenantByName(tenant.tenantName)
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
@@ -83,9 +79,7 @@ class Kong extends Common {
       } else {
         logger.error("""
           Create new tenant results
-          Status: ${response.responseCode}
-          Response content:
-          ${steps.writeJSON(json: content.toString(), returnText: true, pretty: 2)}""")
+          Status: ${response.responseCode}""")
 
         throw new Exception("Build failed: " + response.content)
       }
@@ -93,9 +87,7 @@ class Kong extends Common {
 
     logger.info("""
       Info on the newly created tenant \"${tenantId}\"
-      Status: ${response.responseCode}
-      Response content:
-      ${steps.writeJSON(json: content.toString(), returnText: true, pretty: 2)}""")
+      Status: ${response.responseCode}""")
 
     return Tenant.getTenantFromJson(content)
   }
