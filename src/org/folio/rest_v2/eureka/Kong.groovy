@@ -52,7 +52,7 @@ class Kong extends Common {
       description: tenant.tenantDescription
     ]
 
-    def response = restClient.post(generateUrl("/tenants"), body, headers)
+    def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
     def content = steps.readJSON(text: response.content)
 
     if (response.status == 400) {
