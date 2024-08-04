@@ -68,7 +68,7 @@ class RestClient {
       logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
     }
 
-    if (!validResponseCodes?.contains(connection.responseCode) || connection.responseCode >= 400){
+    if (!validResponseCodes?.contains(connection.responseCode) && connection.responseCode >= 400){
       handleHttpError(connection.responseCode, connection.responseMessage, response.body.toString())
     }
 
