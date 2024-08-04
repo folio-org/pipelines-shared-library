@@ -84,7 +84,7 @@ void call(CreateNamespaceParameters args) {
       .withIndex(new Index(true, true))
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
-      .withTenantName("diku9")
+      .withTenantName("diku2")
     )
 
 //    stage('[Helm] Deploy mgr-*') {
