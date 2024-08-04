@@ -1,9 +1,8 @@
 package org.folio.rest_v2.eureka
 
-import hudson.util.Secret
+
 import org.folio.models.EurekaTenant
 import org.folio.models.OkapiTenant
-import org.folio.models.OkapiUser
 import org.folio.rest_v2.Common
 import org.folio.utilities.RequestException
 
