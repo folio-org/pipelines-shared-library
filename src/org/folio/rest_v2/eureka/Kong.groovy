@@ -130,4 +130,43 @@ class Kong extends Common {
   boolean isTenantExist(String tenantId) {
     return getTenant(tenantId) ? true : false
   }
+
+  void enableApplicationsOnTenant(Tenant tenant, List<String> applications) {
+    logger.info("Enable (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId}...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    Map body = [
+      tenantId: tenant.tenantId,
+      applications: applications
+    ]
+
+    def response = restClient.post(
+      generateUrl("/entitlements?purgeOnRollback=true&ignoreErrors=false")
+      , body
+      , headers
+      , [201, 400]
+    )
+
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("Application is already entitled")) {
+        logger.info("""
+          Application is already entitled, no actions needed..
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      } else {
+        logger.error("Enabling application for tenant failed: ${contentStr}")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
+
+    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId} were finished successfully")
+  }
 }
