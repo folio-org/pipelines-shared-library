@@ -53,9 +53,6 @@ class Kong extends Common {
     ]
 
     def response = restClient.post(generateUrl("/tenants"), body, headers, [201, 400])
-    logger.info(response)
-    logger.info(response.body)
-
     String content = response.body.toString()
 
     if (response.responseCode == 400) {
