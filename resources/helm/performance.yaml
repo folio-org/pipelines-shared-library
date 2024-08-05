@@ -1139,7 +1139,7 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 634Mi
+      memory: 2048Mi
     requests:
       memory: 507Mi
   autoscaling:
@@ -1662,7 +1662,7 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      memory: 1892Mi
+      memory: 3072Mi
     requests:
       memory: 1513Mi
   autoscaling:
