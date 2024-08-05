@@ -153,6 +153,8 @@ void call(CreateNamespaceParameters args) {
                                    custom_tag    : ui.getTag(),
                                    consortia     : tenant instanceof OkapiTenantConsortia,
                                    clientId      : ui.getTenantId() + "-application"]
+
+              println("jobParameters=${jobParameters}")
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
