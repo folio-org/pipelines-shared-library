@@ -152,7 +152,9 @@ void call(CreateNamespaceParameters args) {
                                    custom_url    : "https://${namespace.getDomains()['kong']}",
                                    custom_tag    : ui.getTag(),
                                    consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application"]
+                                   clientId      : ui.getTenantId() + "-application",
+                                   rancher_cluster_name: namespace.getClusterName(),
+                                   projectName   : namespace.getNamespaceName()]
 
               println("jobParameters=${jobParameters}")
               uiBuild(jobParameters, releaseVersion)
