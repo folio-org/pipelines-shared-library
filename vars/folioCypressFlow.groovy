@@ -88,6 +88,9 @@ void call(params) {
       if (runSanityCheck) {
         stage('[Cypress] Run sanity suite') {
           String sanityExecParams = "--env grepTags=\"fse+sanity\""
+
+          setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
           cloneCypressRepo(branch)
           cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
@@ -174,6 +177,8 @@ void call(params) {
       if (sequentialExecParameters?.trim()) {
         stage('[Cypress] Sequential run') {
           script {
+            setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
             cloneCypressRepo(branch)
             cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
