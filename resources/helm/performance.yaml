@@ -1636,9 +1636,9 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      memory: 655Mi
+      memory: 2048Mi
     requests:
-      memory: 524Mi
+      memory: 1280Mi
   autoscaling:
     enabled: true
     minReplicas: 1
