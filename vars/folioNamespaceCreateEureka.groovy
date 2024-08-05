@@ -154,7 +154,7 @@ void call(CreateNamespaceParameters args) {
                                    consortia     : tenant instanceof OkapiTenantConsortia,
                                    clientId      : ui.getTenantId() + "-application",
                                    rancher_cluster_name: namespace.getClusterName(),
-                                   projectName   : namespace.getNamespaceName()]
+                                   rancher_project_name: namespace.getNamespaceName()]
 
               println("jobParameters=${jobParameters}")
               uiBuild(jobParameters, releaseVersion)
