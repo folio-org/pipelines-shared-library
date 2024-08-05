@@ -24,8 +24,8 @@ module.exports = {
   modules: {
     '@folio/acquisition-units': {},
     '@folio/agreements': {},
-    '@folio/authorization-roles': {},
-    '@folio/authorization-policies': {},
+//    '@folio/authorization-roles': {},
+//    '@folio/authorization-policies': {},
     '@folio/bulk-edit': {},
     '@folio/calendar' : {},
     '@folio/checkin' : {},
