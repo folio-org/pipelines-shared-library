@@ -125,44 +125,44 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-
-    stage('[Rest] Initialize') {
-      retry(2) {
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-      }
-    }
-
-//    if (args.uiBuild) {
-//      stage('Build and deploy UI') {
-//        Map branches = [:]
-//        namespace.getTenants().each { tenantId, tenant ->
-//          if (tenant.getTenantUi()) {
-//            TenantUi ui = tenant.getTenantUi()
-//            branches[tenantId] = {
-//              def jobParameters = [eureka        : args.eureka,
-//                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
-//                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-//                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
-//                                   hasAllPerms   : true,
-//                                   isSingleTenant: true,
-//                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-//                                   tenantId      : ui.getTenantId(),
-//                                   custom_hash   : ui.getHash(),
-//                                   custom_url    : "https://${namespace.getDomains()['kong']}",
-//                                   custom_tag    : ui.getTag(),
-//                                   consortia     : tenant instanceof OkapiTenantConsortia,
-//                                   clientId      : ui.getTenantId() + "-application"]
-//              uiBuild(jobParameters, releaseVersion)
-//              folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//              }
-//            }
-//          }
-//        }
-//        parallel branches
+//    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+//
+//    stage('[Rest] Initialize') {
+//      retry(2) {
+//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
 //      }
 //    }
+
+    if (args.uiBuild) {
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [eureka        : args.eureka,
+                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
+                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
+                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
+                                   hasAllPerms   : true,
+                                   isSingleTenant: true,
+                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                                   tenantId      : ui.getTenantId(),
+                                   custom_hash   : ui.getHash(),
+                                   custom_url    : "https://${namespace.getDomains()['kong']}",
+                                   custom_tag    : ui.getTag(),
+                                   consortia     : tenant instanceof OkapiTenantConsortia,
+                                   clientId      : ui.getTenantId() + "-application"]
+              uiBuild(jobParameters, releaseVersion)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
+            }
+          }
+        }
+        parallel branches
+      }
+    }
 
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
