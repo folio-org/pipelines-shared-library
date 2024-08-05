@@ -140,7 +140,10 @@ void call(CreateNamespaceParameters args) {
                                    custom_url    : "https://${namespace.getDomains()['kong']}",
                                    custom_tag    : ui.getTag(),
                                    consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application"]
+                                   clientId      : ui.getTenantId() + "-application",
+                                   rancher_cluster_name: namespace.getClusterName(),
+                                   rancher_project_name: namespace.getNamespaceName()]
+
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
