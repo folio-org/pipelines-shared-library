@@ -40,3 +40,6 @@ logs/
 # Java
 build/
 out/
+
+# Personal
+localDev
