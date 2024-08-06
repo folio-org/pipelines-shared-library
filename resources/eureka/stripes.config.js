@@ -24,8 +24,8 @@ module.exports = {
   modules: {
     '@folio/acquisition-units': {},
     '@folio/agreements': {},
-//    '@folio/authorization-roles': {},
-//    '@folio/authorization-policies': {},
+    '@folio/authorization-roles': {},
+    '@folio/authorization-policies': {},
     '@folio/bulk-edit': {},
     '@folio/calendar' : {},
     '@folio/checkin' : {},
@@ -48,7 +48,7 @@ module.exports = {
     '@folio/invoice': {},
     '@folio/ldp': {},
     '@folio/licenses': {},
-//    '@folio/lists': {},
+    '@folio/lists': {},
     '@folio/local-kb-admin': {},
     '@folio/marc-authorities': {},
     '@folio/myprofile' : {},
@@ -88,7 +88,7 @@ module.exports = {
     '@folio/tags': {},
     '@folio/tenant-settings' : {},
     '@folio/users' : {}
-//    , '@folio/plugin-select-application' : {}
+    , '@folio/plugin-select-application' : {}
   },
   branding: {
     logo: {
