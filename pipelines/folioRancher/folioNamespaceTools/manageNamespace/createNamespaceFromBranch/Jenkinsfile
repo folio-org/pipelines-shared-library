@@ -6,6 +6,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1334-Q') _
 
+//TODO add selector OKAPI/EUREKA instead EUREKA boolean flag
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
