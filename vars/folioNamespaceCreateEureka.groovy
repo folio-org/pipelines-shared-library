@@ -65,7 +65,7 @@ void call(CreateNamespaceParameters args) {
     boolean releaseVersion = true
     String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
-    def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
+    def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'R1-2024')
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')
     InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -78,6 +78,8 @@ void call(CreateNamespaceParameters args) {
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
+    println(installJson)
+    input("Paused for review installJson...")
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
