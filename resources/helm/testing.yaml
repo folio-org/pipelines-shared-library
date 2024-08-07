@@ -1447,6 +1447,7 @@ mod-reading-room:
     requests:
       memory: 341Mi
 mod-record-specifications:
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
