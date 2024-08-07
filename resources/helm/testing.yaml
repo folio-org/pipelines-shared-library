@@ -2108,9 +2108,9 @@ okapi:
   replicaCount: 2
   resources:
     limits:
-      memory: 853Mi
+      memory: 1536Mi
     requests:
-      memory: 682Mi
+      memory: 1024Mi
   integrations:
     db:
       enabled: true
