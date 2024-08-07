@@ -87,6 +87,8 @@ void call(Map params, boolean releaseVersion = true) {
 
   if (params.eureka) {
     stage('KC and UI') {
+      input "Wait for tenant..."
+
       RestClient client = new RestClient(this)
       Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
       def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
