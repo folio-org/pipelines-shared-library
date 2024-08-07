@@ -78,8 +78,6 @@ void call(CreateNamespaceParameters args) {
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     installJson.addAll(eurekaPlatform)
     namespace.getModules().setInstallJson(installJson)
-    println(installJson)
-    input("Paused for review installJson...")
 
     namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(namespace.getModules().getInstallJson().collect())
