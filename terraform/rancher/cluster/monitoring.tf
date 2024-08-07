@@ -219,6 +219,17 @@ resource "rancher2_app_v2" "prometheus" {
       plugins:
       - grafana-piechart-panel
     prometheus-node-exporter:
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoSchedule
+          key: folio.org/qualitygate
+          operator: Equal
+          value: cicypress
+        - effect: NoSchedule
+          key: folio.org/qualitygate
+          operator: Equal
+          value: cikarate
       prometheus:
         monitor:
           metricRelabelings:
