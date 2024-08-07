@@ -487,11 +487,6 @@ mod-agreements:
       memory: 1536Mi
     requests:
       memory: 1024Mi
-  autoscaling:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 4
-    targetMemoryUtilizationPercentage: 85
 mod-audit:
   extraEnvVars: []
   integrations:
