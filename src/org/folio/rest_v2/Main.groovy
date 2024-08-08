@@ -9,6 +9,7 @@ class Main extends Okapi {
   private Permissions permissions
   private Configurations config
   private Consortia consortia
+  private static KNOWN_INSTALL_ERRORS = ['Connection refused', 'Bad Request(400) - POST request for mod-serials-management']
 
   Main(Object context, String okapiDomain, OkapiTenant superTenant, boolean debug = false) {
     super(context, okapiDomain, superTenant, debug)
@@ -64,7 +65,11 @@ class Main extends Okapi {
   void createTenantFlow(OkapiTenant tenant) {
     createTenant(tenant)
     tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
-    tenantInstall(tenant, tenant.modules.installJson, 900000)
+
+    tenantInstallRetry(3, 300000, KNOWN_INSTALL_ERRORS) {
+      tenantInstall(tenant, tenant.modules.installJson, 900000)
+    }
+
     if (tenant.adminUser) {
       createAdminUser(tenant)
       createAdminUser(tenant, new OkapiUser('service_admin', 'admin'))
@@ -156,7 +161,7 @@ class Main extends Okapi {
 //        runIndex(tenant, index)
 //      }
 //    }
-    if(tenant.okapiConfig.ldpConfig){
+    if (tenant.okapiConfig.ldpConfig) {
       config.setLdpDbSettings(tenant)
       config.setLdpSqConfig(tenant)
     }
@@ -167,5 +172,25 @@ class Main extends Okapi {
             'mod-permissions': getLatestModuleId('mod-permissions'),
             'mod-login'      : getLatestModuleId('mod-login'),
             'mod-authtoken'  : getLatestModuleId('mod-authtoken')]
+  }
+
+
+  def tenantInstallRetry(int times, int delayMillis, List errorList = [], closure) {
+    int attempt = 0
+    while (attempt < times) {
+      try {
+        return closure()
+      } catch (Exception e) {
+        logger.warning(e.getMessage())
+        attempt++
+        def errorMessage = e.message ?: ""
+        boolean shouldRetry = errorList.any { errorMessage.contains(it) }
+        if (attempt >= times || !shouldRetry) {
+          throw e
+        }
+        logger.warning("Attempt ${attempt} failed, retrying in ${delayMillis}ms...")
+        sleep(delayMillis)
+      }
+    }
   }
 }
