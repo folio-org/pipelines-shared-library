@@ -520,7 +520,7 @@ mod-authtoken:
     db:
       enabled: true
       existingSecret: db-credentials
-  replicaCount: 2
+  replicaCount: 1
   resources:
     limits:
       memory: 190Mi
