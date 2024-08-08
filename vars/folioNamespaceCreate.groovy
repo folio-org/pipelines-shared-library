@@ -110,10 +110,10 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy Okapi') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-        if (namespace.getDeploymentConfigType() ==~ /testing|performance/) {
-          sleep time: 1, unit: 'MINUTES'
-          kubectl.setKubernetesResourceCount('deployment', 'okapi', namespace.getNamespaceName(), '2')
-        }
+//        if (namespace.getDeploymentConfigType() ==~ /testing|performance/) {
+//          sleep time: 1, unit: 'MINUTES'
+//          kubectl.setKubernetesResourceCount('deployment', 'okapi', namespace.getNamespaceName(), '2')
+//        }
 //        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
       }
     }
