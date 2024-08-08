@@ -485,13 +485,10 @@ mod-agreements:
   resources:
     limits:
       memory: 1536Mi
+      cpu: 0.5
     requests:
       memory: 1024Mi
-  autoscaling:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 4
-    targetMemoryUtilizationPercentage: 85
+      cpu: 0.25
 mod-audit:
   extraEnvVars: []
   integrations:
