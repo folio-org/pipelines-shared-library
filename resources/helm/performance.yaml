@@ -485,10 +485,13 @@ mod-agreements:
   resources:
     limits:
       memory: 1536Mi
-      cpu: 0.5
     requests:
       memory: 1024Mi
-      cpu: 0.25
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 85
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -621,9 +624,9 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
-      memory: 1434Mi
+      memory: 1024Mi
     requests:
-      memory: 1147Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1138,7 +1141,7 @@ mod-inventory:
     limits:
       memory: 2048Mi
     requests:
-      memory: 507Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1633,9 +1636,9 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      memory: 2048Mi
+      memory: 1536Mi
     requests:
-      memory: 1280Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1

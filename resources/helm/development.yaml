@@ -534,9 +534,9 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
-      memory: 275Mi
+      memory: 512Mi
     requests:
-      memory: 183Mi
+      memory: 384Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -939,9 +939,9 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 390Mi
+      memory: 1024Mi
     requests:
-      memory: 260Mi
+      memory: 768Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1306,9 +1306,9 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      memory: 432Mi
+      memory: 1024Mi
     requests:
-      memory: 288Mi
+      memory: 768Mi
 mod-pubsub:
   extraEnvVars: []
   integrations:
