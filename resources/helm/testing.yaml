@@ -2106,7 +2106,7 @@ okapi:
         servicePort: 9130
   service:
     type: NodePort
-  replicaCount: 2
+  replicaCount: 1
   resources:
     limits:
       memory: 1536Mi
@@ -2118,7 +2118,7 @@ okapi:
       existingSecret: db-credentials
   autoscaling:
     enabled: true
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 3
     targetMemoryUtilizationPercentage: 75
 ui-bundle:
