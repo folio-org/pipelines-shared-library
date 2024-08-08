@@ -1702,6 +1702,7 @@ mod-reading-room:
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 85
 mod-record-specifications:
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
