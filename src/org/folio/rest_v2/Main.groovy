@@ -9,7 +9,9 @@ class Main extends Okapi {
   private Permissions permissions
   private Configurations config
   private Consortia consortia
-  private static KNOWN_INSTALL_ERRORS = ['Connection refused', 'Bad Request(400) - POST request for mod-serials-management']
+  private static KNOWN_INSTALL_ERRORS = ['Connection refused',
+                                         'Bad Request(400) - POST request for mod-serials-management',
+                                         'Bad Request(400) - POST request for mod-licenses']
 
   Main(Object context, String okapiDomain, OkapiTenant superTenant, boolean debug = false) {
     super(context, okapiDomain, superTenant, debug)
