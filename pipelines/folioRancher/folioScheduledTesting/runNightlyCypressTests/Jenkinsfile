@@ -9,7 +9,7 @@ import org.folio.utilities.Logger
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 20 * * *')]),
+  pipelineTriggers([cron('H 21 * * *')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
