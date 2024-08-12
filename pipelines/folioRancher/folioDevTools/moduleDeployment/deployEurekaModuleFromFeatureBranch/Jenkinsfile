@@ -99,13 +99,14 @@ ansiColor('xterm') {
         dir(module.getName()) {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
-          logger.warning("Version from pom.xml: ${module.version}")
+          logger.debug("Version from pom.xml: ${module.getVersion()}")
 
           withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
             maven: Constants.MAVEN_TOOL_NAME,
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
             sh """
+              echo Compiling module ${module.getName()} with version ${module.getVersion()}
               mvn versions:set -DnewVersion=${module.getVersion()}
               mvn package ${mavenArguments}
             """
