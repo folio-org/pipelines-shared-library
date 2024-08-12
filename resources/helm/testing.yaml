@@ -1318,9 +1318,9 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
-      memory: 238Mi
+      memory: 768Mi
     requests:
-      memory: 190Mi
+      memory: 512Mi
   autoscaling:
     enabled: true
     minReplicas: 1

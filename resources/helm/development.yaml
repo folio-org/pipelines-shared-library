@@ -1073,9 +1073,9 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
-      memory: 234Mi
+      memory: 640Mi
     requests:
-      memory: 156Mi
+      memory: 384Mi
 mod-login-saml:
   extraEnvVars: []
   integrations: {}
