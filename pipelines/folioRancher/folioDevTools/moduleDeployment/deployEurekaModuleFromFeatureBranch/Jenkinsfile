@@ -97,7 +97,7 @@ ansiColor('xterm') {
 
       stage('[Maven] Compile') {
         dir(module.getName()) {
-          String origVersion = readMavenPom().getVersion()
+          String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
 
           withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
