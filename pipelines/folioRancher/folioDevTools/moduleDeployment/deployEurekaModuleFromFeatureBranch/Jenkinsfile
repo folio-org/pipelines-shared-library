@@ -8,7 +8,7 @@ import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1358') _
 
 /**
  * Job properties and parameters
