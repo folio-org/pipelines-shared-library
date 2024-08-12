@@ -82,7 +82,7 @@ String selectJavaBasedOnAgent(String agent_name) {
       return 'openjdk-17-jenkins-slave-all'
       break
     default:
-      new Logger(this, 'common').error('Can not detect required Java version')
+      new Logger(this, 'common').error('Can not detect required Java version. Please check the Agent name.')
   }
 }
 
