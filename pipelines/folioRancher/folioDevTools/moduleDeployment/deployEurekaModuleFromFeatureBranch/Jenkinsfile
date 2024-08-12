@@ -1,4 +1,6 @@
 #!groovy
+import org.folio.Constants
+
 /**
  * This Jenkins pipeline deploys Eureka module version from feature branch
  */
@@ -92,6 +94,29 @@ ansiColor('xterm') {
                                       [$class: 'SubmoduleOption', recursiveSubmodules: true]],
                   userRemoteConfigs: [[url: "https://github.com/folio-org/${module.getName()}.git"]]])
       }
+
+      stage('[Maven] Compile') {
+        dir(module.getName()) {
+          String origVersion = readMavenPom().getVersion()
+          module.version = "${origVersion}.${featureHash}"
+
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
+            maven: Constants.MAVEN_TOOL_NAME,
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]) {
+            sh """
+              mvn versions:set -DnewVersion=${module.getVersion()}
+              mvn package ${mavenArguments}
+            """
+          }
+
+          String descriptorPath = "target/ModuleDescriptor.json"
+          if (fileExists(descriptorPath)) {
+            module.descriptor = [readJSON(file: descriptorPath)]
+          }
+        }
+      }
+
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
