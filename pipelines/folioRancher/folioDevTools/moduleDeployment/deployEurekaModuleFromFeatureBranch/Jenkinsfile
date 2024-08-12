@@ -1,0 +1,105 @@
+/**
+ * This Jenkins pipeline deploys Eureka module version from feature branch
+ */
+
+#!groovy
+import org.folio.models.FolioModule
+import org.folio.models.InstallRequestParams
+import org.folio.models.RancherNamespace
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+          folioParameters.cluster(),
+          folioParameters.namespace(),
+          folioParameters.moduleName(),
+          folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+          folioParameters.configType(),
+          string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+          folioParameters.loadReference(false),
+          folioParameters.loadSample(false),
+          folioParameters.simulate(),
+          folioParameters.ignoreErrors(),
+          folioParameters.agent(),
+          folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Job variables
+ */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/**
+ * Collect Folio module configuration
+ */
+FolioModule module = new FolioModule()
+module.name = params.MODULE_NAME
+
+/**
+ * Collect feature branch and hash
+ */
+String featureBranch = params.MODULE_BRANCH
+String featureHash = folioHashCommitCheck.getLatestCommitHash(module.getName(), featureBranch).take(7)
+
+// Collect Maven arguments
+String mavenArguments = params.MAVEN_ARGS.trim()
+List installJson = []
+
+/**
+ * Collect install request parameters
+ */
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+  .withSimulate(params.SIMULATE)
+  .withIgnoreErrors(params.IGNORE_ERRORS)
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      }
+
+      stage('[Git] Checkout module source') {
+        checkout([$class           : 'GitSCM',
+                  branches         : [[name: "*/${featureBranch}"]],
+                  extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.getName()],
+                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                      [$class: 'AuthorInChangelog'],
+                                      [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+                  userRemoteConfigs: [[url: "https://github.com/folio-org/${module.getName()}.git"]]])
+      }
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
