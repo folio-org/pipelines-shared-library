@@ -15,7 +15,9 @@ class Constants {
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
-  static List AWS_EKS_DEV_NAMESPACES = ['aggies',
+  // TODO: RANCHER-1358: rollback 'volya' namespace from the list once feature development is completed
+  static List AWS_EKS_DEV_NAMESPACES = ['volya',
+                                        'aggies',
                                         'bama',
                                         'bienenvolk',
                                         'bulk-edit',
