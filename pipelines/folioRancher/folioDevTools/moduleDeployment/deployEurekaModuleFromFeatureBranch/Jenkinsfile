@@ -99,6 +99,7 @@ ansiColor('xterm') {
         dir(module.getName()) {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
+          logger.warning("Version from pom.xml: ${module.version}")
 
           withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
             maven: Constants.MAVEN_TOOL_NAME,
