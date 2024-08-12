@@ -15,9 +15,7 @@ class Constants {
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'sprint', 'pre-bugfest', 'orchid-migration']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
-  // TODO: RANCHER-1358: rollback 'volya' namespace from the list once feature development is completed
-  static List AWS_EKS_DEV_NAMESPACES = ['volya',
-                                        'aggies',
+  static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
                                         'bulk-edit',
@@ -57,11 +55,17 @@ class Constants {
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
+  static List AWS_EKS_EUREKA_NAMESPACES = [
+    'aggies',
+    'scout',
+    'siphon',
+    'volya'
+  ]
   static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'    : AWS_EKS_DEV_NAMESPACES,
                                           'folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                           'folio-perf'   : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
                                           'folio-tmp'    : AWS_EKS_TMP_NAMESPACES,
-                                          'folio-eureka' : AWS_EKS_DEV_NAMESPACES]
+                                          'folio-eureka' : AWS_EKS_EUREKA_NAMESPACES]
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing']
