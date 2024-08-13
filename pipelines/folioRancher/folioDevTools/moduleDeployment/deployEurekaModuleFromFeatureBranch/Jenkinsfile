@@ -5,7 +5,9 @@
 import org.folio.Constants
 import org.folio.models.FolioModule
 import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
 import org.folio.utilities.Logger
 
 // TODO: RANCHER-1358 - get rid off custom branch mention once feature development is done
@@ -72,6 +74,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
+Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 /**
  * Pipeline
@@ -124,6 +127,36 @@ ansiColor('xterm') {
             image.push()
           }
         }
+      }
+
+      stage('Generate context') {
+        if (module.getName() == 'okapi') {
+          namespace.setOkapiVersion(module.getVersion() - ".${featureHash}")
+        } else {
+          installJson = [["id"    : "${module.getName()}-${module.getVersion()}",
+                          "action": "enable"]]
+        }
+
+        //TODO change to retrieve admin user information from secrets
+        Map folioTenants = folioDefault.tenants() + folioDefault.consortiaTenants()
+        main.getTenantsList().each { tenantId ->
+          if (tenantId == 'supertenant') {
+            if (module.getName() ==~ /mod-(permissions|users|login|authtoken)/) {
+              namespace.getSuperTenant().withInstallJson(installJson)
+            }
+          } else {
+            namespace.addTenant(new OkapiTenant(tenantId)
+              .withInstallJson(installJson)
+              .withInstallRequestParams(installRequestParams.clone()))
+            if (folioTenants.containsKey(tenantId)) {
+              namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+            } else {
+              logger.warning("Credentials missing for tenant ${tenantId}")
+            }
+          }
+        }
+
+        namespace.getModules().setInstallJson(installJson)
       }
 
     } catch (e) {
