@@ -1,15 +1,14 @@
 #!groovy
-import org.folio.Constants
-
 /**
  * This Jenkins pipeline deploys Eureka module version from feature branch
  */
-
+import org.folio.Constants
 import org.folio.models.FolioModule
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
+// TODO: RANCHER-1358 - get rid off custom branch mention once feature development is done
 @Library('pipelines-shared-library@RANCHER-1358') _
 
 /**
@@ -113,6 +112,16 @@ ansiColor('xterm') {
           String descriptorPath = "target/ModuleDescriptor.json"
           if (fileExists(descriptorPath)) {
             module.descriptor = [readJSON(file: descriptorPath)]
+          }
+        }
+      }
+
+      stage('[Docker] Build and push') {
+        common.checkEcrRepoExistence(module.getName())
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(module.getName()) {
+            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+            image.push()
           }
         }
       }
