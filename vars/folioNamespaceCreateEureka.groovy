@@ -124,13 +124,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    Eureka eureka = new Eureka(
-      this,
-      Kong.get(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-    )
-
     stage('[Rest] Initialize') {
       retry(2) {
+        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
