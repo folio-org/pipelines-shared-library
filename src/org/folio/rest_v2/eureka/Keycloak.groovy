@@ -29,6 +29,7 @@ class Keycloak extends Base {
    */
   Keycloak(Object context, String keycloakURL, boolean debug = false) {
     super(context, debug)
+    logger.debug("I am inside Keycloak constructor")
     this.keycloakURL = keycloakURL
   }
 
