@@ -3,6 +3,7 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.Kong
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
@@ -61,10 +62,10 @@ void call(CreateNamespaceParameters args) {
 
     //Set install configuration
     String defaultTenantId = 'diku'
-    String folioRepository = 'application-descriptors'
+    String folioRepository = 'platform-complete'
     boolean releaseVersion = true
     String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
     def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')
@@ -123,7 +124,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    Eureka eureka = new Eureka(
+      this,
+      Kong.get(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    )
 
     stage('[Rest] Initialize') {
       retry(2) {
@@ -150,7 +154,10 @@ void call(CreateNamespaceParameters args) {
                                    custom_url    : "https://${namespace.getDomains()['kong']}",
                                    custom_tag    : ui.getTag(),
                                    consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application"]
+                                   clientId      : ui.getTenantId() + "-application",
+                                   rancher_cluster_name: namespace.getClusterName(),
+                                   rancher_project_name: namespace.getNamespaceName()]
+
               uiBuild(jobParameters, releaseVersion)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
