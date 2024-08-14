@@ -14,7 +14,10 @@ class Tenant {
   Modules modules
 
   /** Index information associated with the tenant. */
-  Index indexes
+  Index index
+
+  /** List of indexes associated with the tenant. */
+  List<Index> indexes
 
   /** Parameters for installation requests for the tenant. */
   InstallRequestParams installRequestParams
