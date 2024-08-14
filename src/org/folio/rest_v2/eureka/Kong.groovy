@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.Tenant
 
 class Kong<T extends Kong> extends Base {
@@ -43,6 +44,7 @@ class Kong<T extends Kong> extends Base {
     return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, addOkapiAuth)
   }
 
+  @NonCPS
   static T get(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     return (T) new Kong(context, kongUrl, new Keycloak(context, keycloakUrl, debug), debug)
   }
