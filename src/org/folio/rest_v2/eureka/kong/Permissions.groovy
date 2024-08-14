@@ -1,15 +1,24 @@
 package org.folio.rest_v2.eureka.kong
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.Role
 import org.folio.models.Tenant
 import org.folio.models.User
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
-class Permissions extends Kong<Permissions>{
+class Permissions extends Kong{
 
-  protected Permissions(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Permissions(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
+  }
+
+  Permissions(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, debug)
+  }
+
+  Permissions(Kong kong){
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debug)
   }
 
   Role createRole(Tenant tenant, Role role) {
@@ -131,5 +140,10 @@ class Permissions extends Kong<Permissions>{
     restClient.post(generateUrl("/roles/users"), body, headers)
 
     return this
+  }
+
+  @NonCPS
+  static Permissions get(Kong kong){
+    return new Permissions(kong)
   }
 }

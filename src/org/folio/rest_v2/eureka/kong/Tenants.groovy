@@ -1,13 +1,22 @@
 package org.folio.rest_v2.eureka.kong
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.Tenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
-class Tenants extends Kong<Tenants>{
+class Tenants extends Kong{
 
-  protected Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
+  }
+
+  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, debug)
+  }
+
+  Tenants(Kong kong){
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debug)
   }
 
   Tenant createTenant(Tenant tenant) {
@@ -133,5 +142,10 @@ class Tenants extends Kong<Tenants>{
     }
 
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId} were finished successfully")
+  }
+
+  @NonCPS
+  static Tenants get(Kong kong){
+    return new Tenants(kong)
   }
 }
