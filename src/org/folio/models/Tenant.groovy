@@ -14,7 +14,7 @@ class Tenant {
   Modules modules
 
   /** Index information associated with the tenant. */
-  Index index
+  Index indexes
 
   /** Parameters for installation requests for the tenant. */
   InstallRequestParams installRequestParams
@@ -30,6 +30,7 @@ class Tenant {
     this.tenantId = tenantId
     this.tenantDescription = tenantDescription
     this.modules = new Modules()
+    this.indexes = new ArrayList<>()
   }
 
   /**

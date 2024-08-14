@@ -4,65 +4,13 @@ package org.folio.models
  * OkapiTenant class representing a tenant configuration for Okapi.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
-// TODO: we need to extend this clase from the base class "Tenant"
-class OkapiTenant {
-  /** Tenant's identifier. */
-  String tenantId
-
-  /** Tenant's name. */
-  String tenantName
-
-  /** Description of the tenant. */
-  String tenantDescription
-
-  /** Administrator user of the tenant. */
-  OkapiUser adminUser
-
-  /** Modules that are installed for the tenant. */
-  Modules modules
-
-  /** List of index information associated with the tenant. */
-  List<Index> indexes
-
-  Index index
-
-  /** Parameters for installation requests for the tenant. */
-  InstallRequestParams installRequestParams
-
-  /** Okapi configuration for the tenant. */
-  OkapiConfig okapiConfig
-
-  /** User Interface (UI) details for the tenant. */
-  TenantUi tenantUi
-
+class OkapiTenant extends Tenant {
   /**
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.
    */
   OkapiTenant(String tenantId) {
-    this.tenantId = tenantId
-    this.modules = new Modules()
-    this.indexes = new ArrayList<>()
-  }
-
-  /**
-   * Chainable setter for tenant's name.
-   * @param tenantName Name of the tenant.
-   * @return The OkapiTenant object.
-   */
-  OkapiTenant withTenantName(String tenantName) {
-    this.tenantName = tenantName
-    return this
-  }
-
-  /**
-   * Chainable setter for tenant's description.
-   * @param tenantDescription Description of the tenant.
-   * @return The OkapiTenant object.
-   */
-  OkapiTenant withTenantDescription(String tenantDescription) {
-    this.tenantDescription = tenantDescription
-    return this
+    super(tenantId)
   }
 
   /**
@@ -88,26 +36,6 @@ class OkapiTenant {
   }
 
   /**
-   * Method to add an index to the tenant.
-   * @param index The Index object to add.
-   * @return The OkapiTenant instance for method chaining.
-   */
-  OkapiTenant withIndex(Index index) {
-    this.indexes.add(index)
-    return this
-  }
-
-  /**
-   * Chainable setter for install request parameters.
-   * @param installRequestParams Parameters for installation requests for the tenant.
-   * @return The OkapiTenant object.
-   */
-  OkapiTenant withInstallRequestParams(InstallRequestParams installRequestParams) {
-    this.installRequestParams = installRequestParams
-    return this
-  }
-
-  /**
    * Chainable setter for Okapi configuration.
    * It performs a deep copy of the configuration object.
    * @param config The OkapiConfig object.
@@ -115,17 +43,6 @@ class OkapiTenant {
    */
   OkapiTenant withConfiguration(OkapiConfig okapiConfig) {
     this.okapiConfig = okapiConfig
-    return this
-  }
-
-  /**
-   * Chainable setter for tenant UI.
-   * @param tenantUi User Interface (UI) details for the tenant.
-   * @return The OkapiTenant object.
-   */
-  OkapiTenant withTenantUi(TenantUi tenantUi) {
-    this.tenantUi = tenantUi
-    this.tenantUi.tenantId = this.tenantId
     return this
   }
 }

@@ -33,7 +33,7 @@ class RancherNamespace {
 
   String defaultTenantId
 
-  Map<String, OkapiTenant> tenants = [:]
+  Map<String, Tenant> tenants = [:]
 
   Map domains = [:]
 
