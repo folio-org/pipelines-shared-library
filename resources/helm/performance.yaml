@@ -1521,9 +1521,9 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
