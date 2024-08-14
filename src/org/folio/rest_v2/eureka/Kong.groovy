@@ -2,16 +2,20 @@ package org.folio.rest_v2.eureka
 
 import org.folio.models.Tenant
 
-class Kong<T extends Kong> extends Base {
+class Kong extends Base {
 
-  private Keycloak keycloak
-  private String kongUrl
+  protected Keycloak keycloak
+  protected String kongUrl
 
-  protected Kong(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Kong(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, debug)
 
     this.keycloak = keycloak
     this.kongUrl = kongUrl
+  }
+
+  Kong(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    this(context, kongUrl, new Keycloak(context, keycloakUrl, debug), debug)
   }
 
   /**
@@ -41,9 +45,5 @@ class Kong<T extends Kong> extends Base {
 
   Map<String, String> getTenantHttpHeaders(Tenant tenant, boolean addOkapiAuth = false) {
     return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, addOkapiAuth)
-  }
-
-  static T get(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    return (T) new Kong(context, kongUrl, new Keycloak(context, keycloakUrl, debug), debug)
   }
 }
