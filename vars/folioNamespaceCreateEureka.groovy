@@ -125,6 +125,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
       retry(2) {
+        println("I'm before Eureka")
         Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
         input message: "Waiting for application"
 
