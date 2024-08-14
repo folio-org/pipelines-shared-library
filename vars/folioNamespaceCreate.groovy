@@ -104,7 +104,7 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
+    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
     Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
     stage('[Helm] Deploy Okapi') {

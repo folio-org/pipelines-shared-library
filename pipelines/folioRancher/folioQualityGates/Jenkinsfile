@@ -164,7 +164,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
     } catch (e) {
       currentBuild.result = 'FAILURE'
       slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
-      input 'Paused for investigation'
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }

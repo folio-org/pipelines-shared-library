@@ -96,7 +96,6 @@ class Main extends Okapi {
     tenants.each { tenantId, tenant ->
       if (tenant.indexes) {
         tenant.indexes.each { index ->
-          logger.debug(index.dump())
           runIndex(tenant, index)
         }
       }
