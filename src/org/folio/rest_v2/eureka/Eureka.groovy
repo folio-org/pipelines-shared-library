@@ -24,6 +24,7 @@ class Eureka extends Base {
   }
 
   void createTenantFlow(OkapiTenant tenant, List<String> applications) {
+    logger.debug("I am in Eureka.createTenantFlow")
     Tenant eurekaTenant = Tenants.get(kong).createTenant(tenant)
 
     Tenants.get(kong).enableApplicationsOnTenant(eurekaTenant, applications)
