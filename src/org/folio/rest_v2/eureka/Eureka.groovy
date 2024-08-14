@@ -43,10 +43,7 @@ class Eureka extends Common {
    * @param keycloakUrl Keycloak service URL.
    * @param kongUrl Kong service URL.
    */
-  Eureka(
-    Object context,
-    String eurekaDomain,
-    boolean debug = false,
+  Eureka( Object context, String eurekaDomain, boolean debug = false,
     EurekaTenant masterTenant,
     String keycloakUrl,
     String kongUrl
