@@ -4,7 +4,6 @@ import org.folio.models.EurekaTenant
 import org.folio.utilities.RequestException
 
 class Eureka extends Common {
-
   /**
    * EurekaTenant object contains Master Tenant configuration for Eureka.
    * @attribute 'tenantId'     Default: "master"
@@ -12,9 +11,42 @@ class Eureka extends Common {
    */
   public EurekaTenant masterTenant
 
-  Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false) {
+  /**
+   * Keycloak service URL.
+   * Is the same for all Tenants
+   */
+  String keycloakUrl
+
+  /**
+   * Kong service URL.
+   * Is the same for all Tenants
+   */
+  String kongUrl
+
+  /**
+   * Tenant Manager Service URL.
+   * Is the same for all Tenants.
+   */
+  String tenantManagerUrl
+
+  /**
+   * Constructor that sets the tenantId and initializes modules.
+   * @param context Object that represents the context of the application.
+   * @param eurekaDomain Eureka service URL.
+   * @param masterTenant Master Tenant configuration for Eureka.
+   * @param keycloakUrl Keycloak service URL.
+   * @param kongUrl Kong service URL.
+   */
+  Eureka( Object context, String eurekaDomain, boolean debug = false,
+          EurekaTenant masterTenant,
+          String keycloakUrl,
+          String kongUrl
+  ) {
     super(context, eurekaDomain, debug)
     this.masterTenant = masterTenant
+    this.keycloakUrl = keycloakUrl
+    this.kongUrl = kongUrl
+    this.tenantManagerUrl = "${kongUrl}/tenants"
   }
 
   void createTenant(EurekaTenant tenant) {
