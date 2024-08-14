@@ -3,7 +3,6 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
-import org.folio.rest_v2.eureka.Kong
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
