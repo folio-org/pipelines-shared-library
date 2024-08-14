@@ -14,36 +14,34 @@ class Eureka extends Base {
   private Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    super(context, debug)
-
-    this.kong = Kong.get(context, kongUrl, keycloakUrl, debug)
+    this(new Kong(context, kongUrl, keycloakUrl, debug))
   }
 
-  Eureka(Kong kong, boolean debug = false) {
-    super(kong.context, debug)
+  Eureka(Kong kong) {
+    super(kong.context, kong.restClient.debug)
 
     this.kong = kong
   }
 
   void createTenantFlow(OkapiTenant tenant, List<String> applications) {
-    Tenant eurekaTenant = (kong as Tenants).createTenant(tenant)
+    Tenant eurekaTenant = Tenants.get(kong).createTenant(tenant)
 
-    (kong as Tenants).enableApplicationsOnTenant(eurekaTenant, applications)
+    Tenants.get(kong).enableApplicationsOnTenant(eurekaTenant, applications)
 
     //create tenant admin user
     createUserFlow(eurekaTenant, tenant.adminUser
       , new Role(name: "adminRole", desc: "Admin role")
-      , (kong as Permissions).getCapabilitiesId(tenant)
-      , (kong as Permissions).getCapabilitySetsId(tenant))
+      , Permissions.get(kong).getCapabilitiesId(tenant)
+      , Permissions.get(kong).getCapabilitySetsId(tenant))
   }
 
   void createUserFlow(Tenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets) {
-    user.patronGroup = (kong as UserGroups).createUserGroup(tenant, user.patronGroup)
-    user = (kong as Users).createUser(tenant, user)
-    (kong as Users).setUpdatePassword(tenant, user)
+    user.patronGroup = UserGroups.get(kong).createUserGroup(tenant, user.patronGroup)
+    user = Users.get(kong).createUser(tenant, user)
+    Users.get(kong).setUpdatePassword(tenant, user)
 
-    role = (kong as Permissions).createRole(tenant, role)
-    (kong as Permissions).assignCapabilitiesToRole(tenant, role, permissions)
+    role = Permissions.get(kong).createRole(tenant, role)
+    Permissions.get(kong).assignCapabilitiesToRole(tenant, role, permissions)
       .assignCapabilitySetsToRole(tenant, role, permissionSets)
       .assignRolesToUser(tenant, user, [role])
   }

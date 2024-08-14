@@ -127,6 +127,10 @@ class RestClient {
     }
   }
 
+  boolean isDebug(){
+    return debug
+  }
+
 
   private static void handleHttpError(int statusCode, String statusMessage, String responseBody) {
     throw new RequestException("${statusMessage}(${statusCode}) - ${responseBody}", statusCode)
