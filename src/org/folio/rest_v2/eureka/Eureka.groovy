@@ -14,7 +14,10 @@ class Eureka extends Base {
   private Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    this(new Kong(context, kongUrl, keycloakUrl, debug))
+    super(context, debug)
+    logger.debug("I'm in Eureka constructor")
+
+    this.kong = new Kong(context, kongUrl, keycloakUrl, debug)
   }
 
   Eureka(Kong kong) {
