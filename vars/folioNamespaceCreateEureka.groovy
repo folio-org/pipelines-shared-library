@@ -115,14 +115,6 @@ void call(CreateNamespaceParameters args) {
 //      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
     }
 
-//    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-//
-//    stage('[Rest] Initialize') {
-//      retry(2) {
-//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-//      }
-//    }
-
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
@@ -130,6 +122,15 @@ void call(CreateNamespaceParameters args) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
+
+    stage('[Rest] Initialize') {
+      retry(2) {
+        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+
+        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
+    }
+
     if (args.uiBuild) {
       stage('Build and deploy UI') {
         Map branches = [:]

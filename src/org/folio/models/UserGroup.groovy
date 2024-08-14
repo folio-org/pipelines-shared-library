@@ -1,6 +1,6 @@
 package org.folio.models
 
-class EurekaUserGroup {
+class UserGroup {
 
   String uuid = ""
 
@@ -14,6 +14,26 @@ class EurekaUserGroup {
    */
   String desc = ""
 
+  Map toMap(){
+    Map ret = [
+      group: group,
+      desc: desc
+    ]
+
+    if(uuid.trim())
+      ret.put("id", uuid)
+
+    return ret
+  }
+
+  static UserGroup getGroupFromContent(Map content){
+    return new UserGroup(
+      uuid: content.id,
+      group: content.group,
+      desc: content.desc
+    )
+  }
+
   /**
    * Returns string representation of the object.
    * Password and token are not included for security reasons.
@@ -23,7 +43,7 @@ class EurekaUserGroup {
   @Override
   String toString() {
     return """
-    EurekaGroup:
+    UserGroup:
       {
         "group": "$group"
         , "desc":  "$desc"

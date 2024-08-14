@@ -2,12 +2,13 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.folio.rest_v2.eureka.kong.UserGroups
 
-class EurekaUser {
+class User {
 
   String uuid = ""
 
-  EurekaUserGroup patronGroup = null
+  UserGroup patronGroup = null
 
   boolean active = true
 
@@ -46,6 +47,43 @@ class EurekaUser {
     }
   }
 
+  Map toMap(){
+    Map ret = [
+      username: username,
+      active: active,
+      type: type,
+      personal: [
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        preferredContactTypeId: preferredContactTypeId
+      ],
+      expirationDate: expirationDate
+    ]
+
+    if(patronGroup)
+      ret.put("group", patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid)
+
+    if(uuid.trim())
+      ret.put("id", uuid)
+
+    return ret
+  }
+
+  static User getUserFromContent(Map content, Tenant tenant, UserGroups groupsAPI){
+    return new User(
+      uuid: content.id,
+      username: content.username,
+      patronGroup: groupsAPI.getUserGroup(tenant, content.patronGroup as String),
+      active: content.active,
+      type: content.type,
+      firstName: content.personal.firstName,
+      lastName: content.personal.lastName,
+      email: content.personal.email,
+      preferredContactTypeId: content.personal.preferredContactTypeId
+    )
+  }
+
   /**
    * Returns string representation of the object.
    * Password and token are not included for security reasons.
@@ -56,16 +94,16 @@ class EurekaUser {
   @Override
   String toString() {
     return """
-    OkapiUser:
+    User:
       {
         "username": "$username"
         , "group":  "${patronGroup ? (patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid) : ""}"
         , "active": $active
-        , "type": $type
+        , "type": "$type"
         , "personal": {
-            , firstName: "$firstName"
-            , lastName: "$lastName"
-            , email: "$email"
+            "firstName": "$firstName"
+            , "lastName": "$lastName"
+            , "email": "$email"
             , "preferredContactTypeId": "$preferredContactTypeId"
         }
         , "expirationDate": "$expirationDate"

@@ -16,6 +16,26 @@ class Role {
    */
   String desc = ""
 
+  Map toMap(){
+    Map ret = [
+      name: name,
+      description: desc
+    ]
+
+    if(uuid.trim())
+      ret.put("id", uuid)
+
+    return ret
+  }
+
+  static Role getRoleFromContent(Map content){
+    return new Role(
+      uuid: content.id,
+      name: content.name,
+      desc: content.description
+    )
+  }
+
   /**
    * Returns string representation of the object.
    * Password and token are not included for security reasons.

@@ -3,15 +3,13 @@ package org.folio.rest_v2.eureka
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
 import org.folio.models.Tenant
-import org.folio.rest_v2.Common
-
 /**
  * The Keycloak class is responsible for various operations related to
  * user and tenant authorization and related to the Keycloak IAM/SSO product.
  * This includes generating headers, and tokens, checking user credentials,
  * setting user credentials, and logging in.
  */
-class Keycloak extends Common {
+class Keycloak extends Base {
 
   static String REALM_TOKEN_PATH_TEMPLATE = 'realms/${tenant}/protocol/openid-connect/token'
   static String MASTER_TENANT_CLIENT_ID = "folio-backend-admin-client"
@@ -30,7 +28,7 @@ class Keycloak extends Common {
    * @param debug Debug flag indicating whether debugging is enabled.
    */
   Keycloak(Object context, String keycloakURL, boolean debug = false) {
-    super(context, "", debug)
+    super(context, debug)
     this.keycloakURL = keycloakURL
   }
 
