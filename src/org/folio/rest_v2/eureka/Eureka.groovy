@@ -8,14 +8,23 @@ import org.folio.rest_v2.eureka.kong.Permissions
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.rest_v2.eureka.kong.UserGroups
 import org.folio.rest_v2.eureka.kong.Users
+import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
+import org.folio.utilities.Tools
 
 class Eureka extends Base {
 
   private Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    super(context, debug)
-    logger.debug("I'm in Eureka constructor")
+//    super(context, debug)
+
+    context.println("I'm in Eureka constructor")
+
+    this.context = context
+    this.logger = new Logger(context, this.getClass().getCanonicalName())
+    this.tools = new Tools(context)
+    this.restClient = new RestClient(context, debug)
 
     this.kong = new Kong(context, kongUrl, keycloakUrl, debug)
   }

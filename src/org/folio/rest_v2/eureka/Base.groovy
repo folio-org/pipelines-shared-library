@@ -10,6 +10,8 @@ class Base {
   protected Tools tools
   protected RestClient restClient
 
+  Base(){}
+
   Base(def context, boolean debug = false){
     context.println("I'm inside Base constructor")
     this.context = context
