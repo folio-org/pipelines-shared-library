@@ -11,9 +11,9 @@ class Base {
   protected RestClient restClient
 
   Base(def context, boolean debug = false){
+    context.println("I'm inside Base constructor")
     this.context = context
     this.logger = new Logger(context, this.getClass().getCanonicalName())
-    logger.debug("I'm inside Base constructor")
     this.tools = new Tools(context)
     this.restClient = new RestClient(context, debug)
   }
