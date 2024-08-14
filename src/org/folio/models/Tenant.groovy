@@ -25,21 +25,34 @@ class Tenant {
     this.tenantUi.tenantId = this.tenantId
   }
 
-  @NonCPS
-  String toString(){
-    return """
-      class_name: 'Tenant',
-      tenantId: '${tenantId}',
-      tenantName: '${tenantName}',
-      tenantDescription: '${tenantDescription}'
-    """
+  Map toMap(){
+    Map ret = [
+      name: tenantName,
+      description: tenantDescription
+    ]
+
+    if(tenantId.trim())
+      ret.put("id", tenantId)
+
+    return ret
   }
 
-  static Tenant getTenantFromJson(def json){
+  static Tenant getTenantFromContent(Map content){
     return new Tenant(
-      tenantId: json.id
-      , tenantName: json.name
-      , tenantDescription: json.description
+      tenantId: content.id
+      , tenantName: content.name
+      , tenantDescription: content.description
     )
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "Tenant",
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription"
+    """
   }
 }
