@@ -16,9 +16,46 @@ class Eureka extends Common {
    */
   public EurekaTenant masterTenant
 
-  Eureka(Object context, String eurekaDomain, EurekaTenant masterTenant, boolean debug = false) {
+  /**
+   * Keycloak service URL.
+   * Is the same for all Tenants
+   */
+  String keycloakUrl
+
+  /**
+   * Kong service URL.
+   * Is the same for all Tenants
+   */
+  String kongUrl
+
+  /**
+   * Tenant Manager Service URL.
+   * Is the same for all Tenants.
+   */
+  String tenantManagerUrl
+
+  /**
+   * Eureka Class Constructor sets required parameters for REST HTTP Request.
+   * @param context Jenkins context.
+   * @param eurekaDomain Eureka domain.
+   * @param debug Debug mode.
+   * @param masterTenant Master Tenant configuration.
+   * @param keycloakUrl Keycloak service URL.
+   * @param kongUrl Kong service URL.
+   */
+  Eureka(
+    Object context,
+    String eurekaDomain,
+    boolean debug = false,
+    EurekaTenant masterTenant,
+    String keycloakUrl,
+    String kongUrl
+  ) {
     super(context, eurekaDomain, debug)
     this.masterTenant = masterTenant
+    this.keycloakUrl = keycloakUrl
+    this.kongUrl = kongUrl
+    this.tenantManagerUrl = "${kongUrl}/tenants"
   }
 
   Eureka(Object context, String kongUrl, String keycloakUrl, boolean debug = false) {
