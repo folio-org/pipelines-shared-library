@@ -52,8 +52,8 @@ class Eureka extends Base {
     tenants.each { tenantId, tenant ->
       createTenantFlow(tenant,
         [
-          "app-platform-minimal-1.0.0-SNAPSHOT.38"
-          , "app-platform-complete-1.0.0-SNAPSHOT.53"
+          "app-platform-full-1.0.0-SNAPSHOT.175"
+          , "app-consortia-1.0.0-SNAPSHOT.176"
         ]
       )
     }
