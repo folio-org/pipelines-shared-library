@@ -484,9 +484,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 796Mi
+      memory: 1536Mi
     requests:
-      memory: 744Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1
