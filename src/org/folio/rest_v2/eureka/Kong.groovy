@@ -36,7 +36,7 @@ class Kong extends Base {
    * @return The generated URL.
    */
   String generateUrl(String path) {
-    "https://${okapiDomain}${path}"
+    "https://${kongUrl}${path}"
   }
 
   Map<String, String> getMasterHttpHeaders(boolean addOkapiAuth = false) {
