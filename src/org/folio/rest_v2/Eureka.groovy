@@ -33,6 +33,7 @@ class Eureka extends Common {
    * Constructor that sets the tenantId and initializes modules.
    * @param context Object that represents the context of the application.
    * @param eurekaDomain Eureka service URL.
+   * @param debug Debug flag indicating whether debugging is enabled.
    * @param masterTenant Master Tenant configuration for Eureka.
    * @param keycloakUrl Keycloak service URL.
    * @param kongUrl Kong service URL.
