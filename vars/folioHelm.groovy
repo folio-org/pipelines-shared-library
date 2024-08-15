@@ -233,6 +233,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
   }
 
+  //mod-authtoken jwt.signing.key
+  if(moduleName == 'mod-authtoken'){
+    moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
+  }
+
   //Bulk operations bucket configuration
   if (moduleName == 'mod-bulk-operations' && ns.getNamespaceName() == 'sprint') {
     moduleConfig['extraJavaOpts'] += ['-Dspring.servlet.multipart.max-file-size=40MB',

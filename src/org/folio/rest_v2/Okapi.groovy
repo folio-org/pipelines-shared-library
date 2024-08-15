@@ -313,7 +313,7 @@ class Okapi extends Authorization {
       "resourceName" : index.getType()
     ]
 
-    logger.info("Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
+    logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
     def response = restClient.post(url, body, headers).body
     String jobId = response.id

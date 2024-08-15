@@ -6,7 +6,7 @@ package org.folio.models
  */
 class Index {
   /** Allowed index types */
-  static final List<String> ALLOWED_TYPES = ['instance', 'authority', 'locations']
+  static final List<String> ALLOWED_TYPES = ['instance', 'authority', 'location']
 
   /** Type of the index */
   String type

@@ -58,7 +58,7 @@ zookeeper:
     size: 5Gi
   resources:
     requests:
-      memory: 256Mi
+      memory: 512Mi
     limits:
       memory: 768Mi
   ${indent(2, local.schedule_value)}
@@ -99,7 +99,7 @@ ingress:
     alb.ingress.kubernetes.io/success-codes: 200-399
 resources:
   requests:
-    memory: 256Mi
+    memory: 512Mi
   limits:
     memory: 768Mi
 yamlApplicationConfig:
