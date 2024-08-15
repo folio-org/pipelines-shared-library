@@ -116,4 +116,22 @@ class Eureka extends Common {
 
     return headers
   }
+
+/**
+ * Get list of Tenants on Folio Application
+ * @return List of Tenants` IDs
+ */
+  List<String> getTenantsList() {
+    logger.info("Getting list of Tenants on Application...")
+
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    // Run POST request to create a new tenant
+    def response = restClient.get(this.tenantManagerUrl, headers).body
+
+    logger.info("We've successfully got an Application Tenants List.")
+
+    return response*.id
+  }
 }
