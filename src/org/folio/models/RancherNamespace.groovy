@@ -29,7 +29,12 @@ class RancherNamespace {
 
   OkapiTenant superTenant = new OkapiTenant("supertenant")
 
-  EurekaTenant masterTenant
+  EurekaTenant masterTenant = new EurekaTenant(
+    'diku',
+    'Master Eureka Tenant',
+    'folio-backend-admin-client',
+    'SecretPassword'
+  )
 
   boolean superTenantLocked
 
