@@ -122,7 +122,21 @@ class Tools {
     def content = steps.readFile this.copyResourceFileToWorkspace("okapi/configurations/" + template_name)
     String body = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
     return body
-
   }
 
+  def retry(times, delayMillis, closure) {
+    int attempt = 0
+    while (attempt < times) {
+      try {
+        return closure()
+      } catch (Exception e) {
+        attempt++
+        if (attempt >= times) {
+          throw e // rethrow the last exception if max attempts reached
+        }
+        logger.warning("Attempt ${attempt} failed, retrying in ${delayMillis}ms...")
+        sleep(delayMillis)
+      }
+    }
+  }
 }

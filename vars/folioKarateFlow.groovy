@@ -9,7 +9,7 @@ import org.folio.utilities.RestClient
 
 import java.time.Instant
 
-void call(KarateTestsParameters args) {
+KarateRunExecutionSummary call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   KarateRunExecutionSummary karateTestsExecutionSummary
 
@@ -122,6 +122,7 @@ void call(KarateTestsParameters args) {
       }
     }
   }
+  return karateTestsExecutionSummary
 }
 
 String startReportPortalRun(String projectName) {

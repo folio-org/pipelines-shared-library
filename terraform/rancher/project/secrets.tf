@@ -20,6 +20,7 @@ resource "rancher2_secret" "system_user" {
   namespace_id = rancher2_namespace.this.name
   data = {
     SYSTEM_USER_NAME     = base64encode("${each.value}-system")
+    SYSTEM_USER_USERNAME = base64encode("${each.value}-system")
     SYSTEM_USER_PASSWORD = base64encode(random_password.system_user_password[each.value].result)
   }
 }

@@ -89,3 +89,10 @@ String generateRandomDigits(int length) {
 String getPipelineBranch() {
   return scm.branches[0].name - "*/"
 }
+
+String generateRandomString(int length){
+  return new Random().with{r->
+    List pool = ('a'..'z') + ('A'..'Z')
+    (1..length).collect { pool[r.nextInt(pool.size())] }.join('')
+  }
+}

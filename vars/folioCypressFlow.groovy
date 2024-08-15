@@ -26,7 +26,7 @@ import org.folio.testing.cypress.results.CypressRunExecutionSummary
  * - runType
  * @param params
  */
-void call(params) {
+IRunExecutionSummary call(params) {
   folioTools.validateParams(params, ['parallelExecParameters', 'sequentialExecParameters', 'testrailProjectID', 'testrailRunID', 'numberOfWorkers'])
 
   /* Define variables */
@@ -48,6 +48,7 @@ void call(params) {
   boolean sendSlackNotification = params.sendSlackNotification ? params?.sendSlackNotification?.trim()?.toLowerCase()?.toBoolean() : true
   int numberOfWorkers = params.numberOfWorkers as int ?: 1
   boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
+  boolean runSanityCheck = params?.runSanityCheck?.trim()?.toLowerCase()?.toBoolean()
 
   def rpLaunchID
 
@@ -84,6 +85,23 @@ void call(params) {
 
   try {
     timeout(time: testsTimeout, unit: 'HOURS') {
+      if (runSanityCheck) {
+        stage('[Cypress] Run sanity suite') {
+          String sanityExecParams = "--env grepTags=\"fse+sanity\""
+
+          setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
+          cloneCypressRepo(branch)
+          cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
+
+          compileTests(cypressImageVersion)
+
+          executeTests(cypressImageVersion, "sanity_${customBuildName}", browserName, sanityExecParams,
+            testrailProjectID, testrailRunID)
+
+          resultPaths.add(archiveTestResults('0'))
+        }
+      }
       if (parallelExecParameters?.trim()) {
         stage('[Cypress] Parallel run') {
           script {
@@ -159,6 +177,8 @@ void call(params) {
       if (sequentialExecParameters?.trim()) {
         stage('[Cypress] Sequential run') {
           script {
+            setupCommonEnvironmentVariables(tenantUrl, okapiUrl, tenantId, adminUsername, adminPassword)
+
             cloneCypressRepo(branch)
             cypressImageVersion = readPackageJsonDependencyVersion('./package.json', 'cypress')
 
@@ -211,8 +231,8 @@ void call(params) {
     }
 
     stage('[Report] Analyze results') {
-      def jsonSuites = readJSON (file: "${WORKSPACE}/allure-report/data/suites.json")
-      def jsonDefects = readJSON (file: "${WORKSPACE}/allure-report/data/categories.json")
+      def jsonSuites = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+      def jsonDefects = readJSON(file: "${WORKSPACE}/allure-report/data/categories.json")
 
       testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
       testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
@@ -232,6 +252,7 @@ void call(params) {
       }
     }
   }
+  return testRunExecutionSummary
 }
 
 /* Functions */
