@@ -144,7 +144,7 @@ ansiColor('xterm') {
 
         // TODO: RANCHER-1358 - get rid off temporary Master Tenant Id
         /** Temporary use 'diku' name as Master Tenant Id */
-        String masterTenantId = 'diku'
+        String masterTenantId = 'master'
         folioApp.getTenantsList().each { tenantId ->
           if (tenantId == masterTenantId && module.name ==~ /mod-(permissions|users|login)/) {
             namespace.masterTenant.withInstallJson(installJson)
