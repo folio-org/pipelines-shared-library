@@ -26,7 +26,7 @@ import org.folio.testing.cypress.results.CypressRunExecutionSummary
  * - runType
  * @param params
  */
-void call(params) {
+IRunExecutionSummary call(params) {
   folioTools.validateParams(params, ['parallelExecParameters', 'sequentialExecParameters', 'testrailProjectID', 'testrailRunID', 'numberOfWorkers'])
 
   /* Define variables */
@@ -252,6 +252,7 @@ void call(params) {
       }
     }
   }
+  return testRunExecutionSummary
 }
 
 /* Functions */
