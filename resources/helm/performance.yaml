@@ -29,7 +29,7 @@ edge-caiasoft:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -56,7 +56,7 @@ edge-connexion:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -101,7 +101,7 @@ edge-courses:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -138,7 +138,7 @@ edge-dcb:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -175,7 +175,7 @@ edge-dematic:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
 edge-fqm:
   ingress:
     enabled: true
@@ -210,9 +210,9 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      memory: 269Mi
+      memory: 1024Mi
     requests:
-      memory: 215Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -286,7 +286,7 @@ edge-ncip:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -323,7 +323,7 @@ edge-oai-pmh:
     limits:
       memory: 1512Mi
     requests:
-      memory: 1360Mi
+      memory: 1134Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -360,7 +360,7 @@ edge-orders:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -397,7 +397,7 @@ edge-patron:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -434,7 +434,7 @@ edge-rtac:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -458,7 +458,7 @@ edge-sip2:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -486,7 +486,7 @@ mod-agreements:
     limits:
       memory: 1592Mi
     requests:
-      memory: 1488Mi
+      memory: 1194Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -506,7 +506,7 @@ mod-audit:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -526,9 +526,9 @@ mod-authtoken:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1440Mi
     requests:
-      memory: 896Mi
+      memory: 1080Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -570,7 +570,7 @@ mod-bulk-operations:
     limits:
       memory: 3072Mi
     requests:
-      memory: 2600Mi
+      memory: 2304Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -585,9 +585,9 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
-      memory: 462Mi
+      memory: 1024Mi
     requests:
-      memory: 369Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -624,9 +624,9 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 2880Mi
     requests:
-      memory: 896Mi
+      memory: 2160Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -646,9 +646,9 @@ mod-circulation-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1536Mi
+      memory: 2880Mi
     requests:
-      memory: 1440Mi
+      memory: 2160Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -692,7 +692,7 @@ mod-configuration:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -716,9 +716,9 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 5136Mi
     requests:
-      memory: 896Mi
+      memory: 3852Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -735,7 +735,7 @@ mod-copycat:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -752,7 +752,7 @@ mod-courses:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -773,9 +773,9 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
-      memory: 2048Mi
+      memory: 1024Mi
     requests:
-      memory: 1844Mi
+      memory: 768Mi
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -796,7 +796,7 @@ mod-data-export-spring:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1844Mi
+      memory: 1536Mi
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -814,7 +814,7 @@ mod-data-export-worker:
     limits:
       memory: 3072Mi
     requests:
-      memory: 2600Mi
+      memory: 2304Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -842,7 +842,7 @@ mod-data-import:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1844Mi
+      memory: 1536Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -854,7 +854,7 @@ mod-di-converter-storage:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -868,7 +868,7 @@ mod-ebsconet:
     limits:
       memory: 1248Mi
     requests:
-      memory: 1024Mi
+      memory: 936Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -885,7 +885,7 @@ mod-email:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -922,7 +922,7 @@ mod-entities-links:
     limits:
       memory: 2592Mi
     requests:
-      memory: 2480Mi
+      memory: 1944Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -939,7 +939,7 @@ mod-erm-usage:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -962,7 +962,7 @@ mod-erm-usage-harvester:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -979,7 +979,7 @@ mod-eusage-reports:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -996,7 +996,7 @@ mod-event-config:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1013,7 +1013,7 @@ mod-feesfines:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1027,7 +1027,7 @@ mod-finance:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1044,7 +1044,7 @@ mod-finance-storage:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1063,9 +1063,9 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 3000Mi
+      memory: 1024Mi
     requests:
-      memory: 2600Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1079,7 +1079,7 @@ mod-gobi:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1093,7 +1093,7 @@ mod-graphql:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1139,9 +1139,9 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 4096Mi
+      memory: 2880Mi
     requests:
-      memory: 3688Mi
+      memory: 2160Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1163,9 +1163,9 @@ mod-inventory-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 2208Mi
+      memory: 4096Mi
     requests:
-      memory: 1952Mi
+      memory: 3072Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1179,7 +1179,7 @@ mod-inventory-update:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1203,7 +1203,7 @@ mod-invoice:
     limits:
       memory: 1440Mi
     requests:
-      memory: 1152Mi
+      memory: 1080Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1218,9 +1218,9 @@ mod-invoice-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1872Mi
     requests:
-      memory: 896Mi
+      memory: 1404Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1237,7 +1237,7 @@ mod-kb-ebsco-java:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1271,7 +1271,7 @@ mod-licenses:
     limits:
       memory: 2480Mi
     requests:
-      memory: 2312Mi
+      memory: 1860Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1301,9 +1301,9 @@ mod-lists:
   replicaCount: 1
   resources:
     limits:
-      memory: 3000Mi
+      memory: 1024Mi
     requests:
-      memory: 2600Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1320,7 +1320,7 @@ mod-login:
     limits:
       memory: 1440Mi
     requests:
-      memory: 1298Mi
+      memory: 1080Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1334,7 +1334,7 @@ mod-login-saml:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1383,7 +1383,7 @@ mod-ncip:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1400,7 +1400,7 @@ mod-notes:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1417,7 +1417,7 @@ mod-notify:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1454,9 +1454,9 @@ mod-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      memory: 3072Mi
+      memory: 4096Mi
     requests:
-      memory: 2765Mi
+      memory: 3072Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1476,7 +1476,7 @@ mod-orders:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1440Mi
+      memory: 1536Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1498,7 +1498,7 @@ mod-orders-storage:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1523,7 +1523,7 @@ mod-dcb:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1542,7 +1542,7 @@ mod-circulation-item:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1556,7 +1556,7 @@ mod-organizations:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1573,7 +1573,7 @@ mod-organizations-storage:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1590,7 +1590,7 @@ mod-password-validator:
     limits:
       memory: 1440Mi
     requests:
-      memory: 1298Mi
+      memory: 1080Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1604,7 +1604,7 @@ mod-patron:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1621,7 +1621,7 @@ mod-patron-blocks:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1638,7 +1638,7 @@ mod-permissions:
     limits:
       memory: 1684Mi
     requests:
-      memory: 1544Mi
+      memory: 1263Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1664,7 +1664,7 @@ mod-pubsub:
     limits:
       memory: 1536Mi
     requests:
-      memory: 1440Mi
+      memory: 1152Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1688,7 +1688,7 @@ mod-quick-marc:
     limits:
       memory: 2288Mi
     requests:
-      memory: 2176Mi
+      memory: 1716Mi
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -1740,9 +1740,9 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1872Mi
+      memory: 4920Mi
     requests:
-      memory: 1692Mi
+      memory: 3690Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1773,7 +1773,7 @@ mod-rtac:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1842,7 +1842,7 @@ mod-search:
     limits:
       memory: 2592Mi
     requests:
-      memory: 2480Mi
+      memory: 1944Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1856,7 +1856,7 @@ mod-sender:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1897,7 +1897,7 @@ mod-service-interaction:
     limits:
       memory: 2048Mi
     requests:
-      memory: 1844Mi
+      memory: 1536Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1914,7 +1914,7 @@ mod-settings:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1932,9 +1932,9 @@ mod-source-record-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 4096Mi
+      memory: 5600Mi
     requests:
-      memory: 3688Mi
+      memory: 4200Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1952,9 +1952,9 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 4096Mi
+      memory: 5600Mi
     requests:
-      memory: 3688Mi
+      memory: 4200Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1971,7 +1971,7 @@ mod-tags:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1988,7 +1988,7 @@ mod-template-engine:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -2019,7 +2019,7 @@ mod-user-import:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -2039,7 +2039,7 @@ mod-users:
     limits:
       memory: 1024Mi
     requests:
-      memory: 896Mi
+      memory: 768Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -2051,9 +2051,9 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1440Mi
     requests:
-      memory: 896Mi
+      memory: 1080Mi
   autoscaling:
     enabled: true
     minReplicas: 1
