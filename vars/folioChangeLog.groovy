@@ -32,8 +32,8 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
 
   List<FolioModule> updatedModulesObjectsList = []
   updatedModulesList.each { id ->
-    FolioModule module = new FolioModule(id)
-    module.loadModuleDetails()
+    FolioModule module = new FolioModule()
+    module.loadModuleDetails(id)
 
     updatedModulesObjectsList << module
   }
@@ -165,7 +165,7 @@ String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
     changeLog += element
   }
 
-  String section = SlackHelper.renderSection(':scroll:Changelog:scroll:', changeLog.replace('"','\\"'), '#808080', [], [])
+  String section = SlackHelper.renderSection(':scroll:Changelog:scroll:', changeLog.replace('"', '\\"'), '#808080', [], [])
 
   return section
 }
