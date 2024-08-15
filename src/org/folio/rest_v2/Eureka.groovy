@@ -62,7 +62,7 @@ class Eureka extends Common {
     logger.info("Creating tenant ${tenant.tenantId}...")
 
     // Run POST request to create a new tenant
-    restClient.post(tenant.tenantManagerUrl, body, headers)
+    restClient.post(this.tenantManagerUrl, body, headers)
 
     logger.info("Tenant (${tenant.tenantId}) successfully created")
   }
@@ -82,7 +82,7 @@ class Eureka extends Common {
 
   def getHttpHeaders(EurekaTenant tenant) {
     def tenantId = (tenant.tenantId == masterTenant.tenantId) ? "" : tenant.tenantId
-    def tenantToken = getAuthToken(tenant.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
+    def tenantToken = getAuthToken(this.keycloakUrl, tenant.tenantId, tenant.clientId, tenant.clientSecret)
     return getAuthHeaders(tenantId, tenantToken)
   }
 
