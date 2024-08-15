@@ -82,7 +82,7 @@ ansiColor('xterm') {
           logger.info("Skip check of changes since last build.")
         } else {
           currentBuildSha = folioHashCommitCheck.getCurrentBuildSha(params.FOLIO_BRANCH)
-          previousBuildSha = folioHashCommitCheck.getPreviousBuildSha(params.FOLIO_BRANCH)
+          previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
           boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
 
           if (diffFound) {
