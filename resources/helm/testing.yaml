@@ -210,9 +210,9 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      memory: 269Mi
+      memory: 512Mi
     requests:
-      memory: 215Mi
+      memory: 256Mi
   autoscaling:
     enabled: true
     minReplicas: 1
