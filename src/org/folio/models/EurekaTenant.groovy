@@ -37,6 +37,7 @@ class EurekaTenant extends Tenant {
    */
   EurekaTenant withInstallJson(Object installJson) {
     this.modules.setInstallJson(installJson)
+    this.modules.removeModules(['mod-consortia'])
     return this
   }
 }
