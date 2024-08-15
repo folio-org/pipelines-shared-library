@@ -18,9 +18,10 @@ class EurekaTenant extends Tenant {
 
   /**
    * Constructor that sets the tenantId and initializes modules.
-   * @param tenantId Tenant's identifier.
-   * @param clientId Keycloak client identifier.
-   * @param clientSecret Some secret phrase to authenticate in Keycloak.
+   * @param tenantId (String) Tenant's identifier.
+   * @param tenantDescription (String) Description of the tenant.
+   * @param clientId (String) Keycloak client identifier.
+   * @param clientSecret (String) Some secret phrase to authenticate in Keycloak.
    */
   EurekaTenant(String tenantId, String tenantDescription, String clientId, String clientSecret) {
     super(tenantId, tenantDescription)
@@ -30,6 +31,7 @@ class EurekaTenant extends Tenant {
 
   /**
    * Chainable setter for install JSON.
+   * It removes 'mod-consortia' module.
    * @param installJson The install JSON object.
    * @return The EurekaTenant object.
    */
