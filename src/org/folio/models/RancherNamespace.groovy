@@ -107,6 +107,21 @@ class RancherNamespace {
   }
 
   /**
+   * Adds Eureka Tenant to the RancherNamespace.
+   * @param tenant (EurekaTenant) the EurekaTenant to add
+   * @throws IllegalArgumentException if the tenant ID is "masterTenant"
+   */
+  void addEurekaTenant(EurekaTenant tenant) {
+    if (tenant.tenantId.toLowerCase() == "mastertenant") {
+      throw new IllegalArgumentException("Cannot add 'mastertenant' to tenant map. As it is already exists")
+    }
+    if (tenant.tenantUi) {
+      tenant.tenantUi.domain = generateDomain(tenant.tenantId)
+    }
+    this.tenants.put(tenant.tenantId, tenant)
+  }
+
+  /**
    * Removes a tenant from the RancherNamespace.
    * @param tenantId the ID of the tenant to remove
    * @return true if the tenant was removed, false otherwise
