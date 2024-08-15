@@ -27,4 +27,14 @@ class EurekaTenant extends Tenant {
     this.clientId = clientId
     this.clientSecret = clientSecret
   }
+
+  /**
+   * Chainable setter for install JSON.
+   * @param installJson The install JSON object.
+   * @return The EurekaTenant object.
+   */
+  EurekaTenant withInstallJson(Object installJson) {
+    this.modules.setInstallJson(installJson)
+    return this
+  }
 }

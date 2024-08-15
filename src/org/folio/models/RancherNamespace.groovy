@@ -4,7 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.Constants
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
-
+import org.folio.models.EurekaTenant
 
 /**
  * Represents a Rancher namespace and its configuration.*/
@@ -28,6 +28,8 @@ class RancherNamespace {
   Modules modules = new Modules()
 
   OkapiTenant superTenant = new OkapiTenant("supertenant")
+
+  EurekaTenant masterTenant
 
   boolean superTenantLocked
 

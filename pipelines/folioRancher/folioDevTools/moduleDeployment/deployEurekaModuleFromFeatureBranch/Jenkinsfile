@@ -5,9 +5,9 @@
 import org.folio.Constants
 import org.folio.models.FolioModule
 import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiTenant
+import org.folio.models.EurekaTenant
 import org.folio.models.RancherNamespace
-import org.folio.rest_v2.Main
+import org.folio.rest_v2.Eureka
 import org.folio.utilities.Logger
 
 // TODO: RANCHER-1358 - get rid off custom branch mention once feature development is done
@@ -20,18 +20,17 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-          folioParameters.cluster(),
-          folioParameters.namespace(),
-          folioParameters.moduleName(),
-          folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
-          folioParameters.configType(),
-          string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-          folioParameters.loadReference(false),
-          folioParameters.loadSample(false),
-          folioParameters.simulate(),
-          folioParameters.ignoreErrors(),
-          folioParameters.agent(),
-          folioParameters.refreshParameters()
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.moduleName(),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    folioParameters.configType(),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.loadReference(false),
+    folioParameters.loadSample(false),
+    folioParameters.ignoreErrors(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
   ])
 ])
 
@@ -66,7 +65,6 @@ List installJson = []
  */
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
-  .withSimulate(params.SIMULATE)
   .withIgnoreErrors(params.IGNORE_ERRORS)
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
@@ -74,7 +72,25 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+String masterTenantId = 'diku'
+
+EurekaTenant masterTenant = new EurekaTenant(
+        masterTenantId,
+        'Master Eureka Tenant',
+        'folio-backend-admin-client',
+        'SecretPassword'
+)
+
+namespace.masterTenant = masterTenant
+
+Eureka folioApp = new Eureka(
+        this,
+        Constants.CI_ROOT_DOMAIN,
+        true,
+        masterTenant,
+        "https://${namespace.getDomains()['keycloak']}",
+        "https://${namespace.getDomains()['kong']}"
+)
 
 /**
  * Pipeline
@@ -88,13 +104,15 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
-        checkout([$class           : 'GitSCM',
-                  branches         : [[name: "*/${featureBranch}"]],
-                  extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.getName()],
-                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                      [$class: 'AuthorInChangelog'],
-                                      [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-                  userRemoteConfigs: [[url: "https://github.com/folio-org/${module.getName()}.git"]]])
+        checkout([
+          $class           : 'GitSCM',
+          branches         : [[name: "*/${featureBranch}"]],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.getName()],
+                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                              [$class: 'AuthorInChangelog'],
+                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.getName()}.git"]]
+        ])
       }
 
       stage('[Maven] Compile') {
@@ -102,7 +120,7 @@ ansiColor('xterm') {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
 
-          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
             maven: Constants.MAVEN_TOOL_NAME,
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
@@ -130,33 +148,34 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        if (module.getName() == 'okapi') {
-          namespace.setOkapiVersion(module.getVersion() - ".${featureHash}")
-        } else {
-          installJson = [["id"    : "${module.getName()}-${module.getVersion()}",
-                          "action": "enable"]]
-        }
+        installJson = [[
+          "id": "${module.name}-${module.version}",
+          "action": "enable"
+        ]]
 
-        //TODO change to retrieve admin user information from secrets
-        Map folioTenants = folioDefault.tenants() + folioDefault.consortiaTenants()
-        main.getTenantsList().each { tenantId ->
-          if (tenantId == 'supertenant') {
-            if (module.getName() ==~ /mod-(permissions|users|login|authtoken)/) {
-              namespace.getSuperTenant().withInstallJson(installJson)
-            }
-          } else {
-            namespace.addTenant(new OkapiTenant(tenantId)
-              .withInstallJson(installJson)
-              .withInstallRequestParams(installRequestParams.clone()))
-            if (folioTenants.containsKey(tenantId)) {
-              namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
-            } else {
-              logger.warning("Credentials missing for tenant ${tenantId}")
-            }
-          }
-        }
+        namespace.masterTenant.withInstallJson(installJson)
 
-        namespace.getModules().setInstallJson(installJson)
+//        /** Get preconfigured Eureka tenants from the default folio module */
+//        Map folioTenants = folioDefault.tenants()
+//
+//        main.getTenantsList().each { tenantId ->
+//          if (tenantId == 'supertenant') {
+//            if (module.getName() ==~ /mod-(permissions|users|login|authtoken)/) {
+//              namespace.getSuperTenant().withInstallJson(installJson)
+//            }
+//          } else {
+//            namespace.addTenant(new OkapiTenant(tenantId)
+//              .withInstallJson(installJson)
+//              .withInstallRequestParams(installRequestParams.clone()))
+//            if (folioTenants.containsKey(tenantId)) {
+//              namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+//            } else {
+//              logger.warning("Credentials missing for tenant ${tenantId}")
+//            }
+//          }
+//        }
+//
+//        namespace.getModules().setInstallJson(installJson)
       }
 
     } catch (e) {
