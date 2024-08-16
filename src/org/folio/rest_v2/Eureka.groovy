@@ -202,7 +202,9 @@ class Eureka extends Common {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    String pathParams = "query=name==\"${tenantShortName}\"" // Query for Tenant Short Name
+    // https://{{kong_fqdn}}/tenants?query=name==diku
+    // method=GET, url=https://folio-eureka-volya-kong.ci.folio.org/tenants?query=name=="diku"
+    String pathParams = "query=name==${tenantShortName}" // Query for Tenant Short Name
     String url = "${this.tenantManagerUrl}?${pathParams}"  // URL for GET request
 
     logger.info("Getting Tenant Info by Tenant Short Name...")
@@ -211,6 +213,6 @@ class Eureka extends Common {
 
     logger.info("We've successfully got the Tenant Info.")
 
-    return response.tenants[0] as Map
+    return response?.tenants[0] as Map
   }
 }
