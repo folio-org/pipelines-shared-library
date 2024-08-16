@@ -1607,7 +1607,7 @@ mod-patron:
       memory: 768Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-patron-blocks:
@@ -1624,7 +1624,7 @@ mod-patron-blocks:
       memory: 768Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 2
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-permissions:
