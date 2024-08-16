@@ -39,10 +39,10 @@ void renderEphemeralProperties(RancherNamespace namespace) {
             case "supertenant":
               common.logger.warning("The ${tenant.tenantId} should not be presented in config, aborted!")
               break
-            case "diku":
+            case ['diku', 'fs09000000']:
               admin_users += "${tenant.tenantId + "=" + tenant.adminUser.username + "," + tenant.adminUser.password + "\n"}"
               break
-            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006', 'cs00000int_0007', 'cs00000int_0008', 'cs00000int_0009', 'cs00000int_0010', 'cs00000int_0011']:
               admin_users += "${tenant.tenantId + "=" + Constants.ECS_EDGE_GENERAL_USERNAME + "," + Constants.ECS_EDGE_GENERAL_PASSWORD + "\n"}"
               break
             default:
