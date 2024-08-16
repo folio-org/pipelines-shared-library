@@ -143,8 +143,8 @@ class Eureka extends Common {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    String pathParams = "?check=false" // Check existence and recreate data scheme if false
-    String url = "${this.kongUrl}/applications${pathParams}"  // URL for POST request
+    String pathParams = "check=false" // Check existence and recreate data scheme if false
+    String url = "${this.kongUrl}/applications?${pathParams}"  // URL for POST request
 
     logger.info("Performing registration for new Application Descriptor...")
     restClient.post(url, appDescriptor, headers) // Run POST request to register New Application Descriptor
@@ -165,5 +165,52 @@ class Eureka extends Common {
    */
   void upgradeApplication() {
     logger.info("Folio Application is upgraded.")
+  }
+
+  /** Get Current Application Descriptor from Folio Instance
+   * @param appIdPattern Application ID Pattern (e.g. app-platform-complete-*-SNAPSHOT.*)
+   * @param tenantShortName Tenant Short Name (e.g. diku)
+   * @return Application Descriptor as a Map
+   */
+  Map getApplicationDescriptor(String appIdPattern, String tenantShortName) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    // Get Tenant UUID by Tenant Short Name
+    String tenantUUID = getTenantByName(tenantShortName).id
+
+    // ?query=tenantId=="44f0a9af-4395-44b4-80a8-51cf03f8c897" AND applicationId=="app-platform-complete-*-SNAPSHOT.*"
+    String pathParams="query=applicationId==\"${appIdPattern}\" AND tenantId==\"${tenantUUID}\""
+
+    String url = "${this.kongUrl}/entitlements?${pathParams}"  // URL for GET request
+
+    logger.info("Getting Current Application Descriptor...")
+
+    def response = restClient.get(url, headers).body
+
+    logger.info("We've successfully got the Current Application Descriptor.")
+
+    return response as Map
+  }
+
+  /**
+   * Get Tenant Info by Tenant Short Name
+   * @param tenantShortName Tenant Short Name (e.g. diku)
+   * @return Tenant Info as a Map
+   */
+  Map getTenantByName(String tenantShortName) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    String pathParams = "query=name==\"${tenantShortName}\"" // Query for Tenant Short Name
+    String url = "${this.tenantManagerUrl}?${pathParams}"  // URL for GET request
+
+    logger.info("Getting Tenant Info by Tenant Short Name...")
+
+    def response = restClient.get(url, headers).body
+
+    logger.info("We've successfully got the Tenant Info.")
+
+    return response.tenants[0] as Map
   }
 }

@@ -160,9 +160,21 @@ ansiColor('xterm') {
 
       stage('Update') {
         // 1. Register Application Descriptor with Updated Module Version
-        // Get Updated Application Descriptor with new Module Version
-        Map appDescriptor = readJSON(text: libraryResource("eureka/appDescriptors/app-platform-complete")) as Map
-        folioApp.registerApplication(appDescriptor)
+        // 1.1 Get Current Application Descriptor with Current Module Version
+        Map currentAppDescriptor = folioApp.getApplicationDescriptor("app-platform-complete-*-SNAPSHOT.*", "diku")
+
+        // Print the entire Map
+        println(currentAppDescriptor)
+
+        // Iterate over the Map entries and print each key-value pair
+        currentAppDescriptor.each { key, value ->
+            println("Key: ${key}, Value: ${value}")
+        }
+
+        // 1.2 Get Updated Application Descriptor with new Module Version
+
+        // 1.3 Put back Updated Application Descriptor to Folio Instance
+        folioApp.registerApplication(currentAppDescriptor)
 
         // 2. Enable New Module Version for Application
         folioApp.createModuleDiscovery()
