@@ -4,7 +4,6 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.Constants
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
-import org.folio.models.EurekaTenant
 
 /**
  * Represents a Rancher namespace and its configuration.*/
@@ -108,7 +107,7 @@ class RancherNamespace {
 
   /**
    * Adds Eureka Tenant to the RancherNamespace.
-   * @param tenant (EurekaTenant) the EurekaTenant to add
+   * @param tenant the EurekaTenant to add
    * @throws IllegalArgumentException if the tenant ID is "masterTenant"
    */
   void addEurekaTenant(EurekaTenant tenant) {

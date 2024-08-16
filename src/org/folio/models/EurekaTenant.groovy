@@ -23,7 +23,7 @@ class EurekaTenant extends Tenant {
    * @param clientId (String) Keycloak client identifier.
    * @param clientSecret (String) Some secret phrase to authenticate in Keycloak.
    */
-  EurekaTenant(String tenantId, String tenantDescription, String clientId, String clientSecret) {
+  EurekaTenant(String tenantId, String tenantDescription = '', String clientId = '', String clientSecret = '') {
     super(tenantId, tenantDescription)
     this.clientId = clientId
     this.clientSecret = clientSecret

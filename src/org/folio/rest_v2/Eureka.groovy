@@ -119,7 +119,7 @@ class Eureka extends Common {
 
 /**
  * Get list of Tenants on Folio Application
- * @return List of Tenants` IDs
+ * @return List of Tenants` Short Names (IDs)
  */
   List<String> getTenantsList() {
     logger.info("Getting list of Tenants on Application...")

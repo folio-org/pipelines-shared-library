@@ -142,21 +142,31 @@ ansiColor('xterm') {
           "action": "enable"
         ]]
 
-        // TODO: RANCHER-1358 - get rid off temporary Master Tenant Id
-        /** Temporary use 'diku' name as Master Tenant Id */
-        String masterTenantId = 'master'
+        Map folioTenants = folioDefault.getPredefinedTenants()
+
         folioApp.getTenantsList().each { tenantId ->
-          if (tenantId == masterTenantId && module.name ==~ /mod-(permissions|users|login)/) {
+          if (tenantId == 'master' && module.name ==~ /mod-(permissions|users|login)/) {
             namespace.masterTenant.withInstallJson(installJson)
           } else {
-            namespace.addEurekaTenant(
-              new EurekaTenant(tenantId, "", "", "")
-              .withInstallJson(installJson)
-              .withInstallRequestParams(installRequestParams.clone())
-            )
+            EurekaTenant appTenant = new EurekaTenant(tenantId)
+            appTenant.withInstallJson(installJson)
+            appTenant.withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
+
+            namespace.addEurekaTenant(appTenant)
           }
         }
+//        if (folioTenants.containsKey(tenantId)) {
+//          namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+//        } else {
+//          logger.warning("Credentials missing for tenant ${tenantId}")
+//        }
         namespace.modules.setInstallJson(installJson)
+      }
+
+      stage('Update') {
+//        folioApp.publishModulesDescriptors(module.getDescriptor())
+//
+//        folioDeployFlow.update(namespace)
       }
 
     } catch (e) {
