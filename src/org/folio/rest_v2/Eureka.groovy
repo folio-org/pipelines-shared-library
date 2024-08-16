@@ -180,7 +180,8 @@ class Eureka extends Common {
     String tenantUUID = getTenantByName(tenantShortName).id
 
     // ?query=tenantId=="44f0a9af-4395-44b4-80a8-51cf03f8c897" AND applicationId=="app-platform-complete-*-SNAPSHOT.*"
-    String pathParams="query=applicationId==${appIdPattern} AND tenantId==${tenantUUID}"
+    String jql = URLEncoder.encode("applicationId==${appIdPattern} AND tenantId==${tenantUUID}", "UTF-8")
+    String pathParams="query=${jql}" // Query for Application ID Pattern and Tenant UUID
 
     String url = "${this.kongUrl}/entitlements?${pathParams}"  // URL for GET request
 
