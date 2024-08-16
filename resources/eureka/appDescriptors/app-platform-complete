@@ -1,0 +1,672 @@
+{
+    "id": "app-platform-complete-1.0.0-SNAPSHOT.156",
+    "name": "app-platform-complete",
+    "version": "1.0.0-SNAPSHOT.156",
+    "description": "Application comprised of most Folio modules not present in app-platform-minimal",
+    "platform": "base",
+    "modules": [
+        {
+            "id": "mod-organizations-1.9.2",
+            "name": "mod-organizations",
+            "version": "1.9.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-organizations-1.9.2"
+        },
+        {
+            "id": "mod-graphql-1.12.1",
+            "name": "mod-graphql",
+            "version": "1.12.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-graphql-1.12.1"
+        },
+        {
+            "id": "mod-consortia-keycloak-1.4.1",
+            "name": "mod-consortia-keycloak",
+            "version": "1.4.1",
+            "url": "https://eureka-registry.ci.folio.org/descriptors/mod-consortia-keycloak-1.4.1.json"
+        },
+        {
+            "id": "mod-organizations-storage-4.7.0",
+            "name": "mod-organizations-storage",
+            "version": "4.7.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-organizations-storage-4.7.0"
+        },
+        {
+            "id": "mod-orders-12.8.8",
+            "name": "mod-orders",
+            "version": "12.8.8",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-orders-12.8.8"
+        },
+        {
+            "id": "mod-orders-storage-13.7.3",
+            "name": "mod-orders-storage",
+            "version": "13.7.3",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-orders-storage-13.7.3"
+        },
+        {
+            "id": "mod-invoice-5.8.2",
+            "name": "mod-invoice",
+            "version": "5.8.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-invoice-5.8.2"
+        },
+        {
+            "id": "mod-invoice-storage-5.8.1",
+            "name": "mod-invoice-storage",
+            "version": "5.8.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-invoice-storage-5.8.1"
+        },
+        {
+            "id": "mod-finance-storage-8.6.1",
+            "name": "mod-finance-storage",
+            "version": "8.6.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-finance-storage-8.6.1"
+        },
+        {
+            "id": "mod-finance-4.9.0",
+            "name": "mod-finance",
+            "version": "4.9.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-finance-4.9.0"
+        },
+        {
+            "id": "mod-quick-marc-5.1.1",
+            "name": "mod-quick-marc",
+            "version": "5.1.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-quick-marc-5.1.1"
+        },
+        {
+            "id": "mod-inventory-storage-27.1.4",
+            "name": "mod-inventory-storage",
+            "version": "27.1.4",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-inventory-storage-27.1.4"
+        },
+        {
+            "id": "mod-circulation-storage-17.2.1",
+            "name": "mod-circulation-storage",
+            "version": "17.2.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-circulation-storage-17.2.1"
+        },
+        {
+            "id": "mod-search-3.2.6",
+            "name": "mod-search",
+            "version": "3.2.6",
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/mod-search-3.2.6"
+        },
+        {
+            "id": "mod-inventory-20.2.7",
+            "name": "mod-inventory",
+            "version": "20.2.7",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-inventory-20.2.7"
+        },
+        {
+            "id": "mod-circulation-24.2.5",
+            "name": "mod-circulation",
+            "version": "24.2.5",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-circulation-24.2.5"
+        },
+        {
+            "id": "mod-feesfines-19.1.0",
+            "name": "mod-feesfines",
+            "version": "19.1.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-feesfines-19.1.0"
+        },
+        {
+            "id": "mod-patron-blocks-1.10.0",
+            "name": "mod-patron-blocks",
+            "version": "1.10.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-patron-blocks-1.10.0"
+        },
+        {
+            "id": "mod-entities-links-3.0.1",
+            "name": "mod-entities-links",
+            "version": "3.0.1",
+            //   "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/mod-entities-links-3.0.1"
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-entities-links-3.0.1"
+        },
+        {
+            "id": "mod-source-record-manager-3.8.6",
+            "name": "mod-source-record-manager",
+            "version": "3.8.6",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-source-record-manager-3.8.6"
+        },
+        {
+            "id": "mod-di-converter-storage-2.2.2",
+            "name": "mod-di-converter-storage",
+            "version": "2.2.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-di-converter-storage-2.2.2"
+        },
+        {
+            "id": "mod-patron-6.1.0",
+            "name": "mod-patron",
+            "version": "6.1.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-patron-6.1.0"
+        },
+        {
+            "id": "mod-data-export-5.0.4",
+            "name": "mod-data-export",
+            "version": "5.0.4",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-data-export-5.0.4"
+        },
+        {
+            "id": "mod-data-export-spring-3.3.0",
+            "name": "mod-data-export-spring",
+            "version": "3.3.0",
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/mod-data-export-spring-3.3.0"
+        },
+        {
+            "id": "mod-data-export-worker-3.2.4",
+            "name": "mod-data-export-worker",
+            "version": "3.2.4",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-data-export-worker-3.2.4"
+        },
+        {
+            "id": "mod-bulk-operations-2.0.2",
+            "name": "mod-bulk-operations",
+            "version": "2.0.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-bulk-operations-2.0.2"
+        },
+        {
+            "id": "mod-oai-pmh-3.13.2",
+            "name": "mod-oai-pmh",
+            "version": "3.13.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-oai-pmh-3.13.2"
+        },
+        {
+            "id": "mod-rtac-3.6.0",
+            "name": "mod-rtac",
+            "version": "3.6.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-rtac-3.6.0"
+        },
+        {
+            "id": "mod-remote-storage-3.2.0",
+            "name": "mod-remote-storage",
+            "version": "3.2.0",
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/mod-remote-storage-3.2.0"
+        },
+        {
+            "id": "mod-calendar-3.1.0",
+            "name": "mod-calendar",
+            "version": "3.1.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-calendar-3.1.0"
+        },
+        {
+            "id": "mod-audit-2.9.0",
+            "name": "mod-audit",
+            "version": "2.9.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-audit-2.9.0"
+        },
+        {
+            "id": "mod-courses-1.4.10",
+            "name": "mod-courses",
+            "version": "1.4.10",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-courses-1.4.10"
+        },
+        {
+            "id": "mod-source-record-storage-5.8.6",
+            "name": "mod-source-record-storage",
+            "version": "5.8.6",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-source-record-storage-5.8.6"
+        },
+        {
+            "id": "mod-data-import-3.1.1",
+            "name": "mod-data-import",
+            "version": "3.1.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-data-import-3.1.1"
+        },
+        {
+            "id": "mod-agreements-7.0.6",
+            "name": "mod-agreements",
+            "version": "7.0.6",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-agreements-7.0.6"
+        },
+        {
+            "id": "mod-licenses-6.0.3",
+            "name": "mod-licenses",
+            "version": "6.0.3",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-licenses-6.0.3"
+        },
+        {
+            "id": "mod-email-1.17.0",
+            "name": "mod-email",
+            "version": "1.17.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-email-1.17.0"
+        },
+        {
+            "id": "mod-event-config-2.7.1",
+            "name": "mod-event-config",
+            "version": "2.7.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-event-config-2.7.1"
+        },
+        {
+            "id": "mod-notify-3.2.0",
+            "name": "mod-notify",
+            "version": "3.2.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-notify-3.2.0"
+        },
+        {
+            "id": "mod-sender-1.12.0",
+            "name": "mod-sender",
+            "version": "1.12.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-sender-1.12.0"
+        },
+        {
+            "id": "mod-template-engine-1.20.0",
+            "name": "mod-template-engine",
+            "version": "1.20.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-template-engine-1.20.0"
+        },
+        {
+            "id": "mod-pubsub-2.14.0",
+            "name": "mod-pubsub",
+            "version": "2.14.0",
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/mod-pubsub-2.14.0"
+        },
+        {
+            "id": "mod-gobi-2.8.1",
+            "name": "mod-gobi",
+            "version": "2.8.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-gobi-2.8.1"
+        },
+        {
+            "id": "mod-copycat-1.6.0",
+            "name": "mod-copycat",
+            "version": "1.6.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-copycat-1.6.0"
+        },
+        {
+            "id": "mod-kb-ebsco-java-4.0.0",
+            "name": "mod-kb-ebsco-java",
+            "version": "4.0.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-kb-ebsco-java-4.0.0"
+        },
+        {
+            "id": "mod-ncip-1.14.5",
+            "name": "mod-ncip",
+            "version": "1.14.5",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-ncip-1.14.5"
+        },
+        {
+            "id": "mod-inventory-update-3.3.1",
+            "name": "mod-inventory-update",
+            "version": "3.3.1",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-inventory-update-3.3.1"
+        },
+        {
+            "id": "mod-user-import-3.8.0",
+            "name": "mod-user-import",
+            "version": "3.8.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-user-import-3.8.0"
+        },
+        {
+            "id": "mod-service-interaction-4.0.2",
+            "name": "mod-service-interaction",
+            "version": "4.0.2",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-service-interaction-4.0.2"
+        },
+        {
+            "id": "mod-ebsconet-2.2.0",
+            "name": "mod-ebsconet",
+            "version": "2.2.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-ebsconet-2.2.0"
+        },
+        {
+            "id": "mod-fqm-manager-2.0.4",
+            "name": "mod-fqm-manager",
+            "version": "2.0.4",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-fqm-manager-2.0.4"
+        },
+        {
+            "id": "mod-lists-2.1.0-SNAPSHOT.94",
+            "name": "mod-lists",
+            "version": "2.1.0-SNAPSHOT.94",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-lists-2.1.0-SNAPSHOT.94"
+        },
+        {
+            "id": "mod-serials-management-1.0.3",
+            "name": "mod-serials-management",
+            "version": "1.0.3",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-serials-management-1.0.3"
+        },
+        {
+            "id": "mod-circulation-item-1.0.0",
+            "name": "mod-circulation-item",
+            "version": "1.0.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-circulation-item-1.0.0"
+        },
+        {
+            "id": "mod-batch-print-1.1.0",
+            "name": "mod-batch-print",
+            "version": "1.1.0",
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/mod-batch-print-1.1.0"
+        }
+    ],
+    "uiModules": [
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_organizations-5.1.1",
+            "id": "folio_organizations-5.1.1",
+            "name": "folio_organizations",
+            "version": "5.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-organization-5.1.1",
+            "id": "folio_plugin-find-organization-5.1.1",
+            "name": "folio_plugin-find-organization",
+            "version": "5.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-contact-5.1.0",
+            "id": "folio_plugin-find-contact-5.1.0",
+            "name": "folio_plugin-find-contact",
+            "version": "5.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-interface-5.1.0",
+            "id": "folio_plugin-find-interface-5.1.0",
+            "name": "folio_plugin-find-interface",
+            "version": "5.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_invoice-6.0.3",
+            "id": "folio_invoice-6.0.3",
+            "name": "folio_invoice",
+            "version": "6.0.3"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_finance-6.0.0",
+            "id": "folio_finance-6.0.0",
+            "name": "folio_finance",
+            "version": "6.0.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-fund-3.1.0",
+            "id": "folio_plugin-find-fund-3.1.0",
+            "name": "folio_plugin-find-fund",
+            "version": "3.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_orders-6.0.4",
+            "id": "folio_orders-6.0.4",
+            "name": "folio_orders",
+            "version": "6.0.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_receiving-5.0.4",
+            "id": "folio_receiving-5.0.4",
+            "name": "folio_receiving",
+            "version": "5.0.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_acquisition-units-5.1.0",
+            "id": "folio_acquisition-units-5.1.0",
+            "name": "folio_acquisition-units",
+            "version": "5.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-po-line-5.1.1",
+            "id": "folio_plugin-find-po-line-5.1.1",
+            "name": "folio_plugin-find-po-line",
+            "version": "5.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_marc-authorities-5.0.1",
+            "id": "folio_marc-authorities-5.0.1",
+            "name": "folio_marc-authorities",
+            "version": "5.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_stripes-authority-components-4.0.1",
+            "id": "folio_stripes-authority-components-4.0.1",
+            "name": "folio_stripes-authority-components",
+            "version": "4.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_quick-marc-8.0.1",
+            "id": "folio_quick-marc-8.0.1",
+            "name": "folio_quick-marc",
+            "version": "8.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_inventory-11.0.4",
+            "id": "folio_inventory-11.0.4",
+            "name": "folio_inventory",
+            "version": "11.0.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_servicepoints-7.1.0",
+            "id": "folio_servicepoints-7.1.0",
+            "name": "folio_servicepoints",
+            "version": "7.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-create-inventory-records-4.1.0",
+            "id": "folio_plugin-create-inventory-records-4.1.0",
+            "name": "folio_plugin-create-inventory-records",
+            "version": "4.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-instance-7.1.1",
+            "id": "folio_plugin-find-instance-7.1.1",
+            "name": "folio_plugin-find-instance",
+            "version": "7.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-package-title-6.1.0",
+            "id": "folio_plugin-find-package-title-6.1.0",
+            "name": "folio_plugin-find-package-title",
+            "version": "6.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_checkin-9.1.1",
+            "id": "folio_checkin-9.1.1",
+            "name": "folio_checkin",
+            "version": "9.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_checkout-10.1.0",
+            "id": "folio_checkout-10.1.0",
+            "name": "folio_checkout",
+            "version": "10.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_circulation-9.1.0",
+            "id": "folio_circulation-9.1.0",
+            "name": "folio_circulation",
+            "version": "9.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-user-7.1.1",
+            "id": "folio_plugin-find-user-7.1.1",
+            "name": "folio_plugin-find-user",
+            "version": "7.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_data-export-6.1.4",
+            "id": "folio_data-export-6.1.4",
+            "name": "folio_data-export",
+            "version": "6.1.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_export-manager-3.1.2",
+            "id": "folio_export-manager-3.1.2",
+            "name": "folio_export-manager",
+            "version": "3.1.2"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-bursar-export-4.0.2",
+            "id": "folio_plugin-bursar-export-4.0.2",
+            "name": "folio_plugin-bursar-export",
+            "version": "4.0.2"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_bulk-edit-4.1.4",
+            "id": "folio_bulk-edit-4.1.4",
+            "name": "folio_bulk-edit",
+            "version": "4.1.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_oai-pmh-5.1.0",
+            "id": "folio_oai-pmh-5.1.0",
+            "name": "folio_oai-pmh",
+            "version": "5.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_remote-storage-5.1.0",
+            "id": "folio_remote-storage-5.1.0",
+            "name": "folio_remote-storage",
+            "version": "5.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_circulation-log-4.1.0",
+            "id": "folio_circulation-log-4.1.0",
+            "name": "folio_circulation-log",
+            "version": "4.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_calendar-11.0.1",
+            "id": "folio_calendar-11.0.1",
+            "name": "folio_calendar",
+            "version": "11.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_courses-6.0.3",
+            "id": "folio_courses-6.0.3",
+            "name": "folio_courses",
+            "version": "6.0.3"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_requests-9.1.1",
+            "id": "folio_requests-9.1.1",
+            "name": "folio_requests",
+            "version": "9.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_data-import-7.1.8",
+            "id": "folio_data-import-7.1.8",
+            "name": "folio_data-import",
+            "version": "7.1.8"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-import-profile-7.1.0",
+            "id": "folio_plugin-find-import-profile-7.1.0",
+            "name": "folio_plugin-find-import-profile",
+            "version": "7.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_agreements-11.0.3",
+            "id": "folio_agreements-11.0.3",
+            "name": "folio_agreements",
+            "version": "11.0.3"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-agreement-11.0.1",
+            "id": "folio_plugin-find-agreement-11.0.1",
+            "name": "folio_plugin-find-agreement",
+            "version": "11.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_eholdings-9.1.1",
+            "id": "folio_eholdings-9.1.1",
+            "name": "folio_eholdings",
+            "version": "9.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_licenses-11.0.2",
+            "id": "folio_licenses-11.0.2",
+            "name": "folio_licenses",
+            "version": "11.0.2"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-license-11.0.1",
+            "id": "folio_plugin-find-license-11.0.1",
+            "name": "folio_plugin-find-license",
+            "version": "11.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_local-kb-admin-8.0.1",
+            "id": "folio_local-kb-admin-8.0.1",
+            "name": "folio_local-kb-admin",
+            "version": "8.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-eresource-7.0.1",
+            "id": "folio_plugin-find-eresource-7.0.1",
+            "name": "folio_plugin-find-eresource",
+            "version": "7.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_dashboard-6.0.0",
+            "id": "folio_dashboard-6.0.0",
+            "name": "folio_dashboard",
+            "version": "6.0.0"
+        },
+        {
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/folio_tenant-settings-8.1.0",
+            "id": "folio_tenant-settings-8.1.0",
+            "name": "folio_tenant-settings",
+            "version": "8.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_gobi-settings-3.1.0",
+            "id": "folio_gobi-settings-3.1.0",
+            "name": "folio_gobi-settings",
+            "version": "3.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_handler-stripes-registry-2.2.0",
+            "id": "folio_handler-stripes-registry-2.2.0",
+            "name": "folio_handler-stripes-registry",
+            "version": "2.2.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_myprofile-9.1.0",
+            "id": "folio_myprofile-9.1.0",
+            "name": "folio_myprofile",
+            "version": "9.1.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-find-authority-4.0.0",
+            "id": "folio_plugin-find-authority-4.0.0",
+            "name": "folio_plugin-find-authority",
+            "version": "4.0.0"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_plugin-query-builder-1.1.5",
+            "id": "folio_plugin-query-builder-1.1.5",
+            "name": "folio_plugin-query-builder",
+            "version": "1.1.5"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_service-interaction-3.0.1",
+            "id": "folio_service-interaction-3.0.1",
+            "name": "folio_service-interaction",
+            "version": "3.0.1"
+        },
+        {
+            "url": "https://mdr-folio-eis-us-east-1-dev.s3.amazonaws.com/eureka/folio_users-10.1.1",
+            "id": "folio_users-10.1.1",
+            "name": "folio_users",
+            "version": "10.1.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_lists-3.0.1",
+            "id": "folio_lists-3.0.1",
+            "name": "folio_lists",
+            "version": "3.0.1"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_serials-management-1.0.4",
+            "id": "folio_serials-management-1.0.4",
+            "name": "folio_serials-management",
+            "version": "1.0.4"
+        },
+        {
+            "url": "https://folio-registry.dev.folio.org/_/proxy/modules/folio_stripes-marc-components-1.0.1",
+            "id": "folio_stripes-marc-components-1.0.1",
+            "name": "folio_stripes-marc-components",
+            "version": "1.0.1"
+        }
+    ],
+    "dependencies": [
+        {
+            "name": "app-platform-minimal",
+            "version": "1.0.0-SNAPSHOT.38"
+        }
+    ]
+}

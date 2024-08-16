@@ -155,18 +155,23 @@ ansiColor('xterm') {
             namespace.addEurekaTenant(appTenant)
           }
         }
-//        if (folioTenants.containsKey(tenantId)) {
-//          namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
-//        } else {
-//          logger.warning("Credentials missing for tenant ${tenantId}")
-//        }
         namespace.modules.setInstallJson(installJson)
       }
 
       stage('Update') {
-//        folioApp.publishModulesDescriptors(module.getDescriptor())
-//
-//        folioDeployFlow.update(namespace)
+        // 1. Register Application Descriptor with Updated Module Version
+        // Get Updated Application Descriptor with new Module Version
+        Map appDescriptor = readJSON(text: libraryResource("eureka/appDescriptors/app-platform-complete")) as Map
+        folioApp.registerApplication(appDescriptor)
+
+        // 2. Enable New Module Version for Application
+        folioApp.createModuleDiscovery()
+
+        // 3. Enable New Application Descriptor with Updated Module Version for Specific Tenant
+        folioApp.upgradeApplication()
+
+        // 4. Deploy New Module Version to Namespace via Helm
+        // folioDeployFlow.update()
       }
 
     } catch (e) {

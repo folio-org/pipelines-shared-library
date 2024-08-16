@@ -132,6 +132,38 @@ class Eureka extends Common {
 
     logger.info("We've successfully got an Application Tenants List.")
 
-    return response*.id
+    return response*.name
+  }
+
+  /**
+   * Register New Application Descriptor
+   * @param appDescriptor Application Descriptor as Map
+   */
+  void registerApplication(Map appDescriptor) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    String pathParams = "?check=false" // Check existence and recreate data scheme if false
+    String url = "${this.kongUrl}/applications${pathParams}"  // URL for POST request
+
+    logger.info("Performing registration for new Application Descriptor...")
+    restClient.post(url, appDescriptor, headers) // Run POST request to register New Application Descriptor
+    logger.info("New Application Descriptor is registered.")
+  }
+
+  /**
+   * Create New Module Discovery for Application
+   * @param
+   */
+  void createModuleDiscovery() {
+    logger.info("New Module Discovery is created.")
+  }
+
+  /**
+   * Upgrade Application for Tenant
+   * @param
+   */
+  void upgradeApplication() {
+    logger.info("Folio Application is upgraded.")
   }
 }
