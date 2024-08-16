@@ -175,3 +175,14 @@ Map<String, OkapiTenant> tenants() {
       .withConfiguration(new OkapiConfig().withSmtp(smtp))
   ]
 }
+
+/** Get predefined tenants for Folio Application
+ * @return Map of predefined tenants
+ */
+Map<String, EurekaTenant> getPredefinedTenants() {
+  return [
+    diku: new EurekaTenant('diku')
+      .withTenantName('Datalogisk Institut')
+      .withTenantDescription('Danish Library Technology Institute')
+  ]
+}
