@@ -150,25 +150,28 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        installJson = [[
-          "id": "${module.name}-${module.version}",
-          "action": "enable"
-        ]]
-
-        Map folioTenants = folioDefault.getPredefinedTenants()
-
-        folioApp.getTenantsList().each { tenantId ->
-          if (tenantId == 'master' && module.name ==~ /mod-(permissions|users|login)/) {
-            namespace.masterTenant.withInstallJson(installJson)
-          } else {
-            EurekaTenant appTenant = new EurekaTenant(tenantId)
-            appTenant.withInstallJson(installJson)
-            appTenant.withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
-
-            namespace.addEurekaTenant(appTenant)
-          }
+        if (skipStage) {
+          logger.warning("Stage [Docker] Build and push is disabled")
         }
-        namespace.modules.setInstallJson(installJson)
+        else {
+          installJson = [[
+            "id": "${module.name}-${module.version}",
+            "action": "enable"
+          ]]
+          Map folioTenants = folioDefault.getPredefinedTenants()
+          folioApp.getTenantsList().each { tenantId ->
+            if (tenantId == 'master' && module.name ==~ /mod-(permissions|users|login)/) {
+              namespace.masterTenant.withInstallJson(installJson)
+            } else {
+              EurekaTenant appTenant = new EurekaTenant(tenantId)
+              appTenant.withInstallJson(installJson)
+              appTenant.withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
+
+              namespace.addEurekaTenant(appTenant)
+            }
+          }
+          namespace.modules.setInstallJson(installJson)
+        }
       }
 
       stage('Update') {
