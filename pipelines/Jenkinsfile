@@ -28,7 +28,7 @@ ansiColor('xterm') {
 
       stage('Tests start...') {
         def eureka = new Eureka(this, 'https://folio-eureka-scout-kong.ci.folio.org/', false)
-        eureka.registerApplicationDiscovery('app-consortia-1.0.0-SNAPSHOT.176')
+        eureka.registerApplicationDiscovery('app-platform-full-1.0.0-SNAPSHOT.178')
  //       eureka.registerApplication('app-platform-complete-1.0.0-SNAPSHOT.163')
       }
 
