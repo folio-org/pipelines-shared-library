@@ -531,8 +531,8 @@ mod-authtoken:
       memory: 1080Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
-    maxReplicas: 4
+    minReplicas: 4
+    maxReplicas: 6
     targetMemoryUtilizationPercentage: 70
 mod-batch-print:
   extraEnvVars: []
@@ -629,7 +629,7 @@ mod-circulation:
       memory: 2160Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-circulation-storage:
@@ -651,7 +651,7 @@ mod-circulation-storage:
       memory: 2160Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-codex-ekb:
@@ -1144,7 +1144,7 @@ mod-inventory:
       memory: 2160Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-inventory-storage:
@@ -1168,7 +1168,7 @@ mod-inventory-storage:
       memory: 3072Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-inventory-update:
@@ -1206,7 +1206,7 @@ mod-invoice:
       memory: 1080Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-invoice-storage:
@@ -1223,7 +1223,7 @@ mod-invoice-storage:
       memory: 1404Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-kb-ebsco-java:
@@ -1323,7 +1323,7 @@ mod-login:
       memory: 1080Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 2
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-login-saml:
@@ -1479,7 +1479,7 @@ mod-orders:
       memory: 1536Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-orders-storage:
@@ -1501,7 +1501,7 @@ mod-orders-storage:
       memory: 768Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-dcb:
@@ -1545,7 +1545,7 @@ mod-circulation-item:
       memory: 768Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 2
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-organizations:
@@ -1641,7 +1641,7 @@ mod-permissions:
       memory: 1263Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-pubsub:
@@ -1937,7 +1937,7 @@ mod-source-record-manager:
       memory: 4200Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 2
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-source-record-storage:
@@ -1957,7 +1957,7 @@ mod-source-record-storage:
       memory: 4200Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 2
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-tags:
@@ -2042,7 +2042,7 @@ mod-users:
       memory: 768Mi
   autoscaling:
     enabled: true
-    minReplicas: 1
+    minReplicas: 3
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-users-bl:
