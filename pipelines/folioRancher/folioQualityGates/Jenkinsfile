@@ -139,7 +139,7 @@ ansiColor('xterm') {
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = true
           karateTestsParams.syncWithJira = true
-          karateTestsParams.timeout = '2'
+          karateTestsParams.timeout = '3'
           karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
         }
         parallel(branches)
