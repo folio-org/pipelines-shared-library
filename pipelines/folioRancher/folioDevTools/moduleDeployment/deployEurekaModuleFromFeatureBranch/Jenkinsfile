@@ -81,6 +81,9 @@ Eureka folioApp = new Eureka(
         "https://${namespace.getDomains()['kong']}"
 )
 
+//TODO: RANCHER-1358: Disable stage flag for testing purposes
+Boolean skipStage = true
+
 /**
  * Pipeline
  */
@@ -105,33 +108,43 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        dir(module.getName()) {
-          String origVersion = readMavenPom(file: 'pom.xml').version
-          module.version = "${origVersion}.${featureHash}"
+        if (skipStage) {
+          logger.warning("Stage [Maven] Compile is disabled")
+        }
+        else {
+          dir(module.getName()) {
+            String origVersion = readMavenPom(file: 'pom.xml').version
+            module.version = "${origVersion}.${featureHash}"
 
-          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-            maven: Constants.MAVEN_TOOL_NAME,
-            traceability: false,
-            options: [artifactsPublisher(disabled: true)]) {
-            sh """
+            withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+              maven: Constants.MAVEN_TOOL_NAME,
+              traceability: false,
+              options: [artifactsPublisher(disabled: true)]) {
+              sh """
               mvn versions:set -DnewVersion=${module.getVersion()}
               mvn package ${mavenArguments}
             """
-          }
+            }
 
-          String descriptorPath = "target/ModuleDescriptor.json"
-          if (fileExists(descriptorPath)) {
-            module.descriptor = [readJSON(file: descriptorPath)]
+            String descriptorPath = "target/ModuleDescriptor.json"
+            if (fileExists(descriptorPath)) {
+              module.descriptor = [readJSON(file: descriptorPath)]
+            }
           }
         }
       }
 
       stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence(module.getName())
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir(module.getName()) {
-            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-            image.push()
+        if (skipStage) {
+          logger.warning("Stage [Docker] Build and push is disabled")
+        }
+        else {
+          common.checkEcrRepoExistence(module.getName())
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            dir(module.getName()) {
+              def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+              image.push()
+            }
           }
         }
       }
