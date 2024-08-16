@@ -40,5 +40,4 @@ logs/
 # Java
 build/
 out/
-/vars/localDev
-/localDev
+localDev/
