@@ -184,10 +184,12 @@ ansiColor('xterm') {
         String appId = appEntitlements.entitlements[0].applicationId
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
-        dir(module.name) {
-          String origVersion = readMavenPom(file: 'pom.xml').version
+        dir(module.getName()) {
+          String origVersion = readMavenPom(file: 'pom.xml').version.toString()
           module.version = "${origVersion}.${featureHash}"
+          println("Module version: ${module.version}")
         }
+
         // 1.2 Get Updated Application Descriptor with new Module Version
         Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, env.BUILD_NUMBER)
         println(updatedAppDescriptor)
