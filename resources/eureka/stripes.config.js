@@ -46,7 +46,9 @@ module.exports = {
     '@folio/handler-stripes-registry': {},
     '@folio/inventory' : {},
     '@folio/invoice': {},
+    '@folio/ldp': {},
     '@folio/licenses': {},
+    '@folio/lists': {},
     '@folio/local-kb-admin': {},
     '@folio/marc-authorities': {},
     '@folio/myprofile' : {},
@@ -85,8 +87,8 @@ module.exports = {
     '@folio/stripes-marc-components' : {},
     '@folio/tags': {},
     '@folio/tenant-settings' : {},
-    '@folio/users' : {},
-    '@folio/plugin-select-application' : {}
+    '@folio/users' : {}
+    , '@folio/plugin-select-application' : {}
   },
   branding: {
     logo: {

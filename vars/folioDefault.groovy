@@ -32,7 +32,9 @@ Map<String, OkapiTenantConsortia> consortiaTenants(Object installJson = [], Inst
       .withConsortiaName('Mobius')
       .withAdminUser(adminOkapiUser('consortium_admin', 'admin'))
       .withInstallJson(installJson.collect())
-      .withIndex(new Index(true, true))
+      .withIndex(new Index('instance', true, true))
+      .withIndex(new Index('authority', true, false))
+      .withIndex(new Index('location', true, false))
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
     university: new OkapiTenantConsortia('university')
@@ -68,11 +70,6 @@ Map<String, OkapiTenant> tenants() {
     kbApiKey = KB_API_KEY
   }
   return [
-    test           : new OkapiTenant('test')
-      .withTenantName('test')
-      .withTenantDescription('test')
-      .withAdminUser(adminOkapiUser('test_admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
     diku           : new OkapiTenant('diku')
       .withTenantName('Datalogisk Institut')
       .withTenantDescription('Danish Library Technology Institute')

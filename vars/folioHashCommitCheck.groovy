@@ -1,43 +1,39 @@
 import org.folio.Constants
-import org.folio.utilities.RequestException
-import org.folio.utilities.RestClient
+import org.folio.utilities.GitHubClient
 
-// Function to Detect Changes in the platform-complete Repository, Branch Between Job Runs
-boolean commitHashChangeDetected(branch) {
-  def awsParameterName = 'Hash-Commit'
-  def currentCommitHash = getLatestCommitHash('platform-complete', branch)
-  def previousSavedHash = getPreviousSavedHashFromSSM(Constants.AWS_REGION, awsParameterName)
-  println("Current commit hash: ${currentCommitHash}")
-  println("Previous commit hash: ${previousSavedHash}")
+String getCurrentBuildSha(String branch) {
+  Map branchInfo = new GitHubClient(this).getBranchInfo('platform-complete', branch)
 
-  if (currentCommitHash == previousSavedHash) {
-    println("Changes not found.")
+  return branchInfo.commit.sha
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+String getPreviousBuildSha() {
+  String awsSsmParameterName = 'Hash-Commit'
+  String awsRegion = Constants.AWS_REGION
+  awscli.withAwsClient {
+    return awscli.getSsmParameterValue(awsRegion, awsSsmParameterName)
+  }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+void updateBuildSha(String sha) {
+  String awsSsmParameterName = 'Hash-Commit'
+  String awsRegion = Constants.AWS_REGION
+  awscli.withAwsClient {
+    awscli.updateSsmParameter(awsRegion, awsSsmParameterName, sha)
+  }
+}
+
+boolean isInstallJsonChanged(String previousSha, String currentSha) {
+  println("Current build sha: ${currentSha}\nPrevious build sha: ${previousSha}")
+  if (previousSha == currentSha) {
     return false
   } else {
-    println("Changes detected. Updating ssm with new hash: ${currentCommitHash}.")
-    awscli.updateSsmParameter(Constants.AWS_REGION, awsParameterName, currentCommitHash)
-    return true
-  }
-}
+    Map commitsDiff = new GitHubClient(this).getTwoCommitsDiff(previousSha, currentSha, 'platform-complete')
 
-// Function it returns Lates Commit Hash From the platform-complete repository: snapshot branch
-String getLatestCommitHash(String repository, String branch) {
-  String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches/${branch}"
-  try {
-    def response = new RestClient(this).get(url).body
-    if (response?.commit) {
-      return response.commit.sha
-    }
-  } catch (RequestException e) {
-    error "An error occurred while fetching GitHub data: ${e.getMessage()}"
-  }
-}
+    println("Changed files: ${commitsDiff.files*.filename}")
 
-// Function to get the previous platform-complete $branch commit saved hash from AWS SSM
-String getPreviousSavedHashFromSSM(awsRegion, awsParameterName) {
-  try {
-    return awscli.getSsmParameterValue(awsRegion, awsParameterName)
-  } catch (Exception e) {
-    error "Error fetching '${awsParameterName}' parameter value from AWS SSM: ${e.message}"
+    return commitsDiff.files.any { it.filename == 'install.json' }
   }
 }

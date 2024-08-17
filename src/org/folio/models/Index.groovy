@@ -5,9 +5,11 @@ package org.folio.models
  * It provides flexibility by allowing the execution of the index to be run, recreated, or waited for completion based on the provided boolean values.
  */
 class Index {
+  /** Allowed index types */
+  static final List<String> ALLOWED_TYPES = ['instance', 'authority', 'location']
 
-  /** Flag to determine if the index should be run. */
-  boolean run
+  /** Type of the index */
+  String type
 
   /** Flag to determine if the index should be recreated. */
   boolean recreate
@@ -22,8 +24,11 @@ class Index {
    * @param recreate A boolean value specifying whether the index should be recreated.
    * @param waitComplete A boolean value specifying whether to wait until the index operation is complete before continuing. Default value is true.
    */
-  Index(boolean run, boolean recreate, boolean waitComplete = true) {
-    this.run = run
+  Index(String type, boolean recreate, boolean waitComplete = false) {
+    if (!ALLOWED_TYPES.contains(type)) {
+      throw new IllegalArgumentException("Invalid index type: $type. Allowed types are: $ALLOWED_TYPES")
+    }
+    this.type = type
     this.recreate = recreate
     this.waitComplete = waitComplete
   }

@@ -40,6 +40,45 @@ resource "rancher2_namespace" "this" {
   }
 }
 
+resource "kubectl_manifest" "hazelcast-cluster-role" {
+  provider           = kubectl
+  override_namespace = rancher2_namespace.this.name
+  yaml_body          = <<YAML
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hazelcast-cluster-role
+rules:
+  - apiGroups:
+      - ""
+      # Access to apps API is only required to support automatic cluster state management
+      # when persistence (hot-restart) is enabled.
+      - apps
+    resources:
+      - endpoints
+      - pods
+      - nodes
+      - services
+      # Access to statefulsets resource is only required to support automatic cluster state management
+      # when persistence (hot-restart) is enabled.
+      - statefulsets
+    verbs:
+      - get
+      - list
+      # Watching resources is only required to support automatic cluster state management
+      # when persistence (hot-restart) is enabled.
+      - watch
+  - apiGroups:
+      - "discovery.k8s.io"
+    resources:
+      - endpointslices
+    verbs:
+      - get
+      - list
+YAML
+}
+
 # Create a new rancher2 Project Registry
 resource "rancher2_registry" "folio-docker" {
   name        = "folio-docker"
