@@ -252,8 +252,8 @@ class Eureka extends Common {
     // Update Application Descriptor with new Application Version
     String currentAppVersion = appDescriptor.version
     String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
-    appDescriptor.version = newAppVersion
     appDescriptor.id.replace(currentAppVersion, newAppVersion)
+    appDescriptor.version = newAppVersion
 
     // Update Application Descriptor with new Module Version
     appDescriptor.modules.findAll { it.name == module.name }.each {
