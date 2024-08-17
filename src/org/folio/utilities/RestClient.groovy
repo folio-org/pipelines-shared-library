@@ -127,8 +127,7 @@ class RestClient {
     }
   }
 
-  boolean getDebugValue(){
-    logger.debug("I am in RestClient.isDebug")
+  boolean debugValue(){
     return debug
   }
 

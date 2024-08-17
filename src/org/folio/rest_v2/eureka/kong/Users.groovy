@@ -17,7 +17,7 @@ class Users extends Kong{
   }
 
   Users(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debug)
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
   }
 
   User createUser(Tenant tenant, User user) {

@@ -16,7 +16,7 @@ class Tenants extends Kong{
   }
 
   Tenants(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debug)
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
   }
 
   Tenant createTenant(Tenant tenant) {
