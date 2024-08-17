@@ -50,9 +50,13 @@ class RestClient {
                         , List<Integer> validResponseCodes = []
                         , int connectionTimeout, int readTimeout) {
 
+    logger.debug("I'm in the RestClient doRequest method")
+
     if (debug) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
     }
+
+    logger.debug("I'm in the RestClient doRequest method after debug check")
 
     HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
 
