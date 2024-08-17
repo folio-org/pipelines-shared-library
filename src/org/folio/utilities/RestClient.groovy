@@ -21,6 +21,7 @@ class RestClient {
 
   def get(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
           , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+    logger.debug("I'm in the RestClient get method")
     return doRequest('GET', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
