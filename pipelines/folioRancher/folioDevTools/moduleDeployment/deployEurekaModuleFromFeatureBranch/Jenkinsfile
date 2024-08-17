@@ -193,7 +193,7 @@ ansiColor('xterm') {
         println(updatedAppDescriptor)
 
         // 1.3 Put back Updated Application Descriptor to Folio Instance
-        // folioApp.registerApplication(updatedAppDescriptor)
+        folioApp.registerApplication(updatedAppDescriptor)
 
         // 2. Enable New Module Version for Application
         // folioApp.createModuleDiscovery()
