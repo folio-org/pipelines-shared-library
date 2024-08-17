@@ -191,7 +191,8 @@ ansiColor('xterm') {
         println(appDescriptor)
 
         // 1.2 Get Updated Application Descriptor with new Module Version
-        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module as Map)
+        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor)
+        println(updatedAppDescriptor)
 
         // 1.3 Put back Updated Application Descriptor to Folio Instance
         folioApp.registerApplication(updatedAppDescriptor)

@@ -240,22 +240,21 @@ class Eureka extends Common {
   /**
    * Get Updated Application Descriptor with new Module Version
    * @param currentAppDescriptor Current Application Descriptor as a Map
-   * @param module Module as a Map
    * @return Updated Application Descriptor as a Map
    */
-  Map getUpdatedApplicationDescriptor(Map currentAppDescriptor, Map module) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    // Get Tenant UUID by Tenant Short Name
-    String tenantUUID = getTenantByName(module.tenantId).id
+    String currentVersion = appDescriptor.version
+    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${env.BUILD_NUMBER}")
+    println("New Version: ${newVersion}")
 
-    // Update Application Descriptor with new Module Version
-    currentAppDescriptor.modules.add(module)
+    appDescriptor.version = newVersion
+    print("New Version: ${appDescriptor.version}")
+    appDescriptor.id.replace(currentVersion, newVersion)
+    println("New App Descriptor: ${appDescriptor.id}")
 
-    // Update Application Descriptor with new Module Version
-    currentAppDescriptor.tenantId = tenantUUID
-
-    return currentAppDescriptor
+    return appDescriptor
   }
 }
