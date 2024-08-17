@@ -34,6 +34,8 @@ List getGitHubTeamsIds(String teams) {
     Map headers = ["Authorization": "Bearer ${token}"]
     List response = new RestClient(this).get(url, headers).body
 
+    println("I'm in the getGitHubTeamsIds after RestClient")
+
     List ids = []
     teams.replaceAll("\\s", "").tokenize(',').each { team ->
       if (team != 'null') {
