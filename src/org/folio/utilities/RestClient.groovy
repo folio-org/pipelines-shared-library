@@ -5,7 +5,7 @@ import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
 
 class RestClient {
-  private boolean debug
+  boolean debug
   private int defaultConnectionTimeout
   private int defaultReadTimeout
   private Logger logger
@@ -52,7 +52,7 @@ class RestClient {
 
     logger.debug("I'm in the RestClient doRequest method")
 
-    if (isDebug()) {
+    if (debug) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
     }
 
@@ -71,7 +71,7 @@ class RestClient {
       logger.error(e.getMessage())
     }
 
-    if (isDebug()) {
+    if (debug) {
       logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
     }
 
@@ -134,7 +134,7 @@ class RestClient {
     }
   }
 
-  boolean isDebug(){
+  boolean getDebugValue(){
     logger.debug("I am in RestClient.isDebug")
     return debug
   }
