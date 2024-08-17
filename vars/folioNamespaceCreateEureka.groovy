@@ -63,9 +63,9 @@ void call(CreateNamespaceParameters args) {
     String defaultTenantId = 'diku'
     String folioRepository = 'platform-complete'
     boolean releaseVersion = true
-    String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
-    def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
+    String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')
     InstallRequestParams installRequestParams = new InstallRequestParams()
