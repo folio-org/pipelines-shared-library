@@ -1,6 +1,7 @@
 package org.folio.rest_v2
 
 import org.folio.models.EurekaTenant
+import org.folio.models.FolioModule
 import org.folio.utilities.RequestException
 
 class Eureka extends Common {
@@ -239,18 +240,29 @@ class Eureka extends Common {
 
   /**
    * Get Updated Application Descriptor with new Module Version
-   * @param currentAppDescriptor Current Application Descriptor as a Map
+   * @param appDescriptor Current Application Descriptor as a Map
+   * @param module Module object to be updated
+   * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
-  Map getUpdatedApplicationDescriptor(Map appDescriptor, String buildNumber) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
-    String currentVersion = appDescriptor.version
-    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+    // Update Application Descriptor with new Application Version
+    String currentAppVersion = appDescriptor.version
+    String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+    appDescriptor.version = newAppVersion
+    appDescriptor.id.replace(currentAppVersion, newAppVersion)
 
-    appDescriptor.version = newVersion
-    appDescriptor.id.replace(currentVersion, newVersion)
+    // Update Application Descriptor with new Module Version
+    appDescriptor.modules.findAll { it.name == module.name }.each {
+      it.url = it.url.replaceFirst(/${module.name}-\d+\.\d+\.\d+/, "${module.name}-${module.version}")
+      it.id = "${module.name}-${module.version}"
+      it.version = module.version
+    }
+
+    logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
 
     return appDescriptor
   }
