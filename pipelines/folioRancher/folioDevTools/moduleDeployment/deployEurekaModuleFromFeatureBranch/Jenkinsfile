@@ -185,6 +185,10 @@ ansiColor('xterm') {
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
         dir(module.getName()) {
+          sh '''
+            pwd
+            ls -la
+          '''
           String origVersion = readMavenPom(file: 'pom.xml').version.toString()
           module.version = "${origVersion}.${featureHash}"
           println("Module version: ${module.version}")
