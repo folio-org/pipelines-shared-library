@@ -33,6 +33,7 @@ List getGitHubTeamsIds(String teams) {
     String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
     Map headers = ["Authorization": "Bearer ${token}"]
 
+    println("I'm in the getGitHubTeamsIds before RestClient")
     RestClient rest = new RestClient(this)
     println("I'm in the getGitHubTeamsIds after RestClient")
     def response_base = rest.get(url, headers)
