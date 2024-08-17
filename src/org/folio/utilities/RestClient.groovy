@@ -127,7 +127,7 @@ class RestClient {
     }
   }
 
-  boolean isDebug(){
+  boolean debugValue(){
     return debug
   }
 

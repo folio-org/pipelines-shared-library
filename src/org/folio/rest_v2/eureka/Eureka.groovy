@@ -18,7 +18,7 @@ class Eureka extends Base {
   }
 
   Eureka(Kong kong) {
-    super(kong.context, kong.restClient.debug)
+    super(kong.context, kong.restClient.debugValue())
 
     this.kong = kong
   }
