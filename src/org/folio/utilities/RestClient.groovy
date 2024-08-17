@@ -20,12 +20,8 @@ class RestClient {
   }
 
   def get(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
-          , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout, def context = null) {
-    if(context)
-      context.println("I'm in the RestClient get method")
-    else
-      logger.debug("I'm in the RestClient get method")
-
+          , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+    logger.debug("I'm in the RestClient get method")
     return doRequest('GET', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
@@ -56,7 +52,7 @@ class RestClient {
 
     logger.debug("I'm in the RestClient doRequest method")
 
-    if (debug) {
+    if (isDebug()) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
     }
 
@@ -75,7 +71,7 @@ class RestClient {
       logger.error(e.getMessage())
     }
 
-    if (debug) {
+    if (isDebug()) {
       logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
     }
 
