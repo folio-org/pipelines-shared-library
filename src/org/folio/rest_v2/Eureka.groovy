@@ -242,18 +242,15 @@ class Eureka extends Common {
    * @param currentAppDescriptor Current Application Descriptor as a Map
    * @return Updated Application Descriptor as a Map
    */
-  Map getUpdatedApplicationDescriptor(Map appDescriptor) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, String buildNumber) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
     String currentVersion = appDescriptor.version
-    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${System.getenv("BUILD_NUMBER")}")
-    println("New Version: ${newVersion}")
+    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
 
     appDescriptor.version = newVersion
-    print("New Version: ${appDescriptor.version}")
     appDescriptor.id.replace(currentVersion, newVersion)
-    println("New App Descriptor: ${appDescriptor.id}")
 
     return appDescriptor
   }
