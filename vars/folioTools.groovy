@@ -32,9 +32,17 @@ List getGitHubTeamsIds(String teams) {
   withCredentials([usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
     String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
     Map headers = ["Authorization": "Bearer ${token}"]
-    List response = new RestClient(this).get(url, headers).body
 
+    RestClient rest = new RestClient(this)
     println("I'm in the getGitHubTeamsIds after RestClient")
+    def response_base = rest.get(url, headers)
+    println("I'm in the getGitHubTeamsIds after RestClient get request")
+    List response = response_base.body
+    println("I'm in the getGitHubTeamsIds after RestClient get request body")
+
+//    List response = new RestClient(this).get(url, headers).body
+
+    println("I'm in the getGitHubTeamsIds after RestClient request chain")
 
     List ids = []
     teams.replaceAll("\\s", "").tokenize(',').each { team ->
