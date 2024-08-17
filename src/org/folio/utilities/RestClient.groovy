@@ -5,23 +5,20 @@ import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
 
 class RestClient {
-  boolean debug
+  private boolean debug
   private int defaultConnectionTimeout
   private int defaultReadTimeout
   private Logger logger
 
   RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
-    context.println("I'm in the RestClient constructor")
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
     this.logger = new Logger(context, 'RestClient')
-    context.println("I'm at the end of the RestClient constructor")
   }
 
   def get(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
           , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    logger.debug("I'm in the RestClient get method")
     return doRequest('GET', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
@@ -50,13 +47,9 @@ class RestClient {
                         , List<Integer> validResponseCodes = []
                         , int connectionTimeout, int readTimeout) {
 
-    logger.debug("I'm in the RestClient doRequest method")
-
     if (debug) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
     }
-
-    logger.debug("I'm in the RestClient doRequest method after debug check")
 
     HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
 

@@ -146,7 +146,6 @@ class Tenants extends Kong{
 
   @NonCPS
   static Tenants get(Kong kong){
-    kong.logger.debug("I am in Tenants.get")
     return new Tenants(kong)
   }
 }
