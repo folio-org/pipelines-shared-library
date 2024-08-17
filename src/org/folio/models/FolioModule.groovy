@@ -28,11 +28,10 @@ class FolioModule {
     BACKEND, FRONTEND, EDGE
   }
 
-  FolioModule(String id) {
-    this.id = id
-  }
+  FolioModule() {}
 
-  void loadModuleDetails(){
+  void loadModuleDetails(String id) {
+    this.id = id
     Matcher matcher = _getMatcher(this.id)
 
     if (matcher) {

@@ -6,6 +6,7 @@ import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
+import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 
 @Library('pipelines-shared-library') _
@@ -40,7 +41,7 @@ FolioModule module = new FolioModule()
 module.name = params.MODULE_NAME
 
 String featureBranch = params.MODULE_BRANCH
-String featureHash = folioHashCommitCheck.getLatestCommitHash(module.getName(), featureBranch).take(7)
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
 String mavenArguments = params.MAVEN_ARGS.trim()
 List installJson = []
 

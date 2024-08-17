@@ -484,9 +484,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 1536Mi
+      memory: 1792Mi
     requests:
-      memory: 1024Mi
+      memory: 1536Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1997,9 +1997,15 @@ mod-template-engine:
 mod-tlr:
   extraEnvVars: []
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
