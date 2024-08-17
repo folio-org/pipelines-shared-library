@@ -32,7 +32,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('enable_rw_split', args.rwSplit)
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
 
-    println("folioNamespaceCreateEureka.groovy in the meddle of the addVars")
+    println("folioNamespaceCreateEureka.groovy in the middle of the addVars")
 
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
@@ -76,7 +76,7 @@ void call(CreateNamespaceParameters args) {
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
     def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
 
-    println("folioNamespaceCreateEureka.groovy in the meddle of the init namespace")
+    println("folioNamespaceCreateEureka.groovy in the middle of the init namespace")
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')

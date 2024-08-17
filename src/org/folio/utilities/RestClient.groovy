@@ -11,10 +11,12 @@ class RestClient {
   private Logger logger
 
   RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
+    context.println("I'm in the RestClient constructor")
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
     this.logger = new Logger(context, 'RestClient')
+    context.println("I'm at the end of the RestClient constructor")
   }
 
   def get(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
