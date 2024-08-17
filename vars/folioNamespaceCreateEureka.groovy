@@ -12,13 +12,9 @@ void call(CreateNamespaceParameters args) {
     println("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
-
-    println("folioNamespaceCreateEureka.groovy after new RancherNamespace")
     //Set terraform configuration
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
       .withWorkspace("${args.clusterName}-${args.namespaceName}")
-
-    println("folioNamespaceCreateEureka.groovy after new TerraformConfig")
 
     tfConfig.addVar('rancher_cluster_name', args.clusterName)
     tfConfig.addVar('rancher_project_name', args.namespaceName)
@@ -31,38 +27,33 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pgadmin4', 'true')
     tfConfig.addVar('enable_rw_split', args.rwSplit)
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-
-    println("folioNamespaceCreateEureka.groovy in the middle of the addVars")
-
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    println("folioNamespaceCreateEureka.groovy after addVars")
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply', tfConfig)
+    }
 
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    stage('[Wait] for keycloak initialization') {
+//      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
 //    }
-//
-////    stage('[Wait] for keycloak initialization') {
-////      sleep time: 3, unit: 'MINUTES' // keycloak init timeout | MUST HAVE
-////    }
-//
-//    if (args.greenmail) {
-//      stage('[Helm] Deploy greenmail') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-//        }
-//      }
-//    }
-//
-//    if (args.mockServer) {
-//      stage('[Helm] Deploy mock-server') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployMockServer(namespace)
-//        }
-//      }
-//    }
+
+    if (args.greenmail) {
+      stage('[Helm] Deploy greenmail') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+        }
+      }
+    }
+
+    if (args.mockServer) {
+      stage('[Helm] Deploy mock-server') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployMockServer(namespace)
+        }
+      }
+    }
 
     if (args.namespaceOnly) {
       return
@@ -75,9 +66,6 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
     def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
-
-    println("folioNamespaceCreateEureka.groovy in the middle of the init namespace")
-
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')
     InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -98,53 +86,52 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone()))
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-//      }
-//    }
-//
-//    stage('[Rest] MDs and SVC') {
-//      //tbd
-//    }
-//
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        println(namespace.getModules().getBackendModules())
-//        input("Paused for review...")
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//        if (namespace.getModules().getBackendModules()['mod-login']) {
-//          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
-//        }
-//        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
-//      }
-//    }
-//
-//    stage('[Rest] Configure edge') {
-//      namespace.getModules().removeModule('edge-inventory')
-//      namespace.getModules().removeModule('edge-erm')
-//      namespace.getModules().removeModule('edge-users')
-//      folioEdge.renderEphemeralProperties(namespace)
-////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-//    }
-//
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//        }
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+      }
+    }
 
-//    stage('[Rest] Initialize') {
-//      retry(2) {
-//        println("I'm before Eureka")
-//        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-//        input message: "Waiting for application"
-//
-//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-//      }
-//    }
+    stage('[Rest] MDs and SVC') {
+      //tbd
+    }
+
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(namespace.getModules().getBackendModules())
+        input("Paused for review...")
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        if (namespace.getModules().getBackendModules()['mod-login']) {
+          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
+        }
+        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
+      }
+    }
+
+    stage('[Rest] Configure edge') {
+      namespace.getModules().removeModule('edge-inventory')
+      namespace.getModules().removeModule('edge-erm')
+      namespace.getModules().removeModule('edge-users')
+      folioEdge.renderEphemeralProperties(namespace)
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+    }
+
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        }
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+      }
+    }
+
+    stage('[Rest] Initialize') {
+      retry(2) {
+        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+        input message: "Waiting for application"
+
+        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
+    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
