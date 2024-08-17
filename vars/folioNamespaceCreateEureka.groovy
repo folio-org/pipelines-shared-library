@@ -35,6 +35,8 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
+    println("folioNamespaceCreateEureka.groovy after addVars")
+
 //    stage('[Terraform] Provision') {
 //      folioTerraformFlow.manageNamespace('apply', tfConfig)
 //    }
@@ -70,6 +72,9 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
     def eurekaPlatform = new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot')
+
+    println("folioNamespaceCreateEureka.groovy in the meddle of the init namespace")
+
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, 'snapshot')
     InstallRequestParams installRequestParams = new InstallRequestParams()
