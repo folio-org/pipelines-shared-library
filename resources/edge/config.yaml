@@ -10,9 +10,14 @@ edge-oai-pmh:
   - oai-pmh.all
   - user-tenants.collection.get
 edge-patron:
+  tenants:
+  - tenant: ttttpatron
+    username: testpatron
+    password: password
   permissions:
   - patron.all
   - users.collection.get
+  - circulation.requests.item.get
 edge-orders:
   tenants:
   - tenant: testedgeorders
@@ -59,9 +64,13 @@ edge-connexion:
   - copycat.all
 edge-sip2: {}
 edge-courses: {}
-edge-fqm: {}
+edge-fqm:
+  permissions:
+  - fqm.query.all
 edge-dcb:
   tenants:
   - tenant: testedgedcb
     username: dcbClient
     password: password
+  permissions:
+  - dcb.all

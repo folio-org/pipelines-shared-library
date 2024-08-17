@@ -7,8 +7,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'master'
-
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
@@ -20,7 +18,6 @@ properties([
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
     string(name: 'UI_TENANTS_IDS', defaultValue: '', description: 'A comma-separated list of tenant IDs that require a UI.'),
-    folioParameters.pgType(['aws']),
     folioParameters.kafkaType(Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse()),
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
@@ -35,9 +32,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+/**
+ * Set terraform configuration
+ */
 String defaultTenantId = 'fs09000000'
-
-//Set terraform configuration
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
 
@@ -46,7 +44,7 @@ tfConfig.addVar('rancher_project_name', params.NAMESPACE)
 tfConfig.addVar('tenant_id', defaultTenantId)
 tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+tfConfig.addVar('pg_embedded', 'false')
 tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
 tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
 tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
@@ -54,17 +52,22 @@ tfConfig.addVar('pgadmin4', 'true')
 tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
 tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
 tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
+tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
+tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
 
-//Set namespace configuration
+/**
+ * Set namespace configuration
+ */
+
 String snapshotS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/rds/${params.RDS_SNAPSHOT_NAME}"
-List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
+List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").isEmpty() ? [] : params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
-namespace.addDeploymentConfig(CONFIG_BRANCH)
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 namespace.setEnableRwSplit(params.RW_SPLIT)
 
 ansiColor('xterm') {
@@ -78,10 +81,7 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Terraform] Provision') {
-        tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
-        tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
-
+      stage('[Terraform] Restore') {
         folioHelm.withK8sClient {
           tfConfig.addVar('pg_version',
             awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
@@ -90,6 +90,10 @@ ansiColor('xterm') {
         }
 
         folioTerraformFlow.manageNamespace('apply', tfConfig)
+      }
+
+      if (params.NAMESPACE_ONLY) {
+        return
       }
 
       stage('Preparation') {
@@ -118,37 +122,37 @@ ansiColor('xterm') {
         }
       }
 
-      if (!params.NAMESPACE_ONLY) {
+      stage('[Helm] Restore') {
         folioDeployFlow.restore(namespace)
+      }
 
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              TenantUi ui = tenant.getTenantUi()
-              branches[tenantId] = {
-                def jobParameters = [
-                  tenant_id  : ui.getTenantId(),
-                  custom_hash: ui.getHash(),
-                  custom_url : "https://${namespace.getDomains()['okapi']}",
-                  custom_tag : ui.getTag(),
-                  consortia  : tenant instanceof OkapiTenantConsortia
-                ]
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [
+                tenant_id  : ui.getTenantId(),
+                custom_hash: ui.getHash(),
+                custom_url : "https://${namespace.getDomains()['okapi']}",
+                custom_tag : ui.getTag(),
+                consortia  : tenant instanceof OkapiTenantConsortia
+              ]
 
-                uiBuild(jobParameters)
+              uiBuild(jobParameters)
 
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                }
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
               }
             }
           }
-          parallel branches
         }
+        parallel branches
+      }
 
-        stage('Deploy ldp') {
-          println('LDP deployment')
-        }
+      stage('Deploy ldp') {
+        println('LDP deployment')
       }
     } catch (e) {
       println "Caught exception: ${e}"

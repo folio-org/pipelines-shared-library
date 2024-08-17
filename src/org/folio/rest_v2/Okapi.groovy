@@ -1,6 +1,7 @@
 package org.folio.rest_v2
 
 import groovy.json.JsonOutput
+import org.folio.models.Index
 import org.folio.models.OkapiTenant
 import org.folio.utilities.RequestException
 
@@ -304,20 +305,20 @@ class Okapi extends Authorization {
   }
 
 
-  String runIndexInstance(OkapiTenant tenant) {
+  String runIndex(OkapiTenant tenant, Index index) {
     String url = generateUrl("/search/index/inventory/reindex")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
     Map body = [
-      "recreateIndex": tenant.index.recreate,
-      "resourceName" : "instance"
+      "recreateIndex": index.getRecreate(),
+      "resourceName" : index.getType()
     ]
 
-    logger.info("Starting Elastic Search reindex with recreate flag = ${tenant.index.recreate}")
+    logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
     def response = restClient.post(url, body, headers).body
     String jobId = response.id
 
-    if (tenant.index.waitComplete) {
+    if (index.getWaitComplete()) {
       checkIndexStatus(tenant, jobId)
     }
 

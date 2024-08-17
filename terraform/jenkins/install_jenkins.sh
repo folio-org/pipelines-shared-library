@@ -21,9 +21,9 @@ sudo mount -a
 if [ ! -d "/var/lib/jenkins" ]; then sudo ln -s /home/jenkins /var/lib/jenkins; fi
 sudo yum update -y
 sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-sudo yum upgrade
-sudo amazon-linux-extras install java-openjdk11 -y
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade -y
+sudo sudo yum install java-17-amazon-corretto -y
 sudo yum install jenkins-${jenkins_version} -y
 sudo systemctl enable jenkins
 sudo systemctl start jenkins

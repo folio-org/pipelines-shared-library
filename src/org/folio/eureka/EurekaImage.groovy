@@ -22,6 +22,11 @@ class EurekaImage implements Serializable {
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
+      if (moduleName != 'folio-kong' && moduleName != 'folio-keycloak') {
+        def pom = steps.readMavenPom file: 'pom.xml'
+        pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
+        steps.writeMavenPom model: pom
+      }
       logger.info("Checkout completed successfully for ${moduleName}")
     } catch (Error e) {
       logger.warning("Checkout failed: ${e.getMessage()}")
@@ -62,7 +67,9 @@ class EurekaImage implements Serializable {
     def tag = 'unknown'
     try {
       def pom = steps.readMavenPom file: 'pom.xml'
-      if (pom) {
+      if (pom && moduleName =~ /^mod-.*$/) {
+        tag = "${pom.getVersion()}"
+      } else {
         tag = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
       }
     } catch (Exception e) {
@@ -98,7 +105,7 @@ class EurekaImage implements Serializable {
             steps.dir('platform-complete') {
               def eureka_platform = steps.readFile file: "eureka-platform.json"
               def check = new JsonSlurperClassic().parseText("${eureka_platform}")
-              def module = "${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
+              def module = (moduleName =~ /mod-.*$/) ? "${pom.getArtifactId()}-${pom.getVersion()}" : "${pom.getArtifactId()}-${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
               if (module.toString() in check['id']) {
                 logger.warning("${module} already exists!\nPlease update pom.xml to build a new image.")
               } else {
