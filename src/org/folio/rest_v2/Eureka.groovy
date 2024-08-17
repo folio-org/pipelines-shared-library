@@ -167,12 +167,12 @@ class Eureka extends Common {
     logger.info("Folio Application is upgraded.")
   }
 
-  /** Get Current Application Descriptor from Folio Instance
+  /** Get Current Application ID from Folio Instance
    * @param appIdPattern Application ID Pattern (e.g. app-platform-complete-*-SNAPSHOT.*)
    * @param tenantShortName Tenant Short Name (e.g. diku)
    * @return Application Descriptor as a Map
    */
-  Map getApplicationDescriptor(String appIdPattern, String tenantShortName) {
+  Map getAppEntitlements(String appIdPattern, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
@@ -215,6 +215,26 @@ class Eureka extends Common {
     logger.info("We've successfully got the Tenant Info.")
 
     return response?.tenants[0] as Map
+  }
+
+  /**
+   * Get Application Descriptor by its ID
+   * @param appId Application ID
+   * @return Application Descriptor as a Map
+   */
+  Map getApplicationDescriptor(String appId) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    String url = "${this.kongUrl}/applications/${appId}"  // URL for GET request
+
+    logger.info("Getting Application Descriptor by its ID...")
+
+    def response = restClient.get(url, headers).body
+
+    logger.info("We've successfully got the Application Descriptor.")
+
+    return response as Map
   }
 
   /**
