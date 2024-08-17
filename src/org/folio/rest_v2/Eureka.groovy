@@ -247,7 +247,7 @@ class Eureka extends Common {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
     String currentVersion = appDescriptor.version
-    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${env.BUILD_NUMBER}")
+    String newVersion = currentVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${System.getenv("BUILD_NUMBER")}")
     println("New Version: ${newVersion}")
 
     appDescriptor.version = newVersion
