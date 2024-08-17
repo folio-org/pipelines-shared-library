@@ -67,7 +67,7 @@ void call(CreateNamespaceParameters args) {
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-      commitHash, 'snapshot')
+      commitHash, args.folioBranch)
     InstallRequestParams installRequestParams = new InstallRequestParams()
       .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
 
