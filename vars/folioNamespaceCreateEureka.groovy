@@ -12,9 +12,13 @@ void call(CreateNamespaceParameters args) {
     println("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
+
+    println("folioNamespaceCreateEureka.groovy after new RancherNamespace")
     //Set terraform configuration
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
       .withWorkspace("${args.clusterName}-${args.namespaceName}")
+
+    println("folioNamespaceCreateEureka.groovy after new TerraformConfig")
 
     tfConfig.addVar('rancher_cluster_name', args.clusterName)
     tfConfig.addVar('rancher_project_name', args.namespaceName)
