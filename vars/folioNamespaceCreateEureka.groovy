@@ -123,15 +123,15 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Rest] Initialize') {
-      retry(2) {
-        println("I'm before Eureka")
-        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-        input message: "Waiting for application"
-
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-      }
-    }
+//    stage('[Rest] Initialize') {
+//      retry(2) {
+//        println("I'm before Eureka")
+//        Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+//        input message: "Waiting for application"
+//
+//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+//      }
+//    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
