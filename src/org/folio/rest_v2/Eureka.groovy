@@ -154,10 +154,28 @@ class Eureka extends Common {
 
   /**
    * Create New Module Discovery for Application
-   * @param
+   * @param module FolioModule object to be updated
    */
-  void createModuleDiscovery() {
-    logger.info("New Module Discovery is created.")
+  void createModuleDiscovery(module) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    // URL for POST request
+    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+
+    // Request Body for POST request
+    Map requestBody = [
+      'location': "http://${module.name}:8082",
+      'id': "${module.name}-${module.version}",
+      'name': module.name,
+      'version': module.version
+    ]
+
+    logger.info("Performing Module Discovery for for new module version...")
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("New Module Discovery is created for ${module.name}-${module.version}.")
   }
 
   /**
