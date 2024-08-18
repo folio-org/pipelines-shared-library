@@ -108,7 +108,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if (skipStage) {
+        if (false) {
           dir(module.name) {
             String origVersion = readMavenPom(file: 'pom.xml').version
             module.version = "${origVersion}.${featureHash}"
@@ -133,6 +133,7 @@ ansiColor('xterm') {
             String descriptorPath = "target/ModuleDescriptor.json"
             if (fileExists(descriptorPath)) {
               module.descriptor = [readJSON(file: descriptorPath)]
+              sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module}.json --upload-file ${descriptorPath}")
             }
           }
         }
