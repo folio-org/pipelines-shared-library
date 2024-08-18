@@ -192,7 +192,8 @@ class Eureka extends Common {
 
 //    String pathParams="?"
 
-    String url = "${this.kongUrl}/entitlements  // URL for PUT request
+    // URL for PUT request
+    String url = "${this.kongUrl}/entitlements"
 
     // Request Body for PUT request
     Map requestBody = [
