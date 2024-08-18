@@ -133,7 +133,7 @@ ansiColor('xterm') {
             String descriptorPath = "target/ModuleDescriptor.json"
             if (fileExists(descriptorPath)) {
               module.descriptor = [readJSON(file: descriptorPath)]
-              sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module}.json --upload-file ${descriptorPath}")
+              sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}.json --upload-file ${descriptorPath}")
             }
           }
         }
