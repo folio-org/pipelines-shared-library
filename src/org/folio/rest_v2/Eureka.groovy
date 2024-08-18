@@ -257,7 +257,7 @@ class Eureka extends Common {
 
     // Update Application Descriptor with new Module Version
     appDescriptor.modules.findAll { it.name == module.name }.each {
-      it.url = it.url.replaceFirst(/${module.name}-\d+\.\d+\.\d+-SNAPSHOT\.\d+/, "${module.name}-${module.version}")
+      it.url = "${org.folio.Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
       it.id = "${module.name}-${module.version}"
       it.version = module.version
     }
