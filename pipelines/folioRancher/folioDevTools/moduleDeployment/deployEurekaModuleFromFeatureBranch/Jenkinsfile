@@ -192,8 +192,9 @@ ansiColor('xterm') {
         Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, env.BUILD_NUMBER)
 
         // 1.3 Put back Updated Application Descriptor to Folio Instance
-        String updatedAppDescJson = writeJSON(returnText: true, json: updatedAppDescriptor)
-        folioApp.registerApplication(updatedAppDescJson)
+        def updatedAppDescJson = writeJSON(json: updatedAppDescriptor, returnText: true, pretty: 4)
+        echo "${updatedAppDescJson}"
+        folioApp.registerApplication(updatedAppDescJson as String)
 
         // 2. Enable New Module Version for Application
         // folioApp.createModuleDiscovery()
