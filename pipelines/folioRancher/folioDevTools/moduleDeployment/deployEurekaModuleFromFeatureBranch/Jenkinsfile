@@ -108,7 +108,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if (false) {
+        if (skipStage) {
           dir(module.name) {
             String origVersion = readMavenPom(file: 'pom.xml').version
             module.version = "${origVersion}.${featureHash}"
