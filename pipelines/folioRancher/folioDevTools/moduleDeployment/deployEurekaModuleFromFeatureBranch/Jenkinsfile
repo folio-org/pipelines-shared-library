@@ -196,7 +196,7 @@ ansiColor('xterm') {
         folioApp.registerApplication(updatedAppDescriptor)
 
         // 2. Enable New Module Version for Application
-        folioApp.createModuleDiscovery(module)
+//        folioApp.createModuleDiscovery(module)
 
         // 3. Enable New Application Descriptor with Updated Module Version for Specific Tenant
         String updatedAppId = updatedAppDescriptor.id as String
