@@ -189,7 +189,7 @@ ansiColor('xterm') {
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
         // 1.2 Get Updated Application Descriptor with new Module Version
-        HashMap updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, env.BUILD_NUMBER)
+        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, env.BUILD_NUMBER)
 
         // 1.3 Put back Updated Application Descriptor to Folio Instance
         echo "${updatedAppDescriptor}"

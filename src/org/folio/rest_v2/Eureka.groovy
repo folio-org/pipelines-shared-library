@@ -140,7 +140,7 @@ class Eureka extends Common {
    * Register New Application Descriptor
    * @param appDescriptor Application Descriptor as Map
    */
-  void registerApplication(HashMap appDescriptor) {
+  void registerApplication(Map appDescriptor) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
@@ -235,7 +235,7 @@ class Eureka extends Common {
 
     logger.info("We've successfully got the Application Descriptor.")
 
-    return response as HashMap
+    return response as Map
   }
 
   /**
@@ -243,9 +243,9 @@ class Eureka extends Common {
    * @param appDescriptor Current Application Descriptor as a Map
    * @param module Module object to be updated
    * @param buildNumber Build Number for new Application Version
-   * @return Updated Application Descriptor as a HashMap
+   * @return Updated Application Descriptor as a Map
    */
-  HashMap getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
@@ -264,6 +264,6 @@ class Eureka extends Common {
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
 
-    return appDescriptor as HashMap
+    return appDescriptor as Map
   }
 }
