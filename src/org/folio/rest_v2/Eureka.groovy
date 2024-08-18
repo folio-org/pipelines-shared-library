@@ -140,7 +140,7 @@ class Eureka extends Common {
    * Register New Application Descriptor
    * @param appDescriptor Application Descriptor as Map
    */
-  void registerApplication(String appDescriptor) {
+  void registerApplication(HashMap appDescriptor) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
