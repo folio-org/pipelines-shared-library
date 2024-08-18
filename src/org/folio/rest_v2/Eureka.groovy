@@ -190,10 +190,9 @@ class Eureka extends Common {
     // Get Tenant UUID by Tenant Short Name
     String tenantUUID = getTenantByName(tenantShortName).id
 
-//    String pathParams="tenantParameters=loadReference=true,loadSample=true"
-    String pathParams=""
+//    String pathParams="?"
 
-    String url = "${this.kongUrl}/entitlements?${pathParams}"  // URL for PUT request
+    String url = "${this.kongUrl}/entitlements  // URL for PUT request
 
     // Request Body for PUT request
     Map requestBody = [
