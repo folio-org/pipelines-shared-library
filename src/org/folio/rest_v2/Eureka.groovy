@@ -179,11 +179,32 @@ class Eureka extends Common {
   }
 
   /**
-   * Upgrade Application for Tenant
-   * @param
+   * Upgrade Folio Application for Tenant
+   * @param applicationId Application ID (e.g. app-platform-complete-1.0.0-SNAPSHOT.54)
+   * @param tenantShortName Tenant Short Name (e.g. diku)
    */
-  void upgradeApplication() {
-    logger.info("Folio Application is upgraded.")
+  void upgradeTenantApplication(String applicationId, String tenantShortName) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    // Get Tenant UUID by Tenant Short Name
+    String tenantUUID = getTenantByName(tenantShortName).id
+
+    String pathParams="tenantParameters=loadReference=true,loadSample=true"
+
+    String url = "${this.kongUrl}/entitlements?${pathParams}"  // URL for PUT request
+
+    // Request Body for PUT request
+    Map requestBody = [
+      'tenantId': tenantUUID,
+      'applications': [ applicationId ]
+    ]
+
+    logger.info("Performing Application ${applicationId} Upgrade for Tenant ${tenantShortName}...")
+
+    def response = restClient.put(url, requestBody, headers).body
+
+    logger.info("We've successfully upgraded Application ${applicationId} for Tenant ${tenantShortName}.")
   }
 
   /** Get Current Application ID from Folio Instance

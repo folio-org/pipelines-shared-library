@@ -199,7 +199,8 @@ ansiColor('xterm') {
         folioApp.createModuleDiscovery(module)
 
         // 3. Enable New Application Descriptor with Updated Module Version for Specific Tenant
-        // folioApp.upgradeApplication()
+        String updatedAppId = updatedAppDescriptor.id as String
+        folioApp.upgradeTenantApplication(updatedAppId, "diku")
 
         // 4. Deploy New Module Version to Namespace via Helm
         // folioDeployFlow.update()
