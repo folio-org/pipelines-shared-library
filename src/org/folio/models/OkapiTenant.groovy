@@ -23,9 +23,6 @@ class OkapiTenant extends Tenant{
   /** Okapi configuration for the tenant. */
   OkapiConfig okapiConfig
 
-  /** User Interface (UI) details for the tenant. */
-  TenantUi tenantUi
-
   /**
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.
