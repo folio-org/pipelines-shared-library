@@ -18,16 +18,6 @@ class Tenant {
   /**
    * Chainable setter for tenant UI.
    * @param tenantUi User Interface (UI) details for the tenant.
-   * @return The Tenant object.
-   */
-  void setTenantUi(TenantUi tenantUi) {
-    this.tenantUi = tenantUi
-    this.tenantUi.tenantId = this.tenantId
-  }
-
-  /**
-   * Chainable setter for tenant UI.
-   * @param tenantUi User Interface (UI) details for the tenant.
    * @return The OkapiTenant object.
    */
   Tenant withTenantUi(TenantUi tenantUi) {
