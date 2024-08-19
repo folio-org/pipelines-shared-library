@@ -54,10 +54,10 @@ void call(CreateNamespaceParameters args) {
 //        }
 //      }
 //    }
-//
-//    if (args.namespaceOnly) {
-//      return
-//    }
+
+    if (args.namespaceOnly) {
+      return
+    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -85,6 +85,17 @@ void call(CreateNamespaceParameters args) {
       .withIndex(new Index('authority', true, false))
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone()))
+
+    if (args.consortia) {
+      namespace.setEnableConsortia(true, releaseVersion)
+      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+        if (tenant.getIsCentralConsortiaTenant()) {
+          tenant.withTenantUi(tenantUi.clone())
+          tenant.okapiConfig.setLdpConfig(ldpConfig)
+        }
+        namespace.addTenant(tenant)
+      }
+    }
 
 //    stage('[Helm] Deploy mgr-*') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
