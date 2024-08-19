@@ -26,7 +26,6 @@ def applicationDescriptorFileGenerator(String applicationId) {
   dir(applicationId) {
     awscli.withAwsClient() {
       sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DawsRegion=us-west-2")
-//      -DbeRegistries=\"s3::${Constants.EUREKA_MDR_BUCKET}::descriptors/\"
     }
     dir('target') {
       sh(script: "ls -la")
