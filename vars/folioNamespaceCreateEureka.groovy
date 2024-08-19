@@ -86,13 +86,17 @@ void call(CreateNamespaceParameters args) {
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone()))
 
+    println("I'm before if (args.consortia) {")
+
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
+      println("I'm after if (args.consortia) { and setEnableConsortia")
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
+        println("I'm before namespace.addTenant(tenant)")
         namespace.addTenant(tenant)
       }
     }
