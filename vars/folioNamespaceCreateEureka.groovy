@@ -92,7 +92,11 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableConsortia(true, releaseVersion)
       println("I'm after if (args.consortia) { and setEnableConsortia")
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+        println("I'm inside folioDefault.consortiaTenants(")
+
         if (tenant.getIsCentralConsortiaTenant()) {
+          println("I'm inside folioDefault.consortiaTenants( and if (tenant.getIsCentralConsortiaTenant()")
+
           tenant.withTenantUi(tenantUi.clone())
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
