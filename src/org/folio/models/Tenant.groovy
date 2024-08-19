@@ -25,6 +25,17 @@ class Tenant {
     this.tenantUi.tenantId = this.tenantId
   }
 
+  /**
+   * Chainable setter for tenant UI.
+   * @param tenantUi User Interface (UI) details for the tenant.
+   * @return The OkapiTenant object.
+   */
+  Tenant withTenantUi(TenantUi tenantUi) {
+    this.tenantUi = tenantUi
+    this.tenantUi.tenantId = this.tenantId
+    return this
+  }
+
   Map toMap(){
     Map ret = [
       name: tenantName,
