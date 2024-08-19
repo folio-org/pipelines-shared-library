@@ -91,7 +91,7 @@ void call(CreateNamespaceParameters args) {
       folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
-          tenant.okapiConfig.setLdpConfig(ldpConfig)
+//          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
         namespace.addTenant(tenant)
       }
