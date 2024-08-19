@@ -1,5 +1,7 @@
 package org.folio.rest_v2
 
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
 import org.folio.models.EurekaTenant
 import org.folio.utilities.RequestException
 
@@ -198,6 +200,148 @@ class Eureka extends Common {
       }
     } catch(ex) {
       logger.error("Not able to assign ${resourceIds} to ${roleId}")
+    }
+  }
+
+  boolean isApplicationRegistered(String applicationId) {
+
+    String url = "https://${okapiDomain}/applications/${applicationId}"
+
+    try {
+      restClient.get(url).body
+      logger.info("Application ${applicationId} is already registered.")
+      return true
+    } catch (RequestException e) {
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        logger.info("Application id ${applicationId} not found in Application manager. Proceeding with registration.")
+        return false
+      } else {
+        throw new RequestException("Application manager is unavailable", e.statusCode)
+      }
+    }
+  }
+
+  def getDescriptorsList(applicationId) {
+
+    steps.awscli.withAwsClient() {
+      steps.sh(script: "aws s3api get-object --bucket ${Constants.EUREKA_BUCKET_NAME} --key apps/${applicationId}.json ${applicationId}.json")
+    }
+    logger.info(steps.readJSON(file: "${applicationId}.json"))
+    return steps.readJSON(file: "${applicationId}.json")
+  }
+
+  def registerApplication(String applicationId) {
+    String descriptorsList = getDescriptorsList(applicationId)
+    if (isApplicationRegistered(applicationId)) {
+      logger.warning("Application ${applicationId} is already registered.")
+      return
+    }
+
+    String url = "https://${okapiDomain}/applications?check=false"
+    Map<String,String> headers = [
+      'x-okapi-token': getEurekaToken(),
+      'Content-Type': 'application/json'
+    ]
+    try {
+      restClient.post(url, descriptorsList, headers)
+      logger.info("Application registered: ${descriptorsList}")
+    } catch (RequestException e) {
+      throw new RequestException("Application is not registered", e.statusCode)
+      
+  void enableApplicationForTenant(String tenantId, List applications) {
+
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+    headers['x-okapi-token'] = headers['Authorization'].replace('Bearer ', '')
+
+    Map body = [
+      tenantId    : tenantId,
+      applications: applications
+    ]
+
+    String url = "https://${okapiDomain}/entitlements?ignoreErrors=false&purgeOnRollback=true"
+
+    response = restClient.post(url, body, headers)
+    if (response.status == 201) {
+      logger.info("Application for tenant enabled: ${response.content}")
+    } else if (response.status == 400 && response.content.contains("Application is already entitled")) {
+      def content = readJSON(text: response.content)
+      logger.info("Application is already entitled, no actions needed..\n" + "Status: ${response.status}\n" + "Response content:\n" + writeJSON(json: content, returnText: true, pretty: 2))
+      return
+    } else {
+      logger.error("Enabling application for tenant failed: ${response.content}")
+      throw new Exception("Build failed: " + response.content)
+
+  def isDiscoveryModulesRegistered(String applicationId, String modulesJson) {
+
+    String url = generateKongUrl("/applications/${applicationId}/discovery?limit=500")
+    def jsonSlurper = new JsonSlurperClassic()
+    def modulesMap = jsonSlurper.parseText(modulesJson)
+
+    def response = restClient.get(url)
+    def content = response.body
+
+    if (content.totalRecords == modulesMap.discovery.size()) {
+      logger.info("All module discovery information are registered. Nothing to do.")
+      return false
+    } else if (content.totalRecords == 0) {
+      logger.info("Any discovery modules is registerd. Proceeding with registration.")
+      return null
+    } else {
+      logger.info("Not all modules discovery is registered. Proceeding with registration.")
+      return content
+    }
+  }
+
+  void registerApplicationDiscovery(String applicationId) {
+    String descriptorsList = getDescriptorsList(applicationId)
+
+    def jsonSlurper = new JsonSlurperClassic()
+    def parsedJson = jsonSlurper.parseText(descriptorsList)
+    def modules = parsedJson.modules
+
+    modules.each { module ->
+      module.location = "http://${module.name}:8082"
+    }
+
+    def modulesJson = ['discovery': modules]
+
+    String modulesList = (JsonOutput.toJson(modulesJson))
+
+    def result = isDiscoveryModulesRegistered(applicationId, modulesList)
+
+    if (result == false) {
+      logger.info("All modules are already registered. No further action needed.")
+    } else if (result == null) {
+      Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type' : 'application/json'
+      ]
+      String url = generateKongUrl("/modules/discovery")
+      logger.info("Going to register modules\n ${modulesJson}")
+      restClient.post(url, modulesList, headers).body
+
+    } else {
+
+      Map<String, String> headers = [
+        'x-okapi-token': getEurekaToken(),
+        'Content-Type' : 'application/json'
+      ]
+      modulesJson.discovery.each { modDiscovery ->
+
+        String requestBody = JsonOutput.toJson(modDiscovery)
+
+        try {
+          String url = generateKongUrl("/modules/${modDiscovery.id}/discovery")
+          restClient.post(url, requestBody, headers).body
+          logger.info("Registered module discovery: ${modDiscovery.id}")
+        } catch (RequestException e) {
+          if (e.statusCode == HttpURLConnection.HTTP_CONFLICT) {
+            logger.info("Module already registered (skipped): ${modDiscovery.id}")
+          } else {
+            throw new RequestException("Error registering module: ${modDiscovery.id}, error: ${e.statusCode}")
+          }
+        }
+      }
     }
   }
 }
