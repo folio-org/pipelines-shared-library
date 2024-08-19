@@ -20,9 +20,10 @@ class Tenant {
    * @param tenantUi User Interface (UI) details for the tenant.
    * @return The Tenant object.
    */
-  void setTenantUi(TenantUi tenantUi) {
+  Tenant withTenantUi(TenantUi tenantUi) {
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
+    return this
   }
 
   Map toMap(){
