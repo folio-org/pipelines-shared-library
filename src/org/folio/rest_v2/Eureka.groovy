@@ -211,9 +211,9 @@ class Eureka extends Common {
   /** Get Current Application ID from Folio Instance
    * @param appIdPattern Application ID Pattern (e.g. app-platform-complete-*-SNAPSHOT.*)
    * @param tenantShortName Tenant Short Name (e.g. diku)
-   * @return Application Descriptor as a Map
+   * @return Application Descriptor as a HashMap
    */
-  Map getAppEntitlements(String appIdPattern, String tenantShortName) {
+  HashMap getAppEntitlements(String appIdPattern, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
@@ -232,7 +232,7 @@ class Eureka extends Common {
 
     logger.info("We've successfully got the Current Application Descriptor.")
 
-    return response as Map
+    return response as HashMap
   }
 
   /**
