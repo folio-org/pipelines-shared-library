@@ -199,12 +199,12 @@ ansiColor('xterm') {
         // 2. Enable New Module Version for Application
 //        folioApp.createModuleDiscovery(module)
 
-        // 3. Enable New Application Descriptor with Updated Module Version for Specific Tenant
-        String updatedAppId = updatedAppDescriptor.id as String
-        folioApp.upgradeTenantApplication(updatedAppId, "diku")
+        // 3. Deploy New Module Version to Namespace via Helm
+        folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
 
-        // 4. Deploy New Module Version to Namespace via Helm
-        // folioDeployFlow.update()
+        // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
+//        String updatedAppId = updatedAppDescriptor.id as String
+//        folioApp.upgradeTenantApplication(updatedAppId, "diku")
       }
 
     } catch (e) {
