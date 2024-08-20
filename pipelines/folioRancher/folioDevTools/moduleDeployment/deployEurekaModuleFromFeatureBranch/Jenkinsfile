@@ -188,6 +188,7 @@ ansiColor('xterm') {
         // {entitlements=[{applicationId=app-platform-complete-1.0.0-SNAPSHOT.155, tenantId=44f0a9af-4395-44b4-80a8-51cf03f8c897, modules=[]}], totalRecords=1}
         String appId = appEntitlements.entitlements[0].applicationId
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
+        appEntitlements = null
 
         // 1.3 Get Application Descriptor Updated with New Module Version
         String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
