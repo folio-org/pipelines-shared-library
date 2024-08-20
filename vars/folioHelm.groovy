@@ -6,18 +6,19 @@ import org.folio.utilities.Logger
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
+  pintln("in withK8sClient")
   withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
     docker.image(Constants.DOCKER_K8S_CLIENT_IMAGE).inside("-u 0:0 --entrypoint=") {
-      pintln("in withK8sClient")
       closure()
     }
   }
 }
 
 void withKubeConfig(String clusterName, Closure closure) {
+  pintln("in withKubeConfig")
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
     pintln("in withKubeConfig")
