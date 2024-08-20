@@ -197,7 +197,7 @@ ansiColor('xterm') {
         folioApp.registerApplication(updatedAppDescriptor)
 
         // 2. Enable New Module Version (Discovery) for Application
-        folioApp.createModuleDiscovery(module)
+//        folioApp.createModuleDiscovery(module)
 
         // 3. Deploy New Module Version to Namespace via Helm
         folioHelm.withKubeConfig(namespace.clusterName) {
