@@ -1,9 +1,11 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
+import com.cloudbees.groovy.cps.NonCPS
 
 import java.time.LocalDateTime
 
+@NonCPS
 void withK8sClient(Closure closure) {
   withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
