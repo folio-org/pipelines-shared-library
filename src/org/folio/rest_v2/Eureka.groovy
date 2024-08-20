@@ -156,7 +156,7 @@ class Eureka extends Common {
    * Create New Module Discovery for Application
    * @param module FolioModule object to be updated
    */
-  void createModuleDiscovery(module) {
+  void createModuleDiscovery(FolioModule module) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
