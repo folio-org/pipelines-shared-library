@@ -19,6 +19,7 @@ void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
     addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    println('We are in the kubeconfig context')
     closure.call()
   }
 }
