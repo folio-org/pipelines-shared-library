@@ -6,7 +6,7 @@ import org.folio.utilities.Logger
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
-  pintln("in withK8sClient")
+  println("in withK8sClient")
   withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
@@ -18,7 +18,7 @@ void withK8sClient(Closure closure) {
 }
 
 void withKubeConfig(String clusterName, Closure closure) {
-  pintln("in withKubeConfig")
+  println("in withKubeConfig")
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
     pintln("in withKubeConfig")
