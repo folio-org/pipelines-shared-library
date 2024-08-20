@@ -232,7 +232,7 @@ class Eureka extends Common {
 
     logger.info("We've successfully got the Current Application Descriptor.")
 
-    return response as HashMap
+    return new HashMap(response as Map)
   }
 
   /**
