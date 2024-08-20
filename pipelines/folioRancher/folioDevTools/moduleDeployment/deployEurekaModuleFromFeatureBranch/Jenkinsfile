@@ -182,16 +182,16 @@ ansiColor('xterm') {
       stage('Update') {
         // 1. Register Application Descriptor with Updated Module Version
         // 1.1 Get Application Entitlements by Application ID Pattern and Tenant Short Name
-        Map appEntitlements = folioApp.getAppEntitlements("app-platform-complete-*-SNAPSHOT.*", "diku")
+//        Map appEntitlements = folioApp.getAppEntitlements("app-platform-complete-*-SNAPSHOT.*", "diku")
 
         // Get Current Application Descriptor by its ID
         // {entitlements=[{applicationId=app-platform-complete-1.0.0-SNAPSHOT.155, tenantId=44f0a9af-4395-44b4-80a8-51cf03f8c897, modules=[]}], totalRecords=1}
-        String appId = appEntitlements.entitlements[0].applicationId
-        Map appDescriptor = folioApp.getApplicationDescriptor(appId)
+//        String appId = appEntitlements.entitlements[0].applicationId
+//        Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
         // 1.2 Get Updated Application Descriptor with new Module Version
-        String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
-        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
+//        String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
+//        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
 
         // 1.3 Put back Updated Application Descriptor to Folio Instance
 //        folioApp.registerApplication(updatedAppDescriptor)
