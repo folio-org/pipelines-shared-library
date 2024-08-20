@@ -10,8 +10,8 @@ void withK8sClient(Closure closure) {
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+    println("in withK8sClient")
     docker.image(Constants.DOCKER_K8S_CLIENT_IMAGE).inside("-u 0:0 --entrypoint=") {
-      println("in withK8sClient")
       closure()
     }
   }
@@ -19,10 +19,10 @@ void withK8sClient(Closure closure) {
 
 void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
-    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
     println("in withKubeConfig")
-    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
     println("with Helm Repo")
+    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
     closure.call()
   }
 }
