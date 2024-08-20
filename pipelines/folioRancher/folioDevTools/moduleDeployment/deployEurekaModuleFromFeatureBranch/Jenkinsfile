@@ -200,11 +200,9 @@ ansiColor('xterm') {
 //        folioApp.createModuleDiscovery(module)
 
         // 3. Deploy New Module Version to Namespace via Helm
-        node {
-          folioHelm.withKubeConfig(namespace.clusterName) {
+        folioHelm.withKubeConfig(namespace.clusterName) {
             folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
           }
-        }
 
         // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
         String updatedAppId = updatedAppDescriptor.id as String

@@ -1,9 +1,11 @@
+import jdk.jfr.Name
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
 import java.time.LocalDateTime
 
+@NonCPS
 void withK8sClient(Closure closure) {
   withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
@@ -15,6 +17,7 @@ void withK8sClient(Closure closure) {
   }
 }
 
+@NonCPS
 void withKubeConfig(String clusterName, Closure closure) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
