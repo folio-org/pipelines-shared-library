@@ -18,11 +18,15 @@ resource "rancher2_secret" "system_user" {
   name         = "${each.value}-systemuser"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
-  data = {
-    SYSTEM_USER_NAME     = base64encode("${each.value}-system")
-    SYSTEM_USER_USERNAME = base64encode("${each.value}-system")
-    SYSTEM_USER_PASSWORD = base64encode(random_password.system_user_password[each.value].result)
-  }
+  data = merge(
+    {
+      SYSTEM_USER_NAME     = base64encode("${each.value}${var.eureka ? "" : "-system"}")
+      SYSTEM_USER_USERNAME = base64encode("${each.value}${var.eureka ? "" : "-system"}")
+    },
+    var.eureka ? {} : {
+      SYSTEM_USER_PASSWORD = base64encode(random_password.system_user_password[each.value].result)
+    }
+  )
 }
 
 resource "rancher2_secret" "s3-postgres-backups-credentials" {
