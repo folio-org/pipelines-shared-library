@@ -148,7 +148,7 @@ void call(CreateNamespaceParameters args) {
       stage('Build and deploy UI') {
         Map branches = [:]
         namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
+          if (tenant.getTenantUi() && tenant.tenantId != "diku") {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [eureka        : args.eureka,
