@@ -219,7 +219,7 @@ class Eureka extends Common {
   @NonCPS
   HashMap getAppEntitlements(String appIdPattern, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
-    Map<String, String> headers = getHttpHeaders(masterTenant)
+    Map<String, String> headers = getHttpHeaders(this.masterTenant)
 
     // Get Tenant UUID by Tenant Short Name
     String tenantUUID = getTenantByName(tenantShortName).id
@@ -230,11 +230,11 @@ class Eureka extends Common {
 
     String url = "${this.kongUrl}/entitlements?${pathParams}"  // URL for GET request
 
-    logger.info("Getting Current Application Descriptor...")
+    this.logger.info("Getting Current Application Descriptor...")
 
-    def response = restClient.get(url, headers).body
+    def response = this.restClient.get(url, headers).body
 
-    logger.info("We've successfully got the Current Application Descriptor.")
+    this.logger.info("We've successfully got the Current Application Descriptor.")
 
     return new HashMap(response as Map)
   }
