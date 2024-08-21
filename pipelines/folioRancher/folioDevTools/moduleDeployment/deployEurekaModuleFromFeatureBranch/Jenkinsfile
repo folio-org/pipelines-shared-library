@@ -84,6 +84,9 @@ Eureka folioApp = new Eureka(
 //TODO: RANCHER-1358: Disable stage flag for testing purposes
 Boolean skipStage = true
 
+// Eureka Application Descriptor (Map) updated with New Module Version
+Map updatedAppDescriptor
+
 /**
  * Pipeline
  */
@@ -160,7 +163,7 @@ ansiColor('xterm') {
         }
         else {
           installJson = [[
-            "id": "${module.name}-${module.version}",
+            "id"    : "${module.name}-${module.version}",
             "action": "enable"
           ]]
           Map folioTenants = folioDefault.getPredefinedTenants()
@@ -179,36 +182,41 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Update') {
+      stage('[Rest] Update App Descriptor') {
         // 1. Register Application Descriptor with Updated Module Version
+
         // 1.1 Get Application Entitlements by Application ID Pattern and Tenant Short Name
         HashMap appEntitlements = folioApp.getAppEntitlements("app-platform-complete-*-SNAPSHOT.*", "diku")
 
-        println(appEntitlements)
-
         // 1.2 Get Current Application Descriptor for Tenant by its ID
-        // {entitlements=[{applicationId=app-platform-complete-1.0.0-SNAPSHOT.155, tenantId=44f0a9af-4395-44b4-80a8-51cf03f8c897, modules=[]}], totalRecords=1}
-//        String appId = appEntitlements.entitlements[0].applicationId
-//        Map appDescriptor = folioApp.getApplicationDescriptor(appId)
+        String appId = appEntitlements.entitlements[0].applicationId
+        Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
         // 1.3 Get Application Descriptor Updated with New Module Version
-//        String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
-//        Map updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
+        String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
+        updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
 
         // 1.4 Put back Updated Application Descriptor to Eureka Instance
-//        folioApp.registerApplication(updatedAppDescriptor)
+        folioApp.registerApplication(updatedAppDescriptor)
+      }
 
+      stage('[Rest] Module Discovery') {
         // 2. Enable New Module Version (Discovery) for Application
 //        folioApp.createModuleDiscovery(module)
+        println("Module Discovery is disabled")
+      }
 
-        // 3. Deploy New Module Version to Namespace via Helm
+      stage('[Helm] Deploy Module Ver') {
+        // 3. Deploy New Module Version to Rancher Namespace via Helm
         folioHelm.withKubeConfig(namespace.clusterName) {
-            folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
-          }
+          folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
+        }
+      }
 
+      stage('[Rest] Enable New App') {
         // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
-//        String updatedAppId = updatedAppDescriptor.id as String
-//        folioApp.upgradeTenantApplication(updatedAppId, "diku")
+        String updatedAppId = updatedAppDescriptor.id as String
+        folioApp.upgradeTenantApplication(updatedAppId, "diku")
       }
 
     } catch (e) {
