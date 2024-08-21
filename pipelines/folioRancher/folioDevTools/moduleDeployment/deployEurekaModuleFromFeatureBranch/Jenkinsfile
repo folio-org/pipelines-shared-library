@@ -184,6 +184,8 @@ ansiColor('xterm') {
         // 1.1 Get Application Entitlements by Application ID Pattern and Tenant Short Name
         HashMap appEntitlements = folioApp.getAppEntitlements("app-platform-complete-*-SNAPSHOT.*", "diku")
 
+        println(appEntitlements)
+
         // 1.2 Get Current Application Descriptor for Tenant by its ID
         // {entitlements=[{applicationId=app-platform-complete-1.0.0-SNAPSHOT.155, tenantId=44f0a9af-4395-44b4-80a8-51cf03f8c897, modules=[]}], totalRecords=1}
 //        String appId = appEntitlements.entitlements[0].applicationId
