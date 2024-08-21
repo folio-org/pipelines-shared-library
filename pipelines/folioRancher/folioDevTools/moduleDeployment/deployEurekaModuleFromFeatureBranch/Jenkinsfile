@@ -221,6 +221,7 @@ ansiColor('xterm') {
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
+      println("${e}")
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
