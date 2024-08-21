@@ -3,6 +3,7 @@ package org.folio.rest_v2
 import org.folio.models.EurekaTenant
 import org.folio.models.FolioModule
 import org.folio.utilities.RequestException
+import com.cloudbees.groovy.cps.NonCPS
 
 class Eureka extends Common {
   /**
