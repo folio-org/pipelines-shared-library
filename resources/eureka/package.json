@@ -102,6 +102,7 @@
     "redux-observable": "^1.2.0",
     "rxjs": "^6.6.7",
     "zustand": "^4.5.4"
+    , "@folio/consortia-settings": ">=1.1.0"
   },
   "devDependencies": {
     "@folio/stripes-cli": "^3.0.0",

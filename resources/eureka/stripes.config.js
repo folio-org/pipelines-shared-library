@@ -89,6 +89,7 @@ module.exports = {
     '@folio/tenant-settings' : {},
     '@folio/users' : {}
     , '@folio/plugin-select-application' : {}
+    , '@folio/consortia-settings': {}
   },
   branding: {
     logo: {
