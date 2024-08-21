@@ -140,6 +140,7 @@ class Eureka extends Common {
    * Register New Application Descriptor
    * @param appDescriptor Application Descriptor as Map
    */
+  @NonCPS
   void registerApplication(Map appDescriptor) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
@@ -156,6 +157,7 @@ class Eureka extends Common {
    * Create New Module Discovery for Application
    * @param module FolioModule object to be updated
    */
+  @NonCPS
   void createModuleDiscovery(FolioModule module) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
@@ -183,6 +185,7 @@ class Eureka extends Common {
    * @param applicationId Application ID (e.g. app-platform-complete-1.0.0-SNAPSHOT.54)
    * @param tenantShortName Tenant Short Name (e.g. diku)
    */
+  @NonCPS
   void upgradeTenantApplication(String applicationId, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
@@ -213,6 +216,7 @@ class Eureka extends Common {
    * @param tenantShortName Tenant Short Name (e.g. diku)
    * @return Application Descriptor as a HashMap
    */
+  @NonCPS
   HashMap getAppEntitlements(String appIdPattern, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
@@ -263,6 +267,7 @@ class Eureka extends Common {
    * @param appId Application ID
    * @return Application Descriptor as a Map
    */
+  @NonCPS
   Map getApplicationDescriptor(String appId) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(masterTenant)
@@ -285,6 +290,7 @@ class Eureka extends Common {
    * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
+  @NonCPS
   Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
     // Update Application Descriptor with new Application Version
     String currentAppVersion = appDescriptor.version
