@@ -217,7 +217,6 @@ class Eureka extends Common {
    * @param tenantShortName Tenant Short Name (e.g. diku)
    * @return Application Descriptor as a HashMap
    */
-  @NonCPS
   HashMap getAppEntitlements(String appIdPattern, String tenantShortName) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getHttpHeaders(this.masterTenant)
