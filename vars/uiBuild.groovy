@@ -76,6 +76,8 @@ void call(Map params, boolean releaseVersion = true) {
               "-f docker/Dockerfile  " +
               "."
           )
+
+          input "Check ui build"
           image.push()
         }
       }
