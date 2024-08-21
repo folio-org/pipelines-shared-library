@@ -1,7 +1,7 @@
 package org.folio.utilities
 
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
+import groovy.json.JsonSlurperClassic
 import groovy.json.internal.LazyMap
 
 class RestClient {
@@ -107,7 +107,7 @@ class RestClient {
     } else {
       String contentType = connection.getHeaderField("Content-Type")
       if (contentType != null && contentType.contains("application/json")) {
-        def parsedResponse = new JsonSlurper().parseText(responseBody)
+        def parsedResponse = new JsonSlurperClassic().parseText(responseBody)
         if (parsedResponse instanceof LazyMap) {
           parsedResponse = new HashMap(parsedResponse)
         } else if (parsedResponse instanceof List && !parsedResponse.isEmpty() && parsedResponse[0] instanceof LazyMap) {
