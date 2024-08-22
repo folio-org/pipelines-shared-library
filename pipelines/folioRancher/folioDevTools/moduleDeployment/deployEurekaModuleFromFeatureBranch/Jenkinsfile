@@ -169,7 +169,8 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if (folioApp.getModuleDiscovery(module).errors[0]?.code == "not_found_error") {
+        List moduleDiscoveryErrors = folioApp.getModuleDiscovery(module).errors as List
+        if (moduleDiscoveryErrors.size() > 0 && moduleDiscoveryErrors[0].code == "not_found_error") {
           folioApp.createModuleDiscovery(module)
         } else {
           logger.warning("Module Discovery already exists for ${module.name}-${module.version}")
