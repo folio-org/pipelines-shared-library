@@ -39,20 +39,14 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-/**
- * Job variables
- */
+/** Job Variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/**
- * Collect Folio module configuration
- */
+/** Collect Folio module configuration */
 FolioModule module = new FolioModule()
 module.name = params.MODULE_NAME
 
-/**
- * Collect feature branch and hash
- */
+/** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
 String featureHash = folioHashCommitCheck.getLatestCommitHash(module.getName(), featureBranch).take(7)
 
@@ -60,9 +54,7 @@ String featureHash = folioHashCommitCheck.getLatestCommitHash(module.getName(), 
 String mavenArguments = params.MAVEN_ARGS.trim()
 List installJson = []
 
-/**
- * Collect install request parameters
- */
+/** Collect install request parameters */
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
   .withIgnoreErrors(params.IGNORE_ERRORS)
@@ -73,23 +65,18 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 Eureka folioApp = new Eureka(
-        this,
-        Constants.CI_ROOT_DOMAIN,
-        true,
-        namespace.masterTenant,
-        "https://${namespace.getDomains()['keycloak']}",
-        "https://${namespace.getDomains()['kong']}"
+  this,
+  Constants.CI_ROOT_DOMAIN,
+  true,
+  namespace.masterTenant,
+  "https://${namespace.getDomains()['keycloak']}",
+  "https://${namespace.getDomains()['kong']}"
 )
-
-//TODO: RANCHER-1358: Disable stage flag for testing purposes
-Boolean skipStage = true
 
 // Eureka Application Descriptor (Map) updated with New Module Version
 Map updatedAppDescriptor
 
-/**
- * Pipeline
- */
+/** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
@@ -111,88 +98,70 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if (skipStage) {
-          dir(module.name) {
-            String origVersion = readMavenPom(file: 'pom.xml').version
-            module.version = "${origVersion}.${featureHash}"
+        dir(module.getName()) {
+          String origVersion = readMavenPom(file: 'pom.xml').version
+          module.version = "${origVersion}.${featureHash}"
+
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+            maven: Constants.MAVEN_TOOL_NAME,
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]) {
+            sh """
+            mvn versions:set -DnewVersion=${module.getVersion()}
+            mvn package ${mavenArguments}
+          """
           }
-          logger.warning("Stage [Maven] Compile is disabled")
-        }
-        else {
-          dir(module.getName()) {
-            String origVersion = readMavenPom(file: 'pom.xml').version
-            module.version = "${origVersion}.${featureHash}"
 
-            withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-              maven: Constants.MAVEN_TOOL_NAME,
-              traceability: false,
-              options: [artifactsPublisher(disabled: true)]) {
-              sh """
-              mvn versions:set -DnewVersion=${module.getVersion()}
-              mvn package ${mavenArguments}
-            """
-            }
-
-            String descriptorPath = "target/ModuleDescriptor.json"
-            if (fileExists(descriptorPath)) {
-              module.descriptor = [readJSON(file: descriptorPath)]
-              sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
-            }
+          String descriptorPath = "target/ModuleDescriptor.json"
+          if (fileExists(descriptorPath)) {
+            module.descriptor = [readJSON(file: descriptorPath)]
+            sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
           }
         }
       }
 
       stage('[Docker] Build and push') {
-        if (skipStage) {
-          logger.warning("Stage [Docker] Build and push is disabled")
-        }
-        else {
-          common.checkEcrRepoExistence(module.getName())
-          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-            dir(module.getName()) {
-              def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-              image.push()
-            }
+        common.checkEcrRepoExistence(module.getName())
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(module.getName()) {
+            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+            image.push()
           }
         }
       }
 
       stage('Generate context') {
-        if (skipStage) {
-          logger.warning("Stage [Docker] Build and push is disabled")
-        }
-        else {
-          installJson = [[
-            "id"    : "${module.name}-${module.version}",
-            "action": "enable"
-          ]]
-          Map folioTenants = folioDefault.getPredefinedTenants()
-          folioApp.getTenantsList().each { tenantId ->
-            if (tenantId == 'master' && module.name ==~ /mod-(permissions|users|login)/) {
-              namespace.masterTenant.withInstallJson(installJson)
-            } else {
-              EurekaTenant appTenant = new EurekaTenant(tenantId)
-              appTenant.withInstallJson(installJson)
-              appTenant.withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
+        installJson = [[
+          "id"    : "${module.name}-${module.version}",
+          "action": "enable"
+        ]]
+        Map folioTenants = folioDefault.getPredefinedTenants()
+        folioApp.getTenantsList().each { tenantId ->
+          if (tenantId == 'master' && module.name ==~ /mod-(permissions|users|login)/) {
+            namespace.masterTenant.withInstallJson(installJson)
+          } else {
+            EurekaTenant appTenant = new EurekaTenant(tenantId)
+            appTenant.withInstallJson(installJson)
+            appTenant.withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
 
-              namespace.addEurekaTenant(appTenant)
-            }
+            namespace.addEurekaTenant(appTenant)
           }
-          namespace.modules.setInstallJson(installJson)
         }
+        namespace.modules.setInstallJson(installJson)
       }
 
+      // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        // 1. Register Application Descriptor with Updated Module Version
-
         // 1.1 Get Application Entitlements by Application ID Pattern and Tenant Short Name
-        HashMap appEntitlements = folioApp.getAppEntitlements("app-platform-complete-*-SNAPSHOT.*", "diku")
-
         // 1.2 Get Current Application Descriptor for Tenant by its ID
-        String appId = appEntitlements.entitlements[0].applicationId
+        String appId = folioApp.getAppEntitlements(
+          "app-platform-complete-*-SNAPSHOT.*",
+          "diku"
+        ).entitlements[0].applicationId
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
         // 1.3 Get Application Descriptor Updated with New Module Version
+        // TODO: RANCHER-1358: debug code, remove once code review is passed
         String increasedBuildNumber = env.BUILD_NUMBER.toInteger() + 100
         updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
 
@@ -200,21 +169,20 @@ ansiColor('xterm') {
         folioApp.registerApplication(updatedAppDescriptor)
       }
 
+      // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        // 2. Enable New Module Version (Discovery) for Application
-//        folioApp.createModuleDiscovery(module)
-        println("Module Discovery is disabled")
+        folioApp.createModuleDiscovery(module)
       }
 
+      // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        // 3. Deploy New Module Version to Rancher Namespace via Helm
         folioHelm.withKubeConfig(namespace.clusterName) {
           folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
         }
       }
 
+      // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
       stage('[Rest] Enable New App') {
-        // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
         String updatedAppId = updatedAppDescriptor.id as String
         folioApp.upgradeTenantApplication(updatedAppId, "diku")
       }

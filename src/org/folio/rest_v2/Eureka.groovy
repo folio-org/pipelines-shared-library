@@ -3,7 +3,6 @@ package org.folio.rest_v2
 import org.folio.models.EurekaTenant
 import org.folio.models.FolioModule
 import org.folio.utilities.RequestException
-import com.cloudbees.groovy.cps.NonCPS
 
 class Eureka extends Common {
   /**
@@ -191,8 +190,6 @@ class Eureka extends Common {
     // Get Tenant UUID by Tenant Short Name
     String tenantUUID = getTenantByName(tenantShortName).id
 
-//    String pathParams="?"
-
     // URL for PUT request
     String url = "${this.kongUrl}/entitlements"
 
@@ -246,7 +243,6 @@ class Eureka extends Common {
     Map<String, String> headers = getHttpHeaders(masterTenant)
 
     // https://{{kong_fqdn}}/tenants?query=name==diku
-    // method=GET, url=https://folio-eureka-volya-kong.ci.folio.org/tenants?query=name=="diku"
     String pathParams = "query=name==${tenantShortName}" // Query for Tenant Short Name
     String url = "${this.tenantManagerUrl}?${pathParams}"  // URL for GET request
 
