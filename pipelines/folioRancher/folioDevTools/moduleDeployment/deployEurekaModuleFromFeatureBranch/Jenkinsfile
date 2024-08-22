@@ -182,7 +182,7 @@ ansiColor('xterm') {
       // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
       stage('[Rest] Enable New App') {
         String updatedAppId = updatedAppDescriptor.id as String
-        folioApp.upgradeTenantApplication(updatedAppId, "diku")
+        folioApp.upgradeTenantApplication(updatedAppId, params.TENANT_ID)
       }
 
     } catch (e) {
