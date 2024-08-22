@@ -40,3 +40,4 @@ logs/
 # Java
 build/
 out/
+lib/
