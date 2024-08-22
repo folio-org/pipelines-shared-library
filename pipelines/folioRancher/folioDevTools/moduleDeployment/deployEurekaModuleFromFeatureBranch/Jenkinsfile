@@ -1,7 +1,5 @@
 #!groovy
-/**
- * This Jenkins pipeline deploys Eureka module version from feature branch
- */
+/** This Jenkins pipeline deploys Eureka module version from feature branch */
 import org.folio.Constants
 import org.folio.models.FolioModule
 import org.folio.models.InstallRequestParams
@@ -13,9 +11,7 @@ import org.folio.utilities.Logger
 // TODO: RANCHER-1358 - get rid off custom branch mention once feature development is done
 @Library('pipelines-shared-library@RANCHER-1358') _
 
-/**
- * Job properties and parameters
- */
+/** Job properties and parameters */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
@@ -31,6 +27,7 @@ properties([
     folioParameters.ignoreErrors(),
     folioParameters.agent(),
     folioParameters.refreshParameters()
+    booleanParam(name: 'REST_DEBUG', defaultValue: false, description: 'Enable Debug Mode for REST calls')
   ])
 ])
 
@@ -67,7 +64,7 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 Eureka folioApp = new Eureka(
   this,
   Constants.CI_ROOT_DOMAIN,
-  true,
+  params.REST_DEBUG,
   namespace.masterTenant,
   "https://${namespace.getDomains()['keycloak']}",
   "https://${namespace.getDomains()['kong']}"
