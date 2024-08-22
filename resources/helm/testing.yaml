@@ -2324,7 +2324,7 @@ mod-users-keycloak:
     - name: MIGRATION_BATCH_SIZE
       value: '20'
     - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
-      value: 'true'
+      value: 'false'
   integrations:
     db:
       enabled: true
