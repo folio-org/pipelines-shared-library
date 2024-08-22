@@ -20,6 +20,7 @@ properties([
     folioParameters.namespace(),
     folioParameters.moduleName(),
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    string(name: 'TENANT_ID', defaultValue: 'diku', description: 'Tenant Name to deploy module to'),
     folioParameters.configType(),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.loadReference(false),
@@ -153,7 +154,7 @@ ansiColor('xterm') {
         // 1.2 Get Current Application Descriptor for Tenant by its ID
         String appId = folioApp.getAppEntitlements(
           "app-platform-complete-*-SNAPSHOT.*",
-          "diku"
+          params.TENANT_ID
         ).entitlements[0].applicationId
         Map appDescriptor = folioApp.getApplicationDescriptor(appId)
 
@@ -174,7 +175,7 @@ ansiColor('xterm') {
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
         folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, true, "diku")
+          folioHelm.deployFolioModule(namespace, module.name, module.version, true, params.TENANT_ID)
         }
       }
 
