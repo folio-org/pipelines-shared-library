@@ -153,6 +153,27 @@ class Eureka extends Common {
   }
 
   /**
+   * Get Existing Module Discovery by its ID
+   * @param module FolioModule object to be updated
+   * @return Module Discovery Information as a Map
+   */
+  Map getModuleDiscovery(FolioModule module) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getHttpHeaders(masterTenant)
+
+    // URL for GET request
+    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+
+    logger.info("Getting Module Discovery for for new module version...")
+
+    def response = restClient.get(url, headers).body
+
+    logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
+
+    return response as Map
+  }
+
+  /**
    * Create New Module Discovery for Application
    * @param module FolioModule object to be updated
    */

@@ -169,7 +169,11 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        folioApp.createModuleDiscovery(module)
+        if (folioApp.getModuleDiscovery(module).errors[0]?.code == "not_found_error") {
+          folioApp.createModuleDiscovery(module)
+        } else {
+          logger.warning("Module Discovery already exists for ${module.name}-${module.version}")
+        }
       }
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
@@ -185,7 +189,7 @@ ansiColor('xterm') {
         folioApp.upgradeTenantApplication(updatedAppId, params.TENANT_ID)
       }
 
-    } catch (e) {
+    } catch (e) {+
       logger.warning("Caught exception: ${e}")
       println("${e}")
       error(e.getMessage())
