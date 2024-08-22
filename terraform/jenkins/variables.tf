@@ -51,7 +51,7 @@ variable "vpc_private_subnets" {
 
 variable "ami" {
   type        = string
-  default     = "ami-0df24e148fdb9f1d8"
+  default     = "ami-0a38c1c38a15fed74"
   description = "AMI to run Jenkins on"
 }
 
@@ -81,7 +81,7 @@ variable "route53_zone_id" {
 
 variable "jenkins_version" {
   type        = string
-  default     = "2.387.1-1.1"
+  default     = "2.462.1"
   description = "Version of Jenkins server to install"
 }
 

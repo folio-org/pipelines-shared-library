@@ -110,6 +110,10 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy Okapi') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
+//        if (namespace.getDeploymentConfigType() ==~ /testing|performance/) {
+//          sleep time: 1, unit: 'MINUTES'
+//          kubectl.setKubernetesResourceCount('deployment', 'okapi', namespace.getNamespaceName(), '2')
+//        }
 //        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
       }
     }
@@ -128,16 +132,13 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sleep time: 5, unit: "MINUTES"
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
 
     stage('[Rest] Initialize') {
-      retry(2) {
-        sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-      }
+      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 
     stage('[Rest] Configure edge') {

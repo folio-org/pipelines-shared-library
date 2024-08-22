@@ -30,6 +30,11 @@ edge-caiasoft:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-connexion:
   service:
     annotations:
@@ -52,6 +57,11 @@ edge-connexion:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-courses:
   ingress:
     enabled: true
@@ -92,6 +102,11 @@ edge-courses:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-dcb:
   ingress:
     enabled: true
@@ -124,6 +139,11 @@ edge-dcb:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-dematic:
   ingress:
     enabled: true
@@ -190,9 +210,14 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      memory: 269Mi
+      memory: 512Mi
     requests:
-      memory: 179Mi
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-inn-reach:
   ingress:
     enabled: true
@@ -225,6 +250,11 @@ edge-inn-reach:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-ncip:
   ingress:
     enabled: true
@@ -257,6 +287,11 @@ edge-ncip:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-oai-pmh:
   ingress:
     enabled: true
@@ -289,6 +324,11 @@ edge-oai-pmh:
       memory: 756Mi
     requests:
       memory: 680Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-orders:
   ingress:
     enabled: true
@@ -321,6 +361,11 @@ edge-orders:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-patron:
   ingress:
     enabled: true
@@ -353,6 +398,11 @@ edge-patron:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-rtac:
   ingress:
     enabled: true
@@ -385,6 +435,11 @@ edge-rtac:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 edge-sip2:
   service:
     annotations:
@@ -404,6 +459,11 @@ edge-sip2:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-aes:
   extraEnvVars: []
   integrations: {}
@@ -424,9 +484,14 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 796Mi
+      memory: 1536Mi
     requests:
-      memory: 744Mi
+      memory: 1024Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -442,6 +507,11 @@ mod-audit:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
@@ -459,6 +529,11 @@ mod-authtoken:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-batch-print:
   extraEnvVars: []
   integrations:
@@ -471,6 +546,11 @@ mod-batch-print:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
@@ -491,6 +571,11 @@ mod-bulk-operations:
       memory: 1536Mi
     requests:
       memory: 1300Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -500,9 +585,14 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
-      memory: 447Mi
+      memory: 462Mi
     requests:
-      memory: 298Mi
+      memory: 369Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-camunda:
   extraEnvVars: []
   integrations:
@@ -537,6 +627,11 @@ mod-circulation:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -554,6 +649,11 @@ mod-circulation-storage:
       memory: 768Mi
     requests:
       memory: 720Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
@@ -593,6 +693,11 @@ mod-configuration:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -614,6 +719,11 @@ mod-consortia:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-copycat:
   extraEnvVars: []
   integrations:
@@ -626,6 +736,11 @@ mod-copycat:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -638,6 +753,11 @@ mod-courses:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-data-export:
   extraEnvVars: []
   integrations:
@@ -695,6 +815,11 @@ mod-data-export-worker:
       memory: 1536Mi
     requests:
       memory: 1300Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-data-import:
   extraEnvVars:
   - name: S3_FORCEPATHSTYLE
@@ -730,6 +855,11 @@ mod-di-converter-storage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
@@ -739,6 +869,11 @@ mod-ebsconet:
       memory: 624Mi
     requests:
       memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-email:
   extraEnvVars: []
   integrations:
@@ -751,6 +886,11 @@ mod-email:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -783,6 +923,11 @@ mod-entities-links:
       memory: 1296Mi
     requests:
       memory: 1240Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -795,6 +940,11 @@ mod-erm-usage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -813,6 +963,11 @@ mod-erm-usage-harvester:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -825,6 +980,11 @@ mod-eusage-reports:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -837,6 +997,11 @@ mod-event-config:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -849,6 +1014,11 @@ mod-feesfines:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -858,6 +1028,11 @@ mod-finance:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -870,6 +1045,11 @@ mod-finance-storage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -886,6 +1066,11 @@ mod-fqm-manager:
       memory: 1500Mi
     requests:
       memory: 1300Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-gobi:
   extraEnvVars: []
   integrations: {}
@@ -895,6 +1080,11 @@ mod-gobi:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-graphql:
   extraEnvVars: []
   integrations: {}
@@ -904,6 +1094,11 @@ mod-graphql:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -927,6 +1122,11 @@ mod-inn-reach:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -942,6 +1142,11 @@ mod-inventory:
       memory: 2048Mi
     requests:
       memory: 1844Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -961,6 +1166,11 @@ mod-inventory-storage:
       memory: 1104Mi
     requests:
       memory: 976Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
@@ -970,6 +1180,11 @@ mod-inventory-update:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -989,6 +1204,11 @@ mod-invoice:
       memory: 720Mi
     requests:
       memory: 576Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -1001,6 +1221,11 @@ mod-invoice-storage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -1013,6 +1238,11 @@ mod-kb-ebsco-java:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -1025,6 +1255,11 @@ mod-ldp:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-licenses:
   extraEnvVars: []
   integrations:
@@ -1037,6 +1272,11 @@ mod-licenses:
       memory: 1240Mi
     requests:
       memory: 1156Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-lists:
   extraEnvVars:
   - name: MAX_LIST_SIZE
@@ -1064,6 +1304,11 @@ mod-lists:
       memory: 1500Mi
     requests:
       memory: 1300Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-login:
   extraEnvVars: []
   integrations:
@@ -1076,6 +1321,11 @@ mod-login:
       memory: 720Mi
     requests:
       memory: 649Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-login-saml:
   extraEnvVars: []
   integrations: {}
@@ -1085,6 +1335,11 @@ mod-login-saml:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-marc-migrations:
   extraEnvVars: []
   integrations:
@@ -1100,9 +1355,14 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 456Mi
+      memory: 415Mi
     requests:
-      memory: 304Mi
+      memory: 332Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -1124,6 +1384,11 @@ mod-ncip:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-notes:
   extraEnvVars: []
   integrations:
@@ -1136,6 +1401,11 @@ mod-notes:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -1148,6 +1418,11 @@ mod-notify:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -1157,9 +1432,14 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      memory: 936Mi
+      memory: 857Mi
     requests:
-      memory: 624Mi
+      memory: 685Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -1177,6 +1457,11 @@ mod-oai-pmh:
       memory: 1536Mi
     requests:
       memory: 1383Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-orders:
   extraEnvVars: []
   integrations:
@@ -1192,6 +1477,11 @@ mod-orders:
       memory: 1024Mi
     requests:
       memory: 720Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1209,6 +1499,11 @@ mod-orders-storage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1226,9 +1521,14 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 768Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1243,6 +1543,11 @@ mod-circulation-item:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-organizations:
   extraEnvVars: []
   integrations: {}
@@ -1252,6 +1557,11 @@ mod-organizations:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -1264,6 +1574,11 @@ mod-organizations-storage:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -1276,6 +1591,11 @@ mod-password-validator:
       memory: 720Mi
     requests:
       memory: 649Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-patron:
   extraEnvVars: []
   integrations: {}
@@ -1285,6 +1605,11 @@ mod-patron:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -1297,6 +1622,11 @@ mod-patron-blocks:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -1309,6 +1639,11 @@ mod-permissions:
       memory: 842Mi
     requests:
       memory: 772Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -1330,6 +1665,11 @@ mod-pubsub:
       memory: 768Mi
     requests:
       memory: 720Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1358,9 +1698,14 @@ mod-reading-room:
   replicaCount: 1
   resources:
     limits:
-      memory: 422Mi
+      memory: 412Mi
     requests:
-      memory: 281Mi
+      memory: 329Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -1372,9 +1717,14 @@ mod-record-specifications:
       existingSecret: kafka-credentials
   resources:
     limits:
-      memory: 492Mi
+      memory: 457Mi
     requests:
-      memory: 328Mi
+      memory: 365Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -1393,6 +1743,11 @@ mod-remote-storage:
       memory: 936Mi
     requests:
       memory: 846Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -1402,9 +1757,14 @@ mod-requests-mediated:
   replicaCount: 1
   resources:
     limits:
-      memory: 345Mi
+      memory: 317Mi
     requests:
-      memory: 230Mi
+      memory: 253Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-rtac:
   extraEnvVars: []
   integrations: {}
@@ -1414,6 +1774,11 @@ mod-rtac:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -1478,6 +1843,11 @@ mod-search:
       memory: 1296Mi
     requests:
       memory: 1240Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-sender:
   extraEnvVars: []
   integrations: {}
@@ -1487,6 +1857,11 @@ mod-sender:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -1501,6 +1876,11 @@ mod-serials-management:
       memory: 1240Mi
     requests:
       memory: 1156Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -1518,6 +1898,11 @@ mod-service-interaction:
       memory: 1024Mi
     requests:
       memory: 922Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -1530,6 +1915,11 @@ mod-settings:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-source-record-manager:
   extraEnvVars: []
   integrations:
@@ -1545,6 +1935,11 @@ mod-source-record-manager:
       memory: 2048Mi
     requests:
       memory: 1844Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-source-record-storage:
   extraEnvVars: []
   integrations:
@@ -1560,6 +1955,11 @@ mod-source-record-storage:
       memory: 2048Mi
     requests:
       memory: 1844Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -1572,6 +1972,11 @@ mod-tags:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -1584,6 +1989,11 @@ mod-template-engine:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -1599,9 +2009,14 @@ mod-tlr:
   replicaCount: 1
   resources:
     limits:
-      memory: 432Mi
+      memory: 399Mi
     requests:
-      memory: 288Mi
+      memory: 319Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-user-import:
   extraEnvVars: []
   integrations: {}
@@ -1611,6 +2026,11 @@ mod-user-import:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-users:
   extraEnvVars: []
   integrations:
@@ -1626,6 +2046,11 @@ mod-users:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
@@ -1635,6 +2060,11 @@ mod-users-bl:
       memory: 512Mi
     requests:
       memory: 448Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 mod-workflow:
   extraEnvVars: []
   integrations:
@@ -1662,6 +2092,10 @@ mod-z3950:
   postJob:
     enabled: false
 okapi:
+  args:
+  - cluster
+  - -hazelcast-config-file
+  - /etc/hazelcast/hazelcast.xml
   ingress:
     enabled: true
     annotations:
@@ -1688,6 +2122,11 @@ okapi:
     db:
       enabled: true
       existingSecret: db-credentials
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    targetMemoryUtilizationPercentage: 70
 ui-bundle:
   ingress:
     enabled: true
@@ -1707,6 +2146,6 @@ ui-bundle:
   replicaCount: 1
   resources:
     limits:
-      memory: 96Mi
+      memory: 80Mi
     requests:
       memory: 64Mi
