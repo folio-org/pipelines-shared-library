@@ -27,7 +27,7 @@ properties([
     folioParameters.loadSample(false),
     folioParameters.ignoreErrors(),
     folioParameters.agent(),
-    folioParameters.refreshParameters()
+    folioParameters.refreshParameters(),
     booleanParam(name: 'REST_DEBUG', defaultValue: false, description: 'Enable Debug Mode for REST calls')
   ])
 ])
