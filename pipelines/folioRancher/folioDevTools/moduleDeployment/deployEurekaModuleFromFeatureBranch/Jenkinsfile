@@ -6,6 +6,7 @@ import org.folio.models.InstallRequestParams
 import org.folio.models.EurekaTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Eureka
+import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.folio.utilities.RequestException
 
@@ -47,7 +48,7 @@ module.name = params.MODULE_NAME
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = folioHashCommitCheck.getLatestCommitHash(module.getName(), featureBranch).take(7)
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
 
 // Collect Maven arguments
 String mavenArguments = params.MAVEN_ARGS.trim()
