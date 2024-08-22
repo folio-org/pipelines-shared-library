@@ -7,6 +7,7 @@ import org.folio.models.EurekaTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Eureka
 import org.folio.utilities.Logger
+import org.folio.utilities.RequestException
 
 // TODO: RANCHER-1358 - get rid off custom branch mention once feature development is done
 @Library('pipelines-shared-library@RANCHER-1358') _
@@ -169,11 +170,13 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        List moduleDiscoveryErrors = folioApp.getModuleDiscovery(module).errors as List
-        if (moduleDiscoveryErrors.size() > 0 && moduleDiscoveryErrors[0].code == "not_found_error") {
-          folioApp.createModuleDiscovery(module)
-        } else {
-          logger.warning("Module Discovery already exists for ${module.name}-${module.version}")
+        try {
+          folioApp.getModuleDiscovery(module)
+          logger.info("Module Discovery already exists for ${module.name}-${module.version}")
+        } catch (RequestException e) {
+          if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+            folioApp.createModuleDiscovery(module)
+          }
         }
       }
 
@@ -190,7 +193,7 @@ ansiColor('xterm') {
         folioApp.upgradeTenantApplication(updatedAppId, params.TENANT_ID)
       }
 
-    } catch (e) {+
+    } catch (e) {
       logger.warning("Caught exception: ${e}")
       println("${e}")
       error(e.getMessage())
