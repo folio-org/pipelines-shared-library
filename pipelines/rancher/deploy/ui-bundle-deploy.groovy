@@ -39,6 +39,12 @@ ansiColor("xterm") {
     common.refreshBuidParameters(params.refresh_parameters)
     node("rancher") {
         try {
+
+            stage('Ini') {
+                buildName "${project_config.getClusterName()}.${project_config.getProjectName()}.${env.BUILD_ID}"
+                buildDescription "tenant: ${tenant.getId()}\n"
+            }
+
             stage("Checkout") {
                 checkout scm
             }
