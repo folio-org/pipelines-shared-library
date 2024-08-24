@@ -6,7 +6,6 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.RestClient
-import org.folio.utilities.Tools
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
