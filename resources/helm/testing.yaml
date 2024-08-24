@@ -2244,7 +2244,7 @@ mgr-tenant-entitlements:
 mod-consortia-keycloak:
   extraEnvVars:
     - name: OKAPI_URL
-      value: 'http://sidecar:8082'
+      value: 'http://mod-consortia-keycloak:8082'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: '5000'
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
@@ -2269,6 +2269,8 @@ mod-consortia-keycloak:
       memory: 256Mi
 mod-login-keycloak:
   extraEnvVars:
+    - name: OKAPI_URL
+      value: 'http://mod-login-keycloak:8082'
     - name: KC_ADMIN_TOKEN_TTL
       value: '410s'
     - name: X_OKAPI_TOKEN_HEADER_ENABLED
@@ -2290,6 +2292,8 @@ mod-login-keycloak:
       memory: 256Mi
 mod-roles-keycloak:
   extraEnvVars:
+    - name: OKAPI_URL
+      value: 'http://mod-roles-keycloak:8082'
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
@@ -2311,6 +2315,8 @@ mod-roles-keycloak:
       memory: 256Mi
 mod-users-keycloak:
   extraEnvVars:
+    - name: OKAPI_URL
+      value: 'http://mod-users-keycloak:8082'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
@@ -2343,6 +2349,8 @@ mod-users-keycloak:
       memory: 256Mi
 mod-scheduler:
   extraEnvVars:
+    - name: OKAPI_URL
+      value: 'http://mod-scheduler:8082'
     - name: KC_IMPERSONATION_CLIENT
       value: 'impersonation-client'
     - name: KAFKA_JOB_CONSUMER_PATTERN
