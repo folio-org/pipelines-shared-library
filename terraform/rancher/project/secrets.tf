@@ -73,11 +73,11 @@ resource "rancher2_secret" "eureka_common" {
     SECRET_STORE_AWS_SSM_REGION = base64encode(var.aws_region)
     SECRET_STORE_TYPE           = base64encode(var.secure_store_type)
     SECURITY_ENABLED            = base64encode("true")
-    "tenant.url"                = base64encode("http://mgr-tenants")
-    "am.url"                    = base64encode("http://mgr-applications")
-    TE_URL                      = base64encode("http://mgr-tenant-entitlements")
-    MOD_USERS_BL                = base64encode("http://mod-users-bl")
-    MOD_USERS_KEYCLOAK_URL      = base64encode("http://mod-users-keycloak")
+    "tenant.url"                = base64encode("http://mgr-tenants:8082")
+    "am.url"                    = base64encode("http://mgr-applications:8082")
+    TE_URL                      = base64encode("http://mgr-tenant-entitlements:8082")
+    MOD_USERS_BL                = base64encode("http://mod-users-bl:8082")
+    MOD_USERS_KEYCLOAK_URL      = base64encode("http://mod-users-keycloak:8082")
   }
 }
 #Must have SSM Eureka parameters
