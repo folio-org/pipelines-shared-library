@@ -95,7 +95,7 @@ class Tenants extends Kong{
       }
       return tenants
     } else {
-      logger.debug("Buy the url ${url} tenant(s) not found")
+      logger.debug("By the url ${url} tenant(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("Tenant(s) not found")
     }

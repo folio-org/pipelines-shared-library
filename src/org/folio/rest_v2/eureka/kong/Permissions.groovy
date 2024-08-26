@@ -69,7 +69,7 @@ class Permissions extends Kong{
       }
       return roles
     } else {
-      logger.debug("Buy the url ${url} role(s) not found")
+      logger.debug("By the url ${url} role(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("Role(s) not found")
     }

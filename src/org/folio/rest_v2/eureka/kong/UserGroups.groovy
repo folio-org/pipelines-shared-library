@@ -68,7 +68,7 @@ class UserGroups extends Kong{
       }
       return groups
     } else {
-      logger.debug("Buy the url ${url} user group(s) not found")
+      logger.debug("By the url ${url} user group(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("User group(s) not found")
     }

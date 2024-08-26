@@ -68,7 +68,7 @@ class Users extends Kong{
       }
       return users
     } else {
-      logger.debug("Buy the url ${url} user(s) not found")
+      logger.debug("By the url ${url} user(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("User(s) not found")
     }
