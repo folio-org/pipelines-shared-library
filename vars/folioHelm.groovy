@@ -149,7 +149,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = ""
 
-  if (customModule || moduleName == 'ui-bundle' || moduleName =~ /^mod-.*-keycloak.*$/ || (moduleName == 'mod-scheduler' && ns.enableEureka)) {
+  if (customModule || moduleName == 'ui-bundle') {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
@@ -198,7 +198,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                      sidecarContainer: [ image: "${repository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
@@ -208,7 +208,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                      sidecarContainer: [ image: "${repository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
@@ -216,7 +216,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                      sidecarContainer: [ image: "${repository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
