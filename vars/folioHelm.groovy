@@ -198,9 +198,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
+                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
       case 'mod-scheduler':
@@ -209,18 +208,16 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
+                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
       case ~/mod-.*$/:
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
+                      sidecarContainer: [ image: "${Constants.FOLIO_CI_REPOSITORY}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         break
       case ~/ui-bundle/:
