@@ -537,6 +537,18 @@ mod-circulation:
       memory: 512Mi
     requests:
       memory: 448Mi
+mod-circulation-bff:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 384Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
