@@ -87,7 +87,7 @@ void call(CreateNamespaceParameters args) {
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .convertTo(EurekaTenant.class)
+//        .convertTo(EurekaTenant.class)
         .withInstallJson(namespace.getModules().getInstallJson().collect())
         .withIndex(new Index('instance', true, true))
         .withIndex(new Index('authority', true, false))
@@ -98,20 +98,20 @@ void call(CreateNamespaceParameters args) {
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
 
-      DTO
-        .convertMapTo(
-          folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams)
-          , EurekaTenantConsortia.class
-        )
-        .values()
-        .each { tenant ->
-          if (tenant.getIsCentralConsortiaTenant()) {
-            tenant.withTenantUi(tenantUi.clone())
-//          tenant.okapiConfig.setLdpConfig(ldpConfig)
-          }
-
-          namespace.addTenant(tenant)
-        }
+//      DTO
+//        .convertMapTo(
+//          folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams)
+//          , EurekaTenantConsortia.class
+//        )
+//        .values()
+//        .each { tenant ->
+//          if (tenant.getIsCentralConsortiaTenant()) {
+//            tenant.withTenantUi(tenantUi.clone())
+////          tenant.okapiConfig.setLdpConfig(ldpConfig)
+//          }
+//
+//          namespace.addTenant(tenant)
+//        }
     }
 
     stage('[Helm] Deploy mgr-*') {
