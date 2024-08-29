@@ -6,7 +6,7 @@ class DTO {
 
   DTO(){}
 
-  <T> T convertTo(Class<T> classTo){
+  public <T> T convertTo(Class<T> classTo){
     T converted = classTo.getDeclaredConstructor().newInstance()
 
     InvokerHelper.setProperties(converted, properties)
