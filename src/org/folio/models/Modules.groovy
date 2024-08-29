@@ -18,20 +18,14 @@ class Modules {
   /** Prefix used to distinguish backend modules. */
   private static final String MOD_PREFIX = "mod-"
 
-  /** Prefix used to distinguish mgr modules. */
-  private static final String MGR_PREFIX = "mgr-"
-
   /** Stores the JSON data representing the modules that need to be installed. */
   List installJson
 
   /** A map of all modules. */
-  Map allModules
+  Map<String, String> allModules
 
   /** A map of all backend modules. */
   Map backendModules
-
-  /** A map of all mgr modules. */
-  Map mgrModules
 
   /** A map of all edge modules. */
   Map edgeModules
@@ -57,7 +51,7 @@ class Modules {
       throw new IllegalArgumentException("installJson cannot be null")
     }
     if (installJson instanceof String) {
-      this.installJson = new JsonSlurper().parseText(installJson)
+      this.installJson = new JsonSlurper().parseText(installJson) as List
     } else if (installJson instanceof List) {
       this.installJson = installJson
     } else {
@@ -66,7 +60,6 @@ class Modules {
 
     this.allModules = [:]
     this.backendModules = [:]
-    this.mgrModules = [:]
     this.edgeModules = [:]
     this.discoveryList = []
 
@@ -81,7 +74,6 @@ class Modules {
 
     this.edgeModules = this.allModules.findAll { name, version -> name.startsWith(EDGE_PREFIX) }
     this.backendModules = this.allModules.findAll { name, version -> name.startsWith(MOD_PREFIX) }
-    this.mgrModules = this.allModules.findAll { name, version -> name.startsWith(MGR_PREFIX) }
     this.backendModules.collect { name, version ->
       String id = "${name}-${version}"
       String url = "http://${name}"
