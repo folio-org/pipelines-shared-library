@@ -3,6 +3,9 @@ package org.folio.models
 import org.codehaus.groovy.runtime.InvokerHelper
 
 class DTO {
+
+  DTO(){}
+
   <T> T convertTo(Class<T> classTo){
     T converted = classTo.getDeclaredConstructor().newInstance()
 
