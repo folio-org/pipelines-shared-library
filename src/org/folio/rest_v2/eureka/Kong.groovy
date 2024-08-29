@@ -1,6 +1,6 @@
 package org.folio.rest_v2.eureka
 
-import org.folio.models.Tenant
+import org.folio.models.EurekaTenant
 
 class Kong extends Base {
 
@@ -43,7 +43,7 @@ class Kong extends Base {
     return getDefaultHeaders() + keycloak.getAuthMasterTenantHeaders(addOkapiAuth)
   }
 
-  Map<String, String> getTenantHttpHeaders(Tenant tenant, boolean addOkapiAuth = false) {
+  Map<String, String> getTenantHttpHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
     return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, addOkapiAuth)
   }
 }
