@@ -6,22 +6,22 @@ class DTO {
 
   DTO(){}
 
-//  <T> T convertTo(Class<T> classTo){
-//    T converted = classTo.getDeclaredConstructor().newInstance()
-//
-//    InvokerHelper.setProperties(converted, properties)
-//
-//    return converted
-//  }
+  <T> T convertTo(Class<T> classTo){
+    T converted = classTo.getDeclaredConstructor().newInstance()
 
-  static <T, K extends DTO> Map<? extends String, T> convertMapTo(Map<? extends String, K> mapToConvert
-                                                                  , Class<T> classTo){
-    Map<? extends String, T> convertedMap = [:]
+    InvokerHelper.setProperties(converted, properties)
 
+    return converted
+  }
+
+//  static <T, K extends DTO> Map<? extends String, T> convertMapTo(Map<? extends String, K> mapToConvert
+//                                                                  , Class<T> classTo){
+//    Map<? extends String, T> convertedMap = [:]
+//
 //    mapToConvert.each {key, value ->
 //      convertedMap.put(key, value.convertTo(classTo))
 //    }
-
-    return convertedMap
-  }
+//
+//    return convertedMap
+//  }
 }
