@@ -145,7 +145,7 @@ class RancherNamespace {
    * @throws IllegalArgumentException if the YAML URL is malformed or if there's an error parsing the YAML
    * @throws UncheckedIOException if there's an error reading from the YAML URL
    */
-  void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH) {
+  void addDeploymentConfig(String branch = RancherNamespace.DEPLOYMENT_CONFIG_BRANCH) {
     if (this.deploymentConfigType) {
       Map deploymentConfig = fetchYaml("${RancherNamespace.GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
       if (this.enableSplitFiles) {
@@ -155,8 +155,8 @@ class RancherNamespace {
     }
   }
 
-  private Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
-    return fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/features/${feature}.yaml")
+  private Map getFeatureConfig(String feature, String branch = RancherNamespace.DEPLOYMENT_CONFIG_BRANCH) {
+    return fetchYaml("${RancherNamespace.GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/features/${feature}.yaml")
   }
 
   @NonCPS
