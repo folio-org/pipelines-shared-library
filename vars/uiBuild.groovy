@@ -6,11 +6,10 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.rest.model.OkapiTenant
 import org.folio.utilities.RestClient
-import org.folio.utilities.Tools
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
-void call(Map params, boolean releaseVersion = true) {
+void call(Map params, boolean releaseVersion = false) {
   OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
   Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
@@ -24,7 +23,7 @@ void call(Map params, boolean releaseVersion = true) {
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
   )
   String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
-  ui_bundle.tag = "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
+  ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
   //TODO Temporary solution should be revised during refactoring
@@ -38,6 +37,16 @@ void call(Map params, boolean releaseVersion = true) {
                                   [$class: 'CleanBeforeCheckout'],
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenantId}"]],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+
+    if (params.eureka) {
+      dir("platform-complete-${params.tenantId}") {
+        sh(script: "cp -R -f eureka-tpl/* .")
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
+
+
     if (params.consortia) {
       dir("platform-complete-${params.tenantId}") {
         def packageJson = readJSON file: 'package.json'
@@ -46,21 +55,6 @@ void call(Map params, boolean releaseVersion = true) {
         packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
         writeJSON file: 'package.json', json: packageJson, pretty: 2
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
-      }
-    }
-
-    if (params.eureka) {
-      dir("platform-complete-${params.tenantId}") {
-        sh(script: "rm -f package.json")
-        sh(script: "rm -f stripes.config.json")
-        sh(script: "rm -f yarn.lock")
-        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1359-test/resources/eureka/package.json -o package.json")
-        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1359-test/resources/eureka/stripes.config.js -o stripes.config.js")
-//        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1334-Q/resources/eureka/yarn.lock -o yarn.lock")
-        sh("curl https://raw.githubusercontent.com/folio-org/pipelines-shared-library/RANCHER-1359-test/resources/eureka/stripes.modules.js -o stripes.modules.js")
-
-        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
       }
     }
   }

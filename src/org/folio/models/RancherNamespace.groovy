@@ -37,8 +37,6 @@ class RancherNamespace {
 
   Map domains = [:]
 
-  boolean enableEureka = false
-
   boolean enableRwSplit = false
 
   boolean enableConsortia = false
@@ -128,7 +126,7 @@ class RancherNamespace {
 
   /**
    * Updates the configuration for consortia tenants in the RancherNamespace.*/
-  private void updateConsortiaTenantsConfig() {
+  protected void updateConsortiaTenantsConfig() {
     OkapiTenantConsortia centralConsortiaTenant = findCentralConsortiaTenant()
     if (centralConsortiaTenant) {
       this.tenants.values().findAll { it instanceof OkapiTenantConsortia && !it.isCentralConsortiaTenant }

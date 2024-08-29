@@ -4,10 +4,19 @@ package org.folio.models
  * OkapiTenant class representing a tenant configuration for Okapi.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
-class OkapiTenant extends Tenant{
+// TODO: Rename to Tenant
+class OkapiTenant extends DTO{
+  /** Tenant's identifier. */
+  String tenantId
+
+  /** Tenant's name. */
+  String tenantName
+
+  /** Description of the tenant. */
+  String tenantDescription
 
   /** Administrator user of the tenant. */
-  OkapiUser adminUser
+  User adminUser
 
   /** Modules that are installed for the tenant. */
   Modules modules
@@ -15,13 +24,14 @@ class OkapiTenant extends Tenant{
   /** List of index information associated with the tenant. */
   List<Index> indexes
 
-  Index index
-
   /** Parameters for installation requests for the tenant. */
   InstallRequestParams installRequestParams
 
   /** Okapi configuration for the tenant. */
   OkapiConfig okapiConfig
+
+  /** User Interface (UI) details for the tenant. */
+  TenantUi tenantUi
 
   /**
    * Constructor that sets the tenantId and initializes modules.
@@ -58,7 +68,7 @@ class OkapiTenant extends Tenant{
    * @param adminUser Administrator user of the tenant.
    * @return The OkapiTenant object.
    */
-  OkapiTenant withAdminUser(OkapiUser adminUser) {
+  OkapiTenant withAdminUser(User adminUser) {
     this.adminUser = adminUser
     return this
   }

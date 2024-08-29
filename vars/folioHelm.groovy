@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.EurekaNamespace
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
@@ -186,7 +187,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  if (ns.enableEureka) {
+  if (ns instanceof EurekaNamespace) {
     switch (moduleName) {
       case ~/mgr-.*$/:
         moduleConfig['integrations'] += [eureka: [enabled       : true,

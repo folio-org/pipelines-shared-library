@@ -52,6 +52,7 @@ class Constants {
                                         'thunderjet-2nd',
                                         'unam',
                                         'vega',
+                                        'vega-2nd',
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
@@ -191,6 +192,7 @@ class Constants {
                                   'thunderjet'    : 'thunderjet',
                                   'unam'          : 'unam',
                                   'vega'          : 'vega',
+                                  'vega-2nd'      : 'vega',
                                   'volaris'       : 'volaris',
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',

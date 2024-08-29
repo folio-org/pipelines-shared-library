@@ -2,7 +2,8 @@ package org.folio.rest_v2.eureka
 
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
-import org.folio.models.Tenant
+import org.folio.models.EurekaTenant
+
 /**
  * The Keycloak class is responsible for various operations related to
  * user and tenant authorization and related to the Keycloak IAM/SSO product.
@@ -14,8 +15,6 @@ class Keycloak extends Base {
   static String REALM_TOKEN_PATH_TEMPLATE = 'realms/${tenant}/protocol/openid-connect/token'
   static String MASTER_TENANT_CLIENT_ID = "folio-backend-admin-client"
   static Secret MASTER_TENANT_CLIENT_SECRET = Secret.fromString("SecretPassword")
-  static String TENANT_CLIENT_ID = "sidecar-module-access-client"
-  static Secret TENANT_CLIENT_SECRET = Secret.fromString("c0D3f9pjd7d1ZDmeH3WkhaJSp2mQ1WnP")
 
   String keycloakURL
 
@@ -27,7 +26,7 @@ class Keycloak extends Base {
    * @param keycloakURL The SSO/IAM (KeyCloak) URL.
    * @param debug Debug flag indicating whether debugging is enabled.
    */
-  Keycloak(Object context, String keycloakURL, boolean debug = false) {
+  Keycloak(def context, String keycloakURL, boolean debug = false) {
     super(context, debug)
     this.keycloakURL = keycloakURL
   }
@@ -53,28 +52,28 @@ class Keycloak extends Base {
   }
 
   Map<String,String> getAuthMasterTenantHeaders(boolean addOkapiAuth = false) {
-    return getAuthorizedHeaders(getAuthMasterTenantToken(addOkapiAuth), addOkapiAuth)
+    return getAuthorizedHeaders(getAuthMasterTenantToken(), addOkapiAuth)
   }
 
-  Map<String,String> getAuthTenantHeaders(Tenant tenant, boolean addOkapiAuth = false) {
-    return getAuthorizedHeaders(getAuthTenantToken(tenant.tenantName, addOkapiAuth), addOkapiAuth)
+  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
+    return getAuthorizedHeaders(getAuthTenantToken(tenant), addOkapiAuth)
   }
 
-  String getAuthMasterTenantToken(boolean addOkapiAuth = false) {
+  String getAuthMasterTenantToken() {
     return getAuthToken("master", MASTER_TENANT_CLIENT_ID, MASTER_TENANT_CLIENT_SECRET)
   }
 
-  String getAuthTenantToken(String tenantName, boolean addOkapiAuth = false) {
-    return getAuthToken(tenantName, TENANT_CLIENT_ID, TENANT_CLIENT_SECRET)
+  String getAuthTenantToken(EurekaTenant tenant) {
+    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret)
   }
 
-  String getAuthToken(String tenantName, String clientId, Secret clientSecret){
+  String getAuthToken(String tenantId, String clientId, Secret clientSecret){
     logger.info("Getting access token from Keycloak service")
 
-    String url = generateUrl("/${getRealmTokenPath(tenantName)}")
+    String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-    String requestBody = "client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials"
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials"
 
     logger.info("""
       url: ${url}
@@ -89,10 +88,10 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  static String getRealmTokenPath(String tenantName){
+  static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
-      .make(["tenant": tenantName])
+      .make(["tenant": tenantId])
     ).toString()
   }
 }

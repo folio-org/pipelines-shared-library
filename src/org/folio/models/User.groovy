@@ -70,7 +70,7 @@ class User {
     return ret
   }
 
-  static User getUserFromContent(Map content, Tenant tenant, UserGroups groupsAPI){
+  static User getUserFromContent(Map content, EurekaTenant tenant, UserGroups groupsAPI){
     return new User(
       uuid: content.id,
       username: content.username,

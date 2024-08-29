@@ -1,7 +1,8 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.Tenant
+import hudson.util.Secret
+import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -19,8 +20,8 @@ class Tenants extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
   }
 
-  Tenant createTenant(Tenant tenant) {
-    logger.info("Creating tenant ${tenant.tenantName}...")
+  EurekaTenant createTenant(EurekaTenant tenant) {
+    logger.info("Creating tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
@@ -46,8 +47,10 @@ class Tenants extends Kong{
           Response content:
           ${contentStr}""")
 
-        Tenant existedTenant = getTenantByName(tenant.tenantName)
-        logger.info("Continue with existing Eureka tenant id -> ${existedTenant.tenantId}")
+        EurekaTenant existedTenant = getTenantByName(tenant.tenantId)
+          .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
+
+        logger.info("Continue with existing Eureka tenant id -> ${existedTenant.uuid}")
 
         return existedTenant
       } else {
@@ -57,7 +60,7 @@ class Tenants extends Kong{
           Response content:
           ${contentStr}""")
 
-        throw new Exception("Build failed: " + response.contentStr)
+        throw new Exception("Build failed: " + contentStr)
       }
     }
 
@@ -67,18 +70,29 @@ class Tenants extends Kong{
       Response content:
       ${contentStr}""")
 
-    return Tenant.getTenantFromContent(content)
+    return EurekaTenant.getTenantFromContent(content)
+      .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
   }
 
-  Tenant getTenant(String tenantId){
+  Secret retrieveTenantClientSecret(String tenantId){
+    String userInput = context.input(
+      id: 'userInput'
+      , message: 'Please provide tenant Keycloak client password:'
+      , parameters: [context.string(name: 'InputValue', defaultValue: '', description: 'Keycloak client password')]
+    )
+
+    return Secret.fromString(userInput)
+  }
+
+  EurekaTenant getTenant(String tenantId){
     return getTenants(tenantId)[0]
   }
 
-  Tenant getTenantByName(String name){
+  EurekaTenant getTenantByName(String name){
     return getTenants("", "name==${name}")[0]
   }
 
-  List<Tenant> getTenants(String tenantId = "", String query = ""){
+  List<EurekaTenant> getTenants(String tenantId = "", String query = ""){
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -89,13 +103,13 @@ class Tenants extends Kong{
 
     if (response.totalRecords > 0) {
       logger.debug("Found tenants: ${response.tenants}")
-      List<Tenant> tenants = []
+      List<EurekaTenant> tenants = []
       response.tenants.each { tenantContent ->
-        tenants.add(Tenant.getTenantFromContent(tenantContent))
+        tenants.add(EurekaTenant.getTenantFromContent(tenantContent as Map))
       }
       return tenants
     } else {
-      logger.debug("Buy the url ${url} tenant(s) not found")
+      logger.debug("By the url ${url} tenant(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("Tenant(s) not found")
     }
@@ -105,25 +119,24 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  void enableApplicationsOnTenant(Tenant tenant, List<String> applications) {
-    logger.info("Enable (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId}...")
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant) {
+    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
     Map<String, String> headers = getMasterHttpHeaders(true)
 
     Map body = [
       tenantId: tenant.tenantId,
-      applications: applications
+      applications: tenant.applications.values()
     ]
 
     def response = restClient.post(
-      generateUrl("/entitlements?purgeOnRollback=true&ignoreErrors=false")
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
       , [201, 400]
     )
 
     String contentStr = response.body.toString()
-    Map content = response.body as Map
 
     if (response.responseCode == 400) {
       if (contentStr.contains("finished with status: CANCELLED")) {
@@ -141,7 +154,7 @@ class Tenants extends Kong{
       }
     }
 
-    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantName} with ${tenant.tenantId} were finished successfully")
+    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
   }
 
   @NonCPS
