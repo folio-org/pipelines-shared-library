@@ -1,59 +1,57 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
 
-Logger logger = new Logger(this, 'folioEurekaApp')
+Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
-def generateApplicationDescriptor(String appRepoName) {
-  sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appRepoName}.git")
+def generateApplicationDescriptor(String appName, Map<String, String> moduleList) {
+  sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
-  dir(appRepoName) {
+  dir(appName) {
+    def updatedTemplate = setModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
+    writeJSON file: appName + ".template.json", json: updatedTemplate
+
     awscli.withAwsClient() {
       sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DawsRegion=us-west-2")
+
+      logger.info("Application $appName successfuly generated")
     }
+
     dir('target') {
       sh(script: "ls -la")
-      def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
-      try {
-        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-        return readJSON(file: "${applicationDescriptorFilename}")
-      } catch (Exception e) {
-        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
-      }
+
+      return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
     }
   }
 }
 
-def generateAppPlatformMinimalDescriptor() {
-  String platformMinimal = 'app-platform-minimal'
+def setModuleLatestVersion(def template, Map<String, String> moduleList){
+  logger.info("Updated template latest module version with exact value...0")
 
-  logger.info("Going to build application descriptor for ${platformMinimal}")
-  return  applicationDescriptorFileGenerator(platformMinimal)
-}
+  List updatedModules = template.modules
 
-def generateAppPlatformCompleteDescriptor() {
-  String platformComplete = 'app-platform-complete'
+  logger.info("""
+  Default template module list:
+  $updatedModules
+  """)
 
-  logger.info("Going to build application descriptor for ${platformComplete}")
-  return applicationDescriptorFileGenerator(platformComplete)
-}
+  logger.info("""
+  Module Map with all modules and exact version:
+  $updatedModules
+  """)
 
-def applicationDescriptorFileGenerator(String applicationId) {
-  sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${applicationId}.git")
-  dir(applicationId) {
-    awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DawsRegion=us-west-2")
-    }
-    dir('target') {
-      sh(script: "ls -la")
-      def applicationDescriptorFilename = sh(script: "find . -name '${applicationId}*.json' | head -1", returnStdout: true).trim()
-      try {
-        sh(script: "curl ${Constants.EUREKA_APPLICATIONS_URL} --upload-file ${applicationDescriptorFilename}")
-        logger.info("File ${applicationDescriptorFilename} successfully uploaded to: ${Constants.EUREKA_APPLICATIONS_URL}")
-        return readJSON(file: "${applicationDescriptorFilename}")
-      } catch (Exception e) {
-        logger.warning("Failed to generat application descriptor\nError: ${e.getMessage()}")
-      }
-    }
+  template.modules.each{index, module ->
+    if(!moduleList[module.name])
+      logger.info("Module Map with all modules and exact version doesn't contain $module.name")
+    else
+      updatedModules[index].version = module.version.trim() == "latest" ? moduleList[module.name].version : module.version
   }
+
+  logger.info("""
+  Updated module list with latest version:
+  $updatedModules
+  """)
+
+  template.modules = updatedModules
+
+  return template
 }
