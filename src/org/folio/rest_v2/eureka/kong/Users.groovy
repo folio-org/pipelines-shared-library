@@ -1,7 +1,7 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.Tenant
+import org.folio.models.EurekaTenant
 import org.folio.models.User
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
@@ -20,8 +20,8 @@ class Users extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
   }
 
-  User createUser(Tenant tenant, User user) {
-    logger.info("Creating user for ${tenant.tenantName}...")
+  User createUser(EurekaTenant tenant, User user) {
+    logger.info("Creating user for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
@@ -39,20 +39,20 @@ class Users extends Kong{
     return User.getUserFromContent(content, tenant, this as UserGroups)
   }
 
-  User getUser(Tenant tenant, String userId){
+  User getUser(EurekaTenant tenant, String userId){
     return getUsers(tenant, userId)[0]
   }
 
-  User getUserByName(Tenant tenant, String name){
+  User getUserByName(EurekaTenant tenant, String name){
     return getUsers(tenant, "", "name==${name}")[0]
   }
 
-  boolean isUserExist(Tenant tenant, String userId) {
+  boolean isUserExist(EurekaTenant tenant, String userId) {
     return getUser(tenant, userId) ? true : false
   }
 
-  List<User> getUsers(Tenant tenant, String userId = "", String query = ""){
-    logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantName}...")
+  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = ""){
+    logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
@@ -74,8 +74,8 @@ class Users extends Kong{
     }
   }
 
-  User setUpdatePassword(Tenant tenant, User user){
-    logger.info("Setting or updating user password for user ${user.username}(${user.uuid}) for ${tenant.tenantName}...")
+  Users setUpdatePassword(EurekaTenant tenant, User user){
+    logger.info("Setting or updating user password for user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
@@ -95,20 +95,20 @@ class Users extends Kong{
         Response content:
         ${content.toString()}""")
 
-      return setUpdatePassword(tenant, unsetPassword(tenant, user))
+      unsetPassword(tenant, user).setUpdatePassword(tenant, user)
      }
 
-    return user
+    return this
   }
 
-  User unsetPassword(Tenant tenant, User user){
-    logger.info("Unset user password for user ${user.username}(${user.uuid}) for ${tenant.tenantName}...")
+  Users unsetPassword(EurekaTenant tenant, User user){
+    logger.info("Unset user password for user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     restClient.delete(generateUrl("/authn/credentials?userId=${user.uuid}"), headers)
 
-    return user
+    return this
   }
 
   @NonCPS
