@@ -115,4 +115,15 @@ class OkapiTenant extends DTO{
     this.okapiConfig = okapiConfig
     return this
   }
+
+  /**
+   * Chainable setter for tenant UI.
+   * @param tenantUi User Interface (UI) details for the tenant.
+   * @return The OkapiTenant object.
+   */
+  OkapiTenant withTenantUi(TenantUi tenantUi) {
+    this.tenantUi = tenantUi
+    this.tenantUi.tenantId = this.tenantId
+    return this
+  }
 }
