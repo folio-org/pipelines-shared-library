@@ -124,8 +124,8 @@ class Eureka extends Base {
    * @param consortiaTenants A map of consortia tenants.
    */
   Eureka setUpConsortiaFlow(List<EurekaTenantConsortia> consortiaTenants) {
-    EurekaTenantConsortia centralConsortiaTenant
-      = consortiaTenants.find { it.isCentralConsortiaTenant }
+    EurekaTenantConsortia centralConsortiaTenant =
+            consortiaTenants.find { it.isCentralConsortiaTenant }
 
     Consortia.get(kong).createConsortia(centralConsortiaTenant)
 
