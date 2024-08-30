@@ -11,12 +11,12 @@ class EurekaModules extends Modules {
   private static final String MGR_PREFIX = "mgr-"
 
   /** A map of all mgr modules. */
-  Map mgrModules
+  public Map mgrModules
 
   /**
    * Default constructor for creating an instance of the Modules class.
    */
-  EurekaModules() {
+  public EurekaModules() {
     super()
   }
 
