@@ -103,13 +103,10 @@ void call(CreateNamespaceParameters args) {
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
 
-      DTO
-        .convertMapTo(
-          folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams)
-          , EurekaTenantConsortia.class
-        )
-        .values()
-        .each { tenant ->
+      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
+        .values().each { tenant ->
+          tenant.withInstallJson(namespace.getModules().getInstallJson())
+
           if (tenant.getIsCentralConsortiaTenant()) {
             tenant.withTenantUi(tenantUi.clone())
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
