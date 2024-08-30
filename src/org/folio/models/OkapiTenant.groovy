@@ -33,6 +33,8 @@ class OkapiTenant extends DTO{
   /** User Interface (UI) details for the tenant. */
   TenantUi tenantUi
 
+  OkapiTenant(){}
+
   /**
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.

@@ -27,6 +27,8 @@ class EurekaTenant extends OkapiTenant {
 
   Map<String, String> applications = [:]
 
+  EurekaTenant(){}
+
   /**
    * Constructor that sets the tenantId and initializes modules.
    * @param tenantId Tenant's identifier.

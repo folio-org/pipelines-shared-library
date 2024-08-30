@@ -18,6 +18,8 @@ class OkapiTenantConsortia extends OkapiTenant {
   /** Code associated with the tenant. */
   String tenantCode
 
+  OkapiTenantConsortia(){}
+
   /**
    * Constructor that sets the tenantId, initializes modules, and sets the isCentralConsortiaTenant flag.
    * @param tenantId Tenant's identifier.
@@ -74,5 +76,10 @@ class OkapiTenantConsortia extends OkapiTenant {
       this.getInstallRequestParams().removeTenantParameter("loadSample")
     }
     return this
+  }
+
+  @Override
+  protected List initArgs() {
+    return [ tenantId ]
   }
 }
