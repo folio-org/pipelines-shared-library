@@ -50,7 +50,7 @@ class EurekaModules extends Modules {
   String toString(){
     return """
       "class_name": "EurekaModules",
-      "installJson": "${getInstallJson()}",
+      "installJson": "$installJson",
       "allModules": "$allModules"
     """
   }
