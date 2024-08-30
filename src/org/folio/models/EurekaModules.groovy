@@ -29,12 +29,8 @@ class EurekaModules extends Modules {
    *                                  or if installJson is null.
    */
   @Override
-  void setInstallJson(Object installJson, def context = null) {
-    context.println("I'm in the EurekaModules.setInstallJson")
-
-    super.setInstallJson(installJson, context)
-
-    context.println("I'm in the EurekaModules.setInstallJson after super.setInstallJson(installJson)")
+  void setInstallJson(Object installJson) {
+    super.setInstallJson(installJson)
 
     this.mgrModules = [:]
     this.discoveryList = []

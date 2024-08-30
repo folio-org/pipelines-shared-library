@@ -46,37 +46,17 @@ class Modules {
    * @throws IllegalArgumentException if installJson is not a string or a list,
    *                                  or if installJson is null.
    */
-  void setInstallJson(Object installJson, def context = null) {
-    if(context)
-      context.println("I'm in the Modules.setInstallJson")
-
+  void setInstallJson(Object installJson) {
     if (installJson == null) {
       throw new IllegalArgumentException("installJson cannot be null")
     }
-
-    if(context)
-      context.println("I'm in the Modules.setInstallJson before installJson instanceof String")
-
     if (installJson instanceof String) {
-      if(context) {
-        context.println("I'm in the Modules.setInstallJson inside installJson instanceof String")
-        context.println("Parse: ${new JsonSlurper().parseText(installJson)}")
-      }
-
       this.installJson = new JsonSlurper().parseText(installJson) as List
     } else if (installJson instanceof List) {
-      if(context) {
-        context.println("I'm in the Modules.setInstallJson inside installJson instanceof List")
-        context.println("installJson: ${installJson}")
-      }
-
       this.installJson = installJson
     } else {
       throw new IllegalArgumentException("installJson must be a JSON string or a List<Map>. Received: ${installJson.getClass()}")
     }
-
-    if(context)
-      context.println("I'm in the Modules.setInstallJson after installJson instanceof String")
 
     this.allModules = [:]
     this.backendModules = [:]
