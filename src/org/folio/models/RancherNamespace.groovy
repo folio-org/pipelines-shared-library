@@ -148,7 +148,7 @@ class RancherNamespace {
   void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH, def context = null) {
     if(context) {
       context.println("I'm inside RancherNamespace.addDeploymentConfig. branch=$branch")
-      context.println("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
+      context.println("${RancherNamespace.GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
     }
 
     if (this.deploymentConfigType) {
