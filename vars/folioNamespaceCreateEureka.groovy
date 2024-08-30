@@ -103,11 +103,11 @@ void call(CreateNamespaceParameters args) {
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
 
-      DTO
-        .convertMapTo(
+//      DTO
+//        .convertMapTo(
           folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams)
-          , EurekaTenantConsortia.class
-        )
+//          , EurekaTenantConsortia.class
+//        )
         .values()
         .each { tenant ->
           if (tenant.getIsCentralConsortiaTenant()) {
