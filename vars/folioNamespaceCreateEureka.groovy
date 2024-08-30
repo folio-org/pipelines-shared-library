@@ -100,6 +100,8 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
+    println("I'm in the folioNamespaceCreateEureka.groovy defaultTenant: ${namespace.getTenants()[0]}")
+
     input(message: "We have passed")
 
     if (args.consortia) {
