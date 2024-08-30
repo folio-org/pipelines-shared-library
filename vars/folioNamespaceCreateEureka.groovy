@@ -94,10 +94,10 @@ void call(CreateNamespaceParameters args) {
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
         .withInstallJson(namespace.getModules().getInstallJson().collect())
-//        .withIndex(new Index('instance', true, true))
-//        .withIndex(new Index('authority', true, false))
-//        .withInstallRequestParams(installRequestParams.clone())
-//        .withTenantUi(tenantUi.clone())
+        .withIndex(new Index('instance', true, true))
+        .withIndex(new Index('authority', true, false))
+        .withInstallRequestParams(installRequestParams.clone())
+        .withTenantUi(tenantUi.clone())
     )
 
     println("I'm in the folioNamespaceCreateEureka.groovy defaultTenant: ${namespace.getTenants().values()[0]}")
