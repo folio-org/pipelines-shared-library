@@ -46,7 +46,10 @@ class Modules {
    * @throws IllegalArgumentException if installJson is not a string or a list,
    *                                  or if installJson is null.
    */
-  void setInstallJson(Object installJson) {
+  void setInstallJson(Object installJson, def context = null) {
+    if(context)
+      context.println("I'm in the Modules.setInstallJson")
+
     if (installJson == null) {
       throw new IllegalArgumentException("installJson cannot be null")
     }
