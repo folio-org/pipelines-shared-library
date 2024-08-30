@@ -1,5 +1,7 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /**
  * The Modules class is responsible for managing information about modules
  * and allows operations such as setting installation JSON, removing modules,
@@ -41,5 +43,15 @@ class EurekaModules extends Modules {
       String location = "http://${name}:8082"
       this.discoveryList << [id: id, name: name, version: version, location: location]
     }
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "EurekaModules",
+      "installJson": "$installJson",
+      "allModules": "$allModules"
+    """
   }
 }

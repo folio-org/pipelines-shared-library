@@ -23,7 +23,7 @@ class EurekaTenant extends OkapiTenant {
   Secret clientSecret
 
   /** Modules that are installed for the tenant. */
-  EurekaModules modules
+  EurekaModules modules = new EurekaModules()
 
   Map<String, String> applications = [:]
 
@@ -78,7 +78,10 @@ class EurekaTenant extends OkapiTenant {
       "uuid": "$uuid"
       "tenantId": "$tenantId",
       "tenantName": "$tenantName",
-      "tenantDescription": "$tenantDescription"
+      "tenantDescription": "$tenantDescription",
+      "applications": "$applications",
+      "modules": $modules,
+      "indexes": $indexes
     """
   }
 }

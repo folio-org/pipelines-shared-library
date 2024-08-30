@@ -1,5 +1,6 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurper
 import groovy.json.JsonSlurperClassic
 
@@ -81,6 +82,7 @@ class Modules {
     }
   }
 
+  @NonCPS
   List getInstallJson(){
     return installJson
   }
@@ -192,5 +194,15 @@ class Modules {
     } else {
       throw new InputMismatchException("Not able to extract module name. Module id '$moduleId' has wrong format")
     }
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "Modules",
+      "installJson": "$installJson",
+      "allModules": "$allModules"
+    """
   }
 }

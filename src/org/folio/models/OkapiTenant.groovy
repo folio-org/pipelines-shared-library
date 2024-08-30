@@ -1,5 +1,7 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /**
  * OkapiTenant class representing a tenant configuration for Okapi.
  * It provides chainable setter methods following builder pattern for ease of use.
@@ -127,5 +129,18 @@ class OkapiTenant extends DTO{
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
     return this
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "OkapiTenant",
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }
