@@ -18,6 +18,24 @@ class EurekaModules extends Modules {
    */
   EurekaModules() {}
 
+  void testInstallJson(Object installJson, def context){
+    context.println("I'm in the EurekaModules.testInstallJson")
+
+    super.setInstallJson(installJson)
+
+    context.println("I'm in the EurekaModules.testInstallJson after super.setInstallJson(installJson)")
+
+    this.mgrModules = [:]
+    this.discoveryList = []
+
+    this.mgrModules = this.allModules.findAll { name, version -> name.startsWith(MGR_PREFIX) }
+    this.backendModules.collect { name, version ->
+      String id = "${name}-${version}"
+      String location = "http://${name}:8082"
+      this.discoveryList << [id: id, name: name, version: version, location: location]
+    }
+  }
+
   /**
    * Sets the installation JSON from a string or a list and initializes
    * all modules, backend modules, edge modules, and discovery list.
@@ -28,6 +46,7 @@ class EurekaModules extends Modules {
    */
   @Override
   void setInstallJson(Object installJson) {
+
     super.setInstallJson(installJson)
 
     this.mgrModules = [:]

@@ -83,7 +83,8 @@ void call(CreateNamespaceParameters args) {
 
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().setInstallJson(installJson)
+//    namespace.getModules().setInstallJson(installJson)
+    namespace.getModules().testInstallJson(installJson, this)
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
