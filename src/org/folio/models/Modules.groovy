@@ -82,6 +82,7 @@ class Modules {
     }
   }
 
+  @NonCPS
   List getInstallJson(){
     return installJson
   }
