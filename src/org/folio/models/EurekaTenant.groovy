@@ -23,7 +23,7 @@ class EurekaTenant extends OkapiTenant {
   Secret clientSecret
 
   /** Modules that are installed for the tenant. */
-  EurekaModules modules
+  EurekaModules modules = new EurekaModules()
 
   Map<String, String> applications = [:]
 
