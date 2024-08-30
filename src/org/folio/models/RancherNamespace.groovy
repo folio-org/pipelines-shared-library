@@ -160,7 +160,7 @@ class RancherNamespace {
   }
 
   @NonCPS
-  protected static Map fetchYaml(String yamlUrl) {
+  protected Map fetchYaml(String yamlUrl) {
     try {
       String yamlString = new URL(yamlUrl).text
       Yaml yamlParser = new Yaml()
