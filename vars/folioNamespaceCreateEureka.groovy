@@ -99,6 +99,8 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
+    input(message: "We have passed")
+
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
 
