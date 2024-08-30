@@ -120,13 +120,13 @@ void call(CreateNamespaceParameters args) {
       println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
     }
 
-    input(message: "We have passed")
-
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
     }
+
+    input(message: "We have passed")
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
