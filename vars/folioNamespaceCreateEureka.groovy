@@ -84,6 +84,8 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     namespace.getModules().setInstallJson(installJson, this)
+    namespace.getModules().removeModule('mod-login')
+    namespace.getModules().removeModule('mod-authtoken')
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -139,9 +141,6 @@ void call(CreateNamespaceParameters args) {
         println(namespace.getModules().getBackendModules())
         input("Paused for review...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        if (namespace.getModules().getBackendModules()['mod-login']) {
-          sh(script: "helm uninstall mod-login --namespace=${namespace.getNamespaceName()}")
-        }
         sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
