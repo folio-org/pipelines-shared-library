@@ -84,6 +84,8 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     namespace.getModules().setInstallJson(installJson)
+
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
 
