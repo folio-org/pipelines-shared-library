@@ -80,10 +80,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result - 1)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result + 1)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result - 1)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result + 1)}"
+    proxyHttp: "${tostring(random_integer.node_port[0].result)}"
+    proxyHttps: "${tostring(random_integer.node_port[1].result)}"
+    adminHttp: "${tostring(random_integer.node_port[2].result)}"
+    adminHttps: "${tostring(random_integer.node_port[3].result)}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
