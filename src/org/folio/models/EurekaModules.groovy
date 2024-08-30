@@ -30,7 +30,7 @@ class EurekaModules extends Modules {
   void setInstallJson(Object installJson, def context = null) {
     context.println("I'm in the EurekaModules.setInstallJson")
 
-    super.setInstallJson(installJson)
+    super.setInstallJson(installJson, context)
 
     context.println("I'm in the EurekaModules.setInstallJson after super.setInstallJson(installJson)")
 
