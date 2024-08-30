@@ -13,30 +13,30 @@ import java.util.regex.Matcher
 class Modules {
 
   /** Prefix used to distinguish edge modules. */
-  private static final String EDGE_PREFIX = "edge-"
+  protected static final String EDGE_PREFIX = "edge-"
 
   /** Prefix used to distinguish backend modules. */
-  private static final String MOD_PREFIX = "mod-"
+  protected static final String MOD_PREFIX = "mod-"
 
   /** Stores the JSON data representing the modules that need to be installed. */
-  List installJson
+  public List installJson
 
   /** A map of all modules. */
-  Map<String, String> allModules
+  public Map<String, String> allModules
 
   /** A map of all backend modules. */
-  Map backendModules
+  public Map backendModules
 
   /** A map of all edge modules. */
-  Map edgeModules
+  public Map edgeModules
 
   /** A list representing the modules that need to be discovered. */
-  List discoveryList
+  public List discoveryList
 
   /**
    * Default constructor for creating an instance of the Modules class.
    */
-  Modules() {}
+  public Modules() {}
 
   /**
    * Sets the installation JSON from a string or a list and initializes
