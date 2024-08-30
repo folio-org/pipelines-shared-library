@@ -19,7 +19,7 @@ class Modules {
   private static final String MOD_PREFIX = "mod-"
 
   /** Stores the JSON data representing the modules that need to be installed. */
-  List installJson
+  public List installJson
 
   /** A map of all modules. */
   Map<String, String> allModules
@@ -67,7 +67,7 @@ class Modules {
     } else if (installJson instanceof List) {
       if(context) {
         context.println("I'm in the Modules.setInstallJson inside installJson instanceof List")
-        context.println("Parse: ${installJson}")
+        context.println("installJson: ${installJson}")
       }
 
       this.installJson = installJson
