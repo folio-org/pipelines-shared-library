@@ -139,7 +139,8 @@ class OkapiTenant extends DTO{
       "tenantId": "$tenantId",
       "tenantName": "$tenantName",
       "tenantDescription": "$tenantDescription",
-      "modules": $modules
+      "modules": $modules,
+      "indexes": $indexes
     """
   }
 }

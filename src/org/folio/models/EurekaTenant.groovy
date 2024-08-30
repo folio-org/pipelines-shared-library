@@ -80,7 +80,8 @@ class EurekaTenant extends OkapiTenant {
       "tenantName": "$tenantName",
       "tenantDescription": "$tenantDescription",
       "applications": "$applications",
-      "modules": $modules
+      "modules": $modules,
+      "indexes": $indexes
     """
   }
 }
