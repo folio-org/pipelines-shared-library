@@ -100,10 +100,6 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
-    println("I'm in the folioNamespaceCreateEureka.groovy defaultTenant: ${namespace.getTenants().values()[0]}")
-
-    input(message: "We have passed")
-
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
 
@@ -122,6 +118,12 @@ void call(CreateNamespaceParameters args) {
           namespace.addTenant(tenant)
         }
     }
+
+    namespace.getTenants().each {name, tenant ->
+      println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
+    }
+
+    input(message: "We have passed")
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
