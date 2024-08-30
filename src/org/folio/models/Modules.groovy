@@ -65,6 +65,11 @@ class Modules {
 
       this.installJson = new JsonSlurper().parseText(installJson) as List
     } else if (installJson instanceof List) {
+      if(context) {
+        context.println("I'm in the Modules.setInstallJson inside installJson instanceof List")
+        context.println("Parse: ${installJson}")
+      }
+
       this.installJson = installJson
     } else {
       throw new IllegalArgumentException("installJson must be a JSON string or a List<Map>. Received: ${installJson.getClass()}")
