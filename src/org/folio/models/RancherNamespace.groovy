@@ -9,11 +9,11 @@ import org.yaml.snakeyaml.error.YAMLException
 /**
  * Represents a Rancher namespace and its configuration.*/
 class RancherNamespace {
-  private static final String DEPLOYMENT_CONFIG_BRANCH = "master"
+  protected static final String DEPLOYMENT_CONFIG_BRANCH = "master"
 
-  private static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
+  protected static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
 
-  private static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/"
+  protected static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library"
 
   String clusterName
 
@@ -148,7 +148,7 @@ class RancherNamespace {
   void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH, def context = null) {
     if(context) {
       context.println("I'm inside RancherNamespace.addDeploymentConfig. branch=$branch")
-      context.println("${RancherNamespace.GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
+      context.println("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
     }
 
     if (this.deploymentConfigType) {
