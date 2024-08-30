@@ -81,7 +81,7 @@ class EurekaTenantConsortia extends EurekaTenant {
   @Override
   String toString(){
     return """
-      "class_name": "EurekaTenant",
+      "class_name": "EurekaTenantConsortia",
       "uuid": "$uuid"
       "tenantId": "$tenantId",
       "tenantName": "$tenantName",
