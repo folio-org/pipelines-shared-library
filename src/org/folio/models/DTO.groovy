@@ -6,7 +6,9 @@ class DTO {
 
   DTO(){}
 
-  public <T> T convertTo(Class<T> classTo){
+  public <T> T convertTo(Class<T> classTo, def context){
+    context.println("I'm in the DTO.convertTo")
+
     T converted = classTo.getDeclaredConstructor().newInstance()
 
     InvokerHelper.setProperties(converted, properties)
