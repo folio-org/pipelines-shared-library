@@ -93,11 +93,11 @@ void call(CreateNamespaceParameters args) {
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
-//        .withInstallJson(namespace.getModules().getInstallJson().collect())
-//        .withIndex(new Index('instance', true, true))
-//        .withIndex(new Index('authority', true, false))
-//        .withInstallRequestParams(installRequestParams.clone())
-//        .withTenantUi(tenantUi.clone())
+        .withInstallJson(namespace.getModules().getInstallJson().collect())
+        .withIndex(new Index('instance', true, true))
+        .withIndex(new Index('authority', true, false))
+        .withInstallRequestParams(installRequestParams.clone())
+        .withTenantUi(tenantUi.clone())
     )
 
     input(message: "We have passed")
