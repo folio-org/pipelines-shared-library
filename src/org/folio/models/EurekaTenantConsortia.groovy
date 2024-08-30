@@ -18,6 +18,8 @@ class EurekaTenantConsortia extends EurekaTenant {
   /** Code associated with the tenant. */
   String tenantCode
 
+  EurekaTenantConsortia(){}
+
   /**
    * Constructor that sets the tenantId, initializes modules, and sets the isCentralConsortiaTenant flag.
    * @param tenantId Tenant's identifier.

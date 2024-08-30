@@ -81,6 +81,10 @@ class Modules {
     }
   }
 
+  List getInstallJson(){
+    return installJson
+  }
+
   /**
    * Adds a new module to the installJson list.
    * The module is represented as a map with an 'id' key (set to the moduleId argument)
