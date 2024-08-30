@@ -16,7 +16,9 @@ class EurekaModules extends Modules {
   /**
    * Default constructor for creating an instance of the Modules class.
    */
-  EurekaModules() {}
+  EurekaModules() {
+    super()
+  }
 
   /**
    * Sets the installation JSON from a string or a list and initializes

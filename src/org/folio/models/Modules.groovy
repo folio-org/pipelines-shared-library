@@ -58,6 +58,11 @@ class Modules {
       context.println("I'm in the Modules.setInstallJson before installJson instanceof String")
 
     if (installJson instanceof String) {
+      if(context) {
+        context.println("I'm in the Modules.setInstallJson inside installJson instanceof String")
+        context.println("Parse: ${new JsonSlurper().parseText(installJson)}")
+      }
+
       this.installJson = new JsonSlurper().parseText(installJson) as List
     } else if (installJson instanceof List) {
       this.installJson = installJson
