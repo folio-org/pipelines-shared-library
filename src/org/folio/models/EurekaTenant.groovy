@@ -78,7 +78,9 @@ class EurekaTenant extends OkapiTenant {
       "uuid": "$uuid"
       "tenantId": "$tenantId",
       "tenantName": "$tenantName",
-      "tenantDescription": "$tenantDescription"
+      "tenantDescription": "$tenantDescription",
+      "applications": "$applications",
+      "modules": $modules
     """
   }
 }
