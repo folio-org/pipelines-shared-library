@@ -53,6 +53,10 @@ class Modules {
     if (installJson == null) {
       throw new IllegalArgumentException("installJson cannot be null")
     }
+
+    if(context)
+      context.println("I'm in the Modules.setInstallJson before installJson instanceof String")
+
     if (installJson instanceof String) {
       this.installJson = new JsonSlurper().parseText(installJson) as List
     } else if (installJson instanceof List) {
@@ -60,6 +64,9 @@ class Modules {
     } else {
       throw new IllegalArgumentException("installJson must be a JSON string or a List<Map>. Received: ${installJson.getClass()}")
     }
+
+    if(context)
+      context.println("I'm in the Modules.setInstallJson after installJson instanceof String")
 
     this.allModules = [:]
     this.backendModules = [:]
