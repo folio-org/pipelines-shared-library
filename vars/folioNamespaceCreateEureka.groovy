@@ -100,7 +100,7 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
-    println("I'm in the folioNamespaceCreateEureka.groovy defaultTenant: ${namespace.getTenants()[0]}")
+    println("I'm in the folioNamespaceCreateEureka.groovy defaultTenant: ${namespace.getTenants().values()[0]}")
 
     input(message: "We have passed")
 
