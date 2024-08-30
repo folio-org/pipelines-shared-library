@@ -77,9 +77,4 @@ class OkapiTenantConsortia extends OkapiTenant {
     }
     return this
   }
-
-  @Override
-  protected List initArgs() {
-    return [ tenantId ]
-  }
 }
