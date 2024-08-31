@@ -88,7 +88,6 @@ void call(CreateNamespaceParameters args) {
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
-//    namespace.getModules().removeModule('mod-inn-reach')
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -128,19 +127,18 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-    stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules().getAllModules()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(namespace.getModules().getDiscoveryList())
-    }
-
-    input(message: "We have passed")
+    //TODO: Temporary commented due to mgr modules don't work without deployment other modules
+//    stage('[Rest] Preinstall') {
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+//          , namespace.getModules().getAllModules()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
+//
+//      eureka.registerModulesFlow(namespace.getModules().getDiscoveryList())
+//    }
 
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -166,6 +164,21 @@ void call(CreateNamespaceParameters args) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
+
+    //TODO: Temporary moved here due to mgr modules don't work without deployment other modules
+    stage('[Rest] Preinstall') {
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          , namespace.getModules().getAllModules()
+          , namespace.getTenants().values() as List<EurekaTenant>
+        )
+      )
+
+      eureka.registerModulesFlow(namespace.getModules().getDiscoveryList())
+    }
+
+    input(message: "We have passed")
 
     stage('[Rest] Initialize') {
       retry(2) {
