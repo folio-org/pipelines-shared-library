@@ -126,9 +126,9 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    input(message: "We have passed")
-
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+
+    input(message: "We have passed")
 
     stage('[Rest] Preinstall') {
       namespace.withApplications(
