@@ -1,5 +1,6 @@
 package org.folio.utilities
 
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
@@ -127,6 +128,7 @@ class RestClient {
     }
   }
 
+  @NonCPS
   boolean debugValue(){
     return debug
   }
