@@ -22,6 +22,9 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
     dir('target') {
       sh(script: "ls -la")
 
+      logger.debug("Generated application:")
+      logger.info(readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim()))
+
       return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
     }
   }
