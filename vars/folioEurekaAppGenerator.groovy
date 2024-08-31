@@ -43,6 +43,8 @@ def setModuleLatestVersion(def template, Map<String, String> moduleList){
   """)
 
   template.modules.each{index, module ->
+    logger.debug("Index: $index Module: $module")
+
     if(!moduleList[module.name])
       logger.info("Module Map with all modules and exact version doesn't contain $module.name")
     else
