@@ -10,7 +10,7 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
   dir(appName) {
-    def updatedTemplate = setModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
+    def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
@@ -71,12 +71,6 @@ def setModuleLatestVersion(def templateModules, Map<String, String> moduleList){
   def updatedModules = templateModules
 
   templateModules.eachWithIndex{module, index ->
-    logger.debug("Index: $index Module: $module")
-    logger.debug("Module.name: $module.name Module.version: $module.version")
-    logger.debug("updatedModules[index] ${updatedModules[index]}")
-    logger.debug("updatedModules[index].name ${updatedModules[index].name} updatedModules[index].name ${updatedModules[index].version}")
-    logger.debug("moduleList[module.name] ${moduleList[module.name]}")
-
     if(!moduleList[module.name])
       logger.info("Module Map with all modules and exact version doesn't contain $module.name")
     else
