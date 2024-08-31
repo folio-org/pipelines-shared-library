@@ -42,7 +42,7 @@ def setModuleLatestVersion(def template, Map<String, String> moduleList){
   $moduleList
   """)
 
-  template.modules.eachWithIndex{index, module ->
+  template.modules.eachWithIndex{module, index ->
     logger.debug("Index: $index Module: $module")
 
     if(!moduleList[module.name])
