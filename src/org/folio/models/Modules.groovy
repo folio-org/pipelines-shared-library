@@ -23,16 +23,16 @@ class Modules {
   public List installJson
 
   /** A map of all modules. */
-  public Map<String, String> allModules
+  Map<String, String> allModules
 
   /** A map of all backend modules. */
-  public Map backendModules
+  Map backendModules
 
   /** A map of all edge modules. */
-  public Map edgeModules
+  Map edgeModules
 
   /** A list representing the modules that need to be discovered. */
-  public List discoveryList
+  List discoveryList
 
   /**
    * Default constructor for creating an instance of the Modules class.
