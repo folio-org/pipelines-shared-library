@@ -88,6 +88,8 @@ class Eureka extends Base {
 
   Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps){
     tenants.each {tenantId, tenant ->
+      context.println("I'm inside Eureka.assignAppToTenants. tenantId: $tenantId tenant: $tenant")
+
       tenant.applications = registeredApps
 
       if(tenant instanceof EurekaTenantConsortia)
