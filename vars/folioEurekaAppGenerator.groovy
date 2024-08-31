@@ -1,7 +1,10 @@
+import groovy.transform.Field
 import org.folio.Constants
 import org.folio.utilities.Logger
 
+@Field
 Logger logger = new Logger(this, 'folioEurekaAppGenerator')
+
 
 def generateApplicationDescriptor(String appName, Map<String, String> moduleList) {
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
