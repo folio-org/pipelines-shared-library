@@ -149,7 +149,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
-  println("I'm inside generateModuleValues. moduleName: $moduleName moduleVersion: $moduleVersion customModule: $customModule repository: $repository")
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
