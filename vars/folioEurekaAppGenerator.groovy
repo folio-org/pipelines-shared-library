@@ -52,7 +52,7 @@ def setModuleLatestVersion(def template, Map<String, String> moduleList){
     if(!moduleList[module.name])
       logger.info("Module Map with all modules and exact version doesn't contain $module.name")
     else
-      updatedModules[index].version = module.version.trim() == "latest" ? moduleList[module.name].version : module.version
+      updatedModules[index].version = module.version.trim() == "latest" ? moduleList[module.name] : module.version
   }
 
   logger.info("""
