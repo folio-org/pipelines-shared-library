@@ -39,7 +39,7 @@ def setModuleLatestVersion(def template, Map<String, String> moduleList){
 
   logger.info("""
   Module Map with all modules and exact version:
-  $updatedModules
+  $moduleList
   """)
 
   template.modules.each{index, module ->
