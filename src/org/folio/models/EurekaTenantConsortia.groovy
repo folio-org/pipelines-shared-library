@@ -1,5 +1,7 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /**
  * OkapiTenantConsortia class is a subclass of OkapiTenant
  * representing a tenant configuration specifically for consortia.
@@ -73,5 +75,24 @@ class EurekaTenantConsortia extends EurekaTenant {
       this.getInstallRequestParams().removeTenantParameter("loadSample")
     }
     return this
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "EurekaTenantConsortia",
+      "uuid": "$uuid"
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "isCentralConsortiaTenant" : "$isCentralConsortiaTenant",
+      "consortiaName": "$consortiaName",
+      "consortiaUUID": "$consortiaUuid",
+      "tenantCode": "$tenantCode",
+      "applications": "$applications",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }
