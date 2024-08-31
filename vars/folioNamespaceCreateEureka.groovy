@@ -128,8 +128,6 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-    input(message: "We have passed")
-
     stage('[Rest] Preinstall') {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
@@ -141,6 +139,8 @@ void call(CreateNamespaceParameters args) {
 
       eureka.registerModulesFlow(namespace.getModules().getDiscoveryList())
     }
+
+    input(message: "We have passed")
 
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
