@@ -90,7 +90,7 @@ class Applications extends Kong{
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    restClient.post(generateUrl("/modules/discovery"), jsonAppDefinition, headers)
+    restClient.post(generateUrl("/modules/discovery"), jsonModuleList, headers)
 
     return this
   }
