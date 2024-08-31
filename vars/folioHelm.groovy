@@ -297,7 +297,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   return valuesFilePath
 }
 
-String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
+static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
+  String repository = ""
+
   if (customModule || moduleName == 'ui-bundle') {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
@@ -319,4 +321,6 @@ String determineModulePlacement(String moduleName, String moduleVersion, boolean
         break
     }
   }
+
+  return repository
 }
