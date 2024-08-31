@@ -28,7 +28,7 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
 }
 
 def setModuleLatestVersion(def template, Map<String, String> moduleList){
-  logger.info("Updated template latest module version with exact value...0")
+  logger.info("Updated template latest module version with exact value...")
 
   List updatedModules = template.modules
 
