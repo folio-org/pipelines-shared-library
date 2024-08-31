@@ -2,7 +2,7 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
-import org.folio.rest_v2.eureka.Base
+import org.folio.rest_v2.eureka.Kong
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
@@ -127,7 +127,7 @@ void call(CreateNamespaceParameters args) {
     }
 
 //    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-    Base base = new Base(this, false)
+    Kong base = new Kong(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     input(message: "We have passed")
 
