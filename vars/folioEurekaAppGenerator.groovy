@@ -10,7 +10,7 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
   dir(appName) {
-    def updatedTemplate = setModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
+    def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
@@ -21,6 +21,9 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
 
     dir('target') {
       sh(script: "ls -la")
+
+      logger.debug("Generated application:")
+      logger.info(readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim()))
 
       return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
     }
