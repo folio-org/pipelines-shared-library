@@ -477,6 +477,8 @@ mod-agreements:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
+  - name: CONCURRENT_JOBS_GLOBAL
+    value: '5'
   integrations:
     db:
       enabled: true
@@ -1529,6 +1531,18 @@ mod-dcb:
     minReplicas: 1
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
+mod-circulation-bff:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+  limits:
+    memory: 644Mi
+  requests:
+    memory: 450Mi
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory

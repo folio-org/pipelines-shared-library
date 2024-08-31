@@ -1,23 +1,22 @@
-package org.folio.rest_v2
+package org.folio.rest_v2.eureka.kong
 
-import org.folio.models.OkapiTenantConsortia
+import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.EurekaTenantConsortia
+import org.folio.rest_v2.eureka.Keycloak
+import org.folio.rest_v2.eureka.Kong
 
-/**
- * Consortia is a class that extends the Authorization class.
- * It is responsible for managing consortia in the system. It can create a consortia,
- * add a central consortia tenant and add a tenant to the consortia.
- */
-class Consortia extends Authorization {
+class Consortia extends Kong{
 
-  /**
-   * Initializes a new instance of the Consortia class.
-   *
-   * @param context The current context.
-   * @param okapiDomain The domain for Okapi.
-   * @param debug Debug flag indicating whether debugging is enabled.
-   */
-  Consortia(Object context, String okapiDomain, boolean debug = false) {
-    super(context, okapiDomain, debug)
+  Consortia(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+    super(context, kongUrl, keycloak, debug)
+  }
+
+  Consortia(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, debug)
+  }
+
+  Consortia(Kong kong){
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
   }
 
   /**
@@ -26,23 +25,31 @@ class Consortia extends Authorization {
    * @param centralConsortiaTenant The central tenant of the consortia.
    * @return The ID of the newly created consortia.
    */
-  String createConsortia(OkapiTenantConsortia centralConsortiaTenant) {
-    if (!centralConsortiaTenant.isCentralConsortiaTenant) {
+  String createConsortia(EurekaTenantConsortia centralConsortiaTenant) {
+    if (!centralConsortiaTenant.isCentralConsortiaTenant)
       logger.error("${centralConsortiaTenant.tenantId} is not a central consortia tenant")
-    }
+
+    logger.info("Creating consortia with future central tenant ${centralConsortiaTenant.tenantId} and uuid ${centralConsortiaTenant.uuid}...")
 
     centralConsortiaTenant.consortiaUuid = UUID.randomUUID().toString()
 
-    String url = generateUrl("/consortia")
-    Map<String, String> headers = getAuthorizedHeaders(centralConsortiaTenant)
+    Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant)
+
     Map body = [
       "id"  : centralConsortiaTenant.consortiaUuid,
       "name": centralConsortiaTenant.consortiaName
     ]
 
-    Map response = restClient.post(url, body, headers).body
-    logger.info("Consortia (${centralConsortiaTenant.consortiaName}) created. UUID: ${centralConsortiaTenant.consortiaUuid}")
-    return response.id
+    def response = restClient.post(generateUrl("/consortia"), body, headers)
+    Map content = response.body as Map
+
+    logger.info("""
+      Info about the newly created consortia \"${content.id}\"
+      Status: ${response.responseCode}
+      Response content:
+      ${content.toString()}""")
+
+    return content.id
   }
 
   /**
@@ -50,21 +57,26 @@ class Consortia extends Authorization {
    *
    * @param centralConsortiaTenant The central tenant of the consortia.
    */
-  void addCentralConsortiaTenant(OkapiTenantConsortia centralConsortiaTenant) {
-    if (!centralConsortiaTenant.isCentralConsortiaTenant) {
+  Consortia addCentralConsortiaTenant(EurekaTenantConsortia centralConsortiaTenant) {
+    if (!centralConsortiaTenant.isCentralConsortiaTenant)
       logger.error("${centralConsortiaTenant.tenantId} is not a central consortia tenant")
-    }
 
-    String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants")
-    Map<String, String> headers = getAuthorizedHeaders(centralConsortiaTenant)
+    logger.info("Adding central tenant ${centralConsortiaTenant.tenantId} with uuid ${centralConsortiaTenant.uuid} to consortia ${centralConsortiaTenant.consortiaUuid}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant)
+
     Map body = [
       "id"       : centralConsortiaTenant.tenantId,
       "name"     : centralConsortiaTenant.tenantName,
       "code"     : centralConsortiaTenant.tenantCode,
       "isCentral": true
     ]
-    restClient.post(url, body, headers).body
+
+    restClient.post(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants"), body, headers)
+
     logger.info("${centralConsortiaTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+
+    return this
   }
 
   /**
@@ -73,38 +85,30 @@ class Consortia extends Authorization {
    * @param centralConsortiaTenant The central tenant of the consortia.
    * @param institutionalTenant The tenant to be added to the consortia.
    */
-  void addConsortiaTenant(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia institutionalTenant) {
-    if (institutionalTenant.isCentralConsortiaTenant) {
+  Consortia addConsortiaTenant(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia institutionalTenant) {
+    if (institutionalTenant.isCentralConsortiaTenant)
       logger.error("${institutionalTenant.tenantId} is a central consortia tenant")
-    }
+
+    logger.info("Adding institutional tenant ${institutionalTenant.tenantId} with uuid ${institutionalTenant.uuid} to consortia ${centralConsortiaTenant.consortiaUuid}...")
+
     centralConsortiaTenant.adminUser.checkUuid()
 
+    Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant)
+
     String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants?adminUserId=${centralConsortiaTenant.adminUser.uuid}")
-    Map<String, String> headers = getAuthorizedHeaders(centralConsortiaTenant)
+
     Map body = [
       "id"       : institutionalTenant.tenantId,
       "name"     : institutionalTenant.tenantName,
       "code"     : institutionalTenant.tenantCode,
       "isCentral": false
     ]
-    restClient.post(url, body, headers).body
-    logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
-  }
 
-  /**
-   * Sets up a consortia with the given tenants.
-   *
-   * @param consortiaTenants A map of consortia tenants.
-   */
-  void setUpConsortia(List<OkapiTenantConsortia> consortiaTenants) {
-    OkapiTenantConsortia centralConsortiaTenant = consortiaTenants.find { it.isCentralConsortiaTenant }
-    createConsortia(centralConsortiaTenant)
-    addCentralConsortiaTenant(centralConsortiaTenant)
-    checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
-    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }.each { institutionalTenant ->
-      addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-      checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
-    }
+    restClient.post(url, body, headers)
+
+    logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+
+    return this
   }
 
   /**
@@ -115,10 +119,13 @@ class Consortia extends Authorization {
    * @param tenant
    *
    */
-  void checkConsortiaStatus(OkapiTenantConsortia centralConsortiaTenant, OkapiTenantConsortia tenant) {
-    Map headers = getAuthorizedHeaders(centralConsortiaTenant)
+  Consortia checkConsortiaStatus(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant) {
+    Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant)
+
     String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
+
     def response = restClient.get(url, headers, [], 5000).body
+
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
@@ -136,5 +143,12 @@ class Consortia extends Authorization {
         checkConsortiaStatus(centralConsortiaTenant, tenant)
         break
     }
+
+    return this
+  }
+
+  @NonCPS
+  static Consortia get(Kong kong){
+    return new Consortia(kong)
   }
 }

@@ -1,11 +1,13 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /**
  * OkapiTenant class representing a tenant configuration for Okapi.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
-// TODO: we need to extend this clase from the base class "Tenant"
-class OkapiTenant {
+// TODO: Rename to Tenant
+class OkapiTenant extends DTO{
   /** Tenant's identifier. */
   String tenantId
 
@@ -16,15 +18,13 @@ class OkapiTenant {
   String tenantDescription
 
   /** Administrator user of the tenant. */
-  OkapiUser adminUser
+  User adminUser
 
   /** Modules that are installed for the tenant. */
   Modules modules
 
   /** List of index information associated with the tenant. */
   List<Index> indexes
-
-  Index index
 
   /** Parameters for installation requests for the tenant. */
   InstallRequestParams installRequestParams
@@ -34,6 +34,8 @@ class OkapiTenant {
 
   /** User Interface (UI) details for the tenant. */
   TenantUi tenantUi
+
+  OkapiTenant(){}
 
   /**
    * Constructor that sets the tenantId and initializes modules.
@@ -70,7 +72,7 @@ class OkapiTenant {
    * @param adminUser Administrator user of the tenant.
    * @return The OkapiTenant object.
    */
-  OkapiTenant withAdminUser(OkapiUser adminUser) {
+  OkapiTenant withAdminUser(User adminUser) {
     this.adminUser = adminUser
     return this
   }
@@ -127,5 +129,18 @@ class OkapiTenant {
     this.tenantUi = tenantUi
     this.tenantUi.tenantId = this.tenantId
     return this
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "OkapiTenant",
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }

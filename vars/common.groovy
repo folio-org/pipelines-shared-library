@@ -1,7 +1,9 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.models.RancherNamespace
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
 // A function that returns the last commit hash of a given repository and branch.
@@ -95,5 +97,19 @@ void checkEcrRepoExistence(String repo_name) {
 void throwErrorIfStringIsEmpty(def variable, String error_message = "Variable is emty") {
   if (variable.isEmpty()) {
     error(error_message)
+  }
+}
+
+static void configureEurekaTokenLifeSpan(RancherNamespace ns, String lifespan = "3600") {
+  def keycloakUrl = "https://${ns.generateDomain('keycloak')}"
+  RestClient client = new RestClient(this)
+  Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+  def body = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+  def token = client.post("${keycloakUrl}/realms/master/protocol/openid-connect/token", body, headers).body
+  def token_body = """{"accessTokenLifespan": ${lifespan}, "ssoSessionIdleTimeout": ${lifespan}}"""
+  Map token_headers = ['Content-type': 'application/json', 'Authorization': "Bearer " + token['access_token']]
+  ns.getTenants().each { tenantId, tenant ->
+    def tokenUrl = keycloakUrl + "/admin/realms/${tenantId}"
+    client.put(tokenUrl, token_body, token_headers)
   }
 }

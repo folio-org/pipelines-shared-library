@@ -1,5 +1,6 @@
 package org.folio.utilities
 
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
@@ -17,28 +18,35 @@ class RestClient {
     this.logger = new Logger(context, 'RestClient')
   }
 
-  def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('GET', url, null, headers, connectionTimeout, readTimeout)
+  def get(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
+          , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+    return doRequest('GET', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout) {
-    return doRequest('POST', url, body, headers, connectionTimeout, defaultReadTimeout)
+  def post(String url, Object body, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
+           , int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout) {
+    return doRequest('POST', url, body, headers, validResponseCodes, connectionTimeout, defaultReadTimeout)
   }
 
-  def delete(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('DELETE', url, null, headers, connectionTimeout, readTimeout)
+  def delete(String url, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
+             , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+    return doRequest('DELETE', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  def put(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('PUT', url, body, headers, connectionTimeout, readTimeout)
+  def put(String url, Object body, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
+          , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+    return doRequest('PUT', url, body, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  def upload(String url, File file, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
+  def upload(String url, File file, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
+             , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
     headers['Content-Type'] = 'application/octet-stream'
-    return doRequest('POST', url, file.bytes, headers, connectionTimeout, readTimeout)
+    return doRequest('POST', url, file.bytes, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
+  private def doRequest(String method, String url, Object body, Map<String, String> headers
+                        , List<Integer> validResponseCodes = []
+                        , int connectionTimeout, int readTimeout) {
 
     if (debug) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
@@ -61,7 +69,7 @@ class RestClient {
       logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
     }
 
-    if (connection.responseCode >= 400) {
+    if (!validResponseCodes?.contains(connection.responseCode) && connection.responseCode >= 400){
       handleHttpError(connection.responseCode, connection.responseMessage, response.body.toString())
     }
 
@@ -103,7 +111,7 @@ class RestClient {
     String responseBody = inputStream.text
 
     if (responseBody == null || responseBody.trim().isEmpty()) {
-      return [body: null, headers: connection.getHeaderFields()]
+      return [body: null, headers: connection.getHeaderFields(), responseCode: responseCode]
     } else {
       String contentType = connection.getHeaderField("Content-Type")
       if (contentType != null && contentType.contains("application/json")) {
@@ -113,11 +121,16 @@ class RestClient {
         } else if (parsedResponse instanceof List && !parsedResponse.isEmpty() && parsedResponse[0] instanceof LazyMap) {
           parsedResponse = parsedResponse.collect { new HashMap(it) }
         }
-        return [body: parsedResponse, headers: connection.getHeaderFields()]
+        return [body: parsedResponse, headers: connection.getHeaderFields(), responseCode: responseCode]
       } else {
-        return [body: responseBody, headers: connection.getHeaderFields()]
+        return [body: responseBody, headers: connection.getHeaderFields(), responseCode: responseCode]
       }
     }
+  }
+
+  @NonCPS
+  boolean debugValue(){
+    return debug
   }
 
 

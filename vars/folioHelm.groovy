@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.EurekaNamespace
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
@@ -164,7 +165,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  if (ns.enableEureka) {
+  if (ns instanceof EurekaNamespace) {
     String sidecarRepository = determineModulePlacement(
       "folio-module-sidecar"
       , ns.getModules().allModules['folio-module-sidecar']
@@ -184,6 +185,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                       sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case 'mod-scheduler':
         moduleConfig['integrations'] += [eureka: [enabled       : true,
@@ -194,6 +198,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                       sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case ~/mod-.*$/:
         moduleConfig <<
@@ -202,6 +209,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                       sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case ~/ui-bundle/:
         break
