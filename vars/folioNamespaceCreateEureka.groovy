@@ -138,7 +138,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         println(namespace.getModules().getBackendModules())
-        input("Paused for review...")
+
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
         sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
