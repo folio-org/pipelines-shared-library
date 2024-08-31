@@ -51,7 +51,11 @@ class EurekaModules extends Modules {
     return """
       "class_name": "EurekaModules",
       "installJson": "$installJson",
-      "allModules": "$allModules"
+      "allModules": "$allModules",
+      "backendModules": "$backendModules",
+      "edgeModules": "$edgeModules",
+      "mgrModules": "$mgrModules",
+      "discoveryList": "$discoveryList"
     """
   }
 }
