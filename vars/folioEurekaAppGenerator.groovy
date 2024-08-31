@@ -55,7 +55,7 @@ def setTemplateModuleLatestVersion(def template, Map<String, String> moduleList)
   $template.uiModules
   """)
 
-  template.uiModules = setModuleLatestVersion(template.uiModules, moduleList)
+//  template.uiModules = setModuleLatestVersion(template.uiModules, moduleList)
 
   logger.info("""
   Updated UI module list with latest version:
