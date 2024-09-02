@@ -70,6 +70,7 @@ void call(CreateNamespaceParameters args) {
     installJson.addAll(eurekaPlatform)
 
     println("folioNamespaceCreateEureka installJson: $installJson")
+    println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
