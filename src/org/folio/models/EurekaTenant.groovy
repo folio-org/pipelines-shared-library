@@ -24,6 +24,9 @@ class EurekaTenant extends OkapiTenant {
 
   String secretStoragePathName
 
+  /** Parameters for installation requests for the tenant. */
+  EurekaRequestParams installRequestParams
+
   /** Modules that are installed for the tenant. */
   EurekaModules modules = new EurekaModules()
 
