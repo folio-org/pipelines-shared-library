@@ -106,6 +106,7 @@ class Constants {
                                     "thunderjet"    : ["thunderjet"],
                                     "unam"          : ["unam"],
                                     "vega"          : ["vega"],
+                                    "vega-2nd"      : ["vega"],
                                     "volaris"       : ["volaris"],
                                     "volaris-2nd"   : ["volaris"],
                                     "rtr"           : ["volaris"],

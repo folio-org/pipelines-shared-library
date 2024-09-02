@@ -112,6 +112,7 @@ static List devEnvironmentsList() {
             'thunderjet',
             'unam',
             'vega',
+            'vega-2nd',
             'volaris',
             'volaris-2nd',
             'rtr']
