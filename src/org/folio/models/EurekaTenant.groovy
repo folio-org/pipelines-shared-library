@@ -60,7 +60,7 @@ class EurekaTenant extends OkapiTenant {
   }
 
   EurekaTenant withAWSSecretStoragePathName(String namespace){
-    secretStoragePathName = "${nameSpace}_${tenantId}_${clientId}"
+    secretStoragePathName = "${namespace}_${tenantId}_${clientId}"
     return this
   }
 
