@@ -130,7 +130,7 @@ class Modules {
    * @param moduleName the name of the module to be removed.
    */
   void removeModule(String moduleName) {
-    this.installJson = this.installJson.findAll { it.id =~ /${moduleName}-\d\..*/ == null }
+    this.installJson = this.installJson.findAll { it.id =~ /${moduleName}-\d\..*/ }
     this.setInstallJson(this.installJson)
   }
 
@@ -141,7 +141,7 @@ class Modules {
    */
   void removeModules(List<String> modulesNames) {
     modulesNames.each { moduleName ->
-      this.installJson = this.installJson.findAll { it.id =~ /${moduleName}-\d\..*/ == null }
+      this.installJson = this.installJson.findAll { it.id =~ /${moduleName}-\d\..*/ }
     }
     this.setInstallJson(this.installJson)
   }
