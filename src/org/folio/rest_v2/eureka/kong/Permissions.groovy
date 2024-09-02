@@ -18,7 +18,7 @@ class Permissions extends Kong{
   }
 
   Permissions(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   Role createRole(EurekaTenant tenant, Role role) {

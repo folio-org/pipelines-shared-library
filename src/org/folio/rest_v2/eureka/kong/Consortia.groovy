@@ -16,7 +16,7 @@ class Consortia extends Kong{
   }
 
   Consortia(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   /**

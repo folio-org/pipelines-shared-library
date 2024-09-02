@@ -15,7 +15,7 @@ class Applications extends Kong{
   }
 
   Applications(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   String registerApplication(def jsonAppDefinition) {

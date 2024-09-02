@@ -17,7 +17,7 @@ class Tenants extends Kong{
   }
 
   Tenants(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   EurekaTenant createTenant(EurekaTenant tenant) {
