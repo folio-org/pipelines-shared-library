@@ -87,7 +87,7 @@ String getSsmParameterValue(String awsRegion, String awsParameterName, boolean w
 
 //  def ttt = sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text", returnStdout: true)
 
-  println("I'm in awscli.getSsmParameterValue secret: $ttt")
+  println("I'm in awscli.getSsmParameterValue secret")
 
   return "blabalbala"
 
