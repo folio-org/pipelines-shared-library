@@ -69,6 +69,8 @@ void call(CreateNamespaceParameters args) {
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
+    println("folioNamespaceCreateEureka installJson: $installJson")
+
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
 
