@@ -77,12 +77,12 @@ class Tenants extends Kong{
 
     logger.debug("Tenants.createTenant after EurekaTenant.getTenantFromContent(content)")
 
-    Secret sss = retrieveTenantClientSecret(tenant)
+    String sss = retrieveTenantClientSecret(tenant)
 
     logger.debug("Tenants.createTenant after retrieveTenantClientSecret")
 
     return ttt
-      .withClientSecret(retrieveTenantClientSecret(tenant))
+      .withClientSecret(Secret.fromString(sss))
   }
 
   /**
@@ -90,7 +90,7 @@ class Tenants extends Kong{
    * @param EurekaTenant object
    * @return client secret as Secret object
    */
-  Secret retrieveTenantClientSecret(EurekaTenant tenant){
+  String retrieveTenantClientSecret(EurekaTenant tenant){
     logger.debug("I'm in Tenants.retrieveTenantClientSecret")
 
     String clientSecret = ""
@@ -103,7 +103,7 @@ class Tenants extends Kong{
       logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
     }
 
-    return Secret.fromString(clientSecret)
+    return clientSecret
   }
 
   EurekaTenant getTenant(String tenantId){
