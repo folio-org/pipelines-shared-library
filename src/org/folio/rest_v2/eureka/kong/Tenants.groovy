@@ -77,6 +77,10 @@ class Tenants extends Kong{
 
     logger.debug("Tenants.createTenant after EurekaTenant.getTenantFromContent(content)")
 
+    Secret sss = retrieveTenantClientSecret(tenant)
+
+    logger.debug("Tenants.createTenant after retrieveTenantClientSecret")
+
     return ttt
       .withClientSecret(retrieveTenantClientSecret(tenant))
   }
