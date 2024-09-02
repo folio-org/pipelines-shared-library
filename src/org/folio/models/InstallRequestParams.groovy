@@ -125,17 +125,11 @@ class InstallRequestParams implements Cloneable {
    *
    * @return A string representing the query parameters.
    */
-  String toQueryString(def logger = null) {
+  String toQueryString() {
     def parameters = [:]
     def defaultValues = new InstallRequestParams()
 
     this.properties.each { property ->
-      if(logger) {
-        logger.debug("toQueryString property: ${property}")
-        logger.debug("toQueryString property.value: ${property.key}")
-        logger.debug("toQueryString property.value: ${property.value}")
-      }
-
       if (!defaultValues.properties.containsKey(property.key) || this[property.key] != defaultValues[property.key]) {
         if (property.key == 'tenantParameters' && this[property.key] != "") {
           parameters[property.key] = this[property.key].replace("tenantParameters=", "")

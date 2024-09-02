@@ -118,12 +118,16 @@ class Tenants extends Kong{
       applications: tenant.applications.values()
     ]
 
+    logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
+
     def response = restClient.post(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString(logger) ?: ''}")
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
       , [201, 400]
     )
+
+    logger.debug("enableApplicationsOnTenant after request")
 
     String contentStr = response.body.toString()
 
