@@ -110,6 +110,8 @@ class Eureka extends Base {
   }
 
   Eureka registerModulesFlow(EurekaModules modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
+    context.println("I'm in Eureka.registerModulesFlow apps: $apps")
+
     updateRegisteredModules(modules, apps)
 
     if(tenants)
@@ -133,6 +135,8 @@ class Eureka extends Base {
   Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
     List restrictionList = []
     apps.values().each {appId ->
+      context.println("I'm in Eureka.updateRegisteredModules apps.values().each: $appId")
+
       Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
         if(!restrictionList.contains(module.id))
           restrictionList.add(module.id)
