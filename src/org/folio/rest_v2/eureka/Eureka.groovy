@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import org.folio.models.EurekaModules
 import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
 import org.folio.models.Role
@@ -98,22 +99,47 @@ class Eureka extends Base {
   }
 
   Map<String, String> registerApplicationsFlow(List<String> appNames
-                                               , Map<String, String> moduleList
+                                               , EurekaModules modules
                                                , List<EurekaTenant> tenants){
 
-    Map<String, String> registeredApps = registerApplications(appNames, moduleList)
+    Map<String, String> registeredApps = registerApplications(appNames, modules.getAllModules())
 
     assignAppToTenants(tenants, registeredApps)
 
     return registeredApps
   }
 
-  Eureka registerModulesFlow(List moduleList){
+  Eureka registerModulesFlow(EurekaModules modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
+    updateRegisteredModules(modules, apps)
+
+    if(tenants)
+      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
+
     Applications.get(kong).registerModules(
       [
-        "discovery": moduleList
+        "discovery": modules.getDiscoveryList()
       ]
     )
+
+    return this
+  }
+
+  Eureka updateTenantRegisteredModules(EurekaTenant tenant, Map<String, String> apps){
+    updateRegisteredModules(tenant.getModules(), apps)
+
+    return this
+  }
+
+  Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
+    List restrictionList = []
+    apps.values().each {appId ->
+      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
+        if(!restrictionList.contains(module.id))
+          restrictionList.add(module.id)
+      }
+    }
+
+    modules.updateDiscoveryList(restrictionList)
 
     return this
   }
