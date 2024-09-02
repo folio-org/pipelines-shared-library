@@ -89,9 +89,9 @@ String getSsmParameterValue(String awsRegion, String awsParameterName, boolean w
 
   println("I'm in awscli.getSsmParameterValue secret")
 
-  return "blabalbala"
+//  return "blabalbala"
 
-//  return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text ${withDecryption ? '--with-decryption' : ''}", returnStdout: true).trim()
+  return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text ${withDecryption ? '--with-decryption' : ''}", returnStdout: true).trim()
 }
 
 
