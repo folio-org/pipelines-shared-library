@@ -127,12 +127,16 @@ void call(CreateNamespaceParameters args) {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
           args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules().getAllModules()
+          , namespace.getModules()
           , namespace.getTenants().values() as List<EurekaTenant>
         )
       )
 
-      eureka.registerModulesFlow(namespace.getModules().getDiscoveryList())
+      eureka.registerModulesFlow(
+              namespace.getModules()
+              , namespace.getApplications()
+              , namespace.getTenants().values() as List<EurekaTenant>
+      )
     }
 
     stage('[Helm] Deploy modules') {

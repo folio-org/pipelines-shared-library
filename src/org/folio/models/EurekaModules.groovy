@@ -34,14 +34,20 @@ class EurekaModules extends Modules {
   void setInstallJson(Object installJson) {
     super.setInstallJson(installJson)
 
-    this.mgrModules = [:]
-    this.discoveryList = []
-
     this.mgrModules = this.allModules.findAll { name, version -> name.startsWith(MGR_PREFIX) }
-    this.backendModules.collect { name, version ->
+
+    updateDiscoveryList()
+  }
+
+  void updateDiscoveryList(List restrictionList = null){
+    discoveryList = []
+
+    backendModules.each { name, version ->
       String id = "${name}-${version}"
       String location = "http://${name}:8082"
-      this.discoveryList << [id: id, name: name, version: version, location: location]
+
+      if(!(restrictionList && !restrictionList.find({ value -> value == id })))
+        discoveryList << [id: id, name: name, version: version, location: location]
     }
   }
 
