@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka.kong
 
+import org.folio.Constants
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.Tenant
 import org.folio.rest_v2.eureka.Keycloak
@@ -68,6 +69,18 @@ class Tenants extends Kong{
       ${contentStr}""")
 
     return Tenant.getTenantFromContent(content)
+  }
+
+  /**
+   * Retrieve Client Secret for the Tenant from AWS SSM parameter
+   * @param AWS SSM parameter name
+   * @return client secret as String
+   */
+  String retrieveClientSecret(String awsSsmParameterName) {
+    String awsRegion = Constants.AWS_REGION
+    awscli.withAwsClient {
+      return awscli.getSsmParameterValue(awsRegion, awsSsmParameterName)
+    }
   }
 
   Tenant getTenant(String tenantId){
