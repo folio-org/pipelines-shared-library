@@ -93,8 +93,6 @@ class Eureka extends Base {
 
       if(!(tenant instanceof EurekaTenantConsortia))
         tenant.applications.remove("app-consortia")
-
-      logger.debug("tenant.applications after : ${tenant.applications}")
     }
 
     return this
@@ -104,11 +102,7 @@ class Eureka extends Base {
                                                , EurekaModules modules
                                                , List<EurekaTenant> tenants){
 
-    logger.debug("I'm in Eureka.registerApplicationsFlow appNames: $appNames")
-
     Map<String, String> registeredApps = registerApplications(appNames, modules.getAllModules())
-
-    logger.debug("I'm in Eureka.registerApplicationsFlow registeredApps: $registeredApps")
 
     assignAppToTenants(tenants, registeredApps)
 
@@ -116,8 +110,6 @@ class Eureka extends Base {
   }
 
   Eureka registerModulesFlow(EurekaModules modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
-    logger.debug("I'm in Eureka.registerModulesFlow apps: $apps")
-
     updateRegisteredModules(modules, apps)
 
     if(tenants)
@@ -141,8 +133,6 @@ class Eureka extends Base {
   Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
     List restrictionList = []
     apps.values().each {appId ->
-      logger.debug("I'm in Eureka.updateRegisteredModules apps.values().each: $appId")
-
       Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
         if(!restrictionList.contains(module.id))
           restrictionList.add(module.id)
