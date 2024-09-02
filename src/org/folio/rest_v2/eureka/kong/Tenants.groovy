@@ -119,7 +119,7 @@ class Tenants extends Kong{
     ]
 
     def response = restClient.post(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString(logger) ?: ''}")
       , body
       , headers
       , [201, 400]
