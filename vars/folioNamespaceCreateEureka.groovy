@@ -115,10 +115,6 @@ void call(CreateNamespaceParameters args) {
         }
     }
 
-    namespace.getTenants().each {name, tenant ->
-      println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
-    }
-
 //    stage('[Helm] Deploy mgr-*') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
@@ -141,12 +137,13 @@ void call(CreateNamespaceParameters args) {
               , namespace.getApplications()
               , namespace.getTenants().values() as List<EurekaTenant>
       )
+    }
 
-      println("I'm in the folioNamespaceCreateEureka.groovy namespace.getModules() : ${namespace.getModules()}")
 
-      namespace.getTenants().each {name, tenant ->
-        println("I'm in the folioNamespaceCreateEureka.groovy $name : ${tenant.getModules()}")
-      }
+    println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
+
+    namespace.getTenants().each {name, tenant ->
+      println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
     }
 
     input(message: "We have passed")
