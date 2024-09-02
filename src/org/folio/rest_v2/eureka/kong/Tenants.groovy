@@ -84,7 +84,7 @@ class Tenants extends Kong{
 //    ttt.withClientSecret(Secret.fromString("sdfs"))
 
     return EurekaTenant.getTenantFromContent(content)
-//      .withClientSecret(retrieveTenantClientSecret(tenant))
+      .withClientSecret(Secret.fromString("dfssfs"))
   }
 
   /**
