@@ -148,8 +148,6 @@ void call(CreateNamespaceParameters args) {
       println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
     }
 
-    input(message: "We have passed")
-
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         println(namespace.getModules().getBackendModules())
@@ -180,6 +178,8 @@ void call(CreateNamespaceParameters args) {
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
+
+    input(message: "We have passed")
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
