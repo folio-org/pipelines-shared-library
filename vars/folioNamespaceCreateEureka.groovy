@@ -158,7 +158,6 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-
     println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
 
     namespace.getTenants().each {name, tenant ->
