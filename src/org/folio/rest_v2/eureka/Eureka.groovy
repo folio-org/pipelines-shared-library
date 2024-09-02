@@ -56,16 +56,10 @@ class Eureka extends Base {
    * @return client secret as Secret object
    */
   Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant){
-    logger.debug("I'm in Tenants.retrieveTenantClientSecret")
-
     String clientSecret = ""
 
     context.awscli.withAwsClient {
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
-
       clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
-
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
     }
 
     return Secret.fromString("clientSecret")
