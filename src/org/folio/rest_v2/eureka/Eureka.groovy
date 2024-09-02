@@ -38,6 +38,8 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
+    logger.debug("createTenantFlow tenant password: ${tenant.getClientSecret().getPlainText()}")
+
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
     //create tenant admin user
