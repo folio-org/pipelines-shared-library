@@ -103,7 +103,7 @@ class Tenants extends Kong{
       logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
     }
 
-    return clientSecret
+    return "clientSecret"
   }
 
   EurekaTenant getTenant(String tenantId){
