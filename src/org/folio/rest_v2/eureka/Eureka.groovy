@@ -10,7 +10,7 @@ import org.folio.rest_v2.eureka.kong.*
 class Eureka extends Base {
 
   static List<String> CURRENT_APPLICATIONS = [
-    "app-platform-complete"
+    "app-platform-full"
     , "app-consortia"
   ]
 
