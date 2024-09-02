@@ -89,7 +89,7 @@ class Eureka extends Base {
 
   Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps){
     tenants.each {tenant ->
-      tenant.applications = registeredApps
+      tenant.applications = registeredApps.clone() as Map
 
       if(tenant instanceof EurekaTenantConsortia)
         tenant.applications.remove("app-consortia")
