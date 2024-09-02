@@ -49,7 +49,6 @@ class Tenants extends Kong{
           ${contentStr}""")
 
         EurekaTenant existedTenant = getTenantByName(tenant.tenantId)
-//          .withClientSecret(retrieveTenantClientSecret(tenant))
 
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.uuid}")
 
@@ -71,41 +70,7 @@ class Tenants extends Kong{
       Response content:
       ${contentStr}""")
 
-    logger.debug("Tenants.createTenant before EurekaTenant.getTenantFromContent(content)")
-
-//    EurekaTenant ttt = EurekaTenant.getTenantFromContent(content)
-
-    logger.debug("Tenants.createTenant after EurekaTenant.getTenantFromContent(content)")
-
-//    String sss = retrieveTenantClientSecret(tenant)
-
-    logger.debug("Tenants.createTenant after retrieveTenantClientSecret")
-
-//    ttt.withClientSecret(Secret.fromString("sdfs"))
-
     return EurekaTenant.getTenantFromContent(content)
-//      .withClientSecret(Secret.fromString("dfssfs"))
-  }
-
-  /**
-   * Retrieve Client Secret for the Tenant from AWS SSM parameter
-   * @param EurekaTenant object
-   * @return client secret as Secret object
-   */
-  String retrieveTenantClientSecret(EurekaTenant tenant){
-    logger.debug("I'm in Tenants.retrieveTenantClientSecret")
-
-    String clientSecret = ""
-
-    context.awscli.withAwsClient {
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
-
-      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
-
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
-    }
-
-    return "clientSecret"
   }
 
   EurekaTenant getTenant(String tenantId){

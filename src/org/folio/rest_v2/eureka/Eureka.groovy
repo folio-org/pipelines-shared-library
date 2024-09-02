@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.EurekaModules
 import org.folio.models.EurekaTenant
@@ -34,18 +35,8 @@ class Eureka extends Base {
   Eureka createTenantFlow(EurekaTenant tenant) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
-    String clientSecret = ""
-
-    context.awscli.withAwsClient {
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
-
-      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
-
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
-    }
-
     tenant.withUUID(createdTenant.getUuid())
-      .withClientSecret(createdTenant.getClientSecret())
+      .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
@@ -56,6 +47,28 @@ class Eureka extends Base {
       , Permissions.get(kong).getCapabilitySetsId(tenant))
 
     return this
+  }
+
+
+  /**
+   * Retrieve Client Secret for the Tenant from AWS SSM parameter
+   * @param EurekaTenant object
+   * @return client secret as Secret object
+   */
+  Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant){
+    logger.debug("I'm in Tenants.retrieveTenantClientSecret")
+
+    String clientSecret = ""
+
+    context.awscli.withAwsClient {
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
+
+      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
+
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
+    }
+
+    return Secret.fromString("clientSecret")
   }
 
   Eureka createUserFlow(EurekaTenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets) {
