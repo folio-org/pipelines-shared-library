@@ -49,20 +49,17 @@ class Eureka extends Base {
     return this
   }
 
-
   /**
    * Retrieve Client Secret for the Tenant from AWS SSM parameter
    * @param EurekaTenant object
    * @return client secret as Secret object
    */
   Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant){
-    String clientSecret = ""
-
     context.awscli.withAwsClient {
-      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
+      return Secret.fromString(
+              context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName, true) as String
+      )
     }
-
-    return Secret.fromString("clientSecret")
   }
 
   Eureka createUserFlow(EurekaTenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets) {
