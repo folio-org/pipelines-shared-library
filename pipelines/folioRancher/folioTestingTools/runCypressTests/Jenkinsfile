@@ -52,7 +52,7 @@ Map cypressFlowParameters = [
   numberOfWorkers         : params.NUMBER_OF_WORKERS,
   agent                   : params.AGENT,
   runType                 : params.RUN_TYPE,
-  useReportPortal         : params.SEND_TO_REPORT_PORTAL,
+  useReportPortal         : params.SEND_TO_REPORT_PORTAL.toString(),
   runSanityCheck          : params.RUN_SANITY_CHECK.toString()
 ]
 
