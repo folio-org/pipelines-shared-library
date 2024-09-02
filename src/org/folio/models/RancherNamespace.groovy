@@ -80,6 +80,10 @@ class RancherNamespace {
     this.enableConsortia = enableConsortia
   }
 
+  boolean getEnableConsortia() {
+    return enableConsortia
+  }
+
   /**
    * Adds a tenant to the RancherNamespace.
    * @param tenant the OkapiTenant to add
