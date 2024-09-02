@@ -91,12 +91,6 @@ class Eureka extends Base {
     tenants.each {tenant ->
       tenant.applications = registeredApps.clone() as Map
 
-      logger.debug("I'm in the Eureka.assignAppToTenants tenant: $tenant.tenantId")
-      logger.debug("tenant instanceof EurekaTenantConsortia : ${tenant instanceof EurekaTenantConsortia}")
-      logger.debug("tenant instanceof EurekaTenantConsortia : ${!(tenant instanceof EurekaTenantConsortia)}")
-      logger.debug("tenant.applications before : ${tenant.applications}")
-
-
       if(!(tenant instanceof EurekaTenantConsortia))
         tenant.applications.remove("app-consortia")
 
