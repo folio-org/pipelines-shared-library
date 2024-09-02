@@ -192,6 +192,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    stage('[Wait] for modules initialization') {
+      sleep time: 3, unit: 'MINUTES' // modules init timeout | MUST HAVE
+    }
+
     stage('[Rest] Initialize') {
 //      retry(2) {
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
