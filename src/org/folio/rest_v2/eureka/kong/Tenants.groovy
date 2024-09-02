@@ -49,7 +49,7 @@ class Tenants extends Kong{
           ${contentStr}""")
 
         EurekaTenant existedTenant = getTenantByName(tenant.tenantId)
-          .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
+          .withClientSecret(retrieveTenantClientSecret(tenant))
 
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.uuid}")
 
@@ -71,7 +71,11 @@ class Tenants extends Kong{
       Response content:
       ${contentStr}""")
 
-    return EurekaTenant.getTenantFromContent(content)
+    logger.debug("Tenants.createTenant before EurekaTenant.getTenantFromContent(content)")
+
+    EurekaTenant ttt = EurekaTenant.getTenantFromContent(content)
+
+    return ttt
       .withClientSecret(retrieveTenantClientSecret(tenant))
   }
 
@@ -81,6 +85,7 @@ class Tenants extends Kong{
    * @return client secret as Secret object
    */
   Secret retrieveTenantClientSecret(EurekaTenant tenant){
+    logger.debug("I'm in Tenants.retrieveTenantClientSecret")
     context.awscli.withAwsClient {
       logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
 
