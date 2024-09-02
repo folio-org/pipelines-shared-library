@@ -49,7 +49,6 @@ class Tenants extends Kong{
           ${contentStr}""")
 
         EurekaTenant existedTenant = getTenantByName(tenant.tenantId)
-          .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
 
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.uuid}")
 
@@ -72,19 +71,6 @@ class Tenants extends Kong{
       ${contentStr}""")
 
     return EurekaTenant.getTenantFromContent(content)
-      .withClientSecret(retrieveTenantClientSecret(tenant))
-  }
-
-  /**
-   * Retrieve Client Secret for the Tenant from AWS SSM parameter
-   * @param EurekaTenant object
-   * @return client secret as Secret object
-   */
-  Secret retrieveTenantClientSecret(EurekaTenant tenant){
-    context.awscli.withAwsClient {
-      String clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
-      return Secret.fromString(clientSecret)
-    }
   }
 
   EurekaTenant getTenant(String tenantId){
