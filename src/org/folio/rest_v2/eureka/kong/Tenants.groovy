@@ -49,7 +49,7 @@ class Tenants extends Kong{
           ${contentStr}""")
 
         EurekaTenant existedTenant = getTenantByName(tenant.tenantId)
-          .withClientSecret(retrieveTenantClientSecret(tenant))
+//          .withClientSecret(retrieveTenantClientSecret(tenant))
 
         logger.info("Continue with existing Eureka tenant id -> ${existedTenant.uuid}")
 
@@ -83,18 +83,8 @@ class Tenants extends Kong{
 
 //    ttt.withClientSecret(Secret.fromString("sdfs"))
 
-    String clientSecret = ""
-
-    context.awscli.withAwsClient {
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
-
-      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
-
-      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
-    }
-
     return EurekaTenant.getTenantFromContent(content)
-      .withClientSecret(Secret.fromString("dfssfs"))
+//      .withClientSecret(Secret.fromString("dfssfs"))
   }
 
   /**

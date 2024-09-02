@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import org.folio.Constants
 import org.folio.models.EurekaModules
 import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
@@ -32,6 +33,16 @@ class Eureka extends Base {
 
   Eureka createTenantFlow(EurekaTenant tenant) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
+
+    String clientSecret = ""
+
+    context.awscli.withAwsClient {
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
+
+      clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
+
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
+    }
 
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(createdTenant.getClientSecret())
