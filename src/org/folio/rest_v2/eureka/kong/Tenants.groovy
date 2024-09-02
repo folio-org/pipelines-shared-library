@@ -118,6 +118,7 @@ class Tenants extends Kong{
       applications: tenant.applications.values()
     ]
 
+    logger.debug("enableApplicationsOnTenant I'm in")
     logger.debug("enableApplicationsOnTenant tenant.getInstallRequestParams()?.toQueryString() ${tenant.installRequestParams.toQueryString()}")
 
     def response = restClient.post(
