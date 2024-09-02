@@ -83,6 +83,7 @@ void updateSsmParameter(String awsRegion, String awsParameterName, String latest
  * @return AWS SSM parameter value as a String
  */
 String getSsmParameterValue(String awsRegion, String awsParameterName, boolean withDecryption = false) {
+  println("I'm in awscli.getSsmParameterValue")
   return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text ${withDecryption ? '--with-decryption' : ''}", returnStdout: true).trim()
 }
 
