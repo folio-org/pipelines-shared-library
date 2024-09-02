@@ -155,7 +155,7 @@ class InstallRequestParams implements Cloneable {
    * @return The encoded string.
    * @throws RuntimeException If the encoding operation fails.
    */
-  private static String encode(String value) {
+  protected static String encode(String value) {
     try {
       return URLEncoder.encode(value, "UTF-8")
     } catch (UnsupportedEncodingException e) {
@@ -170,7 +170,7 @@ class InstallRequestParams implements Cloneable {
    * @return The decoded string.
    * @throws RuntimeException If the decoding operation fails.
    */
-  private static String decode(String value) {
+  protected static String decode(String value) {
     try {
       return URLDecoder.decode(value, "UTF-8")
     } catch (UnsupportedEncodingException e) {
