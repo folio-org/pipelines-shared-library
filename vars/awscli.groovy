@@ -82,7 +82,7 @@ void updateSsmParameter(String awsRegion, String awsParameterName, String latest
  * @param awsParameterName parameter where we are saving the commit hash value
  */
 String getSsmParameterValue(String awsRegion, String awsParameterName) {
-  return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text --with-decryption", returnStdout: true).trim()
+  return sh(script: "aws ssm get-parameter --name ${awsParameterName} --region ${awsRegion} --query 'Parameter.Value' --output text", returnStdout: true).trim()
 }
 
 
