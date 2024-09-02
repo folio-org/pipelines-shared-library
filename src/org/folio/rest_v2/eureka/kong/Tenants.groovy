@@ -71,10 +71,10 @@ class Tenants extends Kong{
       ${contentStr}""")
 
     return EurekaTenant.getTenantFromContent(content)
-      .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
+      .withClientSecret(retrieveTenantClientSecret(tenant))
   }
 
-  Secret retrieveTenantClientSecret(String tenantId){
+  Secret retrieveTenantClientSecret(EurekaTenant tenant){
     String userInput = context.input(
       id: 'userInput'
       , message: 'Please provide tenant Keycloak client password:'
