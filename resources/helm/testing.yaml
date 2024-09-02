@@ -573,6 +573,8 @@ mod-agreements:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
+  - name: CONCURRENT_JOBS_GLOBAL
+    value: '5'
   integrations:
     db:
       enabled: true
@@ -728,6 +730,18 @@ mod-circulation:
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+mod-circulation-bff:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 384Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR

@@ -1,7 +1,7 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.Tenant
+import org.folio.models.EurekaTenant
 import org.folio.models.UserGroup
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
@@ -17,11 +17,11 @@ class UserGroups extends Kong{
   }
 
   UserGroups(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
-  UserGroup createUserGroup(Tenant tenant, UserGroup group) {
-    logger.info("Creating user group for ${tenant.tenantName}...")
+  UserGroup createUserGroup(EurekaTenant tenant, UserGroup group) {
+    logger.info("Creating user group for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
@@ -39,20 +39,20 @@ class UserGroups extends Kong{
     return UserGroup.getGroupFromContent(content)
   }
 
-  UserGroup getUserGroup(Tenant tenant, String groupId){
+  UserGroup getUserGroup(EurekaTenant tenant, String groupId){
     return getUserGroups(tenant, groupId)[0]
   }
 
-  UserGroup getUserGroupByName(Tenant tenant, String name){
+  UserGroup getUserGroupByName(EurekaTenant tenant, String name){
     return getUserGroups(tenant, "", "name==${name}")[0]
   }
 
-  boolean isUserGroupExist(Tenant tenant, String groupId) {
+  boolean isUserGroupExist(EurekaTenant tenant, String groupId) {
     return getUserGroup(tenant, groupId) ? true : false
   }
 
-  List<UserGroup> getUserGroups(Tenant tenant, String groupId = "", String query = ""){
-    logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantName}...")
+  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = ""){
+    logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
@@ -68,7 +68,7 @@ class UserGroups extends Kong{
       }
       return groups
     } else {
-      logger.debug("Buy the url ${url} user group(s) not found")
+      logger.debug("By the url ${url} user group(s) not found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("User group(s) not found")
     }

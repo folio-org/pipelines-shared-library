@@ -92,6 +92,15 @@ class InstallRequestParams implements Cloneable {
     addTenantParameter(key, String.valueOf(value))
   }
 
+  InstallRequestParams doLoadReference(boolean is){
+    addTenantParameter("loadReference", is)
+    return this
+  }
+
+  InstallRequestParams doLoadSample(boolean is){
+    addTenantParameter("loadSample", is)
+    return this
+  }
 
   /**
    * Removes a tenant parameter.

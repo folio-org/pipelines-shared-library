@@ -1,11 +1,13 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /**
  * OkapiTenantConsortia class is a subclass of OkapiTenant
  * representing a tenant configuration specifically for consortia.
  * It provides chainable setter methods following builder pattern for ease of use.
  */
-class OkapiTenantConsortia extends OkapiTenant {
+class EurekaTenantConsortia extends EurekaTenant {
   /** Flag indicating if the tenant is the central consortia tenant. */
   boolean isCentralConsortiaTenant
 
@@ -18,14 +20,14 @@ class OkapiTenantConsortia extends OkapiTenant {
   /** Code associated with the tenant. */
   String tenantCode
 
-  OkapiTenantConsortia(){}
+  EurekaTenantConsortia(){}
 
   /**
    * Constructor that sets the tenantId, initializes modules, and sets the isCentralConsortiaTenant flag.
    * @param tenantId Tenant's identifier.
    * @param isCentralConsortiaTenant Boolean flag indicating if the tenant is the central consortia tenant.
    */
-  OkapiTenantConsortia(String tenantId, boolean isCentralConsortiaTenant = false) {
+  EurekaTenantConsortia(String tenantId, boolean isCentralConsortiaTenant = false) {
     super(tenantId)
     this.isCentralConsortiaTenant = isCentralConsortiaTenant
   }
@@ -35,7 +37,7 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @param tenantCode Code associated with the tenant.
    * @return The OkapiTenantConsortia object.
    */
-  OkapiTenantConsortia withTenantCode(String tenantCode) {
+  EurekaTenantConsortia withTenantCode(String tenantCode) {
     this.tenantCode = tenantCode
     return this
   }
@@ -45,7 +47,7 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @param consortiaName Name of the consortia.
    * @return The OkapiTenantConsortia object.
    */
-  OkapiTenantConsortia withConsortiaName(String consortiaName) {
+  EurekaTenantConsortia withConsortiaName(String consortiaName) {
     this.consortiaName = consortiaName
     return this
   }
@@ -56,11 +58,8 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenantConsortia object.
    */
-  OkapiTenantConsortia withInstallJson(Object installJson) {
+  EurekaTenantConsortia withInstallJson(Object installJson) {
     this.getModules().setInstallJson(installJson)
-    if (!this.isCentralConsortiaTenant) {
-      this.getModules().removeModule('folio_consortia-settings')
-    }
     return this
   }
 
@@ -70,11 +69,30 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @param installRequestParams The InstallRequestParams object.
    * @return The OkapiTenantConsortia object.
    */
-  OkapiTenantConsortia withInstallRequestParams(InstallRequestParams installRequestParams) {
+  EurekaTenantConsortia withInstallRequestParams(InstallRequestParams installRequestParams) {
     super.withInstallRequestParams(installRequestParams)
     if (!this.isCentralConsortiaTenant) {
       this.getInstallRequestParams().removeTenantParameter("loadSample")
     }
     return this
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "EurekaTenantConsortia",
+      "uuid": "$uuid"
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "isCentralConsortiaTenant" : "$isCentralConsortiaTenant",
+      "consortiaName": "$consortiaName",
+      "consortiaUUID": "$consortiaUuid",
+      "tenantCode": "$tenantCode",
+      "applications": "$applications",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }

@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.EurekaNamespace
 import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 
@@ -147,29 +148,7 @@ static String valuesPathOption(String path) {
 String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
-  String repository = ""
-
-  if (customModule || moduleName == 'ui-bundle') {
-    repository = Constants.ECR_FOLIO_REPOSITORY
-  } else {
-    switch (moduleVersion) {
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
-        repository = "folioorg"
-        break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
-        repository = "folioci"
-        break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
-        repository = Constants.ECR_FOLIO_REPOSITORY
-        break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
-        repository = Constants.ECR_FOLIO_REPOSITORY
-        break
-      default:
-        repository = "folioci"
-        break
-    }
-  }
+  String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
@@ -186,7 +165,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  if (ns.enableEureka) {
+  if (ns instanceof EurekaNamespace) {
+    String sidecarRepository = determineModulePlacement(
+      "folio-module-sidecar"
+      , ns.getModules().allModules['folio-module-sidecar']
+    )
+
     switch (moduleName) {
       case ~/mgr-.*$/:
         moduleConfig['integrations'] += [eureka: [enabled       : true,
@@ -198,10 +182,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
-
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -213,9 +195,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -225,9 +206,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar",
-                                         tag  : ns.getModules().allModules['folio-module-sidecar']]]]
-
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -315,4 +295,32 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   writeYaml file: valuesFilePath, data: moduleConfig, overwrite: true
   return valuesFilePath
+}
+
+static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
+  String repository = ""
+
+  if (customModule || moduleName == 'ui-bundle') {
+    repository = Constants.ECR_FOLIO_REPOSITORY
+  } else {
+    switch (moduleVersion) {
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
+        repository = "folioorg"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
+        repository = "folioci"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      default:
+        repository = "folioci"
+        break
+    }
+  }
+
+  return repository
 }
