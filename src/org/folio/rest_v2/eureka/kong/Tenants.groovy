@@ -78,8 +78,8 @@ class Tenants extends Kong{
    */
   String retrieveClientSecret(String awsSsmParameterName) {
     String awsRegion = Constants.AWS_REGION
-    awscli.withAwsClient {
-      return awscli.getSsmParameterValue(awsRegion, awsSsmParameterName)
+    context.awscli.withAwsClient {
+      return context.awscli.getSsmParameterValue(awsRegion, awsSsmParameterName)
     }
   }
 
