@@ -152,9 +152,9 @@ void call(CreateNamespaceParameters args) {
             , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
           ])
         else
-          [
+          tenant.setApplications([
             "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
-          ]
+          ])
       }
     }
 
