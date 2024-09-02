@@ -25,7 +25,7 @@ class Eureka extends Base {
   }
 
   Eureka(Kong kong) {
-    super(kong.context, kong.restClient.debugValue())
+    super(kong.context, kong.getDebug())
 
     this.kong = kong
   }
@@ -79,7 +79,7 @@ class Eureka extends Base {
     Map<String, String> apps = [:]
 
     appNames.each {appName ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList)
+      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
     }

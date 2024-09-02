@@ -18,7 +18,7 @@ class Indexes extends Kong{
   }
 
   Indexes(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   String runIndex(EurekaTenant tenant, Index index) {

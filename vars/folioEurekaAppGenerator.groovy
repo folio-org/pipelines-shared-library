@@ -6,7 +6,7 @@ import org.folio.utilities.Logger
 Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
 
-def generateApplicationDescriptor(String appName, Map<String, String> moduleList) {
+def generateApplicationDescriptor(String appName, Map<String, String> moduleList, boolean debug = false) {
   sh(script: "git clone -b master --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
   dir(appName) {
@@ -22,8 +22,11 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
     dir('target') {
       sh(script: "ls -la")
 
-      logger.debug("Generated application:")
-      logger.info(readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim()))
+      if(debug)
+        logger.debug(""""Generated application:
+          ${readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())}
+          """
+        )
 
       return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
     }

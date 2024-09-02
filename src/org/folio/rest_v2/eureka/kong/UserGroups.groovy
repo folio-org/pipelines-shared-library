@@ -17,7 +17,7 @@ class UserGroups extends Kong{
   }
 
   UserGroups(Kong kong){
-    this(kong.context, kong.kongUrl, kong.keycloak, kong.restClient.debugValue())
+    this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
   UserGroup createUserGroup(EurekaTenant tenant, UserGroup group) {
