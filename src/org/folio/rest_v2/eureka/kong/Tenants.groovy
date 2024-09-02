@@ -82,7 +82,12 @@ class Tenants extends Kong{
    */
   Secret retrieveTenantClientSecret(EurekaTenant tenant){
     context.awscli.withAwsClient {
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret before awscli.getSsmParameterValue")
+
       String clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
+
+      logger.debug("I'm in Tenants.retrieveTenantClientSecret after awscli.getSsmParameterValue clientSecret: $clientSecret")
+
       return Secret.fromString(clientSecret)
     }
   }
