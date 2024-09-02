@@ -1,0 +1,72 @@
+#!groovy
+
+import org.folio.Constants
+import org.folio.models.FolioModule
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.rest_v2.Main
+import org.folio.utilities.GitHubClient
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    /**
+     *  Placeholder for job parameters
+     *  */
+    string(name: 'IMAGE_TAG', defaultValue: "alpine-jdk17-${BUILD_NUMBER}", description: 'Agent Image Tag'),
+    string(name: 'TERRAFORM_VER', defaultValue: '1.6.0', description: 'Terraform version'),
+    string(name: 'HELM_VER', defaultValue: '3.15.4', description: 'Helm version'),
+    string(name: 'KUBECTL_VER', defaultValue: 'v1.28.0', description: 'Kubectl version'),
+    string(name: 'KAFKA_VER', defaultValue: '3.8.0', description: 'Kafka version'),
+
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+def dockerfilePath = './scripts/docker/jenkinsAgent/'
+
+
+ansiColor('xterm') {
+  node('') {
+    try {
+        stage ('[Git] Checkout source') {
+          checkout scmGit(
+              branches: [[name: '*/RANCHER-1374']],
+              extensions: [],
+              userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']])
+        }
+
+
+      stage('[Docker] Build and push') {
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(dockerfilePath) {
+            def image = docker.build("folio-jenkins-agent:${IMAGE_TAG}", "--build-arg terraform_ver=${TERRAFORM_VER} --build-arg helm_ver=${HELM_VER} --build-arg kubectl_ver=${KUBECTL_VER} --build-arg kafka_ver=${KAFKA_VER} --no-cache=true --pull=true ." )
+            image.push()
+            image.push('latest')
+          }
+        }
+      }
+    } catch (e) {
+      logger.error("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.warning("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
