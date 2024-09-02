@@ -39,7 +39,7 @@ class RancherNamespace {
 
   boolean enableRwSplit = false
 
-  boolean enableConsortia = false
+  public boolean enableConsortia = false
 
   boolean enableSplitFiles = false
 
@@ -78,6 +78,10 @@ class RancherNamespace {
     this.modules.addModules([this.modules.getModuleVersion('mod-consortia', releaseVersion),
                              this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
     this.enableConsortia = enableConsortia
+  }
+
+  boolean getEnableConsortia() {
+    return enableConsortia
   }
 
   /**
