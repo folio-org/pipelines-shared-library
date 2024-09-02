@@ -182,8 +182,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [ image: "folioci/folio-module-sidecar",
+                                          tag  : "1.1.0-SNAPSHOT.91" ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -195,8 +195,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [ image: "folioci/folio-module-sidecar",
+                                          tag  : "1.1.0-SNAPSHOT.91" ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -206,8 +206,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [ image: "folioci/folio-module-sidecar",
+                                          tag  : "1.1.0-SNAPSHOT.91" ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
