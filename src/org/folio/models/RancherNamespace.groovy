@@ -39,7 +39,7 @@ class RancherNamespace {
 
   boolean enableRwSplit = false
 
-  public boolean enableConsortia = false
+  boolean enableConsortia = false
 
   boolean enableSplitFiles = false
 
