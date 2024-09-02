@@ -22,6 +22,8 @@ class EurekaTenant extends OkapiTenant {
    */
   Secret clientSecret
 
+  String secretStoragePathName
+
   /** Modules that are installed for the tenant. */
   EurekaModules modules = new EurekaModules()
 
@@ -49,6 +51,16 @@ class EurekaTenant extends OkapiTenant {
 
   EurekaTenant withClientSecret(Secret secret){
     clientSecret = secret
+    return this
+  }
+
+  EurekaTenant withSecretStoragePathName(String path){
+    secretStoragePathName = path
+    return this
+  }
+
+  EurekaTenant withAWSSecretStoragePathName(String namespace){
+    secretStoragePathName = "${nameSpace}_${tenantId}_${clientId}"
     return this
   }
 

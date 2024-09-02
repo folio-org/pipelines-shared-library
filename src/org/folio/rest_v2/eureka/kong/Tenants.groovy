@@ -5,6 +5,7 @@ import hudson.util.Secret
 import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
+import org.folio.Constants
 
 class Tenants extends Kong{
 
@@ -71,17 +72,19 @@ class Tenants extends Kong{
       ${contentStr}""")
 
     return EurekaTenant.getTenantFromContent(content)
-      .withClientSecret(retrieveTenantClientSecret(tenant.tenantId))
+      .withClientSecret(retrieveTenantClientSecret(tenant))
   }
 
-  Secret retrieveTenantClientSecret(String tenantId){
-    String userInput = context.input(
-      id: 'userInput'
-      , message: 'Please provide tenant Keycloak client password:'
-      , parameters: [context.string(name: 'InputValue', defaultValue: '', description: 'Keycloak client password')]
-    )
-
-    return Secret.fromString(userInput)
+  /**
+   * Retrieve Client Secret for the Tenant from AWS SSM parameter
+   * @param EurekaTenant object
+   * @return client secret as Secret object
+   */
+  Secret retrieveTenantClientSecret(EurekaTenant tenant){
+    context.awscli.withAwsClient {
+      String clientSecret = context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName)
+      return Secret.fromString(clientSecret)
+    }
   }
 
   EurekaTenant getTenant(String tenantId){
