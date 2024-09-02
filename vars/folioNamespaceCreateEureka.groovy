@@ -136,17 +136,17 @@ void call(CreateNamespaceParameters args) {
         )
       )
 
-      println("I'm in the folioNamespaceCreateEureka.groovy namespace.getModules() : ${namespace.getModules()}")
-
-      namespace.getTenants().each {name, tenant ->
-        println("I'm in the folioNamespaceCreateEureka.groovy $name : ${tenant.getModules()}")
-      }
-
       eureka.registerModulesFlow(
               namespace.getModules()
               , namespace.getApplications()
               , namespace.getTenants().values() as List<EurekaTenant>
       )
+
+      println("I'm in the folioNamespaceCreateEureka.groovy namespace.getModules() : ${namespace.getModules()}")
+
+      namespace.getTenants().each {name, tenant ->
+        println("I'm in the folioNamespaceCreateEureka.groovy $name : ${tenant.getModules()}")
+      }
     }
 
     input(message: "We have passed")
