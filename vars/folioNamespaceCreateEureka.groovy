@@ -125,7 +125,7 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-//    stage('[Rest] Preinstall') {
+    stage('[Rest] Preinstall') {
 //      namespace.withApplications(
 //        eureka.registerApplicationsFlow(
 //          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
@@ -139,7 +139,24 @@ void call(CreateNamespaceParameters args) {
 //              , namespace.getApplications()
 //              , namespace.getTenants().values() as List<EurekaTenant>
 //      )
-//    }
+
+      namespace.withApplications([
+        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
+        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+      ])
+
+      namespace.getTenants().values().each {tenant ->
+        if(tenant instanceof EurekaTenantConsortia)
+          tenant.setApplications([
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
+            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+          ])
+        else
+          [
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
+          ]
+      }
+    }
 
 
     println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
