@@ -1,6 +1,5 @@
 #!groovy
 import hudson.util.Secret
-import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 //@Library('pipelines-shared-library') _
@@ -23,8 +22,9 @@ properties([
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
-    choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week"]),
+    choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week", "evrk"]),
     booleanParam(name: 'RUN_SANITY_CHECK', defaultValue: true, description: 'Set to true, to run sanity check before main tests execution'),
+    booleanParam(name: 'SEND_TO_REPORT_PORTAL', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     folioParameters.cypress_agent(),
     folioParameters.refreshParameters()
   ])
@@ -52,7 +52,7 @@ Map cypressFlowParameters = [
   numberOfWorkers         : params.NUMBER_OF_WORKERS,
   agent                   : params.AGENT,
   runType                 : params.RUN_TYPE,
-  useReportPortal         : "false",
+  useReportPortal         : params.SEND_TO_REPORT_PORTAL,
   runSanityCheck          : params.RUN_SANITY_CHECK.toString()
 ]
 
