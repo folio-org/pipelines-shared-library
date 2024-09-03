@@ -134,7 +134,7 @@ class Modules {
       this.installJson.each { it ->
         context.println("I'm inside Modules.removeModule moduleName: $moduleName module: $it")
 
-        if(it !=~ /${moduleName}-\d+\..*/)
+        if(!(it =~ /${moduleName}-\d+\..*/))
           context.println("false")
         else
           context.println("true")
@@ -143,7 +143,7 @@ class Modules {
 
     context.println("this.installJson before moduleName: $moduleName installJson: $installJson")
 
-    this.installJson = this.installJson.findAll { it !=~ /${moduleName}-\d+\..*/ }
+    this.installJson = this.installJson.findAll { !(it =~ /${moduleName}-\d+\..*/) }
 
     context.println("this.installJson after moduleName: $moduleName installJson: $installJson")
 
