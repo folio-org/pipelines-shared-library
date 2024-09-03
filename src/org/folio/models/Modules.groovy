@@ -129,9 +129,28 @@ class Modules {
    *
    * @param moduleName the name of the module to be removed.
    */
-  void removeModule(String moduleName) {
+  void removeModule(String moduleName, def context = null) {
+    if(context) {
+      this.installJson.findAll { it.id?.startsWith(moduleName) != true }
+      this.installJson.each { it ->
+        context.println("I'm inside Modules.removeModule moduleName: $moduleName module: $it")
+
+        if(it =~ /${moduleName}-\d+\..*/)
+          context.println("true")
+        else
+          context.println("false")
+      }
+    }
+
+    context.println("this.installJson before moduleName: $moduleName installJson: $installJson")
+
     this.installJson = this.installJson.findAll { it.id?.startsWith(moduleName) != true }
+
+    context.println("this.installJson after moduleName: $moduleName installJson: $installJson")
+
     this.setInstallJson(this.installJson)
+
+    context.println("this.installJson after moduleName: $moduleName modules: ${this}")
   }
 
   /**

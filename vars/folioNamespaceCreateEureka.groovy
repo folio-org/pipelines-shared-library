@@ -91,7 +91,7 @@ void call(CreateNamespaceParameters args) {
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
-//    namespace.getModules().removeModule('mod-login')
+    namespace.getModules().removeModule('mod-login', this)
 //    println("folioNamespaceCreateEureka namespace.getModules().removeModule('mod-login'): ${namespace.getModules()}")
 //    namespace.getModules().removeModule('mod-authtoken')
 //    namespace.getModules().removeModule('edge-inventory')
@@ -196,7 +196,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Wait] for modules initialization') {
-      sleep time: 3, unit: 'MINUTES' // modules init timeout | MUST HAVE
+      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
     }
 
     stage('[Rest] Initialize') {
