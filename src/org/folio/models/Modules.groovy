@@ -131,20 +131,19 @@ class Modules {
    */
   void removeModule(String moduleName, def context = null) {
     if(context) {
-      this.installJson.findAll { it.id?.startsWith(moduleName) != true }
       this.installJson.each { it ->
         context.println("I'm inside Modules.removeModule moduleName: $moduleName module: $it")
 
-        if(it =~ /${moduleName}-\d+\..*/)
-          context.println("true")
-        else
+        if(it !=~ /${moduleName}-\d+\..*/)
           context.println("false")
+        else
+          context.println("true")
       }
     }
 
     context.println("this.installJson before moduleName: $moduleName installJson: $installJson")
 
-    this.installJson = this.installJson.findAll { it.id?.startsWith(moduleName) != true }
+    this.installJson = this.installJson.findAll { it !=~ /${moduleName}-\d+\..*/ }
 
     context.println("this.installJson after moduleName: $moduleName installJson: $installJson")
 
