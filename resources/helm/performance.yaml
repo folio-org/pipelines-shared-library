@@ -761,7 +761,18 @@ mod-courses:
     maxReplicas: 4
     targetMemoryUtilizationPercentage: 70
 mod-data-export:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: EXPORT_TMP_STORAGE
+      value: /tmp
+  volumeClaims:
+    extendedtmp:
+      enabled: true
+  extraVolumes:
+    extendedtmp:
+      enabled: true
+  extraVolumeMounts:
+    extendedtmp:
+      enabled: true
   integrations:
     db:
       enabled: true
