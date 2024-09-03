@@ -1,3 +1,9 @@
+resource "random_integer" "node_port_keycloak" {
+  max   = 32766
+  min   = 30001
+  count = var.eureka ? 1 : 0
+}
+
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
     KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
@@ -160,7 +166,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
     alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-port: "8080"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port_keycloak[0].result)}"
 EOF
   ]
 }
