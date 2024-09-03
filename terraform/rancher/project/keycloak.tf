@@ -133,7 +133,7 @@ service:
   http:
     enabled: true
   ports:
-    http: 80
+    http: 8080
 
 networkPolicy:
   enabled: false
@@ -159,8 +159,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: "${local.group_name}"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
-    alb.ingress.kubernetes.io/healthcheck-path: /health/ready
-    alb.ingress.kubernetes.io/healthcheck-port: "8080"
+    alb.ingress.kubernetes.io/healthcheck-path: /
 EOF
   ]
 }
