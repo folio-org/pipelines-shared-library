@@ -206,12 +206,12 @@ void call(CreateNamespaceParameters args) {
         kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
         kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
 
-        sleep 600
+        sleep time: 30, unit: 'SECONDS'
 
         kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
         kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
 
-        sleep 600
+        sleep time: 30, unit: 'SECONDS'
       }
     }
 
