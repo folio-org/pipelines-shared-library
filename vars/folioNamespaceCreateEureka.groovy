@@ -194,23 +194,25 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    stage('[Wait] for modules initialization') {
+      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
+    }
+
     //TODO: Temporary solution due to issue with mod-agreements
     stage('[Restart] mod-agreements') {
       folioHelm.withK8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getNamespaceName())
+        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
 
         kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
         kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
 
-        sleep 10
+        sleep 600
 
         kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
         kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-      }
-    }
 
-    stage('[Wait] for modules initialization') {
-      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
+        sleep 600
+      }
     }
 
     stage('[Rest] Initialize') {
