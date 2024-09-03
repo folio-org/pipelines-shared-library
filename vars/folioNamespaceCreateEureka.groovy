@@ -200,9 +200,9 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-//      retry(2) {
+      retry(2) {
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-//      }
+      }
     }
 
     input(message: "We have passed")
