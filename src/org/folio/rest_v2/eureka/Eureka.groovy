@@ -11,13 +11,13 @@ import org.folio.rest_v2.eureka.kong.*
 
 class Eureka extends Base {
 
-  static List<String> CURRENT_APPLICATIONS = [
-    "app-platform-full"
-    , "app-consortia"
+  static Map<String, String> CURRENT_APPLICATIONS = [
+    "app-platform-full": "snapshot"
+    , "app-consortia": "master"
   ]
 
-  static List<String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
-    "app-platform-full"
+  static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
+    "app-platform-full": "snapshot"
   ]
 
   private Kong kong
@@ -90,11 +90,11 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(List<String> appNames, Map<String, String> moduleList){
+  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> moduleList){
     Map<String, String> apps = [:]
 
-    appNames.each {appName ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList, getDebug())
+    appNames.each {appName, appBranch ->
+      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, appBranch, moduleList, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
     }
@@ -113,7 +113,7 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplicationsFlow(List<String> appNames
+  Map<String, String> registerApplicationsFlow(Map<String, String> appNames
                                                , EurekaModules modules
                                                , List<EurekaTenant> tenants){
 
