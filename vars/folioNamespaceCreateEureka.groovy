@@ -91,7 +91,7 @@ void call(CreateNamespaceParameters args) {
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    namespace.getModules().removeModule('mod-login', this)
+    namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
     namespace.getModules().removeModule('edge-inventory')
     namespace.getModules().removeModule('edge-erm')
