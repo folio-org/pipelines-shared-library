@@ -94,7 +94,7 @@ class Eureka extends Base {
     Map<String, String> apps = [:]
 
     appNames.each {appName, appBranch ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, appBranch, moduleList, getDebug())
+      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList, appBranch, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
     }
