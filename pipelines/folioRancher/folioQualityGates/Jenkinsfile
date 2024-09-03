@@ -170,6 +170,7 @@ ansiColor('xterm') {
         ])
 
         slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
+        buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
       }
     } catch (e) {
       logger.error("Caught exception: ${e}")
