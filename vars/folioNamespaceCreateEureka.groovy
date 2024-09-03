@@ -194,6 +194,17 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    //TODO: Temporary solution due to issue with mod-agreements
+    stage('[Restart] mod-agreements') {
+      kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
+      kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+      sleep 10
+
+      kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
+      kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+    }
+
     stage('[Wait] for modules initialization') {
       sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
     }
