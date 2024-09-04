@@ -36,7 +36,7 @@ class Users extends Kong{
       Response content:
       ${content.toString()}""")
 
-    return User.getUserFromContent(content, tenant, this as UserGroups)
+    return User.getUserFromContent(content, tenant, UserGroups.get(kong))
   }
 
   User getUser(EurekaTenant tenant, String userId){
