@@ -56,7 +56,7 @@ class Keycloak extends Base {
   }
 
   Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
-    return getAuthorizedHeaders(getAuthTenantToken(tenant), addOkapiAuth)
+    return getAuthorizedHeaders(getAuthTenantToken(tenant), addOkapiAuth) + ["X-Okapi-Tenant": tenant.tenantId]
   }
 
   String getAuthMasterTenantToken() {
