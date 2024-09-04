@@ -126,8 +126,8 @@ class Permissions extends Kong{
   Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, def ids){
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
-    logger.info("Capabilities list ids type : ${ids}")
-    logger.info("Capabilities list: ${ids.toString()}")
+    logger.info("Capabilities list ids type : ${ids.getClass()}")
+//    logger.info("Capabilities list: ${ids.toString()}")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
