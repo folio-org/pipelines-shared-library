@@ -145,19 +145,19 @@ void call(CreateNamespaceParameters args) {
 //      )
 
       namespace.withApplications([
-        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
-        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.354"
+//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
       ])
 
       namespace.getTenants().values().each {tenant ->
         if(tenant instanceof EurekaTenantConsortia)
           tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
-            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.354"
+            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.354"
           ])
         else
           tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.279"
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.354"
           ])
       }
     }
