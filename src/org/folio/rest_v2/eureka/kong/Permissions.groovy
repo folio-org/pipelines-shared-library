@@ -220,9 +220,12 @@ class Permissions extends Kong{
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
+    List<String> roleIds = []
+    roles.each {role -> roleIds.add(role.uuid)}
+
     Map body = [
       "userId": user.uuid,
-      "roleIds": roles
+      "roleIds": roleIds
     ]
 
     restClient.post(generateUrl("/roles/users"), body, headers)
