@@ -27,8 +27,33 @@ class UserGroups extends Kong{
 
     Map body = group.toMap()
 
-    def response = restClient.post(generateUrl("/groups"), body, headers)
+    def response = restClient.post(generateUrl("/groups"), body, headers, [201, 422])
+    String contentStr = response.body.toString()
     Map content = response.body as Map
+
+    if (response.responseCode == 422) {
+      if (contentStr.contains("Tenant's name already taken")) {
+        logger.info("""
+          UserGroup \"${group.group}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        UserGroup existedGroup = getUserGroupByName(tenant, group.group)
+
+        logger.info("Continue with existing User group id -> ${existedGroup.uuid}")
+
+        return existedGroup
+      } else {
+        logger.error("""
+          Create new user group
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     logger.info("""
       Info on the newly created user group \"${content.id}\"
