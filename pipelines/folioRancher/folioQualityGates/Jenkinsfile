@@ -144,9 +144,11 @@ ansiColor('xterm') {
         }
         parallel(branches)
       }
-
+      
       stage('[AWS] Update ssm') {
-        folioHashCommitCheck.updateBuildSha(currentBuildSha)
+        if (currentBuildSha) {
+          folioHashCommitCheck.updateBuildSha(currentBuildSha)
+        }
       }
 
       stage('[Slack] Send notification') {
@@ -159,8 +161,11 @@ ansiColor('xterm') {
           cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
         )
 
-        List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
-        String changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+        String changelog = ''
+        if (previousBuildSha && currentBuildSha) {
+          List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
+          changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+        }
 
         String attachments = SlackHelper.renderMessage([
           folioSlackNotificationUtils.renderBuildResultSection(),
