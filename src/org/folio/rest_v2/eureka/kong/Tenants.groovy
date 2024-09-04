@@ -126,13 +126,32 @@ class Tenants extends Kong{
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
+      , [201, 400]
     )
 
     logger.debug("enableApplicationsOnTenant after request")
 
     String contentStr = response.body.toString()
 
+    if (response.responseCode == 400) {
+      if (contentStr.contains("value: Entitle flow finished")) {
+        logger.info("""
+          Application is already entitled, no actions needed..
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("Enabling application for tenant failed: ${contentStr}")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
+
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+
+    return this
   }
 
   @NonCPS
