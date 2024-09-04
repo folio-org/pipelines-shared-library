@@ -228,7 +228,28 @@ class Permissions extends Kong{
       "roleIds": roleIds
     ]
 
-    restClient.post(generateUrl("/roles/users"), body, headers)
+    def response = restClient.post(generateUrl("/roles/users"), body, headers, [201, 400])
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("Relations between user and roles already exists")) {
+        logger.info("""
+          Role assignment to the user \"${user.uuid}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Role assignment to the user failed
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
