@@ -87,6 +87,8 @@ class UserGroups extends Kong{
 
     def response = restClient.get(url, headers).body
 
+    logger.debug("getUserGroup totalRecords: ${response.totalRecords}")
+
     if (response.totalRecords > 0) {
       logger.debug("Found user groups: ${response.usergroups}")
       List<UserGroup> groups = []
