@@ -79,15 +79,11 @@ class UserGroups extends Kong{
   List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = "", int limit = 3000){
     logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
-    query = query.trim() ? "$query&$limit" : "?limit=${limit}"
-
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/groups${groupId ? "/${groupId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/groups${groupId ? "/${groupId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     def response = restClient.get(url, headers).body
-
-    logger.debug("getUserGroup totalRecords: ${response.totalRecords}")
 
     if (response.totalRecords > 0) {
       logger.debug("Found user groups: ${response.usergroups}")

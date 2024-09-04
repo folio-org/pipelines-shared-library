@@ -54,11 +54,9 @@ class Users extends Kong{
   List<User> getUsers(EurekaTenant tenant, String userId = "", String query = "", int limit = 3000){
     logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
-    query = query.trim() ? "$query&$limit" : "?limit=${limit}"
-
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/users${userId ? "/${userId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/users${userId ? "/${userId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     Map response = restClient.get(url, headers).body as Map
 
