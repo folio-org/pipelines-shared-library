@@ -81,12 +81,14 @@ class Tenants extends Kong{
     return getTenants("", "name==${name}")[0]
   }
 
-  List<EurekaTenant> getTenants(String tenantId = "", String query = ""){
+  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500){
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
+
+    logger.debug("Get tenants url: $url")
 
     def response = restClient.get(url, headers).body
 
@@ -118,15 +120,38 @@ class Tenants extends Kong{
       applications: tenant.applications.values()
     ]
 
+    logger.debug("enableApplicationsOnTenant body: ${body}")
+    logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
+    logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
+
     def response = restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
+      , [201, 400]
     )
 
     String contentStr = response.body.toString()
 
+    if (response.responseCode == 400) {
+      if (contentStr.contains("value: Entitle flow finished")) {
+        logger.info("""
+          Application is already entitled, no actions needed..
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("Enabling application for tenant failed: ${contentStr}")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
+
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+
+    return this
   }
 
   @NonCPS
