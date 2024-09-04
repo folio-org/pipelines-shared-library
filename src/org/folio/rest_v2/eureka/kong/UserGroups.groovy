@@ -69,7 +69,7 @@ class UserGroups extends Kong{
   }
 
   UserGroup getUserGroupByName(EurekaTenant tenant, String name){
-    return getUserGroups(tenant, "", "name==${name}")[0]
+    return getUserGroups(tenant, "", "group==${name}")[0]
   }
 
   boolean isUserGroupExist(EurekaTenant tenant, String groupId) {
