@@ -74,8 +74,8 @@ void call(CreateNamespaceParameters args) {
     EurekaRequestParams installRequestParams = new EurekaRequestParams()
       .withPurgeOnRollback(true)
       .withIgnoreErrors(false)
-//      .doLoadReference(args.loadReference)
-//      .doLoadSample(args.loadSample) as EurekaRequestParams
+      .doLoadReference(args.loadReference)
+      .doLoadSample(args.loadSample) as EurekaRequestParams
 
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
