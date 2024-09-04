@@ -32,7 +32,7 @@ class UserGroups extends Kong{
     Map content = response.body as Map
 
     if (response.responseCode == 422) {
-      if (contentStr.contains("Tenant's name already taken")) {
+      if (contentStr.contains("value already exists in table groups")) {
         logger.info("""
           UserGroup \"${group.group}\" already exists
           Status: ${response.responseCode}
