@@ -36,7 +36,7 @@ class Users extends Kong{
       Response content:
       ${content.toString()}""")
 
-    return User.getUserFromContent(content, tenant, this as UserGroups)
+    return User.getUserFromContent(content, tenant, UserGroups.get(this))
   }
 
   User getUser(EurekaTenant tenant, String userId){
@@ -51,12 +51,12 @@ class Users extends Kong{
     return getUser(tenant, userId) ? true : false
   }
 
-  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = ""){
+  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = "", int limit = 3000){
     logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/users${userId ? "/${userId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/users${userId ? "/${userId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     Map response = restClient.get(url, headers).body as Map
 
@@ -64,7 +64,7 @@ class Users extends Kong{
       logger.debug("Found users: ${response.users}")
       List<User> users = []
       response.users.each { userContent ->
-        users.add(User.getUserFromContent(userContent as Map, tenant, this as UserGroups))
+        users.add(User.getUserFromContent(userContent as Map, tenant, UserGroups.get(this)))
       }
       return users
     } else {
