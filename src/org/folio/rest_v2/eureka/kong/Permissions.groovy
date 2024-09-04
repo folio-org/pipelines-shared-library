@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
 import org.folio.models.Role
 import org.folio.models.User
+import org.folio.models.UserGroup
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -28,8 +29,33 @@ class Permissions extends Kong{
 
     Map body = role.toMap()
 
-    def response = restClient.post(generateUrl("/roles"), body, headers)
+    def response = restClient.post(generateUrl("/roles"), body, headers, [201, 409])
+    String contentStr = response.body.toString()
     Map content = response.body as Map
+
+    if (response.responseCode == 409) {
+      if (contentStr.contains("HTTP 409 Conflict")) {
+        logger.info("""
+          Role \"${role.name}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        Role existedRole = getRoleByName(tenant, role.name)
+
+        logger.info("Continue with existing Role uuid -> ${existedRole.uuid}")
+
+        return existedRole
+      } else {
+        logger.error("""
+          Create new role
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     logger.info("""
       Info on the newly created role \"${content.id}\"
@@ -52,12 +78,12 @@ class Permissions extends Kong{
     return getRoles(tenant, roleId) ? true : false
   }
 
-  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = ""){
+  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = "", limit = 500){
     logger.info("Get roles${roleId ? " with ,roleId=${roleId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/roles${roleId ? "/${roleId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/roles${roleId ? "/${roleId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     def response = restClient.get(url, headers).body
 
@@ -83,7 +109,11 @@ class Permissions extends Kong{
     def response = restClient.get(generateUrl("/capabilities?limit=${limit}"), headers)
     Map content = response.body.capabilities as Map
 
-    return content.each { capability -> capability.id } as List<String>
+    List<String> ids = []
+
+    content.each { capability -> ids.add(capability.id) }
+
+    return ids
   }
 
   List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000){
@@ -94,10 +124,14 @@ class Permissions extends Kong{
     def response = restClient.get(generateUrl("/capability-sets?limit=${limit}"), headers)
     Map content = response.body.capabilitySets as Map
 
-    return content.each { set -> set.id } as List<String>
+    List<String> ids = []
+
+    content.each { capabilitySet -> ids.add(capabilitySet.id) }
+
+    return ids
   }
 
-  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids){
+  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -107,12 +141,39 @@ class Permissions extends Kong{
       "capabilityIds": ids
     ]
 
-    restClient.post(generateUrl("/roles/capabilities"), body, headers)
+    def response
+
+    if(skipExists)
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400])
+    else
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers)
+
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("type:EntityExistsException")) {
+        logger.info("""
+          Capabilities already asigned to role \"${role.uuid}\"
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Assigning capabilities to role error
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
 
-  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids){
+  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
     logger.info("Assigning capability sets for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -122,7 +183,34 @@ class Permissions extends Kong{
       "capabilitySetIds": ids
     ]
 
-    restClient.post(generateUrl("/roles/capability-sets"), body, headers)
+    def response
+
+    if(skipExists)
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [201, 400])
+    else
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers)
+
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("type:EntityExistsException")) {
+        logger.info("""
+          Capability sets already asigned to role \"${role.uuid}\"
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Assigning capability sets to role error
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
@@ -132,12 +220,36 @@ class Permissions extends Kong{
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
+    List<String> roleIds = []
+    roles.each {role -> roleIds.add(role.uuid)}
+
     Map body = [
       "userId": user.uuid,
-      "roleIds": roles
+      "roleIds": roleIds
     ]
 
-    restClient.post(generateUrl("/roles/users"), body, headers)
+    def response = restClient.post(generateUrl("/roles/users"), body, headers, [201, 400])
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("Relations between user and roles already exists")) {
+        logger.info("""
+          Role assignment to the user \"${user.uuid}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Role assignment to the user failed
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
