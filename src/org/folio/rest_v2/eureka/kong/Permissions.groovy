@@ -131,7 +131,7 @@ class Permissions extends Kong{
     return ids
   }
 
-  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids){
+  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -141,12 +141,39 @@ class Permissions extends Kong{
       "capabilityIds": ids
     ]
 
-    restClient.post(generateUrl("/roles/capabilities"), body, headers)
+    def response
+
+    if(skipExists)
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400])
+    else
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers)
+
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("type:EntityExistsException")) {
+        logger.info("""
+          Capabilities \"${group.group}\" already asigned
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Assigning capabilities to role error
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
 
-  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids){
+  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
     logger.info("Assigning capability sets for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -156,7 +183,34 @@ class Permissions extends Kong{
       "capabilitySetIds": ids
     ]
 
-    restClient.post(generateUrl("/roles/capability-sets"), body, headers)
+    def response
+
+    if(skipExists)
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [201, 400])
+    else
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers)
+
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("type:EntityExistsException")) {
+        logger.info("""
+          Capability sets \"${group.group}\" already asigned
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          Assigning capability sets to role error
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     return this
   }
