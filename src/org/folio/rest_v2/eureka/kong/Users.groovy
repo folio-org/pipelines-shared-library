@@ -36,7 +36,7 @@ class Users extends Kong{
       Response content:
       ${content.toString()}""")
 
-    return User.getUserFromContent(content, tenant, UserGroups.get(kong))
+    return User.getUserFromContent(content, tenant, UserGroups.get(this))
   }
 
   User getUser(EurekaTenant tenant, String userId){
@@ -64,7 +64,7 @@ class Users extends Kong{
       logger.debug("Found users: ${response.users}")
       List<User> users = []
       response.users.each { userContent ->
-        users.add(User.getUserFromContent(userContent as Map, tenant, this as UserGroups))
+        users.add(User.getUserFromContent(userContent as Map, tenant, UserGroups.get(this)))
       }
       return users
     } else {
