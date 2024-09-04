@@ -76,8 +76,10 @@ class UserGroups extends Kong{
     return getUserGroup(tenant, groupId) ? true : false
   }
 
-  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = ""){
+  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = "", int limit = 3000){
     logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
+
+    query = query.trim() ? "?limit=${limit}" : "$query&$limit"
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 

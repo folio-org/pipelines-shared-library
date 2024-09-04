@@ -81,8 +81,10 @@ class Tenants extends Kong{
     return getTenants("", "name==${name}")[0]
   }
 
-  List<EurekaTenant> getTenants(String tenantId = "", String query = ""){
+  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500){
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
+
+    query = query.trim() ? "?limit=${limit}" : "$query&$limit"
 
     Map<String, String> headers = getMasterHttpHeaders()
 
