@@ -90,6 +90,8 @@ class Tenants extends Kong{
 
     String url = generateUrl("/tenants${tenantId ? "/${tenantId}" : ""}${query ? "?query=${query}" : ""}")
 
+    logger.debug("Get tenants url: $url")
+
     def response = restClient.get(url, headers).body
 
     if (response.totalRecords > 0) {
