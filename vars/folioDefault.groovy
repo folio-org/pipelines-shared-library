@@ -10,6 +10,7 @@ OkapiUser adminOkapiUser(String username, def password) {
     .withBarcode(folioTools.generateRandomDigits(8))
     .withGroup("staff")
     .withType("staff")
+    .withPatronGroup(new UserGroup(group: "staff", "desc": "staff"))
 }
 
 Map<String, OkapiTenantConsortia> consortiaTenants(
