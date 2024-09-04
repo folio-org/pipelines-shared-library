@@ -40,8 +40,6 @@ class Eureka extends Base {
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
-    logger.debug("Eureka.createTenantFlow ${Permissions.get(kong).getCapabilitiesId(tenant)}")
-
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
       , new Role(name: "adminRole", desc: "Admin role")

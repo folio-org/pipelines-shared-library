@@ -109,18 +109,11 @@ class Permissions extends Kong{
     def response = restClient.get(generateUrl("/capabilities?limit=${limit}"), headers)
     Map content = response.body.capabilities as Map
 
-    logger.debug("Permission.getCapabilitiesId content: ${context}")
-
     List<String> ids = []
 
-    content.each { capability ->
-      logger.debug(capability.id)
-      ids.add(capability.id)
-    }
+    content.each { capability -> ids.add(capability.id) }
 
-    logger.debug("IDs: $ids")
-
-    return content.each { capability -> capability.id } as List<String>
+    return ids
   }
 
   List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000){
@@ -131,14 +124,15 @@ class Permissions extends Kong{
     def response = restClient.get(generateUrl("/capability-sets?limit=${limit}"), headers)
     Map content = response.body.capabilitySets as Map
 
-    return content.each { set -> set.id } as List<String>
+    List<String> ids = []
+
+    content.each { capabilitySet -> ids.add(capabilitySet.id) }
+
+    return ids
   }
 
-  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, def ids){
+  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids){
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
-
-    logger.info("Capabilities list ids type : ${ids.getClass()}")
-//    logger.info("Capabilities list: ${ids.toString()}")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
