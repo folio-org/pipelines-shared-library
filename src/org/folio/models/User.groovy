@@ -37,6 +37,12 @@ class User {
     return password.getPlainText()
   }
 
+  User withPatronGroup(UserGroup group){
+    patronGroup = group
+
+    return this
+  }
+
   /**
    * Checks if the UUID is set for the user.
    * Throws an exception if it's not set.
