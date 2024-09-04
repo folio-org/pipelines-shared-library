@@ -1166,6 +1166,8 @@ mod-fqm-manager:
     value: 3h
   - name: task.execution.pool.max-size
     value: '10'
+  - name: mod-fqm-manager.bypass-permissions
+    value: 'true'
   integrations:
     db:
       enabled: true
