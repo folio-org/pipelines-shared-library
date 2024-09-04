@@ -27,8 +27,33 @@ class UserGroups extends Kong{
 
     Map body = group.toMap()
 
-    def response = restClient.post(generateUrl("/groups"), body, headers)
+    def response = restClient.post(generateUrl("/groups"), body, headers, [201, 422])
+    String contentStr = response.body.toString()
     Map content = response.body as Map
+
+    if (response.responseCode == 422) {
+      if (contentStr.contains("value already exists in table groups")) {
+        logger.info("""
+          UserGroup \"${group.group}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        UserGroup existedGroup = getUserGroupByName(tenant, group.group)
+
+        logger.info("Continue with existing User group id -> ${existedGroup.uuid}")
+
+        return existedGroup
+      } else {
+        logger.error("""
+          Create new user group
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     logger.info("""
       Info on the newly created user group \"${content.id}\"
@@ -44,19 +69,19 @@ class UserGroups extends Kong{
   }
 
   UserGroup getUserGroupByName(EurekaTenant tenant, String name){
-    return getUserGroups(tenant, "", "name==${name}")[0]
+    return getUserGroups(tenant, "", "group==${name}")[0]
   }
 
   boolean isUserGroupExist(EurekaTenant tenant, String groupId) {
     return getUserGroup(tenant, groupId) ? true : false
   }
 
-  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = ""){
+  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = "", int limit = 3000){
     logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/groups${groupId ? "/${groupId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/groups${groupId ? "/${groupId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     def response = restClient.get(url, headers).body
 
