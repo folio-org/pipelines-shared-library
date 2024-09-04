@@ -216,7 +216,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      retry(2) {
+      retry(5) {
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
