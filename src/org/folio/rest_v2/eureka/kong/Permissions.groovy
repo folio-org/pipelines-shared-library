@@ -153,7 +153,7 @@ class Permissions extends Kong{
     if (response.responseCode == 400) {
       if (contentStr.contains("type:EntityExistsException")) {
         logger.info("""
-          Capabilities \"${group.group}\" already asigned
+          Capabilities already asigned to role \"${role.uuid}\"
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
@@ -195,7 +195,7 @@ class Permissions extends Kong{
     if (response.responseCode == 400) {
       if (contentStr.contains("type:EntityExistsException")) {
         logger.info("""
-          Capability sets \"${group.group}\" already asigned
+          Capability sets already asigned to role \"${role.uuid}\"
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
