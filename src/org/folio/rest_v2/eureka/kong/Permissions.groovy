@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
 import org.folio.models.Role
 import org.folio.models.User
+import org.folio.models.UserGroup
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -28,8 +29,33 @@ class Permissions extends Kong{
 
     Map body = role.toMap()
 
-    def response = restClient.post(generateUrl("/roles"), body, headers)
+    def response = restClient.post(generateUrl("/roles"), body, headers, [201, 409])
+    String contentStr = response.body.toString()
     Map content = response.body as Map
+
+    if (response.responseCode == 409) {
+      if (contentStr.contains("HTTP 409 Conflict")) {
+        logger.info("""
+          Role \"${role.name}\" already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        Role existedRole = getRoleByName(tenant, role.name)
+
+        logger.info("Continue with existing Role uuid -> ${existedRole.uuid}")
+
+        return existedRole
+      } else {
+        logger.error("""
+          Create new role
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     logger.info("""
       Info on the newly created role \"${content.id}\"
@@ -52,12 +78,12 @@ class Permissions extends Kong{
     return getRoles(tenant, roleId) ? true : false
   }
 
-  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = ""){
+  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = "", limit = 500){
     logger.info("Get roles${roleId ? " with ,roleId=${roleId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/roles${roleId ? "/${roleId}" : ""}${query ? "?query=${query}" : ""}")
+    String url = generateUrl("/roles${roleId ? "/${roleId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     def response = restClient.get(url, headers).body
 
