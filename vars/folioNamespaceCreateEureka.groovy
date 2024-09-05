@@ -229,6 +229,10 @@ void call(CreateNamespaceParameters args) {
 //          }
 //        }
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        folioHelm.withK8sClient {
+          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
+        }
         sleep time: 2, unit: 'MINUTES'
       }
     }
