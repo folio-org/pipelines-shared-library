@@ -96,6 +96,7 @@ void call(CreateNamespaceParameters args) {
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
         .withInstallJson(namespace.getModules().getInstallJson().collect())
         .withIndex(new Index('instance', true, true))
+        // TODO: Temporary fixed due to module error
         //.withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
@@ -193,11 +194,11 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
       retry(5) {
-        folioHelm.withK8sClient {
-          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
-        }
-        sleep time: 2, unit: 'MINUTES'
+//        folioHelm.withK8sClient {
+//          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+//          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
+//        }
+//        sleep time: 2, unit: 'MINUTES'
 
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
