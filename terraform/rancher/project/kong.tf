@@ -1,6 +1,12 @@
 resource "random_integer" "node_port" {
-  max   = 32766
-  min   = 30001
+  max   = 32067
+  min   = 30000
+  count = var.eureka ? 4 : 0
+}
+
+resource "random_integer" "random_port" {
+  max = 700
+  min = 1
   count = var.eureka ? 4 : 0
 }
 resource "rancher2_secret" "kong-credentials" {
@@ -80,10 +86,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result)}"
+    proxyHttp: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[0].result))}"
+    proxyHttps: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[1].result))}"
+    adminHttp: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[2].result))}"
+    adminHttps: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[3].result))}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -97,7 +103,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result)}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[0].result))}"
 kong:
   livenessProbe:
     enabled: false
