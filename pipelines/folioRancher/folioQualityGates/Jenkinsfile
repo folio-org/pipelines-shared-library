@@ -74,7 +74,6 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "#${env.BUILD_ID}"
-        buildDescription "Quality Gates:\nKarate\nCypress\nSchema compare"
       }
 
       stage('Check Changes') {
@@ -144,7 +143,7 @@ ansiColor('xterm') {
         }
         parallel(branches)
       }
-      
+
       stage('[AWS] Update ssm') {
         if (currentBuildSha) {
           folioHashCommitCheck.updateBuildSha(currentBuildSha)
@@ -165,6 +164,7 @@ ansiColor('xterm') {
         if (previousBuildSha && currentBuildSha) {
           List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
           changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+          buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
         }
 
         String attachments = SlackHelper.renderMessage([
@@ -175,7 +175,6 @@ ansiColor('xterm') {
         ])
 
         slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
-        buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
       }
     } catch (e) {
       logger.error("Caught exception: ${e}")
