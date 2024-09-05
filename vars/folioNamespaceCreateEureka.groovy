@@ -96,7 +96,7 @@ void call(CreateNamespaceParameters args) {
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
         .withInstallJson(namespace.getModules().getInstallJson().collect())
         .withIndex(new Index('instance', true, true))
-        .withIndex(new Index('authority', true, false))
+        //.withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
     )
