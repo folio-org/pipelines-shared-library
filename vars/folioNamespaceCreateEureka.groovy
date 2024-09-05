@@ -221,10 +221,16 @@ void call(CreateNamespaceParameters args) {
             kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "0")
             kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
 
+            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "0")
+            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
+
             sleep time: 30, unit: 'SECONDS'
 
             kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "1")
             kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
+
+            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "1")
+            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
 
             sleep time: 30, unit: 'SECONDS'
           }
