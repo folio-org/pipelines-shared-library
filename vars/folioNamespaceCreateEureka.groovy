@@ -89,9 +89,6 @@ void call(CreateNamespaceParameters args) {
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
-    namespace.getModules().removeModule('edge-inventory')
-    namespace.getModules().removeModule('edge-erm')
-    namespace.getModules().removeModule('edge-users')
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
