@@ -86,10 +86,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[0].result))}"
-    proxyHttps: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[1].result))}"
-    adminHttp: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[2].result))}"
-    adminHttps: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[3].result))}"
+    proxyHttp: "${tostring(sum(random_integer.node_port[0].result,random_integer.random_port[0].result))}"
+    proxyHttps: "${tostring(sum(random_integer.node_port[0].result,random_integer.random_port[1].result))}"
+    adminHttp: "${tostring(sum(random_integer.node_port[0].result,random_integer.random_port[2].result))}"
+    adminHttps: "${tostring(sum(random_integer.node_port[0].result,random_integer.random_port[3].result))}"
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -103,7 +103,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(sum(random_integer.node_port[0].result + random_integer.random_port[0].result))}"
+    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(sum(random_integer.node_port[0].result,random_integer.random_port[0].result))}"
 kong:
   livenessProbe:
     enabled: false
