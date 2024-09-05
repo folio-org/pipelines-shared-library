@@ -189,50 +189,51 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Wait] for modules initialization') {
       sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
-      folioHelm.withK8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 30, unit: 'SECONDS'
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 3, unit: 'MINUTES'
-        }
+//      folioHelm.withK8sClient {
+//        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+//
+//        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
+//        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+//
+//        sleep time: 30, unit: 'SECONDS'
+//
+//        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
+//        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+//
+//        sleep time: 3, unit: 'MINUTES'
+//        }
     }
 
     stage('[Rest] Initialize') {
-      retry(2) {
+      retry(5) {
         //TODO: Temporary solution due to issue with mod-agreements
-        stage('[Restart] mod-calendar') {
-          folioHelm.withK8sClient {
-            awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-
-            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "0")
-            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
-
-            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "0")
-            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
-
-            sleep time: 30, unit: 'SECONDS'
-
-            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "1")
-            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
-
-            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "1")
-            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
-
-            sleep time: 3, unit: 'MINUTES'
-          }
-        }
+//        stage('[Restart] mod-calendar') {
+//          folioHelm.withK8sClient {
+//            awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+//
+//            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "0")
+//            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
+//
+//            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "0")
+//            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
+//
+//            sleep time: 30, unit: 'SECONDS'
+//
+//            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "1")
+//            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
+//
+//            kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "1")
+//            kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
+//
+//            sleep time: 3, unit: 'MINUTES'
+//          }
+//        }
+        sleep time: 2, unit: 'MINUTES'
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
 
-    input(message: "We have passed")
+//    input(message: "We have passed")
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
