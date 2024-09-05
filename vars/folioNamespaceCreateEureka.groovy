@@ -194,25 +194,28 @@ void call(CreateNamespaceParameters args) {
       sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
     }
 
-    //TODO: Temporary solution due to issue with mod-agreements
-    stage('[Restart] mod-agreements') {
-      folioHelm.withK8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 30, unit: 'SECONDS'
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 30, unit: 'SECONDS'
-      }
-    }
-
     stage('[Rest] Initialize') {
       retry(5) {
+        //TODO: Temporary solution due to issue with mod-agreements
+        stage('[Restart] mod-agreements') {
+          folioHelm.withK8sClient {
+            awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+
+            kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
+            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "0")
+            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+            sleep time: 30, unit: 'SECONDS'
+
+            kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
+            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+            kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "1")
+            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+            sleep time: 30, unit: 'SECONDS'
+          }
+        }
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
