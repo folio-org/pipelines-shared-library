@@ -51,6 +51,10 @@ module.name = params.MODULE_NAME
 String featureBranch = params.MODULE_BRANCH
 String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
 
+/** Collect Maven arguments */
+String mavenArguments = params.MAVEN_ARGS.trim()
+
+
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
