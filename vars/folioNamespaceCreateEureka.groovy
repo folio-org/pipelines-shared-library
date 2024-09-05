@@ -187,10 +187,10 @@ void call(CreateNamespaceParameters args) {
 //        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
 //      }
 //    }
-
-    stage('[Wait] for modules initialization') {
-      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
-    }
+//
+//    stage('[Wait] for modules initialization') {
+//      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
+//    }
 
     stage('[Rest] Initialize') {
       retry(5) {
