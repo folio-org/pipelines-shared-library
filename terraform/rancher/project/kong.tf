@@ -19,7 +19,6 @@ resource "helm_release" "kong" {
   chart = "kong"
   depends_on = [
     rancher2_secret.db-credentials,
-    random_integer.node_port,
     helm_release.postgresql,
     helm_release.pgadmin,
     postgresql_database.kong,
