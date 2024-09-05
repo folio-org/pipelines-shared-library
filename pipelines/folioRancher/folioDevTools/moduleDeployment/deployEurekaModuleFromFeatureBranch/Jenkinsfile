@@ -4,8 +4,10 @@ package folioRancher.folioDevTools.moduleDeployment.deployEurekaModuleFromFeatur
 @Library('pipelines-shared-library@RANCHER-1700') _
 
 import org.folio.utilities.Logger
+import org.folio.models.RancherNamespace
 import org.folio.models.FolioModule
 import org.folio.utilities.GitHubClient
+import org.folio.Constants
 
 /** Job properties and parameters */
 properties([
@@ -36,6 +38,10 @@ if (params.REFRESH_PARAMETERS) {
 
 /** Job variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/** Collect Rancher namespace configuration */
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+        .withDeploymentConfigType(params.CONFIG_TYPE)
 
 /** Collect Folio module configuration */
 FolioModule module = new FolioModule()
