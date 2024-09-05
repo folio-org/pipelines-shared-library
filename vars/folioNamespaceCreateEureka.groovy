@@ -109,16 +109,16 @@ void call(CreateNamespaceParameters args) {
 
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
         .values().each { tenant ->
-          tenant.withInstallJson(namespace.getModules().getInstallJson())
-                  .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+        tenant.withInstallJson(namespace.getModules().getInstallJson())
+          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
-          if (tenant.getIsCentralConsortiaTenant()) {
-            tenant.withTenantUi(tenantUi.clone())
+        if (tenant.getIsCentralConsortiaTenant()) {
+          tenant.withTenantUi(tenantUi.clone())
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
-          }
-
-          namespace.addTenant(tenant)
         }
+
+        namespace.addTenant(tenant)
+      }
     }
 
     stage('[Helm] Deploy mgr-*') {
@@ -139,9 +139,9 @@ void call(CreateNamespaceParameters args) {
       )
 
       eureka.registerModulesFlow(
-              namespace.getModules()
-              , namespace.getApplications()
-              , namespace.getTenants().values() as List<EurekaTenant>
+        namespace.getModules()
+        , namespace.getApplications()
+        , namespace.getTenants().values() as List<EurekaTenant>
       )
 
 //      namespace.withApplications([
@@ -164,7 +164,7 @@ void call(CreateNamespaceParameters args) {
 
     println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
 
-    namespace.getTenants().each {name, tenant ->
+    namespace.getTenants().each { name, tenant ->
       println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
     }
 
@@ -194,24 +194,37 @@ void call(CreateNamespaceParameters args) {
       sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
     }
 
+    stage('[Restart] mod-agreements') {
+      folioHelm.withK8sClient {
+        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+
+        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
+        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+        sleep time: 30, unit: 'SECONDS'
+
+        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
+        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+        sleep time: 30, unit: 'SECONDS'
+      }
+    }
+
+
     stage('[Rest] Initialize') {
       retry(5) {
         //TODO: Temporary solution due to issue with mod-agreements
-        stage('[Restart] mod-agreements') {
+        stage('[Restart] mod-calendar') {
           folioHelm.withK8sClient {
             awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
 
-            kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
-            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
             kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "0")
-            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
 
             sleep time: 30, unit: 'SECONDS'
 
-            kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
-            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
             kubectl.setKubernetesResourceCount("deployment", "mod-calendar", namespace.getNamespaceName(), "1")
-            kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+            kubectl.checkDeploymentStatus("mod-calendar", namespace.getNamespaceName(), "600")
 
             sleep time: 30, unit: 'SECONDS'
           }
@@ -229,19 +242,19 @@ void call(CreateNamespaceParameters args) {
           if (tenant.getTenantUi()) {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
-              def jobParameters = [eureka        : args.eureka,
-                                   kongUrl       : "https://${namespace.getDomains()['kong']}",
-                                   keycloakUrl   : "https://${namespace.getDomains()['keycloak']}",
-                                   tenantUrl     : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms   : true,
-                                   isSingleTenant: true,
-                                   tenantOptions : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                                   tenantId      : ui.getTenantId(),
-                                   custom_hash   : ui.getHash(),
-                                   custom_url    : "https://${namespace.getDomains()['kong']}",
-                                   custom_tag    : ui.getTag(),
-                                   consortia     : tenant instanceof OkapiTenantConsortia,
-                                   clientId      : ui.getTenantId() + "-application",
+              def jobParameters = [eureka              : args.eureka,
+                                   kongUrl             : "https://${namespace.getDomains()['kong']}",
+                                   keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
+                                   tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
+                                   hasAllPerms         : true,
+                                   isSingleTenant      : true,
+                                   tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                                   tenantId            : ui.getTenantId(),
+                                   custom_hash         : ui.getHash(),
+                                   custom_url          : "https://${namespace.getDomains()['kong']}",
+                                   custom_tag          : ui.getTag(),
+                                   consortia           : tenant instanceof OkapiTenantConsortia,
+                                   clientId            : ui.getTenantId() + "-application",
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]
 
