@@ -1,0 +1,112 @@
+package folioRancher.folioDevTools.moduleDeployment.deployEurekaModuleFromFeatureBranch
+
+// TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
+@Library('pipelines-shared-library@RANCHER-1700') _
+
+import org.folio.utilities.Logger
+import org.folio.models.FolioModule
+import org.folio.utilities.GitHubClient
+
+/** Job properties and parameters */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.moduleName(),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    string(name: 'TENANT_ID', defaultValue: 'diku', description: 'Tenant Name to deploy module to'),
+    folioParameters.configType(),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.loadReference(false),
+    folioParameters.loadSample(false),
+    folioParameters.ignoreErrors(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+    booleanParam(name: 'REST_DEBUG', defaultValue: false, description: 'Enable Debug Mode for REST calls')
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+
+/** Job variables */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/** Collect Folio module configuration */
+FolioModule module = new FolioModule()
+module.name = params.MODULE_NAME
+
+/** Collect feature branch and hash */
+String featureBranch = params.MODULE_BRANCH
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+
+/** Pipeline */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      }
+
+      stage('[Git] Checkout module source') {
+        checkout([
+          $class           : 'GitSCM',
+          branches         : [[name: "*/${featureBranch}"]],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                              [$class: 'AuthorInChangelog'],
+                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+        ])
+      }
+
+      stage('[Maven] Compile') {
+        dir(module.getName()) {
+          String origVersion = readMavenPom(file: 'pom.xml').version
+          module.version = "${origVersion}.${featureHash}"
+
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+            maven: Constants.MAVEN_TOOL_NAME,
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]) {
+            sh """
+              mvn versions:set -DnewVersion=${module.getVersion()}
+              mvn package ${mavenArguments}
+            """.stripIndent()
+          }
+
+          String descriptorPath = "target/ModuleDescriptor.json"
+          if (fileExists(descriptorPath)) {
+            module.descriptor = [readJSON(file: descriptorPath)]
+            sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
+          }
+        }
+      }
+
+      stage('[Docker] Build and push') {
+        common.checkEcrRepoExistence(module.getName())
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(module.getName()) {
+            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+            image.push()
+          }
+        }
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
