@@ -200,7 +200,7 @@ void call(CreateNamespaceParameters args) {
 //        }
 //        sleep time: 2, unit: 'MINUTES'
 
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
 
