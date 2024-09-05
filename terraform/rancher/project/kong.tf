@@ -1,14 +1,3 @@
-resource "random_integer" "node_port" {
-  max   = 32067
-  min   = 30000
-  count = var.eureka ? 4 : 0
-}
-
-resource "random_integer" "random_port" {
-  max = 700
-  min = 1
-  count = var.eureka ? 4 : 0
-}
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
