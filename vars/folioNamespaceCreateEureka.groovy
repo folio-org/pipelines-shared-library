@@ -31,29 +31,29 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply', tfConfig)
-//    }
-//
-//    if (args.greenmail) {
-//      stage('[Helm] Deploy greenmail') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-//        }
-//      }
-//    }
-//
-//    if (args.mockServer) {
-//      stage('[Helm] Deploy mock-server') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployMockServer(namespace)
-//        }
-//      }
-//    }
-//
-//    if (args.namespaceOnly) {
-//      return
-//    }
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply', tfConfig)
+    }
+
+    if (args.greenmail) {
+      stage('[Helm] Deploy greenmail') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+        }
+      }
+    }
+
+    if (args.mockServer) {
+      stage('[Helm] Deploy mock-server') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployMockServer(namespace)
+        }
+      }
+    }
+
+    if (args.namespaceOnly) {
+      return
+    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -121,45 +121,45 @@ void call(CreateNamespaceParameters args) {
         }
     }
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+      }
+    }
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     stage('[Rest] Preinstall') {
-//      namespace.withApplications(
-//        eureka.registerApplicationsFlow(
-//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-//          , namespace.getModules()
-//          , namespace.getTenants().values() as List<EurekaTenant>
-//        )
-//      )
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          , namespace.getModules()
+          , namespace.getTenants().values() as List<EurekaTenant>
+        )
+      )
+
+      eureka.registerModulesFlow(
+              namespace.getModules()
+              , namespace.getApplications()
+              , namespace.getTenants().values() as List<EurekaTenant>
+      )
+
+//      namespace.withApplications([
+//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
+////        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+//      ])
 //
-//      eureka.registerModulesFlow(
-//              namespace.getModules()
-//              , namespace.getApplications()
-//              , namespace.getTenants().values() as List<EurekaTenant>
-//      )
-
-      namespace.withApplications([
-        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
-//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
-      ])
-
-      namespace.getTenants().values().each {tenant ->
-        if(tenant instanceof EurekaTenantConsortia)
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
-            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.401"
-          ])
-        else
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
-          ])
-      }
+//      namespace.getTenants().values().each {tenant ->
+//        if(tenant instanceof EurekaTenantConsortia)
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
+//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.401"
+//          ])
+//        else
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.401"
+//          ])
+//      }
     }
 
     println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
@@ -168,48 +168,48 @@ void call(CreateNamespaceParameters args) {
       println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
     }
 
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        println(namespace.getModules().getBackendModules())
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
-//      }
-//    }
-//
-//    stage('[Rest] Configure edge') {
-//      folioEdge.renderEphemeralProperties(namespace)
-////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-//    }
-//
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//        }
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//      }
-//    }
-//
-//    stage('[Wait] for modules initialization') {
-//      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
-//    }
-//
-//    //TODO: Temporary solution due to issue with mod-agreements
-//    stage('[Restart] mod-agreements') {
-//      folioHelm.withK8sClient {
-//        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-//
-//        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
-//        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-//
-//        sleep time: 30, unit: 'SECONDS'
-//
-//        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
-//        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-//
-//        sleep time: 30, unit: 'SECONDS'
-//      }
-//    }
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(namespace.getModules().getBackendModules())
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
+      }
+    }
+
+    stage('[Rest] Configure edge') {
+      folioEdge.renderEphemeralProperties(namespace)
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+    }
+
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        }
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+      }
+    }
+
+    stage('[Wait] for modules initialization') {
+      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
+    }
+
+    //TODO: Temporary solution due to issue with mod-agreements
+    stage('[Restart] mod-agreements') {
+      folioHelm.withK8sClient {
+        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+
+        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
+        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+        sleep time: 30, unit: 'SECONDS'
+
+        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
+        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
+
+        sleep time: 30, unit: 'SECONDS'
+      }
+    }
 
     stage('[Rest] Initialize') {
       retry(5) {
