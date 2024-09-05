@@ -228,8 +228,8 @@ void call(CreateNamespaceParameters args) {
 //            sleep time: 3, unit: 'MINUTES'
 //          }
 //        }
-        sleep time: 2, unit: 'MINUTES'
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        sleep time: 2, unit: 'MINUTES'
       }
     }
 
