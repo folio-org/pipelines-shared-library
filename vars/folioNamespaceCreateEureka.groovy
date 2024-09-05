@@ -191,28 +191,11 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Wait] for modules initialization') {
-      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
+      sleep time: 10, unit: 'MINUTES' // modules init timeout | MUST HAVE
     }
-
-    stage('[Restart] mod-agreements') {
-      folioHelm.withK8sClient {
-        awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "0")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 30, unit: 'SECONDS'
-
-        kubectl.setKubernetesResourceCount("deployment", "mod-agreements", namespace.getNamespaceName(), "1")
-        kubectl.checkDeploymentStatus("mod-agreements", namespace.getNamespaceName(), "600")
-
-        sleep time: 30, unit: 'SECONDS'
-      }
-    }
-
 
     stage('[Rest] Initialize') {
-      retry(5) {
+      retry(2) {
         //TODO: Temporary solution due to issue with mod-agreements
         stage('[Restart] mod-calendar') {
           folioHelm.withK8sClient {
@@ -232,7 +215,7 @@ void call(CreateNamespaceParameters args) {
             kubectl.setKubernetesResourceCount("deployment", "mod-search", namespace.getNamespaceName(), "1")
             kubectl.checkDeploymentStatus("mod-search", namespace.getNamespaceName(), "600")
 
-            sleep time: 30, unit: 'SECONDS'
+            sleep time: 3, unit: 'MINUTES'
           }
         }
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
