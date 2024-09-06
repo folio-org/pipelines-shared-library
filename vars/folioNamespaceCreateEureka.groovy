@@ -158,7 +158,7 @@ void call(CreateNamespaceParameters args) {
 //            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.419"
 //          ])
 //      }
-//    }
+    }
 
     println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
 
