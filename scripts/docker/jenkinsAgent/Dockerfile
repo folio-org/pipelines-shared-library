@@ -18,22 +18,24 @@ RUN apk update && \
 # Install Terraform
 RUN curl -fsSL "https://releases.hashicorp.com/terraform/${terraform_ver}/terraform_${terraform_ver}_linux_amd64.zip" -o terraform.zip && \
     unzip terraform.zip && \
+    chmod +x terraform && \
     mv terraform /usr/local/bin/ && \
     rm terraform.zip &&\
 # Install Helm
     curl -fsSL "https://get.helm.sh/helm-v${helm_ver}-linux-amd64.tar.gz" -o helm.tar.gz && \
     tar -zxvf helm.tar.gz && \
+    chmod +x linux-amd64/helm && \
     mv linux-amd64/helm /usr/local/bin/helm && \
     rm -rf linux-amd64 helm.tar.gz &&\
 # Install Kafka client
     curl -fsSL "https://archive.apache.org/dist/kafka/${kafka_ver}/kafka_2.13-${kafka_ver}.tgz" -o kafka_2.13-${kafka_ver}.tgz && \
     tar -xzf kafka_2.13-${kafka_ver}.tgz && \
     mv kafka_2.13-${kafka_ver} /opt/kafka && \
-	rm -rf kafka_2.13-${kafka_ver}.tgz &&\
+	  rm -rf kafka_2.13-${kafka_ver}.tgz &&\
 # Install Kubectl
     curl -LO "https://dl.k8s.io/release/${kubectl_ver}/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
-	mv kubectl /usr/local/bin/
+    mv kubectl /usr/local/bin/
 
 # Set the working directory
 WORKDIR /home/jenkins
