@@ -72,8 +72,8 @@ void call(CreateNamespaceParameters args) {
       commitHash, args.folioBranch)
 
     EurekaRequestParams installRequestParams = new EurekaRequestParams()
-      .withPurgeOnRollback(true)
-      .withIgnoreErrors(false)
+      .withPurgeOnRollback(false)
+      .withIgnoreErrors(true)
       .doLoadReference(args.loadReference)
       .doLoadSample(args.loadSample) as EurekaRequestParams
 
@@ -194,11 +194,11 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
       retry(5) {
-        folioHelm.withK8sClient {
-          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
-        }
-        sleep time: 2, unit: 'MINUTES'
+//        folioHelm.withK8sClient {
+//          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
+//          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
+//        }
+//        sleep time: 2, unit: 'MINUTES'
 
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
