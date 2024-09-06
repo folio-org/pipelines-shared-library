@@ -72,7 +72,6 @@ void call(CreateNamespaceParameters args) {
       commitHash, args.folioBranch)
 
     EurekaRequestParams installRequestParams = new EurekaRequestParams()
-      .withPurgeOnRollback(false)
       .withIgnoreErrors(true)
       .doLoadReference(args.loadReference)
       .doLoadSample(args.loadSample) as EurekaRequestParams
@@ -96,8 +95,7 @@ void call(CreateNamespaceParameters args) {
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
         .withInstallJson(namespace.getModules().getInstallJson().collect())
         .withIndex(new Index('instance', true, true))
-        // TODO: Temporary fixed due to module error
-        //.withIndex(new Index('authority', true, false))
+        .withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
     )
@@ -160,12 +158,6 @@ void call(CreateNamespaceParameters args) {
 //      }
     }
 
-    println("I'm in the folioNamespaceCreateEureka.groovy namespace modules : ${namespace.getModules()}")
-
-    namespace.getTenants().each { name, tenant ->
-      println("I'm in the folioNamespaceCreateEureka.groovy $name : $tenant")
-    }
-
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         println(namespace.getModules().getBackendModules())
@@ -194,12 +186,6 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
       retry(5) {
-//        folioHelm.withK8sClient {
-//          awscli.getKubeConfig(Constants.AWS_REGION, namespace.getClusterName())
-//          kubectl.rolloutDeployment("mod-calendar", "${namespace.getNamespaceName()}")
-//        }
-//        sleep time: 2, unit: 'MINUTES'
-
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
