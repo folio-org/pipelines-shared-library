@@ -190,7 +190,7 @@ void call(CreateNamespaceParameters args) {
       int counter = 0
       retry(5) {
         if(counter > 0)
-          sleep time: 5, unit: 'MINUTES'
+          sleep time: 3, unit: 'MINUTES'
 
         counter++
 
