@@ -31,29 +31,29 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -67,6 +67,8 @@ void call(CreateNamespaceParameters args) {
 
     println("folioNamespaceCreateEureka installJson: $installJson")
     println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
+
+    input(message: "Please, break it")
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
