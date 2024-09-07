@@ -38,6 +38,8 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
+    context.input(message: "Increase TTL!!!")
+
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
     //create tenant admin user
