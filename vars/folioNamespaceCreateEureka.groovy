@@ -117,7 +117,7 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    input(message: "Set TTL!!")
+//    input(message: "Set TTL!!")
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -182,14 +182,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Wait] for modules initialization') {
-       // modules init timeout | MUST HAVE
-    }
-
     stage('[Rest] Initialize') {
       int counter = 0
       retry(5) {
-        sleep time: (counter == 1 ? 10 : (counter == 0 ? 0 : 2)), unit: 'MINUTES'
+        sleep time: (counter == 1 ? 10 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
