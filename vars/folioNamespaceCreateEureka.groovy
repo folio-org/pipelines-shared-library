@@ -74,8 +74,6 @@ void call(CreateNamespaceParameters args) {
     println("folioNamespaceCreateEureka installJson: $installJson")
     println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
 
-    input(message: "Please, break it")
-
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
 
