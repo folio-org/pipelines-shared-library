@@ -65,11 +65,6 @@ void call(CreateNamespaceParameters args) {
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
 
     eurekaPlatform.each {module ->
-//      if(module.id.startsWith("mgr-tenant-entitlements-"))
-//        module.id = "mgr-tenant-entitlements-1.2.4"
-      println("folioNamespaceCreateEureka module.id.class: ${module.id.class}")
-      println("folioNamespaceCreateEureka module.id.class: ${module.id.startsWith("blabla")}")
-
       if(module.id.startsWith("mgr-tenant-entitlements-"))
         module.id = "mgr-tenant-entitlements-1.2.4"
     }
