@@ -189,10 +189,10 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Initialize') {
       int counter = 0
       retry(5) {
-        if(counter > 0){
+        if(counter > 0)
           sleep time: 5, unit: 'MINUTES'
-          counter++
-        }
+
+        counter++
 
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
