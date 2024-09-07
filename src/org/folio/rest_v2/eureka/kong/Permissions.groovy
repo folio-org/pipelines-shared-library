@@ -144,9 +144,9 @@ class Permissions extends Kong{
     def response
 
     if(skipExists)
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400])
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], 600000)
     else
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers)
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], 600000)
 
     String contentStr = response.body.toString()
 
