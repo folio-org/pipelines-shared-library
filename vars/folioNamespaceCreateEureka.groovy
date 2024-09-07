@@ -64,10 +64,10 @@ void call(CreateNamespaceParameters args) {
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
 
-    eurekaPlatform.each {module ->
-      if(module.id.startsWith("mgr-tenant-entitlements-"))
-        module.id = "mgr-tenant-entitlements-1.2.4"
-    }
+//    eurekaPlatform.each {module ->
+//      if(module.id.startsWith("mgr-tenant-entitlements-"))
+//        module.id = "mgr-tenant-entitlements-1.2.4"
+//    }
 
     installJson.addAll(eurekaPlatform)
 
