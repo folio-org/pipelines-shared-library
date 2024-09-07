@@ -68,6 +68,7 @@ void call(CreateNamespaceParameters args) {
 //      if(module.id.startsWith("mgr-tenant-entitlements-"))
 //        module.id = "mgr-tenant-entitlements-1.2.4"
       println("folioNamespaceCreateEureka module.id.class: ${module.id.class}")
+      println("folioNamespaceCreateEureka module.id.class: ${module.id.startsWith("blabla")}")
     }
 
     installJson.addAll(eurekaPlatform)
