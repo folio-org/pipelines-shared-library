@@ -121,8 +121,6 @@ void call(CreateNamespaceParameters args) {
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
       .defineKeycloakTTL()
 
-    input(message: "Is everything all right?")
-
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
