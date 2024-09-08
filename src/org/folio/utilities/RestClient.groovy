@@ -45,6 +45,7 @@ class RestClient {
     return doRequest('POST', url, file.bytes, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
+  @NonCPS
   private def doRequest(String method, String url, Object body, Map<String, String> headers
                         , List<Integer> validResponseCodes = []
                         , int connectionTimeout, int readTimeout) {
