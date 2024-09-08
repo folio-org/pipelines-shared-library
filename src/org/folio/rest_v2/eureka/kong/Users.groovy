@@ -12,8 +12,8 @@ class Users extends Kong{
     super(context, kongUrl, keycloak, debug)
   }
 
-  Users(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, keycloakTTL, debug)
+  Users(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, debug)
   }
 
   Users(Kong kong){

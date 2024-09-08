@@ -89,12 +89,9 @@ class Keycloak extends Base {
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
 
-    Map body = [
-      "accessTokenLifespan": "$ttl",
-      "ssoSessionIdleTimeout": "$ttl"
-    ]
+    String requestBody = "accessTokenLifespan=${ttl}&ssoSessionIdleTimeout=${ttl}"
 
-    restClient.put(url, body, headers).body
+    restClient.put(url, requestBody, headers).body
 
     logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
 

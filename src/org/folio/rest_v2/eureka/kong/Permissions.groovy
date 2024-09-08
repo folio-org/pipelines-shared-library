@@ -14,8 +14,8 @@ class Permissions extends Kong{
     super(context, kongUrl, keycloak, debug)
   }
 
-  Permissions(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, keycloakTTL, debug)
+  Permissions(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, debug)
   }
 
   Permissions(Kong kong){

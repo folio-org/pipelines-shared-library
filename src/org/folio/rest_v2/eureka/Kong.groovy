@@ -14,7 +14,7 @@ class Kong extends Base {
     this.kongUrl = kongUrl
   }
 
-  Kong(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
+  Kong(def context, String kongUrl, String keycloakUrl, boolean debug = false){
     this(context, kongUrl, new Keycloak(context, keycloakUrl, debug), debug)
   }
 
