@@ -19,6 +19,8 @@ class Keycloak extends Base {
 
   String keycloakURL
 
+  int ttl = -100
+
   /**
    * Initializes a new instance of the Authorization class.
    *
@@ -31,8 +33,10 @@ class Keycloak extends Base {
     super(context, debug)
     this.keycloakURL = keycloakURL
 
+    this.ttl = ttl
+
     if(ttl >= 0)
-      setTTL("master", ttl)
+      this.setTTL("master", this.ttl)
   }
 
   /**
