@@ -23,7 +23,7 @@ class Eureka extends Base {
   private Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    this(new Kong(context, kongUrl, keycloakUrl, keycloakTTL, debug))
+    this(new Kong(context, kongUrl, keycloakUrl, 3600, debug))
   }
 
   Eureka(Kong kong) {
