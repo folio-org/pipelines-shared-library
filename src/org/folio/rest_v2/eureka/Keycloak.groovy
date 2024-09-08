@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import com.cloudbees.groovy.cps.NonCPS
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
 import org.folio.models.EurekaTenant
@@ -91,6 +92,7 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
+  @NonCPS
   Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
