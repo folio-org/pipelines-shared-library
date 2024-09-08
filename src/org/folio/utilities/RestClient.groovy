@@ -33,7 +33,6 @@ class RestClient {
     return doRequest('DELETE', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  @NonCPS
   def put(String url, Object body, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
           , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
     return doRequest('PUT', url, body, headers, validResponseCodes, connectionTimeout, readTimeout)
@@ -45,7 +44,6 @@ class RestClient {
     return doRequest('POST', url, file.bytes, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
-  @NonCPS
   private def doRequest(String method, String url, Object body, Map<String, String> headers
                         , List<Integer> validResponseCodes = []
                         , int connectionTimeout, int readTimeout) {

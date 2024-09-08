@@ -1,6 +1,5 @@
 package org.folio.rest_v2.eureka
 
-import com.cloudbees.groovy.cps.NonCPS
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
 import org.folio.models.EurekaTenant
@@ -27,12 +26,9 @@ class Keycloak extends Base {
    * @param keycloakURL The SSO/IAM (KeyCloak) URL.
    * @param debug Debug flag indicating whether debugging is enabled.
    */
-  Keycloak(def context, String keycloakURL, int ttl = -100, boolean debug = false) {
+  Keycloak(def context, String keycloakURL, boolean debug = false) {
     super(context, debug)
     this.keycloakURL = keycloakURL
-
-    if(ttl >= 0)
-      setTTL("master", ttl)
   }
 
   /**
@@ -41,7 +37,6 @@ class Keycloak extends Base {
    * @param path The path for which to generate the URL.
    * @return The generated URL.
    */
-  @NonCPS
   String generateUrl(String path) {
     "https://${keycloakURL}${path}"
   }
@@ -80,12 +75,6 @@ class Keycloak extends Base {
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials"
 
-    logger.info("""
-      url: ${url}
-      headers: ${headers}
-      requestBody: ${requestBody}
-    """)
-
     def response = restClient.post(url, requestBody, headers).body
 
     logger.info("Access token obtained successfully from Keycloak service")
@@ -93,7 +82,6 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  @NonCPS
   Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
@@ -113,7 +101,6 @@ class Keycloak extends Base {
     return this
   }
 
-  @NonCPS
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
