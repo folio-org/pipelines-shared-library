@@ -24,14 +24,18 @@ class Eureka extends Base {
 
   Eureka(def context, String kongUrl, String keycloakUrl, int keycloakTTL = 3600, boolean debug = false) {
     this(new Kong(context, kongUrl, keycloakUrl, keycloakTTL, debug))
-
-    this.kong.keycloak.setTTL("master", 3600)
   }
 
   Eureka(Kong kong) {
     super(kong.context, kong.getDebug())
 
     this.kong = kong
+  }
+
+  Eureka setTTL(){
+    kong.keycloak.setTTL("master", 3600)
+
+    return this
   }
 
   Eureka createTenantFlow(EurekaTenant tenant) {
