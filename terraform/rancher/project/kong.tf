@@ -1,8 +1,3 @@
-resource "random_integer" "node_port" {
-  max   = 32766
-  min   = 30001
-  count = var.eureka ? 4 : 0
-}
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
@@ -24,7 +19,6 @@ resource "helm_release" "kong" {
   chart = "kong"
   depends_on = [
     rancher2_secret.db-credentials,
-    random_integer.node_port,
     helm_release.postgresql,
     helm_release.pgadmin,
     postgresql_database.kong,
@@ -80,10 +74,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result)}"
+    proxyHttp: ""
+    proxyHttps: ""
+    adminHttp: ""
+    adminHttps: ""
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -97,7 +91,6 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result)}"
 kong:
   livenessProbe:
     enabled: false
