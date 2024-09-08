@@ -24,6 +24,8 @@ class Eureka extends Base {
 
   Eureka(def context, String kongUrl, String keycloakUrl, int keycloakTTL = 3600, boolean debug = false) {
     this(new Kong(context, kongUrl, keycloakUrl, keycloakTTL, debug))
+
+    setTTL()
   }
 
   Eureka(Kong kong) {

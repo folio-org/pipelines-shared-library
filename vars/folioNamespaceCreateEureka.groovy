@@ -119,7 +119,7 @@ void call(CreateNamespaceParameters args) {
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-    eureka.setTTL()
+//    eureka.setTTL()
 
     input(message: "Is everything all right?")
 
