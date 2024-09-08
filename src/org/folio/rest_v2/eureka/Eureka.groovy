@@ -22,10 +22,8 @@ class Eureka extends Base {
 
   private Kong kong
 
-  Eureka(def context, String kongUrl, String keycloakUrl, int keycloakTTL = 3600, boolean debug = false) {
+  Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     this(new Kong(context, kongUrl, keycloakUrl, keycloakTTL, debug))
-
-    this.withMasterKeycloakTTL()
   }
 
   Eureka(Kong kong) {
@@ -34,8 +32,8 @@ class Eureka extends Base {
     this.kong = kong
   }
 
-  Eureka withMasterKeycloakTTL(){
-    kong.keycloak.withTTL("master", 3600)
+  Eureka defineKeycloakTTL(int ttl = 3600) {
+    kong.keycloak.defineTTL("master", ttl)
 
     return this
   }
@@ -46,7 +44,7 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-    kong.keycloak.withTTL(tenant.tenantId, 3600)
+    kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 

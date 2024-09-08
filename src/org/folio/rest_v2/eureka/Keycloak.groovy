@@ -82,7 +82,7 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  Keycloak withTTL(String tenantId, int ttl = 3600){
+  Keycloak defineTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
