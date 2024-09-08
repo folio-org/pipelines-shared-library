@@ -32,7 +32,7 @@ class Keycloak extends Base {
     this.keycloakURL = keycloakURL
 
     if(ttl >= 0)
-      this.setTTL("master", ttl)
+      setTTL("master", ttl)
   }
 
   /**
@@ -41,7 +41,6 @@ class Keycloak extends Base {
    * @param path The path for which to generate the URL.
    * @return The generated URL.
    */
-  @NonCPS
   String generateUrl(String path) {
     "https://${keycloakURL}${path}"
   }
@@ -93,7 +92,7 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  Keycloak setTTL(String tenantId, int ttl = 3600){
+  public Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
@@ -112,7 +111,6 @@ class Keycloak extends Base {
     return this
   }
 
-  @NonCPS
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
