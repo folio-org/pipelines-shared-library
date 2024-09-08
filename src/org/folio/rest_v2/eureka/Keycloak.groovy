@@ -112,6 +112,7 @@ class Keycloak extends Base {
     return this
   }
 
+  @NonCPS
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
