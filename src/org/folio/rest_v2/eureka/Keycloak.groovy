@@ -19,8 +19,6 @@ class Keycloak extends Base {
 
   String keycloakURL
 
-  int ttl = -100
-
   /**
    * Initializes a new instance of the Authorization class.
    *
@@ -33,10 +31,8 @@ class Keycloak extends Base {
     super(context, debug)
     this.keycloakURL = keycloakURL
 
-    this.ttl = ttl
-
     if(ttl >= 0)
-      this.setTTL("master", this.ttl)
+      setTTL("master", ttl)
   }
 
   /**
@@ -96,10 +92,11 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  public Keycloak setTTL(String tenantId, int ttl = 3600){
+  @NonCPS
+  Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
-    String url = generateUrl("")
+    String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
 
@@ -115,6 +112,7 @@ class Keycloak extends Base {
     return this
   }
 
+  @NonCPS
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)

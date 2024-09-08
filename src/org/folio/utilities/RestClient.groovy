@@ -33,6 +33,7 @@ class RestClient {
     return doRequest('DELETE', url, null, headers, validResponseCodes, connectionTimeout, readTimeout)
   }
 
+  @NonCPS
   def put(String url, Object body, Map<String, String> headers = [:], List<Integer> validResponseCodes = []
           , int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
     return doRequest('PUT', url, body, headers, validResponseCodes, connectionTimeout, readTimeout)
