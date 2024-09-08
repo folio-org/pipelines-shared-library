@@ -7,7 +7,7 @@ package org.folio.models
 class EurekaRequestParams extends InstallRequestParams {
 
   /** Remove all in case of rollback. */
-  boolean purgeOnRollback
+  boolean purgeOnRollback = false
 
   /**
    * Defines if module data must be purged on rollback.

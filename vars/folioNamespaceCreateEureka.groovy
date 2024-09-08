@@ -69,8 +69,7 @@ void call(CreateNamespaceParameters args) {
       commitHash, args.folioBranch)
 
     EurekaRequestParams installRequestParams = new EurekaRequestParams()
-      .withPurgeOnRollback(true)
-      .withIgnoreErrors(false)
+      .withIgnoreErrors(true)
       .doLoadReference(args.loadReference)
       .doLoadSample(args.loadSample) as EurekaRequestParams
 
