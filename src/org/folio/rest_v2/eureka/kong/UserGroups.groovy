@@ -12,8 +12,8 @@ class UserGroups extends Kong{
     super(context, kongUrl, keycloak, debug)
   }
 
-  UserGroups(def context, String kongUrl, String keycloakUrl, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, debug)
+  UserGroups(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, keycloakTTL, debug)
   }
 
   UserGroups(Kong kong){

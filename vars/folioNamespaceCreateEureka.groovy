@@ -117,15 +117,14 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-//    input(message: "Set TTL!!")
+    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
     }
-
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     stage('[Rest] Preinstall') {
       namespace.withApplications(
@@ -185,7 +184,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Initialize') {
       int counter = 0
       retry(5) {
-        sleep time: (counter == 1 ? 10 : 2), unit: 'MINUTES'
+        //The first wait time should be at leas 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())

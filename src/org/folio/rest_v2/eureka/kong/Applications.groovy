@@ -10,8 +10,8 @@ class Applications extends Kong{
     super(context, kongUrl, keycloak, debug)
   }
 
-  Applications(def context, String kongUrl, String keycloakUrl, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, debug)
+  Applications(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, keycloakTTL, debug)
   }
 
   Applications(Kong kong){

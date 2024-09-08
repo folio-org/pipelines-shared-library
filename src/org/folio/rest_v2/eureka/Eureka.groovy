@@ -22,8 +22,8 @@ class Eureka extends Base {
 
   private Kong kong
 
-  Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    this(new Kong(context, kongUrl, keycloakUrl, debug))
+  Eureka(def context, String kongUrl, String keycloakUrl, int keycloakTTL = 3600, boolean debug = false) {
+    this(new Kong(context, kongUrl, keycloakUrl, keycloakTTL, debug))
   }
 
   Eureka(Kong kong) {
@@ -38,7 +38,7 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-//    context.input(message: "Increase TTL!!!")
+    kong.keycloak.setTTL(tenant.tenantId, 3600)
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 

@@ -14,8 +14,8 @@ class Permissions extends Kong{
     super(context, kongUrl, keycloak, debug)
   }
 
-  Permissions(def context, String kongUrl, String keycloakUrl, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, debug)
+  Permissions(def context, String kongUrl, String keycloakUrl, int keycloakTTL = -100, boolean debug = false){
+    super(context, kongUrl, keycloakUrl, keycloakTTL, debug)
   }
 
   Permissions(Kong kong){
@@ -131,7 +131,9 @@ class Permissions extends Kong{
     return ids
   }
 
-  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
+  Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids
+                                       , boolean skipExists = false, int connectionTimeout = 600000){
+
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -144,9 +146,9 @@ class Permissions extends Kong{
     def response
 
     if(skipExists)
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], 600000)
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], connectionTimeout)
     else
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], 600000)
+      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], connectionTimeout)
 
     String contentStr = response.body.toString()
 
@@ -173,7 +175,9 @@ class Permissions extends Kong{
     return this
   }
 
-  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids, boolean skipExists = false){
+  Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids
+                                         , boolean skipExists = false, int connectionTimeout = 600000){
+
     logger.info("Assigning capability sets for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -186,9 +190,9 @@ class Permissions extends Kong{
     def response
 
     if(skipExists)
-      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [201, 400])
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [201, 400], connectionTimeout)
     else
-      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers)
+      response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [], connectionTimeout)
 
     String contentStr = response.body.toString()
 

@@ -26,9 +26,12 @@ class Keycloak extends Base {
    * @param keycloakURL The SSO/IAM (KeyCloak) URL.
    * @param debug Debug flag indicating whether debugging is enabled.
    */
-  Keycloak(def context, String keycloakURL, boolean debug = false) {
+  Keycloak(def context, String keycloakURL, int ttl = -100, boolean debug = false) {
     super(context, debug)
     this.keycloakURL = keycloakURL
+
+    if(ttl >= 0)
+      setTTL("master", ttl)
   }
 
   /**
@@ -86,6 +89,25 @@ class Keycloak extends Base {
     logger.info("Access token obtained successfully from Keycloak service")
 
     return response['access_token']
+  }
+
+  Keycloak setTTL(String tenantId, int ttl = 3600){
+    logger.info("Increasing TTL for tenant $tenantId ....")
+
+    String url = generateUrl("/${getRealmTokenPath(tenantId)}")
+
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+
+    Map body = [
+      "accessTokenLifespan": "$ttl",
+      "ssoSessionIdleTimeout": "$ttl"
+    ]
+
+    restClient.put(url, body, headers).body
+
+    logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
+
+    return this
   }
 
   static String getRealmTokenPath(String tenantId){
