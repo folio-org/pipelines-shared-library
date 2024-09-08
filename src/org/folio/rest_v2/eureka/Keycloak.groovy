@@ -87,7 +87,7 @@ class Keycloak extends Base {
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
-    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded'] + getAuthMasterTenantHeaders()
 
     String requestBody = "accessTokenLifespan=${ttl}&ssoSessionIdleTimeout=${ttl}"
 
