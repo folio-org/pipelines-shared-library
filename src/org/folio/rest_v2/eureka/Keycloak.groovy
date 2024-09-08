@@ -93,7 +93,6 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
-  @NonCPS
   Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
