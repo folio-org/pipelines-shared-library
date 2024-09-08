@@ -32,7 +32,7 @@ class Keycloak extends Base {
     this.keycloakURL = keycloakURL
 
     if(ttl >= 0)
-      setTTL("master", ttl)
+      this.setTTL("master", ttl)
   }
 
   /**
