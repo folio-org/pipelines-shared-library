@@ -41,6 +41,7 @@ class Keycloak extends Base {
    * @param path The path for which to generate the URL.
    * @return The generated URL.
    */
+  @NonCPS
   String generateUrl(String path) {
     "https://${keycloakURL}${path}"
   }
