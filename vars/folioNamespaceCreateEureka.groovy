@@ -120,6 +120,8 @@ void call(CreateNamespaceParameters args) {
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
+    input(message: "Is everything all right?")
+
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())

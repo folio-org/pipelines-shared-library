@@ -99,7 +99,7 @@ class Keycloak extends Base {
   public Keycloak setTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
-    String url = generateUrl("/${getRealmTokenPath(tenantId)}")
+    String url = generateUrl("")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
 
