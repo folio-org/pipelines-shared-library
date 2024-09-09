@@ -28,9 +28,9 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  registry: folioci
   repository: folio-keycloak
-  tag: latest
+  tag: 25.1.0-SNAPSHOT.4
   pullPolicy: Always
   debug: false
 

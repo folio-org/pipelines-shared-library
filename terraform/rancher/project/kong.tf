@@ -32,9 +32,9 @@ resource "helm_release" "kong" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  registry: folioci
   repository: folio-kong
-  tag: latest
+  tag: 3.8.0-SNAPSHOT.2
   pullPolicy: Always
 useDaemonset: false
 replicaCount: 1
