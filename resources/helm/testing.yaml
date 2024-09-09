@@ -2205,8 +2205,12 @@ mgr-applications:
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-applications"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "1200s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "1200s"
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -2224,8 +2228,12 @@ mgr-tenants:
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenants"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "1200s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "1200s"
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -2238,10 +2246,14 @@ mgr-tenants:
       memory: 1Gi
 mgr-tenant-entitlements:
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "1200s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "1200s"
   integrations:
     db:
       enabled: true
@@ -2331,6 +2343,8 @@ mod-users-keycloak:
   extraEnvVars:
     - name: OKAPI_URL
       value: 'http://mod-users-keycloak:8082'
+    - name: MOD_USERS_URL
+      value: 'http://mod-users'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
