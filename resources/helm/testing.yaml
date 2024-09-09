@@ -2207,6 +2207,10 @@ mgr-applications:
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-applications"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "1200s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "1200s"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2226,6 +2230,10 @@ mgr-tenants:
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenants"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "1200s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "1200s"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2245,9 +2253,9 @@ mgr-tenant-entitlements:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-      value: "600s"
+      value: "1200s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
-      value: "600s"
+      value: "1200s"
   integrations:
     db:
       enabled: true
