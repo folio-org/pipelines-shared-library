@@ -61,7 +61,7 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: https://${local.keycloak_url}
   - name: KC_HOSTNAME_STRICT
-    value: "false"
+    value: "true"
   - name: KC_HOSTNAME_STRICT_HTTPS
     value: "false"
   - name: KC_LOG_LEVEL
