@@ -44,6 +44,8 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
+    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
     //create tenant admin user
