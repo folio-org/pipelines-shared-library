@@ -32,6 +32,12 @@ class Eureka extends Base {
     this.kong = kong
   }
 
+  Eureka defineKeycloakTTL(int ttl = 3600) {
+    kong.keycloak.defineTTL("master", ttl)
+
+    return this
+  }
+
   Eureka createTenantFlow(EurekaTenant tenant) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 

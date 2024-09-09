@@ -82,6 +82,25 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
+  Keycloak defineTTL(String tenantId, int ttl = 3600){
+    logger.info("Increasing TTL for tenant $tenantId ....")
+
+    String url = generateUrl("/admin/realms/${tenantId}")
+
+    Map<String,String> headers = ['Content-Type':'application/json'] + getAuthMasterTenantHeaders()
+
+    Map body = [
+      "accessTokenLifespan": "$ttl",
+      "ssoSessionIdleTimeout": "$ttl"
+    ]
+
+    restClient.put(url, body, headers).body
+
+    logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
+
+    return this
+  }
+
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
