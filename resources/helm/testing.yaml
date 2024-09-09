@@ -2244,6 +2244,10 @@ mgr-tenant-entitlements:
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
   integrations:
     db:
       enabled: true
