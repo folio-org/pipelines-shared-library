@@ -22,7 +22,7 @@ image:
   tag: 3.5
 config: |-
   listeners=PLAINTEXT://:9092
-  advertised.listeners=PLAINTEXT://kafka-${rancher2_namespace.this.name}-zookeeper:9092
+  advertised.listeners=PLAINTEXT://kafka-${rancher2_namespace.this.name}:9092
   heartbeat.interval.ms=600000
   max.poll.interval.ms=600000
   session.timeout.ms=600000
