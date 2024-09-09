@@ -59,7 +59,7 @@ extraEnvVars:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
   - name: KC_HOSTNAME
-    value: ${local.keycloak_url}
+    value: https://${local.keycloak_url}
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
