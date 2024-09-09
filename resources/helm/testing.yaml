@@ -2208,7 +2208,7 @@ mgr-applications:
     - name: MODULE_URL
       value: "http://mgr-applications"
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -2227,7 +2227,7 @@ mgr-tenants:
     - name: MODULE_URL
       value: "http://mgr-tenants"
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -2240,7 +2240,7 @@ mgr-tenants:
       memory: 1Gi
 mgr-tenant-entitlements:
   extraJavaOpts:
-    - "-Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
