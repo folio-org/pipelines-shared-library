@@ -40,6 +40,8 @@ auth:
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
 extraEnvVars:
+  - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+    value: "true"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
