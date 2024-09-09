@@ -8,6 +8,7 @@ import org.folio.models.EurekaNamespace
 import org.folio.models.FolioModule
 import org.folio.utilities.GitHubClient
 import org.folio.Constants
+import org.folio.rest_v2.eureka.Eureka
 
 /** Job properties and parameters */
 properties([
@@ -53,6 +54,8 @@ String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), feat
 
 /** Collect Maven arguments */
 String mavenArguments = params.MAVEN_ARGS.trim()
+
+Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
 
 /** Pipeline */
