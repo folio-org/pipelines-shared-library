@@ -57,6 +57,8 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
+Boolean skipStage = true
+
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -68,6 +70,11 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${featureBranch}"]],
@@ -80,6 +87,11 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+
         dir(module.getName()) {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
@@ -105,6 +117,11 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+
         common.checkEcrRepoExistence(module.getName())
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           dir(module.getName()) {
