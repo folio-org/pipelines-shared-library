@@ -20,6 +20,10 @@ resource "helm_release" "kafka" {
   values = [<<-EOF
 image:
   tag: 3.5
+config: |-
+  heartbeat.interval.ms=600000
+  max.poll.interval.ms=600000
+  session.timeout.ms=600000
 metrics:
   kafka:
     enabled: true
