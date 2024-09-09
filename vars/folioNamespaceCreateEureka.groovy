@@ -83,9 +83,6 @@ void call(CreateNamespaceParameters args) {
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
-    namespace.getModules().removeModule('edge-inventory')
-    namespace.getModules().removeModule('edge-erm')
-    namespace.getModules().removeModule('edge-users')
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -163,12 +160,13 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Wait] for modules initialization') {
-      sleep time: 5, unit: 'MINUTES' // modules init timeout | MUST HAVE
-    }
-
     stage('[Rest] Initialize') {
-      retry(2) {
+      int counter = 0
+      retry(5) {
+        //The first wait time should be at leas 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
+        counter++
+
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
