@@ -1,0 +1,158 @@
+#!groovy
+import org.folio.models.FolioInstallJson
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.models.module.FolioModule
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    string(name: 'TENANTS_LIST', defaultValue: 'diku', description: '(Required) A comma-separated list of tenant names for which the modules should be installed.'),
+    folioParameters.configType(),
+    text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
+    folioParameters.loadReference(),
+    folioParameters.loadSample(),
+    folioParameters.simulate(),
+    folioParameters.reinstall(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Validate inputs
+ */
+validateInputs(params)
+
+/**
+ * Job variables
+ */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+List tenants = params.TENANTS_LIST.split(',').collect { it.trim() }
+FolioInstallJson installJsonObject = new FolioInstallJson().setInstallJsonObject(readJSON(text: params.INSTALL_JSON))
+
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
+  .withSimulate(params.SIMULATE)
+  .withReinstall(params.REINSTALL)
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withSuperTenantAdminUser()
+  .withDefaultTenant(tenants.first())
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName("#${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}")
+        buildDescription("Config: ${namespace.getDeploymentConfigType()}")
+      }
+
+      stage('Preparation') {
+/**
+ * TODO This logic should be revised in separate ticket
+ */
+//        List<String> modulesToSkip = []
+//        String namespaceName = namespace.getNamespaceName() // Cache namespace name
+//        List<FolioModule> modules = (installJsonObject.getBackendModules() ?: []) +
+//          (installJsonObject.getEdgeModules() ?: []) +
+//          (installJsonObject.getOkapiModule() ? [installJsonObject.getOkapiModule()] : [])
+
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          modules.each { module ->
+//            String moduleName = module.getName() // Cache module name
+//            if (kubectl.isDeploymentExist(moduleName, namespaceName)) {
+//              String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, namespaceName).replace(':', '-')
+//
+//              // Skip if module is not equal
+//              if (folioVersions.compare(deployedModuleId, module.getId()).toString() != 'EQUAL') {
+//                installJsonObject.removeModuleByName(moduleName)
+//                modulesToSkip.add(module.getId())
+//              }
+//            }
+//          }
+//        }
+
+//        if (!modulesToSkip.isEmpty()) {
+//          logger.warning("Modules do not comply with conditions. Skipping: ${modulesToSkip.join(', ')}")
+//          currentBuild.result = 'UNSTABLE'
+//        }
+
+        FolioModule okapiModule = installJsonObject.getOkapiModule()
+        if (okapiModule) {
+          namespace.setOkapiVersion(okapiModule.getVersion())
+          installJsonObject.removeModuleByName('okapi')
+        }
+
+        // Cache install JSON and Okapi module
+        List installJson = installJsonObject.getInstallJson()
+
+        tenants.each { tenantId ->
+          OkapiTenant tenant = new OkapiTenant(tenantId)
+            .withInstallJson(installJson)
+            .withInstallRequestParams(installRequestParams.clone())
+          namespace.addTenant(tenant)
+          //TODO change to retrieve admin user information from secrets
+          Map folioTenants = folioDefault.tenants()
+          if (folioTenants.containsKey(tenantId)) {
+            namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+          }
+        }
+
+        namespace.getModules().setInstallJson(installJson)
+      }
+
+      stage('Install') {
+        logger.info("Modules to install:\n${writeJSON(json: installJsonObject.getInstallJson(), returnText: true, pretty: 2)}")
+
+        folioDeployFlow.update(namespace)
+      }
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+
+// Function to validate input parameters
+void validateInputs(params) {
+  ['TENANTS_LIST', 'INSTALL_JSON'].each { param ->
+    if (params[param]?.trim()?.isEmpty()) {
+      error("${param} parameter is required!")
+    }
+  }
+}

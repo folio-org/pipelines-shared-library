@@ -4,7 +4,7 @@ import hudson.model.Run
 import hudson.plugins.git.util.BuildData
 import jenkins.model.Jenkins
 import org.folio.models.ChangelogEntry
-import org.folio.models.FolioModule
+import org.folio.models.module.FolioModule
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger

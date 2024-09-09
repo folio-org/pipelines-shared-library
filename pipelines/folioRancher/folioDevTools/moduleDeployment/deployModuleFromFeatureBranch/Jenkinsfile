@@ -1,7 +1,7 @@
 #!groovy
 
 import org.folio.Constants
-import org.folio.models.FolioModule
+import org.folio.models.module.FolioModule
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
