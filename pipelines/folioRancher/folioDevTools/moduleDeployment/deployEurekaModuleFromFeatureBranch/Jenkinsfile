@@ -81,10 +81,12 @@ ansiColor('xterm') {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
 
-          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+          withMaven(
+            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
             maven: Constants.MAVEN_TOOL_NAME,
             traceability: false,
-            options: [artifactsPublisher(disabled: true)]) {
+            options: [artifactsPublisher(disabled: true)])
+          {
             sh """
               mvn versions:set -DnewVersion=${module.getVersion()}
               mvn package ${mavenArguments}
