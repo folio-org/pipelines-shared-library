@@ -172,15 +172,15 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     )
 
     switch (moduleName) {
-      //TODO: Temporary solution just to bug avoiding workaround
+    //TODO: Temporary solution just to bug avoiding workaround
       case "mod-data-export-spring":
         moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                   existingSecret: 'eureka-common']]
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
+                                         tag  : "1.1.0-SNAPSHOT.93"]]]
           ]
 
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
@@ -197,8 +197,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
+                                         tag  : "1.1.0-SNAPSHOT.93"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -210,8 +210,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
+                                         tag  : "1.1.0-SNAPSHOT.93"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -221,8 +221,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
+                                         tag  : "1.1.0-SNAPSHOT.93"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -239,7 +239,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //mod-authtoken jwt.signing.key
-  if(moduleName == 'mod-authtoken'){
+  if (moduleName == 'mod-authtoken') {
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
   }
 
@@ -312,7 +312,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   return valuesFilePath
 }
 
-static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
+static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false) {
   String repository = ""
 
   if (customModule || moduleName == 'ui-bundle') {

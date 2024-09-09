@@ -75,17 +75,30 @@ class Keycloak extends Base {
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials"
 
-    logger.info("""
-      url: ${url}
-      headers: ${headers}
-      requestBody: ${requestBody}
-    """)
-
     def response = restClient.post(url, requestBody, headers).body
 
     logger.info("Access token obtained successfully from Keycloak service")
 
     return response['access_token']
+  }
+
+  Keycloak defineTTL(String tenantId, int ttl = 3600){
+    logger.info("Increasing TTL for tenant $tenantId ....")
+
+    String url = generateUrl("/admin/realms/${tenantId}")
+
+    Map<String,String> headers = ['Content-Type':'application/json'] + getAuthMasterTenantHeaders()
+
+    Map body = [
+      "accessTokenLifespan": "$ttl",
+      "ssoSessionIdleTimeout": "$ttl"
+    ]
+
+    restClient.put(url, body, headers).body
+
+    logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
+
+    return this
   }
 
   static String getRealmTokenPath(String tenantId){

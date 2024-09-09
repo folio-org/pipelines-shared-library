@@ -32,11 +32,19 @@ class Eureka extends Base {
     this.kong = kong
   }
 
+  Eureka defineKeycloakTTL(int ttl = 3600) {
+    kong.keycloak.defineTTL("master", ttl)
+
+    return this
+  }
+
   Eureka createTenantFlow(EurekaTenant tenant) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
+
+    kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
