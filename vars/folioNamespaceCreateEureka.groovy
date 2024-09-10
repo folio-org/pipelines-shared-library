@@ -125,7 +125,6 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
-      sleep time: 1, unit: 'MINUTES'
     }
 
     stage('[Rest] Preinstall') {
