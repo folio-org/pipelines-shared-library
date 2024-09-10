@@ -135,13 +135,9 @@ void call(CreateNamespaceParameters args) {
                         "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" --region ${Constants.AWS_REGION}", returnStdout: true)
                 writeJSON file: 'asg.json', json: asg_json
                 def asg_data = readJSON file: './asg.json'
-                println(asg_data)
-                println(asg_data.AutoScalingGroups[0].AutoScalingGroupName)
-                println(asg_data.AutoScalingGroups[0].DesiredCapacity)
-                input("Pause!")
                 sh(script: "aws autoscaling set-desired-capacity " +
                         "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
-                        "--desired-capacity ${(asg_data.AutoScalingGroups[0].DesiredCapacity).toInt() + 1} " +
+                        "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
                         "--region ${Constants.AWS_REGION}")
             }
         }
