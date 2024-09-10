@@ -186,11 +186,11 @@ void call(CreateNamespaceParameters args) {
       int counter = 1
       retry(5) {
         //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
-        counter++
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           kubectl.rolloutDeployment('mod-users-keycloak', namespace.getNamespaceName())
         }
+        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
+        counter++
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
