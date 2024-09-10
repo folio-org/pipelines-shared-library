@@ -64,6 +64,8 @@ extraEnvVars:
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
     value: "false"
+  - name: KC_PROXY
+    value: "edge"
   - name: KC_LOG_LEVEL
     value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
