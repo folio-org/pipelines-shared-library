@@ -41,7 +41,7 @@ auth:
 
 extraEnvVars:
   - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
-    value: "false"
+    value: "true"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
