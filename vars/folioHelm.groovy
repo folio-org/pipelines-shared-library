@@ -179,7 +179,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
                                          tag  : "latest"]]]
           ]
 
@@ -197,7 +197,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
                                          tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
@@ -210,7 +210,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
                                          tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
@@ -221,7 +221,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                      sidecarContainer: [image: "folioci/folio-module-sidecar",
                                          tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
