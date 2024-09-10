@@ -131,12 +131,16 @@ void call(CreateNamespaceParameters args) {
 
         stage('[ASG] configure') {
             folioHelm.withKubeConfig(namespace.getClusterName()) {
-                def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups --filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" --region ${Constants.AWS_REGION}", returnStdout: true)
+                def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
+                        "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" --region ${Constants.AWS_REGION}", returnStdout: true)
                 writeJSON file: 'asg.json', json: asg_json
                 def asg_data = readJSON file: './asg.json'
                 println(asg_data)
                 input("Pause!")
-                sh(script: "aws autoscaling set-desired-capacity --auto-scaling-group-name ${asg_data.AutoScalingGroupName} --desired-capacity ${(asg_data.DesiredCapacity).toInt() + 1} --region ${Constants.AWS_REGION}")
+                sh(script: "aws autoscaling set-desired-capacity " +
+                        "--auto-scaling-group-name ${asg_data.AutoScalingGroups.AutoScalingGroupName} " +
+                        "--desired-capacity ${(asg_data.AutoScalingGroups.DesiredCapacity).toInt() + 1} " +
+                        "--region ${Constants.AWS_REGION}")
             }
         }
 
