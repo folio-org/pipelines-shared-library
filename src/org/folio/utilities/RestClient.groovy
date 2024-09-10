@@ -77,7 +77,7 @@ class RestClient {
   }
 
   private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout, int readTimeout) {
-    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection()
+    HttpURLConnection connection = (HttpURLConnection.setUseCaches(false)) new URL(url).openConnection()
     connection.requestMethod = method
     connection.connectTimeout = connectionTimeout
     connection.readTimeout = readTimeout
