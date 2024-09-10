@@ -131,6 +131,38 @@ ansiColor('xterm') {
         }
       }
 
+      // 1. Register Application Descriptor with Updated Module Version
+      stage('[Rest] Update App Descriptor') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+      }
+
+      // 2. Enable New Module Version (Discovery) for Application
+      stage('[Rest] Module Discovery') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+      }
+
+      // 3. Deploy New Module Version to Rancher Namespace via Helm
+      stage('[Helm] Deploy Module Ver') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+      }
+
+      // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
+      stage('[Rest] Enable New App') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
+      }
+
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
