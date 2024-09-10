@@ -1,5 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployEurekaModuleFromFeatureBranch
 
+import org.folio.rest.GitHubUtility
+
 // TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
 @Library('pipelines-shared-library@RANCHER-1700') _
 
@@ -133,10 +135,19 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        if(skipStage) {
-          logger.info("Skipping stage")
-          return
-        }
+        //Set install configuration
+        String defaultTenantId = 'diku'
+        String folioRepository = 'platform-complete'
+        String folioBranch = 'snapshot'
+        boolean releaseVersion = folioBranch ==~ /^R\d-\d{4}.*/
+        String commitHash = common.getLastCommitHash(folioRepository, folioBranch)
+
+        List installJson = new GitHubUtility(this).getEnableList(folioRepository, folioBranch)
+        def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, folioBranch)
+        installJson.addAll(eurekaPlatform)
+
+        println("folioNamespaceCreateEureka installJson: $installJson")
+        println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
       }
 
       // 2. Enable New Module Version (Discovery) for Application
