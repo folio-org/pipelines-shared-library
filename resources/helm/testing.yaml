@@ -582,8 +582,10 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
+      cpu: 1024m
       memory: 2Gi
     requests:
+      cpu: 512m
       memory: 256Mi
   autoscaling:
     enabled: false
@@ -1545,7 +1547,9 @@ mod-oa:
   resources:
     limits:
       memory: 3Gi
+      cpu: 1024m
     requests:
+      cpu: 512m
       memory: 1Gi
   autoscaling:
     enabled: false
