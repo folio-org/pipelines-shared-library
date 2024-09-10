@@ -1,4 +1,4 @@
-package folioRancher.folioDevTools.moduleDeployment.deployEurekaModuleFromFeatureBranch
+package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
 import org.folio.utilities.Logger
