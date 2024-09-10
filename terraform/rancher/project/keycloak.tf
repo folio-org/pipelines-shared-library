@@ -47,7 +47,7 @@ extraEnvVars:
   - name: EUREKA_RESOLVE_SIDECAR_IP
     value: "false"
   - name: PROXY_ADDRESS_FORWARDING
-    value: "true"
+    value: "false"
   - name: KC_FOLIO_BE_ADMIN_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
@@ -122,8 +122,6 @@ externalDatabase:
 logging:
   output: default
   level: DEBUG
-
-proxy: edge
 
 enableDefaultInitContainers: false
 
