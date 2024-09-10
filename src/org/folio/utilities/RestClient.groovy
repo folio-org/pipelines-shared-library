@@ -83,6 +83,7 @@ class RestClient {
     Security.setProperty("networkaddress.cache.negative.ttl", "0")
 
     HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection()
+    connection.setUseCaches(false)
     connection.requestMethod = method
     connection.connectTimeout = connectionTimeout
     connection.readTimeout = readTimeout
