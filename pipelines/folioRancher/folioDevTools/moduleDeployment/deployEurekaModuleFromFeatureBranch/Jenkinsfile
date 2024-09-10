@@ -41,9 +41,22 @@ if (params.REFRESH_PARAMETERS) {
 /** Job variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/** Collect Rancher namespace configuration */
+/** Default Tenant ID */
+String defaultTenantId = 'diku'
+
+/** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-namespace.withDeploymentConfigType(params.CONFIG_TYPE)
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+  as EurekaNamespace
+
+/** Assign Desired Resource Profile for Environment */
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+/** Assign REST request parameters */
+EurekaRequestParams installRequestParams = new EurekaRequestParams()
+  .withIgnoreErrors(true)
+  as EurekaRequestParams
 
 /** Collect Folio module configuration */
 FolioModule module = new FolioModule()
