@@ -358,6 +358,16 @@ mod-circulation:
       memory: '1024Mi'
     requests:
       memory: '768Mi'
+mod-circulation-bff:
+  javaOptions: '-XX:MaxRAMPercentage=75.0'
+  postJob:
+    enabled: false
+  replicaCount: 1
+  resources:
+    limits:
+      memory: '512Mi'
+    requests:
+      memory: '384Mi'
 mod-circulation-item:
   javaOptions: '-XX:MaxRAMPercentage=75.0'
   postJob:
