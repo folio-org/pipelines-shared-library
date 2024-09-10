@@ -2022,6 +2022,7 @@ mod-settings:
       enabled: true
       existingSecret: db-credentials
   replicaCount: 1
+  resources:
     limits:
       memory: 1Gi
     requests:
