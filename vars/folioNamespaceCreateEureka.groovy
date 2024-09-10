@@ -125,7 +125,7 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
-      sleep time: 3, unit: 'MINUTES'
+      sleep time: 1, unit: 'MINUTES'
     }
 
     stage('[Rest] Preinstall') {
@@ -166,7 +166,7 @@ void call(CreateNamespaceParameters args) {
         println(namespace.getModules().getBackendModules())
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
+//        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
 
@@ -184,10 +184,10 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      int counter = 1
+      int counter = 0
       retry(5) {
         //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
