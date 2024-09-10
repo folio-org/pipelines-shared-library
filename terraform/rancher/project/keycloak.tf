@@ -40,6 +40,8 @@ auth:
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
 extraEnvVars:
+  - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+    value: "true"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
@@ -57,11 +59,11 @@ extraEnvVars:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
   - name: KC_HOSTNAME
-    value: ${local.keycloak_url}
+    value: https://${local.keycloak_url}
   - name: KC_HOSTNAME_STRICT
-    value: "false"
+    value: "true"
   - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "false"
+    value: "true"
   - name: KC_LOG_LEVEL
     value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
