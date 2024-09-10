@@ -47,7 +47,7 @@ extraEnvVars:
   - name: EUREKA_RESOLVE_SIDECAR_IP
     value: "false"
   - name: PROXY_ADDRESS_FORWARDING
-    value: "false"
+    value: "true"
   - name: KC_FOLIO_BE_ADMIN_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
