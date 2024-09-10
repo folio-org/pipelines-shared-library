@@ -61,7 +61,7 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: https://${local.keycloak_url}
   - name: KC_HOSTNAME_STRICT
-    value: "false"
+    value: "true"
   - name: KC_HOSTNAME_STRICT_HTTPS
     value: "false"
   - name: KC_LOG_LEVEL
@@ -93,8 +93,8 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_DB_USERNAME
-  - name: KC_PROXY
-    value: none
+  - name: KC_PROXY_HEADERS
+    value: forwarded
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
