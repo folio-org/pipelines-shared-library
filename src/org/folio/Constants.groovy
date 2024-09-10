@@ -60,7 +60,9 @@ class Constants {
                                           'folio-testing': AWS_EKS_TESTING_NAMESPACES,
                                           'folio-perf'   : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
                                           'folio-tmp'    : AWS_EKS_TMP_NAMESPACES,
-                                          'folio-eureka' : AWS_EKS_DEV_NAMESPACES]
+                                          'folio-eureka' : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-edev'   : AWS_EKS_DEV_NAMESPACES]
+
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing']
