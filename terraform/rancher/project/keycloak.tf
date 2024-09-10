@@ -28,9 +28,9 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: folioci
+  registry: folioorg
   repository: folio-keycloak
-  tag: 25.1.0-SNAPSHOT.4
+  tag: latest
   pullPolicy: Always
   debug: false
 
@@ -41,7 +41,7 @@ auth:
 
 extraEnvVars:
   - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
-    value: "true"
+    value: "false"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
@@ -61,9 +61,9 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: https://${local.keycloak_url}
   - name: KC_HOSTNAME_STRICT
-    value: "true"
+    value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "true"
+    value: "false"
   - name: KC_LOG_LEVEL
     value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
