@@ -51,7 +51,7 @@ class RestClient {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
     }
 
-    HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout).setUseCaches(false)
+    HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
 
     if (body) {
       sendRequestBody(connection, body)
@@ -77,7 +77,7 @@ class RestClient {
   }
 
   private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout, int readTimeout) {
-    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection()
+    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection().setUseCaches(false)
     connection.requestMethod = method
     connection.connectTimeout = connectionTimeout
     connection.readTimeout = readTimeout
