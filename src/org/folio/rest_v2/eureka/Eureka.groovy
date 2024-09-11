@@ -230,7 +230,7 @@ class Eureka extends Base {
     Map apps = [:]
 
     tenants.each { tenant ->
-      apps = Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
+      apps << Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
         .collectEntries { enabledApps -> [tenant.tenantName, enabledApps] }
     }
 
