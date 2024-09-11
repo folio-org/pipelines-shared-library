@@ -13,7 +13,7 @@ class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
     "app-platform-full": "snapshot"
-    , "app-consortia": "master"
+    , "app-consortia": "snapshot"
   ]
 
   static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
