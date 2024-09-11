@@ -42,6 +42,16 @@ auth:
 extraEnvVars:
   - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
     value: "true"
+  - name: KC_HOSTNAME
+    value: "${local.keycloak_url}"
+  - name: KC_HOSTNAME_BACKCHANNEL
+    value: "keycloak-${rancher2_namespace.this.id}-headless"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_PROXY
+    value: "edge"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
@@ -58,14 +68,6 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
-  - name: KC_HOSTNAME
-    value: https://${local.keycloak_url}
-  - name: KC_HOSTNAME_STRICT
-    value: "false"
-  - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "false"
-  - name: KC_PROXY
-    value: "edge"
   - name: KC_LOG_LEVEL
     value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
