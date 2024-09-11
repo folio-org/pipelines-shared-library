@@ -160,4 +160,41 @@ class Tenants extends Kong{
   static Tenants get(Kong kong){
     return new Tenants(kong)
   }
+
+  /**
+   * Get Eureka Applications Enabled for Tenant.
+   *
+   * @param EurekaTenant instance.
+   * @return Map of Entitled Applications.
+   */
+  Map getEnabledApplications(EurekaTenant tenant) {
+    logger.info("Get enabled applications on tenant ${tenant.tenantId}...")
+
+    Map<String, String> headers = getMasterHttpHeaders(true)
+
+    String pathParams = "query=tenantId==${tenant.uuid}&includeModules=true"
+
+    def response = restClient.get(generateUrl("/entitlements?${pathParams}"), headers)
+
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
+
+    if (response.responseCode == 200) {
+      logger.info("""
+        Enabled applications on tenant ${tenant.tenantId}:
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+
+      return content
+    } else {
+      logger.error("""
+        Get enabled applications on tenant ${tenant.tenantId} failed
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+
+      throw new Exception("Build failed: " + contentStr)
+    }
+  }
 }
