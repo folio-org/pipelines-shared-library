@@ -226,7 +226,7 @@ class Eureka extends Base {
     Map apps = [:]
 
     tenants.each { tenant ->
-      apps = Tenants.getEnabledApplications(tenant)
+      apps = Tenants.get(kong).getEnabledApplications(tenant)
       logger.debug("Tenant ${tenant.tenantId} has enabled applications: ${apps}")
     }
 
