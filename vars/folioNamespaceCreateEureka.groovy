@@ -206,7 +206,7 @@ void call(CreateNamespaceParameters args) {
 
         stage('[Rest] Initialize') {
             int counter = 0
-            retry(5) {
+            retry(10) {
                 //The first wait time should be at leas 10 minutes due to module's long time instantiation
                 sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
                 counter++
