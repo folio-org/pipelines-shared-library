@@ -43,9 +43,9 @@ extraEnvVars:
   - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
     value: "true"
   - name: KC_HOSTNAME
-    value: "${local.keycloak_url}"
+    value: "https://${local.keycloak_url}"
   - name: KC_HOSTNAME_BACKCHANNEL
-    value: "keycloak-${rancher2_namespace.this.id}-headless"
+    value: "http://keycloak-${rancher2_namespace.this.id}-headless"
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
