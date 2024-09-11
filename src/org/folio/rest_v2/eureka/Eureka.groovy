@@ -212,4 +212,24 @@ class Eureka extends Base {
 
     return this
   }
+
+  /**
+   * Get Configured Tenants on Environment Namespace.
+   *
+   * @return The current Eureka object.
+   */
+  Eureka getExistedTenantsFlow() {
+
+    // Get List of all Tenants in the Environment
+    List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
+
+    Map apps = [:]
+
+    tenants.each { tenant ->
+      apps = Tenants.getEnabledApplications(tenant)
+      logger.debug("Tenant ${tenant.tenantId} has enabled applications: ${apps}")
+    }
+
+    return this
+  }
 }
