@@ -200,7 +200,9 @@ void call(CreateNamespaceParameters args) {
             folioHelm.withKubeConfig(namespace.getClusterName()) {
                 namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
                 }
-                folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+                retry(3) {
+                    folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+                }
             }
         }
 
