@@ -1549,7 +1549,7 @@ mod-oa:
       memory: 3Gi
       cpu: 2048m
     requests:
-      cpu: 2048mm
+      cpu: 2048m
       memory: 1Gi
   autoscaling:
     enabled: false
