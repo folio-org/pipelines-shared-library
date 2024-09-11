@@ -5,7 +5,7 @@ import hudson.util.Secret
 import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
-import org.folio.Constants
+import org.folio.models.FolioModule
 
 class Tenants extends Kong{
 
@@ -195,6 +195,32 @@ class Tenants extends Kong{
         ${contentStr}""")
 
       throw new Exception("Build failed: " + contentStr)
+    }
+  }
+
+  /**
+   * Get Eureka Applications Enabled for Tenant with Specific Module.
+   * @param tenant instance
+   * @param module instance
+   * @return Map of Entitled Applications with Specific Module.
+   */
+  Map getEnabledApplicationsWithModule(EurekaTenant tenant, FolioModule module) {
+    logger.info("Get enabled applications on tenant ${tenant.tenantId} with ${module.id} module...")
+
+    Map enabledApps = this.getEnabledApplications(tenant)
+
+    Map enabledAppsWithModule = enabledApps.entitlements.findAll { it.modules.any { it.startsWith(module.name) }}
+      .collectEntries { entitlement -> [entitlement.applicationId, entitlement] }
+
+    if (enabledAppsWithModule != null) {
+      logger.info("""
+        Enabled applications on tenant ${tenant.tenantId} contains module ${module.name}:
+        Response content:
+        ${enabledAppsWithModule}""")
+
+      return enabledAppsWithModule
+    } else {
+      logger.warning("Enabled applications on tenant ${tenant.tenantId} don't contain module ${module.name}")
     }
   }
 }
