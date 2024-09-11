@@ -1989,8 +1989,10 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      cpu: 1024m
+      memory: 3Gi
     requests:
+      cpu: 512m
       memory: 256Mi
   autoscaling:
     enabled: false
