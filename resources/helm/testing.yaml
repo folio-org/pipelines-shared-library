@@ -582,10 +582,10 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      cpu: 1024m
+      cpu: 2048m
       memory: 2Gi
     requests:
-      cpu: 512m
+      cpu: 2048m
       memory: 256Mi
   autoscaling:
     enabled: false
@@ -1547,9 +1547,9 @@ mod-oa:
   resources:
     limits:
       memory: 3Gi
-      cpu: 1024m
+      cpu: 2048m
     requests:
-      cpu: 512m
+      cpu: 2048mm
       memory: 1Gi
   autoscaling:
     enabled: false
@@ -1989,10 +1989,10 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
-      cpu: 1024m
+      cpu: 2048m
       memory: 3Gi
     requests:
-      cpu: 512m
+      cpu: 2048m
       memory: 256Mi
   autoscaling:
     enabled: false
