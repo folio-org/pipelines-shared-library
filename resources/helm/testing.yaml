@@ -585,7 +585,7 @@ mod-agreements:
       cpu: 2048m
       memory: 2Gi
     requests:
-      cpu: 2048m
+      cpu: 256m
       memory: 256Mi
   autoscaling:
     enabled: false
@@ -1549,7 +1549,7 @@ mod-oa:
       memory: 3Gi
       cpu: 2048m
     requests:
-      cpu: 2048m
+      cpu: 256m
       memory: 1Gi
   autoscaling:
     enabled: false
@@ -1992,7 +1992,7 @@ mod-serials-management:
       cpu: 2048m
       memory: 3Gi
     requests:
-      cpu: 2048m
+      cpu: 256m
       memory: 256Mi
   autoscaling:
     enabled: false

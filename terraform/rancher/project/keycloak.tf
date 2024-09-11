@@ -106,10 +106,10 @@ extraEnvVars:
 
 resources:
   requests:
-    cpu: 6000m
+    cpu: 512m
     memory: 2Gi
   limits:
-    cpu: 7000m
+    cpu: 2048m
     memory: 3Gi
 
 postgresql:

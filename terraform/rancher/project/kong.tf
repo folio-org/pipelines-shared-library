@@ -140,8 +140,10 @@ kong:
      value: "false"
 resources:
   requests:
+    cpu: 512m
     memory: 2Gi
   limits:
+    cpu: 2048m
     memory: 3Gi
 ingressController:
   enabled: false
