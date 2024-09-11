@@ -2215,6 +2215,12 @@ mgr-applications:
       value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
       value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418554"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418554"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418554"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2238,6 +2244,12 @@ mgr-tenants:
       value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
       value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418554"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418554"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418554"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2260,6 +2272,12 @@ mgr-tenant-entitlements:
       value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
       value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418554"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418554"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418554"
   integrations:
     db:
       enabled: true
