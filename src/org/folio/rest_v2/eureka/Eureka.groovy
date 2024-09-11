@@ -5,6 +5,7 @@ import org.folio.Constants
 import org.folio.models.EurekaModules
 import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
+import org.folio.models.FolioModule
 import org.folio.models.Role
 import org.folio.models.User
 import org.folio.rest_v2.eureka.kong.*
@@ -223,12 +224,16 @@ class Eureka extends Base {
     // Get List of all Tenants in the Environment
     List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
 
+    FolioModule module = new FolioModule()
+    module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
+
     Map apps = [:]
 
     tenants.each { tenant ->
-      apps = Tenants.get(kong).getEnabledApplications(tenant)
-      logger.debug("Tenant ${tenant.tenantId} has enabled applications: ${apps}")
+      apps = Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module).collectEntries { enabledApps -> [tenant.name, enabledApps] }
     }
+
+    println(apps)
 
     return this
   }
