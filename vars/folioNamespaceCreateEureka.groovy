@@ -71,7 +71,7 @@ void call(CreateNamespaceParameters args) {
         TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
                 commitHash, args.folioBranch)
 
-        EurekaRequestParams installRequestParams = new EurekaRequestParams()
+        EurekaRequestParams installRequestParams = new EurekaRequestParams(depCheck: true)
                 .withIgnoreErrors(true)
                 .doLoadReference(args.loadReference)
                 .doLoadSample(args.loadSample) as EurekaRequestParams

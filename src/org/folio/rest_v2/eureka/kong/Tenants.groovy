@@ -111,7 +111,6 @@ class Tenants extends Kong {
   }
 
   Tenants enableApplicationsOnTenant(EurekaTenant tenant) {
-    tenant.applications.values().each { app ->
 
       logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -119,7 +118,7 @@ class Tenants extends Kong {
 
       Map body = [
         tenantId    : tenant.uuid,
-        applications: app
+        applications: tenant.applications.values()
       ]
 
       logger.debug("enableApplicationsOnTenant body: ${body}")
@@ -156,7 +155,6 @@ class Tenants extends Kong {
       logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
 
       return this
-    } as Tenants
   }
 
   @NonCPS

@@ -9,6 +9,9 @@ class EurekaRequestParams extends InstallRequestParams {
   /** Remove all in case of rollback. */
   boolean purgeOnRollback = false
 
+  /** Skip depCheck */
+  boolean depCheck = false
+
   /**
    * Defines if module data must be purged on rollback.
    * @param purge The new value for the purgeOnRollback flag.
@@ -16,6 +19,10 @@ class EurekaRequestParams extends InstallRequestParams {
    */
   EurekaRequestParams withPurgeOnRollback(boolean purge) {
     this.purgeOnRollback = purge
+    return this
+  }
+  EurekaRequestParams withDepCheck(boolean skipCheck) {
+    this.depCheck = skipCheck
     return this
   }
 }
