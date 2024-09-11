@@ -234,7 +234,7 @@ class Eureka extends Base {
         .collectEntries { enabledApps -> [tenant.tenantName, enabledApps] }
     }
 
-    println(apps)
+    logger.debug("Enabled applications per tenant: ${apps}")
 
     return this
   }
