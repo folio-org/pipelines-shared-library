@@ -6,6 +6,7 @@ import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
 import org.folio.models.FolioModule
 import org.folio.models.EurekaRequestParams
+import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Eureka
 
 // TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
