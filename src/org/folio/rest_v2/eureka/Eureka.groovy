@@ -222,6 +222,8 @@ class Eureka extends Base {
   Eureka getExistedTenantsFlow(List<EurekaTenant> tenants) {
     tenants.each { tenant -> tenant.applications = Tenants.get(kong).getEnabledApplications(tenant) }
 
+    tenants.each {tenant -> logger.debug("Enabled applications in ${tenant.tenantId}: ${tenant.applications}") }
+
     // Init Folio Module instance
 //    FolioModule module = new FolioModule()
 //    module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
