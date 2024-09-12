@@ -1,6 +1,8 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
+import org.folio.models.EurekaTenant
+import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -46,7 +48,6 @@ String defaultTenantId = 'diku'
 
 /** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
 
 /** Assign Desired Resource Profile for Environment */
@@ -54,7 +55,7 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 /** Assign REST request parameters */
 EurekaRequestParams installRequestParams = new EurekaRequestParams()
-  .withIgnoreErrors(true) as EurekaRequestParams
+  .withIgnoreErrors(false) as EurekaRequestParams
 
 /** Collect Folio module configuration */
 FolioModule module = new FolioModule()
@@ -67,6 +68,7 @@ String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), feat
 /** Collect Maven arguments */
 String mavenArguments = params.MAVEN_ARGS.trim()
 
+/** Init Eureka Application Instance */
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
 Boolean skipStage = true
@@ -149,7 +151,9 @@ ansiColor('xterm') {
 //          logger.info("Skipping stage")
 //          return
 //        }
-        eureka.getExistedTenantsFlow()
+        eureka.getExistedTenantsFlow(namespace.getTenants().values() as List<EurekaTenant>)
+
+        logger.debug("Enabled applications per tenant: ${namespace.getTenants()}")
       }
 
       // 2. Enable New Module Version (Discovery) for Application
