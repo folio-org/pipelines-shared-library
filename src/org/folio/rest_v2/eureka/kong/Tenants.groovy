@@ -189,7 +189,7 @@ class Tenants extends Kong{
         Response content:
         ${contentStr}""")
 
-      return content
+      return content['entitlements'].collectEntries { entitlement -> [entitlement.applicationId, entitlement] }
     } else {
       logger.error("""
         Get enabled applications on tenant ${tenant.tenantId} failed
@@ -242,8 +242,9 @@ class Tenants extends Kong{
 
     Map enabledApps = this.getEnabledApplications(tenant)
 
-    Map enabledAppsWithModule = enabledApps.entitlements.findAll { it.modules.any { it.startsWith(module.name) }}
-      .collectEntries { entitlement -> [entitlement.applicationId, entitlement] }
+    Map enabledAppsWithModule = enabledApps.findAll {application ->
+      application.value.modules.any { it.startsWith(module.name) }
+    }
 
     if (enabledAppsWithModule != null) {
       logger.info("""
