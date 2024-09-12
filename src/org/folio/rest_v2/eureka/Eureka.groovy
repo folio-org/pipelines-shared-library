@@ -221,8 +221,12 @@ class Eureka extends Base {
    * @return The current Eureka object.
    */
   Eureka getExistedTenantsFlow(EurekaNamespace namespace) {
-    // Get List of all Tenants in the Environment (namespace)
-    List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
+    List<String> tenantsList = "diku,university".split(",")
+
+    // Get List of specified Tenants from the Environment (namespace)
+    List<EurekaTenant> tenants = Tenants.get(kong).getTenants().findAll { tenant ->
+      tenantsList.contains(tenant.tenantName)
+    }
 
 //    // Get Enabled (entitled) Applications for each Tenant
 //    tenants.each {tenant ->

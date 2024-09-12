@@ -58,7 +58,7 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 /** Init Eureka Application Instance */
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-Boolean skipStage = false
+Boolean skipStage = true
 
 
 /** Pipeline */
