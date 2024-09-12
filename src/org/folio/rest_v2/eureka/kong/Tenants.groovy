@@ -233,12 +233,12 @@ class Tenants extends Kong{
 
   /**
    * Get Eureka Applications Enabled for Tenant with Specific Module.
-   * @param tenant instance
-   * @param module instance
+   * @param tenant EurekaTenant instance
+   * @param module FolioModule instance
    * @return Map of Entitled Applications with Specific Module.
    */
   Map getEnabledApplicationsWithModule(EurekaTenant tenant, FolioModule module) {
-    logger.info("Get enabled applications on tenant ${tenant.tenantId} with ${module.id} module...")
+    logger.info("Get enabled applications for ${tenant.tenantId} tenant with ${module.id} module...")
 
     Map enabledApps = this.getEnabledApplications(tenant, '', true)
 
