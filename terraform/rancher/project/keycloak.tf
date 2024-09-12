@@ -45,7 +45,7 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: "https://${local.keycloak_url}"
   - name: KC_HOSTNAME_BACKCHANNEL
-    value: "keycloak-${rancher2_namespace.this.id}.${rancher2_namespace.this.id}.svc.cluster.local"
+    value: "https://${local.keycloak_url}"
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
