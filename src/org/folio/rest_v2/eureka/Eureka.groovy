@@ -220,11 +220,7 @@ class Eureka extends Base {
    * @return The current Eureka object.
    */
   Eureka getExistedTenantsFlow(List<EurekaTenant> tenants) {
-    tenants.each { tenant ->
-      tenant.applications = Tenants.get(kong).getEnabledApplications(tenant)
-        .get("entitlements") as List
-        .collectEntries { [it.applicationId, it] } as Map
-    }
+    tenants.each { tenant -> tenant.applications = Tenants.get(kong).getEnabledApplications(tenant) }
 
     // Init Folio Module instance
 //    FolioModule module = new FolioModule()
