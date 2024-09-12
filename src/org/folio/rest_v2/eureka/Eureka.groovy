@@ -240,10 +240,18 @@ class Eureka extends Base {
 
     logger.debug("Enabled applications with tenants: ${enabledAppsMap}")
 
-//Get application descriptors for enabled applications
-//1.2 Get Current Application Descriptor for Tenant by its ID
-//Map appDescriptor = folioApp.getApplicationDescriptor(appId)
-//
+    /** Application Descriptors Map */
+    Map appDescriptorsMap = [:]
+
+    //Get application descriptors for enabled applications
+    enabledAppsMap.keySet().each { appId ->
+      Applications.get(kong).getRegisteredApplication(appId).each { descriptor ->
+        appDescriptorsMap.put(appId, descriptor)
+        }
+    }
+
+    logger.debug("Application Descriptors for enabled applications: ${appDescriptorsMap}")
+
 //// 1.3 Get Application Descriptor Updated with New Module Version
 //String increasedBuildNumber = env.BUILD_NUMBER.toInteger()
 //updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
