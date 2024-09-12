@@ -221,27 +221,30 @@ class Eureka extends Base {
    * @return The current Eureka object.
    */
   Eureka getExistedTenantsFlow(EurekaNamespace namespace) {
-    // Get List of all Tenants in the Environment
+    // Get List of all Tenants in the Environment (namespace)
     List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
 
-    // Get Enabled Applications for each Tenant
-    tenants.each {tenant ->
-      tenant.applications = Tenants.get(kong).getEnabledApplications(tenant)
-    }
-
-    tenants.each {tenant -> logger.debug("Enabled applications in ${tenant.tenantId}: ${tenant.applications}") }
-
-    // Init Folio Module instance
-//    FolioModule module = new FolioModule()
-//    module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
-//
-//
-//    tenants.each { tenant ->
-//      apps << Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
-//        .collectEntries { enabledApps -> [tenant.tenantName, enabledApps] }
+//    // Get Enabled (entitled) Applications for each Tenant
+//    tenants.each {tenant ->
+//      tenant.applications = Tenants.get(kong).getEnabledApplications(tenant)
 //    }
 //
-//    logger.debug("Enabled applications per tenant: ${apps}")
+//    tenants.each {tenant -> logger.debug("Enabled applications in ${tenant.tenantId}: ${tenant.applications}") }
+//
+//    namespace.enabledApps = tenants.collectEntries { tenant -> [tenant.tenantId, tenant] }
+
+    // Init Folio Module instance
+    FolioModule module = new FolioModule()
+    module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
+
+    Map apps = [:]
+
+    tenants.each { tenant ->
+      apps << Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
+        .collectEntries { enabledApps -> [tenant.tenantName, enabledApps] }
+    }
+
+    logger.debug("Enabled applications per tenant: ${apps}")
 
     return this
   }

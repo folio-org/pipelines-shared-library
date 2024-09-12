@@ -173,7 +173,7 @@ class Tenants extends Kong{
   Map getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = false, int limit = 500) {
     String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
 
-    logger.info("Get enabled (entitled) applications with parameters: ${pathParams}...")
+    logger.info("Get enabled (entitled) applications for ${tenant.tenantId} tenant with parameters: ${pathParams}...")
 
     Map<String, String> headers = getMasterHttpHeaders(true)
 
@@ -240,7 +240,7 @@ class Tenants extends Kong{
   Map getEnabledApplicationsWithModule(EurekaTenant tenant, FolioModule module) {
     logger.info("Get enabled applications on tenant ${tenant.tenantId} with ${module.id} module...")
 
-    Map enabledApps = this.getEnabledApplications(tenant)
+    Map enabledApps = this.getEnabledApplications(tenant, '', true)
 
     Map enabledAppsWithModule = enabledApps.findAll {application ->
       application.value.modules.any { it.startsWith(module.name) }
