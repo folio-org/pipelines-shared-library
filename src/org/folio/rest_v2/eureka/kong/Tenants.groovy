@@ -170,7 +170,7 @@ class Tenants extends Kong{
    * @param limit number of records to return in response.
    * @return Map of Entitled Applications.
    */
-  Map getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = true, int limit = 500) {
+  Map getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = false, int limit = 500) {
     String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
 
     logger.info("Get enabled (entitled) applications with parameters: ${pathParams}...")
