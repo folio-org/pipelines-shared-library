@@ -241,7 +241,7 @@ class Eureka extends Base {
 
     tenants.each { tenant ->
       Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
-      .collectEntries { key, value ->
+      .each { key, value ->
         apps.containsKey(key) ? apps[key] << [value] : apps << [key, [value]]
       }
     }
