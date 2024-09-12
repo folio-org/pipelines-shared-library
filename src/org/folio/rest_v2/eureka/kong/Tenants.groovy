@@ -252,7 +252,9 @@ class Tenants extends Kong{
         Response content:
         ${enabledAppsWithModule}""")
 
-      return enabledAppsWithModule
+      return enabledAppsWithModule.collectEntries { enabledApp ->
+        [enabledApp.key, [tenantName: tenant.tenantName, tenantId: enabledApp.value.tenantId]]
+      }
     } else {
       logger.warning("Enabled applications on tenant ${tenant.tenantId} don't contain module ${module.name}")
     }

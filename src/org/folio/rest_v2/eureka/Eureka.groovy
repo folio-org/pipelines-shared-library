@@ -241,7 +241,6 @@ class Eureka extends Base {
 
     tenants.each { tenant ->
       apps << Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
-        .collectEntries { enabledApps -> [tenant.tenantName, enabledApps] }
     }
 
     logger.debug("Enabled applications per tenant: ${apps}")
