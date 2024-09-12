@@ -1,7 +1,6 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
-import org.folio.models.EurekaTenant
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -17,19 +16,15 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
-    folioParameters.namespace(),
     folioParameters.moduleName(),
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
-    string(name: 'TENANT_ID', defaultValue: 'diku', description: 'Tenant Name to deploy module to'),
-    folioParameters.configType(),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    folioParameters.loadReference(false),
-    folioParameters.loadSample(false),
-    folioParameters.ignoreErrors(),
+    string(name: 'TENANTS_LIST', defaultValue: 'diku', description: 'Comma separated list of Tenant Names to deploy module to'),
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.configType(),
     folioParameters.agent(),
     folioParameters.refreshParameters(),
-    booleanParam(name: 'REST_DEBUG', defaultValue: false, description: 'Enable Debug Mode for REST calls')
   ])
 ])
 
@@ -42,20 +37,12 @@ if (params.REFRESH_PARAMETERS) {
 /** Job variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/** Default Tenant ID */
-String defaultTenantId = 'diku'
-
 /** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
 
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-/** Assign REST request parameters */
-EurekaRequestParams installRequestParams = new EurekaRequestParams()
-  .withIgnoreErrors(false) as EurekaRequestParams
 
 /** Collect Folio module configuration */
 FolioModule module = new FolioModule()
