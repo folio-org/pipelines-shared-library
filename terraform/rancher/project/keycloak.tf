@@ -45,7 +45,7 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: "https://${local.keycloak_url}"
   - name: KC_HOSTNAME_BACKCHANNEL
-    value: "http://keycloak-${rancher2_namespace.this.id}-headless"
+    value: "http://keycloak-${rancher2_namespace.this.id}-headless.${rancher2_namespace.this.id}.svc.cluster.local"
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
@@ -97,8 +97,6 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_DB_USERNAME
-  - name: KC_PROXY_HEADERS
-    value: "forwarded"
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
