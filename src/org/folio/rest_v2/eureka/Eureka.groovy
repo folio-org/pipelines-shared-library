@@ -216,40 +216,40 @@ class Eureka extends Base {
   }
 
   /**
-   * Get Configured Tenants on Environment Namespace.
+   * Update Application Descriptor Flow.
    *
+   * @param namespace EurekaNamespace object.
+   * @param tenantsList List of Tenant Names.
    * @return The current Eureka object.
    */
-  Eureka getExistedTenantsFlow(EurekaNamespace namespace) {
-    List<String> tenantsList = "diku,university".split(",")
-
-    // Get List of specified Tenants from the Environment (namespace)
+  Eureka updateAppDescriptorFlow(FolioModule module, List<String> tenantsList) {
+    // Get specified Tenants from the Environment (namespace)
     List<EurekaTenant> tenants = Tenants.get(kong).getTenants().findAll { tenant ->
       tenantsList.contains(tenant.tenantName)
     }
 
-//    // Get Enabled (entitled) Applications for each Tenant
-//    tenants.each {tenant ->
-//      tenant.applications = Tenants.get(kong).getEnabledApplications(tenant)
-//    }
-//
-//    tenants.each {tenant -> logger.debug("Enabled applications in ${tenant.tenantId}: ${tenant.applications}") }
-//
-//    namespace.enabledApps = tenants.collectEntries { tenant -> [tenant.tenantId, tenant] }
+    /** Enabled (entitled) applications Map */
+    Map<String, List<Map>> enabledAppsMap = [:]
 
-    // Init Folio Module instance
-    FolioModule module = new FolioModule()
-    module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
-
-    Map<String, List<Map>> apps = [:]
-
+    // Get enabled applications with specified module for requested Tenants
     tenants.each { tenant ->
       Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module).each { key, value ->
-        apps.containsKey(key) ? apps[key].add(value) : apps.put(key, [value])
+        enabledAppsMap.containsKey(key) ? enabledAppsMap[key].add(value) : enabledAppsMap.put(key, [value])
       }
     }
 
-    logger.debug("Enabled applications per tenant: ${apps}")
+    logger.debug("Enabled applications with tenants: ${enabledAppsMap}")
+
+//Get application descriptors for enabled applications
+//1.2 Get Current Application Descriptor for Tenant by its ID
+//Map appDescriptor = folioApp.getApplicationDescriptor(appId)
+//
+//// 1.3 Get Application Descriptor Updated with New Module Version
+//String increasedBuildNumber = env.BUILD_NUMBER.toInteger()
+//updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
+//
+//// 1.4 Put back Updated Application Descriptor to Eureka Instance
+//folioApp.registerApplication(updatedAppDescriptor)
 
     return this
   }
