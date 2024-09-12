@@ -245,9 +245,7 @@ class Eureka extends Base {
 
     //Get application descriptors for enabled applications
     enabledAppsMap.keySet().each { appId ->
-      Applications.get(kong).getRegisteredApplication(appId).each { descriptor ->
-        appDescriptorsMap.put(appId, descriptor)
-        }
+      appDescriptorsMap.put(appId, Applications.get(kong).getRegisteredApplication(appId))
     }
 
     logger.debug("Application Descriptors for enabled applications: ${appDescriptorsMap}")
