@@ -104,6 +104,12 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: KONG_PROXY_CONNECT_TIMEOUT
+     value: "120000"
+   - name: KONG_PROXY_READ_TIMEOUT
+     value: "120000"
+   - name: KONG_PROXY_SEND_TIMEOUT
+     value: "120000"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
