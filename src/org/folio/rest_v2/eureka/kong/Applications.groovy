@@ -140,6 +140,15 @@ class Applications extends Kong{
    * @return Map with enabled application
    */
   Map getEnabledApplicationById(String appId){
-    return getEnabledApplications("applicationId==$appId")[0]
+    return getEnabledApplications("applicationId==${appId}")[0]
+  }
+
+  /**
+   * Get specific enabled application
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return Map with enabled application
+   */
+  Map getEnabledApplicationByTenantUuid(String tenantUuid){
+    return getEnabledApplications("tenantId==${tenantUuid}")[0]
   }
 }
