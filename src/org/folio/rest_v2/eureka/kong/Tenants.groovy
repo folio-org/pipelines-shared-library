@@ -162,17 +162,20 @@ class Tenants extends Kong{
   }
 
   /**
-   * Get Eureka Applications Enabled for Tenant.
+   * Get Eureka Applications Enabled (entitled) for Tenant.
    *
-   * @param EurekaTenant instance.
+   * @param tenant EurekaTenant instance.
+   * @param query CQL query.
+   * @param includeModules boolean flag to include modules.
+   * @param limit number of records to return in response.
    * @return Map of Entitled Applications.
    */
-  Map getEnabledApplications(EurekaTenant tenant) {
-    logger.info("Get enabled applications on tenant ${tenant.tenantId}...")
+  Map getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = true, int limit = 500) {
+    String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
+
+    logger.info("Get enabled (entitled) applications with parameters: ${pathParams}...")
 
     Map<String, String> headers = getMasterHttpHeaders(true)
-
-    String pathParams = "query=tenantId==${tenant.uuid}&includeModules=true"
 
     def response = restClient.get(generateUrl("/entitlements?${pathParams}"), headers)
 
@@ -196,6 +199,36 @@ class Tenants extends Kong{
 
       throw new Exception("Build failed: " + contentStr)
     }
+  }
+
+  /**
+   * Check if specific application is enabled
+   * @param tenant EurekaTenant instance
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return boolean true if application is enabled (entitled)
+   */
+  boolean isApplicationEnabled(EurekaTenant tenant, String appId) {
+    return getEnabledApplications(tenant, "applicationId=${appId}").size() > 0
+  }
+
+  /**
+   * Get specific enabled application
+   * @param tenant EurekaTenant instance
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return Map with enabled (entitled) application
+   */
+  Map getEnabledApplicationById(EurekaTenant tenant, String appId, Boolean includeModules = false){
+    return getEnabledApplications(tenant,"applicationId=${appId}", includeModules)[0]
+  }
+
+  /**
+   * Get specific enabled application
+   * @param tenant EurekaTenant instance
+   * @param tenantUuid Tenant UUID (e.g. 75fdaeb7-0027-41fc-a0c5-b8d170c08722)
+   * @return Map with enabled (entitled) application
+   */
+  Map getEnabledApplicationByTenantUuid(EurekaTenant tenant, String tenantUuid, Boolean includeModules = false){
+    return getEnabledApplications(tenant,"tenantId=${tenantUuid}", includeModules)[0]
   }
 
   /**
