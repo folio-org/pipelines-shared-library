@@ -237,12 +237,11 @@ class Eureka extends Base {
     FolioModule module = new FolioModule()
     module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
 
-    Map apps = [:]
+    Map<String, List<Map>> apps = [:]
 
     tenants.each { tenant ->
-      Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module)
-      .each { key, value ->
-        apps.containsKey(key) ? apps[key] << [value] : apps << [key, [value]]
+      Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module).each { key, value ->
+        apps[key].add([value])
       }
     }
 
