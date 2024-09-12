@@ -2,8 +2,6 @@ package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranc
 
 import org.folio.Constants
 import org.folio.models.EurekaTenant
-import org.folio.models.Index
-import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -54,12 +52,6 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-/** Add Pre-configured Tenants to Namespace */
-namespace.addTenant(
-  folioDefault.tenants()[namespace.getDefaultTenantId()]
-    .convertTo(EurekaTenant.class)
-)
 
 /** Assign REST request parameters */
 EurekaRequestParams installRequestParams = new EurekaRequestParams()
@@ -155,10 +147,6 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-//        if(skipStage) {
-//          logger.info("Skipping stage")
-//          return
-//        }
         eureka.getExistedTenantsFlow(namespace.getTenants().values() as List<EurekaTenant>)
       }
 
