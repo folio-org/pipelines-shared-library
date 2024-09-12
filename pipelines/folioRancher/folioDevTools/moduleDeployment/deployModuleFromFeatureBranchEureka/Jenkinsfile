@@ -2,6 +2,7 @@ package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranc
 
 import org.folio.Constants
 import org.folio.models.EurekaTenant
+import org.folio.models.Index
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
@@ -48,10 +49,17 @@ String defaultTenantId = 'diku'
 
 /** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+  .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
 
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+/** Add Pre-configured Tenants to Namespace */
+namespace.addTenant(
+  folioDefault.tenants()[namespace.getDefaultTenantId()]
+    .convertTo(EurekaTenant.class)
+)
 
 /** Assign REST request parameters */
 EurekaRequestParams installRequestParams = new EurekaRequestParams()
@@ -152,8 +160,6 @@ ansiColor('xterm') {
 //          return
 //        }
         eureka.getExistedTenantsFlow(namespace.getTenants().values() as List<EurekaTenant>)
-
-        logger.debug("Enabled applications per tenant: ${namespace.getTenants()}")
       }
 
       // 2. Enable New Module Version (Discovery) for Application

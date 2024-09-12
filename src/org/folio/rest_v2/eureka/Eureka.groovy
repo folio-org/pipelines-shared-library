@@ -220,7 +220,9 @@ class Eureka extends Base {
    * @return The current Eureka object.
    */
   Eureka getExistedTenantsFlow(List<EurekaTenant> tenants) {
-    tenants.each { tenant -> tenant.applications = Tenants.get(kong).getEnabledApplications(tenant) }
+    tenants.each {tenant ->
+      tenant.applications = Tenants.get(kong).getEnabledApplications(tenant)
+    }
 
     tenants.each {tenant -> logger.debug("Enabled applications in ${tenant.tenantId}: ${tenant.applications}") }
 
