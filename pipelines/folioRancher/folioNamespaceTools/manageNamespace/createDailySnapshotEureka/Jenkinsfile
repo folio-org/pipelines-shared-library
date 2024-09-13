@@ -19,7 +19,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
 
 
 if (params.REFRESH_PARAMETERS) {
