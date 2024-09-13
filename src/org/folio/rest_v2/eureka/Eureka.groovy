@@ -216,9 +216,18 @@ class Eureka extends Base {
   }
 
   /**
+   * Get Configured Tenants on Environment Namespace.
+   *
+   * @return Map of EurekaTenant instances.
+   */
+  Map<String, EurekaTenant> getExistedTenantsFlow() {
+    return Tenants.get(kong).getTenants().collectEntries { tenant -> [tenant.tenantName, tenant] }
+  }
+
+  /**
    * Update Application Descriptor Flow.
    *
-   * @param namespace EurekaNamespace object.
+   * @param module FolioModule object.
    * @param tenantsList List of Tenant Names.
    * @return The current Eureka object.
    */
