@@ -303,7 +303,7 @@ class Eureka extends Base {
 //      }
 //    }
 
-    logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
+    logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n${appDescriptor}")
 
     return appDescriptor as Map
   }
