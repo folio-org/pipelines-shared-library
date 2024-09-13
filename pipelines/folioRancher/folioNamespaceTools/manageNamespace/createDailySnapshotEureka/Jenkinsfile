@@ -32,6 +32,7 @@ final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
+  .configType('testing')
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
