@@ -2308,6 +2308,9 @@ mod-consortia-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     systemuser:
       enabled: true
       existingSecret: mod-consortia-keycloak-systemuser
@@ -2332,6 +2335,9 @@ mod-login-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2353,6 +2359,9 @@ mod-roles-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2384,6 +2393,9 @@ mod-users-keycloak:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     systemuser:
       enabled: true
       existingSecret: mod-users-keycloak-systemuser
