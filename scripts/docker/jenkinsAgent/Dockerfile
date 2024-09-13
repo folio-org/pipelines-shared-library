@@ -1,5 +1,5 @@
 # Use the Jenkins agent base image
-FROM jenkins/agent:alpine-jdk17
+FROM jenkins/inbound-agent:alpine3.20-jdk17
 
 # Set environment variables to avoid user interaction during installation
 ENV DEBIAN_FRONTEND=noninteractive
