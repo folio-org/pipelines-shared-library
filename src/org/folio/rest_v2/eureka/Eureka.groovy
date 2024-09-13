@@ -288,8 +288,8 @@ class Eureka extends Base {
     }
 
     // Remove broken module version from the Application Descriptor
-    appDescriptor.modules.each { mod ->
-      if(mod.id.contains("mod-roles-keycloak-1.4.5-SNAPSHOT.121")) { mod.remove() }
+    appDescriptor.modules.eachWithIndex { mod, index ->
+      if(mod.id.contains("mod-roles-keycloak-1.4.5-SNAPSHOT.121")) { mod.remove(index) }
     }
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
