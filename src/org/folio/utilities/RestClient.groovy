@@ -94,6 +94,12 @@ class RestClient {
   }
 
   private void sendRequestBody(HttpURLConnection connection, Object body) {
+
+    Security.setProperty("networkaddress.cache.ttl", "0")
+    Security.setProperty("networkaddress.cache.negative.ttl", "0")
+
+    connection.setUseCaches(false)
+
     if (body instanceof Map || body instanceof List) {
       body = JsonOutput.toJson(body)
       if (!connection.getRequestProperty('Content-Type')) {
