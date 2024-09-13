@@ -134,7 +134,6 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        module.loadModuleDetails("mod-lists-2.1.0-SNAPSHOT.95")
         List<String> tenantsList = params.TENANTS_LIST.split(",")
         eureka.updateAppDescriptorFlow(module, tenantsList)
       }
