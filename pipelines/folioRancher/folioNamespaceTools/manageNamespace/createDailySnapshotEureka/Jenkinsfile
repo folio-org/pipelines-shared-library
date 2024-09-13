@@ -65,7 +65,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType('built-in')
   .opensearchType('aws')
   .s3Type('built-in')
-  .members('thunderjet,folijet,spitfire,vega,thor,eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
+  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
   .build()
 
