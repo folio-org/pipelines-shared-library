@@ -288,12 +288,12 @@ class Eureka extends Base {
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
-//    // Update Application Descriptor with new Module Version
-//    appDescriptor.modules.findAll { it.name == module.name }.each {
-//      it.url = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
-//      it.id = "${module.name}-${module.version}"
-//      it.version = module.version
-//    }
+    // Update Application Descriptor with new Module Version
+    appDescriptor.modules.findAll { it.name == module.name }.each {
+      it.url = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+      it.id = "${module.name}-${module.version}"
+      it.version = module.version
+    }
 
 //    // Remove broken module version from the Application Descriptor
 //    appDescriptor.modules.eachWithIndex { mod, index ->
