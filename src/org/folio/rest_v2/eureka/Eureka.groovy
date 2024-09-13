@@ -295,6 +295,14 @@ class Eureka extends Base {
       }
     }
 
+    // Remove broken module version from the Application Descriptor
+    appDescriptor.modules.eachWithIndex { mod, index ->
+      if(mod.id.contains("mod-lists-2.1.0-SNAPSHOT.95")) {
+        logger.debug("Found Broken Module: ${mod}")
+        mod.url = "https://folio-registry.dev.folio.org/_/proxy/modules/mod-lists-2.1.0-SNAPSHOT.95"
+      }
+    }
+
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
 
     return appDescriptor as Map
