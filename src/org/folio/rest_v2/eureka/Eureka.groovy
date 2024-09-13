@@ -240,7 +240,7 @@ class Eureka extends Base {
 
     logger.debug("Enabled applications with tenants: ${enabledAppsMap}")
 
-    /** Application Descriptors Map */
+    /** Enabled Application Descriptors Map */
     Map appDescriptorsMap = [:]
 
     //Get application descriptors for enabled applications
@@ -250,13 +250,45 @@ class Eureka extends Base {
 
     logger.debug("Application Descriptors for enabled applications: ${appDescriptorsMap}")
 
-//// 1.3 Get Application Descriptor Updated with New Module Version
-//String increasedBuildNumber = env.BUILD_NUMBER.toInteger()
-//updatedAppDescriptor = folioApp.getUpdatedApplicationDescriptor(appDescriptor, module, increasedBuildNumber)
-//
-//// 1.4 Put back Updated Application Descriptor to Eureka Instance
-//folioApp.registerApplication(updatedAppDescriptor)
+    // Get Application Descriptor Updated with New Module Version
+    enabledAppsMap.keySet().each { appId->
+      def appDescriptor = appDescriptorsMap[appId]
+      String incrementalNumber = appDescriptor.version.tokenize('.').last().toInteger() + 1
+
+      // Update existing Application Descriptor with New Module Version
+      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(appDescriptor as Map, module, incrementalNumber)
+
+      // Put back Updated Application Descriptor to Environment
+      Applications.get(kong).registerApplication(updatedAppDescriptor)
+    }
 
     return this
+  }
+
+  /**
+   * Get Updated Application Descriptor with new Module Version
+   *
+   * @param appDescriptor Current Application Descriptor as a Map
+   * @param module Module object to be updated
+   * @param buildNumber Build Number for new Application Version
+   * @return Updated Application Descriptor as a Map
+   */
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
+    // Update Application Descriptor with incremented Application Version
+    String currentAppVersion = appDescriptor.version
+    String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+    appDescriptor.version = newAppVersion
+    appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
+
+    // Update Application Descriptor with new Module Version
+    appDescriptor.modules.findAll { it.name == module.name }.each {
+      it.url = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+      it.id = "${module.name}-${module.version}"
+      it.version = module.version
+    }
+
+    logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}")
+
+    return appDescriptor as Map
   }
 }
