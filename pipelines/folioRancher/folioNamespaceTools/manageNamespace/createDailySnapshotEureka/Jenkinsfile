@@ -27,7 +27,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
+final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
