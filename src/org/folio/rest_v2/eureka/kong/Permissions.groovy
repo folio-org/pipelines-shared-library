@@ -107,11 +107,11 @@ class Permissions extends Kong{
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     def response = restClient.get(generateUrl("/capabilities?limit=${limit}"), headers)
-    List ids = response.body.capabilities.id
+    Map content = response.body.capabilities as Map
 
-    logger.info(response.body.capabilities)
+    List<String> ids = []
 
-    logger.info(ids)
+    content.each { capability -> ids.add(capability.id) }
 
     return ids
   }
