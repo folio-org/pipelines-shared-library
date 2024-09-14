@@ -109,6 +109,10 @@ class Permissions extends Kong{
     def response = restClient.get(generateUrl("/capabilities?limit=${limit}"), headers)
     List ids = response.body.capabilities.id
 
+    logger.info(response.body.capabilities)
+
+    logger.info(ids)
+
     return ids
   }
 
