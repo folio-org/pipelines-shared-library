@@ -134,11 +134,8 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-//        List<String> tenantsList = params.TENANTS_LIST.split(",")
-
         namespace.tenants = eureka.getExistedTenantsFlow()
         logger.debug("Configured Tenants: ${namespace.tenants}")
-//        eureka.updateAppDescriptorFlow(module, tenantsList)
       }
 
       // 2. Enable New Module Version (Discovery) for Application

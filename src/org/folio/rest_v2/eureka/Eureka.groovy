@@ -217,16 +217,34 @@ class Eureka extends Base {
 
   /**
    * Get Configured Tenants on Environment Namespace.
-   *
-   * @return Map of EurekaTenant instances.
+   * @return Map of EurekaTenant objects.
    */
   Map<String, EurekaTenant> getExistedTenantsFlow() {
-    return Tenants.get(kong).getTenants().collectEntries { tenant -> [tenant.tenantName, tenant] }
+    /** Configured Tenants in Environment (namespace) */
+    Map<String, EurekaTenant> configuredTenantsMap
+
+    // Get configured Tenants from the Environment (namespace)
+    configuredTenantsMap = Tenants.get(kong).getTenants().collectEntries { tenant -> [tenant.tenantName, tenant] }
+
+    // Get enabled (entitled) applications for configured Tenants
+    configuredTenantsMap.each { tenantName, tenant ->
+      /** Enabled (entitled) applications for Tenant*/
+      Map<String, String> enabledAppsMap = [:]
+
+      // Get enabled applications from the Environment
+      Tenants.get(kong).getEnabledApplications(tenant).each { appId, app ->
+        enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
+      }
+
+      // Assign enabled applications to Tenant object
+      tenant.applications = enabledAppsMap.clone() as Map
+    }
+
+    return configuredTenantsMap
   }
 
   /**
    * Update Application Descriptor Flow.
-   *
    * @param module FolioModule object.
    * @param tenantsList List of Tenant Names.
    * @return The current Eureka object.
@@ -276,21 +294,12 @@ class Eureka extends Base {
 
   /**
    * Get Updated Application Descriptor with new Module Version
-   *
    * @param appDescriptor Current Application Descriptor as a Map
    * @param module Module object to be updated
    * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
   Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
-    // Remove broken module version from the Application Descriptor
-    appDescriptor.modules.eachWithIndex { mod, index ->
-      if(mod.id.contains("mod-roles-keycloak-1.4.5-SNAPSHOT.121")) {
-        logger.debug("Found Broken Module: ${mod}")
-        appDescriptor.modules.remove(index)
-      }
-    }
-
     // Update Application Descriptor with incremented Application Version
     String currentAppVersion = appDescriptor.version
     String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
@@ -303,14 +312,6 @@ class Eureka extends Base {
       it.id = "${module.name}-${module.version}"
       it.version = module.version
     }
-
-//    // Remove broken module version from the Application Descriptor
-//    appDescriptor.modules.eachWithIndex { mod, index ->
-//      if(mod.id.contains("mod-lists-2.1.0-SNAPSHOT.95")) {
-//        logger.debug("Found Broken Module: ${mod}")
-//        mod.url = "https://folio-registry.dev.folio.org/_/proxy/modules/mod-lists-2.1.0-SNAPSHOT.95"
-//      }
-//    }
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n${appDescriptor}")
 
