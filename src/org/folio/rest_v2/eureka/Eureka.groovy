@@ -244,6 +244,21 @@ class Eureka extends Base {
   }
 
   /**
+   * Get Existed Applications on Environment Namespace.
+   * @return Map of Application Name and Application ID.
+   */
+  Map<String, String> getExistedApplicationsFlow() {
+    /** Registered Applications in Environment */
+    Map <String, String> existedApplicationsMap
+
+    // Get registered Applications from the Environment
+    existedApplicationsMap =
+      Applications.get(kong).getRegisteredApplications().collectEntries { app -> [app.name, app.id] }
+
+    return existedApplicationsMap
+  }
+
+  /**
    * Update Application Descriptor Flow.
    * @param module FolioModule object.
    * @param tenantsList List of Tenant Names.

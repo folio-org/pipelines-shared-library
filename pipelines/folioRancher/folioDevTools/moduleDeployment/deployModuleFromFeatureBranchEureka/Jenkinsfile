@@ -132,10 +132,21 @@ ansiColor('xterm') {
         }
       }
 
-      // 1. Register Application Descriptor with Updated Module Version
-      stage('[Rest] Update App Descriptor') {
+      stage('Generate context') {
         namespace.tenants = eureka.getExistedTenantsFlow()
         logger.debug("Configured Tenants: ${namespace.tenants}")
+
+        namespace.withApplications(eureka.getExistedApplicationsFlow())
+        logger.debug("Configured Applications: ${namespace.applications}")
+
+      }
+
+      // 1. Register Application Descriptor with Updated Module Version
+      stage('[Rest] Update App Descriptor') {
+        if(skipStage) {
+          logger.info("Skipping stage")
+          return
+        }
       }
 
       // 2. Enable New Module Version (Discovery) for Application
