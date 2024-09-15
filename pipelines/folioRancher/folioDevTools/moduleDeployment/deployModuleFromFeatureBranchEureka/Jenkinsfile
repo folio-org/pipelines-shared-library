@@ -173,7 +173,7 @@ ansiColor('xterm') {
 //          return
 //        }
         folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
+//          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
         }
       }
 
