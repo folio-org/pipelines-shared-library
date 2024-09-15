@@ -142,10 +142,7 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        if(skipStage) {
-          logger.info("Skipping stage")
-          return
-        }
+        eureka.updateAppDescriptorFlow(namespace.applications, module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application

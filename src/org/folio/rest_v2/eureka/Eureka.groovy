@@ -263,51 +263,36 @@ class Eureka extends Base {
 
   /**
    * Update Application Descriptor Flow.
+   * @param applications Map of enabled applications in namespace.
    * @param module FolioModule object.
-   * @param tenantsList List of Tenant Names.
-   * @return The current Eureka object.
    */
-  Eureka updateAppDescriptorFlow(FolioModule module, List<String> tenantsList) {
-    // Get specified Tenants from the Environment (namespace)
-    List<EurekaTenant> tenants = Tenants.get(kong).getTenants().findAll { tenant ->
-      tenantsList.contains(tenant.tenantName)
-    }
-
-    /** Enabled (entitled) applications Map */
-    Map<String, List<Map>> enabledAppsMap = [:]
-
-    // Get enabled applications with specified module for requested Tenants
-    tenants.each { tenant ->
-      Tenants.get(kong).getEnabledApplicationsWithModule(tenant, module).each { key, value ->
-        enabledAppsMap.containsKey(key) ? enabledAppsMap[key].add(value) : enabledAppsMap.put(key, [value])
-      }
-    }
-
-    logger.debug("Enabled applications with tenants: ${enabledAppsMap}")
-
+  void updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
     /** Enabled Application Descriptors Map */
     Map appDescriptorsMap = [:]
 
     //Get application descriptors for enabled applications
-    enabledAppsMap.keySet().each { appId ->
-      appDescriptorsMap.put(appId, Applications.get(kong).getRegisteredApplication(appId))
+    applications.each { appName, appId ->
+      def appDescriptor = Applications.get(kong).getRegisteredApplication(appId)
+      if (appDescriptor['modules'].any { it['name'] == module.name }) {
+        appDescriptorsMap.put(appId, appDescriptor)
+      }
     }
 
     logger.debug("Application Descriptors for enabled applications: ${appDescriptorsMap}")
 
-    // Get Application Descriptor Updated with New Module Version
-    enabledAppsMap.keySet().each { appId->
-      def appDescriptor = appDescriptorsMap[appId]
-      String incrementalNumber = appDescriptor.version.tokenize('.').last().toInteger() + 1
+//    // Get Application Descriptor Updated with New Module Version
+//    enabledAppsMap.keySet().each { appId->
+//      def appDescriptor = appDescriptorsMap[appId]
+//      String incrementalNumber = appDescriptor.version.tokenize('.').last().toInteger() + 1
+//
+//      // Update existing Application Descriptor with New Module Version
+//      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(appDescriptor as Map, module, incrementalNumber)
+//
+//      // Put back Updated Application Descriptor to Environment
+//      Applications.get(kong).registerApplication(updatedAppDescriptor)
+//    }
 
-      // Update existing Application Descriptor with New Module Version
-      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(appDescriptor as Map, module, incrementalNumber)
-
-      // Put back Updated Application Descriptor to Environment
-      Applications.get(kong).registerApplication(updatedAppDescriptor)
-    }
-
-    return this
+//    return this
   }
 
   /**
