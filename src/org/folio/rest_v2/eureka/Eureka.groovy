@@ -249,7 +249,7 @@ class Eureka extends Base {
    */
   static Map<String, String> getEnabledApplicationsFlow(Map<String, EurekaTenant> tenants) {
     /** Enabled Applications in Environment */
-    Map <String, String> enabledAppsMap
+    Map <String, String> enabledAppsMap = [:]
 
     // Get enabled applications from EurekaTenant List of objects
     tenants.values().each {tenant ->
