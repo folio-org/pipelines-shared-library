@@ -157,7 +157,6 @@ void call(CreateNamespaceParameters args) {
         println(namespace.getModules().getBackendModules())
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
 
