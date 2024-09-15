@@ -247,15 +247,18 @@ class Eureka extends Base {
    * Get Existed Applications on Environment Namespace.
    * @return Map of Application Name and Application ID.
    */
-  Map<String, String> getExistedApplicationsFlow() {
-    /** Registered Applications in Environment */
-    Map <String, String> existedApplicationsMap
+  static Map<String, String> getEnabledApplicationsFlow(Map<String, EurekaTenant> tenants) {
+    /** Enabled Applications in Environment */
+    Map <String, String> enabledAppsMap
 
-    // Get registered Applications from the Environment
-    existedApplicationsMap =
-      Applications.get(kong).getRegisteredApplications().collectEntries { app -> [app.name, app.id] }
+    // Get enabled applications from EurekaTenant List of objects
+    tenants.values().each {tenant ->
+      tenant.applications.each {appName, appId ->
+        enabledAppsMap.put(appName, appId)
+      }
+    }
 
-    return existedApplicationsMap
+    return enabledAppsMap
   }
 
   /**

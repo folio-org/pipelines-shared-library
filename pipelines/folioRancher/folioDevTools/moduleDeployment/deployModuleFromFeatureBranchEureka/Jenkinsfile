@@ -136,9 +136,8 @@ ansiColor('xterm') {
         namespace.tenants = eureka.getExistedTenantsFlow()
         logger.debug("Configured Tenants: ${namespace.tenants}")
 
-        namespace.withApplications(eureka.getExistedApplicationsFlow())
+        namespace.withApplications(eureka.getEnabledApplicationsFlow(namespace.tenants))
         logger.debug("Configured Applications: ${namespace.applications}")
-
       }
 
       // 1. Register Application Descriptor with Updated Module Version
