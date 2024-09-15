@@ -10,6 +10,7 @@ import org.folio.models.FolioModule
 import org.folio.models.Role
 import org.folio.models.User
 import org.folio.rest_v2.eureka.kong.*
+import org.folio.utilities.RequestException
 
 class Eureka extends Base {
 
@@ -327,6 +328,12 @@ class Eureka extends Base {
    * @param module FolioModule object to discover
    */
   void runModuleDiscoveryFlow(FolioModule module) {
-    Applications.get(kong).getModuleDiscovery(module)
+    try {
+      Applications.get(kong).getModuleDiscovery(module)
+    } catch (RequestException e) {
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        Applications.get(kong).createModuleDiscovery(module)
+      }
+    }
   }
 }
