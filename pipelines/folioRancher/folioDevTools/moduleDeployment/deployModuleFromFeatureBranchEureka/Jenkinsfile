@@ -1,6 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
+import org.folio.models.RancherNamespace
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -43,6 +44,10 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+/** Assign Default Tenant Id to Namespace instance */
+String defaultTenantId = 'diku'
+namespace.withDefaultTenant(defaultTenantId)
 
 /** Collect Folio module configuration */
 FolioModule module = new FolioModule()
@@ -163,9 +168,12 @@ ansiColor('xterm') {
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        if(skipStage) {
-          logger.info("Skipping stage")
-          return
+//        if(skipStage) {
+//          logger.info("Skipping stage")
+//          return
+//        }
+        folioHelm.withKubeConfig(namespace.clusterName) {
+          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
         }
       }
 
