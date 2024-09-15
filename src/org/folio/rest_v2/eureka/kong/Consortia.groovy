@@ -89,7 +89,10 @@ class Consortia extends Kong{
     if (institutionalTenant.isCentralConsortiaTenant)
       logger.error("${institutionalTenant.tenantId} is a central consortia tenant")
 
-    logger.info("Adding institutional tenant ${institutionalTenant.tenantId} with uuid ${institutionalTenant.uuid} to consortia ${centralConsortiaTenant.consortiaUuid}...")
+    logger.info("""Adding institutional tenant ${institutionalTenant.tenantId} with uuid ${institutionalTenant.uuid}
+          with tenant name ${institutionalTenant.tenantName} and code ${institutionalTenant.tenantCode}
+          to consortia ${centralConsortiaTenant.consortiaUuid} and adminUserId ${centralConsortiaTenant.adminUser.uuid}...
+    """)
 
     centralConsortiaTenant.adminUser.checkUuid()
 
