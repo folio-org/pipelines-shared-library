@@ -474,9 +474,13 @@ mod-aes:
     requests:
       memory: 384Mi
 mod-agreements:
+  jmx:
+    enabled: true
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
+  - name: CONCURRENT_JOBS_GLOBAL
+    value: '5'
   integrations:
     db:
       enabled: true
