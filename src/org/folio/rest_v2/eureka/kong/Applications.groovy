@@ -105,9 +105,9 @@ class Applications extends Kong{
     Map<String, String> headers = getMasterHttpHeaders()
 
     // URL for GET request
-    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
 
-    logger.info("Getting Module Discovery for for new module version...")
+    logger.info("Getting Module Discovery for new module version...")
 
     def response = restClient.get(url, headers).body
 
@@ -124,7 +124,7 @@ class Applications extends Kong{
     Map<String, String> headers = getMasterHttpHeaders()
 
     // URL for POST request
-    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
 
     // Request Body for POST request
     Map requestBody = [
