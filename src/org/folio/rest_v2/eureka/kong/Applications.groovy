@@ -3,6 +3,7 @@ package org.folio.rest_v2.eureka.kong
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
+import org.folio.models.FolioModule
 
 class Applications extends Kong{
 
@@ -93,6 +94,51 @@ class Applications extends Kong{
     restClient.post(generateUrl("/modules/discovery"), jsonModuleList, headers)
 
     return this
+  }
+
+  /**
+   * Get Existing Module Discovery by its ID
+   * @param module FolioModule object to discover
+   * @return Module Discovery Information as Map
+   */
+  Map getModuleDiscovery(FolioModule module) {
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    // URL for GET request
+    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+
+    logger.info("Getting Module Discovery for for new module version...")
+
+    def response = restClient.get(url, headers).body
+
+    logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
+
+    return response as Map
+  }
+
+  /**
+   * Create New Module Discovery for Application
+   * @param module FolioModule object to discover
+   */
+  void createModuleDiscovery(FolioModule module) {
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    // URL for POST request
+    String url = "${this.kongUrl}/modules/${module.name}-${module.version}/discovery"
+
+    // Request Body for POST request
+    Map requestBody = [
+      'location': "http://${module.name}:8082",
+      'id': "${module.name}-${module.version}",
+      'name': module.name,
+      'version': module.version
+    ]
+
+    logger.info("Performing Module Discovery for new module version...")
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("New Module Discovery is created for ${module.name}-${module.version}.")
   }
 
   @NonCPS

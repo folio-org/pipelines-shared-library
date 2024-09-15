@@ -138,19 +138,27 @@ ansiColor('xterm') {
 
         namespace.withApplications(eureka.getEnabledApplicationsFlow(namespace.tenants))
         logger.debug("Configured Applications: ${namespace.applications}")
+
+        // TODO: debug code to be removed soon
+        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.95')
       }
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
+//        if(skipStage) {
+//          logger.info("Skipping stage")
+//          return
+//        }
         eureka.updateAppDescriptorFlow(namespace.applications, module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if(skipStage) {
-          logger.info("Skipping stage")
-          return
-        }
+//        if(skipStage) {
+//          logger.info("Skipping stage")
+//          return
+//        }
+        eureka.runModuleDiscoveryFlow(module)
       }
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm

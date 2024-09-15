@@ -288,7 +288,8 @@ class Eureka extends Base {
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
 
       // Register Updated Application Descriptor to Environment
-      Applications.get(kong).registerApplication(updatedAppDescriptor)
+      // TODO: uncomment following line after testing
+//      Applications.get(kong).registerApplication(updatedAppDescriptor)
     }
 
     return this
@@ -305,6 +306,7 @@ class Eureka extends Base {
     // Update Application Descriptor with incremented Application Version
     String currentAppVersion = appDescriptor.version
     String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
@@ -318,5 +320,13 @@ class Eureka extends Base {
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n${appDescriptor}")
 
     return appDescriptor as Map
+  }
+
+  /**
+   * Run Module Discovery Flow.
+   * @param module FolioModule object to discover
+   */
+  void runModuleDiscoveryFlow(FolioModule module) {
+    Applications.get(kong).getModuleDiscovery(module)
   }
 }
