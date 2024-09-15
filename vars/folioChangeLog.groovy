@@ -170,6 +170,21 @@ String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
   return section
 }
 
+String getPlainText(List<ChangelogEntry> changeLogEntriesList){
+  StringBuilder plainTextBuilder = new StringBuilder()
+
+  changeLogEntriesList.each { entry ->
+    String moduleId = entry.module.id
+    String sha = entry.sha.take(7)
+    String commitMessage = entry.commitMessage
+    String author = entry?.author ?: "Unknown author"
+
+    plainTextBuilder.append("${moduleId} ${commitMessage} by ${author} (${sha})\n")
+  }
+
+  return plainTextBuilder.toString()
+}
+
 @NonCPS
 static List<ChangelogEntry> getSortedChangeLogEntriesList(List<ChangelogEntry> toSort) {
   toSort.sort() { a, b -> a.module.id <=> b.module.id }

@@ -10,8 +10,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def postgresql
 
-properties([buildDiscarder(logRotator(numToKeepStr: '20')),
-            disableConcurrentBuilds(),
+properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             parameters([folioParameters.cluster(),
                         folioParameters.namespace(),
                         choice(name: "ACTION", choices: ['start', 'stop'], description: '(Required) Choose action to perform'),
@@ -24,86 +23,92 @@ properties([buildDiscarder(logRotator(numToKeepStr: '20')),
         50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=sprint
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         35 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
+        55 21 * * 1-4 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
         45 22 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
-        0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        0 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
+        0 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
+        0 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=folijet
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
         55 22 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
-        45 23 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
-        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
+        45 21 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
+        15 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
         55 22 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
-        45 23 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
-        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
+        45 21 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
+        15 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         30 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=volaris
-        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
-        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=volaris
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
+        30 01 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=volaris
+        15 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
+        15 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega-2nd
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega-2nd
+        20 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=quesnelia
+        30 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=quesnelia
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=quesnelia
+        30 01 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=quesnelia
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
         35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
+        55 21 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
         35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=leipzig
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=leipzig
+        55 21 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=leipzig
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
         35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=dreamliner
-        55 23 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
-        45 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=dreamliner
+        55 21 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
+        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=dreamliner
         0 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
         30 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=bama
-        0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
-        0 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=bama
+        0 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
+        0 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=bama
         0 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
         30 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=firebird
-        0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
-        0 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=firebird
+        0 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
+        0 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=firebird
         5 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=folijet
         45 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=folijet
-        0 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=folijet
-        0 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=folijet
-        5 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=nla
-        45 22 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
-        30 07 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=nla
-        30 22 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=nla
+        0 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=folijet
+        0 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=folijet
         10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
         0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire
-        10 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
-        15 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire
+        10 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
+        15 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire
         10 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
         0 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
+        10 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
+        15 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
-        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
-        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
-        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
-        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
         15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
         15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega
-        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
-        30 05 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega
+        15 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega-2nd
+        15 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega-2nd
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega-2nd
+        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=vega-2nd
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
-        15 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
-        30 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
+        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
+        30 01 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris
         20 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         30 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        20 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        45 03 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        25 22 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
-        45 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
-        25 00 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=rtr
-        00 06 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=rtr
+        20 22 * * 2-5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
+        45 01 * * 2-5 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
         0 22 * * 5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
         30 22 * * 0 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
-        0 00 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
-        0 05 * * 2-5 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 22 * * 2-5 %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 03 * * 2-5 %action=START;CLUSTER=folio-dev;NAMESPACE=corsair
         30 22 * * 5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         50 23 * * 0 %ACTION=start;CLUSTER=folio-tmp;NAMESPACE=test
         30 00 * * 2-5 %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test

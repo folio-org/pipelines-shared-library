@@ -570,6 +570,8 @@ mod-aes:
     requests:
       memory: 256Mi
 mod-agreements:
+  jmx:
+    enabled: true
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
