@@ -172,17 +172,18 @@ ansiColor('xterm') {
 //          logger.info("Skipping stage")
 //          return
 //        }
-        folioHelm.withKubeConfig(namespace.clusterName) {
+//        folioHelm.withKubeConfig(namespace.clusterName) {
 //          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
-        }
+//        }
       }
 
-      // 4. Enable New Application Descriptor with Updated Module Version for Specific Tenant
+      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        if(skipStage) {
-          logger.info("Skipping stage")
-          return
-        }
+//        if(skipStage) {
+//          logger.info("Skipping stage")
+//          return
+//        }
+        eureka.enableApplicationsOnTenantsFlow(namespace.tenants)
       }
 
     } catch (e) {

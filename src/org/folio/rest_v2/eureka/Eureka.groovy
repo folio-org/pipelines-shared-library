@@ -336,4 +336,18 @@ class Eureka extends Base {
       }
     }
   }
+
+  /**
+   * Enable Applications on Tenants Flow.
+   * @param tenants Map of EurekaTenant objects.
+   */
+  void enableApplicationsOnTenantsFlow(Map<String, EurekaTenant> tenants) {
+    tenants.each { tenantName, tenant ->
+      if(!(tenant instanceof EurekaTenantConsortia))
+        tenant.applications.remove("app-consortia")
+
+      // Enable Applications on Tenant
+      Tenants.get(kong).enableApplicationsOnTenant(tenant)
+    }
+  }
 }
