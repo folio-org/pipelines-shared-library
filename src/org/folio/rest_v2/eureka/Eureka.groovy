@@ -265,12 +265,13 @@ class Eureka extends Base {
    * Update Application Descriptor Flow.
    * @param applications Map of enabled applications in namespace.
    * @param module FolioModule object.
+   * @return Map of EurekaTenant objects.
    */
-  void updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
+  Eureka updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
     /** Enabled Application Descriptors Map */
-    Map appDescriptorsMap = [:]
+    Map<String, Object> appDescriptorsMap = [:]
 
-    //Get application descriptors for enabled applications
+    //Get application descriptors for enabled applications in namespace
     applications.each { appName, appId ->
       def appDescriptor = Applications.get(kong).getRegisteredApplication(appId)
       if (appDescriptor['modules'].any { it['name'] == module.name }) {
@@ -278,21 +279,19 @@ class Eureka extends Base {
       }
     }
 
-    logger.debug("Application Descriptors for enabled applications: ${appDescriptorsMap}")
+    // Get Application Descriptor Updated with New Module Version
+    appDescriptorsMap.each { appId, descriptor->
+      // Get Incremental Number for New Application Version
+      String incrementalNumber = descriptor['version'].toString().tokenize('.').last().toInteger() + 1
 
-//    // Get Application Descriptor Updated with New Module Version
-//    enabledAppsMap.keySet().each { appId->
-//      def appDescriptor = appDescriptorsMap[appId]
-//      String incrementalNumber = appDescriptor.version.tokenize('.').last().toInteger() + 1
-//
-//      // Update existing Application Descriptor with New Module Version
-//      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(appDescriptor as Map, module, incrementalNumber)
-//
-//      // Put back Updated Application Descriptor to Environment
-//      Applications.get(kong).registerApplication(updatedAppDescriptor)
-//    }
+      // Update existing Application Descriptor with New Module Version
+      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
 
-//    return this
+      // Register Updated Application Descriptor to Environment
+      Applications.get(kong).registerApplication(updatedAppDescriptor)
+    }
+
+    return this
   }
 
   /**
@@ -310,10 +309,10 @@ class Eureka extends Base {
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
     // Update Application Descriptor with new Module Version
-    appDescriptor.modules.findAll { it.name == module.name }.each {
-      it.url = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
-      it.id = "${module.name}-${module.version}"
-      it.version = module.version
+    appDescriptor['modules'].findAll { it['name'] == module.name }.each {
+      it['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+      it['id'] = "${module.name}-${module.version}"
+      it['version'] = module.version
     }
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n${appDescriptor}")
