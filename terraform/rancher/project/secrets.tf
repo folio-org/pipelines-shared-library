@@ -73,7 +73,7 @@ resource "rancher2_secret" "eureka_common" {
     OKAPI_INTEGRATION_ENABLED                     = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION                   = base64encode(var.aws_region)
     SECRET_STORE_TYPE                             = base64encode(var.secure_store_type)
-    SECURITY_ENABLED                              = base64encode("true")
+    SECURITY_ENABLED                              = base64encode("false")
     "tenant.url"                                  = base64encode("http://mgr-tenants")
     "am.url"                                      = base64encode("http://mgr-applications")
     TE_URL                                        = base64encode("http://mgr-tenant-entitlements")
