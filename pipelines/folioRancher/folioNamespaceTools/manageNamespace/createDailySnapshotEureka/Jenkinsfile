@@ -1,0 +1,111 @@
+#!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
+
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.models.parameters.CreateNamespaceParameters
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-1359-test') _
+properties([buildDiscarder(logRotator(numToKeepStr: '30')),
+            disableConcurrentBuilds(),
+            parameters([folioParameters.cluster(),
+                        folioParameters.namespace(),
+                        folioParameters.configType(),
+                        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
+                        booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
+                        folioParameters.pgType(),
+                        folioParameters.kafkaType(),
+                        folioParameters.opensearchType(['aws']),
+                        folioParameters.s3Type(),
+                        folioParameters.agent(),
+                        folioParameters.refreshParameters()]),
+            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
+
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('snapshot')
+  .configType('testing')
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('')
+  .worker('rancher')
+  .build()
+
+
+CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('snapshot')
+  .folioBranch('snapshot')
+  .okapiVersion('latest')
+  .configType('testing')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(false)
+  .eureka(true)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
+  .uiBuild(true)
+  .build()
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[TF] Destroy') {
+        def nsExists
+        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+        }
+        if (nsExists) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        } else {
+          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+        }
+      }
+
+      if (namespaceParams.eureka) {
+        folioNamespaceCreateEureka(namespaceParams)
+      } else {
+        folioNamespaceCreate(namespaceParams)
+      }
+
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
