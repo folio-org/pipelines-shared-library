@@ -31,29 +31,29 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -120,98 +120,98 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-    int counter_dns = 0
-    retry(3) {
-      sleep time: (counter_dns == 0 ? 0 : 1), unit: 'MINUTES'
-      counter_dns++
-      eureka.defineKeycloakTTL()
-    }
-
-    stage('[ASG] configure') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
-          "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
-          "--region ${Constants.AWS_REGION}", returnStdout: true)
-        writeJSON file: 'asg.json', json: asg_json
-        def asg_data = readJSON file: './asg.json'
-        sh(script: "aws autoscaling set-desired-capacity " +
-          "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
-          "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
-          "--region ${Constants.AWS_REGION}")
-      }
-    }
-
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-      }
-    }
-
-    stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
-      )
-
-//      namespace.withApplications([
-//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
-//      ])
+//    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+//    int counter_dns = 0
+//    retry(3) {
+//      sleep time: (counter_dns == 0 ? 0 : 1), unit: 'MINUTES'
+//      counter_dns++
+//      eureka.defineKeycloakTTL()
+//    }
 //
-//      namespace.getTenants().values().each {tenant ->
-//        if(tenant instanceof EurekaTenantConsortia)
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
-//          ])
-//        else
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//          ])
+//    stage('[ASG] configure') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
+//          "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
+//          "--region ${Constants.AWS_REGION}", returnStdout: true)
+//        writeJSON file: 'asg.json', json: asg_json
+//        def asg_data = readJSON file: './asg.json'
+//        sh(script: "aws autoscaling set-desired-capacity " +
+//          "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
+//          "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
+//          "--region ${Constants.AWS_REGION}")
 //      }
-    }
-
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        println(namespace.getModules().getBackendModules())
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-      }
-    }
-
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        retry(3) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        }
-      }
-    }
-
-    stage('[Rest] Initialize') {
-      int counter = 0
-      retry(10) {
-        //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
-        counter++
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-      }
-    }
+//    }
+//
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//      }
+//    }
+//
+//    stage('[Rest] Preinstall') {
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+//          , namespace.getModules()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
+//
+//      eureka.registerModulesFlow(
+//        namespace.getModules()
+//        , namespace.getApplications()
+//        , namespace.getTenants().values() as List<EurekaTenant>
+//      )
+//
+////      namespace.withApplications([
+////        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+////        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+////      ])
+////
+////      namespace.getTenants().values().each {tenant ->
+////        if(tenant instanceof EurekaTenantConsortia)
+////          tenant.setApplications([
+////            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+////            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+////          ])
+////        else
+////          tenant.setApplications([
+////            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+////          ])
+////      }
+//    }
+//
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        println(namespace.getModules().getBackendModules())
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//      }
+//    }
+//
+//    stage('[Rest] Configure edge') {
+//      folioEdge.renderEphemeralProperties(namespace)
+////      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
+//    }
+//
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        retry(3) {
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//        }
+//      }
+//    }
+//
+//    stage('[Rest] Initialize') {
+//      int counter = 0
+//      retry(10) {
+//        //The first wait time should be at leas 10 minutes due to module's long time instantiation
+//        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+//        counter++
+//        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+//      }
+//    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
@@ -224,7 +224,7 @@ void call(CreateNamespaceParameters args) {
                                    kongUrl             : "https://${namespace.getDomains()['kong']}",
                                    keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
                                    tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms         : false,
+                                   hasAllPerms         : true,
                                    isSingleTenant      : true,
                                    tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
                                    tenantId            : ui.getTenantId(),
