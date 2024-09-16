@@ -224,7 +224,7 @@ void call(CreateNamespaceParameters args) {
                                    kongUrl             : "https://${namespace.getDomains()['kong']}",
                                    keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
                                    tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms         : false,
+                                   hasAllPerms         : true,
                                    isSingleTenant      : true,
                                    tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
                                    tenantId            : ui.getTenantId(),
