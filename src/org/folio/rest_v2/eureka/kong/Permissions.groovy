@@ -112,7 +112,13 @@ class Permissions extends Kong {
 
     List<String> ids = []
 
-    content.each { capability -> ids.add(capability.id) }
+    logger.debug("I'm in Permissions before each capability: ${content}")
+
+    content.each { capability ->
+
+      logger.debug("I'm in Permissions capability: ${capability}")
+      ids.add(capability.id)
+    }
 
     return ids
   }
