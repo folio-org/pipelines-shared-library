@@ -117,7 +117,7 @@ class Tenants extends Kong {
 
     Map body = [
       tenantId    : tenant.uuid,
-      applications: appId
+      applications: [appId]
     ]
 
     logger.debug("enableApplicationsOnTenant body: ${body}")
