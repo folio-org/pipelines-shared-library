@@ -108,51 +108,63 @@ class Tenants extends Kong {
     return getTenant(tenantId) ? true : false
   }
 
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant) {
+  //TODO: Remove this shit
+  Tenants enableApplicationOnTenant(EurekaTenant tenant, String appId){
 
-      logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
-      Map<String, String> headers = getMasterHttpHeaders(true)
+    Map<String, String> headers = getMasterHttpHeaders(true)
 
-      Map body = [
-        tenantId    : tenant.uuid,
-        applications: tenant.applications.values()
-      ]
+    Map body = [
+      tenantId    : tenant.uuid,
+      applications: appId
+    ]
 
-      logger.debug("enableApplicationsOnTenant body: ${body}")
-      logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
-      logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
+    logger.debug("enableApplicationsOnTenant body: ${body}")
+    logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
+    logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
 
-      def response = restClient.post(
-        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
-        , body
-        , headers
-        , [201, 400]
-      )
+    def response = restClient.post(
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      , body
+      , headers
+      , [201, 400]
+    )
 
-      logger.debug("enableApplicationsOnTenant after request")
+    logger.debug("enableApplicationsOnTenant after request")
 
-      String contentStr = response.body.toString()
+    String contentStr = response.body.toString()
 
-      if (response.responseCode == 400) {
-        if (contentStr.contains("value: Entitle flow finished")) {
-          logger.info("""
-          Application is already entitled, no actions needed..
-          Status: ${response.responseCode}
-          Response content:
-          ${contentStr}""")
+    if (response.responseCode == 400) {
+      if (contentStr.contains("value: Entitle flow finished")) {
+        logger.info("""
+        Application is already entitled, no actions needed..
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
 
-          return this
-        } else {
-          logger.error("Enabling application for tenant failed: ${contentStr}")
+        return this
+      } else {
+        logger.error("Enabling application for tenant failed: ${contentStr}")
 
-          throw new Exception("Build failed: " + contentStr)
-        }
+        throw new Exception("Build failed: " + contentStr)
       }
+    }
 
-      logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
 
-      return this
+    return this
+  }
+
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant){
+    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    enableApplicationOnTenant(tenant, tenant.applications["app-platform-full"])
+
+    if(tenant.applications.containsKey("app-consortia"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
+
+    return this
   }
 
   @NonCPS
