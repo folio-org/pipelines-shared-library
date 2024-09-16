@@ -107,21 +107,11 @@ class Permissions extends Kong {
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     def response = restClient.get(generateUrl("/capabilities?limit=${limit}"), headers)
-
-    logger.debug("I'm in Permissions.getCapabilitiesId after request")
-    logger.debug("I'm in Permissions.getCapabilitiesId responce: ${response}")
-
     def content = response.body.capabilities
 
     List<String> ids = []
 
-    logger.debug("I'm in Permissions before each capability: ${content}")
-
-    content.each { capability ->
-
-      logger.debug("I'm in Permissions capability: ${capability}")
-      ids.add(capability.id)
-    }
+    content.each { capability -> ids.add(capability.id) }
 
     return ids
   }
@@ -132,7 +122,7 @@ class Permissions extends Kong {
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     def response = restClient.get(generateUrl("/capability-sets?limit=${limit}"), headers)
-    Map content = response.body.capabilitySets as Map
+    def content = response.body.capabilitySets
 
     List<String> ids = []
 
