@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
 
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
@@ -89,7 +90,7 @@ ansiColor('xterm') {
         if (nsExists) {
           folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
