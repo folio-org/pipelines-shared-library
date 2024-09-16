@@ -3,12 +3,12 @@ resource "rancher2_secret" "okapi-credentials" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    OKAPI_URL          = var.eureka ? base64encode("http://kong-admin-api-${rancher2_namespace.this.id}") : base64encode("http://okapi:9130")
-    OKAPI_HOST         = var.eureka ? base64encode("kong-admin-api-${rancher2_namespace.this.id}") : base64encode("okapi")
-    OKAPI_PORT         = var.eureka ? base64encode("80") : base64encode("9130")
-    OKAPI_SERVICE_URL  = var.eureka ? base64encode("http://kong-admin-api-${rancher2_namespace.this.id}") : base64encode("http://okapi:9130")
-    OKAPI_SERVICE_HOST = var.eureka ? base64encode("kong-admin-api-${rancher2_namespace.this.id}") : base64encode("okapi")
-    OKAPI_SERVICE_PORT = var.eureka ? base64encode("80") : base64encode("9130")
+    OKAPI_URL          = var.eureka ? base64encode("http://localhost:8082") : base64encode("http://okapi:9130")
+    OKAPI_HOST         = var.eureka ? base64encode("localhost") : base64encode("okapi")
+    OKAPI_PORT         = var.eureka ? base64encode("8082") : base64encode("9130")
+    OKAPI_SERVICE_URL  = var.eureka ? base64encode("http://localhost:8082") : base64encode("http://okapi:9130")
+    OKAPI_SERVICE_HOST = var.eureka ? base64encode("localhost") : base64encode("okapi")
+    OKAPI_SERVICE_PORT = var.eureka ? base64encode("8082") : base64encode("9130")
   }
 }
 
@@ -65,14 +65,15 @@ resource "rancher2_secret" "eureka_common" {
     KC_CONFIG_TTL                                 = base64encode("3600s")
     KC_SERVICE_CLIENT_ID                          = base64encode("sidecar-module-access-client")
     KC_IMPORT_ENABLED                             = base64encode("true")
-    KC_URL                                        = base64encode("http://keycloak-${rancher2_namespace.this.id}-headless:8080")
+    #KC_URL                                        = base64encode("https://${local.keycloak_url}")
+    KC_URL                                        = base64encode("http://keycloak-${rancher2_namespace.this.id}-headless.${rancher2_namespace.this.id}.svc.cluster.local:8080")
     KC_INTEGRATION_ENABLED                        = base64encode("true")
     KONG_ADMIN_URL                                = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
     KONG_INTEGRATION_ENABLED                      = base64encode("true")
     OKAPI_INTEGRATION_ENABLED                     = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION                   = base64encode(var.aws_region)
     SECRET_STORE_TYPE                             = base64encode(var.secure_store_type)
-    SECURITY_ENABLED                              = base64encode("true")
+    SECURITY_ENABLED                              = base64encode("false")
     "tenant.url"                                  = base64encode("http://mgr-tenants")
     "am.url"                                      = base64encode("http://mgr-applications")
     TE_URL                                        = base64encode("http://mgr-tenant-entitlements")

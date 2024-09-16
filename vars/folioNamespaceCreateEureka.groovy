@@ -117,9 +117,31 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      .defineKeycloakTTL()
+
+    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+
+    int counter_dns = 0
+    retry(3) {
+      sleep time: (counter_dns == 0 ? 0 : 1), unit: 'MINUTES'
+      counter_dns++
+      eureka.defineKeycloakTTL()
+    }
+
+    stage('[ASG] configure') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
+          "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
+          "--region ${Constants.AWS_REGION}", returnStdout: true)
+        writeJSON file: 'asg.json', json: asg_json
+        def asg_data = readJSON file: './asg.json'
+        sh(script: "aws autoscaling set-desired-capacity " +
+          "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
+          "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
+          "--region ${Constants.AWS_REGION}")
+      }
+    }
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -163,9 +185,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         println(namespace.getModules().getBackendModules())
-
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        sh(script: "kubectl set env deployment/mod-consortia-keycloak MOD_USERS_ID=mod-users-${namespace.getModules().allModules['mod-users']} --namespace=${namespace.getNamespaceName()}")
       }
     }
 
@@ -178,17 +198,18 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        retry(3) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        }
       }
     }
 
     stage('[Rest] Initialize') {
       int counter = 0
-      retry(5) {
+      retry(10) {
         //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 12 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
         counter++
-
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
@@ -204,7 +225,7 @@ void call(CreateNamespaceParameters args) {
                                    kongUrl             : "https://${namespace.getDomains()['kong']}",
                                    keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
                                    tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms         : true,
+                                   hasAllPerms         : false,
                                    isSingleTenant      : true,
                                    tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
                                    tenantId            : ui.getTenantId(),

@@ -30,7 +30,7 @@ resource "helm_release" "keycloak" {
 image:
   registry: folioci
   repository: folio-keycloak
-  tag: 25.1.0-SNAPSHOT.4
+  tag: latest
   pullPolicy: Always
   debug: false
 
@@ -42,6 +42,16 @@ auth:
 extraEnvVars:
   - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
     value: "true"
+  - name: KC_HOSTNAME
+    value: "https://${local.keycloak_url}"
+  - name: KC_HOSTNAME_BACKCHANNEL
+    value: "https://${local.keycloak_url}"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_PROXY
+    value: "edge"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
@@ -58,12 +68,6 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
-  - name: KC_HOSTNAME
-    value: https://${local.keycloak_url}
-  - name: KC_HOSTNAME_STRICT
-    value: "true"
-  - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "true"
   - name: KC_LOG_LEVEL
     value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
@@ -93,8 +97,6 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_DB_USERNAME
-  - name: KC_PROXY
-    value: edge
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
@@ -104,8 +106,10 @@ extraEnvVars:
 
 resources:
   requests:
+    cpu: 512m
     memory: 2Gi
   limits:
+    cpu: 2048m
     memory: 3Gi
 
 postgresql:
@@ -122,8 +126,6 @@ externalDatabase:
 logging:
   output: default
   level: DEBUG
-
-proxy: edge
 
 enableDefaultInitContainers: false
 

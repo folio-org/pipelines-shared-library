@@ -18,4 +18,5 @@ class EurekaRequestParams extends InstallRequestParams {
     this.purgeOnRollback = purge
     return this
   }
+
 }

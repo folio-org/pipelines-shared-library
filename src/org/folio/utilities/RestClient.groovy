@@ -3,6 +3,7 @@ package org.folio.utilities
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
+import java.security.Security
 
 class RestClient {
   private boolean debug
@@ -77,7 +78,12 @@ class RestClient {
   }
 
   private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout, int readTimeout) {
-    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection()
+
+    Security.setProperty("networkaddress.cache.ttl", "0")
+    Security.setProperty("networkaddress.cache.negative.ttl", "0")
+
+    HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection()
+    connection.setUseCaches(false)
     connection.requestMethod = method
     connection.connectTimeout = connectionTimeout
     connection.readTimeout = readTimeout
@@ -88,6 +94,12 @@ class RestClient {
   }
 
   private void sendRequestBody(HttpURLConnection connection, Object body) {
+
+    Security.setProperty("networkaddress.cache.ttl", "0")
+    Security.setProperty("networkaddress.cache.negative.ttl", "0")
+
+    connection.setUseCaches(false)
+
     if (body instanceof Map || body instanceof List) {
       body = JsonOutput.toJson(body)
       if (!connection.getRequestProperty('Content-Type')) {

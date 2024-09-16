@@ -4,7 +4,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 
 
 //TODO Switch branch before final merge
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1359-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

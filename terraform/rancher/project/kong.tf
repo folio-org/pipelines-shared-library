@@ -34,7 +34,7 @@ resource "helm_release" "kong" {
 image:
   registry: folioci
   repository: folio-kong
-  tag: 3.8.0-SNAPSHOT.2
+  tag: latest
   pullPolicy: Always
 useDaemonset: false
 replicaCount: 1
@@ -104,6 +104,12 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: KONG_PROXY_CONNECT_TIMEOUT
+     value: "180000"
+   - name: KONG_PROXY_READ_TIMEOUT
+     value: "180000"
+   - name: KONG_PROXY_SEND_TIMEOUT
+     value: "180000"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
@@ -140,8 +146,10 @@ kong:
      value: "false"
 resources:
   requests:
+    cpu: 512m
     memory: 2Gi
   limits:
+    cpu: 2048m
     memory: 3Gi
 ingressController:
   enabled: false

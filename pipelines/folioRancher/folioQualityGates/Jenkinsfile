@@ -74,7 +74,6 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "#${env.BUILD_ID}"
-        buildDescription "Quality Gates:\nKarate\nCypress\nSchema compare"
       }
 
       stage('Check Changes') {
@@ -146,7 +145,9 @@ ansiColor('xterm') {
       }
 
       stage('[AWS] Update ssm') {
-        folioHashCommitCheck.updateBuildSha(currentBuildSha)
+        if (currentBuildSha) {
+          folioHashCommitCheck.updateBuildSha(currentBuildSha)
+        }
       }
 
       stage('[Slack] Send notification') {
@@ -159,8 +160,12 @@ ansiColor('xterm') {
           cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
         )
 
-        List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
-        String changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+        String changelog = ''
+        if (previousBuildSha && currentBuildSha) {
+          List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
+          changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+          buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
+        }
 
         String attachments = SlackHelper.renderMessage([
           folioSlackNotificationUtils.renderBuildResultSection(),

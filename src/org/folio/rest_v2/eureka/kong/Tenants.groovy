@@ -1,23 +1,22 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import hudson.util.Secret
 import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.models.FolioModule
 
-class Tenants extends Kong{
+class Tenants extends Kong {
 
-  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, kongUrl, keycloak, debug)
   }
 
-  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Tenants(Kong kong){
+  Tenants(Kong kong) {
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -73,15 +72,15 @@ class Tenants extends Kong{
     return EurekaTenant.getTenantFromContent(content)
   }
 
-  EurekaTenant getTenant(String tenantId){
+  EurekaTenant getTenant(String tenantId) {
     return getTenants(tenantId)[0]
   }
 
-  EurekaTenant getTenantByName(String name){
+  EurekaTenant getTenantByName(String name) {
     return getTenants("", "name==${name}")[0]
   }
 
-  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500){
+  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500) {
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -111,53 +110,54 @@ class Tenants extends Kong{
   }
 
   Tenants enableApplicationsOnTenant(EurekaTenant tenant) {
-    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
-    Map<String, String> headers = getMasterHttpHeaders(true)
+      logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
-    Map body = [
-      tenantId: tenant.uuid,
-      applications: tenant.applications.values()
-    ]
+      Map<String, String> headers = getMasterHttpHeaders(true)
 
-    logger.debug("enableApplicationsOnTenant body: ${body}")
-    logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
-    logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
+      Map body = [
+        tenantId    : tenant.uuid,
+        applications: tenant.applications.values()
+      ]
 
-    def response = restClient.post(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
-      , body
-      , headers
-      , [201, 400]
-    )
+      logger.debug("enableApplicationsOnTenant body: ${body}")
+      logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
+      logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
 
-    logger.debug("enableApplicationsOnTenant after request")
+      def response = restClient.post(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+        , body
+        , headers
+        , [201, 400]
+      )
 
-    String contentStr = response.body.toString()
+      logger.debug("enableApplicationsOnTenant after request")
 
-    if (response.responseCode == 400) {
-      if (contentStr.contains("value: Entitle flow finished")) {
-        logger.info("""
+      String contentStr = response.body.toString()
+
+      if (response.responseCode == 400) {
+        if (contentStr.contains("value: Entitle flow finished")) {
+          logger.info("""
           Application is already entitled, no actions needed..
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
 
-        return this
-      } else {
-        logger.error("Enabling application for tenant failed: ${contentStr}")
+          return this
+        } else {
+          logger.error("Enabling application for tenant failed: ${contentStr}")
 
-        throw new Exception("Build failed: " + contentStr)
+          throw new Exception("Build failed: " + contentStr)
+        }
       }
-    }
 
-    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+      logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
 
-    return this
+      return this
   }
 
   @NonCPS
-  static Tenants get(Kong kong){
+  static Tenants get(Kong kong) {
     return new Tenants(kong)
   }
 

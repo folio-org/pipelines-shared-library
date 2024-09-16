@@ -179,8 +179,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioci/folio-module-sidecar",
-                                         tag  : "1.1.0-SNAPSHOT.93"]]]
+                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                                         tag  : "latest"]]]
           ]
 
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
@@ -197,12 +197,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioci/folio-module-sidecar",
-                                         tag  : "1.1.0-SNAPSHOT.93"]]]
+                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                                         tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
         break
       case 'mod-scheduler':
         moduleConfig['integrations'] += [eureka: [enabled       : true,
@@ -210,8 +211,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioci/folio-module-sidecar",
-                                         tag  : "1.1.0-SNAPSHOT.93"]]]
+                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                                         tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -221,8 +222,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioci/folio-module-sidecar",
-                                         tag  : "1.1.0-SNAPSHOT.93"]]]
+                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                                         tag  : "latest"]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
