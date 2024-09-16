@@ -231,7 +231,7 @@ void call(CreateNamespaceParameters args) {
                                    custom_hash         : ui.getHash(),
                                    custom_url          : "https://${namespace.getDomains()['kong']}",
                                    custom_tag          : ui.getTag(),
-                                   consortia           : tenant instanceof OkapiTenantConsortia,
+                                   consortia           : tenantId == 'consortium',
                                    clientId            : ui.getTenantId() + "-application",
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]
