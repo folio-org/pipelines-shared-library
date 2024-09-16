@@ -101,7 +101,6 @@ class Permissions extends Kong {
     }
   }
 
-  @NonCPS
   List<String> getCapabilitiesId(EurekaTenant tenant, int limit = 3000) {
     logger.info("Get capabilities list for ${tenant.tenantId}...")
 
@@ -122,7 +121,7 @@ class Permissions extends Kong {
 
     return ids
   }
-  @NonCPS
+
   List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000) {
     logger.info("Get capability sets list for ${tenant.tenantId}...")
 
