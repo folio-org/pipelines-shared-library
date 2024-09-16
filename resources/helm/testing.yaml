@@ -571,7 +571,7 @@ mod-aes:
       memory: 256Mi
 mod-agreements:
   jmx:
-    enabled: true
+    enabled: false
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'

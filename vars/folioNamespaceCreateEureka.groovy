@@ -121,7 +121,6 @@ void call(CreateNamespaceParameters args) {
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-
     int counter_dns = 0
     retry(3) {
       sleep time: (counter_dns == 0 ? 0 : 1), unit: 'MINUTES'
@@ -165,19 +164,19 @@ void call(CreateNamespaceParameters args) {
       )
 
 //      namespace.withApplications([
-//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.419"
-//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.279"
+//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
 //      ])
-
+//
 //      namespace.getTenants().values().each {tenant ->
 //        if(tenant instanceof EurekaTenantConsortia)
 //          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.419"
-//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.419"
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
 //          ])
 //        else
 //          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.419"
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
 //          ])
 //      }
     }
@@ -208,7 +207,7 @@ void call(CreateNamespaceParameters args) {
       int counter = 0
       retry(10) {
         //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
