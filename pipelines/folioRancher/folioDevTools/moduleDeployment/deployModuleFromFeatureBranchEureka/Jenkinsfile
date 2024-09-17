@@ -79,7 +79,7 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
-        if(disableStage) {
+        if(disableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -96,7 +96,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if(disableStage) {
+        if(disableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -126,7 +126,7 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
-        if(disableStage) {
+        if(disableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -141,7 +141,7 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        if(enableStage) {
+        if(enableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -158,7 +158,7 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        if(enableStage) {
+        if(enableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -168,7 +168,7 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if(enableStage) {
+        if(enableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -178,7 +178,7 @@ ansiColor('xterm') {
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        if(enableStage) {
+        if(enableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -190,7 +190,7 @@ ansiColor('xterm') {
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        if(enableStage) {
+        if(enableStage.toBoolean()) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
