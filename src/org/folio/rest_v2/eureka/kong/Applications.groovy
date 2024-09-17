@@ -116,8 +116,10 @@ class Applications extends Kong{
     logger.debug("""
       Module \"${module.name}-${module.version}\" not found in environment
       Status: ${response['responseCode']}
-      Response content:
+      ConnectStr content:
       ${contentStr}
+      Response content:
+      ${response}
     """.stripIndent())
 
     if (response['responseCode'] == 404.toString()) {
