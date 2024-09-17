@@ -113,35 +113,18 @@ class Applications extends Kong{
     def response = restClient.get(url, headers, [200, 404])
     String contentStr = response['body'].toString()
 
-    logger.debug("""
-      Module \"${module.name}-${module.version}\" not found in environment
-      Type of response: ${response.getClass()}
-      Type of body: ${response['body'].getClass()}
-      Type of responseCode: ${response['responseCode'].getClass()}
-      Type of contentStr: ${contentStr.getClass()}
-      Status: ${response['responseCode']}
-      ConnectStr content:
-      ${contentStr}
-      Response content:
-      ${response}
-    """.stripIndent())
-
-    assert response['responseCode'] == 404
-    assert response['body']['errors'][0].message.contains("Unable to find module with id")
-    assert contentStr.contains("Unable to find module with id")
-
-//    if (response['responseCode'].equals('404')) {
-//      if (contentStr.contains("Unable to find module with id")) {
+    if (response['responseCode'] == 404) {
+      if (contentStr.contains("Unable to find discovery of the module with id")) {
         logger.info("""
           Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response.responseCode}
+          Status: ${response['responseCode']}
           Response content:
           ${contentStr}
         """.stripIndent())
 
         throw new RequestException(contentStr, response['responseCode'] as int)
-//      }
-//    }
+      }
+    }
 
     logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
 

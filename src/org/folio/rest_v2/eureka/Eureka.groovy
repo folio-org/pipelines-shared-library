@@ -327,13 +327,13 @@ class Eureka extends Base {
    * @param module FolioModule object to discover
    */
   void runModuleDiscoveryFlow(FolioModule module) {
-//    try {
-//      Applications.get(kong).getModuleDiscovery(module)
-//    } catch (RequestException e) {
-//      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+    try {
+      Applications.get(kong).getModuleDiscovery(module)
+    } catch (RequestException e) {
+      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
         Applications.get(kong).createModuleDiscovery(module)
-//      }
-//    }
+      }
+    }
   }
 
   /**
