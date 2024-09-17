@@ -146,7 +146,7 @@ void call(CreateNamespaceParameters args) {
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
 
-        int nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+        int nodes_before = sh(script: "kubectl get nodes --no-headers | head -n 1", returnStdout: true).trim()
         println(nodes_before)
         input("Paused...")
 
