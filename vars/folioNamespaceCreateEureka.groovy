@@ -158,7 +158,7 @@ void call(CreateNamespaceParameters args) {
         //Make sure that the new node has joined target EKS cluster
         int nodes_after = sh("kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
         while (nodes_before == nodes_after) {
-          logger.debug("New worker node is joing to cluster: ${namespace.getClusterName()}...")
+          logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
           nodes_after = sh("kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
           sleep time: 10, unit: "SECONDS"
           return nodes_after
