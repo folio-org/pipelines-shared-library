@@ -125,6 +125,9 @@ class Applications extends Kong{
       ${response}
     """.stripIndent())
 
+    assert response['responseCode'] == 404
+    assert contentStr.contains("Unable to find module with id")
+
 //    if (response['responseCode'].equals('404')) {
 //      if (contentStr.contains("Unable to find module with id")) {
         logger.info("""
