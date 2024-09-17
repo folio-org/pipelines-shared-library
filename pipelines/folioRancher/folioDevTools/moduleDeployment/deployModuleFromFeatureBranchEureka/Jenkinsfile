@@ -63,7 +63,9 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 /** Init Eureka Application Instance */
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-Boolean skipStage = true
+// TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
+Boolean skipStage = false
+
 
 
 /** Pipeline */
@@ -143,46 +145,43 @@ ansiColor('xterm') {
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
         logger.debug("Configured Applications: ${namespace.applications}")
-
-        // TODO: debug code to be removed soon
-        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.95')
       }
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-//        if(skipStage) {
-//          logger.info("Skipping stage")
-//          return
-//        }
+        if(skipStage) {
+          logger.info("Skipping ${env.STAGE_NAME} stage")
+          return
+        }
         eureka.updateAppDescriptorFlow(namespace.applications, module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-//        if(skipStage) {
-//          logger.info("Skipping stage")
-//          return
-//        }
+        if(skipStage) {
+          logger.info("Skipping ${env.STAGE_NAME} stage")
+          return
+        }
         eureka.runModuleDiscoveryFlow(module)
       }
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-//        if(skipStage) {
-//          logger.info("Skipping stage")
-//          return
-//        }
-//        folioHelm.withKubeConfig(namespace.clusterName) {
-//          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
-//        }
+        if(skipStage) {
+          logger.info("Skipping ${env.STAGE_NAME} stage")
+          return
+        }
+        folioHelm.withKubeConfig(namespace.clusterName) {
+          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
+        }
       }
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-//        if(skipStage) {
-//          logger.info("Skipping stage")
-//          return
-//        }
+        if(skipStage) {
+          logger.info("Skipping ${env.STAGE_NAME} stage")
+          return
+        }
         eureka.enableApplicationsOnTenantsFlow(namespace.tenants)
       }
 
