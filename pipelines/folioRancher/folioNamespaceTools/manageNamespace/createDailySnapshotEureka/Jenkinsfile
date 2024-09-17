@@ -55,7 +55,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
-  .consortia(false)
+  .consortia(true)
   .eureka(true)
   .rwSplit(false)
   .greenmail(false)
