@@ -120,6 +120,12 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
+    boolean check = sh(script: "curl -s https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true)
+
+    while (!check) {
+      sh(script: "ping ${namespace.generateDomain('keycloak')} -c 5", returnStdout: true)
+    }
+
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
     int counter_dns = 0
     retry(3) {
