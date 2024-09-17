@@ -138,10 +138,10 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        namespace.tenants = eureka.getExistedTenantsFlow()
+        namespace.tenants = eureka.getExistedTenants()
         logger.debug("Configured Tenants: ${namespace.tenants}")
 
-        namespace.withApplications(eureka.getEnabledApplicationsFlow(namespace.tenants))
+        namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
         logger.debug("Configured Applications: ${namespace.applications}")
 
         // TODO: debug code to be removed soon

@@ -220,7 +220,7 @@ class Eureka extends Base {
    * Get Configured Tenants on Environment Namespace.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsFlow() {
+  Map<String, EurekaTenant> getExistedTenants() {
     /** Configured Tenants in Environment (namespace) */
     Map<String, EurekaTenant> configuredTenantsMap
 
@@ -248,7 +248,7 @@ class Eureka extends Base {
    * Get Existed Applications on Environment Namespace.
    * @return Map of Application Name and Application ID.
    */
-  static Map<String, String> getEnabledApplicationsFlow(Map<String, EurekaTenant> tenants) {
+  static Map<String, String> getEnabledApplications(Map<String, EurekaTenant> tenants) {
     /** Enabled Applications in Environment */
     Map <String, String> enabledAppsMap = [:]
 
