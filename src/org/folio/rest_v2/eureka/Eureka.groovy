@@ -274,7 +274,7 @@ class Eureka extends Base {
 
     //Get application descriptors for enabled applications in namespace
     applications.each { appName, appId ->
-      def appDescriptor = Applications.get(kong).getRegisteredApplication(appId)
+      def appDescriptor = Applications.get(kong).getRegisteredApplication(appId, true)
       if (appDescriptor['modules'].any { it['name'] == module.name }) {
         appDescriptorsMap.put(appId, appDescriptor)
       }
