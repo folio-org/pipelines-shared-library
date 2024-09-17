@@ -289,8 +289,7 @@ class Eureka extends Base {
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
 
       // Register Updated Application Descriptor to Environment
-      // TODO: uncomment following line after testing
-//      Applications.get(kong).registerApplication(updatedAppDescriptor)
+      Applications.get(kong).registerApplication(updatedAppDescriptor)
     }
 
     return this
