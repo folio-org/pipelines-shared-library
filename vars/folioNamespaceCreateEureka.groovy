@@ -124,11 +124,11 @@ void call(CreateNamespaceParameters args) {
     //DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 10, unit: 'MINUTES') {
 
-      def check = 1
+      def check = ''
 
-      while (check != 0) {
+      while (check == '') {
         try {
-          check = sh(script: "curl -fs https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStatus: true).trim()
+          check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
           return check
         } catch (ignored) {
           new Logger(this, 'dailySnapshotEureka').debug("DNS: ${namespace.generateDomain('keycloak')} still not propagated!")
