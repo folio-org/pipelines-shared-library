@@ -122,7 +122,7 @@ class Applications extends Kong{
       ${response}
     """.stripIndent())
 
-    if (response.responseCode == '404') {
+    if (response['responseCode'].equals('404')) {
       if (contentStr.contains("Unable to find module with id")) {
         logger.info("""
           Module \"${module.name}-${module.version}\" not found in environment
