@@ -64,10 +64,10 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean enableStage = true
+def enableStage = true
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean disableStage = false
+def disableStage = false
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -79,7 +79,7 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
-        if(disableStage.toBoolean()) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
