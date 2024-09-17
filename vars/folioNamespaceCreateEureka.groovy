@@ -136,13 +136,7 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-    int counter_dns = 0
-    retry(3) {
-      sleep time: (counter_dns == 0 ? 0 : 1), unit: 'MINUTES'
-      counter_dns++
-      eureka.defineKeycloakTTL()
-    }
+    eureka.defineKeycloakTTL()
 
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
