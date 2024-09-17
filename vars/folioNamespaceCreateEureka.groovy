@@ -62,6 +62,7 @@ void call(CreateNamespaceParameters args) {
     boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
+    Logger logger = new Logger(this, 'dailySnapshotEureka')
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
@@ -131,7 +132,7 @@ void call(CreateNamespaceParameters args) {
           check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
           return check
         } catch (ignored) {
-          new Logger(this, 'dailySnapshotEureka').debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+          logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
           sleep time: 5, unit: "SECONDS"
         }
       }
@@ -141,6 +142,9 @@ void call(CreateNamespaceParameters args) {
 
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+
+        int nodes_before = sh("kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
+
         def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
           "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
           "--region ${Constants.AWS_REGION}", returnStdout: true)
@@ -150,6 +154,15 @@ void call(CreateNamespaceParameters args) {
           "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
           "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
           "--region ${Constants.AWS_REGION}")
+
+        //Make sure that the new node has joined target EKS cluster
+        int nodes_after = sh("kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
+        while (nodes_before == nodes_after) {
+          logger.debug("New worker node is joing to cluster: ${namespace.getClusterName()}...")
+          nodes_after = sh("kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
+          sleep time: 10, unit: "SECONDS"
+          return nodes_after
+        }
       }
     }
 
@@ -217,7 +230,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Initialize') {
       int counter = 0
       retry(10) {
-        //The first wait time should be at leas 10 minutes due to module's long time instantiation
+        // The first wait time should be at least 10 minutes due to module's long time instantiation
         sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
         eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
