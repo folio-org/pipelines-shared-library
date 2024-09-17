@@ -115,7 +115,7 @@ class Applications extends Kong{
 
     logger.debug("""
           Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response["responseCode"]}
+          Status: ${response["status"]}
           Response content:
           ${response}
         """.stripIndent())
@@ -124,7 +124,7 @@ class Applications extends Kong{
       if (contentStr.contains("Unable to find module with id")) {
         logger.info("""
           Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response['responseCode']}
+          Status: ${response['status']}
           Response content:
           ${contentStr}
         """.stripIndent())
