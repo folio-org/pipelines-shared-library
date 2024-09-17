@@ -3,6 +3,7 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
@@ -123,12 +124,16 @@ void call(CreateNamespaceParameters args) {
     //DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 10, unit: 'MINUTES') {
 
-      def check = false
+      def check = 1
 
-      while (!check) {
-        check = sh(script: "curl -fs https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
+      while (check != 0) {
+        try {
+          check = sh(script: "curl -fs https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStatus: true).trim()
+          return check
+        } catch (ignored) {
+          new Logger(this, 'dailySnapshotEureka').debug("DNS: ${namespace.generateDomain('keycloak')} still not propagated!")
+        }
       }
-
     }
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
