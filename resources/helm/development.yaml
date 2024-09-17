@@ -1670,6 +1670,29 @@ mod-ldp:
   pdb:
     enabled: true
     maxUnavailable: 1
+mod-reporting:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 12369
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-licenses:
   extraEnvVars: []
   integrations:
