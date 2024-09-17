@@ -146,7 +146,9 @@ void call(CreateNamespaceParameters args) {
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
 
-        int nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
+        int nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+        println(nodes_before)
+        input("Paused...")
 
         def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
           "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
