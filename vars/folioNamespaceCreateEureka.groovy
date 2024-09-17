@@ -126,8 +126,7 @@ void call(CreateNamespaceParameters args) {
       def check = false
 
       while (!check) {
-        sh(script: "ping ${namespace.generateDomain('keycloak')} -c 5", returnStdout: true)
-        check = sh(script: "curl -s https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true)
+        check = sh(script: "curl -s https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
       }
 
     }
