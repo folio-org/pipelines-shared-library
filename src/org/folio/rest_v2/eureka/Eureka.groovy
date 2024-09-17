@@ -312,7 +312,7 @@ class Eureka extends Base {
 
     // Update Application Descriptor with new Module Version
     appDescriptor['modules'].findAll { it['name'] == module.name }.each {
-      it['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+//      it['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
       it['id'] = "${module.name}-${module.version}"
       it['version'] = module.version
     }
