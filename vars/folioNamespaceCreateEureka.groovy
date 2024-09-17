@@ -131,7 +131,8 @@ void call(CreateNamespaceParameters args) {
           check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
           return check
         } catch (ignored) {
-          new Logger(this, 'dailySnapshotEureka').debug("DNS: ${namespace.generateDomain('keycloak')} still not propagated!")
+          new Logger(this, 'dailySnapshotEureka').debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+          sleep time: 5, unit: "SECONDS"
         }
       }
     }
