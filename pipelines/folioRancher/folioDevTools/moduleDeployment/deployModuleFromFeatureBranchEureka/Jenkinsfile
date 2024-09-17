@@ -64,10 +64,10 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-def enableStage = true
+Boolean enableStage = false
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-def disableStage = false
+Boolean disableStage = true
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -96,7 +96,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if(disableStage.toBoolean()) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -126,7 +126,7 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
-        if(disableStage.toBoolean()) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -141,7 +141,7 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        if(enableStage.toBoolean()) {
+        if(enableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -158,7 +158,7 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        if(enableStage.toBoolean()) {
+        if(enableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -168,7 +168,7 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if(enableStage.toBoolean()) {
+        if(enableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -178,7 +178,7 @@ ansiColor('xterm') {
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        if(enableStage.toBoolean()) {
+        if(enableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -190,7 +190,7 @@ ansiColor('xterm') {
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        if(enableStage.toBoolean()) {
+        if(enableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
