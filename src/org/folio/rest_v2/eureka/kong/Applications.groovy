@@ -110,7 +110,7 @@ class Applications extends Kong{
 
     logger.info("Getting Module Discovery for new module version...")
 
-    def response = restClient.get(url, headers, [404]).body
+    def response = restClient.get(url, headers).body
     String contentStr = response['body'].toString()
 
     logger.debug("""
