@@ -116,22 +116,23 @@ class Applications extends Kong{
     logger.debug("""
           Module \"${module.name}-${module.version}\" not found in environment
           Status: ${response["status"]}
+          Status: ${response["responseCode"]}
           Response content:
           ${response}
         """.stripIndent())
 
-    if (response['responseCode'] == 404) {
-      if (contentStr.contains("Unable to find module with id")) {
-        logger.info("""
-          Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response['status']}
-          Response content:
-          ${contentStr}
-        """.stripIndent())
-
-        throw new RequestException(contentStr, response['responseCode'] as int)
-      }
-    }
+//    if (response['responseCode'] == 404) {
+//      if (contentStr.contains("Unable to find module with id")) {
+//        logger.info("""
+//          Module \"${module.name}-${module.version}\" not found in environment
+//          Status: ${response['status']}
+//          Response content:
+//          ${contentStr}
+//        """.stripIndent())
+//
+//        throw new RequestException(contentStr, response['responseCode'] as int)
+//      }
+//    }
 
     logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
 
