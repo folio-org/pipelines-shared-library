@@ -113,11 +113,11 @@ class Applications extends Kong{
     def response = restClient.get(url, headers, [404]).body
     String contentStr = response['body'].toString()
 
-    logger.info("""
+    logger.debug("""
           Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response['responseCode']}
+          Status: ${response["responseCode"]}
           Response content:
-          ${contentStr}
+          ${response}
         """.stripIndent())
 
     if (response['responseCode'] == 404) {
