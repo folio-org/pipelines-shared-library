@@ -95,7 +95,6 @@ ansiColor('xterm') {
       }
 
       if (namespaceParams.eureka) {
-        sleep time: 5, unit: 'MINUTES'
         folioNamespaceCreateEureka(namespaceParams)
       } else {
         folioNamespaceCreate(namespaceParams)
