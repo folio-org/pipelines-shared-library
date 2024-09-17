@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.models.FolioModule
+import org.folio.utilities.RequestException
 
 class Applications extends Kong{
 
@@ -109,7 +110,21 @@ class Applications extends Kong{
 
     logger.info("Getting Module Discovery for new module version...")
 
-    def response = restClient.get(url, headers).body
+    def response = restClient.get(url, headers, [200, 404]).body
+    String contentStr = response['body'].toString()
+
+    if (response['responseCode'] == 404) {
+      if (contentStr.contains("Unable to find module with id")) {
+        logger.info("""
+          Module \"${module.name}-${module.version}\" not found in environment
+          Status: ${response['responseCode']}
+          Response content:
+          ${contentStr}
+        """.stripIndent())
+
+        throw new RequestException(contentStr, response['responseCode'] as int)
+      }
+    }
 
     logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
 
