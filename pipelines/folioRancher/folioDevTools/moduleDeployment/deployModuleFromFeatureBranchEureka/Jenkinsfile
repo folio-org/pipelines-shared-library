@@ -119,8 +119,13 @@ ansiColor('xterm') {
 
           String descriptorPath = "target/ModuleDescriptor.json"
           if (fileExists(descriptorPath)) {
-            module.descriptor = [readJSON(file: descriptorPath)]
+            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
+            sh(script: "sed -i 's/\"dockerImage\": \"${module.name}:${module.version}\"/\"dockerImage\": \"folioci\\/${module.name}:${module.version}\"/g' ${descriptorPath}")
+
+            // Upload Module Descriptor to Eureka Module Registry
             sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
+
+            module.descriptor = [readJSON(file: descriptorPath)]
           }
         }
       }
