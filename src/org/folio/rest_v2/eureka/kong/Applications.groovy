@@ -126,7 +126,7 @@ class Applications extends Kong{
     """.stripIndent())
 
 //    if (response['responseCode'].equals('404')) {
-      if (contentStr.contains("Unable to find module with id")) {
+//      if (contentStr.contains("Unable to find module with id")) {
         logger.info("""
           Module \"${module.name}-${module.version}\" not found in environment
           Status: ${response.responseCode}
@@ -135,7 +135,7 @@ class Applications extends Kong{
         """.stripIndent())
 
         throw new RequestException(contentStr, response['responseCode'] as int)
-      }
+//      }
 //    }
 
     logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
