@@ -112,12 +112,13 @@ class Applications extends Kong{
 
     def response = restClient.get(url, headers, [200, 404])
     String contentStr = response['body'].toString()
+    assert contentStr.contains("Unable to find module with id")
 
     logger.debug("""
       Module \"${module.name}-${module.version}\" not found in environment
       Type of response: ${response.getClass()}
       Type of body: ${response['body'].getClass()}
-      Type of body: ${response['responseCode'].getClass()}
+      Type of responseCode: ${response['responseCode'].getClass()}
       Status: ${response['responseCode']}
       ConnectStr content:
       ${contentStr}
