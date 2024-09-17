@@ -147,8 +147,6 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
 
         def nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
-        println("${nodes_before}")
-        input("Paused...")
 
         def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
           "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
@@ -161,10 +159,11 @@ void call(CreateNamespaceParameters args) {
           "--region ${Constants.AWS_REGION}")
 
         //Make sure that the new node has joined target EKS cluster
-        int nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
-        while (nodes_before == nodes_after) {
+        def nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+
+        while (nodes_before.toInt() == nodes_after.toInt()) {
           logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
-          nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim().toInt()
+          nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
           sleep time: 10, unit: "SECONDS"
           return nodes_after
         }
