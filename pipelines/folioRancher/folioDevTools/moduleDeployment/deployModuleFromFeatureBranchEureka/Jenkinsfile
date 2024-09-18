@@ -162,6 +162,9 @@ ansiColor('xterm') {
         module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.8e6c903')
       }
 
+      /** Updated Applications Info Map<AppName, AppID> */
+      Map<String, String> updatedAppInfoMap = [:]
+
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
         if(enableStage) {
@@ -169,7 +172,7 @@ ansiColor('xterm') {
           return
         }
 
-        eureka.updateAppDescriptorFlow(namespace.applications, module)
+        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application
@@ -201,7 +204,7 @@ ansiColor('xterm') {
           return
         }
 
-        eureka.enableApplicationsOnTenantsFlow(namespace.tenants)
+        eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
       }
 
     } catch (e) {

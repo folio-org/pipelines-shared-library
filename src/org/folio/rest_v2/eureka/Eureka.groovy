@@ -266,9 +266,9 @@ class Eureka extends Base {
    * Update Application Descriptor Flow.
    * @param applications Map of enabled applications in namespace.
    * @param module FolioModule object.
-   * @return Map of EurekaTenant objects.
+   * @return Map<AppName, AppID> of updated applications.
    */
-  Eureka updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -280,6 +280,9 @@ class Eureka extends Base {
       }
     }
 
+    /** Updated Application Info, Map<AppName, AppID> */
+    Map<String, String> updatedAppInfoMap = [:]
+
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor->
       // Get Incremental Number for New Application Version
@@ -290,9 +293,12 @@ class Eureka extends Base {
 
       // Register Updated Application Descriptor to Environment
       Applications.get(kong).registerApplication(updatedAppDescriptor)
+
+      // Collect Updated Application information to Map<AppName, AppID>
+      updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
     }
 
-    return this
+    return updatedAppInfoMap
   }
 
   /**
@@ -339,11 +345,12 @@ class Eureka extends Base {
   /**
    * Enable Applications on Tenants Flow.
    * @param tenants Map of EurekaTenant objects.
+   * @param appsToEnableMap Map<AppName, AppID> of registered application information.
    */
-  void enableApplicationsOnTenantsFlow(Map<String, EurekaTenant> tenants) {
+  void enableApplicationsOnTenantsFlow(Map<String, EurekaTenant> tenants, Map<String, String> appsToEnableMap) {
     tenants.each { tenantName, tenant ->
       // Upgrade Applications on Tenant
-      Applications.get(kong).upgradeTenantApplication(tenant)
+      Applications.get(kong).upgradeTenantApplication(tenant, appsToEnableMap)
     }
   }
 }

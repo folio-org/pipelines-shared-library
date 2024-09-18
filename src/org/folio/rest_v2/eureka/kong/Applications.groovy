@@ -160,8 +160,9 @@ class Applications extends Kong{
   /**
    * Upgrade Applications (switch to new version) on Tenant
    * @param tenant EurekaTenant object to upgrade application for
+   * @param appsToEnableMap Map<AppName, AppID> of Applications to enable on Tenant
    */
-  void upgradeTenantApplication(EurekaTenant tenant) {
+  void upgradeTenantApplication(EurekaTenant tenant, Map<String, String> appsToEnableMap) {
     // Get Authorization Headers for Master Tenant from Keycloak
     Map<String, String> headers = getMasterHttpHeaders()
 
@@ -171,7 +172,7 @@ class Applications extends Kong{
     // Request Body for PUT request
     Map requestBody = [
       'tenantId': tenant.uuid,
-      'applications': tenant.applications.values()
+      'applications': appsToEnableMap.values()
     ]
 
     logger.info("Performing Application Upgrade for \"${tenant.tenantName}\" Tenant...")

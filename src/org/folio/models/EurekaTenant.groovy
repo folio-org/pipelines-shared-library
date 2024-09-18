@@ -30,7 +30,7 @@ class EurekaTenant extends OkapiTenant {
   /** Modules that are installed for the tenant. */
   EurekaModules modules = new EurekaModules()
 
-  /** Eureka Applications enabled (entitled) for the Tenant. */
+  /** Eureka Applications enabled (entitled) for the Tenant. Map<AppName, AppID> */
   Map<String, String> applications = [:]
 
   EurekaTenant(){}
