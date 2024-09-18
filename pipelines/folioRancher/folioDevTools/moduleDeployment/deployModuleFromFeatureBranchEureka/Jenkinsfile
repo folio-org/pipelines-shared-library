@@ -67,7 +67,7 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 Boolean enableStage = false
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean disableStage = true
+Boolean disableStage = false
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -79,7 +79,7 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
-        if(enableStage) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -96,7 +96,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if(enableStage) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
