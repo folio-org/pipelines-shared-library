@@ -177,6 +177,7 @@ ansiColor('xterm') {
         slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
       }
     } catch (e) {
+      input('Paused for investigation!')
       logger.error("Caught exception: ${e}")
     } finally {
       if (!autoCanceled) {
