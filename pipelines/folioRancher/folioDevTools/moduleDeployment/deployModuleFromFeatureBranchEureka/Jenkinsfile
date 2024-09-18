@@ -123,8 +123,9 @@ ansiColor('xterm') {
             sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}:${module.version}\"#g' ${descriptorPath}")
             echo "Module Descriptor: ${readFile(descriptorPath)}"
 
-            // Upload Module Descriptor to Eureka Module Registry
+            // Delete Module Descriptor from Eureka Module Registry
             sh(script: "curl -X DELETE ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}")
+            // Upload Module Descriptor to Eureka Module Registry
             sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
 
             module.descriptor = [readJSON(file: descriptorPath)]
