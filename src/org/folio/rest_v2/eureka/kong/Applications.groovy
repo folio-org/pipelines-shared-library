@@ -73,7 +73,7 @@ class Applications extends Kong{
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    String url = generateUrl("/applications?${query ? "query=$query" : ""}&fullInfo=$fullInfo&limit=$limit")
+    String url = generateUrl("/applications?${query ? "query=$query" : ""}&full=$fullInfo&limit=$limit")
 
     Map response = restClient.get(url, headers).body as Map
 
