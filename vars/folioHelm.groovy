@@ -166,10 +166,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    }
 
   if (ns instanceof EurekaNamespace) {
-    String sidecarRepository = determineModulePlacement(
-      "folio-module-sidecar"
-      , ns.getModules().allModules['folio-module-sidecar']
-    )
+//    String sidecarRepository = determineModulePlacement(
+//      "folio-module-sidecar"
+//      , ns.getModules().allModules['folio-module-sidecar']
+//    )
 
     switch (moduleName) {
     //TODO: Temporary solution just to bug avoiding workaround
