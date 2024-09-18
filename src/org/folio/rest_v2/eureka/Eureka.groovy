@@ -342,8 +342,8 @@ class Eureka extends Base {
    */
   void enableApplicationsOnTenantsFlow(Map<String, EurekaTenant> tenants) {
     tenants.each { tenantName, tenant ->
-      // Enable Applications on Tenant
-      Tenants.get(kong).enableApplicationsOnTenant(tenant)
+      // Upgrade Applications on Tenant
+      Applications.get(kong).upgradeTenantApplication(tenant)
     }
   }
 }

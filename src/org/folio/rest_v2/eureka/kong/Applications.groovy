@@ -1,6 +1,7 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.models.FolioModule
@@ -154,6 +155,30 @@ class Applications extends Kong{
     def response = restClient.post(url, requestBody, headers).body
 
     logger.info("New Module Discovery is created for ${module.name}-${module.version}.")
+  }
+
+  /**
+   * Upgrade Applications (switch to new version) on Tenant
+   * @param tenant EurekaTenant object to upgrade application for
+   */
+  void upgradeTenantApplication(EurekaTenant tenant) {
+    // Get Authorization Headers for Master Tenant from Keycloak
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    // URL for PUT request
+    String url = generateUrl("/entitlements")
+
+    // Request Body for PUT request
+    Map requestBody = [
+      'tenantId': tenant.uuid,
+      'applications': tenant.applications.values()
+    ]
+
+    logger.info("Performing Application Upgrade for \"${tenant.tenantName}\" Tenant...")
+
+    restClient.put(url, requestBody, headers)
+
+    logger.info("We've successfully upgraded Application for \"${tenant.tenantName}\" Tenant.")
   }
 
   @NonCPS
