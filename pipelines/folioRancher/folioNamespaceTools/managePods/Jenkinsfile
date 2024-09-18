@@ -45,10 +45,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
         15 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega-2nd
         15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
         30 03 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=vega-2nd
-        20 22 * * 5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=quesnelia
-        30 23 * * 0 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=quesnelia
-        15 22 * * 2-5 %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=quesnelia
-        30 01 * * 2-5 %ACTION=start;CLUSTER=folio-perf;NAMESPACE=quesnelia
         55 21 * * 5 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
         35 23 * * 0 %ACTION=start;CLUSTER=folio-dev;NAMESPACE=aggies
         55 21 * * 1-4 %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
