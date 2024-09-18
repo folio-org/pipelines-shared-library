@@ -317,12 +317,6 @@ class Eureka extends Base {
       it['version'] = module.version
     }
 
-    // TODO: RANCHER-1700 - get rid off related workaround code once pipeline testing is done
-    // Update Application Descriptor for "mod-scheduler-1.3.0-SNAPSHOT.81"
-    appDescriptor['modules'].findAll { it['name'] == "mod-scheduler-1.3.0-SNAPSHOT.81" }.each {
-      it['url'] = "https://folio-registry.dev.folio.org/_/proxy/modules/mod-scheduler-1.3.0-SNAPSHOT.81"
-    }
-
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n${appDescriptor}")
 
     return appDescriptor as Map
