@@ -124,7 +124,7 @@ ansiColor('xterm') {
             echo "Module Descriptor: ${readFile(descriptorPath)}"
 
             // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
+            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
 
             module.descriptor = [readJSON(file: descriptorPath)]
           }
