@@ -190,7 +190,7 @@ ansiColor('xterm') {
         }
 
         folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, true, namespace.defaultTenantId)
+          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
         }
       }
 
