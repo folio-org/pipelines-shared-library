@@ -1,5 +1,6 @@
 import hudson.util.Secret
 import org.folio.Constants
+import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 
 void deleteOpenSearchIndices(String cluster, String namespace) {
@@ -35,6 +36,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     while (check.toInteger() != 0) {
+      new Logger(this, 'CapabilitiesChecker').debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
       sleep time: 30, unit: 'SECONDS'
       check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     }
