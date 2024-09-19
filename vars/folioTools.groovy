@@ -35,10 +35,8 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     String kafka_host = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_HOST')
     String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
     String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
-    try {
-      kubectl.checkKubernetesResourceExist('pod', 'kafka-sh', namespace)
-    } catch (Error e) {
-      logger.debug("kafka-sh pod does not exist\n ${e.getMessage()}\n, run pod command executed.")
+    def status = sh(script: "kubectl get pod kafka-sh --namespace ${namespace}", returnStdout: true).trim()
+    if (status.contains('NotFound')) {
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
@@ -50,7 +48,6 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     }
   }
 }
-
 
 List getGitHubTeamsIds(String teams) {
   withCredentials([usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
