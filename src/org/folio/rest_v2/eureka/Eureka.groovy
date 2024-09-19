@@ -38,7 +38,7 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -192,8 +192,8 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, boolean enableConsortia) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant) }
+  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia) {
+    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace) }
 
     if (enableConsortia)
       setUpConsortiaFlow(

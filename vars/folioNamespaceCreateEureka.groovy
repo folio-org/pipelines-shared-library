@@ -237,7 +237,13 @@ void call(CreateNamespaceParameters args) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
         sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+
+        eureka.initializeFromScratch(
+                namespace.getTenants()
+                , namespace.getClusterName()
+                , namespace.getNamespaceName()
+                , namespace.getEnableConsortia()
+        )
       }
     }
 
