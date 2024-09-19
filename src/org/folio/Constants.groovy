@@ -25,6 +25,7 @@ class Constants {
                                         'core-platform',
                                         'data-migration',
                                         'dreamliner',
+                                        'eureka',
                                         'falcon',
                                         'firebird',
                                         'folijet',
