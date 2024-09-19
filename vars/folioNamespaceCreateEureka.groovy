@@ -3,13 +3,16 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
 void call(CreateNamespaceParameters args) {
   try {
-    println("Create operation parameters:\n${prettyPrint(toJson(args))}")
+    Logger logger = new Logger(this, 'folioNamespaceCreateEureka')
+
+    logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
     //Set terraform configuration
@@ -114,10 +117,29 @@ void call(CreateNamespaceParameters args) {
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      .defineKeycloakTTL()
 
+    // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
+    timeout(time: 10, unit: 'MINUTES') {
+      def check = ''
+
+      while (check == '') {
+        try {
+          check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
+          return check
+        } catch (ignored) {
+          logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+          sleep time: 5, unit: "SECONDS"
+        }
+      }
+    }
+
+    eureka.defineKeycloakTTL()
+
+    // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+        def nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+
         def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
           "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
           "--region ${Constants.AWS_REGION}", returnStdout: true)
@@ -127,6 +149,15 @@ void call(CreateNamespaceParameters args) {
           "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
           "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
           "--region ${Constants.AWS_REGION}")
+
+        //Make sure that the new node has joined target EKS cluster
+        def nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+
+        while (nodes_before.toInteger() == nodes_after.toInteger()) {
+          logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
+          nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+          sleep time: 10, unit: "SECONDS"
+        }
       }
     }
 
@@ -154,7 +185,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        println(namespace.getModules().getBackendModules())
+        logger.info(namespace.getModules().getBackendModules())
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
       }
@@ -176,11 +207,16 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Initialize') {
       int counter = 0
       retry(10) {
-        //The first wait time should be at leas 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        // The first wait time should be at least 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
 
-        eureka.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+        eureka.initializeFromScratch(
+                namespace.getTenants()
+                , namespace.getClusterName()
+                , namespace.getNamespaceName()
+                , namespace.getEnableConsortia()
+        )
       }
     }
 
@@ -202,7 +238,7 @@ void call(CreateNamespaceParameters args) {
                                    custom_hash         : ui.getHash(),
                                    custom_url          : "https://${namespace.getDomains()['kong']}",
                                    custom_tag          : ui.getTag(),
-                                   consortia           : tenant instanceof OkapiTenantConsortia,
+                                   consortia           : tenant instanceof EurekaTenantConsortia,
                                    clientId            : ui.getTenantId() + "-application",
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]

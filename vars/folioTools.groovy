@@ -1,5 +1,6 @@
 import hudson.util.Secret
 import org.folio.Constants
+import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 
 void deleteOpenSearchIndices(String cluster, String namespace) {
@@ -27,6 +28,26 @@ void deleteKafkaTopics(String cluster, String namespace) {
   }
   kubectl.deletePod('kafka')
 }
+
+void stsKafkaLag(String cluster, String namespace, String tenantId) {
+  folioHelm.withKubeConfig(cluster) {
+    String kafka_host = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_HOST')
+    String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
+    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
+    def kafka_sh = kubectl.checkKubernetesResourceExist('pod', 'kafka-sh', namespace)
+    if (!kafka_sh) {
+      kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
+    }
+    kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
+    def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    while (check.toInteger() != 0) {
+      new Logger(this, 'CapabilitiesChecker').debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
+      sleep time: 15, unit: 'SECONDS'
+      check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    }
+  }
+}
+
 
 List getGitHubTeamsIds(String teams) {
   withCredentials([usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
@@ -90,8 +111,8 @@ String getPipelineBranch() {
   return scm.branches[0].name - "*/"
 }
 
-String generateRandomString(int length){
-  return new Random().with{r->
+String generateRandomString(int length) {
+  return new Random().with { r ->
     List pool = ('a'..'z') + ('A'..'Z')
     (1..length).collect { pool[r.nextInt(pool.size())] }.join('')
   }
