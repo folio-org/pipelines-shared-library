@@ -38,7 +38,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     try {
       kubectl.checkKubernetesResourceExist('pod', 'kafka-sh', namespace)
     } catch (ignored) {
-      logger.debug("kafka-sh does not exist, run pod command executed.")
+      logger.debug("kafka-sh pod does not exist, run pod command executed.")
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
     }
     kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
