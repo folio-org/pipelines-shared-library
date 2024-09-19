@@ -37,11 +37,11 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
     try {
       kubectl.checkKubernetesResourceExist('pod', 'kafka-sh', namespace)
-    } catch (ignored) {
-      logger.debug("kafka-sh pod does not exist, run pod command executed.")
+    } catch (Error e) {
+      logger.debug("kafka-sh pod does not exist\n ${e.getMessage()}\n, run pod command executed.")
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
+      kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
-    kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     while (check.toInteger() != 0) {
       logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
