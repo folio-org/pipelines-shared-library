@@ -48,6 +48,8 @@ class Eureka extends Base {
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
 
+    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
       , new Role(name: "adminRole", desc: "Admin role")
