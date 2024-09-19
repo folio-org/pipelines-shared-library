@@ -12,12 +12,12 @@ import org.folio.rest_v2.eureka.kong.*
 class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full": "RANCHER-1748"
+    "app-platform-full": "snapshot"
     , "app-consortia": "snapshot"
   ]
 
   static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
-    "app-platform-full": "RANCHER-1748"
+    "app-platform-full": "snapshot"
   ]
 
   private Kong kong
