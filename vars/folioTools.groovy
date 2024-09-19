@@ -29,13 +29,15 @@ void deleteKafkaTopics(String cluster, String namespace) {
 }
 
 static void stsKafkaLag(String cluster, String namespace, String tenantId) {
-  String lag = "kafka-consumer-groups.sh --bootstrap-server kafka-${namespace}:9092 --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
-  kubectl.runPodWithCommand("${namespace}",'kafka-sh', 'bitnami/kafka:3.5.0')
-  kubectl.waitPodIsRunning("${namespace}",'kafka-sh')
-  def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
-  while (check.toInteger() != 0) {
-    sleep time: 30, unit: 'SECONDS'
-    check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+  folioHelm.withKubeConfig(cluster) {
+    String lag = "kafka-consumer-groups.sh --bootstrap-server kafka-${namespace}:9092 --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
+    kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0')
+    kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
+    def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    while (check.toInteger() != 0) {
+      sleep time: 30, unit: 'SECONDS'
+      check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    }
   }
 }
 
