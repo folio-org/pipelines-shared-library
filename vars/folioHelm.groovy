@@ -173,6 +173,18 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     switch (moduleName) {
     //TODO: Temporary solution just to bug avoiding workaround
+      case "mod-inn-reach":
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig['integrations']['systemuser']['enabled'] = false
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
+                                         tag  : "latest"]]]
+          ]
+        moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
+        break
       case "mod-data-export-spring":
         moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                   existingSecret: 'eureka-common']]

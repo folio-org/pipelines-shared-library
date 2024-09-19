@@ -28,6 +28,17 @@ void deleteKafkaTopics(String cluster, String namespace) {
   kubectl.deletePod('kafka')
 }
 
+static void stsKafkaLag(String cluster, String namespace, String tenantId) {
+  String lag = "kafka-consumer-groups.sh --bootstrap-server kafka-${namespace}:9092 --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
+  kubectl.runPodWithCommand("${namespace}",'kafka-sh', 'bitnami/kafka:3.5.0')
+  kubectl.waitPodIsRunning("${namespace}",'kafka-sh')
+  def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+  while (check.toInteger() != 0) {
+    sleep time: 30, unit: 'SECONDS'
+    check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+  }
+}
+
 List getGitHubTeamsIds(String teams) {
   withCredentials([usernamePassword(credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID, passwordVariable: 'token', usernameVariable: 'username')]) {
     String url = "https://api.github.com/orgs/folio-org/teams?per_page=100"
@@ -90,8 +101,8 @@ String getPipelineBranch() {
   return scm.branches[0].name - "*/"
 }
 
-String generateRandomString(int length){
-  return new Random().with{r->
+String generateRandomString(int length) {
+  return new Random().with { r ->
     List pool = ('a'..'z') + ('A'..'Z')
     (1..length).collect { pool[r.nextInt(pool.size())] }.join('')
   }

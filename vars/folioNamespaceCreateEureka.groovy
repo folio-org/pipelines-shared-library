@@ -165,7 +165,6 @@ void call(CreateNamespaceParameters args) {
           logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
           nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
           sleep time: 10, unit: "SECONDS"
-          return nodes_after
         }
       }
     }
