@@ -79,7 +79,7 @@ class Applications extends Kong{
     Map response = restClient.get(url, headers).body as Map
 
     if (response.totalRecords > 0) {
-      logger.debug("Found application(s): ${response.applicationDescriptors}")
+      logger.debug("Found application(s): ${response.applicationDescriptors.collect({it['id']})}")
       return response.applicationDescriptors as List
     } else {
       logger.debug("By the url ${url} registered application(s) not found")
