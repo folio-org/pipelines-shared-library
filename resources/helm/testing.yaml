@@ -653,6 +653,20 @@ mod-batch-print:
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+mod-reporting:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
 mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES

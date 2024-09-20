@@ -41,7 +41,7 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -50,6 +50,8 @@ class Eureka extends Base {
     kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
     Tenants.get(kong).enableApplicationsOnTenant(tenant)
+
+    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
@@ -195,8 +197,8 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, boolean enableConsortia) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant) }
+  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia) {
+    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace) }
 
     if (enableConsortia)
       setUpConsortiaFlow(
