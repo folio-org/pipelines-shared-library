@@ -63,12 +63,6 @@ String mavenArguments = params.MAVEN_ARGS.trim()
 /** Init Eureka Application Instance */
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
 
-// TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean enableStage = false
-
-// TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean disableStage = false
-
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -96,11 +90,6 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         dir(module.getName()) {
           String origVersion = readMavenPom(file: 'pom.xml').version
           module.version = "${origVersion}.${featureHash}"
@@ -132,11 +121,6 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         common.checkEcrRepoExistence(module.getName())
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           dir(module.getName()) {
@@ -147,19 +131,11 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        if(enableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         namespace.tenants = eureka.getExistedTenants()
         logger.debug("Configured Tenants: ${namespace.tenants}")
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
         logger.debug("Configured Applications: ${namespace.applications}")
-
-        // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.8e6c903')
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
@@ -167,31 +143,16 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        if(enableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         eureka.runModuleDiscoveryFlow(module)
       }
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         folioHelm.withKubeConfig(namespace.clusterName) {
           folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
         }
@@ -199,11 +160,6 @@ ansiColor('xterm') {
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
       }
 
