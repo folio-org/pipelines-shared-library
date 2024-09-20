@@ -87,7 +87,7 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
 }
 
 void checkPodRunning(String ns, String podName) {
-  timeout(time: 5, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
     while (podNotRunning) {
       sleep(time: 30, unit: 'SECONDS')
