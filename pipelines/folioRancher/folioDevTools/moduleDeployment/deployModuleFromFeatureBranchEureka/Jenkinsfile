@@ -67,7 +67,7 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 Boolean enableStage = false
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean disableStage = false
+Boolean disableStage = true
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -177,7 +177,7 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        if(enableStage) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -187,7 +187,7 @@ ansiColor('xterm') {
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        if(enableStage) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
@@ -199,7 +199,7 @@ ansiColor('xterm') {
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        if(enableStage) {
+        if(disableStage) {
           logger.info("Skipping ${env.STAGE_NAME} stage")
           return
         }
