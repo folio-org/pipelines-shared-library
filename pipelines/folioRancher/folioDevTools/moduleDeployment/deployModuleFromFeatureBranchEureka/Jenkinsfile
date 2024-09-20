@@ -61,7 +61,7 @@ String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), feat
 String mavenArguments = params.MAVEN_ARGS.trim()
 
 /** Init Eureka Application Instance */
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), true)
+Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
 Boolean enableStage = false
