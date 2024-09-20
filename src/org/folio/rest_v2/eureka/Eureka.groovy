@@ -322,17 +322,21 @@ class Eureka extends Base {
         item['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
         item['id'] = "${module.name}-${module.version}"
         item['version'] = module.version
-        break
+        logger.debug("Updated Module info:\n${item}")
+
+        // Remove stale module descriptor from Updated Application Descriptor
+        for (item in appDescriptor['moduleDescriptors']) {
+          if (item['name'] == module.name) {
+            logger.debug("Removing stale module descriptor:\n${item}")
+            appDescriptor['moduleDescriptors'].remove(item)
+//        break
+          }
+        }
+//        break
       }
     }
 
-    // Remove stale module descriptor from Updated Application Descriptor
-//    for (item in appDescriptor['moduleDescriptors']) {
-//      if (item['name'] == module.name) {
-//        appDescriptor['moduleDescriptors'].remove(item)
-//        break
-//      }
-//    }
+
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n")
 
