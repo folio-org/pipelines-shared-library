@@ -319,23 +319,28 @@ class Eureka extends Base {
     // Update Application Descriptor with new Module Version
     for (item in appDescriptor['modules']) {
       if (item['name'] == module.name) {
+        /** Module ID to update */
+        String staleModuleId = item['id'] // save stale module id for descriptor removal
+
+        // Update Module properties
         item['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
         item['id'] = "${module.name}-${module.version}"
         item['version'] = module.version
+
         logger.debug("Updated Module info:\n${item}")
 
         // Remove stale module descriptor from Updated Application Descriptor
         for (descriptor in appDescriptor['moduleDescriptors']) {
-          if (descriptor['name'] == module.name) {
-            logger.debug("Removing stale module descriptor:\n${descriptor}")
+          if (descriptor['id'] == staleModuleId) {
             appDescriptor['moduleDescriptors'].remove(descriptor)
+
+            logger.debug("Removing stale module descriptor:\n${descriptor}")
 //        break
           }
         }
 //        break
       }
     }
-
 
 
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n")
