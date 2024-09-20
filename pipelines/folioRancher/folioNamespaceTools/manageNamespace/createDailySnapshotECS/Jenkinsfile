@@ -100,47 +100,47 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[TF] Destroy') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
-      }
-
-      stage('[TF] Provision') {
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
-
-      stage('[DB and Indices] Restore') {
-        folioPrint.colored("Restoring indices...", "green")
-        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-        }
-
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
-            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-            "ecs-snapshot", "${params.NAMESPACE}")
-          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
-          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
-        }
-      }
-
-      stage('Restore') {
-        folioHelm.withK8sClient {
-          namespace.getModules().setInstallJson(new Tools(this)
-            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-        }
-        folioDeployFlow.restore(namespace)
-        sleep time: 5, unit: "MINUTES"
-      }
+//      stage('[TF] Destroy') {
+//        def nsExists
+//        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+//          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+//        }
+//        if (nsExists) {
+//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+//        } else {
+//          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+//        }
+//      }
+//
+//      stage('[TF] Provision') {
+//        folioTerraformFlow.manageNamespace('apply', tfConfig)
+//      }
+//
+//      stage('[DB and Indices] Restore') {
+//        folioPrint.colored("Restoring indices...", "green")
+//        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//        }
+//
+//        folioHelm.withKubeConfig(params.CLUSTER) {
+//          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+//          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
+//            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+//            "ecs-snapshot", "${params.NAMESPACE}")
+//          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
+//          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+//        }
+//      }
+//
+//      stage('Restore') {
+//        folioHelm.withK8sClient {
+//          namespace.getModules().setInstallJson(new Tools(this)
+//            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+//          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+//        }
+//        folioDeployFlow.restore(namespace)
+//        sleep time: 5, unit: "MINUTES"
+//      }
 
       stage('Prepare update') {
         main.getTenantsList().each {
@@ -159,7 +159,7 @@ ansiColor('xterm') {
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
           def ldp_disable = """[{"id": "mod-ldp-1.1.3","action": "disable"},{"id": "folio_ldp-2.1.0","action": "disable"}]"""
-          main.tenantInstall(id, ldp_disable)
+          main.tenantInstall(id, ldp_disable as List)
           switch (id.getTenantId()) {
             case ['cs00000int']:
               id.getModules().setInstallJson(newInstallJson)
