@@ -113,7 +113,7 @@ void checkPodRunning(String ns, String podName) {
 }
 
 void checkAllPodsRunning(String ns) {
-  timeout(time: ns == 'ecs-snapshot' ? 15 : 10, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
