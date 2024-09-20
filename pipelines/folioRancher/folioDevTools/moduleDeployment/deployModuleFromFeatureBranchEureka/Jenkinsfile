@@ -73,11 +73,6 @@ ansiColor('xterm') {
       }
 
       stage('[Git] Checkout module source') {
-        if(disableStage) {
-          logger.info("Skipping ${env.STAGE_NAME} stage")
-          return
-        }
-
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${featureBranch}"]],
