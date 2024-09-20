@@ -12,8 +12,8 @@ import org.folio.rest_v2.eureka.kong.*
 class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full": "snapshot"
-    , "app-consortia": "snapshot"
+    "app-platform-full": "RANCHER-1748"
+    , "app-consortia": "RANCHER-1748"
   ]
 
   static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
