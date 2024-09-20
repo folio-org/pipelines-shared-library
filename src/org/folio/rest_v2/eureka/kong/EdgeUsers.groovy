@@ -7,8 +7,6 @@ class EdgeUsers extends Users{
     super(context, kongUrl, keycloak, debug)
   }
 
-  createEdgeUser(Users user) {
-
-  }
+  private String EUREKA_EDGE_USERS_CONF = 'edge/config_eureka.yaml'
 
 }
