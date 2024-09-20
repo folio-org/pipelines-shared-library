@@ -26,7 +26,14 @@ class Applications extends Kong{
 
     Map<String, String> headers = getMasterHttpHeaders()
 
+    // Disable huge debug output
+    this.debug = false
+
     def response = restClient.post(generateUrl("/applications?check=false"), jsonAppDefinition, headers, [201, 409])
+
+    // Enable debug output
+    this.debug = true
+
     String contentStr = response.body.toString()
     Map content = response.body as Map
 
