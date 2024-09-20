@@ -67,7 +67,7 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 Boolean enableStage = false
 
 // TODO: RANCHER-1700 - get rid off related verification code once pipeline testing is done
-Boolean disableStage = true
+Boolean disableStage = false
 
 /** Pipeline */
 ansiColor('xterm') {
