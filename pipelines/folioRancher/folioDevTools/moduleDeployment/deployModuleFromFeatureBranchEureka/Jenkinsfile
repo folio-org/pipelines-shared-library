@@ -127,10 +127,10 @@ ansiColor('xterm') {
 
       stage('Generate context') {
         namespace.tenants = eureka.getExistedTenants()
-        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.info("Configured Tenants: ${namespace.tenants}")
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
-        logger.debug("Configured Applications: ${namespace.applications}")
+        logger.info("Configured Applications: ${namespace.applications}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
