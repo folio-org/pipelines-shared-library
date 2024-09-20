@@ -325,10 +325,10 @@ class Eureka extends Base {
         logger.debug("Updated Module info:\n${item}")
 
         // Remove stale module descriptor from Updated Application Descriptor
-        for (item in appDescriptor['moduleDescriptors']) {
-          if (item['name'] == module.name) {
-            logger.debug("Removing stale module descriptor:\n${item}")
-            appDescriptor['moduleDescriptors'].remove(item)
+        for (descriptor in appDescriptor['moduleDescriptors']) {
+          if (descriptor['name'] == module.name) {
+            logger.debug("Removing stale module descriptor:\n${descriptor}")
+            appDescriptor['moduleDescriptors'].remove(descriptor)
 //        break
           }
         }
