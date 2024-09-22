@@ -128,7 +128,7 @@ variable "pg_password" {
 
 variable "pg_instance_type" {
   type    = string
-  default = "db.r5.xlarge"
+  default = "db.r6g.large"
 }
 
 variable "pg_rds_snapshot_name" {
@@ -175,6 +175,12 @@ variable "opensearch_shared_name" {
   type        = string
   default     = "folio-opensearch"
   description = "Name of shared OpenSearch cluster"
+}
+
+variable "opensearch_single_node" {
+  description = "Deploy OpenSearch in single-node mode (master, data, and client combined)"
+  type        = bool
+  default     = true
 }
 
 variable "es_ebs_volume_size" {

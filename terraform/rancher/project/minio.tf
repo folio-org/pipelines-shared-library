@@ -20,7 +20,7 @@ resource "helm_release" "minio" {
   repository = local.catalogs.bitnami
   name       = "minio"
   chart      = "minio"
-  version    = "11.8.1"
+  version    = "14.6.32"
   values = [<<-EOF
 defaultBuckets: ${join(",", [local.s3_buckets_string, "local-files"])}
 auth:

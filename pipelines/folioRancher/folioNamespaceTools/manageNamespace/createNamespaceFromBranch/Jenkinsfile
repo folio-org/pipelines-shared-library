@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.models.parameters.CreateNamespaceParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@NO-RANCHER-resources') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

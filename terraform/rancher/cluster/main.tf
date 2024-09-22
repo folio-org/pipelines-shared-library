@@ -7,6 +7,7 @@ resource "rancher2_cloud_credential" "aws" {
     access_key = var.aws_access_key_id
     secret_key = var.aws_secret_access_key
   }
+  depends_on = [module.eks_cluster]
 }
 
 #Creating a Rancher2 cluster object.
