@@ -52,11 +52,11 @@ class Edge extends Users {
         edgeUser.setEmail('edgeUser@ci.folio.org')
         edgeUser.setPreferredContactTypeId('002')
 
-        def response = restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body['id']
+        def response = restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body
 
         Map userPass = [
           username: name,
-          id      : response,
+          id      : response['id'],
           password: user['tenants']['password']
         ]
 
@@ -64,7 +64,7 @@ class Edge extends Users {
 
         if (caps) {
           Map userCaps = [
-            userId       : response,
+            userId       : response['id'],
             capabilityIds: caps
           ]
 
@@ -73,7 +73,7 @@ class Edge extends Users {
         }
 
         Map userCapsSets = [
-          userId            : response,
+          userId            : response['id'],
           "capabilitySetIds": capSets
         ]
 
