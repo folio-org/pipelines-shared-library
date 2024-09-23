@@ -3,6 +3,7 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
@@ -215,11 +216,6 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
-
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
@@ -244,6 +240,11 @@ void call(CreateNamespaceParameters args) {
                 , namespace.getEnableConsortia()
         )
       }
+    }
+
+    stage('[Rest] Configure edge') {
+      folioEdge.renderEphemeralProperties(namespace)
+      new Edge(this, "https://${namespace.generateDomain('kong')}", "https://${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
     }
 
     if (args.uiBuild) {

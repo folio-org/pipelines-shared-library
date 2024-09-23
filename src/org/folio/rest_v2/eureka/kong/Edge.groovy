@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka.kong
 
+import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaTenant
 import org.folio.models.User
 
@@ -10,17 +11,15 @@ class Edge extends Users {
 
   final public String EUREKA_EDGE_USERS_CONFIG = 'edge/config_eureka.yaml'
 
-  def createUsers() {
+  def createEurekaUsers(EurekaNamespace namespace) {
 
     super.context.tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
     def tenants = super.restClient.get(super.generateUrl("/tenants")).body
     def userData = super.context.readYaml file: './config_eureka.yaml'
 
-    tenants.each { tenantData ->
+    namespace.getTenants().each { tenant ->
 
-      EurekaTenant tenant = new EurekaTenant("${tenantData['tenants']['name']}", "${tenantData['tenants']['id']}")
-
-      Map headers = super.getTenantHttpHeaders(tenant, true)
+      Map headers = super.getTenantHttpHeaders(tenant as EurekaTenant, true)
 
       def capabilities = super.restClient.get(super.generateUrl("/capabilities?limit=5000"), headers as Map<String, String>).body
       def capabilitiesSets = super.restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers as Map<String, String>).body
@@ -49,8 +48,6 @@ class Edge extends Users {
         edgeUser.setEmail('edgeUser@ci.folio.org')
         edgeUser.setPreferredContactTypeId('002')
 
-//      super.createUser(tenant, edgeUser)
-
         def response = super.restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body['id']
 
         Map userPass = [
@@ -58,19 +55,26 @@ class Edge extends Users {
           id      : response,
           password: user['password']
         ]
-        super.restClient.post(super.generateUrl("authn/credentials"), headers, userPass as Map<String, String>)
+
+        super.restClient.post(super.generateUrl("/authn/credentials"), headers, userPass as Map<String, String>)
+
         if (caps) {
           Map userCaps = [
             userId       : response,
             capabilityIds: caps
           ]
+
           super.restClient.post(super.generateUrl("/users/capabilities"), headers, userCaps as Map<String, String>)
+
         }
+
         Map userCapsSets = [
           userId            : response,
           "capabilitySetIds": capSets
         ]
+
         super.restClient.post(super.generateUrl("/users/capability-sets"), headers, userCapsSets as Map<String, String>)
+
       }
     }
   }
