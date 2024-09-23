@@ -52,6 +52,7 @@ class Edge extends Users {
           edgeUser.setPreferredContactTypeId('002')
 
           logger.debug(headers)
+          logger.debug(generateUrl("/users-keycloak/users"))
 
           def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
 
