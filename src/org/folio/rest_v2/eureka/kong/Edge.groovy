@@ -44,22 +44,22 @@ class Edge extends Users {
         }
 
         User edgeUser = new User()
-        edgeUser.setUsername(user['username'] as String)
-        edgeUser.setFirstName(user['firstName'] as String)
-        edgeUser.setLastName(user['lastName'] as String)
+        edgeUser.setUsername(name['username'] as String)
+        edgeUser.setFirstName(name['firstName'] as String)
+        edgeUser.setLastName(name['lastName'] as String)
         edgeUser.setActive(true)
         edgeUser.setType('system')
         edgeUser.setEmail('edgeUser@ci.folio.org')
         edgeUser.setPreferredContactTypeId('002')
 
-        logger.debug(user)
+        logger.debug(name)
 
         def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
 
         Map userPass = [
-          username: name,
+          username: name['username'],
           id      : response['id'],
-          password: user['tenants']['password']
+          password: name['tenants']['password']
         ]
 
         restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers )
