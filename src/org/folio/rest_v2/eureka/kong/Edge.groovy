@@ -43,7 +43,7 @@ class Edge extends Users {
           if (user['capabilitiesSet']) {
             user['capabilitiesSet'].each { defaultCapSet ->
               def capsSets_tmp = capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet }?.id
-              capsSets += capsSets_tmp ? [capsSets_tmp] : []
+              capSets += capsSets_tmp ? [capsSets_tmp] : []
             }
           }
 
