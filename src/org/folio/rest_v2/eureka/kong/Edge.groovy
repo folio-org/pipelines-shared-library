@@ -7,7 +7,7 @@ import org.folio.utilities.Tools
 
 class Edge extends Users {
   Edge(Object context, String kongUrl, String keycloakUrl) {
-    super(context, kongUrl, keycloakUrl, true)
+    super(context, kongUrl, keycloakUrl)
   }
 
   final public String EUREKA_EDGE_USERS_CONFIG = 'edge/config_eureka.yaml'
@@ -27,7 +27,10 @@ class Edge extends Users {
       List caps = []
       List capSets = []
 
-      userData.each { name, user, tenants ->
+      userData.each { user ->
+
+        logger.debug(user)
+
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
             caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
@@ -38,9 +41,6 @@ class Edge extends Users {
             capSets.add((capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet })['id'])
           }
         }
-
-        logger.debug(tenants['username'])
-        logger.debug(tenants['password'])
 
         User edgeUser = new User()
         edgeUser.setUsername(name['username'] as String)
@@ -59,7 +59,7 @@ class Edge extends Users {
           password: name['tenants']['password']
         ]
 
-        restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers )
+        restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers)
 
         if (caps) {
           Map userCaps = [
