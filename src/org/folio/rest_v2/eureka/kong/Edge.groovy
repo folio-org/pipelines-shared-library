@@ -57,7 +57,7 @@ class Edge extends Users {
 
           Map userPass = [
             username: user['tenants'][0]['username'],
-            id      : response['id'],
+            userId      : response['id'],
             password: user['tenants'][0]['password']
           ]
 
@@ -82,6 +82,7 @@ class Edge extends Users {
           ]
 
           restClient.post(generateUrl("/users/capability-sets"), userCapsSets , headers)
+
           logger.info(user['tenants'][0]['username'] + "has assigned capabilitiesSets...")
         }
       }
