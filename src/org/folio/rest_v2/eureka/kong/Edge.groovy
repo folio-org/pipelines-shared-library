@@ -13,16 +13,15 @@ class Edge extends Users {
 
   def createEurekaUsers(EurekaNamespace namespace) {
 
-    super.context.tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
-    def tenants = super.restClient.get(super.generateUrl("/tenants")).body
-    def userData = super.context.readYaml file: './config_eureka.yaml'
+    context.tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
+    def userData = context.readYaml file: './config_eureka.yaml'
 
     namespace.getTenants().each { tenant ->
 
-      Map headers = super.getTenantHttpHeaders(tenant as EurekaTenant, true)
+      Map headers = getTenantHttpHeaders(tenant as EurekaTenant, true)
 
-      def capabilities = super.restClient.get(super.generateUrl("/capabilities?limit=5000"), headers as Map<String, String>).body
-      def capabilitiesSets = super.restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers as Map<String, String>).body
+      def capabilities = restClient.get(super.generateUrl("/capabilities?limit=5000"), headers as Map<String, String>).body
+      def capabilitiesSets = restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers as Map<String, String>).body
 
       List caps = []
       List capSets = []
@@ -48,7 +47,7 @@ class Edge extends Users {
         edgeUser.setEmail('edgeUser@ci.folio.org')
         edgeUser.setPreferredContactTypeId('002')
 
-        def response = super.restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body['id']
+        def response = restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body['id']
 
         Map userPass = [
           username: user['username'],
@@ -56,7 +55,7 @@ class Edge extends Users {
           password: user['password']
         ]
 
-        super.restClient.post(super.generateUrl("/authn/credentials"), headers, userPass as Map<String, String>)
+        restClient.post(super.generateUrl("/authn/credentials"), headers, userPass as Map<String, String>)
 
         if (caps) {
           Map userCaps = [
@@ -64,7 +63,7 @@ class Edge extends Users {
             capabilityIds: caps
           ]
 
-          super.restClient.post(super.generateUrl("/users/capabilities"), headers, userCaps as Map<String, String>)
+          restClient.post(super.generateUrl("/users/capabilities"), headers, userCaps as Map<String, String>)
 
         }
 
@@ -73,7 +72,7 @@ class Edge extends Users {
           "capabilitySetIds": capSets
         ]
 
-        super.restClient.post(super.generateUrl("/users/capability-sets"), headers, userCapsSets as Map<String, String>)
+        restClient.post(super.generateUrl("/users/capability-sets"), headers, userCapsSets as Map<String, String>)
 
       }
     }
