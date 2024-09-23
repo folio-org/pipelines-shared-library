@@ -3,6 +3,7 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
@@ -124,7 +125,7 @@ void call(CreateNamespaceParameters args) {
 
     // TODO: Mode this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
 
-    timeout(time: 10, unit: 'MINUTES') {
+    timeout(time: 15, unit: 'MINUTES') {
 
       def check = ''
 
@@ -203,7 +204,7 @@ void call(CreateNamespaceParameters args) {
 //          ])
 //        else
 //          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.10"
 //          ])
 //      }
     }
@@ -215,13 +216,9 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
-
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioEdge.renderEphemeralProperties(namespace)
         namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
         retry(3) {
@@ -238,12 +235,16 @@ void call(CreateNamespaceParameters args) {
         counter++
 
         eureka.initializeFromScratch(
-                namespace.getTenants()
-                , namespace.getClusterName()
-                , namespace.getNamespaceName()
-                , namespace.getEnableConsortia()
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
         )
       }
+    }
+
+    stage('[Rest] Configure edge') {
+      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
     }
 
     if (args.uiBuild) {
