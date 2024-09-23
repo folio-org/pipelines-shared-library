@@ -31,11 +31,9 @@ class Edge extends Users {
       logger.debug(capabilitiesSets)
       logger.debug(userData)
 
-      userData.each { user ->
-        logger.debug(user)
+      userData.each { name, user ->
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
-            logger.debug(defaultCap)
             caps.add(capabilities.capabilities.find { it -> it['name'] == defaultCap }['id'])
           }
         }
@@ -57,9 +55,9 @@ class Edge extends Users {
         def response = restClient.post(super.generateUrl("/users-keycloak/users"), headers, edgeUser.toMap() as Map<String, String>).body['id']
 
         Map userPass = [
-          username: user['username'],
+          username: name,
           id      : response,
-          password: user['password']
+          password: user['tenants']['password']
         ]
 
         restClient.post(super.generateUrl("/authn/credentials"), headers, userPass as Map<String, String>)
