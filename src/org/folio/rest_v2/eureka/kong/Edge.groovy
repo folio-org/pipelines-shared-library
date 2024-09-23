@@ -53,17 +53,17 @@ class Edge extends Users {
 
           def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
 
-          logger.info(user['tenants'][0]['username'] + "created...")
+          logger.info(user['tenants'][0]['username'] + " users created...")
 
           Map userPass = [
             username: user['tenants'][0]['username'],
-            userId      : response['id'],
+            userId  : response['id'],
             password: user['tenants'][0]['password']
           ]
 
           restClient.post(generateUrl("/authn/credentials"), userPass, headers)
 
-          logger.info(user['tenants'][0]['username'] + "password reset...")
+          logger.info(user['tenants'][0]['username'] + " user password reset...")
 
           if (caps) {
             Map userCaps = [
@@ -73,17 +73,18 @@ class Edge extends Users {
 
             restClient.post(generateUrl("/users/capabilities"), userCaps, headers)
 
-            logger.info(user['tenants'][0]['username'] + "has assigned capabilities...")
+            logger.info(user['tenants'][0]['username'] + " user has assigned capabilities...")
           }
+          if (capSets) {
+            Map userCapsSets = [
+              userId          : response['id'],
+              capabilitySetIds: capSets
+            ]
 
-          Map userCapsSets = [
-            userId            : response['id'],
-            "capabilitySetIds": capSets
-          ]
+            restClient.post(generateUrl("/users/capability-sets"), userCapsSets, headers)
 
-          restClient.post(generateUrl("/users/capability-sets"), userCapsSets , headers)
-
-          logger.info(user['tenants'][0]['username'] + "has assigned capabilitiesSets...")
+            logger.info(user['tenants'][0]['username'] + " user has assigned capabilitiesSets...")
+          }
         }
       }
     }
