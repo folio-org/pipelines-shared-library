@@ -27,6 +27,10 @@ class Edge extends Users {
       List caps = []
       List capSets = []
 
+      logger.debug(capabilities)
+      logger.debug(capabilitiesSets)
+      logger.debug(userData)
+
       userData.each { user ->
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
