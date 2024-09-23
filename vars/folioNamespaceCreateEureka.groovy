@@ -244,7 +244,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Configure edge') {
-      new Edge(this, "https://${namespace.generateDomain('kong')}", "https://${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
     }
 
     if (args.uiBuild) {
