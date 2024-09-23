@@ -14,7 +14,7 @@ class Edge extends Users {
 
   def createEurekaUsers(EurekaNamespace namespace) {
 
-    new Tools(this).copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
+    tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
     def userData = context.readYaml file: './config_eureka.yaml'
 
     namespace.getTenants().each { tenant ->
