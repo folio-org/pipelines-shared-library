@@ -3,6 +3,7 @@ package org.folio.rest_v2.eureka.kong
 import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaTenant
 import org.folio.models.User
+import org.folio.utilities.Tools
 
 class Edge extends Users {
   Edge(Object context, String kongUrl, String keycloakUrl) {
@@ -13,7 +14,7 @@ class Edge extends Users {
 
   def createEurekaUsers(EurekaNamespace namespace) {
 
-    context.tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
+    new Tools(this).copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
     def userData = context.readYaml file: './config_eureka.yaml'
 
     namespace.getTenants().each { tenant ->
