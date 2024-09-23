@@ -3,7 +3,6 @@ package org.folio.rest_v2.eureka.kong
 import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaTenant
 import org.folio.models.User
-import org.folio.utilities.Tools
 
 class Edge extends Users {
   Edge(Object context, String kongUrl, String keycloakUrl) {
@@ -58,7 +57,7 @@ class Edge extends Users {
 
           def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
 
-          logger.info(user['tenants'][0]['username'] + " users created...")
+          logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} users created...")
 
           Map userPass = [
             username: user['tenants'][0]['username'],
@@ -68,7 +67,7 @@ class Edge extends Users {
 
           restClient.post(generateUrl("/authn/credentials"), userPass, headers)
 
-          logger.info(user['tenants'][0]['username'] + " user password reset...")
+          logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password reset...")
 
           if (caps) {
             Map userCaps = [
@@ -78,7 +77,7 @@ class Edge extends Users {
 
             restClient.post(generateUrl("/users/capabilities"), userCaps, headers)
 
-            logger.info(user['tenants'][0]['username'] + " user has assigned capabilities...")
+            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities...")
           }
 
           if (capSets) {
@@ -90,7 +89,7 @@ class Edge extends Users {
 
             restClient.post(generateUrl("/users/capability-sets"), userCapsSets, headers)
 
-            logger.info(user['tenants'][0]['username'] + " user has assigned capabilitiesSets...")
+            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilitiesSets...")
           }
         }
       }
