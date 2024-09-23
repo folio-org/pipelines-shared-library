@@ -27,10 +27,6 @@ class Edge extends Users {
       List caps = []
       List capSets = []
 
-      logger.debug(capabilities)
-      logger.debug(capabilitiesSets)
-      logger.debug(userData)
-
       userData.each { name, user ->
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
@@ -53,6 +49,7 @@ class Edge extends Users {
         edgeUser.setPreferredContactTypeId('002')
 
         logger.debug(name)
+        logger.debug(user)
 
         def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
 
