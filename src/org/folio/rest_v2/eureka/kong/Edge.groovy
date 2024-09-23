@@ -27,7 +27,7 @@ class Edge extends Users {
       List caps = []
       List capSets = []
 
-      userData.each { name, user ->
+      userData.each { name, user, tenants ->
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
             caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
@@ -39,8 +39,8 @@ class Edge extends Users {
           }
         }
 
-        logger.debug(name)
-        logger.debug(user)
+        logger.debug(tenants['username'])
+        logger.debug(tenants['password'])
 
         User edgeUser = new User()
         edgeUser.setUsername(name['username'] as String)
