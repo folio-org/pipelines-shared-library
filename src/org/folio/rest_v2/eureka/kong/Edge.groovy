@@ -29,7 +29,7 @@ class Edge extends Users {
 
       userData.each { name, user ->
 
-        if (user['tenants']) {
+        if (user['tenants'] && user['tenants'][0]['create']) {
 
           if (user['capabilities']) {
             user['capabilities'].each { defaultCap ->
