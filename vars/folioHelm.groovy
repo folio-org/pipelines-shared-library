@@ -87,7 +87,7 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
 }
 
 void checkPodRunning(String ns, String podName) {
-  timeout(time: 5, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
     while (podNotRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -113,7 +113,7 @@ void checkPodRunning(String ns, String podName) {
 }
 
 void checkAllPodsRunning(String ns) {
-  timeout(time: 10, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -185,7 +185,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //mod-authtoken jwt.signing.key
-  if(moduleName == 'mod-authtoken'){
+  if (moduleName == 'mod-authtoken') {
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
   }
 
