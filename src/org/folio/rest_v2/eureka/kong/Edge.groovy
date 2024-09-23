@@ -27,57 +27,58 @@ class Edge extends Users {
       List caps = []
       List capSets = []
 
-      userData.each { user ->
+      userData.each { name, user ->
 
-        logger.debug(user)
+        if (user['tenants']) {
 
-        if (user['capabilities']) {
-          user['capabilities'].each { defaultCap ->
-            caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
+          if (user['capabilities']) {
+            user['capabilities'].each { defaultCap ->
+              caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
+            }
           }
-        }
-        if (user['capabilitiesSet']) {
-          user['capabilitiesSet'].each { defaultCapSet ->
-            capSets.add((capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet })['id'])
+          if (user['capabilitiesSet']) {
+            user['capabilitiesSet'].each { defaultCapSet ->
+              capSets.add((capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet })['id'])
+            }
           }
-        }
 
-        User edgeUser = new User()
-        edgeUser.setUsername(name['username'] as String)
-        edgeUser.setFirstName(name['firstName'] as String)
-        edgeUser.setLastName(name['lastName'] as String)
-        edgeUser.setActive(true)
-        edgeUser.setType('system')
-        edgeUser.setEmail('edgeUser@ci.folio.org')
-        edgeUser.setPreferredContactTypeId('002')
+          User edgeUser = new User()
+          edgeUser.setUsername(user['tenants'][0]['username'] as String)
+          edgeUser.setFirstName(user['tenants'][0]['firstName'] as String)
+          edgeUser.setLastName(user['tenants'][0]['lastName'] as String)
+          edgeUser.setActive(true)
+          edgeUser.setType('system')
+          edgeUser.setEmail('edgeUser@ci.folio.org')
+          edgeUser.setPreferredContactTypeId('002')
 
-        def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
+          def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
 
-        Map userPass = [
-          username: name['username'],
-          id      : response['id'],
-          password: name['tenants']['password']
-        ]
-
-        restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers)
-
-        if (caps) {
-          Map userCaps = [
-            userId       : response['id'],
-            capabilityIds: caps
+          Map userPass = [
+            username: user['tenants'][0]['username'],
+            id      : response['id'],
+            password: user['tenants'][0]['password']
           ]
 
-          restClient.post(super.generateUrl("/users/capabilities"), userCaps as Map<String, String>, headers)
+          restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers)
+
+          if (caps) {
+            Map userCaps = [
+              userId       : response['id'],
+              capabilityIds: caps
+            ]
+
+            restClient.post(super.generateUrl("/users/capabilities"), userCaps as Map<String, String>, headers)
+
+          }
+
+          Map userCapsSets = [
+            userId            : response['id'],
+            "capabilitySetIds": capSets
+          ]
+
+          restClient.post(super.generateUrl("/users/capability-sets"), userCapsSets as Map<String, String>, headers)
 
         }
-
-        Map userCapsSets = [
-          userId            : response['id'],
-          "capabilitySetIds": capSets
-        ]
-
-        restClient.post(super.generateUrl("/users/capability-sets"), userCapsSets as Map<String, String>, headers)
-
       }
     }
   }
