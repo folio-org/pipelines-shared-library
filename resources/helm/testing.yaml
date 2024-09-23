@@ -2460,6 +2460,26 @@ mod-scheduler:
       memory: 1Gi
     requests:
       memory: 256Mi
+mod-okapi-facade:
+  extraEnvVars:
+    - name: AM_TLS_ENABLED
+      value: 'false'
+    - name: TM_TLS_ENABLED
+      value: 'false'
+    - name: TE_TLS_ENABLED
+      value: 'false'
+    - name: TENANT_APPS_TTL
+      value: '600s'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
 okapi:
   args:
   - cluster
