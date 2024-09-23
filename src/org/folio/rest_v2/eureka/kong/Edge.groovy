@@ -17,7 +17,7 @@ class Edge extends Users {
     tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
     def userData = context.readYaml file: './config_eureka.yaml'
 
-    namespace.getTenants().each { tenant ->
+    namespace.getTenants().each { tenantId, tenant ->
 
       Map headers = getTenantHttpHeaders(tenant as EurekaTenant, true)
 
