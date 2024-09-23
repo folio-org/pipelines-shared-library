@@ -15,6 +15,7 @@ class Edge extends Users {
   def createEurekaUsers(EurekaNamespace namespace) {
 
     tools.copyResourceFileToCurrentDirectory(EUREKA_EDGE_USERS_CONFIG)
+
     def userData = context.readYaml file: './config_eureka.yaml'
 
     namespace.getTenants().each { tenantId, tenant ->
@@ -24,21 +25,25 @@ class Edge extends Users {
       def capabilities = restClient.get(super.generateUrl("/capabilities?limit=5000"), headers).body
       def capabilitiesSets = restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers).body
 
-      List caps = []
-      List capSets = []
-
       userData.each { name, user ->
 
         if (user['tenants'] && user['tenants'][0]['create']) {
 
+          List caps = []
+
+          List capSets = []
+
           if (user['capabilities']) {
             user['capabilities'].each { defaultCap ->
-              caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
+              def caps_tmp = capabilities.capabilities.find { it -> it['name'] == defaultCap }?.id
+              caps += caps_tmp ? [caps_tmp] : []
             }
           }
+
           if (user['capabilitiesSet']) {
             user['capabilitiesSet'].each { defaultCapSet ->
-              capSets.add((capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet })['id'])
+              def capsSets_tmp = capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet }?.id
+              capsSets += capsSets_tmp ? [capsSets_tmp] : []
             }
           }
 
@@ -75,7 +80,9 @@ class Edge extends Users {
 
             logger.info(user['tenants'][0]['username'] + " user has assigned capabilities...")
           }
+
           if (capSets) {
+
             Map userCapsSets = [
               userId          : response['id'],
               capabilitySetIds: capSets
