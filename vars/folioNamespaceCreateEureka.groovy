@@ -123,7 +123,7 @@ void call(CreateNamespaceParameters args) {
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-    // TODO: Mode this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
+    // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
 
     timeout(time: 15, unit: 'MINUTES') {
 
@@ -142,7 +142,7 @@ void call(CreateNamespaceParameters args) {
 
     eureka.defineKeycloakTTL()
 
-    // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
+    // TODO: Below [ASG] stage could be moved to one of the shared libs and called with an appropriate parameters.
 
     stage('[ASG] configure') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
