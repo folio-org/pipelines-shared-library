@@ -44,9 +44,9 @@ class Edge extends Users {
         }
 
         User edgeUser = new User()
-        edgeUser.setUsername(user['tenants']['username'] as String)
-        edgeUser.setFirstName(user['tenants']['firstName'] as String)
-        edgeUser.setLastName(user['tenants']['lastName'] as String)
+        edgeUser.setUsername(user['username'] as String)
+        edgeUser.setFirstName(user['firstName'] as String)
+        edgeUser.setLastName(user['lastName'] as String)
         edgeUser.setActive(true)
         edgeUser.setType('system')
         edgeUser.setEmail('edgeUser@ci.folio.org')
