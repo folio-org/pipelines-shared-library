@@ -34,12 +34,12 @@ class Edge extends Users {
       userData.each { name, user ->
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
-            caps.add(capabilities.capabilities.find { it -> it['name'] == defaultCap }['id'])
+            caps.add((capabilities.capabilities.find { it -> it['name'] == defaultCap })['id'])
           }
         }
         if (user['capabilitiesSet']) {
           user['capabilitiesSet'].each { defaultCapSet ->
-            capSets.add(capabilitiesSets.capabilities.find { it -> it['name'] == defaultCapSet }['id'])
+            capSets.add((capabilitiesSets.capabilitySets.find { it -> it['name'] == defaultCapSet })['id'])
           }
         }
 
