@@ -52,6 +52,8 @@ class Edge extends Users {
         edgeUser.setEmail('edgeUser@ci.folio.org')
         edgeUser.setPreferredContactTypeId('002')
 
+        logger.debug(edgeUser.toMap())
+
         def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
 
         Map userPass = [
