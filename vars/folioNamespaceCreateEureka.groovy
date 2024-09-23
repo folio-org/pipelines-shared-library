@@ -216,16 +216,16 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 //
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralProperties(namespace)
-        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        }
-        retry(3) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        }
-      }
-    }
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioEdge.renderEphemeralProperties(namespace)
+//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//        }
+//        retry(3) {
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//        }
+//      }
+//    }
 
     stage('[Rest] Initialize') {
       int counter = 0
