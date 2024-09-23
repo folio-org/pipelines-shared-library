@@ -32,8 +32,10 @@ class Edge extends Users {
       logger.debug(userData)
 
       userData.each { user ->
+        logger.debug(user)
         if (user['capabilities']) {
           user['capabilities'].each { defaultCap ->
+            logger.debug(defaultCap)
             caps.add(capabilities.capabilities.find { it -> it['name'] == defaultCap }['id'])
           }
         }
