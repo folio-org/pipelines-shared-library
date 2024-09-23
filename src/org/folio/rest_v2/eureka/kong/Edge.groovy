@@ -51,10 +51,9 @@ class Edge extends Users {
           edgeUser.setEmail(user['tenants'][0]['username'] + '@ci.folio.org')
           edgeUser.setPreferredContactTypeId('002')
 
-          logger.debug(headers)
-          logger.debug(generateUrl("/users-keycloak/users"))
-
           def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
+
+          logger.info(user['tenants'][0]['username'] + "created...")
 
           Map userPass = [
             username: user['tenants'][0]['username'],
@@ -64,6 +63,8 @@ class Edge extends Users {
 
           restClient.post(generateUrl("/authn/credentials"), userPass, headers)
 
+          logger.info(user['tenants'][0]['username'] + "password reset...")
+
           if (caps) {
             Map userCaps = [
               userId       : response['id'],
@@ -72,6 +73,7 @@ class Edge extends Users {
 
             restClient.post(generateUrl("/users/capabilities"), userCaps, headers)
 
+            logger.info(user['tenants'][0]['username'] + "has assigned capabilities...")
           }
 
           Map userCapsSets = [
@@ -80,7 +82,7 @@ class Edge extends Users {
           ]
 
           restClient.post(generateUrl("/users/capability-sets"), userCapsSets , headers)
-
+          logger.info(user['tenants'][0]['username'] + "has assigned capabilitiesSets...")
         }
       }
     }
