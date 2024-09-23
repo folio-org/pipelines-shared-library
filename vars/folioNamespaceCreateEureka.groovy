@@ -218,6 +218,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioEdge.renderEphemeralProperties(namespace)
         namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
         retry(3) {
@@ -234,16 +235,15 @@ void call(CreateNamespaceParameters args) {
         counter++
 
         eureka.initializeFromScratch(
-                namespace.getTenants()
-                , namespace.getClusterName()
-                , namespace.getNamespaceName()
-                , namespace.getEnableConsortia()
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
         )
       }
     }
 
     stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
       new Edge(this, "https://${namespace.generateDomain('kong')}", "https://${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
     }
 
