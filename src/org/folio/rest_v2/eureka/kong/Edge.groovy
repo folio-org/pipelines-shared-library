@@ -19,7 +19,7 @@ class Edge extends Users {
 
     namespace.getTenants().each { tenantId, tenant ->
 
-      Map headers = getTenantHttpHeaders(tenant as EurekaTenant)
+      Map headers = getTenantHttpHeaders(tenant as EurekaTenant, true)
 
       def capabilities = restClient.get(super.generateUrl("/capabilities?limit=5000"), headers as Map<String, String>).body
       def capabilitiesSets = restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers as Map<String, String>).body
