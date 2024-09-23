@@ -21,8 +21,8 @@ class Edge extends Users {
 
       Map headers = getTenantHttpHeaders(tenant as EurekaTenant)
 
-      def capabilities = restClient.get(super.generateUrl("/capabilities?limit=5000"), headers as Map<String, String>).body
-      def capabilitiesSets = restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers as Map<String, String>).body
+      def capabilities = restClient.get(super.generateUrl("/capabilities?limit=5000"), headers).body
+      def capabilitiesSets = restClient.get(super.generateUrl("/capability-sets?limit=5000"), headers).body
 
       List caps = []
       List capSets = []
@@ -53,7 +53,7 @@ class Edge extends Users {
 
           logger.debug(headers)
 
-          def response = restClient.post(super.generateUrl("/users-keycloak/users"), edgeUser.toMap() as Map<String, String>, headers).body
+          def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
 
           Map userPass = [
             username: user['tenants'][0]['username'],
@@ -61,7 +61,7 @@ class Edge extends Users {
             password: user['tenants'][0]['password']
           ]
 
-          restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers)
+          restClient.post(generateUrl("/authn/credentials"), userPass, headers)
 
           if (caps) {
             Map userCaps = [
@@ -69,7 +69,7 @@ class Edge extends Users {
               capabilityIds: caps
             ]
 
-            restClient.post(super.generateUrl("/users/capabilities"), userCaps as Map<String, String>, headers)
+            restClient.post(generateUrl("/users/capabilities"), userCaps, headers)
 
           }
 
@@ -78,7 +78,7 @@ class Edge extends Users {
             "capabilitySetIds": capSets
           ]
 
-          restClient.post(super.generateUrl("/users/capability-sets"), userCapsSets as Map<String, String>, headers)
+          restClient.post(generateUrl("/users/capability-sets"), userCapsSets , headers)
 
         }
       }
