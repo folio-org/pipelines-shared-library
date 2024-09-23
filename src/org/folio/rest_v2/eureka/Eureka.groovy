@@ -56,8 +56,6 @@ class Eureka extends Base {
       , Permissions.get(kong).getCapabilitiesId(tenant)
       , Permissions.get(kong).getCapabilitySetsId(tenant))
 
-    Edge.createUsers()
-
     return this
   }
 
