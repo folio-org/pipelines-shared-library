@@ -60,7 +60,7 @@ class Edge extends Users {
           password: user['tenants']['password']
         ]
 
-        restClient.post(super.generateUrl("/authn/credentials"), headers, userPass as Map<String, String>)
+        restClient.post(super.generateUrl("/authn/credentials"), userPass as Map<String, String>, headers)
 
         if (caps) {
           Map userCaps = [
@@ -68,7 +68,7 @@ class Edge extends Users {
             capabilityIds: caps
           ]
 
-          restClient.post(super.generateUrl("/users/capabilities"), headers, userCaps as Map<String, String>)
+          restClient.post(super.generateUrl("/users/capabilities"), userCaps as Map<String, String>, headers)
 
         }
 
@@ -77,7 +77,7 @@ class Edge extends Users {
           "capabilitySetIds": capSets
         ]
 
-        restClient.post(super.generateUrl("/users/capability-sets"), headers, userCapsSets as Map<String, String>)
+        restClient.post(super.generateUrl("/users/capability-sets"), userCapsSets as Map<String, String>, headers)
 
       }
     }
