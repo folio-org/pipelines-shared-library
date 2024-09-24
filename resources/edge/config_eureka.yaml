@@ -4,8 +4,11 @@ edge-rtac:
 edge-oai-pmh:
   tenants:
   - tenant: testoaipmh
-    username: test-user
-    password: test
+    firstName: edgeOaiPmh
+    lastName: edgeOaiPmh
+    username: oaiClient
+    password: oai12345
+    create: true
   capabilitiesSet:
   - oai-pmh.manage
   capabilities:
