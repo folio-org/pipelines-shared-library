@@ -89,7 +89,7 @@ void call(Map params, boolean releaseVersion = false) {
         rootUrl                     : params.tenantUrl,
         baseUrl                     : params.tenantUrl,
         adminUrl                    : params.tenantUrl,
-        redirectUris                : ["${params.tenantUrl}/*", "http://localhost:3000"], //Requested by AQA Team
+        redirectUris                : ["${params.tenantUrl}/*", "http://localhost:3000/*"], //Requested by AQA Team
         webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled      : true,
