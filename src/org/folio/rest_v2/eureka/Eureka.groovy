@@ -328,7 +328,7 @@ class Eureka extends Base {
         item['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
         item['id'] = "${module.name}-${module.version}"
         item['version'] = module.version
-        logger.debug("Updated Module info:\n${item}")
+        logger.info("Updated Module info:\n${item}")
 
         // Remove stale module descriptor from Updated Application Descriptor
         for (descriptor in appDescriptor['moduleDescriptors']) {
