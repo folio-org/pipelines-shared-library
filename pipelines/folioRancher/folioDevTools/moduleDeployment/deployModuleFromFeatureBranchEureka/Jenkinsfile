@@ -69,58 +69,58 @@ ansiColor('xterm') {
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
       }
 
-      stage('[Git] Checkout module source') {
-        checkout([
-          $class           : 'GitSCM',
-          branches         : [[name: "*/${featureBranch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
-                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                              [$class: 'AuthorInChangelog'],
-                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
-        ])
-      }
+//      stage('[Git] Checkout module source') {
+//        checkout([
+//          $class           : 'GitSCM',
+//          branches         : [[name: "*/${featureBranch}"]],
+//          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+//                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+//                              [$class: 'AuthorInChangelog'],
+//                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+//          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+//        ])
+//      }
 
-      stage('[Maven] Compile') {
-        dir(module.getName()) {
-          String origVersion = readMavenPom(file: 'pom.xml').version
-          module.version = "${origVersion}.${featureHash}"
+//      stage('[Maven] Compile') {
+//        dir(module.getName()) {
+//          String origVersion = readMavenPom(file: 'pom.xml').version
+//          module.version = "${origVersion}.${featureHash}"
+//
+//          withMaven(
+//            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+//            maven: Constants.MAVEN_TOOL_NAME,
+//            traceability: false,
+//            options: [artifactsPublisher(disabled: true)])
+//          {
+//            sh """
+//              mvn versions:set -DnewVersion=${module.getVersion()}
+//              mvn package ${mavenArguments}
+//            """.stripIndent()
+//          }
+//
+//          String descriptorPath = "target/ModuleDescriptor.json"
+//          if (fileExists(descriptorPath)) {
+//            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
+//            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}:${module.version}\"#g' ${descriptorPath}")
+//            echo "Module Descriptor: ${readFile(descriptorPath)}"
+//
+//            // Upload Module Descriptor to Eureka Module Registry
+//            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
+//
+//            module.descriptor = [readJSON(file: descriptorPath)]
+//          }
+//        }
+//      }
 
-          withMaven(
-            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-            maven: Constants.MAVEN_TOOL_NAME,
-            traceability: false,
-            options: [artifactsPublisher(disabled: true)])
-          {
-            sh """
-              mvn versions:set -DnewVersion=${module.getVersion()}
-              mvn package ${mavenArguments}
-            """.stripIndent()
-          }
-
-          String descriptorPath = "target/ModuleDescriptor.json"
-          if (fileExists(descriptorPath)) {
-            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
-            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}:${module.version}\"#g' ${descriptorPath}")
-            echo "Module Descriptor: ${readFile(descriptorPath)}"
-
-            // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
-
-            module.descriptor = [readJSON(file: descriptorPath)]
-          }
-        }
-      }
-
-      stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence(module.getName())
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir(module.getName()) {
-            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-            image.push()
-          }
-        }
-      }
+//      stage('[Docker] Build and push') {
+//        common.checkEcrRepoExistence(module.getName())
+//        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+//          dir(module.getName()) {
+//            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+//            image.push()
+//          }
+//        }
+//      }
 
       stage('Generate context') {
         namespace.tenants = eureka.getExistedTenants()
