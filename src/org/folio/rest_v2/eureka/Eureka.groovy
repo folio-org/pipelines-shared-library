@@ -12,6 +12,9 @@ import org.folio.models.User
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
 
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
+
 class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
@@ -292,6 +295,9 @@ class Eureka extends Base {
 
       // Update existing Application Descriptor with New Module Version
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
+
+      // Print Updated Application Descriptor for Debugging
+      println("Updated Application Descriptor to register:\n${prettyPrint(toJson(updatedAppDescriptor))}")
 
       // Register Updated Application Descriptor to Environment
       Applications.get(kong).registerApplication(updatedAppDescriptor)
