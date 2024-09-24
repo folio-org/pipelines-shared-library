@@ -81,16 +81,16 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Terraform] Restore') {
-        folioHelm.withK8sClient {
-          tfConfig.addVar('pg_version',
-            awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
-          tfConfig.addVar('pg_username',
-            awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
-        }
-
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
+//      stage('[Terraform] Restore') {
+//        folioHelm.withK8sClient {
+//          tfConfig.addVar('pg_version',
+//            awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
+//          tfConfig.addVar('pg_username',
+//            awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
+//        }
+//
+//        folioTerraformFlow.manageNamespace('apply', tfConfig)
+//      }
 
       if (params.NAMESPACE_ONLY) {
         return
@@ -122,9 +122,9 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Helm] Restore') {
-        folioDeployFlow.restore(namespace)
-      }
+//      stage('[Helm] Restore') {
+//        folioDeployFlow.restore(namespace)
+//      }
 
       stage('Build and deploy UI') {
         Map branches = [:]
@@ -151,9 +151,9 @@ ansiColor('xterm') {
         parallel branches
       }
 
-      stage('Deploy ldp') {
-        println('LDP deployment')
-      }
+//      stage('Deploy ldp') {
+//        println('LDP deployment')
+//      }
     } catch (e) {
       println "Caught exception: ${e}"
       error(e.getMessage())
