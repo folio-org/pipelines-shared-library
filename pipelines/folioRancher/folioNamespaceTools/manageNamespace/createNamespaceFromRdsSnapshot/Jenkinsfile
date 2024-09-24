@@ -139,7 +139,8 @@ ansiColor('xterm') {
                 custom_tag : ui.getTag(),
                 consortia  : tenant instanceof OkapiTenantConsortia
               ]
-
+              println(jobParameters)
+              input("Paused.")
               uiBuild(jobParameters)
 
               folioHelm.withKubeConfig(namespace.getClusterName()) {
