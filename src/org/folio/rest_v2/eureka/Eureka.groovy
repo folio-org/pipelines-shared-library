@@ -297,7 +297,7 @@ class Eureka extends Base {
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
 
       // Print Updated Application Descriptor for Debugging
-      println("Updated Application Descriptor to register:\n${prettyPrint(toJson(updatedAppDescriptor))}")
+      logger.info("Updated Application Descriptor to register:\n${prettyPrint(toJson(updatedAppDescriptor))}")
 
       // Register Updated Application Descriptor to Environment
       Applications.get(kong).registerApplication(updatedAppDescriptor)
