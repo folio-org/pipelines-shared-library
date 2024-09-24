@@ -668,6 +668,7 @@ mod-reporting:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
 mod-bulk-operations:
+  extraJavaOpts: []
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
