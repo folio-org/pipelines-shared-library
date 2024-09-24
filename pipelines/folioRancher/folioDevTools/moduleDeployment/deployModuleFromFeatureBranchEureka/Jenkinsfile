@@ -101,7 +101,7 @@ ansiColor('xterm') {
           String descriptorPath = "target/ModuleDescriptor.json"
           if (fileExists(descriptorPath)) {
             // Switch "dockerImage" to "folioci" Organization in Module Descriptor
-            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}:${module.version}\"#g' ${descriptorPath}")
+            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}-${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${descriptorPath}")
             echo "Module Descriptor: ${readFile(descriptorPath)}"
 
             // Upload Module Descriptor to Eureka Module Registry
