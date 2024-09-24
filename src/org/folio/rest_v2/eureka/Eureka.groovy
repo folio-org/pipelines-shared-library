@@ -324,6 +324,9 @@ class Eureka extends Base {
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
+    // Remove any URL links from previous module updates
+    appDescriptor['modules'].each { it.containsKey('url') ? it.remove('url') : '' }
+
     // Update Application Descriptor with new Module Version
     for (item in appDescriptor['modules']) {
       if (item['name'] == module.name) {
@@ -340,7 +343,7 @@ class Eureka extends Base {
         for (descriptor in appDescriptor['moduleDescriptors']) {
           if (descriptor['id'] == staleModuleId) {
             appDescriptor['moduleDescriptors'].remove(descriptor)
-            logger.debug("Removing stale module descriptor:\n${descriptor}")
+            logger.info("Removing stale module descriptor:\n${descriptor}")
             break
           }
         }
