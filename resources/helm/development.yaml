@@ -2955,7 +2955,7 @@ okapi:
       enabled: true
       existingSecret: db-credentials
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=65.0
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /_/proxy/health

@@ -3370,10 +3370,6 @@ mod-z3950:
     enabled: true
     maxUnavailable: 1
 okapi:
-  args:
-  - cluster
-  - -hazelcast-config-file
-  - /etc/hazelcast/hazelcast.xml
   ingress:
     enabled: true
     annotations:
@@ -3390,7 +3386,6 @@ okapi:
         servicePort: 9130
   service:
     type: NodePort
-  replicaCount: 1
   resources:
     limits:
       memory: 1684Mi
@@ -3400,13 +3395,9 @@ okapi:
     db:
       enabled: true
       existingSecret: db-credentials
-  autoscaling:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 3
-    targetMemoryUtilizationPercentage: 55
+  replicaCount: 1
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=65.0
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /_/proxy/health

@@ -22,6 +22,7 @@ void okapi(RancherNamespace namespace, Closure preStages = { -> }, Closure postS
   }
 
   stage('[Rest] Okapi healthcheck') {
+    sleep time: 3, unit: 'MINUTES'
     common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
   }
 

@@ -3404,9 +3404,9 @@ okapi:
     enabled: true
     minReplicas: 1
     maxReplicas: 3
-    targetMemoryUtilizationPercentage: 55
+    targetMemoryUtilizationPercentage: 75
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=65.0
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /_/proxy/health
