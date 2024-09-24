@@ -60,7 +60,7 @@ tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
  */
 
 String snapshotS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/rds/${params.RDS_SNAPSHOT_NAME}"
-List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").isEmpty() ? [] : params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
+List uiTenantsList = params.UI_TENANTS_IDS
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
