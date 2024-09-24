@@ -20,7 +20,6 @@ properties([
     folioParameters.moduleName(),
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    string(name: 'TENANTS_LIST', defaultValue: 'diku', description: 'Comma separated list of Tenant Names to deploy module to'),
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
