@@ -33,7 +33,7 @@ void call(Map params, boolean releaseVersion = false) {
     }
     checkout([$class           : 'GitSCM',
               branches         : [[name: ui_bundle.hash]],
-              extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
+              extensions       : [[$class: 'CloneOption', depth: 500, noTags: true, reference: '', shallow: true, timeout: 20],
                                   [$class: 'CleanBeforeCheckout'],
                                   [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenantId}"]],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
