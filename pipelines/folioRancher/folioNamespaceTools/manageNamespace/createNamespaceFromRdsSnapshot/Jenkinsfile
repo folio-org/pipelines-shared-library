@@ -133,11 +133,11 @@ ansiColor('xterm') {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [
-                tenant_id  : ui.getTenantId(),
-                custom_hash: ui.getHash(),
-                custom_url : "https://${namespace.getDomains()['okapi']}",
-                custom_tag : ui.getTag(),
-                consortia  : tenant instanceof OkapiTenantConsortia,
+                tenantId           : ui.getTenantId(),
+                custom_hash         : ui.getHash(),
+                custom_url          : "https://${namespace.getDomains()['okapi']}",
+                custom_tag          : ui.getTag(),
+                consortia           : tenant instanceof OkapiTenantConsortia,
                 rancher_cluster_name: namespace.getClusterName(),
                 rancher_project_name: namespace.getNamespaceName()
               ]
