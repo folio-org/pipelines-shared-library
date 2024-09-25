@@ -3,7 +3,6 @@ package org.folio.rest_v2.eureka
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.EurekaModules
-import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
 import org.folio.models.FolioModule
