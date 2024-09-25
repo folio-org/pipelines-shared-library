@@ -225,7 +225,7 @@ class Applications extends Kong{
 
     String url = generateUrl("/modules/discovery?${query ? "query=$query" : ""}&limit=$limit")
 
-    restClient.get(generateUrl(url), headers)
+    restClient.get(url, headers)
 
     logger.info("Got Module Discoveries successfully.")
   }
