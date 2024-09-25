@@ -387,4 +387,29 @@ class Eureka extends Base {
       Applications.get(kong).upgradeTenantApplication(tenant, appsToEnableMap)
     }
   }
+
+  /**
+   * Remove Stale Resources Flow.
+   * @param applications Map of enabled applications in namespace.
+   * @param updatedApplications Map of updated applications in namespace.
+   * @param module FolioModule object.
+   */
+  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, FolioModule module) {
+    // Remove Previous Application Descriptor with Stale Module Version
+    configuredApps.each { appName, appId ->
+      if (updatedApplications.containsKey(appName)) {
+
+        // Get Previous Module Version Discovery removed
+        Applications.get(kong).searchModuleDiscovery("name=${module.name}")['discovery'].each { moduleDiscovery ->
+          if (moduleDiscovery['id'] != module.id) { // Remove only for the previous module versions
+            Applications.get(kong).deleteModuleDiscovery(moduleDiscovery['id'] as String)
+          }
+        }
+
+        // Delete Application Descriptor
+        Applications.get(kong).deleteRegisteredApplication(appId)
+
+      }
+    }
+  }
 }

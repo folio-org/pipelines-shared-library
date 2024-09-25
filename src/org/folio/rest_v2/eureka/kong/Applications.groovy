@@ -182,6 +182,54 @@ class Applications extends Kong{
     logger.info("We've successfully upgraded Application for \"${tenant.tenantName}\" Tenant.")
   }
 
+  /**
+   * Delete Module Discovery for Registered Application
+   * @param moduleId
+   */
+  void deleteModuleDiscovery(String moduleId) {
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    // URL for DELETE request
+    String url = generateUrl("/modules/${moduleId}/discovery")
+
+    logger.info("Deleting Module Discovery for ${moduleId} module version...")
+
+    restClient.delete(url, headers)
+
+    logger.info("Module Discovery is deleted for ${moduleId}.")
+  }
+
+  /**
+   * Delete Registered Application
+   * @param appId
+   */
+  void deleteRegisteredApplication(String appId) {
+    logger.info("Delete registered application ${appId} ...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    restClient.delete(generateUrl("/applications/${appId}"), headers)
+
+    logger.info("Registered Application ${appId} is deleted.")
+  }
+
+  /**
+   * Search Module Discovery by query
+   * @param query search query (leave empty for all)
+   * @param limit limit of search results (default 300)
+   */
+  void searchModuleDiscovery(String query = '', int limit = 300) {
+    logger.info("Get Module Discoveries${query ? " with query=${query}" : ""}...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    String url = generateUrl("/modules/discovery?${query ? "query=$query" : ""}&limit=$limit")
+
+    restClient.get(generateUrl(url), headers)
+
+    logger.info("Got Module Discoveries successfully.")
+  }
+
   @NonCPS
   static Applications get(Kong kong){
     return new Applications(kong)

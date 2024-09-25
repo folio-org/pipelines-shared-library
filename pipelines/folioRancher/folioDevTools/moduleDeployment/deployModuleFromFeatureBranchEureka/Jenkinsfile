@@ -158,6 +158,10 @@ ansiColor('xterm') {
         eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
       }
 
+      stage('[Rest] Remove Stale Resources') {
+        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+      }
+
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
