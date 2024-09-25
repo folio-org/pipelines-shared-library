@@ -307,7 +307,7 @@ class Eureka extends Base {
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
 
       // Collect Current Application Modules Information to EurekaModules Object in the Namespace
-      modules.getAllModules().putAll(updatedAppDescriptor['modules'].collectEntries {[it['name'], it['version']]} as Map)
+      modules.allModules += updatedAppDescriptor['modules'].collectEntries {[it['name'], it['version']]}
     }
 
     return updatedAppInfoMap
