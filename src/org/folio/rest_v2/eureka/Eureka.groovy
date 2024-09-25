@@ -289,6 +289,9 @@ class Eureka extends Base {
     /** Updated Application Info, Map<AppName, AppID> */
     Map<String, String> updatedAppInfoMap = [:]
 
+    // Init existing modules information with empty map
+    modules.allModules = [:]
+
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor->
       // Get Incremental Number for New Application Version
@@ -307,7 +310,7 @@ class Eureka extends Base {
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
 
       // Collect Current Application Modules Information to EurekaModules Object in the Namespace
-      modules.allModules += updatedAppDescriptor['modules'].collectEntries {[(it['name']), it['version']]} as Map
+      modules.allModules.putAll(updatedAppDescriptor['modules'].collectEntries {[(it['name']), it['version']]} as Map)
     }
 
     return updatedAppInfoMap
