@@ -217,17 +217,20 @@ class Applications extends Kong{
    * Search Module Discovery by query
    * @param query search query (leave empty for all)
    * @param limit limit of search results (default 300)
+   * @return Map of Module Discoveries
    */
-  void searchModuleDiscovery(String query = '', int limit = 300) {
+  Map searchModuleDiscovery(String query = '', int limit = 300) {
     logger.info("Get Module Discoveries${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
     String url = generateUrl("/modules/discovery?${query ? "query=$query" : ""}&limit=$limit")
 
-    restClient.get(url, headers)
+    Map response = restClient.get(url, headers).body as Map
 
     logger.info("Got Module Discoveries successfully.")
+
+    return response
   }
 
   @NonCPS
