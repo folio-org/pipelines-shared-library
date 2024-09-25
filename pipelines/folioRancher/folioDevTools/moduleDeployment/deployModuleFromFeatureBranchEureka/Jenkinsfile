@@ -138,7 +138,7 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
       }
 
       // 2. Enable New Module Version (Discovery) for Application

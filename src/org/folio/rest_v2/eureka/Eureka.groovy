@@ -270,10 +270,11 @@ class Eureka extends Base {
   /**
    * Update Application Descriptor Flow.
    * @param applications Map of enabled applications in namespace.
+   * @param modules EurekaModules object.
    * @param module FolioModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModules modules, FolioModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -304,6 +305,9 @@ class Eureka extends Base {
 
       // Collect Updated Application information to Map<AppName, AppID>
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
+
+      // Collect Current Application Modules Information to EurekaModules Object in the Namespace
+      modules.getAllModules().putAll(updatedAppDescriptor['modules'].collectEntries {[it['name'], it['version']]} as Map)
     }
 
     return updatedAppInfoMap
