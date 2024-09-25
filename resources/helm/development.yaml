@@ -2913,17 +2913,6 @@ mod-z3950:
       memory: 341Mi
     requests:
       memory: 256Mi
-  postJob:
-    enabled: false
-  startupProbe:
-    httpGet:
-      path: /admin/health
-      port: 8081
-    initialDelaySeconds: 60
-    periodSeconds: 20
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 30
   pdb:
     enabled: true
     maxUnavailable: 1
