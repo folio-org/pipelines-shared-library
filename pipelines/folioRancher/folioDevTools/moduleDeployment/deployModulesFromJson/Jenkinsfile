@@ -78,7 +78,6 @@ ansiColor('xterm') {
       println "Caught exception: ${e}"
       error "Pipeline failed due to error: ${e.getMessage()}"
     } finally {
-      println(new JsonOutput().toJson(namespace))
       stage('Cleanup') {
         cleanWs notFailBuild: true
       }
