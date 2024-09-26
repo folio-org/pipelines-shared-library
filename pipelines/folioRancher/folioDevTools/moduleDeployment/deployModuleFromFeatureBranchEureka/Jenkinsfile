@@ -131,6 +131,7 @@ ansiColor('xterm') {
 
         // TODO: RANCHER-1700 - get rid off custom branch mention once debugging is done
 //        module.loadModuleDetails('mod-roles-keycloak-1.4.6-SNAPSHOT.8a01f13')
+        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.8e6c903')
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
