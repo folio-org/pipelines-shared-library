@@ -9,7 +9,7 @@ import org.folio.rest.model.OkapiUser
 import org.jenkinsci.plugins.workflow.libs.Library
 
 
-@Library('pipelines-shared-library@DEPRECATED-master') _
+@Library('pipelines-shared-library@RANCHER-1735') _
 
 import org.folio.utilities.Tools
 import org.folio.utilities.model.Project
