@@ -130,7 +130,7 @@ ansiColor('xterm') {
         logger.info("Configured Applications: ${namespace.applications}")
 
         // TODO: RANCHER-1700 - get rid off custom branch mention once debugging is done
-        module.loadModuleDetails('mod-roles-keycloak-1.4.6-SNAPSHOT.8a01f13')
+//        module.loadModuleDetails('mod-roles-keycloak-1.4.6-SNAPSHOT.8a01f13')
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
