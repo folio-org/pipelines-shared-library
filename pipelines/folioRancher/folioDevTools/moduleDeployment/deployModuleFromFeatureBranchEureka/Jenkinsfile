@@ -154,7 +154,7 @@ ansiColor('xterm') {
           folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
           echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
           echo "Waiting another 3 minutes for the module to initialize..."
-          sleep time: 3, unit: 'MINUTES'
+          sleep time: 2, unit: 'MINUTES'
         }
       }
 
