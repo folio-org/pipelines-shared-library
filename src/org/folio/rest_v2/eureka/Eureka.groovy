@@ -401,6 +401,11 @@ class Eureka extends Base {
 
         // Get Previous Module Version Discovery removed
         Applications.get(kong).searchModuleDiscovery("name==${module.name}")['discovery']?.each { moduleDiscovery ->
+
+          logger.debug("Module Discovery to remove:\n${moduleDiscovery}")
+          logger.debug("Module to remove:\n${module}")
+          assert moduleDiscovery['id'] == module.id : "Module Discovery to remove is the same as the module to remove"
+
           if (moduleDiscovery['id'] != module.id) { // Remove only for the previous module versions
             Applications.get(kong).deleteModuleDiscovery(moduleDiscovery['id'] as String)
           }
