@@ -39,7 +39,7 @@ void manageNamespace(String action, TerraformConfig config) {
 }
 
 
-void apply(TerraformConfig config, boolean approveRequired = false, Closure preAction = {}, Closure postAction = {}) {
+void apply(TerraformConfig config, boolean approveRequired = true, Closure preAction = {}, Closure postAction = {}) {
 
   folioTerraform.init(config.getWorkDir())
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())

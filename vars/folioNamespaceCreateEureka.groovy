@@ -23,18 +23,18 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
     tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
     tfConfig.addVar('pg_embedded', 'false')
-    tfConfig.addVar('kafka_shared', 'false')
+    tfConfig.addVar('kafka_shared', 'true')
     tfConfig.addVar('opensearch_shared', 'true')
     tfConfig.addVar('s3_embedded', 'false')
     tfConfig.addVar('pgadmin4', 'true')
-    tfConfig.addVar('enable_rw_split', args.rwSplit)
+    tfConfig.addVar('enable_rw_split', 'false')
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
-    tfConfig.addVar('pg_version', args.pgVersion)
+    tfConfig.addVar('pg_version', '12.17')
     tfConfig.addVar('eureka', args.eureka)
 
     stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
+      folioTerraformFlow.manageNamespace('apply',tfConfig)
     }
 
     if (args.greenmail) {
