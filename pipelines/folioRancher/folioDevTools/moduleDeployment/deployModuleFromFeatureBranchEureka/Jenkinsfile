@@ -103,7 +103,7 @@ ansiColor('xterm') {
           if (fileExists(descriptorPath)) {
             // Switch "dockerImage" to "folioci" Organization in Module Descriptor
             sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${descriptorPath}")
-            echo "Module Descriptor: ${readFile(descriptorPath)}"
+            logger.debug("Module Descriptor:\n${readFile(descriptorPath)}")
 
             // Upload Module Descriptor to Eureka Module Registry
             sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
