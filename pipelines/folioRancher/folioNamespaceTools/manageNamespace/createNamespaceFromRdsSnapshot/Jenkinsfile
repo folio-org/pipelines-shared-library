@@ -133,7 +133,7 @@ ansiColor('xterm') {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [
-                tenantId           : ui.getTenantId(),
+                tenantId            : ui.getTenantId(),
                 custom_hash         : ui.getHash(),
                 custom_url          : "https://${namespace.getDomains()['okapi']}",
                 custom_tag          : ui.getTag(),
