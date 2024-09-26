@@ -87,26 +87,26 @@ ansiColor('xterm') {
                 project_config.modulesConfig = readYaml file: "${Constants.HELM_MODULES_CONFIG_PATH}/${project_config.getConfigType()}.yaml"
             }
 
-            if(tenant.getOkapiVersion()?.trim()) {
-                stage("Deploy okapi") {
-                    folioDeploy.okapi(project_config)
-                }
-            }
-
-            stage("Deploy backend modules") {
-                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
-                if (install_backend_map) {
-                    folioDeploy.backend(install_backend_map,
-                        project_config,
-                        false,
-                        params.enable_rw_split)
-                }
-            }
-
-            stage("Pause") {
-                // Wait for dns flush.
-                sleep time: 3, unit: 'MINUTES'
-            }
+//            if(tenant.getOkapiVersion()?.trim()) {
+//                stage("Deploy okapi") {
+//                    folioDeploy.okapi(project_config)
+//                }
+//            }
+//
+//            stage("Deploy backend modules") {
+//                Map install_backend_map = new GitHubUtility(this).getBackendModulesMap(project_config.getInstallMap())
+//                if (install_backend_map) {
+//                    folioDeploy.backend(install_backend_map,
+//                        project_config,
+//                        false,
+//                        params.enable_rw_split)
+//                }
+//            }
+//
+//            stage("Pause") {
+//                // Wait for dns flush.
+//                sleep time: 3, unit: 'MINUTES'
+//            }
 
             stage("Health check") {
                 // Checking the health of the Okapi service.
@@ -131,21 +131,21 @@ ansiColor('xterm') {
                 }
             }
 
-            stage("Deploy edge modules") {
-                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
-                if (install_edge_map) {
-                    new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
-                    helm.k8sClient {
-                        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
-                        install_edge_map.each {name, version ->
-                            kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
-                        }
-                    }
-                    new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
-                    folioDeploy.edge(install_edge_map,
-                        project_config)
-                }
-            }
+//            stage("Deploy edge modules") {
+//                Map install_edge_map = new GitHubUtility(this).getEdgeModulesMap(project_config.getInstallMap())
+//                if (install_edge_map) {
+//                    new Edge(this, "https://${project_config.getDomains().okapi}").renderEphemeralProperties(install_edge_map, tenant, admin_user)
+//                    helm.k8sClient {
+//                        awscli.getKubeConfig(Constants.AWS_REGION, project_config.getClusterName())
+//                        install_edge_map.each {name, version ->
+//                            kubectl.createConfigMap("${name}-ephemeral-properties", project_config.getProjectName(), "./${name}-ephemeral-properties")
+//                        }
+//                    }
+//                    new Edge(this, "https://${project_config.getDomains().okapi}").createEdgeUsers(tenant, install_edge_map)
+//                    folioDeploy.edge(install_edge_map,
+//                        project_config)
+//                }
+//            }
         } catch (exception) {
             println(exception)
             error(exception.getMessage())
