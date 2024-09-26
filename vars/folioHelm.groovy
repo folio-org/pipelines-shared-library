@@ -230,6 +230,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
+      case 'mod-okapi-facade':
+        moduleConfig['integrations']['eureka'] = [enabled: true, existingSecret: 'eureka-common']
+        moduleConfig['eureka'] = [enabled: true,
+          sidecarContainer: [image: "folioorg/folio-module-sidecar", tag: "latest"]
+        ]
+        break
       case ~/mod-.*$/:
         moduleConfig <<
           [
