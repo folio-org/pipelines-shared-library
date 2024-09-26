@@ -52,7 +52,8 @@ static List clustersList() {
     return ['folio-testing',
             'folio-dev',
             'folio-perf',
-            'folio-tmp']
+            'folio-tmp',
+            'folio-etesting']
 }
 
 static List jenkinsAgentsList() {
@@ -136,6 +137,7 @@ static List testEnvironmentsList() {
 @NonCPS
 static String generateProjectNamesMap() {
     return JsonOutput.toJson(['folio-testing': testingEnvironmentsList().sort(),
+                              'folio-etesting': testingEnvironmentsList().sort(),
                               'folio-dev'    : devEnvironmentsList().sort(),
                               'folio-perf'   : perfEnvironmentsList().sort() + relEnvironmentsList(),
                               'folio-tmp'    : testEnvironmentsList().sort()])
