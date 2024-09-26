@@ -22,10 +22,10 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('rancher_project_name', args.namespaceName)
     tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
     tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-    tfConfig.addVar('pg_embedded', args.pgType == 'built-in')
-    tfConfig.addVar('kafka_shared', args.kafkaType != 'built-in')
-    tfConfig.addVar('opensearch_shared', args.opensearchType != 'built-in')
-    tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
+    tfConfig.addVar('pg_embedded', 'false')
+    tfConfig.addVar('kafka_shared', 'false')
+    tfConfig.addVar('opensearch_shared', 'true')
+    tfConfig.addVar('s3_embedded', 'false')
     tfConfig.addVar('pgadmin4', 'true')
     tfConfig.addVar('enable_rw_split', args.rwSplit)
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
@@ -103,22 +103,22 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
-    if (args.consortia) {
-      namespace.setEnableConsortia(true, releaseVersion)
-
-      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
-        .values().each { tenant ->
-        tenant.withInstallJson(namespace.getModules().getInstallJson())
-          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-
-        if (tenant.getIsCentralConsortiaTenant()) {
-          tenant.withTenantUi(tenantUi.clone())
-//          tenant.okapiConfig.setLdpConfig(ldpConfig)
-        }
-
-        namespace.addTenant(tenant)
-      }
-    }
+//    if (args.consortia) {
+//      namespace.setEnableConsortia(true, releaseVersion)
+//
+//      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
+//        .values().each { tenant ->
+//        tenant.withInstallJson(namespace.getModules().getInstallJson())
+//          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+//
+//        if (tenant.getIsCentralConsortiaTenant()) {
+//          tenant.withTenantUi(tenantUi.clone())
+////          tenant.okapiConfig.setLdpConfig(ldpConfig)
+//        }
+//
+//        namespace.addTenant(tenant)
+//      }
+//    }
 
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
@@ -177,19 +177,19 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
-      )
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+//          , namespace.getModules()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
+//
+//      eureka.registerModulesFlow(
+//        namespace.getModules()
+//        , namespace.getApplications()
+//        , namespace.getTenants().values() as List<EurekaTenant>
+//      )
 
 //      namespace.withApplications([
 //        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
@@ -227,21 +227,21 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Initialize') {
-      int counter = 0
-      retry(10) {
-        // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
-        counter++
-
-        eureka.initializeFromScratch(
-          namespace.getTenants()
-          , namespace.getClusterName()
-          , namespace.getNamespaceName()
-          , namespace.getEnableConsortia()
-        )
-      }
-    }
+//    stage('[Rest] Initialize') {
+//      int counter = 0
+//      retry(10) {
+//        // The first wait time should be at least 10 minutes due to module's long time instantiation
+//        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+//        counter++
+//
+//        eureka.initializeFromScratch(
+//          namespace.getTenants()
+//          , namespace.getClusterName()
+//          , namespace.getNamespaceName()
+//          , namespace.getEnableConsortia()
+//        )
+//      }
+//    }
 
     stage('[Rest] Configure edge') {
       new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
