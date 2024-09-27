@@ -36,7 +36,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('eureka', args.eureka)
 
 //    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply',tfConfig)
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
 //    }
 
     if (args.greenmail) {
@@ -62,19 +62,16 @@ void call(CreateNamespaceParameters args) {
     //Set install configuration
     String defaultTenantId = 'fs09000000'
     String folioRepository = 'platform-complete'
-    boolean releaseVersion = true
+    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
     Logger logger = new Logger(this, 'dailySnapshotEureka')
-    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
     println("folioNamespaceCreateEureka installJson: $installJson")
     println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
-
-    namespace.getModules().setInstallJson(installJson)
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -88,6 +85,8 @@ void call(CreateNamespaceParameters args) {
       .withDeploymentConfigType(args.configType)
 
     namespace.setEnableRtr(args.rtr)
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+    namespace.getModules().setInstallJson(installJson)
 
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
 
@@ -106,22 +105,22 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
     )
 
-//    if (args.consortia) {
-//      namespace.setEnableConsortia(true, releaseVersion)
-//
-//      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
-//        .values().each { tenant ->
-//        tenant.withInstallJson(namespace.getModules().getInstallJson())
-//          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-//
-//        if (tenant.getIsCentralConsortiaTenant()) {
-//          tenant.withTenantUi(tenantUi.clone())
-////          tenant.okapiConfig.setLdpConfig(ldpConfig)
-//        }
-//
-//        namespace.addTenant(tenant)
-//      }
-//    }
+    if (args.consortia) {
+      namespace.setEnableConsortia(true, releaseVersion)
+
+      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
+        .values().each { tenant ->
+        tenant.withInstallJson(namespace.getModules().getInstallJson())
+          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+
+        if (tenant.getIsCentralConsortiaTenant()) {
+          tenant.withTenantUi(tenantUi.clone())
+//          tenant.okapiConfig.setLdpConfig(ldpConfig)
+        }
+
+        namespace.addTenant(tenant)
+      }
+    }
 
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
@@ -175,10 +174,6 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().setInstallJson(installJson)
-        println(namespace.getModules().getMgrModules())
-        namespace.setDeploymentConfigType('testing')
-        input("Paused...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
     }
@@ -200,14 +195,14 @@ void call(CreateNamespaceParameters args) {
 
       namespace.withApplications([
         "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
-        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+        , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
       ])
 
-      namespace.getTenants().values().each {tenant ->
-        if(tenant instanceof EurekaTenantConsortia)
+      namespace.getTenants().values().each { tenant ->
+        if (tenant instanceof EurekaTenantConsortia)
           tenant.setApplications([
             "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
-            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+            , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
           ])
         else
           tenant.setApplications([
@@ -227,66 +222,66 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioEdge.renderEphemeralProperties(namespace)
 //        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//        }
-        retry(3) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        }
+      }
+      retry(3) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
 
-//    stage('[Rest] Initialize') {
-//      int counter = 0
-//      retry(10) {
-//        // The first wait time should be at least 10 minutes due to module's long time instantiation
-//        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
-//        counter++
-//
-//        eureka.initializeFromScratch(
-//          namespace.getTenants()
-//          , namespace.getClusterName()
-//          , namespace.getNamespaceName()
-//          , namespace.getEnableConsortia()
-//        )
-//      }
-//    }
 
-//    stage('[Rest] Configure edge') {
-//      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
-//    }
+    stage('[Rest] Initialize') {
+      int counter = 0
+      retry(10) {
+        // The first wait time should be at least 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+        counter++
 
-//    if (args.uiBuild) {
-//      stage('Build and deploy UI') {
-//        Map branches = [:]
-//        namespace.getTenants().each { tenantId, tenant ->
-//          if (tenant.getTenantUi()) {
-//            TenantUi ui = tenant.getTenantUi()
-//            branches[tenantId] = {
-//              def jobParameters = [eureka              : args.eureka,
-//                                   kongUrl             : "https://${namespace.getDomains()['kong']}",
-//                                   keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
-//                                   tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
-//                                   hasAllPerms         : false,
-//                                   isSingleTenant      : true,
-//                                   tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-//                                   tenantId            : ui.getTenantId(),
-//                                   custom_hash         : ui.getHash(),
-//                                   custom_url          : "https://${namespace.getDomains()['kong']}",
-//                                   custom_tag          : ui.getTag(),
-//                                   consortia           : tenant instanceof EurekaTenantConsortia,
-//                                   clientId            : ui.getTenantId() + "-application",
-//                                   rancher_cluster_name: namespace.getClusterName(),
-//                                   rancher_project_name: namespace.getNamespaceName()]
-//
-//              uiBuild(jobParameters, releaseVersion)
-//              folioHelm.withKubeConfig(namespace.getClusterName()) {
-//                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-//              }
-//            }
-//          }
-//        }
-//        parallel branches
-//      }
-//    }
+        eureka.initializeFromScratch(
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
+        )
+      }
+    }
+
+//  stage('[Rest] Configure edge') {
+//    new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+//  }
+
+    if (args.uiBuild) {
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            branches[tenantId] = {
+              def jobParameters = [eureka              : args.eureka,
+                                   kongUrl             : "https://${namespace.getDomains()['kong']}",
+                                   keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
+                                   tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
+                                   hasAllPerms         : false,
+                                   isSingleTenant      : true,
+                                   tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+                                   tenantId            : ui.getTenantId(),
+                                   custom_hash         : ui.getHash(),
+                                   custom_url          : "https://${namespace.getDomains()['kong']}",
+                                   custom_tag          : ui.getTag(),
+                                   consortia           : tenant instanceof EurekaTenantConsortia,
+                                   clientId            : ui.getTenantId() + "-application",
+                                   rancher_cluster_name: namespace.getClusterName(),
+                                   rancher_project_name: namespace.getNamespaceName()]
+
+              uiBuild(jobParameters, releaseVersion)
+              folioHelm.withKubeConfig(namespace.getClusterName()) {
+                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+              }
+            }
+          }
+        }
+        parallel branches
+      }
+    }
 
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
