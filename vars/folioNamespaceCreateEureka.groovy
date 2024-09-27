@@ -65,7 +65,7 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
     Logger logger = new Logger(this, 'dailySnapshotEureka')
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'R1-2024')
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
@@ -171,11 +171,11 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//      }
+//    }
 
     stage('[Rest] Preinstall') {
 //      namespace.withApplications(
@@ -210,13 +210,13 @@ void call(CreateNamespaceParameters args) {
 //      }
     }
 
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        println(namespace.getModules().getBackendModules())
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//      }
-//    }
-//
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(namespace.getModules().getBackendModules())
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+      }
+    }
+
 //    stage('[Helm] Deploy edge') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioEdge.renderEphemeralProperties(namespace)
