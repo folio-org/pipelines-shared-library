@@ -35,9 +35,9 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_username', 'folio')
     tfConfig.addVar('eureka', args.eureka)
 
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply',tfConfig)
-//    }
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply',tfConfig)
+    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
@@ -219,16 +219,16 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioEdge.renderEphemeralProperties(namespace)
-//        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//        }
-//        retry(3) {
-//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//        }
-//      }
-//    }
+        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        }
+        retry(3) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        }
+      }
+    }
 
 //    stage('[Rest] Initialize') {
 //      int counter = 0
