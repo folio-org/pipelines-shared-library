@@ -59,9 +59,9 @@ void call(CreateNamespaceParameters args) {
     }
 
     //Set install configuration
-    String defaultTenantId = 'diku'
+    String defaultTenantId = 'fs09000000'
     String folioRepository = 'platform-complete'
-    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
+    boolean releaseVersion = true
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
     Logger logger = new Logger(this, 'dailySnapshotEureka')
