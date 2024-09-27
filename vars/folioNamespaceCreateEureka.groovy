@@ -105,7 +105,7 @@ void call(CreateNamespaceParameters args) {
           .withIndex(new Index('instance', true, true))
           .withIndex(new Index('authority', true, false))
           .withInstallRequestParams(installRequestParams.clone())
-          .withTenantUi(newTenant =~ /fs0900000/ || newTenant == 'cs00000int' ? tenantUi.clone() : '')
+          .withTenantUi(newTenant =~ /fs0900000/ || newTenant == 'cs00000int' ? tenantUi.clone() : 'fs09000000')
       )
     }
 
