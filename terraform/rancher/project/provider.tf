@@ -42,6 +42,7 @@ provider "postgresql" {
   password        = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   port            = 5432
   database        = "postgres"
+  superuser       = false
   sslmode         = "disable"
   connect_timeout = 30
 }
