@@ -84,10 +84,9 @@ void call(CreateNamespaceParameters args) {
 
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    folioHelm.withK8sClient {
-      namespace.getModules().setInstallJson(new Tools(this)
-        .jsonParse(awscli.getS3FileContent("folio-sprint-testing/install.json")))
-    }
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+    installJson.addAll(eurekaPlatform)
 
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
 
@@ -143,7 +142,7 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-//    eureka.defineKeycloakTTL()
+    eureka.defineKeycloakTTL()
 
     // TODO: Below [ASG] stage could be moved to one of the shared libs and called with an appropriate parameters.
 
@@ -173,26 +172,26 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+      }
+    }
 
     stage('[Rest] Preinstall') {
-//      namespace.withApplications(
-//        eureka.registerApplicationsFlow(
-//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-//          , namespace.getModules()
-//          , namespace.getTenants().values() as List<EurekaTenant>
-//        )
-//      )
-//
-//      eureka.registerModulesFlow(
-//        namespace.getModules()
-//        , namespace.getApplications()
-//        , namespace.getTenants().values() as List<EurekaTenant>
-//      )
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          , namespace.getModules()
+          , namespace.getTenants().values() as List<EurekaTenant>
+        )
+      )
+
+      eureka.registerModulesFlow(
+        namespace.getModules()
+        , namespace.getApplications()
+        , namespace.getTenants().values() as List<EurekaTenant>
+      )
 
 //      namespace.withApplications([
 //        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
