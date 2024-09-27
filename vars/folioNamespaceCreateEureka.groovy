@@ -66,10 +66,15 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
     Logger logger = new Logger(this, 'dailySnapshotEureka')
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+    installJson.addAll(eurekaPlatform)
 
+    println("folioNamespaceCreateEureka installJson: $installJson")
+    println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
 
-//    println("folioNamespaceCreateEureka installJson: $installJson")
-//    println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
+    namespace.getModules().setInstallJson(installJson)
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -83,10 +88,6 @@ void call(CreateNamespaceParameters args) {
       .withDeploymentConfigType(args.configType)
 
     namespace.setEnableRtr(args.rtr)
-    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-    def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
-    installJson.addAll(eurekaPlatform)
 
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
 
