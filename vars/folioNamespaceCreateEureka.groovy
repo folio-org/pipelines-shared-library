@@ -86,7 +86,7 @@ void call(CreateNamespaceParameters args) {
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     folioHelm.withK8sClient {
       namespace.getModules().setInstallJson(new Tools(this)
-        .jsonParse(awscli.getS3FileContent("folio-sprint-testing/eureka-quesnelia.json")))
+        .jsonParse(awscli.getS3FileContent("folio-sprint-testing/install.json")))
     }
 
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
