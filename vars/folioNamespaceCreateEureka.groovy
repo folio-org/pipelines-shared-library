@@ -177,6 +177,7 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         namespace.getModules().setInstallJson(installJson)
         println(namespace.getModules().getMgrModules())
+        namespace.setDeploymentConfigType('testing')
         input("Paused...")
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
