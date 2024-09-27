@@ -3359,6 +3359,10 @@ mod-z3950:
     enabled: true
     maxUnavailable: 1
 okapi:
+  args:
+  - cluster
+  - -hazelcast-config-file
+  - /etc/hazelcast/hazelcast.xml
   ingress:
     enabled: true
     annotations:
@@ -3384,7 +3388,11 @@ okapi:
     db:
       enabled: true
       existingSecret: db-credentials
-  replicaCount: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetMemoryUtilizationPercentage: 75
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
