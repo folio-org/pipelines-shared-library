@@ -105,7 +105,7 @@ void call(CreateNamespaceParameters args) {
           .withIndex(new Index('instance', true, true))
           .withIndex(new Index('authority', true, false))
           .withInstallRequestParams(installRequestParams.clone())
-          .withTenantUi(newTenant =~ /fs0900000/ || newTenant == 'cs00000int' ? tenantUi.clone() : 'fs09000000')
+          .withTenantUi(tenantUi.clone())
       )
     }
 
@@ -257,7 +257,7 @@ void call(CreateNamespaceParameters args) {
       stage('Build and deploy UI') {
         Map branches = [:]
         namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
+          if (tenant.getTenantUi() && tenantId in ['fs09000000','fs09000002', 'fs09000003', 'cs00000int']) {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [eureka              : args.eureka,
