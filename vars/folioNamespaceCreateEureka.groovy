@@ -172,11 +172,11 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//      }
+//    }
 
     stage('[Rest] Preinstall') {
 //      namespace.withApplications(
@@ -211,20 +211,21 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        println(namespace.getModules().getBackendModules())
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        println(namespace.getModules().getBackendModules())
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//      }
+//    }
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioEdge.renderEphemeralProperties(namespace)
 //        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-      }
-      retry(3) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        retry(3) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        }
+
       }
     }
 
