@@ -179,36 +179,36 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
-      )
-
-//      namespace.withApplications([
-//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
-//      ])
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+//          , namespace.getModules()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
 //
-//      namespace.getTenants().values().each {tenant ->
-//        if(tenant instanceof EurekaTenantConsortia)
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
-//          ])
-//        else
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.10"
-//          ])
-//      }
+//      eureka.registerModulesFlow(
+//        namespace.getModules()
+//        , namespace.getApplications()
+//        , namespace.getTenants().values() as List<EurekaTenant>
+//      )
+
+      namespace.withApplications([
+        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+      ])
+
+      namespace.getTenants().values().each {tenant ->
+        if(tenant instanceof EurekaTenantConsortia)
+          tenant.setApplications([
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+          ])
+        else
+          tenant.setApplications([
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+          ])
+      }
     }
 
     stage('[Helm] Deploy modules') {
