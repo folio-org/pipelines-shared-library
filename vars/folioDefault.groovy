@@ -105,6 +105,18 @@ Map<String, OkapiTenant> tenants() {
       .withAdminUser(adminOkapiUser('folio', 'folio'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
+    fs09000002     : new OkapiTenant('fs09000002')
+      .withTenantName('Bug Fest Plus')
+      .withTenantDescription('fs09000002 bug-fest created via Jenkins')
+      .withAdminUser(adminOkapiUser('folio-plus ', 'Folio-plus1'))
+      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
+
+    fs09000003     : new OkapiTenant('fs09000003')
+      .withTenantName('Bug Fest AQA')
+      .withTenantDescription('fs09000003 bug-fest created via Jenkins')
+      .withAdminUser(adminOkapiUser('folio-aqa', 'Folio-aqa1'))
+      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
+
     cs00000int     : new OkapiTenantConsortia('cs00000int', true)
       .withTenantCode('CEN')
       .withConsortiaName('CONSORTIA')

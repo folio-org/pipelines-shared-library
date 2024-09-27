@@ -94,16 +94,20 @@ void call(CreateNamespaceParameters args) {
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
 
-    namespace.addTenant(
-      folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .convertTo(EurekaTenant.class)
-        .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-        .withInstallJson(namespace.getModules().getInstallJson().collect())
-        .withIndex(new Index('instance', true, true))
-        .withIndex(new Index('authority', true, false))
-        .withInstallRequestParams(installRequestParams.clone())
-        .withTenantUi(tenantUi.clone())
-    )
+    List tenants = ['fs09000002', 'fs09000003', 'cs00000int', 'cs00000int_0001', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006']
+
+    tenants.each { newTenant ->
+      namespace.addTenant(
+        folioDefault.tenants()[newTenant]
+          .convertTo(EurekaTenant.class)
+          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+          .withInstallJson(namespace.getModules().getInstallJson().collect())
+          .withIndex(new Index('instance', true, true))
+          .withIndex(new Index('authority', true, false))
+          .withInstallRequestParams(installRequestParams.clone())
+          .withTenantUi(newTenant =~ /fs0900000/ || newTenant == 'cs00000int' ? tenantUi.clone() : '')
+      )
+    }
 
     if (args.consortia) {
       namespace.setEnableConsortia(true, releaseVersion)
