@@ -179,36 +179,36 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Preinstall') {
-//      namespace.withApplications(
-//        eureka.registerApplicationsFlow(
-//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-//          , namespace.getModules()
-//          , namespace.getTenants().values() as List<EurekaTenant>
-//        )
-//      )
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          , namespace.getModules()
+          , namespace.getTenants().values() as List<EurekaTenant>
+        )
+      )
+
+      eureka.registerModulesFlow(
+        namespace.getModules()
+        , namespace.getApplications()
+        , namespace.getTenants().values() as List<EurekaTenant>
+      )
+
+//      namespace.withApplications([
+//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+//        , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
+//      ])
 //
-//      eureka.registerModulesFlow(
-//        namespace.getModules()
-//        , namespace.getApplications()
-//        , namespace.getTenants().values() as List<EurekaTenant>
-//      )
-
-      namespace.withApplications([
-        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
-        , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
-      ])
-
-      namespace.getTenants().values().each { tenant ->
-        if (tenant instanceof EurekaTenantConsortia)
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
-            , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
-          ])
-        else
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
-          ])
-      }
+//      namespace.getTenants().values().each { tenant ->
+//        if (tenant instanceof EurekaTenantConsortia)
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+//            , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.60"
+//          ])
+//        else
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.60"
+//          ])
+//      }
     }
 
 //    stage('[Helm] Deploy modules') {
@@ -218,23 +218,22 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioEdge.renderEphemeralProperties(namespace)
 //        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-        retry(3) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        }
-
-      }
-    }
+//        retry(3) {
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//        }
+//      }
+//    }
 
 
     stage('[Rest] Initialize') {
       int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+//        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(
