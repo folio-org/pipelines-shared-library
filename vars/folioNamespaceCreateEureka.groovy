@@ -125,7 +125,7 @@ void call(CreateNamespaceParameters args) {
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
 
-    timeout(time: 15, unit: 'MINUTES') {
+    timeout(time: 25, unit: 'MINUTES') {
 
       def check = ''
 
