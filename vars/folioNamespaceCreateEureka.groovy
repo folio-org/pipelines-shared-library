@@ -27,7 +27,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('kafka_shared', 'true')
     tfConfig.addVar('opensearch_shared', 'true')
     tfConfig.addVar('s3_embedded', 'false')
-    tfConfig.addVar('tenant_id', defaultTenantId)
+    tfConfig.addVar('tenant_id', 'fs09000000')
     tfConfig.addVar('pgadmin4', 'true')
     tfConfig.addVar('enable_rw_split', 'false')
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
