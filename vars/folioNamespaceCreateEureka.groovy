@@ -37,9 +37,9 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('eureka', args.eureka)
     tfConfig.addVar('pg_rds_snapshot_name', 'rbf-pre-bugfest-final-with-all-seetings-09-27-2024')
 
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply', tfConfig)
-//    }
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply', tfConfig)
+    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
