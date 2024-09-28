@@ -35,7 +35,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', '12.17')
     tfConfig.addVar('pg_username', 'folio')
     tfConfig.addVar('eureka', args.eureka)
-    tfConfig.addVar('pg_rds_snapshot_name', 'rbf-pre-bugfest-final-with-all-seetings-09-27-2024')
+    tfConfig.addVar('pg_rds_snapshot_name', 'rancher-etesting-sprint-q-before-migration-2-eureka-09-26-2024')
 
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
