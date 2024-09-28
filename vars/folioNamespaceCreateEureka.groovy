@@ -94,7 +94,7 @@ void call(CreateNamespaceParameters args) {
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
 
-    List tenants = ['fs09000002', 'fs09000003', 'cs00000int', 'cs00000int_0001', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006']
+    List tenants = ['cs00000int', 'cs00000int_0001', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006']
 
     tenants.each { newTenant ->
       namespace.addTenant(
