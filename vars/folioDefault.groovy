@@ -32,12 +32,12 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
   installQueryParameters.addTenantParameter('centralTenantId', 'consortium')
 
   return [
-    consortium: new OkapiTenantConsortia('consortium', true)
+    cs00000int: new OkapiTenantConsortia('cs00000int', true)
       .withTenantCode('MCO')
       .withConsortiaName('Mobius')
-      .withTenantName('Consortium')
+      .withTenantName('cs00000int')
       .withTenantDescription('Central office (created via Jenkins)')
-      .withAdminUser(adminOkapiUser('consortium_admin', 'admin'))
+      .withAdminUser(adminOkapiUser('ecs_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withIndex(new Index('instance', true, true))
       .withIndex(new Index('authority', true, false))
@@ -45,22 +45,42 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)) as OkapiTenantConsortia,
 
-    university: new OkapiTenantConsortia('university')
+    cs00000int_0001: new OkapiTenantConsortia('cs00000int_0001')
+      .withTenantCode('COL')
+      .withConsortiaName('cs00000int_0001')
+      .withTenantName('cs00000int_0001')
+      .withTenantDescription('College (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('college_admin', 'admin'))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+
+    cs00000int_0004   : new OkapiTenantConsortia('cs00000int_0004')
+      .withTenantCode('SPL')
+      .withConsortiaName('Mobius')
+      .withTenantName('cs00000int_0004')
+      .withTenantDescription('Special (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('special_admin', 'admin'))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+
+    cs00000int_0005   : new OkapiTenantConsortia('cs00000int_0005')
       .withTenantCode('UNI')
       .withConsortiaName('Mobius')
-      .withTenantName('University')
-      .withTenantDescription('University (created via Jenkins)')
+      .withTenantName('cs00000int_0005')
+      .withTenantDescription('Special (created via Jenkins)')
       .withAdminUser(adminOkapiUser('university_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
-    college   : new OkapiTenantConsortia('college')
-      .withTenantCode('COL')
+    cs00000int_0006   : new OkapiTenantConsortia('cs00000int_0006')
+      .withTenantCode('AQA')
       .withConsortiaName('Mobius')
-      .withTenantName('College')
-      .withTenantDescription('College (created via Jenkins)')
-      .withAdminUser(adminOkapiUser('college_admin', 'admin'))
+      .withTenantName('cs00000int_0006')
+      .withTenantDescription('AQA (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('aqa_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
