@@ -1,10 +1,10 @@
-package org.folio.models
+package org.folio.models.module
 
 import java.util.regex.Matcher
 
 class FolioModule {
   private static final String MODULE_NAME_AND_VERSION_PATTERN = /^(.*?)-(\d+\.\d+\.\d+(?:-.+)?|\d+\.\d+\.\d+)$/
-  private static final String SNAPSHOT_VERSION_CORE_PATTERN = /\d+\.\d+\.(\d+-SNAPSHOT\.|\d+00000)/
+  private static final String SNAPSHOT_VERSION_CORE_PATTERN = /\d+\.\d+\.(\d+-SNAPSHOT\.|\d+0{5,6})/
 
   String id
 
@@ -12,29 +12,29 @@ class FolioModule {
 
   String version
 
+  String action
+
   ModuleType type
 
   String buildId
 
   List descriptor
 
+  Map discovery
+
   VersionType versionType
-
-  enum VersionType {
-    RELEASE, SNAPSHOT, CUSTOM
-  }
-
-  enum ModuleType {
-    BACKEND, FRONTEND, EDGE
-  }
 
   FolioModule() {}
 
-  void loadModuleDetails(String id) {
+  FolioModule loadModuleDetails(String id, String action = null) {
+    if (id == null || id.trim().isEmpty()) {
+      throw new IllegalArgumentException("Module id cannot be null or empty")
+    }
+
     this.id = id
     Matcher matcher = _getMatcher(this.id)
 
-    if (matcher) {
+    if (matcher.matches()) {
       this.name = matcher.group(1)
       this.version = matcher.group(2)
       matcher.reset()
@@ -48,7 +48,21 @@ class FolioModule {
     if (this.versionType == VersionType.SNAPSHOT) {
       this.buildId = _getModuleBuildId(this.version)
     }
+
+    if (this.type == ModuleType.BACKEND) {
+      String url = "http://${this.name}"
+      this.discovery = [srvcId: this.id, instId: this.id, url: url]
+    }
+
+    if (action != null && !action.trim().isEmpty()) {
+      this.action = action
+    }
+
+    return this
   }
+
+  //TODO Implement
+  void getLatestVersionFromRegistry(boolean release = false) {}
 
   private static Matcher _getMatcher(String id) {
     return id =~ MODULE_NAME_AND_VERSION_PATTERN
@@ -64,6 +78,9 @@ class FolioModule {
         break
       case ~/^folio_.*$/:
         return ModuleType.FRONTEND
+        break
+      case 'okapi':
+        return ModuleType.OKAPI
         break
       default:
         throw new Exception("Type of ${name} module is unknown")

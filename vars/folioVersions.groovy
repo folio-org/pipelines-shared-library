@@ -278,7 +278,7 @@ static boolean isNumeric(value) {
  * Note: Ensure you understand the specific criteria used in your version comparison
  * functions to interpret these results accurately in context.
  */
-enum ComparisonResult {
+enum ComparisonResult { //TODO move enum to separate structure
   UPGRADE,   // New version is higher than the current version
   DOWNGRADE, // New version is lower than the current version
   EQUAL      // New version and current version are identical

@@ -1,5 +1,4 @@
 #!groovy
-import groovy.json.JsonOutput
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
