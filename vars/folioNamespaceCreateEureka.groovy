@@ -101,7 +101,7 @@ void call(CreateNamespaceParameters args) {
     namespace.getModules().removeModule('mod-login')
     namespace.getModules().removeModule('mod-authtoken')
 
-    List tenants = ['fs09000000', 'fs09000002', 'fs09000003', 'cs00000int', 'cs00000int_0001', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006']
+    List tenants = ['fs09000000'] //, 'fs09000002', 'fs09000003', 'cs00000int', 'cs00000int_0001', 'cs00000int_0004', 'cs00000int_0005', 'cs00000int_0006']
 
     tenants.each { newTenant ->
       println("***Working on tenant: ${newTenant}")
@@ -191,56 +191,56 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
-      )
-
-//      namespace.withApplications([
-//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.67"
-//        , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.67"
-//      ])
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+//          , namespace.getModules()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
 //
-//      namespace.getTenants().values().each { tenant ->
-//        if (tenant instanceof EurekaTenantConsortia)
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.67"
-//            , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.67"
-//          ])
-//        else
-//          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.67"
-//          ])
+//      eureka.registerModulesFlow(
+//        namespace.getModules()
+//        , namespace.getApplications()
+//        , namespace.getTenants().values() as List<EurekaTenant>
+//      )
+
+      namespace.withApplications([
+        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.86"
+        , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.86"
+      ])
+
+      namespace.getTenants().values().each { tenant ->
+        if (tenant instanceof EurekaTenantConsortia)
+          tenant.setApplications([
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.86"
+            , "app-consortia"  : "app-consortia-1.0.0-SNAPSHOT.86"
+          ])
+        else
+          tenant.setApplications([
+            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.86"
+          ])
+      }
+    }
+
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        println(namespace.getModules().getBackendModules())
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //      }
-    }
+//    }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        println(namespace.getModules().getBackendModules())
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-      }
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralProperties(namespace)
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-          retry(3) {
-            folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-          }
-        }
-      }
-    }
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioEdge.renderEphemeralProperties(namespace)
+//        namespace.getModules().getEdgeModules().each { name, version ->
+//          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+//          retry(3) {
+//            folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//          }
+//        }
+//      }
+//    }
 
 
       stage('[Rest] Initialize') {
