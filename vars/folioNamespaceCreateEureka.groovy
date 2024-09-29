@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -72,8 +73,8 @@ void call(CreateNamespaceParameters args) {
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
-    println("folioNamespaceCreateEureka installJson: $installJson")
-    println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
+//    println("folioNamespaceCreateEureka installJson: $installJson")
+//    println("folioNamespaceCreateEureka eurekaPlatform: $eurekaPlatform")
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -91,6 +92,10 @@ void call(CreateNamespaceParameters args) {
     namespace.getModules().setInstallJson(installJson)
 
     println("folioNamespaceCreateEureka namespace.getModules(): ${namespace.getModules()}")
+
+    println("*" * 16)
+
+    println(new JsonOutput().toJson(namespace.getModules().getDiscoveryList()))
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModule('mod-login')
