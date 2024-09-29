@@ -105,7 +105,7 @@ void call(CreateNamespaceParameters args) {
 
     tenants.each { newTenant ->
       namespace.addTenant(
-        folioDefault.tenants()[newTenant]
+        folioDefault.tenants()["${newTenant}"]
           .convertTo(EurekaTenant.class)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
           .withInstallJson(namespace.getModules().getInstallJson().collect())
