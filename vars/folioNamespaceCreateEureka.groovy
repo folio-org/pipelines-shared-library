@@ -110,8 +110,8 @@ void call(CreateNamespaceParameters args) {
           .convertTo(EurekaTenant.class)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
           .withInstallJson(namespace.getModules().getInstallJson().collect())
-          .withIndex(new Index('instance', true, true))
-          .withIndex(new Index('authority', true, false))
+//          .withIndex(new Index('instance', true, true))
+//          .withIndex(new Index('authority', true, false))
           .withInstallRequestParams(installRequestParams.clone())
           .withTenantUi(tenantUi.clone())
       )
@@ -263,15 +263,15 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Configure edge') {
-      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
-    }
+//    stage('[Rest] Configure edge') {
+//      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+//    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
         Map branches = [:]
         namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi() && tenantId in ['fs09000000', 'fs09000002', 'fs09000003', 'cs00000int']) {
+          if (tenant.getTenantUi() && tenantId in ['fs09000000', 'fs09000002', 'fs09000003']) {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [eureka              : args.eureka,
