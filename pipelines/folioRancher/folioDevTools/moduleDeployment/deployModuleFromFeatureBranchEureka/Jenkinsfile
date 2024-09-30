@@ -81,18 +81,18 @@ ansiColor('xterm') {
         ])
       }
 
+      env.GRADLEW_OPTS = '--console plain --no-daemon'
+      env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
+      env.MD = "${env.WORKSPACE}/service/build/resources/main/okapi/ModuleDescriptor.json"
+
       stage('[Maven/Gradle] Compile') {
-        def GRADLEW_OPTS = '--console plain --no-daemon'
-        def BUILD_DIR = "${env.WORKSPACE}/service"
+        echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
+        echo "BUILD_DIR: ${env.BUILD_DIR}"
 
-        withEnv(["GRADLEW_OPTS=${GRADLEW_OPTS}", "BUILD_DIR=${BUILD_DIR}"]) {
-          echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
-          echo "BUILD_DIR: ${env.BUILD_DIR}"
-
-          dir(env.BUILD_DIR) {
-            sh "./gradlew $env.GRADLEW_OPTS assemble"
-          }
+        dir(env.BUILD_DIR) {
+          sh "./gradlew $env.GRADLEW_OPTS assemble"
         }
+
 //        dir(module.getName()) {
 //          String origVersion = readMavenPom(file: 'pom.xml').version
 //          module.version = "${origVersion}.${featureHash}"
@@ -124,7 +124,15 @@ ansiColor('xterm') {
 //        }
       }
 
-//      stage('[Docker] Build and push') {
+      env.dockerRepo = 'folioci'
+      env.version = "7.1.0-SNAPSHOT.${env.BUILD_NUMBER}"
+
+      stage('[Docker] Build and push') {
+        dir(env.BUILD_DIR) {
+          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} buildImage"
+        }
+        // debug Module Descriptor
+        sh "cat $env.MD"
 //        common.checkEcrRepoExistence(module.getName())
 //        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
 //          dir(module.getName()) {
@@ -132,7 +140,7 @@ ansiColor('xterm') {
 //            image.push()
 //          }
 //        }
-//      }
+      }
 //
 //      stage('Generate context') {
 //        namespace.tenants = eureka.getExistedTenants()
