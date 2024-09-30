@@ -81,7 +81,18 @@ ansiColor('xterm') {
         ])
       }
 
-      stage('[Maven] Compile') {
+      stage('[Maven/Gradle] Compile') {
+        def GRADLEW_OPTS = '--console plain --no-daemon'
+        def BUILD_DIR = "${env.WORKSPACE}/service"
+
+        withEnv(["GRADLEW_OPTS=${GRADLEW_OPTS}", "BUILD_DIR=${BUILD_DIR}"]) {
+          echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
+          echo "BUILD_DIR: ${env.BUILD_DIR}"
+
+          dir(env.BUILD_DIR) {
+            sh "./gradlew $env.GRADLEW_OPTS assemble"
+          }
+        }
 //        dir(module.getName()) {
 //          String origVersion = readMavenPom(file: 'pom.xml').version
 //          module.version = "${origVersion}.${featureHash}"
