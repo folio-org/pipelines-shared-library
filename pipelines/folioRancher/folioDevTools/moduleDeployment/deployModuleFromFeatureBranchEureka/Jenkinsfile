@@ -132,8 +132,12 @@ ansiColor('xterm') {
         dir(env.BUILD_DIR) {
           sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} buildImage"
         }
+
         // debug Module Descriptor
         sh "cat $env.MD"
+
+        // Upload Module Descriptor to Eureka Module Registry
+        sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${env.MD}")
 //        common.checkEcrRepoExistence(module.getName())
 //        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
 //          dir(module.getName()) {
