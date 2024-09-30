@@ -5,6 +5,7 @@ import hudson.plugins.git.util.BuildData
 import jenkins.model.Jenkins
 import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
@@ -45,12 +46,12 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     changeLogEntry.module = module
 
     switch (module.type) {
-      case FolioModule.ModuleType.BACKEND:
-      case FolioModule.ModuleType.EDGE:
+      case ModuleType.BACKEND:
+      case ModuleType.EDGE:
         repositoryName = module.name
         changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
         break
-      case FolioModule.ModuleType.FRONTEND:
+      case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
         changeLogEntry.sha = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)?.head_sha ?: null
         break
