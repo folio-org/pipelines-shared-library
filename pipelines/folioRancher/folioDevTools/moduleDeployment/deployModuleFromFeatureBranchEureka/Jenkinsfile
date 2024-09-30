@@ -83,7 +83,7 @@ ansiColor('xterm') {
 
       env.GRADLEW_OPTS = '--console plain --no-daemon'
       env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
-      env.MD = "${env.WORKSPACE}/service/build/resources/main/okapi/ModuleDescriptor.json"
+      env.MD = "${env.WORKSPACE}/${module.getName()}/service/build/resources/main/okapi/ModuleDescriptor.json"
 
       stage('[Maven/Gradle] Compile') {
         echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
