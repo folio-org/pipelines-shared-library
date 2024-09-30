@@ -40,9 +40,11 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
 
     stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
+      container('jnlp') {
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
+        }
       }
     }
 
