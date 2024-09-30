@@ -88,6 +88,7 @@ ansiColor('xterm') {
       stage('[Maven/Gradle] Compile') {
         echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
         echo "BUILD_DIR: ${env.BUILD_DIR}"
+        echo "MD: ${env.MD}"
 
         dir(env.BUILD_DIR) {
           sh "./gradlew $env.GRADLEW_OPTS assemble"
