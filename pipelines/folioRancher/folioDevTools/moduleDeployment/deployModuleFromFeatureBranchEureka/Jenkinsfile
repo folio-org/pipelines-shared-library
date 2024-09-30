@@ -129,8 +129,13 @@ ansiColor('xterm') {
       env.version = "7.1.0-SNAPSHOT.${env.BUILD_NUMBER}"
 
       stage('[Docker] Build and push') {
-        dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} buildImage"
+        common.checkEcrRepoExistence(module.getName())
+
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          dir(module.getName()) {
+            def image = docker.build("${module.getName()}:${env.version}", '--no-cache=true --pull=true .')
+            image.push()
+          }
         }
 
         // debug Module Descriptor
@@ -138,7 +143,7 @@ ansiColor('xterm') {
 
         // Upload Module Descriptor to Eureka Module Registry
         sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${env.MD}")
-//        common.checkEcrRepoExistence(module.getName())
+
 //        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
 //          dir(module.getName()) {
 //            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
