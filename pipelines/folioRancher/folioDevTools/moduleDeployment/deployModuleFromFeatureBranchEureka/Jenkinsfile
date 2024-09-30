@@ -82,35 +82,35 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        dir(module.getName()) {
-          String origVersion = readMavenPom(file: 'pom.xml').version
-          module.version = "${origVersion}.${featureHash}"
-          module.loadModuleDetails("${module.name}-${module.version}")
-
-          withMaven(
-            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-            maven: Constants.MAVEN_TOOL_NAME,
-            traceability: false,
-            options: [artifactsPublisher(disabled: true)])
-          {
-            sh """
-              mvn versions:set -DnewVersion=${module.getVersion()}
-              mvn package ${mavenArguments}
-            """.stripIndent()
-          }
-
-          String descriptorPath = "target/ModuleDescriptor.json"
-          if (fileExists(descriptorPath)) {
-            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
-            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${descriptorPath}")
-            logger.debug("Module Descriptor:\n${readFile(descriptorPath)}")
-
-            // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
-
-            module.descriptor = [readJSON(file: descriptorPath)]
-          }
-        }
+//        dir(module.getName()) {
+//          String origVersion = readMavenPom(file: 'pom.xml').version
+//          module.version = "${origVersion}.${featureHash}"
+//          module.loadModuleDetails("${module.name}-${module.version}")
+//
+//          withMaven(
+//            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+//            maven: Constants.MAVEN_TOOL_NAME,
+//            traceability: false,
+//            options: [artifactsPublisher(disabled: true)])
+//          {
+//            sh """
+//              mvn versions:set -DnewVersion=${module.getVersion()}
+//              mvn package ${mavenArguments}
+//            """.stripIndent()
+//          }
+//
+//          String descriptorPath = "target/ModuleDescriptor.json"
+//          if (fileExists(descriptorPath)) {
+//            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
+//            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${descriptorPath}")
+//            logger.debug("Module Descriptor:\n${readFile(descriptorPath)}")
+//
+//            // Upload Module Descriptor to Eureka Module Registry
+//            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
+//
+//            module.descriptor = [readJSON(file: descriptorPath)]
+//          }
+//        }
       }
 
 //      stage('[Docker] Build and push') {
