@@ -4,7 +4,7 @@ resource "helm_release" "alb_controller" {
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.4.8"
+  version    = "1.8.3"
   set {
     name  = "region"
     value = var.aws_region

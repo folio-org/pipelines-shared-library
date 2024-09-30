@@ -225,6 +225,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
+    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-type': 'ip']
+    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-group-attributes': 'deregistration_delay.timeout_seconds=30']
   }
 
   //Enable edge NLB
