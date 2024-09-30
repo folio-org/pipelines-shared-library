@@ -79,10 +79,10 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
       String moduleName = backendModule.key
       String moduleVersion = backendModule.value
       branches[moduleName] = {
-        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
-        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
-          deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
-        }
+//        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
+//        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
+        deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
+//        }
       }
     }
     parallel branches
