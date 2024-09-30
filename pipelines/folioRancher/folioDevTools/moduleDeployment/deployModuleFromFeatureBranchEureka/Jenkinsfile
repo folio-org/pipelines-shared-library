@@ -113,59 +113,59 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence(module.getName())
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir(module.getName()) {
-            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-            image.push()
-          }
-        }
-      }
-
-      stage('Generate context') {
-        namespace.tenants = eureka.getExistedTenants()
-        logger.info("Configured Tenants: ${namespace.tenants}")
-
-        namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
-        logger.info("Configured Applications: ${namespace.applications}")
-
-        // TODO: RANCHER-1700 - get rid off custom branch mention once debugging is done
-//        module.loadModuleDetails('mod-roles-keycloak-1.4.6-SNAPSHOT.8a01f13')
-//        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.8e6c903')
-      }
-
-      /** Updated Applications Info Map<AppName, AppID> */
-      Map<String, String> updatedAppInfoMap = [:]
-
-      // 1. Register Application Descriptor with Updated Module Version
-      stage('[Rest] Update App Descriptor') {
-        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
-      }
-
-      // 2. Enable New Module Version (Discovery) for Application
-      stage('[Rest] Module Discovery') {
-        eureka.runModuleDiscoveryFlow(module)
-      }
-
-      // 3. Deploy New Module Version to Rancher Namespace via Helm
-      stage('[Helm] Deploy Module Ver') {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          echo "Waiting another 3 minutes for the module to initialize..."
-          sleep time: 2, unit: 'MINUTES'
-        }
-      }
-
-      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
-      stage('[Rest] Enable New App') {
-        eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
-      }
-
-      stage('[Rest] Remove Stale Resources') {
-        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
-      }
+//      stage('[Docker] Build and push') {
+//        common.checkEcrRepoExistence(module.getName())
+//        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+//          dir(module.getName()) {
+//            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
+//            image.push()
+//          }
+//        }
+//      }
+//
+//      stage('Generate context') {
+//        namespace.tenants = eureka.getExistedTenants()
+//        logger.info("Configured Tenants: ${namespace.tenants}")
+//
+//        namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
+//        logger.info("Configured Applications: ${namespace.applications}")
+//
+//        // TODO: RANCHER-1700 - get rid off custom branch mention once debugging is done
+////        module.loadModuleDetails('mod-roles-keycloak-1.4.6-SNAPSHOT.8a01f13')
+////        module.loadModuleDetails('mod-lists-2.1.0-SNAPSHOT.8e6c903')
+//      }
+//
+//      /** Updated Applications Info Map<AppName, AppID> */
+//      Map<String, String> updatedAppInfoMap = [:]
+//
+//      // 1. Register Application Descriptor with Updated Module Version
+//      stage('[Rest] Update App Descriptor') {
+//        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
+//      }
+//
+//      // 2. Enable New Module Version (Discovery) for Application
+//      stage('[Rest] Module Discovery') {
+//        eureka.runModuleDiscoveryFlow(module)
+//      }
+//
+//      // 3. Deploy New Module Version to Rancher Namespace via Helm
+//      stage('[Helm] Deploy Module Ver') {
+//        folioHelm.withKubeConfig(namespace.clusterName) {
+//          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+//          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+//          echo "Waiting another 3 minutes for the module to initialize..."
+//          sleep time: 2, unit: 'MINUTES'
+//        }
+//      }
+//
+//      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+//      stage('[Rest] Enable New App') {
+//        eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+//      }
+//
+//      stage('[Rest] Remove Stale Resources') {
+//        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+//      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
