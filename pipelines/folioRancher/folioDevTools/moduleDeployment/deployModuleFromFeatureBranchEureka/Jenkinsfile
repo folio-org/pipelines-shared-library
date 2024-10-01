@@ -133,18 +133,19 @@ ansiColor('xterm') {
           sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} -Pversion=${env.version} buildImage"
         }
 
+        // Rename Docker Image
+        sh("docker tag ${env.dockerRepo}/${module.getName()}:${env.version} ${module.getName()}:${env.version}")
+
+        logger.debug("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${env.version}")
+        logger.debug("Pushing Docker Image: ${module.getName()}:${env.version}")
+
         // Push Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          def image = docker.image("${env.dockerRepo}/${module.getName()}:${env.version}")
-
-          logger.info("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${env.version}")
-          logger.info("Pushing Docker Image: ${module.getName()}:${env.version}")
-
-          image.tag("${env.dockerRepo}/${module.getName()}:${env.version}", "${module.getName()}:${env.version}")
-
+          // Check if ECR Repository exists, if not create it
           common.checkEcrRepoExistence(module.getName())
 
-          image.push("${module.getName()}:${env.version}")
+          // Push Docker Image
+          docker.image("${module.getName()}:${env.version}").push()
         }
 
         // debug Module Descriptor
