@@ -95,8 +95,6 @@ class Users extends Kong {
         Response content:
         ${content.toString()}""")
 
-      unsetPassword(tenant, user) //1st clearing attempt
-
       unsetPassword(tenant, user).setUpdatePassword(tenant, user)
     }
 
