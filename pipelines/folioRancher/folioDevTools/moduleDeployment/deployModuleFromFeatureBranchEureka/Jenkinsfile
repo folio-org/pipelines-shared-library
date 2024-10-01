@@ -134,11 +134,11 @@ ansiColor('xterm') {
       stage('[Docker] Build and push') {
         // Build Docker Image
         dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} -Pversion=${env.version} buildImage"
+          sh "./gradlew $env.GRADLEW_OPTS -PdockerId=${module.getName()}:${module.version} -Pversion=${module.version} buildImage"
         }
 
         // Rename Docker Image
-        sh("docker tag ${env.dockerRepo}/${module.getName()}:${env.version} ${module.getName()}:${env.version}")
+//        sh("docker tag ${env.dockerRepo}/${module.getName()}:${module.version} ${module.getName()}:${module.version}")
 
         logger.debug("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${module.version}")
         logger.debug("Pushing Docker Image: ${module.getName()}:${module.version}")
