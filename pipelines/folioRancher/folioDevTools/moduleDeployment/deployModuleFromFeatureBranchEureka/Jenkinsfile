@@ -128,11 +128,14 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
+        // Build Docker Image
+        dir(env.BUILD_DIR) {
+          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=${env.dockerRepo} -Pversion=${env.version} buildImage"
+        }
 
+        // Push Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir("${env.BUILD_DIR}/docker") {
-            image.push()
-          }
+          docker.image("${env.dockerRepo}/${module.getName()}:${env.version}").push()
         }
 
         // debug Module Descriptor
