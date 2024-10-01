@@ -104,6 +104,10 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: KONG_UPSTREAM_READ_TIMEOUT
+     value: "600000"
+   - name: KONG_UPSTREAM_KEEPALIVE_TIMEOUT
+     value: "600000"
    - name: KONG_PROXY_CONNECT_TIMEOUT
      value: "180000"
    - name: KONG_PROXY_READ_TIMEOUT
