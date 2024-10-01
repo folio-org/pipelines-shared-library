@@ -85,9 +85,13 @@ ansiColor('xterm') {
       env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
       env.MD = "${env.WORKSPACE}/${module.getName()}/service/build/resources/main/okapi/ModuleDescriptor.json"
       env.dockerRepo = 'folioci'
-      env.version = "7.1.0-SNAPSHOT.${env.BUILD_NUMBER}"
 
       stage('[Maven/Gradle] Compile') {
+        Map projectProperties = readProperties(file:"${env.BUILD_DIR}/gradle.properties") as Map
+        String appVersion = projectProperties['appVersion']
+        String dockerRepo = projectProperties['dockerRepo']
+        module.version = "${appVersion}.${featureHash}"
+
         echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
         echo "BUILD_DIR: ${env.BUILD_DIR}"
         echo "MD: ${env.MD}"
@@ -136,8 +140,8 @@ ansiColor('xterm') {
         // Rename Docker Image
         sh("docker tag ${env.dockerRepo}/${module.getName()}:${env.version} ${module.getName()}:${env.version}")
 
-        logger.debug("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${env.version}")
-        logger.debug("Pushing Docker Image: ${module.getName()}:${env.version}")
+        logger.debug("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${module.version}")
+        logger.debug("Pushing Docker Image: ${module.getName()}:${module.version}")
 
         // Push Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
@@ -145,7 +149,7 @@ ansiColor('xterm') {
           common.checkEcrRepoExistence(module.getName())
 
           // Push Docker Image
-          docker.image("${module.getName()}:${env.version}").push()
+          docker.image("${module.getName()}:${module.version}").push()
         }
 
         // debug Module Descriptor
