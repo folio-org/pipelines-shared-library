@@ -108,6 +108,8 @@ kong:
      value: "600000"
    - name: KONG_UPSTREAM_KEEPALIVE_TIMEOUT
      value: "600000"
+   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
+     value: "600000"
    - name: KONG_PROXY_CONNECT_TIMEOUT
      value: "180000"
    - name: KONG_PROXY_READ_TIMEOUT
@@ -140,8 +142,6 @@ kong:
      value: "${local.kong_url}"
    - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
      value: "4 16k"
-   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-     value: "600"
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
