@@ -97,7 +97,7 @@ ansiColor('xterm') {
         echo "MD: ${env.MD}"
 
         dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS assemble"
+          sh "./gradlew $env.GRADLEW_OPTS -Pversion=\"${module.version}\" assemble"
         }
 
 //        dir(module.getName()) {
@@ -134,7 +134,7 @@ ansiColor('xterm') {
       stage('[Docker] Build and push') {
         // Build Docker Image
         dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -PdockerId=${module.getName()}:${module.version} -Pversion=${module.version} buildImage"
+          sh "./gradlew $env.GRADLEW_OPTS -PdockerId=\"${module.getName()}:${module.version}\" -Pversion=\"${module.version}\" buildImage"
         }
 
         // Rename Docker Image
