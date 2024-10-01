@@ -81,23 +81,20 @@ ansiColor('xterm') {
         ])
       }
 
-      env.GRADLEW_OPTS = '--console plain --no-daemon'
+      env.GRADLEW_OPTS = '--quiet --console plain --no-daemon'
       env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
       env.MD = "${env.WORKSPACE}/${module.getName()}/service/build/resources/main/okapi/ModuleDescriptor.json"
-      env.dockerRepo = 'folioci'
 
       stage('[Maven/Gradle] Compile') {
         Map projectProperties = readProperties(file:"${env.BUILD_DIR}/gradle.properties") as Map
-        String appVersion = projectProperties['appVersion']
-        String dockerRepo = projectProperties['dockerRepo']
-        module.version = "${appVersion}.${featureHash}"
+        module.version = projectProperties['appVersion']
 
         echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
         echo "BUILD_DIR: ${env.BUILD_DIR}"
         echo "MD: ${env.MD}"
 
         dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -Pversion=\"${module.version}\" assemble"
+          sh "./gradlew $env.GRADLEW_OPTS -Pversion=${module.version} assemble"
         }
 
 //        dir(module.getName()) {
@@ -134,29 +131,30 @@ ansiColor('xterm') {
       stage('[Docker] Build and push') {
         // Build Docker Image
         dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -PdockerId=\"${module.getName()}:${module.version}\" -Pversion=\"${module.version}\" buildImage"
+          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=folioci -Pversion=${module.version} buildImage"
         }
 
-        // Rename Docker Image
-//        sh("docker tag ${env.dockerRepo}/${module.getName()}:${module.version} ${module.getName()}:${module.version}")
-
-        logger.debug("Current Docker Image: ${env.dockerRepo}/${module.getName()}:${module.version}")
-        logger.debug("Pushing Docker Image: ${module.getName()}:${module.version}")
+        // Rename Local Docker Image
+        sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}.${featureHash}")
 
         // Push Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           // Check if ECR Repository exists, if not create it
-          common.checkEcrRepoExistence(module.getName())
+          common.checkEcrRepoExistence(module.name)
 
           // Push Docker Image
-          docker.image("${module.getName()}:${module.version}").push()
+          docker.image("${module.name}:${module.version}.${featureHash}").push()
         }
 
-        // debug Module Descriptor
-        sh "cat $env.MD"
+        if (fileExists(env.MD)) {
+          // Replace BUILD_NUMBER with featureHash in Module Descriptor
+          sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}.${featureHash}#g' $env.MD")
 
-        // Upload Module Descriptor to Eureka Module Registry
-        sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${env.MD}")
+          // Upload Module Descriptor to Eureka Module Registry
+          sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}.${featureHash} --upload-file ${env.MD}")
+
+          module.descriptor = [readJSON(file: env.MD)]
+        }
 
 //        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
 //          dir(module.getName()) {
