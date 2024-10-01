@@ -84,6 +84,8 @@ ansiColor('xterm') {
       env.GRADLEW_OPTS = '--console plain --no-daemon'
       env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
       env.MD = "${env.WORKSPACE}/${module.getName()}/service/build/resources/main/okapi/ModuleDescriptor.json"
+      env.dockerRepo = 'folioci'
+      env.version = "7.1.0-SNAPSHOT.${env.BUILD_NUMBER}"
 
       stage('[Maven/Gradle] Compile') {
         echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
@@ -125,15 +127,10 @@ ansiColor('xterm') {
 //        }
       }
 
-      env.dockerRepo = 'folioci'
-      env.version = "7.1.0-SNAPSHOT.${env.BUILD_NUMBER}"
-
       stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence(module.getName())
 
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir(module.getName()) {
-            def image = docker.build("${module.getName()}:${env.version}", '--no-cache=true --pull=true .')
+          dir("${env.BUILD_DIR}/docker") {
             image.push()
           }
         }
