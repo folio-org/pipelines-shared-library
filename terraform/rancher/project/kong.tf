@@ -110,6 +110,8 @@ kong:
      value: "1024"
    - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
      value: "20000"
+   - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
+     value: "20000"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
