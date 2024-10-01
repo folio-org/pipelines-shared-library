@@ -6,17 +6,17 @@ import org.folio.models.User
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
-class Users extends Kong{
+class Users extends Kong {
 
-  Users(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Users(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, kongUrl, keycloak, debug)
   }
 
-  Users(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+  Users(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Users(Kong kong){
+  Users(Kong kong) {
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -39,11 +39,11 @@ class Users extends Kong{
     return User.getUserFromContent(content, tenant, UserGroups.get(this))
   }
 
-  User getUser(EurekaTenant tenant, String userId){
+  User getUser(EurekaTenant tenant, String userId) {
     return getUsers(tenant, userId)[0]
   }
 
-  User getUserByName(EurekaTenant tenant, String name){
+  User getUserByName(EurekaTenant tenant, String name) {
     return getUsers(tenant, "", "name==${name}")[0]
   }
 
@@ -51,7 +51,7 @@ class Users extends Kong{
     return getUser(tenant, userId) ? true : false
   }
 
-  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = "", int limit = 3000){
+  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = "", int limit = 3000) {
     logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -74,14 +74,14 @@ class Users extends Kong{
     }
   }
 
-  Users setUpdatePassword(EurekaTenant tenant, User user){
+  Users setUpdatePassword(EurekaTenant tenant, User user) {
     logger.info("Setting or updating user password for user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     Map body = [
       "username": user.username,
-      "userId": user.uuid,
+      "userId"  : user.uuid,
       "password": user.password.getPlainText()
     ]
 
@@ -95,13 +95,15 @@ class Users extends Kong{
         Response content:
         ${content.toString()}""")
 
+      unsetPassword(tenant, user) //1st clearing attempt
+
       unsetPassword(tenant, user).setUpdatePassword(tenant, user)
-     }
+    }
 
     return this
   }
 
-  Users unsetPassword(EurekaTenant tenant, User user){
+  Users unsetPassword(EurekaTenant tenant, User user) {
     logger.info("Unset user password for user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -112,7 +114,7 @@ class Users extends Kong{
   }
 
   @NonCPS
-  static Users get(Kong kong){
+  static Users get(Kong kong) {
     return new Users(kong)
   }
 }
