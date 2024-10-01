@@ -135,7 +135,7 @@ ansiColor('xterm') {
 
         // Push Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          docker.image("${env.dockerRepo}/${module.getName()}:${env.version}").push()
+          docker.image("${env.dockerRepo}/${module.getName()}:${env.version}").tag("${module.getName()}:${env.version}").push()
         }
 
         // debug Module Descriptor
