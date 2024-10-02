@@ -165,7 +165,7 @@ ansiColor('xterm') {
           }
 
           // Rename Local Docker Image
-          sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER}.${featureHash} ${module.name}:${module.version}.${featureHash}")
+          sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}")
 
           // Put Docker Image to Amazon ECR
           docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
