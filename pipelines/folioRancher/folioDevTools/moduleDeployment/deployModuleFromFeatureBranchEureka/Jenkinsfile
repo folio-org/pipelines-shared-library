@@ -173,15 +173,16 @@ ansiColor('xterm') {
             common.checkEcrRepoExistence(module.name)
 
             // Push Docker Image
-            docker.image("${module.name}:${module.version}.${featureHash}").push()
+            docker.image("${module.name}:${module.version}").push()
           }
 
           if (fileExists(module.modDescriptorPath)) {
             // Replace BUILD_NUMBER with featureHash in Module Descriptor
-            sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}.${featureHash}#g' $module.modDescriptorPath")
+//            sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' $module.modDescriptorPath")
+            logger.debug("Module Descriptor:\n${readJSON(module.modDescriptorPath)}")
 
             // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}.${featureHash} --upload-file ${module.modDescriptorPath}")
+            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
           }
         }
 
