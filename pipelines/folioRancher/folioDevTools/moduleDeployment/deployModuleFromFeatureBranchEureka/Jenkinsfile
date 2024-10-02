@@ -125,7 +125,7 @@ ansiColor('xterm') {
             module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
 
             // Build Module as Gradle Project
-            sh "./gradlew ${commonGradleOpts} -appVersion=${module.version} assemble"
+            sh "./gradlew ${commonGradleOpts} -PappVersion=${module.version} assemble"
           }
         }
       }
@@ -161,7 +161,7 @@ ansiColor('xterm') {
 
           // Build Docker Image
           dir(module.buildDir) {
-            sh "./gradlew ${commonGradleOpts} -PdockerRepo=folioci -appVersion=${module.version} buildImage"
+            sh "./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage"
           }
 
           // Rename Local Docker Image
