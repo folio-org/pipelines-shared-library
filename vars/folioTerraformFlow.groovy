@@ -2,6 +2,7 @@ import org.folio.Constants
 import org.folio.models.TerraformConfig
 
 void manageCluster(String action, TerraformConfig config) {
+  folioTerraform.client {
     _clusterCredentials {
       switch (action) {
         case 'apply':
@@ -19,9 +20,11 @@ void manageCluster(String action, TerraformConfig config) {
           break
       }
     }
+  }
 }
 
 void manageNamespace(String action, TerraformConfig config) {
+  folioTerraform.client {
     _namespaceCredentials {
       switch (action) {
         case 'apply':
@@ -32,6 +35,7 @@ void manageNamespace(String action, TerraformConfig config) {
           break
       }
     }
+  }
 }
 
 

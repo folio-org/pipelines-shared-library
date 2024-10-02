@@ -14,11 +14,7 @@ void call(CreateNamespaceParameters args) {
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
     LdpConfig ldpConfig = new LdpConfig()
-    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
-                     string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD'),
+    withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD'),
                      string(credentialsId: 'ldp_queries_gh_token', variable: 'LDP_SQCONFIG_TOKEN')]) {
       ldpConfig.setLdpDbUserPassword(LDP_DB_PASSWORD)
       ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
