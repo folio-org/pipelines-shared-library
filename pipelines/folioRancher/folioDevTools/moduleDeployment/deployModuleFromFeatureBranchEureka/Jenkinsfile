@@ -8,7 +8,7 @@ import org.folio.models.FolioModule
 import org.folio.rest_v2.eureka.Eureka
 
 // TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
-@Library('pipelines-shared-library@RANCHER-1700') _
+@Library('pipelines-shared-library@RANCHER-1779') _
 
 /** Job properties and parameters */
 properties([
@@ -62,6 +62,9 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 
 /** Pipeline */
 ansiColor('xterm') {
+  // Common Gradle Options
+  String commonGradleOpts = '--quiet --console plain --no-daemon'
+
   node(params.AGENT) {
     try {
       stage('Ini') {
@@ -81,86 +84,109 @@ ansiColor('xterm') {
         ])
       }
 
-      env.GRADLEW_OPTS = '--quiet --console plain --no-daemon'
-      env.BUILD_DIR = "${env.WORKSPACE}/${module.getName()}/service"
-      env.MD = "${env.WORKSPACE}/${module.getName()}/service/build/resources/main/okapi/ModuleDescriptor.json"
-
       stage('[Maven/Gradle] Compile') {
-        Map projectProperties = readProperties(file:"${env.BUILD_DIR}/gradle.properties") as Map
-        module.version = projectProperties['appVersion']
+        // Check if Maven or Gradle build tool is used
+        module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
 
-        echo "GRADLEW_OPTS: ${env.GRADLEW_OPTS}"
-        echo "BUILD_DIR: ${env.BUILD_DIR}"
-        echo "MD: ${env.MD}"
+        if (module.buildTool == 'maven') {
+          // Use specific Maven build directory
+          module.buildDir = "${env.WORKSPACE}/${module.name}"
 
-        dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -Pversion=${module.version} assemble"
+          dir(module.buildDir) {
+            // Read module version from pom.xml
+            module.version = readMavenPom(file: 'pom.xml')['version']
+
+            // Load Module Details for Maven builds
+            module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+
+            // Build Module as Maven Project
+            withMaven(
+              jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+              maven: Constants.MAVEN_TOOL_NAME,
+              traceability: false,
+              options: [artifactsPublisher(disabled: true)])
+            {
+              sh """
+                mvn versions:set -DnewVersion=${module.getVersion()}
+                mvn package ${mavenArguments}
+              """.stripIndent()
+            }
+          }
         }
+        else {
+          // Use specific Gradle build directory
+          module.buildDir = "${env.WORKSPACE}/${module.name}/service"
 
-//        dir(module.getName()) {
-//          String origVersion = readMavenPom(file: 'pom.xml').version
-//          module.version = "${origVersion}.${featureHash}"
-//          module.loadModuleDetails("${module.name}-${module.version}")
-//
-//          withMaven(
-//            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-//            maven: Constants.MAVEN_TOOL_NAME,
-//            traceability: false,
-//            options: [artifactsPublisher(disabled: true)])
-//          {
-//            sh """
-//              mvn versions:set -DnewVersion=${module.getVersion()}
-//              mvn package ${mavenArguments}
-//            """.stripIndent()
-//          }
-//        }
+          dir(module.buildDir) {
+            // Read module version from gradle.properties
+            module.version = readProperties(file: "gradle.properties")['appVersion']
+
+            // Load Module Details for Gradle builds
+            module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+
+            // Build Module as Gradle Project
+            sh "./gradlew ${commonGradleOpts} -Pversion=${module.version} assemble"
+          }
+        }
       }
 
       stage('[Docker] Build and push') {
-        // Build Docker Image
-        dir(env.BUILD_DIR) {
-          sh "./gradlew $env.GRADLEW_OPTS -PdockerRepo=folioci -Pversion=${module.version} buildImage"
+        if (module.buildTool == 'maven') {
+          // Set Module Descriptor File Path
+          module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
+
+          // Put Docker Image to Amazon ECR
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            // Check if ECR Repository exists, if not create it
+            common.checkEcrRepoExistence(module.name)
+
+            // Build and Push Docker Image
+            dir(module.buildDir) {
+              docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
+            }
+          }
+
+          if (fileExists(module.modDescriptorPath)) {
+            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
+            //sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${module.modDescriptorPath}")
+            logger.debug("Module Descriptor:\n${readFile(module.modDescriptorPath)}")
+
+            // Upload Module Descriptor to Eureka Module Registry
+            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+          }
+        }
+        else {
+          // Set Module Descriptor File Path
+          module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
+
+          // Build Docker Image
+          dir(module.buildDir) {
+            sh "./gradlew ${commonGradleOpts} -PdockerRepo=folioci -Pversion=${module.version} buildImage"
+          }
+
+          // Rename Local Docker Image
+          sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER}.${featureHash} ${module.name}:${module.version}.${featureHash}")
+
+          // Put Docker Image to Amazon ECR
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            // Check if ECR Repository exists, if not create it
+            common.checkEcrRepoExistence(module.name)
+
+            // Push Docker Image
+            docker.image("${module.name}:${module.version}.${featureHash}").push()
+          }
+
+          if (fileExists(module.modDescriptorPath)) {
+            // Replace BUILD_NUMBER with featureHash in Module Descriptor
+            sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}.${featureHash}#g' $module.modDescriptorPath")
+
+            // Upload Module Descriptor to Eureka Module Registry
+            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}.${featureHash} --upload-file ${module.modDescriptorPath}")
+          }
         }
 
-        // Rename Local Docker Image
-        sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}.${featureHash}")
-
-        // Push Docker Image to Amazon ECR
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          // Check if ECR Repository exists, if not create it
-          common.checkEcrRepoExistence(module.name)
-
-          // Push Docker Image
-          docker.image("${module.name}:${module.version}.${featureHash}").push()
-        }
-
-        if (fileExists(env.MD)) {
-          // Replace BUILD_NUMBER with featureHash in Module Descriptor
-          sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}.${featureHash}#g' $env.MD")
-
-          // Upload Module Descriptor to Eureka Module Registry
-          sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}.${featureHash} --upload-file ${env.MD}")
-
-          module.descriptor = [readJSON(file: env.MD)]
-        }
-
-//        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-//          dir(module.getName()) {
-//            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-//            image.push()
-//          }
-//        }
-//          String descriptorPath = "target/ModuleDescriptor.json"
-//          if (fileExists(modDescriptorPath)) {
-//            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
-//            sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${descriptorPath}")
-//            logger.debug("Module Descriptor:\n${readFile(descriptorPath)}")
-//
-//            // Upload Module Descriptor to Eureka Module Registry
-//            sh(script: "curl -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${descriptorPath}")
-//
-//            module.descriptor = [readJSON(file: descriptorPath)]
-//          }
+        // Save Module Descriptor to Module instance for further usage
+        module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
       stage('Generate context') {
@@ -169,9 +195,6 @@ ansiColor('xterm') {
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
         logger.info("Configured Applications: ${namespace.applications}")
-
-        // Load Module Details for Gradle builds
-        module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
@@ -192,8 +215,8 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(namespace.clusterName) {
           folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
           echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          echo "Waiting another 2 minutes to get module initialized..."
-          sleep time: 2, unit: 'MINUTES'
+          echo "Waiting another 3 minutes to get module initialized..."
+          sleep time: 3, unit: 'MINUTES'
         }
       }
 
