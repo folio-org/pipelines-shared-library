@@ -12,7 +12,7 @@ void client(Closure closure) {
 
       }
     }
-
+}
   def init(String path, String opts = '') {
     stage('[TF] Init') {
       dir(path) {
@@ -97,4 +97,3 @@ void client(Closure closure) {
       }
     }
   }
-}
