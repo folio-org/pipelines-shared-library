@@ -94,7 +94,7 @@ ansiColor('xterm') {
 
           dir(module.buildDir) {
             // Read module version from pom.xml
-            module.version = readMavenPom(file: 'pom.xml')['version']
+            module.version = readMavenPom(file: 'pom.xml').version
 
             // Load Module Details for Maven builds
             module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
