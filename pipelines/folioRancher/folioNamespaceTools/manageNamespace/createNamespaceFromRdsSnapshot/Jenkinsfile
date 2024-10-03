@@ -5,7 +5,7 @@ import org.folio.models.*
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1359-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -81,16 +81,16 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Terraform] Restore') {
-        folioHelm.withK8sClient {
-          tfConfig.addVar('pg_version',
-            awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
-          tfConfig.addVar('pg_username',
-            awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
-        }
-
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
+//      stage('[Terraform] Restore') {
+//        folioHelm.withK8sClient {
+//          tfConfig.addVar('pg_version',
+//            awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
+//          tfConfig.addVar('pg_username',
+//            awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
+//        }
+//
+//        folioTerraformFlow.manageNamespace('apply', tfConfig)
+//      }
 
       if (params.NAMESPACE_ONLY) {
         return
@@ -122,9 +122,9 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Helm] Restore') {
-        folioDeployFlow.restore(namespace)
-      }
+//      stage('[Helm] Restore') {
+//        folioDeployFlow.restore(namespace)
+//      }
 
       stage('Build and deploy UI') {
         Map branches = [:]
@@ -133,13 +133,14 @@ ansiColor('xterm') {
             TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
               def jobParameters = [
-                tenant_id  : ui.getTenantId(),
-                custom_hash: ui.getHash(),
-                custom_url : "https://${namespace.getDomains()['okapi']}",
-                custom_tag : ui.getTag(),
-                consortia  : tenant instanceof OkapiTenantConsortia
+                tenantId            : ui.getTenantId(),
+                custom_hash         : ui.getHash(),
+                custom_url          : "https://${namespace.getDomains()['okapi']}",
+                custom_tag          : ui.getTag(),
+                consortia           : tenant instanceof OkapiTenantConsortia,
+                rancher_cluster_name: namespace.getClusterName(),
+                rancher_project_name: namespace.getNamespaceName()
               ]
-
               uiBuild(jobParameters)
 
               folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -151,9 +152,9 @@ ansiColor('xterm') {
         parallel branches
       }
 
-      stage('Deploy ldp') {
-        println('LDP deployment')
-      }
+//      stage('Deploy ldp') {
+//        println('LDP deployment')
+//      }
     } catch (e) {
       println "Caught exception: ${e}"
       error(e.getMessage())

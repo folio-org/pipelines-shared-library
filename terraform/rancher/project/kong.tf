@@ -104,12 +104,14 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
-   - name: KONG_PROXY_CONNECT_TIMEOUT
-     value: "180000"
-   - name: KONG_PROXY_READ_TIMEOUT
-     value: "180000"
-   - name: KONG_PROXY_SEND_TIMEOUT
-     value: "180000"
+   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
+     value: "600"
+   - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
+     value: "1024"
+   - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
+     value: "20000"
+   - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
+     value: "20000"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
@@ -136,8 +138,6 @@ kong:
      value: "${local.kong_url}"
    - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
      value: "4 16k"
-   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-     value: "600"
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
