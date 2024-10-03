@@ -294,7 +294,7 @@ class Eureka extends Base {
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor->
       // Get Incremental Number for New Application Version
-      String incrementalNumber = descriptor['version'].toString().tokenize('.').last().toInteger() + 1
+      String incrementalNumber = descriptor['version'].toString().tokenize('.').last().toInteger() + 2
 
       // Update existing Application Descriptor with New Module Version
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
