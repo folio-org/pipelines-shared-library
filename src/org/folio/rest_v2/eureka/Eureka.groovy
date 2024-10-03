@@ -412,4 +412,33 @@ class Eureka extends Base {
       }
     }
   }
+
+  /**
+   * Remove Resources on Fail Flow.
+   * @param updatedApplications Map of updated applications in namespace.
+   * @param module FolioModule object.
+   */
+  void removeResourcesOnFailFlow(Map<String, String> updatedApplications, FolioModule module) {
+    if (updatedApplications.isEmpty()) {
+      logger.info("No updated applications found to remove resources.")
+    }
+    else {
+      logger.info("Removing resources for failed module update...")
+
+      // Remove Updated Application Descriptor with New Module Version
+      updatedApplications.each { appName, appId ->
+        // Get Updated Module Discovery removed
+        Applications.get(kong).searchModuleDiscovery("name==${module.name}")['discovery']?.each { moduleDiscovery ->
+          if (moduleDiscovery['id'] == module.id) { // Remove only for the updated module versions
+            Applications.get(kong).deleteModuleDiscovery(moduleDiscovery['id'] as String)
+          }
+        }
+
+        // Delete Application Descriptor
+        Applications.get(kong).deleteRegisteredApplication(appId)
+
+        logger.info("Removed resources for failed module update: ${appName}")
+      }
+    }
+  }
 }

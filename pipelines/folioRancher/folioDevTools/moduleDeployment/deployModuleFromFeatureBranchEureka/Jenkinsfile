@@ -1,6 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
+import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -203,27 +204,51 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
-        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
+        try {
+          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
+        } catch (e) {
+          logger.warning("Failed to register new application descriptor: ${e}")
+          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          throw e
+        }
       }
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
-        eureka.runModuleDiscoveryFlow(module)
+        try {
+          eureka.runModuleDiscoveryFlow(module)
+        } catch (e) {
+          logger.warning("Failed to perform new module discovery: ${e}")
+          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          throw e
+        }
       }
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          echo "Waiting another 3 minutes to get module initialized..."
-          sleep time: 3, unit: 'MINUTES'
+        try {
+          folioHelm.withKubeConfig(namespace.clusterName) {
+            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+            echo "Waiting another 3 minutes to get module initialized..."
+            sleep time: 3, unit: 'MINUTES'
+          }
+        } catch (e) {
+          logger.warning("Failed to deploy new module version via Helm: ${e}")
+          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          throw e
         }
       }
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
-        eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+        try {
+          eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+        } catch (e) {
+          logger.warning("Failed to enable (entitle) new application version: ${e}")
+          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          throw e
+        }
       }
 
       stage('[Rest] Remove Stale Resources') {
