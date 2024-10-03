@@ -368,6 +368,7 @@ class Eureka extends Base {
    */
   void runModuleDiscoveryFlow(FolioModule module) {
     try {
+      logger.info("Check if ${module.name}-${module.version} module discovery exists...")
       Applications.get(kong).getModuleDiscovery(module)
     } catch (RequestException e) {
       if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
