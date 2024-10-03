@@ -208,7 +208,7 @@ ansiColor('xterm') {
           updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
         } catch (e) {
           logger.warning("Failed to register new application descriptor: ${e}")
-          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
           throw e
         }
       }
@@ -219,7 +219,7 @@ ansiColor('xterm') {
           eureka.runModuleDiscoveryFlow(module)
         } catch (e) {
           logger.warning("Failed to perform new module discovery: ${e}")
-          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
           throw e
         }
       }
@@ -235,7 +235,7 @@ ansiColor('xterm') {
           }
         } catch (e) {
           logger.warning("Failed to deploy new module version via Helm: ${e}")
-          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
           throw e
         }
       }
@@ -246,7 +246,7 @@ ansiColor('xterm') {
           eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
-          eureka.removeResourcesOnFailFlow(namespace.applications, module)
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
           throw e
         }
       }
