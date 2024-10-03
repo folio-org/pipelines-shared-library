@@ -18,7 +18,7 @@ resource "rancher2_secret" "eureka-edge" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    OKAPI_HOST = base64encode("kong-${rancher2_project.this.id}")
+    OKAPI_HOST = base64encode("kong-${rancher2_namespace.this.id}")
     OKAPI_PORT = base64encode("8000")
   }
 }
