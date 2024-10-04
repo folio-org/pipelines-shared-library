@@ -89,102 +89,110 @@ ansiColor('xterm') {
         // Check if Maven or Gradle build tool is used
         module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
 
-        if (module.buildTool == 'maven') {
-          // Use specific Maven build directory
-          module.buildDir = "${env.WORKSPACE}/${module.name}"
+        switch (module.buildTool) {
+          case 'maven':
+            logger.info("Maven build tool is used")
+            module.buildDir = "${env.WORKSPACE}/${module.name}"
 
-          dir(module.buildDir) {
-            // Read module version from pom.xml
-            module.version = readMavenPom(file: 'pom.xml').version
+            dir(module.buildDir) {
+              // Read module version from pom.xml
+              module.version = readMavenPom(file: 'pom.xml').version
 
-            // Load Module Details for Maven builds
-            module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+              // Load Module Details for Maven builds
+              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
 
-            // Build Module as Maven Project
-            withMaven(
-              jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-              maven: Constants.MAVEN_TOOL_NAME,
-              traceability: false,
-              options: [artifactsPublisher(disabled: true)])
-            {
-              sh """
-                mvn versions:set -DnewVersion=${module.getVersion()}
-                mvn package ${mavenArguments}
-              """.stripIndent()
+              // Build Module as Maven Project
+              withMaven(
+                jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+                maven: Constants.MAVEN_TOOL_NAME,
+                traceability: false,
+                options: [artifactsPublisher(disabled: true)])
+                {
+                  sh """
+                    mvn versions:set -DnewVersion=${module.getVersion()}
+                    mvn package ${mavenArguments}
+                  """.stripIndent()
+                }
             }
-          }
-        }
-        else {
-          // Use specific Gradle build directory
-          module.buildDir = "${env.WORKSPACE}/${module.name}/service"
+            break
 
-          dir(module.buildDir) {
-            // Read module version from gradle.properties
-            module.version = readProperties(file: "gradle.properties")['appVersion']
+          case 'gradle':
+            logger.info("Gradle build tool is used")
+            module.buildDir = "${env.WORKSPACE}/${module.name}/service"
 
-            // Load Module Details for Gradle builds
-            module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+            dir(module.buildDir) {
+              // Read module version from gradle.properties
+              module.version = readProperties(file: "gradle.properties")['appVersion']
 
-            // Build Module as Gradle Project
-            sh "./gradlew ${commonGradleOpts} -PappVersion=${module.version} assemble"
-          }
+              // Load Module Details for Gradle builds
+              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+
+              // Build Module as Gradle Project
+              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.version} assemble"
+            }
+            break
+
+          default:
+            error("Unsupported build tool: ${module.buildTool}")
         }
       }
 
       stage('[Docker] Build and push') {
-        if (module.buildTool == 'maven') {
-          // Set Module Descriptor File Path
-          module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
+        switch (module.buildTool) {
+          case 'maven':
+            module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
 
-          // Put Docker Image to Amazon ECR
-          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-            // Check if ECR Repository exists, if not create it
-            common.checkEcrRepoExistence(module.name)
+            // Put Docker Image to Amazon ECR
+            docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+              // Check if ECR Repository exists, if not create it
+              common.checkEcrRepoExistence(module.name)
 
-            // Build and Push Docker Image
-            dir(module.buildDir) {
-              docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
+              // Build and Push Docker Image
+              dir(module.buildDir) {
+                docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
+              }
             }
-          }
 
-          if (fileExists(module.modDescriptorPath)) {
-            // Switch "dockerImage" to "folioci" Organization in Module Descriptor
-            //sh(script: "sed -i 's#\"dockerImage\": \"${module.name}:${module.version}\"#\"dockerImage\": \"folioci\\/${module.name}-${module.version}\"#g' ${module.modDescriptorPath}")
-            logger.debug("Module Descriptor:\n${readFile(module.modDescriptorPath)}")
+            if (fileExists(module.modDescriptorPath)) {
+              logger.debug("Module Descriptor:\n${readFile(module.modDescriptorPath)}")
 
-            // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
-          }
-        }
-        else {
-          // Set Module Descriptor File Path
-          module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
+              // Upload Module Descriptor to Eureka Module Registry
+              sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+            }
+            break
 
-          // Build Docker Image
-          dir(module.buildDir) {
-            sh "./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage"
-          }
+          case 'gradle':
+            module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
 
-          // Rename Local Docker Image
-          sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}")
+            // Build Docker Image
+            dir(module.buildDir) {
+              sh "./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage"
+            }
 
-          // Put Docker Image to Amazon ECR
-          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-            // Check if ECR Repository exists, if not create it
-            common.checkEcrRepoExistence(module.name)
+            // Rename Local Docker Image
+            sh("docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}")
 
-            // Push Docker Image
-            docker.image("${module.name}:${module.version}").push()
-          }
+            // Put Docker Image to Amazon ECR
+            docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+              // Check if ECR Repository exists, if not create it
+              common.checkEcrRepoExistence(module.name)
 
-          if (fileExists(module.modDescriptorPath)) {
-            // Replace BUILD_NUMBER with featureHash in Module Descriptor
-            sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}")
-            logger.debug("Module Descriptor:\n${readFile(module.modDescriptorPath)}")
+              // Push Docker Image
+              docker.image("${module.name}:${module.version}").push()
+            }
 
-            // Upload Module Descriptor to Eureka Module Registry
-            sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
-          }
+            if (fileExists(module.modDescriptorPath)) {
+              // Replace BUILD_NUMBER with featureHash in Module Descriptor
+              sh(script: "sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}")
+              logger.debug("Module Descriptor:\n${readFile(module.modDescriptorPath)}")
+
+              // Upload Module Descriptor to Eureka Module Registry
+              sh(script: "curl --silent --show-error -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+            }
+            break
+
+          default:
+            error("Unsupported build tool: ${module.buildTool}")
         }
 
         // Save Module Descriptor to Module instance for further usage
