@@ -10,7 +10,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 def postgresql
 
-properties([buildDiscarder(logRotator(numToKeepStr: '30')),
+properties([buildDiscarder(logRotator(numToKeepStr: '60')),
             parameters([folioParameters.cluster(),
                         folioParameters.namespace(),
                         choice(name: "ACTION", choices: ['start', 'stop'], description: '(Required) Choose action to perform'),
