@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
 
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
@@ -19,7 +20,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=jenkins-agent-java17''')])])
+            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 
 if (params.REFRESH_PARAMETERS) {
@@ -54,7 +55,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
-  .consortia(false)
+  .consortia(true)
   .eureka(true)
   .rwSplit(false)
   .greenmail(false)
@@ -89,7 +90,7 @@ ansiColor('xterm') {
         if (nsExists) {
           folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
