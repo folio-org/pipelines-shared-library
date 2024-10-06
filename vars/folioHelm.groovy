@@ -224,6 +224,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
+      case ~/edge-.*$/:
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+        moduleConfig['integrations'] += ["eurekaEdge": [enabled       : true,
+                                                         existingSecret: 'eureka-edge']]
+        break
       case ~/ui-bundle/:
         break
     }
