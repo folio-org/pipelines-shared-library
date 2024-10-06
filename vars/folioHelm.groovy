@@ -180,8 +180,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
-                                         tag  : "latest"]]]
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
@@ -191,8 +191,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
-                                         tag  : "latest"]]]
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
 
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
@@ -209,8 +209,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
-                                         tag  : "latest"]]]
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -223,25 +223,29 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
-                                         tag  : "latest"]]]
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         break
       case 'mod-okapi-facade':
-        moduleConfig['integrations']['eureka'] = [enabled: true, existingSecret: 'eureka-common']
-        moduleConfig['eureka'] = [enabled         : true,
-                                  sidecarContainer: [image: "folioorg/folio-module-sidecar", tag: "latest"]
-        ]
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+          ]
         break
       case ~/mod-.*$/:
         moduleConfig <<
           [
             [eureka: [enabled         : true,
-                      sidecarContainer: [image: "folioorg/folio-module-sidecar",
-                                         tag  : "latest"]]]
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
@@ -336,7 +340,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   return valuesFilePath
 }
 
-static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false) {
+static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
   String repository = ""
 
   if (customModule || moduleName == 'ui-bundle') {
