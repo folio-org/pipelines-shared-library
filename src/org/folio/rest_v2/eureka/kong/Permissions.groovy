@@ -139,7 +139,7 @@ class Permissions extends Kong{
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     Map body = [
-      "roleId": role.uuid,
+      "roleId"       : role.uuid,
       "capabilityIds": ids
     ]
 
