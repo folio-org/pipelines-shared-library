@@ -172,6 +172,33 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     )
 
     switch (moduleName) {
+    //TODO: Temporary solution just to bug avoiding workaround
+      case "mod-inn-reach":
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig['integrations']['systemuser']['enabled'] = false
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+          ]
+        moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
+        break
+      case "mod-data-export-spring":
+        moduleConfig['integrations'] += [eureka: [enabled       : true,
+                                                  existingSecret: 'eureka-common']]
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+          ]
+
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+
+        break
       case ~/mgr-.*$/:
         moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                   existingSecret: 'eureka-common']]
