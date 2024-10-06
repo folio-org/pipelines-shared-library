@@ -116,9 +116,6 @@ void call(CreateNamespaceParameters args) {
         }
     }
 
-    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 25, unit: 'MINUTES') {
       def check = ''
@@ -134,7 +131,9 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    eureka.defineKeycloakTTL()
+    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+      .defineKeycloakTTL()
 
     // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
     stage('[ASG] configure') {

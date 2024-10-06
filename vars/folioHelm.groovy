@@ -267,7 +267,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //mod-authtoken jwt.signing.key
-  if(moduleName == 'mod-authtoken'){
+  if (moduleName == 'mod-authtoken') {
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
   }
 
