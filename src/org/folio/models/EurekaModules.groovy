@@ -52,7 +52,7 @@ class EurekaModules extends Modules {
 
     edgeModules.each { name, version ->
       String id = "${name}-${version}"
-      String location = "http://${name}:8082"
+      String location = "http://${name}"
 
       if(!(restrictionList && !restrictionList.find({ value -> value == id })))
         discoveryList << [id: id, name: name, version: version, location: location]
