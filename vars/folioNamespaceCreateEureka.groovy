@@ -3,6 +3,7 @@ import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
@@ -119,7 +120,7 @@ void call(CreateNamespaceParameters args) {
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
-    timeout(time: 10, unit: 'MINUTES') {
+    timeout(time: 25, unit: 'MINUTES') {
       def check = ''
 
       while (check == '') {
@@ -191,15 +192,14 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Configure edge') {
-      folioEdge.renderEphemeralProperties(namespace)
-//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()]) TODO should be replaced with Eureka Edge Users.
-    }
-
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version -> kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        folioEdge.renderEphemeralProperties(namespace)
+
+        namespace.getModules().getEdgeModules().each { name, version ->
+          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
+
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
     }
@@ -208,7 +208,7 @@ void call(CreateNamespaceParameters args) {
       int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(
@@ -218,6 +218,10 @@ void call(CreateNamespaceParameters args) {
                 , namespace.getEnableConsortia()
         )
       }
+    }
+
+    stage('[Rest] Configure edge') {
+      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
     }
 
     if (args.uiBuild) {
