@@ -12,6 +12,17 @@ resource "rancher2_secret" "okapi-credentials" {
   }
 }
 
+resource "rancher2_secret" "eureka-edge" {
+  name         = "eureka-edge"
+  count        = var.eureka ? 1 : 0
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    OKAPI_HOST = base64encode("kong-${rancher2_namespace.this.id}")
+    OKAPI_PORT = base64encode("8000")
+  }
+}
+
 resource "rancher2_secret" "system_user" {
   for_each = toset(local.system_user_modules)
 
@@ -74,8 +85,8 @@ resource "rancher2_secret" "eureka_common" {
     SECRET_STORE_AWS_SSM_REGION                   = base64encode(var.aws_region)
     SECRET_STORE_TYPE                             = base64encode(var.secure_store_type)
     SECURITY_ENABLED                              = base64encode("false")
-    "tenant.url"                                  = base64encode("http://mgr-tenants")
-    "am.url"                                      = base64encode("http://mgr-applications")
+    "tenant.url"                                  = base64encode("http://mgr-tenants")      #DO NOT MODIFY THIS VALUE! If you modify it, align helm charts(templates) too!
+    "am.url"                                      = base64encode("http://mgr-applications") #DO NOT MODIFY THIS VALUE! If you modify it, align helm charts(templates) too!
     TE_URL                                        = base64encode("http://mgr-tenant-entitlements")
     MOD_USERS_BL                                  = base64encode("http://mod-users-bl:8082")
     MOD_USERS_KEYCLOAK_URL                        = base64encode("http://mod-users-keycloak:8082")
