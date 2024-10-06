@@ -584,8 +584,10 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
+      cpu: 2048m
       memory: 1792Mi
     requests:
+      cpu: 256m
       memory: 1536Mi
   autoscaling:
     enabled: true
@@ -651,7 +653,22 @@ mod-batch-print:
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+mod-reporting:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
 mod-bulk-operations:
+  extraJavaOpts: []
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
@@ -740,10 +757,10 @@ mod-circulation-bff:
       existingSecret: okapi-credentials
   replicaCount: 1
   resources:
-  limits:
-    memory: 512Mi
-  requests:
-    memory: 384Mi
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1545,8 +1562,10 @@ mod-oa:
   resources:
     limits:
       memory: 857Mi
+      cpu: 2048m
     requests:
       memory: 685Mi
+      cpu: 256m
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1985,8 +2004,10 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
+      cpu: 2048m
       memory: 1240Mi
     requests:
+      cpu: 256m
       memory: 1156Mi
   autoscaling:
     enabled: true
@@ -2208,9 +2229,15 @@ mgr-applications:
     - name: MODULE_URL
       value: "http://mgr-applications"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-      value: "1200s"
+      value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
-      value: "1200s"
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2231,9 +2258,15 @@ mgr-tenants:
     - name: MODULE_URL
       value: "http://mgr-tenants"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-      value: "1200s"
+      value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
-      value: "1200s"
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -2253,9 +2286,15 @@ mgr-tenant-entitlements:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-      value: "1200s"
+      value: "600s"
     - name: FOLIO_CLIENT_READ_TIMEOUT
-      value: "1200s"
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
   integrations:
     db:
       enabled: true
