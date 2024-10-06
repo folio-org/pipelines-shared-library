@@ -81,7 +81,7 @@ class Users extends Kong{
 
     Map body = [
       "username": user.username,
-      "userId": user.uuid,
+      "userId"  : user.uuid,
       "password": user.password.getPlainText()
     ]
 
@@ -96,7 +96,7 @@ class Users extends Kong{
         ${content.toString()}""")
 
       unsetPassword(tenant, user).setUpdatePassword(tenant, user)
-     }
+    }
 
     return this
   }

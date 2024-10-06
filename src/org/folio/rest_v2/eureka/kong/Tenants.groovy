@@ -114,7 +114,7 @@ class Tenants extends Kong{
     Map<String, String> headers = getMasterHttpHeaders(true)
 
     Map body = [
-      tenantId: tenant.uuid,
+      tenantId    : tenant.uuid,
       applications: tenant.applications.values()
     ]
 
