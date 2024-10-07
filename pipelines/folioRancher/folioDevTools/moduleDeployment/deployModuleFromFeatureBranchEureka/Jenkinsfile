@@ -161,7 +161,7 @@ ansiColor('xterm') {
                   ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
                   echo '[INFO] Rename Local Docker Image'
-                  docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}"
+                  docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
 
                   echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
                   [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
