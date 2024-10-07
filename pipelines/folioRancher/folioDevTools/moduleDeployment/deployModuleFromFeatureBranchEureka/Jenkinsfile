@@ -167,7 +167,7 @@ ansiColor('xterm') {
                   [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
                 """.stripIndent()
 
-                sh (label: 'Build Docker Image', script: shellCmd, returnStdout: true)
+                sh (label: 'Build Docker Image', script: shellCmd)
 
                 // Push Docker Image to Amazon ECR
                 docker.image("${module.name}:${module.version}").push()
