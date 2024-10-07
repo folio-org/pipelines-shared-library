@@ -8,17 +8,17 @@ import org.folio.models.UserGroup
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
-class Permissions extends Kong {
+class Permissions extends Kong{
 
-  Permissions(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
+  Permissions(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
   }
 
-  Permissions(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
+  Permissions(def context, String kongUrl, String keycloakUrl, boolean debug = false){
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Permissions(Kong kong) {
+  Permissions(Kong kong){
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -66,11 +66,11 @@ class Permissions extends Kong {
     return Role.getRoleFromContent(content)
   }
 
-  Role getRole(EurekaTenant tenant, String roleId) {
+  Role getRole(EurekaTenant tenant, String roleId){
     return getRoles(tenant, roleId)[0]
   }
 
-  Role getRoleByName(EurekaTenant tenant, String name) {
+  Role getRoleByName(EurekaTenant tenant, String name){
     return getRoles(tenant, "", "name==${name}")[0]
   }
 
@@ -78,7 +78,7 @@ class Permissions extends Kong {
     return getRoles(tenant, roleId) ? true : false
   }
 
-  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = "", limit = 500) {
+  List<Role> getRoles(EurekaTenant tenant, String roleId = "", String query = "", limit = 500){
     logger.info("Get roles${roleId ? " with ,roleId=${roleId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -101,7 +101,7 @@ class Permissions extends Kong {
     }
   }
 
-  List<String> getCapabilitiesId(EurekaTenant tenant, int limit = 3000) {
+  List<String> getCapabilitiesId(EurekaTenant tenant, int limit = 3000){
     logger.info("Get capabilities list for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -116,7 +116,7 @@ class Permissions extends Kong {
     return ids
   }
 
-  List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000) {
+  List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000){
     logger.info("Get capability sets list for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -132,7 +132,7 @@ class Permissions extends Kong {
   }
 
   Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids
-                                       , boolean skipExists = false, int connectionTimeout = 600000) {
+                                       , boolean skipExists = false, int connectionTimeout = 600000){
 
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
@@ -145,7 +145,7 @@ class Permissions extends Kong {
 
     def response
 
-    if (skipExists)
+    if(skipExists)
       response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], connectionTimeout)
     else
       response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], connectionTimeout)
@@ -176,7 +176,7 @@ class Permissions extends Kong {
   }
 
   Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids
-                                         , boolean skipExists = false, int connectionTimeout = 600000) {
+                                         , boolean skipExists = false, int connectionTimeout = 600000){
 
     logger.info("Assigning capability sets for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
@@ -189,7 +189,7 @@ class Permissions extends Kong {
 
     def response
 
-    if (skipExists)
+    if(skipExists)
       response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [201, 400], connectionTimeout)
     else
       response = restClient.post(generateUrl("/roles/capability-sets"), body, headers, [], connectionTimeout)
@@ -219,13 +219,13 @@ class Permissions extends Kong {
     return this
   }
 
-  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles) {
+  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles){
     logger.info("Assigning roles to user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
     List<String> roleIds = []
-    roles.each { role -> roleIds.add(role.uuid) }
+    roles.each {role -> roleIds.add(role.uuid)}
 
     Map body = [
       "userId" : user.uuid,
@@ -259,7 +259,7 @@ class Permissions extends Kong {
   }
 
   @NonCPS
-  static Permissions get(Kong kong) {
+  static Permissions get(Kong kong){
     return new Permissions(kong)
   }
 }

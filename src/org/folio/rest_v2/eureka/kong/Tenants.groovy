@@ -6,17 +6,17 @@ import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.models.FolioModule
 
-class Tenants extends Kong {
+class Tenants extends Kong{
 
-  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
+  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
   }
 
-  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
+  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false){
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Tenants(Kong kong) {
+  Tenants(Kong kong){
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -72,15 +72,15 @@ class Tenants extends Kong {
     return EurekaTenant.getTenantFromContent(content)
   }
 
-  EurekaTenant getTenant(String tenantId) {
+  EurekaTenant getTenant(String tenantId){
     return getTenants(tenantId)[0]
   }
 
-  EurekaTenant getTenantByName(String name) {
+  EurekaTenant getTenantByName(String name){
     return getTenants("", "name==${name}")[0]
   }
 
-  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500) {
+  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500){
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -132,17 +132,15 @@ class Tenants extends Kong {
       , [201, 400]
     )
 
-    logger.debug("enableApplicationsOnTenant after request")
-
     String contentStr = response.body.toString()
 
     if (response.responseCode == 400) {
       if (contentStr.contains("value: Entitle flow finished")) {
         logger.info("""
-        Application is already entitled, no actions needed..
-        Status: ${response.responseCode}
-        Response content:
-        ${contentStr}""")
+          Application is already entitled, no actions needed..
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
 
         return this
       } else {
@@ -169,7 +167,7 @@ class Tenants extends Kong {
   }
 
   @NonCPS
-  static Tenants get(Kong kong) {
+  static Tenants get(Kong kong){
     return new Tenants(kong)
   }
 
