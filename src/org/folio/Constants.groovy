@@ -103,7 +103,7 @@ class Constants {
   static String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
   //Eureka base constants
-  static  String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
+  static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
 
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
@@ -135,6 +135,7 @@ class Constants {
   static String DOCKER_K8S_CLIENT_IMAGE = 'alpine/k8s:1.22.15'
 
   //Jenkins
+  static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'dmytrmoroz', 'aatoyan', 'epam-avramenko', 'yaroslavishchenko', 'sergii-msn']
   static String JENKINS_MASTER_NODE = 'master'
   static String JENKINS_JOB_PROJECT = '/Rancher/Project'
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'

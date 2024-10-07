@@ -29,6 +29,16 @@ properties([
     folioParameters.refreshParameters(),
   ])
 ])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
 String defaultTenantId = 'diku'
 
 //Set namespace configuration
@@ -64,10 +74,6 @@ if (params.CONSORTIA) {
     }
     namespace.addTenant(tenant)
   }
-}
-if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'
-  return
 }
 
 ansiColor('xterm') {
