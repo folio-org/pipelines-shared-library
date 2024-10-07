@@ -28,7 +28,7 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  registry: folioci
   repository: folio-keycloak
   tag: latest
   pullPolicy: Always
@@ -40,6 +40,18 @@ auth:
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
 extraEnvVars:
+  - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+    value: "true"
+  - name: KC_HOSTNAME
+    value: "https://${local.keycloak_url}"
+  - name: KC_HOSTNAME_BACKCHANNEL
+    value: "https://${local.keycloak_url}"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_PROXY
+    value: "edge"
   - name: FIPS
     value: "false"
   - name: EUREKA_RESOLVE_SIDECAR_IP
@@ -56,12 +68,8 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
-  - name: KC_HOSTNAME
-    value: ${local.keycloak_url}
-  - name: KC_HOSTNAME_STRICT
-    value: "false"
-  - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "false"
+  - name: KC_LOG_LEVEL
+    value: "DEBUG"
   - name: KC_HOSTNAME_DEBUG
     value: "true"
   - name: KC_DB_PASSWORD
@@ -89,8 +97,6 @@ extraEnvVars:
       secretKeyRef:
         name: keycloak-credentials
         key: KC_DB_USERNAME
-  - name: KC_PROXY
-    value: edge
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_HTTP_PORT
@@ -100,8 +106,10 @@ extraEnvVars:
 
 resources:
   requests:
+    cpu: 512m
     memory: 2Gi
   limits:
+    cpu: 2048m
     memory: 3Gi
 
 postgresql:
@@ -119,8 +127,6 @@ logging:
   output: default
   level: DEBUG
 
-proxy: edge
-
 enableDefaultInitContainers: false
 
 containerSecurityContext:
@@ -131,7 +137,7 @@ service:
   http:
     enabled: true
   ports:
-    http: 80
+    http: 8080
 
 networkPolicy:
   enabled: false
@@ -157,8 +163,7 @@ ingress:
     alb.ingress.kubernetes.io/group.name: "${local.group_name}"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
-    alb.ingress.kubernetes.io/healthcheck-path: /health/ready
-    alb.ingress.kubernetes.io/healthcheck-port: "8080"
+    alb.ingress.kubernetes.io/healthcheck-path: /
 EOF
   ]
 }

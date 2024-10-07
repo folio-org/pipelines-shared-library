@@ -9,37 +9,7 @@ import hudson.util.Secret
  * It includes information like username, password, user's full name, email, UUID, permissions,
  * permissions ID, authentication token, barcode, and user group.
  */
-class OkapiUser {
-
-  /**
-   * Username of the Okapi user.
-   */
-  String username
-
-  /**
-   * Password of the Okapi user stored securely.
-   */
-  Secret password
-
-  /**
-   * First name of the Okapi user.
-   */
-  String firstName = ""
-
-  /**
-   * Last name of the Okapi user.
-   */
-  String lastName = ""
-
-  /**
-   * Email of the Okapi user.
-   */
-  String email
-
-  /**
-   * UUID of the Okapi user.
-   */
-  String uuid
+class OkapiUser extends User {
 
   /**
    * List of permissions assigned to the Okapi user.
@@ -66,12 +36,6 @@ class OkapiUser {
    */
   String group
 
-
-  /**
-   * User type the Okapi user belongs to.
-   */
-  String type
-
   /**
    * Authentication cookie for the Okapi user.
    */
@@ -84,7 +48,7 @@ class OkapiUser {
    * @param username The username of the Okapi user.
    * @param password The password of the Okapi user.
    */
-  OkapiUser(String username, Object password) {
+  OkapiUser(String username, def password) {
     this.username = username
     this.password = password instanceof Secret ? password : Secret.fromString(password)
     this.email = "$username@example.org"
@@ -240,6 +204,9 @@ class OkapiUser {
    */
   @Override
   String toString() {
-    return "OkapiUser{username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}"
+    return """
+    OkapiUser:
+      {username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
+    """
   }
 }

@@ -9,11 +9,11 @@ import org.yaml.snakeyaml.error.YAMLException
 /**
  * Represents a Rancher namespace and its configuration.*/
 class RancherNamespace {
-  private static final String DEPLOYMENT_CONFIG_BRANCH = "master"
+  protected static final String DEPLOYMENT_CONFIG_BRANCH = "master"
 
-  private static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
+  protected static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
 
-  private static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library/"
+  protected static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library"
 
   String clusterName
 
@@ -37,11 +37,9 @@ class RancherNamespace {
 
   Map domains = [:]
 
-  boolean enableEureka = false
-
   boolean enableRwSplit = false
 
-  boolean enableConsortia = false
+  public boolean enableConsortia = false
 
   boolean enableSplitFiles = false
 
@@ -80,6 +78,10 @@ class RancherNamespace {
     this.modules.addModules([this.modules.getModuleVersion('mod-consortia', releaseVersion),
                              this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
     this.enableConsortia = enableConsortia
+  }
+
+  boolean getEnableConsortia() {
+    return enableConsortia
   }
 
   /**
@@ -128,7 +130,7 @@ class RancherNamespace {
 
   /**
    * Updates the configuration for consortia tenants in the RancherNamespace.*/
-  private void updateConsortiaTenantsConfig() {
+  protected void updateConsortiaTenantsConfig() {
     OkapiTenantConsortia centralConsortiaTenant = findCentralConsortiaTenant()
     if (centralConsortiaTenant) {
       this.tenants.values().findAll { it instanceof OkapiTenantConsortia && !it.isCentralConsortiaTenant }
@@ -162,7 +164,7 @@ class RancherNamespace {
   }
 
   @NonCPS
-  private Map fetchYaml(String yamlUrl) {
+  protected Map fetchYaml(String yamlUrl) {
     try {
       String yamlString = new URL(yamlUrl).text
       Yaml yamlParser = new Yaml()

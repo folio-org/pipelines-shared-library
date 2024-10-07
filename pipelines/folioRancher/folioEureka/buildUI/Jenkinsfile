@@ -1,0 +1,83 @@
+#!groovy
+
+import org.folio.models.*
+import org.folio.rest.GitHubUtility
+import org.jenkinsci.plugins.workflow.libs.Library
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-1334') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+//  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    string(name: 'TENANT_ID', defaultValue: '', description: '(Required) Tenant ID for building UI'),
+    folioParameters.branch(),
+    folioParameters.configType(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        cleanWs()
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
+      }
+      String folioRepository = 'application-descriptors'
+      boolean releaseVersion = true
+      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+      namespace.setDefaultTenantId("${params.TENANT_ID}")
+      namespace.withDeploymentConfigType('testing')
+      namespace.addDeploymentConfig('RANCHER-1334')
+      String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
+      List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
+      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+        "${commitHash}", "${params.FOLIO_BRANCH}")
+      namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+        .withInstallJson(namespace.getModules().getInstallJson().collect())
+        .withIndex(new Index(true, true))
+        .withTenantUi(tenantUi.clone())
+      )
+
+      stage('Build and deploy UI') {
+        def jobParameters = [eureka              : true,
+                             kongUrl             : "https://${namespace.getDomains()['kong']}",
+                             keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
+                             tenantUrl           : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
+                             hasAllPerms         : true,
+                             isSingleTenant      : true,
+                             tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
+                             tenantId            : "${params.TENANT_ID}",
+                             custom_hash         : commitHash,
+                             custom_url          : "https://${namespace.getDomains()['kong']}",
+                             custom_tag          : commitHash.toString().take(7),
+                             consortia           : false,
+                             clientId            : "${params.TENANT_ID}" + "-application",
+                             rancher_cluster_name: params.CLUSTER,
+                             rancher_project_name: params.NAMESPACE,
+                             folio_branch        : params.FOLIO_BRANCH]
+        uiBuild(jobParameters, releaseVersion)
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
+        }
+      }
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}

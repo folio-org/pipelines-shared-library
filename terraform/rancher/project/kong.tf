@@ -1,8 +1,3 @@
-resource "random_integer" "node_port" {
-  max   = 32766
-  min   = 30001
-  count = var.eureka ? 4 : 0
-}
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
@@ -24,7 +19,6 @@ resource "helm_release" "kong" {
   chart = "kong"
   depends_on = [
     rancher2_secret.db-credentials,
-    random_integer.node_port,
     helm_release.postgresql,
     helm_release.pgadmin,
     postgresql_database.kong,
@@ -38,7 +32,7 @@ resource "helm_release" "kong" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  registry: folioci
   repository: folio-kong
   tag: latest
   pullPolicy: Always
@@ -80,10 +74,10 @@ service:
     adminHttp: 8001
     adminHttps: 8444
   nodePorts:
-    proxyHttp: "${tostring(random_integer.node_port[0].result - 1)}"
-    proxyHttps: "${tostring(random_integer.node_port[1].result + 1)}"
-    adminHttp: "${tostring(random_integer.node_port[2].result - 1)}"
-    adminHttps: "${tostring(random_integer.node_port[3].result + 1)}"
+    proxyHttp: ""
+    proxyHttps: ""
+    adminHttp: ""
+    adminHttps: ""
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -97,7 +91,6 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
-    alb.ingress.kubernetes.io/healthcheck-port: "${tostring(random_integer.node_port[0].result + 1)}"
 kong:
   livenessProbe:
     enabled: false
@@ -111,6 +104,14 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
+     value: "600"
+   - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
+     value: "1024"
+   - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
+     value: "20000"
+   - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
+     value: "20000"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
@@ -145,8 +146,10 @@ kong:
      value: "false"
 resources:
   requests:
+    cpu: 512m
     memory: 2Gi
   limits:
+    cpu: 2048m
     memory: 3Gi
 ingressController:
   enabled: false

@@ -1,0 +1,81 @@
+edge-rtac:
+  capabilitiesSet:
+  - rtac.manage
+edge-oai-pmh:
+  tenants:
+  - tenant: testoaipmh
+    firstName: edgeOaiPmh
+    lastName: edgeOaiPmh
+    username: oaiClient
+    password: oai12345
+    create: true
+  capabilitiesSet:
+  - oai-pmh.manage
+  capabilities:
+  - user-tenants_collection.view
+edge-patron:
+  tenants:
+  - tenant: ttttpatron
+    username: testpatron
+    password: password
+  capabilitiesSet:
+  - patron.manage
+  capabilities:
+  - users_collection.view
+  - circulation_requests_item.view
+edge-orders:
+  tenants:
+  - tenant: testedgeorders
+    username: test-user
+    password: test
+  capabilitiesSet:
+  - gobi.manage
+  - ebsconet.manage
+edge-ncip:
+  capabilitiesSet:
+  - ncip.manage
+edge-dematic:
+  tenants:
+  - tenant: default
+    username: stagingDirector
+    firstName: stagingDirector
+    lastName: SYSTEM
+    password: default
+    create: true
+  capabilitiesSet:
+  - remote-storage.manage
+edge-caiasoft:
+  tenants:
+  - tenant: default
+    username: caiaSoftClient
+    firstName: caiaSoftClient
+    lastName: SYSTEM
+    password: default
+    create: true
+  capabilitiesSet:
+  - remote-storage.manage
+edge-inn-reach:
+  tenants:
+  - tenant: default
+    username: innreachClient
+    firstName: innreachClient
+    lastName: SYSTEM
+    password: default
+    create: true
+  capabilitiesSet:
+  - inn-reach.manage
+edge-connexion:
+  capabilitiesSet:
+  - copycat.manage
+edge-sip2: {}
+edge-courses: {}
+edge-fqm:
+  capabilitiesSet:
+  - fqm_query.manage
+edge-dcb:
+  tenants:
+  - tenant: testedgedcb
+    username: dcbClient
+    password: password
+  capabilitiesSet:
+  - dcb.manage

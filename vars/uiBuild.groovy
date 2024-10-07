@@ -10,7 +10,7 @@ import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
 void call(Map params, boolean releaseVersion = false) {
-  OkapiTenant tenant = new OkapiTenant(id: params.tenant_id)
+  OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
   Project project_config = new Project(
     clusterName: params.rancher_cluster_name,
     projectName: params.rancher_project_name,
@@ -28,17 +28,27 @@ void call(Map params, boolean releaseVersion = false) {
 
   //TODO Temporary solution should be revised during refactoring
   stage('Checkout') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       cleanWs()
     }
     checkout([$class           : 'GitSCM',
               branches         : [[name: ui_bundle.hash]],
-              extensions       : [[$class: 'CloneOption', depth: 300, noTags: true, reference: '', shallow: true, timeout: 20],
+              extensions       : [[$class: 'CloneOption', depth: 500, noTags: true, reference: '', shallow: true, timeout: 20],
                                   [$class: 'CleanBeforeCheckout'],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenant_id}"]],
+                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: "platform-complete-${params.tenantId}"]],
               userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+
+    if (params.eureka) {
+      dir("platform-complete-${params.tenantId}") {
+        sh(script: "cp -R -f eureka-tpl/* .")
+        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
+        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
+      }
+    }
+
+
     if (params.consortia) {
-      dir("platform-complete-${params.tenant_id}") {
+      dir("platform-complete-${params.tenantId}") {
         def packageJson = readJSON file: 'package.json'
         String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
         String moduleVersion = moduleId - 'folio_consortia-settings-'
@@ -47,18 +57,10 @@ void call(Map params, boolean releaseVersion = false) {
         sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
       }
     }
-
-    if (params.eureka) {
-      dir("platform-complete-${params.tenant_id}") {
-        sh(script: "cp -R -f eureka-tpl/* .")
-        println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
-        writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
-      }
-    }
   }
 
   stage('Build and Push') {
-    dir("platform-complete-${params.tenant_id}") {
+    dir("platform-complete-${params.tenantId}") {
       docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
         retry(2) {
           def image = docker.build(
@@ -87,7 +89,7 @@ void call(Map params, boolean releaseVersion = false) {
         rootUrl                     : params.tenantUrl,
         baseUrl                     : params.tenantUrl,
         adminUrl                    : params.tenantUrl,
-        redirectUris                : ["${params.tenantUrl}/*"],
+        redirectUris                : ["${params.tenantUrl}/*", "http://localhost:3000/*"], //Requested by AQA Team
         webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled      : true,
@@ -95,8 +97,8 @@ void call(Map params, boolean releaseVersion = false) {
       ]
       Map updatesHeaders = ['Authorization': "Bearer " + token['access_token'], 'Content-Type': 'application/json']
       headers.put("Authorization", "Bearer ${token['access_token']}")
-      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients?clientId=${params.tenant_id}-application", headers).body
-      client.put("${params.keycloakUrl}/admin/realms/${params.tenant_id}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
+      def realm = client.get("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients?clientId=${params.tenantId}-application", headers).body
+      client.put("${params.keycloakUrl}/admin/realms/${params.tenantId}/clients/${realm['id'].get(0)}", JsonOutput.toJson(updates), updatesHeaders)
     }
   }
 }
