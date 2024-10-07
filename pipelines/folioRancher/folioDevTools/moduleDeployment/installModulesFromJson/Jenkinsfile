@@ -41,6 +41,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
 /**
  * Validate inputs
  */
