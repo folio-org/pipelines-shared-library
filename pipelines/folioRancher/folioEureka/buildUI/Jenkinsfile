@@ -43,6 +43,7 @@ ansiColor('xterm') {
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         "${commitHash}", "${params.FOLIO_BRANCH}")
+
       namespace.setDefaultTenantId("${params.TENANT_ID}")
 
       namespace.getModules().setInstallJson(installJson)
@@ -63,7 +64,7 @@ ansiColor('xterm') {
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
                              custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-                             custom_tag          : commitHash.toString().take(7),
+//                             custom_tag          : commitHash.toString().take(7),
                              consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
                              rancher_cluster_name: params.CLUSTER,
