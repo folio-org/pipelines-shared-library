@@ -37,14 +37,20 @@ ansiColor('xterm') {
       String folioRepository = 'platform-complete'
       boolean releaseVersion = true
       RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-      namespace.setDefaultTenantId("${params.TENANT_ID}")
       namespace.withDeploymentConfigType('testing')
       namespace.addDeploymentConfig('RANCHER-1359-test')
       String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         "${commitHash}", "${params.FOLIO_BRANCH}")
+      namespace.setDefaultTenantId("${params.TENANT_ID}")
+
       namespace.getModules().setInstallJson(installJson)
+
+      namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
+        .withInstallJson(namespace.getModules().getInstallJson().collect())
+        .withTenantUi(tenantUi.clone())
+      )
 
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
@@ -64,7 +70,7 @@ ansiColor('xterm') {
                              rancher_project_name: params.NAMESPACE,
                              folio_branch        : params.FOLIO_BRANCH]
         uiBuild(jobParameters, releaseVersion)
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.withKubeConfig(params.CLUSTER) {
           folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
         }
       }
