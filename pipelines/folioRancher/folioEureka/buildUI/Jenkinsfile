@@ -39,9 +39,9 @@ ansiColor('xterm') {
       RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
       namespace.setDefaultTenantId("${params.TENANT_ID}")
       namespace.withDeploymentConfigType('testing')
-      namespace.addDeploymentConfig('RANCHER-1334')
+      namespace.addDeploymentConfig('RANCHER-1359-test')
       String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-      List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
+      List installJson = new GitHubUtility(this).getEnableList(folioRepository, "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         "${commitHash}", "${params.FOLIO_BRANCH}")
       namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
@@ -49,6 +49,7 @@ ansiColor('xterm') {
         .withIndex(new Index(true, true))
         .withTenantUi(tenantUi.clone())
       )
+      namespace.getModules().setInstallJson(installJson)
 
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
