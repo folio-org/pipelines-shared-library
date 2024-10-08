@@ -34,7 +34,7 @@ ansiColor('xterm') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
       }
-      String folioRepository = 'application-descriptors'
+      String folioRepository = 'platform-complete'
       boolean releaseVersion = true
       RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
       namespace.setDefaultTenantId("${params.TENANT_ID}")
