@@ -1,0 +1,263 @@
+package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
+
+import org.folio.Constants
+import org.folio.rest_v2.eureka.kong.Applications
+import org.folio.utilities.Logger
+import org.folio.utilities.GitHubClient
+import org.folio.models.EurekaNamespace
+import org.folio.models.FolioModule
+import org.folio.rest_v2.eureka.Eureka
+
+// TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
+@Library('pipelines-shared-library@RANCHER-1779') _
+
+/** Job properties and parameters */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.moduleName(),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.configType(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+
+/** Job variables */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/** Collect Rancher Namespace Configuration */
+EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+  .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
+
+/** Assign Desired Resource Profile for Environment */
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+/** Assign Default Tenant Id to Namespace instance */
+String defaultTenantId = 'diku'
+namespace.withDefaultTenant(defaultTenantId)
+
+/** Collect Folio module configuration */
+FolioModule module = new FolioModule()
+module.name = params.MODULE_NAME
+
+/** Collect feature branch and hash */
+String featureBranch = params.MODULE_BRANCH
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+
+/** Collect Maven arguments */
+String mavenArguments = params.MAVEN_ARGS.trim()
+
+/** Init Eureka Application Instance */
+Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+
+/** Pipeline */
+ansiColor('xterm') {
+  // Common Gradle Options
+  String commonGradleOpts = '--quiet --console plain --no-daemon'
+
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      }
+
+      stage('[Git] Checkout module source') {
+        checkout([
+          $class           : 'GitSCM',
+          branches         : [[name: "*/${featureBranch}"]],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                              [$class: 'AuthorInChangelog'],
+                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+        ])
+      }
+
+      stage('[Maven/Gradle] Compile') {
+        // Check if Maven or Gradle build tool is used
+        module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
+
+        switch (module.buildTool) {
+          case 'maven':
+            logger.info("Maven build tool is used")
+            module.buildDir = "${env.WORKSPACE}/${module.name}"
+
+            dir(module.buildDir) {
+              // Read module version from pom.xml
+              module.version = readMavenPom(file: 'pom.xml').version
+
+              // Load Module Details for Maven builds
+              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+
+              // Build Module as Maven Project
+              withMaven(
+                jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+                maven: Constants.MAVEN_TOOL_NAME,
+                traceability: false,
+                options: [artifactsPublisher(disabled: true)])
+                {
+                  sh """
+                    mvn versions:set -DnewVersion=${module.getVersion()}
+                    mvn package ${mavenArguments}
+                  """.stripIndent()
+                }
+            }
+            break
+
+          case 'gradle':
+            logger.info("Gradle build tool is used")
+            module.buildDir = "${env.WORKSPACE}/${module.name}/service"
+
+            dir(module.buildDir) {
+              // Read module version from gradle.properties
+              module.version = readProperties(file: "gradle.properties")['appVersion']
+
+              // Load Module Details for Gradle builds
+              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+
+              // Build Module as Gradle Project
+              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.version} assemble"
+            }
+            break
+
+          default:
+            error("Unsupported build tool: ${module.buildTool}")
+        }
+      }
+
+      stage('[Docker] Build and push') {
+        // Put Docker Image to Amazon ECR
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+          // Check if ECR Repository exists, if not create it
+          common.checkEcrRepoExistence(module.name)
+
+          dir(module.buildDir) {
+            switch (module.buildTool) {
+              case 'maven':
+                module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
+
+                // Build and Push Docker Image
+                docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
+                break
+
+              case 'gradle':
+                module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
+
+                // Build Docker Image
+                String shellCmd = """
+                  echo '[INFO] Build Docker Image'
+                  ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+
+                  echo '[INFO] Rename Local Docker Image'
+                  docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+
+                  echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
+                  [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
+                """.stripIndent()
+
+                sh (label: 'Build Docker Image', script: shellCmd)
+
+                // Push Docker Image to Amazon ECR
+                docker.image("${module.name}:${module.version}").push()
+                break
+
+              default:
+                error("Unsupported build tool: ${module.buildTool}")
+            }
+          }
+        }
+
+        // Upload Module Descriptor to Eureka Module Registry
+        sh(script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+
+        // Save Module Descriptor to Module instance for further usage
+        module.descriptor = [readJSON(file: module.modDescriptorPath)]
+      }
+
+      stage('Generate context') {
+        namespace.tenants = eureka.getExistedTenants()
+        logger.info("Configured Tenants: ${namespace.tenants}")
+
+        namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
+        logger.info("Configured Applications: ${namespace.applications}")
+      }
+
+      /** Updated Applications Info Map<AppName, AppID> */
+      Map<String, String> updatedAppInfoMap = [:]
+
+      // 1. Register Application Descriptor with Updated Module Version
+      stage('[Rest] Update App Descriptor') {
+        try {
+          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
+        } catch (e) {
+          logger.warning("Failed to register new application descriptor: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 2. Enable New Module Version (Discovery) for Application
+      stage('[Rest] Module Discovery') {
+        try {
+          eureka.runModuleDiscoveryFlow(module)
+        } catch (e) {
+          logger.warning("Failed to perform new module discovery: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 3. Deploy New Module Version to Rancher Namespace via Helm
+      stage('[Helm] Deploy Module Ver') {
+        try {
+          folioHelm.withKubeConfig(namespace.clusterName) {
+            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+            echo "Waiting another 3 minutes to get module initialized..."
+            sleep time: 3, unit: 'MINUTES'
+          }
+        } catch (e) {
+          logger.warning("Failed to deploy new module version via Helm: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+      stage('[Rest] Enable New App') {
+        try {
+          eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+        } catch (e) {
+          logger.warning("Failed to enable (entitle) new application version: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      stage('[Rest] Remove Stale Resources') {
+        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
