@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
+import org.folio.models.FolioModule
 
 class Tenants extends Kong{
 
@@ -168,5 +169,104 @@ class Tenants extends Kong{
   @NonCPS
   static Tenants get(Kong kong){
     return new Tenants(kong)
+  }
+
+  /**
+   * Get Eureka Applications Enabled (entitled) for Tenant.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param query CQL query.
+   * @param includeModules boolean flag to include modules.
+   * @param limit number of records to return in response.
+   * @return Map of Entitled Applications.
+   */
+  Map<String, Map> getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = false, int limit = 500) {
+    String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
+
+    logger.info("Get enabled (entitled) applications for ${tenant.tenantId} tenant with parameters: ${pathParams}...")
+
+    Map<String, String> headers = getMasterHttpHeaders(true)
+
+    def response = restClient.get(generateUrl("/entitlements?${pathParams}"), headers)
+
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
+
+    if (response.responseCode == 200) {
+      logger.info("""
+        Enabled applications on tenant ${tenant.tenantId}:
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+
+      return content['entitlements'].collectEntries { entitlement -> [entitlement.applicationId, entitlement] }
+    } else {
+      logger.error("""
+        Get enabled applications on tenant ${tenant.tenantId} failed
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+
+      throw new Exception("Build failed: " + contentStr)
+    }
+  }
+
+  /**
+   * Check if specific application is enabled
+   * @param tenant EurekaTenant instance
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return boolean true if application is enabled (entitled)
+   */
+  boolean isApplicationEnabled(EurekaTenant tenant, String appId) {
+    return getEnabledApplications(tenant, "applicationId=${appId}").size() > 0
+  }
+
+  /**
+   * Get specific enabled application
+   * @param tenant EurekaTenant instance
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return Map with enabled (entitled) application
+   */
+  Map getEnabledApplicationById(EurekaTenant tenant, String appId, Boolean includeModules = false){
+    return getEnabledApplications(tenant,"applicationId=${appId}", includeModules)[0]
+  }
+
+  /**
+   * Get specific enabled application
+   * @param tenant EurekaTenant instance
+   * @param tenantUuid Tenant UUID (e.g. 75fdaeb7-0027-41fc-a0c5-b8d170c08722)
+   * @return Map with enabled (entitled) application
+   */
+  Map getEnabledApplicationByTenantUuid(EurekaTenant tenant, String tenantUuid, Boolean includeModules = false){
+    return getEnabledApplications(tenant,"tenantId=${tenantUuid}", includeModules)[0]
+  }
+
+  /**
+   * Get Eureka Applications Enabled for Tenant with Specific Module.
+   * @param tenant EurekaTenant instance
+   * @param module FolioModule instance
+   * @return Map of Entitled Applications with Specific Module.
+   */
+  Map getEnabledApplicationsWithModule(EurekaTenant tenant, FolioModule module) {
+    logger.info("Get enabled applications for ${tenant.tenantId} tenant with ${module.id} module...")
+
+    Map enabledApps = this.getEnabledApplications(tenant, '', true)
+
+    Map enabledAppsWithModule = enabledApps.findAll {application ->
+      application.value.modules.any { it.startsWith(module.name) }
+    }
+
+    if (enabledAppsWithModule != null) {
+      logger.info("""
+        Enabled applications on tenant ${tenant.tenantId} contains module ${module.name}:
+        Response content:
+        ${enabledAppsWithModule}""")
+
+      return enabledAppsWithModule.collectEntries { enabledApp ->
+        [enabledApp.key, [tenantName: tenant.tenantName, tenantId: enabledApp.value.tenantId]]
+      }
+    } else {
+      logger.warning("Enabled applications on tenant ${tenant.tenantId} don't contain module ${module.name}")
+    }
   }
 }
