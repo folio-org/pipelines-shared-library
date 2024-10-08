@@ -45,8 +45,6 @@ ansiColor('xterm') {
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         "${commitHash}", "${params.FOLIO_BRANCH}")
       namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .withInstallJson(namespace.getModules().getInstallJson().collect())
-        .withIndex(new Index(true, true))
         .withTenantUi(tenantUi.clone())
       )
       namespace.getModules().setInstallJson(installJson)
