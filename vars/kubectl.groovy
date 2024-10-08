@@ -61,6 +61,26 @@ def checkDeploymentStatus(String name, String namespace, String timeout_seconds)
   }
 }
 
+boolean isDeploymentExist(String name, String namespace) {
+  String output = sh(script: "kubectl get deployment ${name} --namespace ${namespace} -o json --ignore-not-found", returnStdout: true).trim()
+
+  if (!output) {
+    return false
+  }
+
+  Map deployment = readJSON(text: output)
+
+  return !deployment.isEmpty()
+}
+
+String getDeploymentImageTag(String name, String namespace) {
+  String version = sh(
+    script: "kubectl get deployment ${name} --namespace ${namespace} -o jsonpath=\"{.spec.template.spec.containers[0].image}\" | awk -F/ '{print \$2}'",
+    returnStdout: true).trim()
+
+  return version
+}
+
 String getSecretValue(String namespace, String secret_name, String key_name) {
   try {
     return sh(script: "set +x && kubectl get secret --namespace=${namespace} ${secret_name} -o jsonpath='{.data.${key_name}}' | base64 -d",

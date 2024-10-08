@@ -1,6 +1,6 @@
 module "load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.44.0"
 
   role_name                              = join("-", [terraform.workspace, "load-balancer-controller-role"])
   attach_load_balancer_controller_policy = true

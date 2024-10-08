@@ -1,7 +1,7 @@
 #!groovy
 
 import org.folio.Constants
-import org.folio.models.FolioModule
+import org.folio.models.module.FolioModule
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
@@ -33,6 +33,10 @@ properties([
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
+}
+
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
 }
 
 Logger logger = new Logger(this, env.JOB_BASE_NAME)

@@ -32,6 +32,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
 /**
  * Set terraform configuration
  */

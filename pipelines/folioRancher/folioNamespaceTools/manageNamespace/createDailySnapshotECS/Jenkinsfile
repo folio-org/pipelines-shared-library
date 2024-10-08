@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
 
+import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -158,6 +159,8 @@ ansiColor('xterm') {
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
+          def ldp_disable = """[{"id": "mod-ldp-1.1.3","action": "disable"},{"id": "folio_ldp-2.1.0","action": "disable"}]"""
+          main.tenantInstall(id, new JsonSlurperClassic().parseText(ldp_disable) as List)
           switch (id.getTenantId()) {
             case ['cs00000int']:
               id.getModules().setInstallJson(newInstallJson)

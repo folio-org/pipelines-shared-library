@@ -83,7 +83,10 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
       String moduleName = backendModule.key
       String moduleVersion = backendModule.value
       branches[moduleName] = {
+//        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
+//        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
         deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
+//        }
       }
     }
     parallel branches
@@ -91,7 +94,7 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
 }
 
 void checkPodRunning(String ns, String podName) {
-  timeout(time: 5, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
     while (podNotRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -117,7 +120,7 @@ void checkPodRunning(String ns, String podName) {
 }
 
 void checkAllPodsRunning(String ns) {
-  timeout(time: 10, unit: 'MINUTES') {
+  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -304,6 +307,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
+    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-type': 'ip']
+    moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-group-attributes': 'deregistration_delay.timeout_seconds=30']
   }
 
   //Enable edge NLB

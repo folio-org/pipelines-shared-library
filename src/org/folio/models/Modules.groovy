@@ -10,7 +10,11 @@ import java.util.regex.Matcher
  * The Modules class is responsible for managing information about modules
  * and allows operations such as setting installation JSON, removing modules,
  * and generating installation JSON from module IDs.
+ * @deprecated reason this method is deprecated <br/>
+ *              {will be removed in next version} <br/>
+ *              use {@link #FolioInstallJson()} instead.
  */
+@Deprecated
 class Modules {
 
   /** Prefix used to distinguish edge modules. */

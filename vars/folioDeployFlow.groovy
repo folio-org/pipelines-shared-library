@@ -18,7 +18,7 @@ void okapi(RancherNamespace namespace, Closure preStages = { -> }, Closure postS
       folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
 //      folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
     }
-    pauseBetweenStages()
+    pauseBetweenStages(3)
   }
 
   stage('[Rest] Okapi healthcheck') {
@@ -42,7 +42,7 @@ void backend(RancherNamespace namespace, Closure preStages = { -> }, Closure pos
       folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //      folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
     }
-    pauseBetweenStages()
+    pauseBetweenStages(10)
   }
 
   postStages()
