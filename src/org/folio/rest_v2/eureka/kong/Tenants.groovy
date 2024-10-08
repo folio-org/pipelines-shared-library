@@ -166,11 +166,6 @@ class Tenants extends Kong{
     return this
   }
 
-  @NonCPS
-  static Tenants get(Kong kong){
-    return new Tenants(kong)
-  }
-
   /**
    * Get Eureka Applications Enabled (entitled) for Tenant.
    *
@@ -268,5 +263,10 @@ class Tenants extends Kong{
     } else {
       logger.warning("Enabled applications on tenant ${tenant.tenantId} don't contain module ${module.name}")
     }
+  }
+
+  @NonCPS
+  static Tenants get(Kong kong){
+    return new Tenants(kong)
   }
 }
