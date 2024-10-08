@@ -58,7 +58,8 @@ def setTemplateModuleLatestVersion(def template, Map<String, String> moduleList)
   $template.uiModules
   """)
 
-  template.uiModules = setModuleLatestVersion(template.uiModules, moduleList)
+  //TODO: Temporary commented due to app-generator version check error.
+//  template.uiModules = setModuleLatestVersion(template.uiModules, moduleList)
 
   logger.info("""
   Updated UI module list with latest version:
