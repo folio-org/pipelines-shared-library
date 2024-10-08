@@ -44,9 +44,6 @@ ansiColor('xterm') {
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         "${commitHash}", "${params.FOLIO_BRANCH}")
-      namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .withTenantUi(tenantUi.clone())
-      )
       namespace.getModules().setInstallJson(installJson)
 
       stage('Build and deploy UI') {
