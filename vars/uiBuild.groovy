@@ -22,7 +22,7 @@ void call(Map params, boolean releaseVersion = false) {
     name: "ui-bundle",
     hash: params.custom_hash?.trim() ? params.custom_hash : common.getLastCommitHash(params.folio_repository, params.folio_branch)
   )
-  String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + project_config.getDomains().okapi
+  String okapi_url = params.custom_url?.trim() ? params.custom_url : "https://" + "${params.custom_url}"
   ui_bundle.tag = params.custom_tag?.trim() ? params.custom_tag : "${project_config.getClusterName()}-${project_config.getProjectName()}.${tenant.getId()}.${ui_bundle.getHash().take(7)}"
   ui_bundle.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${ui_bundle.getName()}:${ui_bundle.getTag()}"
 
@@ -50,7 +50,7 @@ void call(Map params, boolean releaseVersion = false) {
     if (params.consortia) {
       dir("platform-complete-${params.tenantId}") {
         def packageJson = readJSON file: 'package.json'
-        String moduleId = getModuleVersion('folio_consortia-settings', releaseVersion)
+        String moduleId = getModuleVersion('folio_consortia-settings', false)
         String moduleVersion = moduleId - 'folio_consortia-settings-'
         packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
         writeJSON file: 'package.json', json: packageJson, pretty: 2
