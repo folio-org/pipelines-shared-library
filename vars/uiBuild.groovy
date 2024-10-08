@@ -44,21 +44,52 @@ void call(Map params, boolean releaseVersion = false) {
       }
     }
   }
-  stage('Build and Push') {
-    dir("platform-complete-${params.tenant_id}") {
-      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        retry(2) {
-          def image = docker.build(
-            ui_bundle.getImageName(),
-            "--build-arg OKAPI_URL=${okapi_url} " +
-              "--build-arg TENANT_ID=${tenant.getId()} " +
-              "-f docker/Dockerfile  " +
-              "."
-          )
-          image.push()
+  stage('Prepare ECR Creds') {
+    container('jnlp') {
+      withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                        credentialsId    : 'aws-ecr-rw-credentials',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+
+        // Get the ECR login password
+        def ecrPassword = sh(script: """
+      aws ecr get-login-password --region us-west-2
+    """, returnStdout: true).trim()
+
+        // Create the base64-encoded "AWS:<password>" string
+        def loginCommand = sh(script: """
+      echo -n 'AWS:${ecrPassword}' | base64 -w 0
+    """, returnStdout: true).trim()
+
+        def ecrRegistry = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+
+        // Create the Docker config.json with AWS ECR credentials
+        println "loginCommand = " + loginCommand
+        def dockerConfigJson = """
+    {
+      "auths": {
+        "${ecrRegistry}": {
+          "auth": "${loginCommand}"
         }
       }
     }
+    """
+
+        // Write the config.json file
+        writeFile file: '/kaniko/.docker/config.json', text: dockerConfigJson
+      }
+    }
+  }
+
+  stage('Build and Push') {
+
+    String imagename = ui_bundle.getImageName()
+    container('kaniko') {
+      sh '''#!/busybox/sh
+       /kaniko/executor --context "platform-complete-${params.tenant_id}" --destination "732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename}" --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}"
+          '''
+    }
+
   }
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
