@@ -31,7 +31,7 @@ edge-caiasoft:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -60,7 +60,7 @@ edge-connexion:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -107,7 +107,7 @@ edge-courses:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -146,7 +146,7 @@ edge-dcb:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -224,7 +224,7 @@ edge-fqm:
     requests:
       memory: 256Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -261,7 +261,7 @@ edge-inn-reach:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -396,7 +396,7 @@ edge-ncip:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -435,7 +435,7 @@ edge-oai-pmh:
     requests:
       memory: 1440Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -474,7 +474,7 @@ edge-orders:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -513,7 +513,7 @@ edge-patron:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -552,7 +552,7 @@ edge-rtac:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -578,7 +578,7 @@ edge-sip2:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -607,7 +607,7 @@ mod-aes:
     maxUnavailable: 1
 mod-agreements:
   jmx:
-    enabled: true
+    enabled: false
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
@@ -626,7 +626,7 @@ mod-agreements:
       cpu: 256m
       memory: 1488Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 55
@@ -660,7 +660,7 @@ mod-audit:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -697,7 +697,7 @@ mod-authtoken:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -726,7 +726,7 @@ mod-batch-print:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -765,7 +765,7 @@ mod-bulk-operations:
     requests:
       memory: 2600Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 50
@@ -796,7 +796,7 @@ mod-calendar:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -863,7 +863,7 @@ mod-circulation:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -894,7 +894,7 @@ mod-circulation-bff:
     requests:
       memory: 384Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -930,7 +930,7 @@ mod-circulation-storage:
     requests:
       memory: 1440Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 55
@@ -1024,7 +1024,7 @@ mod-configuration:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1064,7 +1064,7 @@ mod-consortia:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1095,7 +1095,7 @@ mod-copycat:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1126,7 +1126,7 @@ mod-courses:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1230,7 +1230,7 @@ mod-data-export-worker:
     requests:
       memory: 2600Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1298,7 +1298,7 @@ mod-di-converter-storage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1326,7 +1326,7 @@ mod-ebsconet:
     requests:
       memory: 1024Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 60
@@ -1357,7 +1357,7 @@ mod-email:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1408,7 +1408,7 @@ mod-entities-links:
     requests:
       memory: 2480Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 50
@@ -1439,7 +1439,7 @@ mod-erm-usage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1476,7 +1476,7 @@ mod-erm-usage-harvester:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1507,7 +1507,7 @@ mod-eusage-reports:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1538,7 +1538,7 @@ mod-event-config:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1569,7 +1569,7 @@ mod-feesfines:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1597,7 +1597,7 @@ mod-finance:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1628,7 +1628,7 @@ mod-finance-storage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1663,7 +1663,7 @@ mod-fqm-manager:
     requests:
       memory: 2600Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1691,7 +1691,7 @@ mod-gobi:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1719,7 +1719,7 @@ mod-graphql:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1761,7 +1761,7 @@ mod-inn-reach:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1795,7 +1795,7 @@ mod-inventory:
     requests:
       memory: 3688Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1833,7 +1833,7 @@ mod-inventory-storage:
     requests:
       memory: 1952Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -1861,7 +1861,7 @@ mod-inventory-update:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1899,7 +1899,7 @@ mod-invoice:
     requests:
       memory: 1152Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1930,7 +1930,7 @@ mod-invoice-storage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -1961,7 +1961,7 @@ mod-kb-ebsco-java:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -1992,7 +1992,7 @@ mod-ldp:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2051,7 +2051,7 @@ mod-licenses:
     requests:
       memory: 2312Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2097,7 +2097,7 @@ mod-lists:
     requests:
       memory: 2600Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2128,7 +2128,7 @@ mod-login:
     requests:
       memory: 1298Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 50
@@ -2156,7 +2156,7 @@ mod-login-saml:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2193,7 +2193,7 @@ mod-marc-migrations:
     requests:
       memory: 512Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2245,7 +2245,7 @@ mod-ncip:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2276,7 +2276,7 @@ mod-notes:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2307,7 +2307,7 @@ mod-notify:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2340,7 +2340,7 @@ mod-oa:
       memory: 896Mi
       cpu: 256m
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2376,7 +2376,7 @@ mod-oai-pmh:
     requests:
       memory: 2765Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2410,7 +2410,7 @@ mod-orders:
     requests:
       memory: 1440Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2446,7 +2446,7 @@ mod-orders-storage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2485,7 +2485,7 @@ mod-dcb:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2518,7 +2518,7 @@ mod-circulation-item:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2546,7 +2546,7 @@ mod-organizations:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2577,7 +2577,7 @@ mod-organizations-storage:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -2608,7 +2608,7 @@ mod-password-validator:
     requests:
       memory: 1298Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 55
@@ -2636,7 +2636,7 @@ mod-patron:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2667,7 +2667,7 @@ mod-patron-blocks:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -2698,7 +2698,7 @@ mod-permissions:
     requests:
       memory: 1544Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 60
@@ -2738,7 +2738,7 @@ mod-pubsub:
     requests:
       memory: 1440Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 55
@@ -2802,7 +2802,7 @@ mod-reading-room:
     requests:
       memory: 384Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2835,7 +2835,7 @@ mod-record-specifications:
     requests:
       memory: 512Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2872,7 +2872,7 @@ mod-remote-storage:
     requests:
       memory: 1692Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 60
@@ -2903,7 +2903,7 @@ mod-requests-mediated:
     requests:
       memory: 384Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -2931,7 +2931,7 @@ mod-rtac:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3014,7 +3014,7 @@ mod-search:
     requests:
       memory: 2480Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 50
@@ -3042,7 +3042,7 @@ mod-sender:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3077,7 +3077,7 @@ mod-serials-management:
       memory: 2312Mi
       cpu: 256m
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
@@ -3113,7 +3113,7 @@ mod-service-interaction:
     requests:
       memory: 1844Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 60
@@ -3144,7 +3144,7 @@ mod-settings:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3178,7 +3178,7 @@ mod-source-record-manager:
     requests:
       memory: 3688Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3212,7 +3212,7 @@ mod-source-record-storage:
     requests:
       memory: 3688Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3243,7 +3243,7 @@ mod-tags:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3274,7 +3274,7 @@ mod-template-engine:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3311,7 +3311,7 @@ mod-tlr:
     requests:
       memory: 384Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 65
@@ -3339,7 +3339,7 @@ mod-user-import:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3373,7 +3373,7 @@ mod-users:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3401,7 +3401,7 @@ mod-users-bl:
     requests:
       memory: 896Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 75
@@ -3746,7 +3746,7 @@ okapi:
       enabled: true
       existingSecret: db-credentials
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 3
     targetMemoryUtilizationPercentage: 75
