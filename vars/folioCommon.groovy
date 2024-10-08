@@ -21,11 +21,11 @@ void defaultJobWrapper(Closure stages, boolean checkoutGit = true) {
 }
 
 void kitfoxApproval() {
-  // Retrieve the cause related to a specific user
-  Map userCause = getUserCause()
+  // Retrieve the cause related to a specific user, upstream build, or timer trigger
+  Map cause = getRelevantCause()
 
-  // Check if the user ID is in the allowed list
-  if (isApprovedUser(userCause?.userId)) {
+  // Skip approval if the user is approved, the cause is from an upstream build, or the build was triggered by a timer
+  if (isApprovedUser(cause?.userId) || isUpstreamBuild(cause) || isTimerTriggered(cause)) {
     return
   }
 
@@ -33,14 +33,28 @@ void kitfoxApproval() {
   requestApproval()
 }
 
-// Method to retrieve the user cause
-private Map getUserCause() {
-  return currentBuild.getBuildCauses().find { it._class == 'hudson.model.Cause$UserIdCause' }
+// Method to retrieve the relevant cause for user, upstream build, or timer trigger
+private Map getRelevantCause() {
+  return currentBuild.getBuildCauses().find {
+    it._class == 'hudson.model.Cause$UserIdCause' ||
+      it._class == 'org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause' ||
+      it._class == 'hudson.triggers.TimerTrigger$TimerTriggerCause'
+  }
 }
 
 // Method to check if the user ID is in the approved list
 private boolean isApprovedUser(String userId) {
   return Constants.JENKINS_KITFOX_USER_IDS.contains(userId)
+}
+
+// Method to check if the cause is from an upstream build
+private boolean isUpstreamBuild(Map cause) {
+  return cause?._class == 'org.jenkinsci.plugins.workflow.support.steps.build.BuildUpstreamCause'
+}
+
+// Method to check if the build was triggered by a timer
+private boolean isTimerTriggered(Map cause) {
+  return cause?._class == 'hudson.triggers.TimerTrigger$TimerTriggerCause'
 }
 
 // Method to trigger an approval input prompt
