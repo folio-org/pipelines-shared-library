@@ -1,11 +1,11 @@
 #!groovy
-
+import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1359-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -14,6 +14,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     string(name: 'TENANT_ID', defaultValue: '', description: '(Required) Tenant ID for building UI'),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
     folioParameters.branch(),
     folioParameters.configType(),
     folioParameters.agent(),
@@ -51,17 +52,17 @@ ansiColor('xterm') {
 
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
-                             kongUrl             : "https://${namespace.getDomains()['kong']}",
-                             keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
-                             tenantUrl           : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
-                             hasAllPerms         : true,
+                             kongUrl             : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
+                             keycloakUrl         : "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
+                             tenantUrl           : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}",
+                             hasAllPerms         : false,
                              isSingleTenant      : true,
                              tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
-                             custom_url          : "https://${namespace.getDomains()['kong']}",
+                             custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
                              custom_tag          : commitHash.toString().take(7),
-                             consortia           : false,
+                             consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
                              rancher_cluster_name: params.CLUSTER,
                              rancher_project_name: params.NAMESPACE,
