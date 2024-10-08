@@ -26,7 +26,7 @@ class Applications extends Kong{
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    def response = restClient.post(generateUrl("/applications?check=false"), jsonAppDefinition, headers, [201, 409])
+    def response = restClient.post(generateUrl("/applications"), jsonAppDefinition, headers, [201, 409])
     String contentStr = response.body.toString()
     Map content = response.body as Map
 
