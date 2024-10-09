@@ -43,8 +43,6 @@ void upgrade(String release_name, String namespace, String values_path, String c
 }
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
-  println("I'm in folioHelm.deployFolioModule. ns: ${ns}, moduleName: ${moduleName}, customModule: ${customModule}, tenantId: ${tenantId}")
-
   String valuesFilePath = ""
   String releaseName = moduleName
   String chartName = moduleName
@@ -148,19 +146,9 @@ static String valuesPathOption(String path) {
 }
 
 String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
-  println("I'm in folioHelm.generateModuleValues. ns: ${ns}, moduleName: ${moduleName}, moduleVersion: ${moduleVersion}, domain: ${domain}, customModule: ${customModule}, filePostfix: ${filePostfix}")
-
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
-
-  println("I'm in folioHelm.generateModuleValues. valuesFilePath: ${valuesFilePath}")
-
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
-
-  println("I'm in folioHelm.generateModuleValues. moduleConfig: ${moduleConfig}")
-
   String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
-
-  println("I'm in folioHelm.generateModuleValues. repository: ${repository}")
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
