@@ -52,7 +52,7 @@ def agent() {
   return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def cypress_agent() {
+def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
@@ -162,4 +162,8 @@ def adminUsername(String admin_username = defaultAdminUser().username) {
 
 def adminPassword(String admin_password = defaultAdminUser().password, String description = 'Password for admin user') {
   return _paramPassword('ADMIN_PASSWORD', admin_password, description)
+}
+
+def runSanityCheck(boolean value = true) {
+  return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
 }

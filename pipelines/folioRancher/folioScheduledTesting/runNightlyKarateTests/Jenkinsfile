@@ -46,6 +46,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('built-in')
   .opensearchType('built-in')
   .s3Type('built-in')
+  .runSanityCheck(false)
   .members('')
   .worker('rancher')
   .build()
