@@ -246,8 +246,14 @@ class Eureka extends Base {
         }
       }
 
-      // Assign enabled applications to Tenant object
-      tenant.applications = enabledAppsMap.clone() as Map
+      if (enabledAppsMap.isEmpty()) {
+        // Remove tenant without requested module from the configured tenants map
+        configuredTenantsMap.remove(tenantName)
+      }
+      else {
+        // Assign enabled applications to Tenant object
+        tenant.applications = enabledAppsMap.clone() as Map
+      }
     }
 
     return configuredTenantsMap
