@@ -9,7 +9,7 @@ import org.folio.models.FolioModule
 import org.folio.rest_v2.eureka.Eureka
 
 // TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
-@Library('pipelines-shared-library@RANCHER-1779') _
+@Library('pipelines-shared-library@RANCHER-1795-test') _
 
 /** Job properties and parameters */
 properties([
