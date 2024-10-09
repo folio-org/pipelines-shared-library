@@ -82,15 +82,15 @@ void call(Map params, boolean releaseVersion = false) {
   }
 
   stage('Build and Push') {
-
-    String imagename = ui_bundle.getImageName()
-    container('kaniko') {
-      sh """
-      #!/busybox/sh
-      /kaniko/executor --context platform-complete-${params.tenant_id} --destination 732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
-         """
+    dir("platform-complete-${params.tenant_id}") {
+      String imagename = ui_bundle.getImageName()
+      container('kaniko') {
+        sh """
+        #!/busybox/sh
+        /kaniko/executor --context docker/ --destination 732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
+           """
+      }
     }
-
   }
   stage('Cleanup') {
     common.removeImage(ui_bundle.getImageName())
