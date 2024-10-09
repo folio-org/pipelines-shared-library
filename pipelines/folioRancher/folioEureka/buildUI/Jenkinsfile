@@ -74,7 +74,7 @@ ansiColor('xterm') {
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
                              custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-                             custom_tag          : commitHash.toString().take(7),
+                             custom_tag          : tenant.getTenantUi().getTag(),
                              consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
                              rancher_cluster_name: params.CLUSTER,
