@@ -104,6 +104,8 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
+     value: "600"
    - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
      value: "600"
    - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
@@ -141,7 +143,7 @@ kong:
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
-     value: "2"
+     value: "auto"
    - name: EUREKA_RESOLVE_SIDECAR_IP
      value: "false"
 resources:
