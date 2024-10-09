@@ -191,12 +191,6 @@ ansiColor('xterm') {
       stage('Generate context') {
         namespace.tenants = eureka.getExistedTenants(module.name)
 
-        switch (module.name) {
-          case 'mod-consortia-keycloak':
-            // Remove default (not ECS) tenant from the list in case of consortia module
-            namespace.tenants.remove(namespace.defaultTenantId)
-        }
-
         logger.info("Configured Tenants: ${namespace.tenants}")
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
