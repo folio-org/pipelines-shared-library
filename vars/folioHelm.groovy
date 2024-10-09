@@ -43,6 +43,8 @@ void upgrade(String release_name, String namespace, String values_path, String c
 }
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+  println("I'm in folioHelm.deployFolioModule. ns: ${ns}, moduleName: ${moduleName}, customModule: ${customModule}, tenantId: ${tenantId}")
+
   String valuesFilePath = ""
   String releaseName = moduleName
   String chartName = moduleName
