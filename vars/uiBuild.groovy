@@ -75,6 +75,7 @@ void call(Map params, boolean releaseVersion = false) {
 
         // Write the config.json file
         writeFile file: '/kaniko/.docker/config.json', text: dockerConfigJson
+
       }
     }
   }
@@ -82,6 +83,8 @@ void call(Map params, boolean releaseVersion = false) {
   stage('Build and Push') {
     dir("platform-complete-${params.tenant_id}") {
         container('kaniko') {
+        writeFile file: '/kaniko/.docker/config.json', text: dockerConfigJson
+        sh 'pwd && ls -al'
         sh """
         #!/busybox/sh
         /kaniko/executor --context docker/ --destination ${ui_bundle.getImageName()} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
