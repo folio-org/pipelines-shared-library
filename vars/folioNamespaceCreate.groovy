@@ -139,7 +139,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+      sleep time: 1, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
       main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 
