@@ -85,9 +85,10 @@ void call(Map params, boolean releaseVersion = false) {
 
     String imagename = ui_bundle.getImageName()
     container('kaniko') {
-      sh '''#!/busybox/sh
-       /kaniko/executor --context "platform-complete-${params.tenant_id}" --destination "732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename}" --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
-          '''
+      sh '''
+      #!/busybox/sh
+      /kaniko/executor --context platform-complete-${params.tenant_id} --destination 732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
+         '''
     }
 
   }
