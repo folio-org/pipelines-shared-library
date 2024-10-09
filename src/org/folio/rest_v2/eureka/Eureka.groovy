@@ -239,8 +239,14 @@ class Eureka extends Base {
 
       // Get enabled applications from the Environment
       Tenants.get(kong).getEnabledApplications(tenant, "", true).each { appId, entitlement ->
+        // Check if the module is enabled for the tenant
         if (entitlement.modules.find { moduleId -> moduleId.startsWith(moduleName) }) {
+          // Save enabled application with the module to Map for processing
           enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
+        }
+        else {
+          // Exclude tenant that doesn't have the module enabled
+          configuredTenantsMap.remove(tenantName)
         }
       }
 
