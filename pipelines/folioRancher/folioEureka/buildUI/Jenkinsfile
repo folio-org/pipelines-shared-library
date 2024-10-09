@@ -48,6 +48,7 @@ ansiColor('xterm') {
       RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
               .withDefaultTenant("${params.TENANT_ID}")
               .withDeploymentConfigType(params.CONFIG_TYPE)
+              .addDeploymentConfig(folioTools.getPipelineBranch())
 
       namespace.getModules().setInstallJson(installJson)
 
