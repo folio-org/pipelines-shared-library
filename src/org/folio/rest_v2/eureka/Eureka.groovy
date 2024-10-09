@@ -222,9 +222,10 @@ class Eureka extends Base {
 
   /**
    * Get Configured Tenants on Environment Namespace.
+   * @param moduleName Module Name to filter enabled applications.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenants() {
+  Map<String, EurekaTenant> getExistedTenants(String moduleName) {
     /** Configured Tenants in Environment (namespace) */
     Map<String, EurekaTenant> configuredTenantsMap
 
@@ -237,8 +238,10 @@ class Eureka extends Base {
       Map<String, String> enabledAppsMap = [:]
 
       // Get enabled applications from the Environment
-      Tenants.get(kong).getEnabledApplications(tenant).each { appId, app ->
-        enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
+      Tenants.get(kong).getEnabledApplications(tenant, "", true).each { appId, entitlement ->
+        if (entitlement.modules.find { moduleId -> moduleId.startsWith(moduleName) }) {
+          enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
+        }
       }
 
       // Assign enabled applications to Tenant object
@@ -256,7 +259,7 @@ class Eureka extends Base {
     /** Enabled Applications in Environment */
     Map <String, String> enabledAppsMap = [:]
 
-    // Get enabled applications from EurekaTenant List of objects
+    // Get enabled applications from EurekaTenant List
     tenants.values().each {tenant ->
       tenant.applications.each {appName, appId ->
         enabledAppsMap.put(appName, appId)

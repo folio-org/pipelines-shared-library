@@ -187,7 +187,7 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        namespace.tenants = eureka.getExistedTenants()
+        namespace.tenants = eureka.getExistedTenants(module.name)
 
         switch (module.name) {
           case 'mod-consortia-keycloak':
