@@ -183,6 +183,29 @@ void call(CreateNamespaceParameters args) {
         folioHelmFlow.deployLdp(namespace)
       }
     }
+
+    stage('[Cypress] Sanity check') {
+      Map cypressFlowParameters = [
+        customBuildName         : env.JOB_BASE_NAME,
+        branch                  : 'master',
+        tenantUrl               : "https://${namespace.generateDomain('diku')}",
+        okapiUrl                : "https://${namespace.getDomains().okapi}",
+        tenantId                : 'diku',
+        adminUsername           : 'diku_admin',
+        adminPassword           : 'admin',
+        parallelExecParameters  : '',
+        sequentialExecParameters: '',
+        testsTimeout            : '1',
+        testrailProjectID       : '',
+        testrailRunID           : '',
+        numberOfWorkers         : '1',
+        agent                   : 'cypress',
+        runType                 : '',
+        useReportPortal         : 'false'
+      ]
+
+      folioCypressFlow(cypressFlowParameters)
+    }
   } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
