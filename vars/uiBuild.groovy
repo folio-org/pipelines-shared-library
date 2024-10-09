@@ -87,7 +87,7 @@ void call(Map params, boolean releaseVersion = false) {
       container('kaniko') {
         sh """
         #!/busybox/sh
-        /kaniko/executor --context docker/ --destination 732722833398.dkr.ecr.us-west-2.amazonaws.com/${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
+        /kaniko/executor --context docker/ --destination ${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
            """
       }
     }
