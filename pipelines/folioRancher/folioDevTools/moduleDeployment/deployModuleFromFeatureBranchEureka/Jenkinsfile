@@ -86,6 +86,7 @@ ansiColor('xterm') {
       }
 
       stage('[Maven/Gradle] Compile') {
+        return
         // Check if Maven or Gradle build tool is used
         module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
 
@@ -138,6 +139,7 @@ ansiColor('xterm') {
       }
 
       stage('[Docker] Build and push') {
+        return
         // Put Docker Image to Amazon ECR
         docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           // Check if ECR Repository exists, if not create it
@@ -206,6 +208,7 @@ ansiColor('xterm') {
 
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
+        return
         try {
           updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
         } catch (e) {
@@ -217,6 +220,7 @@ ansiColor('xterm') {
 
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
+        return
         try {
           eureka.runModuleDiscoveryFlow(module)
         } catch (e) {
@@ -228,6 +232,7 @@ ansiColor('xterm') {
 
       // 3. Deploy New Module Version to Rancher Namespace via Helm
       stage('[Helm] Deploy Module Ver') {
+        return
         try {
           folioHelm.withKubeConfig(namespace.clusterName) {
             folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
@@ -244,6 +249,7 @@ ansiColor('xterm') {
 
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
+        return
         try {
           eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
         } catch (e) {
@@ -254,6 +260,7 @@ ansiColor('xterm') {
       }
 
       stage('[Rest] Remove Stale Resources') {
+        return
         eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
       }
 
