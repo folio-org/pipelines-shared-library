@@ -86,7 +86,7 @@ void call(Map params, boolean releaseVersion = false) {
       dir("platform-complete-${params.tenant_id}") {
           sh """
           #!/busybox/sh
-          /kaniko/executor --context docker/ --destination ${ui_bundle.getImageName()} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
+          /kaniko/executor --context . --destination ${ui_bundle.getImageName()} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()} --dockerfile docker/Dockerfile
              """
       }
     }
