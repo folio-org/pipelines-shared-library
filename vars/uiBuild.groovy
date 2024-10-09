@@ -83,7 +83,7 @@ void call(Map params, boolean releaseVersion = false) {
   stage('Build and Push') {
     dir("platform-complete-${params.tenant_id}") {
         container('kaniko') {
-        sh 'cp config.json /kaniko/.docker/config.json
+        sh 'mkdir -p /kaniko/.docker && cp config.json /kaniko/.docker/config.json'
         sh """
         #!/busybox/sh
         /kaniko/executor --context docker/ --destination ${ui_bundle.getImageName()} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
