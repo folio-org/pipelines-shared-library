@@ -13,10 +13,12 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    string(name: 'TENANT_ID', defaultValue: '', description: '(Required) Tenant ID for building UI'),
-    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
-    folioParameters.branch(),
     folioParameters.configType(),
+    folioParameters.repository(),
+    folioParameters.branch(),
+    folioParameters.tenantId(),
+    string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -34,23 +36,30 @@ ansiColor('xterm') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
       }
-      String folioRepository = 'platform-complete'
-      boolean releaseVersion = true
-      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-      namespace.withDeploymentConfigType('testing')
-      namespace.addDeploymentConfig('RANCHER-1359-test')
-      String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-      List installJson = new GitHubUtility(this).getEnableList(folioRepository, "${params.FOLIO_BRANCH}")
-      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        "${commitHash}", "${params.FOLIO_BRANCH}")
 
-      namespace.setDefaultTenantId("${params.TENANT_ID}")
+      boolean releaseVersion = false
+
+      String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
+              : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+
+      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
+
+      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+              .withDefaultTenant("${params.TENANT_ID}")
+              .withDeploymentConfigType(params.CONFIG_TYPE)
 
       namespace.getModules().setInstallJson(installJson)
 
-      namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .withInstallJson(namespace.getModules().getInstallJson().collect())
-        .withTenantUi(tenantUi.clone())
+      if (params.CONSORTIA)
+        namespace.setEnableConsortia(true)
+
+      OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID]
+      tenant = tenant ? tenant : folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), new InstallRequestParams())[params.TENANT_ID]
+
+      namespace.addTenant(tenant
+              .withInstallJson(namespace.getModules().getInstallJson().collect())
+              .withTenantUi(tenantUi.clone())
       )
 
       stage('Build and deploy UI') {
@@ -64,15 +73,23 @@ ansiColor('xterm') {
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
                              custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-//                             custom_tag          : commitHash.toString().take(7),
+                             custom_tag          : commitHash.toString().take(7),
                              consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
                              rancher_cluster_name: params.CLUSTER,
                              rancher_project_name: params.NAMESPACE,
                              folio_branch        : params.FOLIO_BRANCH]
+
         uiBuild(jobParameters, releaseVersion)
+
         folioHelm.withKubeConfig(params.CLUSTER) {
-          folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
+          folioHelm.deployFolioModule(
+                  namespace
+                  , 'ui-bundle'
+                  , "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}"
+                  , false
+                  , "${params.TENANT_ID}"
+          )
         }
       }
     } catch (e) {
