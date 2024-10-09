@@ -244,10 +244,6 @@ class Eureka extends Base {
           // Save enabled application with the module to Map for processing
           enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
         }
-        else {
-          // Exclude tenant that doesn't have the module enabled
-          configuredTenantsMap.remove(tenantName)
-        }
       }
 
       // Assign enabled applications to Tenant object
