@@ -45,11 +45,11 @@ ansiColor('xterm') {
       List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
 
-      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+      EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
               .withDefaultTenant("${params.TENANT_ID}")
               .withDeploymentConfigType(params.CONFIG_TYPE)
-              .addDeploymentConfig(folioTools.getPipelineBranch())
 
+      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
       namespace.getModules().setInstallJson(installJson)
 
       if (params.CONSORTIA)
