@@ -61,14 +61,12 @@ void call(Map params, boolean releaseVersion = false) {
       echo -n 'AWS:${ecrPassword}' | base64 -w 0
     """, returnStdout: true).trim()
 
-        def ecrRegistry = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-
         // Create the Docker config.json with AWS ECR credentials
         println "loginCommand = " + loginCommand
         def dockerConfigJson = """
     {
       "auths": {
-        "${ecrRegistry}": {
+        "${Constants.ECR_FOLIO_REPOSITORY}": {
           "auth": "${loginCommand}"
         }
       }
@@ -83,11 +81,10 @@ void call(Map params, boolean releaseVersion = false) {
 
   stage('Build and Push') {
     dir("platform-complete-${params.tenant_id}") {
-      String imagename = ui_bundle.getImageName()
-      container('kaniko') {
+        container('kaniko') {
         sh """
         #!/busybox/sh
-        /kaniko/executor --context docker/ --destination ${imagename} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
+        /kaniko/executor --context docker/ --destination ${ui_bundle.getImageName()} --build-arg OKAPI_URL=${okapi_url} --build-arg TENANT_ID=${tenant.getId()}
            """
       }
     }
