@@ -272,11 +272,16 @@ edge-inventory:
             servicePort: 80
   service:
     type: NodePort
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   configMaps:
     ephemeral:
       fileName: edge-inventory-ephemeral-properties
@@ -304,11 +309,16 @@ edge-users:
             servicePort: 80
   service:
     type: NodePort
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   configMaps:
     ephemeral:
       fileName: edge-users-ephemeral-properties
