@@ -105,10 +105,12 @@ kong:
          name: kong-credentials
          key: KONG_PASSWORD
    - name: "KONG_PROXY_SEND_TIMEOUT"
-     value: "600"
+     value: "600000"
    - name: "KONG_PROXY_READ_TIMEOUT"
-     value: "600"
+     value: "600000"
    - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
+     value: "600s"
+   - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
      value: "600"
    - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
      value: "600"
