@@ -187,10 +187,8 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        namespace.tenants = eureka.getExistedTenants()
-        if (module.name == 'mod-consortia-keycloak') {
-          namespace.tenants.remove(namespace.defaultTenantId)
-        }
+        namespace.tenants = eureka.getExistedTenants(module.name)
+
         logger.info("Configured Tenants: ${namespace.tenants}")
 
         namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))

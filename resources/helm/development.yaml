@@ -1724,3 +1724,30 @@ ui-bundle:
       memory: 96Mi
     requests:
       memory: 64Mi
+mod-consortia-keycloak:
+  extraEnvVars:
+    - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
+      value: '5000'
+    - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
+      value: '5'
+    - name: SERVER_PORT
+      value: '8080'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 256Mi
