@@ -121,7 +121,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Okapi healthcheck') {
-      sleep time: 30, unit: 'SECONDS'
+      sleep time: 10, unit: 'MINUTES'
       println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
       common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
     }
