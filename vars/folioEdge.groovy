@@ -2,6 +2,7 @@ import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
+import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
 /**
@@ -57,5 +58,24 @@ void renderEphemeralProperties(RancherNamespace namespace) {
     } catch (Exception e) {
       common.logger.warning("Faulty module name: ${name}, error: ${e.getMessage()}")
     }
+  }
+}
+
+void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
+  Tools tools = new Tools(this)
+  Common common = new Common(this, "https://${namespace.getDomains()['okapi']}")
+  Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
+  String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
+  List tenants = []
+  List mappings = []
+  RestClient client = new RestClient(this)
+  def json = client.get("https://${namespace.generateDomain('kong')}/tenants").body
+  if ('fs09000000' in json['tenants']) {
+    mappings.add('fs09000000')
+  } else {
+    mappings.add('diku')
+  }
+  json['tenants'].each { tenant ->
+    tenants.add(tenant['name'])
   }
 }
