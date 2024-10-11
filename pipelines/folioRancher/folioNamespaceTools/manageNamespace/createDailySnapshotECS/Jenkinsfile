@@ -181,24 +181,24 @@ ansiColor('xterm') {
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
-        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-        main.publishDescriptors(namespace.getModules().getInstallJson())
+//        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+//        main.publishDescriptors(namespace.getModules().getInstallJson())
       }
 
-//      stage('Update') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//
-//          folioEdge.renderEphemeralProperties(namespace)
-//          namespace.getModules().getEdgeModules().each { name, version ->
-//            kubectl.deleteConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName())
-//            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-//          }
-//
-//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-//        }
-//      }
+      stage('Update') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+
+          folioEdge.renderEphemeralProperties(namespace)
+          namespace.getModules().getEdgeModules().each { name, version ->
+            kubectl.deleteConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName())
+            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+          }
+
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+        }
+      }
 
       stage('Enable') {
         retry(2) {
