@@ -40,9 +40,11 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
 
     stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
+      container('jnlp') {
+        folioTerraformFlow.manageNamespace('apply', tfConfig)
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
+        }
       }
     }
 
@@ -119,7 +121,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Okapi healthcheck') {
-      sleep time: 3, unit: 'MINUTES'
+      sleep time: 10, unit: 'MINUTES'
       println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
       common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
     }
