@@ -177,7 +177,8 @@ class Constants {
                                 'jenkins-agent-java11',
                                 'jenkins-agent-java11-test',
                                 'jenkins-agent-java17',
-                                'jenkins-agent-java17-test']
+                                'jenkins-agent-java17-test',
+                                'jenkinsAgent']
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
