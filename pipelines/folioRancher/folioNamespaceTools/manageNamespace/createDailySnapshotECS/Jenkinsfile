@@ -181,8 +181,8 @@ ansiColor('xterm') {
           users.resetUserPassword(id, okapiUser)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
-//        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-//        main.publishDescriptors(namespace.getModules().getInstallJson())
+        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+        main.publishDescriptors(namespace.getModules().getInstallJson())
       }
 
       stage('Update') {
