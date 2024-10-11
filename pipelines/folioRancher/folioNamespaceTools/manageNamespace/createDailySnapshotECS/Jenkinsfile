@@ -12,7 +12,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@ecs-snapshot-enhancements') _
 
 CONFIG_BRANCH = 'master'
 
@@ -23,13 +23,14 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.configType(),
                         booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
                         booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
+                        booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
                         folioParameters.pgType(),
                         folioParameters.kafkaType(),
                         folioParameters.opensearchType(['aws']),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -100,39 +101,39 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-
-      stage('[TF] Destroy') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+      if (!params.RETRY_ENABLE) {
+        stage('[TF] Destroy') {
+          def nsExists
+          folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+            nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+          }
+          if (nsExists) {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          } else {
+            logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+          }
         }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+
+        stage('[TF] Provision') {
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+        }
+
+        stage('[DB and Indices] Restore') {
+          folioPrint.colored("Restoring indices...", "green")
+          withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+            folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+          }
+
+          folioHelm.withKubeConfig(params.CLUSTER) {
+            folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
+              "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+              "ecs-snapshot", "${params.NAMESPACE}")
+            sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
+            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+          }
         }
       }
-
-      stage('[TF] Provision') {
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
-
-      stage('[DB and Indices] Restore') {
-        folioPrint.colored("Restoring indices...", "green")
-        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-        }
-
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
-            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-            "ecs-snapshot", "${params.NAMESPACE}")
-          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
-          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
-        }
-      }
-
       stage('Restore') {
         folioHelm.withK8sClient {
           namespace.getModules().setInstallJson(new Tools(this)
