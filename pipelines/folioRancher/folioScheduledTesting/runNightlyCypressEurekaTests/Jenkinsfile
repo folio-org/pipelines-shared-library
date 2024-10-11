@@ -1,0 +1,135 @@
+#!groovy
+import org.folio.models.RancherNamespace
+import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library@RANCHER-1334') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  pipelineTriggers([cron('H 21 * * 1')]),
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'eureka-test-snapshot', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Job variables
+ */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+//final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
+final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+final String platformCompleteBranch = 'snapshot'
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('cypress')
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('')
+  .worker('rancher')
+  .build()
+
+CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+  .folioBranch(platformCompleteBranch)
+  .okapiVersion('latest')
+  .configType('testing')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(true)
+  .eureka(true)
+  .rtr(false)
+  .uiBuild(true)
+  .build()
+
+RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
+
+Map cypressFlowParameters = [
+  customBuildName       : env.JOB_BASE_NAME,
+  branch                : params.CYPRESS_BRANCH,
+  tenantUrl             : "https://${namespace.generateDomain('diku')}",
+  okapiUrl              : "https://${namespace.getDomains().kong}",
+  tenantId              : 'diku',
+  adminUsername         : 'diku_admin',
+  adminPassword         : 'admin',
+  parallelExecParameters: '--env grepTags="smoke"',
+  testsTimeout          : '8',
+  testrailProjectID     : '14',
+  testrailRunID         : '2723',
+  numberOfWorkers       : '8',
+  agent                 : 'cypress',
+  runType               : 'evrk',
+  useReportPortal       : 'true'
+]
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressFlowParameters.tenantUrl}"
+        cleanWs()
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[Job] Destroy environment') {
+        def nsExists
+        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+        }
+        if (nsExists) {
+          retry(2) {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          }
+        } else {
+          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+        }
+      }
+
+      stage('[Job] Provision environment') {
+        try {
+          //TODO Change to folioTriggerJob.createNamespaceFromBranch() once it will support Eureka
+          folioNamespaceCreateEureka(namespaceFromBranchParams)
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
+        }
+      }
+
+      stage('[Flow] Execute tests') {
+        folioCypressFlow(cypressFlowParameters)
+      }
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
