@@ -134,15 +134,15 @@ ansiColor('xterm') {
           }
         }
       }
-//      stage('Restore') {
-//        folioHelm.withK8sClient {
-//          namespace.getModules().setInstallJson(new Tools(this)
-//            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
-//          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-//        }
-//        folioDeployFlow.restore(namespace)
-//        sleep time: 5, unit: "MINUTES"
-//      }
+      stage('Restore') {
+        folioHelm.withK8sClient {
+          namespace.getModules().setInstallJson(new Tools(this)
+            .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+        }
+        folioDeployFlow.restore(namespace)
+        sleep time: 5, unit: "MINUTES"
+      }
 
       stage('Prepare update') {
         main.getTenantsList().each {
@@ -202,7 +202,7 @@ ansiColor('xterm') {
 
       stage('Enable') {
         retry(2) {
-//          sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+          sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
           main.update(namespace.getTenants())
         }
         main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
