@@ -162,7 +162,7 @@ class Constants {
   static String DOCKERHUB_URL = 'https://hub.docker.com/v2'
   static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = 'folio-docker-dev'
   static String DOCKER_DEV_REPOSITORY = 'docker.dev.folio.org'
-  static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = 'DockerHubIDJenkins'
+  static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = 'folio-docker-dev'
   static String DOCKER_FOLIO_REPOSITORY = 'docker-folio.dev.folio.org'
   static String ECR_FOLIO_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = 'aws-ecr-rw-credentials'
@@ -180,8 +180,7 @@ class Constants {
                                 'jenkins-agent-java11',
                                 'jenkins-agent-java11-test',
                                 'jenkins-agent-java17',
-                                'jenkins-agent-java17-test',
-                                'jenkins-agent-java21']
+                                'jenkins-agent-java17-test']
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
@@ -218,7 +217,6 @@ class Constants {
                                   'core-platform' : 'core-platform',
                                   'cypress'       : 'AQA',
                                   'dreamliner'    : 'Dreamliner',
-                                  'dojo'          : 'dojo',
                                   'ebsco-core'    : 'ebsco-core',
                                   'eureka'        : 'Eureka',
                                   'falcon'        : 'falcon',
