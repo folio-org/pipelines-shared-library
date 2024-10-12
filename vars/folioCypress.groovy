@@ -69,18 +69,18 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
 /**
  * Compiles Cypress tests within a Docker container.
  *
- * This function runs the test compilation process using optionally a batch ID for identifying the build context.
+ * This function runs the test compilation process using a specified batch ID for identifying the build context.
  *
  * @param batchID An optional identifier for the batch, defaults to an empty string.
  *
- * @throws IllegalArgumentException if cypressImageVersion is null or empty.
  */
-void compileTests(String batchID = '') {
-
+void compileCypressTests(String batchID = '') {
   stage('Compile tests') {
     echo "Batch ID: ${batchID}"
 
-    runInDocker("compile-${env.BUILD_ID}-${batchID}", {
+    batchID = batchID ? "-${batchID}" : ''
+
+    runInDocker("compile-${env.BUILD_ID}${batchID}", {
       sh """export HOME=\$(pwd)
             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
 
