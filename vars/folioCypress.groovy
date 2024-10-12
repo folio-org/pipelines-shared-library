@@ -66,14 +66,39 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   echo "Environment variables set for Cypress testing."
 }
 
+/**
+ * Executes a specified closure within a Docker container configured for Cypress testing.
+ *
+ * This function creates a Docker container using a specified image and runs the provided closure inside it.
+ * The Docker container is initialized with specific entry points and AWS credentials to allow access
+ * to required resources during the execution of the closure. The function also handles potential errors
+ * and ensures that the Docker container is stopped after execution to free up resources.
+ *
+ * @param containerNameSuffix A suffix for the container name, which helps identify the context or
+ *                            purpose of the container. It is appended to the base name "cypress-"
+ *                            to create a unique container name.
+ * @param closure A Closure that contains the code to be executed inside the Docker container. This
+ *                closure should encapsulate the Cypress tests or any setup required for testing.
+ *
+ * @throws IllegalArgumentException if containerNameSuffix or closure is null.
+ */
 void runInDocker(String containerNameSuffix, Closure<?> closure) {
+  // Validate input parameters
+  if (!containerNameSuffix || !closure) {
+    throw new IllegalArgumentException("Both containerNameSuffix and closure must be provided and cannot be empty.")
+  }
+
   final String cypressImage = '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest'
   String containerName = "cypress-${containerNameSuffix}"
   def containerObject
+
   try {
+    echo "Starting Docker container: ${containerName} using image: ${cypressImage}"
+
     // Authenticate with the Docker registry and run the container
     docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
       "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+
       // Create and start the Docker container with the specified image
       containerObject = docker.image(cypressImage).inside("--init --name=${containerName} --entrypoint=") {
         // Set up AWS credentials for accessing necessary resources during closure execution
@@ -81,17 +106,21 @@ void runInDocker(String containerNameSuffix, Closure<?> closure) {
                           credentialsId    : Constants.AWS_S3_SERVICE_ACCOUNT_ID,
                           accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+          echo "Executing closure in Docker container..."
           // Execute the provided closure and return its result
           return closure()
         }
       }
     }
-  } catch (e) {
+
+    echo "Successfully executed closure in Docker container: ${containerName}"
+
+  } catch (Exception e) {
     // Log the error message and update the build result based on the context
     echo "Error occurred while running Docker container: ${e.message}"
     if (containerName.contains('cypress-compile')) {
       currentBuild.result = 'FAILED'
-      error('Unable to compile tests')
+      error 'Unable to compile tests'
     } else {
       currentBuild.result = 'UNSTABLE'
     }
@@ -99,6 +128,7 @@ void runInDocker(String containerNameSuffix, Closure<?> closure) {
     // Ensure that the Docker container is stopped to free up resources
     if (containerObject) {
       containerObject.stop()
+      echo "Docker container stopped: ${containerName}"
     }
   }
 }
