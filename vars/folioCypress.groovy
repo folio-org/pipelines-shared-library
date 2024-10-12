@@ -66,6 +66,20 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   echo "Environment variables set for Cypress testing."
 }
 
+void compileTests(String cypressImageVersion, String batchID = '') {
+  stage('Compile tests') {
+    runInDocker(cypressImageVersion, "compile-${env.BUILD_ID}-${batchID}", {
+      sh """export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+        node -v; yarn -v
+        yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+        env; yarn install
+        yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
+        yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}"""
+//      sh "yarn add @reportportal/agent-js-cypress@latest"
+    })
+  }
+}
+
 /**
  * Executes a specified closure within a Docker container configured for Cypress testing.
  *
