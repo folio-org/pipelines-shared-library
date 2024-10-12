@@ -82,17 +82,17 @@ void compileCypressTests(String batchID = '') {
 
     runInDocker("compile-${env.BUILD_ID}${batchID}", {
       sh """export HOME=\$(pwd)
-            export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+        export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
 
-            node -v
-            yarn -v
+        node -v
+        yarn -v
 
-            yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-            env
-            yarn install
+        yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+        env
+        yarn install
 
-            yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
-            yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
+        yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
+        yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
       """
       // Uncomment to add Report Portal agent for Cypress
       // sh "yarn add @reportportal/agent-js-cypress@latest"
@@ -100,37 +100,108 @@ void compileCypressTests(String batchID = '') {
   }
 }
 
-void executeTests(String cypressImageVersion, String customBuildName, String browserName, String execParameters,
+/**
+ * Executes Cypress tests within a Docker container.
+ *
+ * This function runs tests using the custom build name, and browser.
+ * Optionally, results can be posted to TestRail if project and run IDs are provided.
+ *
+ * @param ciBuildId The name of the custom build.
+ * @param browserName The name of the browser to run tests on.
+ * @param execParameters Additional parameters for executing tests.
+ * @param testrailProjectID The TestRail project ID (optional).
+ * @param testrailRunID The TestRail run ID (optional).
+ * @param workerId An optional identifier for the worker.
+ */
+void executeTests(String ciBuildId, String browserName, String execParameters,
                   String testrailProjectID = '', String testrailRunID = '', String workerId = '') {
-  stage('Run tests') {
-    String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
-    runId = runId.length() > 2 ? runId : "0${runId}"
-    String execString = """
-      export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
-      export DISPLAY=:${runId[-2..-1]}
-      mkdir -p /tmp/.X11-unix
-      Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-      env; npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
-      pkill Xvfb
-    """
+  // Validate input parameters
+  if (!ciBuildId || !browserName) {
+    throw new IllegalArgumentException("ciBuildId, and browserName must be provided and cannot be empty.")
+  }
 
-    runInDocker(cypressImageVersion, "worker-${runId}", {
+  stage('Run tests') {
+    String runId = generateRunId(workerId)
+    String execString = createExecString(runId, browserName, ciBuildId, execParameters)
+
+    runInDocker("worker-${runId}", {
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
-        execString = """
+        runTestsWithTestRail(testrailProjectID, testrailRunID, execString)
+      } else {
+        runTests(execString)
+      }
+    })
+  }
+}
+
+/**
+ * Generates a unique run ID based on the worker ID.
+ *
+ * @param workerId The optional identifier for the worker.
+ * @return A string representing the run ID.
+ */
+String generateRunId(String workerId) {
+  String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
+  return runId.length() > 2 ? runId : "0${runId}"
+}
+
+/**
+ * Creates the execution command string for Cypress tests.
+ *
+ * @param runId The run ID to be used in the display variable.
+ * @param browserName The name of the browser to run tests on.
+ * @param ciBuildId The name of the custom build.
+ * @param execParameters Additional parameters for executing tests.
+ * @return The command string for executing tests.
+ */
+@SuppressWarnings('GrMethodMayBeStatic')
+String createExecString(String runId, String browserName, String ciBuildId, String execParameters) {
+  return """
+    export HOME=\$(pwd)
+    export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+    export DISPLAY=:${runId[-2..-1]}
+    mkdir -p /tmp/.X11-unix
+    Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+    env
+    npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}
+    pkill Xvfb
+  """
+}
+
+
+/**
+ * Runs the tests using the provided command string.
+ *
+ * @param execString The command string to execute tests.
+ */
+void runTests(String execString) {
+  try {
+    sh execString
+  } catch (Exception e) {
+    echo "Error executing tests: ${e.message}"
+    throw e
+  }
+}
+
+/**
+ * Posts test results to TestRail if project and run IDs are provided.
+ *
+ * @param testrailProjectID The TestRail project ID.
+ * @param testrailRunID The TestRail run ID.
+ * @param execString The command string for executing tests.
+ */
+void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String execString) {
+  execString = """
         export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
         export TESTRAIL_PROJECTID=${testrailProjectID}
         export TESTRAIL_RUN_ID=${testrailRunID}
         export CYPRESS_allureReuseAfterSpec=true
-        """ + execString
+    """ + execString
 
-        println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
-        withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
-          sh execString
-        }
-      } else {
-        sh execString
-      }
-    })
+  echo "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+
+  withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+    runTests(execString)
   }
 }
 
