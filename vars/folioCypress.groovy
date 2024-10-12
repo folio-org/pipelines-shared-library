@@ -100,6 +100,40 @@ void compileCypressTests(String batchID = '') {
   }
 }
 
+void executeTests(String cypressImageVersion, String customBuildName, String browserName, String execParameters,
+                  String testrailProjectID = '', String testrailRunID = '', String workerId = '') {
+  stage('Run tests') {
+    String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
+    runId = runId.length() > 2 ? runId : "0${runId}"
+    String execString = """
+      export HOME=\$(pwd); export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+      export DISPLAY=:${runId[-2..-1]}
+      mkdir -p /tmp/.X11-unix
+      Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+      env; npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${customBuildName} ${execParameters}
+      pkill Xvfb
+    """
+
+    runInDocker(cypressImageVersion, "worker-${runId}", {
+      if (testrailProjectID?.trim() && testrailRunID?.trim()) {
+        execString = """
+        export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
+        export TESTRAIL_PROJECTID=${testrailProjectID}
+        export TESTRAIL_RUN_ID=${testrailRunID}
+        export CYPRESS_allureReuseAfterSpec=true
+        """ + execString
+
+        println "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
+        withCredentials([usernamePassword(credentialsId: 'testrail-ut56', passwordVariable: 'TESTRAIL_PASSWORD', usernameVariable: 'TESTRAIL_USERNAME')]) {
+          sh execString
+        }
+      } else {
+        sh execString
+      }
+    })
+  }
+}
+
 /**
  * Executes a specified closure within a Docker container configured for Cypress testing.
  *
