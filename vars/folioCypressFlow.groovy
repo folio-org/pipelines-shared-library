@@ -257,18 +257,18 @@ IRunExecutionSummary call(params) {
 
 /* Functions */
 
-void cloneCypressRepo(String branch) {
-  stage('Checkout Cypress repo') {
-    script {
-      checkout([$class           : 'GitSCM',
-                branches         : [[name: "*/${branch}"]],
-                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
-                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
-                                     url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
-    }
-  }
-}
+//void cloneCypressRepo(String branch) {
+//  stage('Checkout Cypress repo') {
+//    script {
+//      checkout([$class           : 'GitSCM',
+//                branches         : [[name: "*/${branch}"]],
+//                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
+//                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+//                userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
+//                                     url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
+//    }
+//  }
+//}
 
 //String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
 //  def packageJson = readJSON file: filePath
