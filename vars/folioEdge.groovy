@@ -63,19 +63,33 @@ void renderEphemeralProperties(RancherNamespace namespace) {
 
 void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   Tools tools = new Tools(this)
-  Common common = new Common(this, "https://${namespace.getDomains()['okapi']}")
-  Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
+  Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
+  Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
-  List tenants = []
   List mappings = []
+  String users = ''
   RestClient client = new RestClient(this)
   def json = client.get("https://${namespace.generateDomain('kong')}/tenants").body
-  if ('fs09000000' in json['tenants']) {
+  if ('fs09000000' in json['tenants']['name']) { // to the mappings part
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
   }
-  json['tenants'].each { tenant ->
-    tenants.add(tenant['name'])
+  def tenants = json['tenants']['name']
+
+  json['tenants']['name'].each { candidate -> // real existing tenant's metadata include
+    users += folioDefault.tenants()["${candidate}"].tenantId + '=' + folioDefault.tenants()["${candidate}"].getAdminUser() + ','
+    +folioDefault.tenants()["${candidate}"].getAdminUser().passwordPlainText + '\n'
+  }
+
+  edgeConfig['tenants'].each { institutional ->
+    tenants.add(institutional.tenant)
+    users += institutional.tenant + '=' + institutional.username + ',' + institutional.password + '\n'
+  }
+
+  LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
+  namespace.getModules().getEdgeModules().each { name, version ->
+    tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+    common.logger.info("ephemeralProperties file for module ${name} created.")
   }
 }
