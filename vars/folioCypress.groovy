@@ -1,19 +1,54 @@
 import groovy.json.JsonException
 import org.folio.Constants
 
+/**
+ * Clones the specified branch of the Cypress repository from Git.
+ *
+ * This function checks out the specified branch of the Cypress repository,
+ * using the provided SSH credentials for authentication.
+ *
+ * @param branch The name of the branch to check out.
+ * @throws IllegalArgumentException if the branch name is null or empty.
+ */
 void cloneCypressRepo(String branch) {
+  // Validate input parameter
+  if (!branch) {
+    throw new IllegalArgumentException("Branch name must be provided and cannot be empty.")
+  }
+
   stage('Checkout Cypress repo') {
     script {
-      checkout([$class           : 'GitSCM',
-                branches         : [[name: "*/${branch}"]],
-                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
-                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
-                                     url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
+      try {
+        echo "Checking out branch: ${branch}"
+        checkout([$class           : 'GitSCM',
+                  branches         : [[name: "*/${branch}"]],
+                  extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
+                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                  userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
+                                       url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
+      } catch (Exception e) {
+        // Log an error if the checkout fails
+        echo "Failed to checkout branch '${branch}': ${e.message}"
+        throw e
+      }
     }
   }
 }
 
+/**
+ * Sets up common environment variables for Cypress testing.
+ *
+ * This function initializes environment variables used by Cypress tests
+ * based on the provided tenant and AWS configuration parameters.
+ *
+ * @param tenantUrl The base URL of the tenant being tested.
+ * @param okapiUrl The URL of the Okapi service.
+ * @param tenantId The ID of the tenant.
+ * @param adminUsername The username for the admin account.
+ * @param adminPassword The password for the admin account.
+ *
+ * @throws IllegalArgumentException if any required parameter is null or empty.
+ */
 void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
   // Validate input parameters
   if (!tenantUrl || !okapiUrl || !tenantId || !adminUsername || !adminPassword) {
