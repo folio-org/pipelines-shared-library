@@ -14,7 +14,7 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   env.CYPRESS_diku_password = adminPassword
   env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-  println("Environment variables set for Cypress testing.")
+  echo "Environment variables set for Cypress testing."
 }
 
 void runInDocker(String containerNameSuffix, Closure<?> closure) {
@@ -23,7 +23,8 @@ void runInDocker(String containerNameSuffix, Closure<?> closure) {
   def containerObject
   try {
     // Authenticate with the Docker registry and run the container
-    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+    docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}",
+      "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
       // Create and start the Docker container with the specified image
       containerObject = docker.image(cypressImage).inside("--init --name=${containerName} --entrypoint=") {
         // Set up AWS credentials for accessing necessary resources during closure execution
@@ -38,7 +39,7 @@ void runInDocker(String containerNameSuffix, Closure<?> closure) {
     }
   } catch (e) {
     // Log the error message and update the build result based on the context
-    println("Error occurred while running Docker container: ${e.message}")
+    echo "Error occurred while running Docker container: ${e.message}"
     if (containerName.contains('cypress-compile')) {
       currentBuild.result = 'FAILED'
       error('Unable to compile tests')
@@ -53,13 +54,31 @@ void runInDocker(String containerNameSuffix, Closure<?> closure) {
   }
 }
 
-String archiveTestResults(String id) {
+String archiveTestResults(String workerId) {
   stage('Archive test results') {
     script {
-      zip zipFile: "allure-results-${id}.zip", glob: "allure-results/*"
-      archiveArtifacts allowEmptyArchive: true, artifacts: "allure-results-${id}.zip", fingerprint: true, defaultExcludes: false
-      stash name: "allure-results-${id}", includes: "allure-results-${id}.zip"
-      return "allure-results-${id}"
+      try {
+        // Zipping allure results
+        zip zipFile: "allure-results-${workerId}.zip", glob: "allure-results/*"
+
+        // Archiving the zipped file
+        archiveArtifacts artifacts: "allure-results-${workerId}.zip", allowEmptyArchive: true, fingerprint: true,
+          defaultExcludes: false
+
+        // Stashing the artifacts for later use in other stages
+        stash name: "allure-results-${workerId}", includes: "allure-results-${workerId}.zip"
+
+        return "allure-results-${workerId}"
+      } catch (Exception e) {
+        // Log an error if something goes wrong
+        echo "Failed to archive and stash test results: ${e.message}"
+        throw e
+      }
     }
   }
+}
+
+String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
+  def packageJson = readJSON file: filePath
+  return packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
 }
