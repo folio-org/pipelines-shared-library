@@ -270,10 +270,10 @@ void cloneCypressRepo(String branch) {
   }
 }
 
-String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
-  def packageJson = readJSON file: filePath
-  return packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
-}
+//String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
+//  def packageJson = readJSON file: filePath
+//  return packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
+//}
 
 //void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
 //  env.CYPRESS_BASE_URL = tenantUrl
