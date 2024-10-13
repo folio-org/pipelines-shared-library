@@ -83,6 +83,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   } else {
     mappings.add('diku')
   }
+
   def tenants = dataToProcess['tenants']['name'] as List
 
   dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
@@ -92,7 +93,6 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
   }
 
-  LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
   namespace.getModules().getEdgeModules().each { name, version ->
     if (edgeConfig[name]['tenants']) {
       edgeConfig[name]['tenants'].each { institutional ->
@@ -102,5 +102,6 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
       tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
       common.logger.info("ephemeralProperties file for module ${name} created.")
     }
+    LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
   }
 }
