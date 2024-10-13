@@ -75,7 +75,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   } else {
     mappings.add('diku')
   }
-  def tenants = json['tenants']['name']
+  def tenants = json['tenants']['name'] as List
 
   json['tenants']['name'].each { candidate -> // real existing tenant's metadata include
     users += folioDefault.tenants()["${candidate}"].tenantId + '=' + folioDefault.tenants()["${candidate}"].getAdminUser() + ','
