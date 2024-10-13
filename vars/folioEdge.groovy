@@ -89,6 +89,8 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     }
   }
 
+  println(tenants)
+
   LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
   namespace.getModules().getEdgeModules().each { name, version ->
     tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
