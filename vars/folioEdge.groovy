@@ -76,7 +76,9 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   def dataToProcess = tools.jsonParse(json as String)
 
-  if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
+  common.logger.info("List of existing tenants: ${dataToProcess.tenants.name}")
+
+  if ('fs09000000' in dataToProcess.tenants.name) { // to the mappings part
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
