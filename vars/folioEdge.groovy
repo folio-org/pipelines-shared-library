@@ -97,11 +97,11 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     if (edgeConfig[(name)]['tenants']) {
       edgeConfig[(name)]['tenants'].each { institutional ->
         if (institutional.tenant == 'default') {
-          tenants.add(institutional.tenant)
           tenants.each { tenantName ->
             institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
           }
         } else {
+          tenants.add(institutional.tenant)
           institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
         }
       }
