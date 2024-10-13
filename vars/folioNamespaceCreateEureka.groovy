@@ -213,7 +213,6 @@ void call(CreateNamespaceParameters args) {
         folioEdge.renderEphemeralPropertiesEureka(namespace)
 
         namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.deleteConfigMap("${name}-ephemeral-properties", "${namespace.getNamespaceName()}")
           kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
 
