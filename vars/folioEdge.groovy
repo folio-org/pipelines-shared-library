@@ -69,13 +69,18 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   List mappings = []
   String users = ''
   RestClient client = new RestClient(this)
-  def json = client.get("https://${namespace.generateDomain('kong')}/tenants").body
+  Map headers = [
+    'x-okapi-tenant': 'fakeTenant'
+  ]
+
+  def json = client.get("https://${namespace.generateDomain('kong')}/tenants", headers).body
+
   if ('fs09000000' in json['tenants']['name']) { // to the mappings part
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
   }
-  def tenants = (json['tenants']['name']).join(",")
+  def tenants = json['tenants']['name']
 
   json['tenants']['name'].each { candidate -> // real existing tenant's metadata include
     users += folioDefault.tenants()["${candidate}"].tenantId + '=' + folioDefault.tenants()["${candidate}"].getAdminUser() + ','
