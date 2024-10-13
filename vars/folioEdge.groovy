@@ -83,7 +83,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   } else {
     mappings.add('diku')
   }
-  def tenants = dataToProcess['tenants']['name']
+  def tenants = dataToProcess['tenants']['name'] as List
 
   dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
     common.logger.info("Binding tenant: " + candidate['name'])
@@ -92,17 +92,15 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
   }
 
-
-  edgeConfig['tenants'].each { institutional ->
-    tenants.add(institutional.tenant)
-    if (institutional.create) {
-      users += institutional.tenant == 'default' ? "${mappings.getAt(0)}" : institutional.tenant + '=' + institutional.username + ',' + institutional.password + '\n'
-    }
-  }
-
   LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
   namespace.getModules().getEdgeModules().each { name, version ->
-    tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-    common.logger.info("ephemeralProperties file for module ${name} created.")
+    if (edgeConfig[name]['tenants']) {
+      edgeConfig[name]['tenants'].each { institutional ->
+        tenants.add(institutional.tenant)
+        users += institutional.tenant == 'default' ? "${mappings.getAt(0)}" : institutional.tenant + '=' + institutional.username + ',' + institutional.password + '\n'
+      }
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${name} created.")
+    }
   }
 }
