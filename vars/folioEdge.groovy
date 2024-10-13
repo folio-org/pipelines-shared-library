@@ -87,16 +87,18 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   def tenants = dataToProcess['tenants']['name'] as List
 
   dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
-    common.logger.info("Binding tenant: " + candidate['name'])
-    def tenant = folioDefault.tenants()[candidate['name']]
-    users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
-    common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
+    if (candidate['name']) {
+      common.logger.info("Binding tenant: " + candidate['name'])
+      def tenant = folioDefault.tenants()[candidate['name']]
+      users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
+      common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
+    }
   }
 
   namespace.getModules().getEdgeModules().each { name, version ->
     String institutionalUsers = ''
-    if (edgeConfig[name]['tenants']) {
-      edgeConfig[name]['tenants'].each { institutional ->
+    if (edgeConfig[(name)]['tenants']) {
+      edgeConfig[(name)]['tenants'].each { institutional ->
         institutional.tenant == 'default' ? '' : tenants.add(institutional.tenant)
         institutionalUsers += "${(institutional.tenant == 'default' ? mappings.getAt(0) : institutional.tenant)}=${institutional.username},${institutional.password}\n"
       }
