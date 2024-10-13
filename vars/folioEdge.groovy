@@ -69,22 +69,23 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   List mappings = []
   String users = ''
   RestClient client = new RestClient(this)
-  Map headers = [
-    'x-okapi-tenant': 'fakeTenant'
-  ]
 
-  def json = client.get("https://${namespace.generateDomain('kong')}/tenants", headers).body
+  def json = client.get("https://${namespace.generateDomain('kong')}/tenants").body
 
-  if ('fs09000000' in json['tenants']['name']) { // to the mappings part
+  common.logger.info("Response: " + json)
+
+  def dataToProcess = tools.steps.jsonParse(json)
+
+  if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
   }
-  def tenants = json['tenants']['name']
+  def tenants = dataToProcess['tenants']['name']
 
-  json['tenants']['name'].each { candidate -> // real existing tenant's metadata include
-    users += folioDefault.tenants()["${candidate}"].tenantId + '=' + folioDefault.tenants()["${candidate}"].getAdminUser() + ','
-    +folioDefault.tenants()["${candidate}"].getAdminUser().passwordPlainText + '\n'
+  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
+    users += folioDefault.tenants()["${candidate['name']}"].tenantId + '=' + folioDefault.tenants()["${candidate['name']}"].getAdminUser() + ','
+    +folioDefault.tenants()["${candidate['name']}"].getAdminUser().passwordPlainText + '\n'
   }
 
   edgeConfig['tenants'].each { institutional ->
