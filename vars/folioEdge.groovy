@@ -74,16 +74,16 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   common.logger.info("Response: " + json)
 
-  def dataToProcess = tools.steps.jsonParse(json)
+  def dataToProcess = tools.jsonParse(json as String)
 
   if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
   }
-  def tenants = dataToProcess['tenants']['name']
+  def tenants = dataToProcess['tenants']
 
-  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
+  dataToProcess.each { candidate -> // real existing tenant's metadata include
     users += folioDefault.tenants()["${candidate['name']}"].tenantId + '=' + folioDefault.tenants()["${candidate['name']}"].getAdminUser() + ','
     +folioDefault.tenants()["${candidate['name']}"].getAdminUser().passwordPlainText + '\n'
   }
