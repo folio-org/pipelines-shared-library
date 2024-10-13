@@ -102,9 +102,9 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
         institutional.tenant == 'default' ? '' : tenants.add(institutional.tenant)
         institutionalUsers += "${(institutional.tenant == 'default' ? mappings.getAt(0) : institutional.tenant)}=${institutional.username},${institutional.password}\n"
       }
+      LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: institutionalUsers]
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${name} created.")
     }
-    LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: institutionalUsers]
-    tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-    common.logger.info("ephemeralProperties file for module ${name} created.")
   }
 }
