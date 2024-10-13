@@ -1,3 +1,4 @@
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
@@ -75,7 +76,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   common.logger.info("Response: " + json)
 
-  def dataToProcess = new JsonSlurperClassic().parseText(json as String)
+  def dataToProcess = new JsonOutput().toJson(json)
 
   common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
 
