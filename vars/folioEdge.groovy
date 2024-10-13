@@ -82,9 +82,9 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   } else {
     mappings.add('diku')
   }
-  def tenants = dataToProcess['tenants']
+  def tenants = dataToProcess['tenants']['name']
 
-  dataToProcess.each { candidate -> // real existing tenant's metadata include
+  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
     users += folioDefault.tenants()["${candidate['name']}"].tenantId + '=' + folioDefault.tenants()["${candidate['name']}"].getAdminUser() + ','
     +folioDefault.tenants()["${candidate['name']}"].getAdminUser().passwordPlainText + '\n'
   }
