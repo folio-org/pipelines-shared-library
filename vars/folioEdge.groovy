@@ -74,7 +74,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   common.logger.info("Response: " + json)
 
-  def dataToProcess = tools.jsonParse(json)
+  def dataToProcess = tools.jsonParse(json as String)
 
   common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
 
