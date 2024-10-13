@@ -104,6 +104,14 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: KONG_UPSTREAM_TIMEOUT
+     value: "600000"
+   - name: KONG_UPSTREAM_SEND_TIMEOUT
+     value: "600000"
+   - name: KONG_UPSTREAM_READ_TIMEOUT
+     value: "600000"
+   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
+     value: "error timeout http_500 http_502 http_503 http_504"
    - name: "KONG_PROXY_SEND_TIMEOUT"
      value: "600000"
    - name: "KONG_UPSTREAM_CONNECT_TIMEOUT"
@@ -115,7 +123,7 @@ kong:
    - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
      value: "600"
    - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-     value: "600"
+     value: "600000"
    - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
      value: "1024"
    - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
