@@ -5,6 +5,7 @@ import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
 import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
+
 /**
  * Renders the ephemeral properties for a tenant.
  *
@@ -85,9 +86,12 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   def tenants = dataToProcess['tenants']['name']
 
   dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
-    users += "${folioDefault.tenants()["${candidate['name']}"].getTenantId()}" + '=' + "${folioDefault.tenants()["${candidate['name']}"].getAdminUser().getUsername()}" + ','
-    + "${folioDefault.tenants()["${candidate['name']}"].getAdminUser().getPasswordPlainText()}" + '\n'
+    common.logger.info("Binding tenant: " + candidate['name'])
+    def tenant = folioDefault.tenants()[candidate['name']]
+    users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
+    common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
   }
+
 
   edgeConfig['tenants'].each { institutional ->
     tenants.add(institutional.tenant)
@@ -95,8 +99,6 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
       users += institutional.tenant == 'default' ? "${mappings.getAt(0)}" : institutional.tenant + '=' + institutional.username + ',' + institutional.password + '\n'
     }
   }
-
-  common.logger.warning(tenants)
 
   LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
   namespace.getModules().getEdgeModules().each { name, version ->
