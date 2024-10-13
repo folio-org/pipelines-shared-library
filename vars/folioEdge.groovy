@@ -1,9 +1,7 @@
-import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
-import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
 /**
@@ -84,8 +82,6 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     mappings.add('diku')
   }
 
-  def tenants = dataToProcess['tenants']['name'] as List
-
   dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
     if (candidate['name']) {
       common.logger.info("Binding tenant: " + candidate['name'])
@@ -96,6 +92,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   }
 
   namespace.getModules().getEdgeModules().each { name, version ->
+    def tenants = dataToProcess['tenants']['name'] as List
     String institutionalUsers = ''
     if (edgeConfig[(name)]['tenants']) {
       edgeConfig[(name)]['tenants'].each { institutional ->
