@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
@@ -6,7 +5,6 @@ import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Common
 import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
-
 /**
  * Renders the ephemeral properties for a tenant.
  *
@@ -76,7 +74,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   common.logger.info("Response: " + json)
 
-  def dataToProcess = new JsonOutput().toJson(json)
+  def dataToProcess = new JsonSlurperClassic().parseText(json)
 
   common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
 
