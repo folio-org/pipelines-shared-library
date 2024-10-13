@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurperClassic
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.RancherNamespace
@@ -74,9 +75,9 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   common.logger.info("Response: " + json)
 
-  def dataToProcess = tools.jsonParse(json as String)
+  def dataToProcess = new JsonSlurperClassic().parseText(json as String)
 
-  common.logger.info("List of existing tenants: ${dataToProcess['tenants'][0]['name']}")
+  common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
 
   if ('fs09000000' in dataToProcess.tenants.name) { // to the mappings part
     mappings.add('fs09000000')
