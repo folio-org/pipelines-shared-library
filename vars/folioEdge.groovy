@@ -68,11 +68,10 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
   List mappings = []
   String users = ''
-  RestClient client = new RestClient(this)
 
-  def json = client.get("https://${namespace.generateDomain('kong')}/tenants").body
+  def json = tools.steps.sh(script: "set +e && https://${namespace.generateDomain('kong')}/tenants", returnStdOut: true)
 
-  common.logger.info("Response: " + json)
+  common.logger.info("Response: ${json}")
 
   def dataToProcess = tools.jsonParse(json as String)
 
