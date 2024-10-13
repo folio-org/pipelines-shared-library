@@ -69,7 +69,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   List mappings = []
   String users = ''
 
-  def json = tools.steps.sh(script: "curl --silent https://${namespace.generateDomain('kong')}/tenants")
+  def json = tools.steps.sh(script: "curl --silent https://${namespace.generateDomain('kong')}/tenants", returnStdout: true)
 
   common.logger.info("Response: ${json}")
 
