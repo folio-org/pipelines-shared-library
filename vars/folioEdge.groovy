@@ -97,7 +97,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     if (edgeConfig[name]['tenants']) {
       edgeConfig[name]['tenants'].each { institutional ->
         tenants.add(institutional.tenant)
-        users += "${(institutional.tenant == 'default' ? ${mappings.getAt(0)} : institutional.tenant)}=${institutional.username},${institutional.password}\n"
+        users += "${(institutional.tenant == 'default' ? mappings.getAt(0) : institutional.tenant)}=${institutional.username},${institutional.password}\n"
       }
     }
     LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: 'test=test,test']
