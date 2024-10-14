@@ -1,4 +1,8 @@
 edge-rtac:
+  tenants:
+  - tenant: testrtac
+    username: test-user
+    password: test
   permissions:
   - rtac.all
 edge-oai-pmh:
