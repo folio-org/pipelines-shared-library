@@ -1,5 +1,9 @@
 import groovy.json.JsonException
 import org.folio.Constants
+import org.folio.client.reportportal.ReportPortalClient
+import org.folio.testing.IRunExecutionSummary
+import org.folio.testing.TestType
+import org.folio.testing.cypress.results.CypressRunExecutionSummary
 
 /**
  * Clones the specified branch of the Cypress repository from Git.
@@ -133,6 +137,17 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
     })
   }
 }
+
+/**
+ * Generates a CI build id based on the provided name and current build ID.
+ *
+ * @param ciBuildId The custom build name provided by the user.
+ * @return A formatted CI build id string.
+ */
+String getCiBuildId(String ciBuildId) {
+  return ciBuildId?.trim() ? "#${ciBuildId.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
+}
+
 
 /**
  * Generates a unique run ID based on the worker ID.
@@ -352,4 +367,115 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
     echo "Dependency '${dependencyName}' not found in package.json."
   }
   return version
+}
+
+/**
+ * Sets up the Report Portal client and initializes the launch.
+ *
+ * @param ciBuildId The custom build ID.
+ * @param runType The type of run being executed.
+ * @param execParameters The parameters for execution.
+ * @return A string containing the combined execution parameters.
+ * @throws Exception if there is an error during Report Portal setup.
+ */
+String setupReportPortal(ReportPortalClient reportPortal, String ciBuildId, String runType, String execParameters) {
+  stage('[ReportPortal] Config bind & launch') {
+    try {
+      reportPortal = new ReportPortalClient(this, TestType.CYPRESS, ciBuildId, env.BUILD_NUMBER, env.WORKSPACE, runType)
+      String rpLaunchID = reportPortal.launch()
+      echo "Report Portal Launch ID: ${rpLaunchID}"
+
+      String portalExecParams = reportPortal.getExecParams()
+      echo "Report portal execution parameters: ${portalExecParams}"
+
+      return "${execParameters} ${portalExecParams}"
+    } catch (Exception e) {
+      echo "Error during Report Portal setup: ${e.message}"
+    }
+  }
+}
+
+/**
+ * Finalizes the Report Portal session.
+ *
+ * @param reportPortal The Report Portal client.
+ */
+void finalizeReportPortal(ReportPortalClient reportPortal) {
+  stage("[ReportPortal] Finish run") {
+    try {
+      def response = reportPortal.launchFinish()
+      echo "${response}"
+    } catch (Exception e) {
+      echo "Couldn't stop run in ReportPortal\nError: ${e.getMessage()}"
+    }
+  }
+}
+
+/**
+ * Generates and Publishes the Allure report from the test results.
+ *
+ * @param resultPaths The paths where test results are stored.
+ */
+void generateAndPublishAllureReport(List resultPaths) {
+  stage('[Allure] Generate report') {
+    script {
+      for (path in resultPaths) {
+        unstash name: path
+        unzip zipFile: "${path}.zip", dir: path
+      }
+      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+      sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+    }
+  }
+
+  stage('[Allure] Publish report') {
+    script {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
+    }
+  }
+}
+
+/**
+ * Analyzes the results of the test run.
+ *
+ * @param testRunExecutionSummary The summary of the test run execution.
+ * @return The updated test run execution summary.
+ */
+IRunExecutionSummary analyzeResults(IRunExecutionSummary testRunExecutionSummary) {
+  stage('[Report] Analyze results') {
+    def jsonSuites = readJSON(file: "${env.WORKSPACE}/allure-report/data/suites.json")
+    def jsonDefects = readJSON(file: "${env.WORKSPACE}/allure-report/data/categories.json")
+
+    testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
+    testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+  }
+  return testRunExecutionSummary
+}
+
+/**
+ * Sends notifications to Slack if required.
+ *
+ * @param sendSlackNotification Indicates whether to send Slack notifications.
+ * @param testRunExecutionSummary The summary of the test run execution.
+ * @param ciBuildId The name of the build.
+ * @param useReportPortal Indicates whether Report Portal is used.
+ */
+void sendNotifications(IRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
+                       channel = '#rancher_tests_notifications') {
+  stage('[Slack] Send notification') {
+    slackSend(attachments: folioSlackNotificationUtils
+      .renderBuildAndTestResultMessage(
+        TestType.CYPRESS,
+        testRunExecutionSummary,
+        ciBuildId,
+        useReportPortal,
+        "${env.BUILD_URL}allure/"
+      ),
+      channel: channel)
+  }
 }
