@@ -42,16 +42,29 @@ String runSingleThread(CypressTestsParameters params) {
   }
 }
 
-IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = false, String reportPortalRunType = '',
-                                Closure body) {
-  if(useReportPortal && reportPortalRunType.isEmpty()){
+/**
+ * Wrapper for executing tests with optional Report Portal integration.
+ *
+ * This function sets up the Report Portal client, executes the provided closure,
+ * finalizes Report Portal, generates an Allure report, analyzes results, and sends notifications.
+ *
+ * @param ciBuildId The CI build ID to associate with the test run.
+ * @param useReportPortal A flag indicating whether to use Report Portal for reporting.
+ * @param reportPortalRunType The type of run for Report Portal (required if useReportPortal is true).
+ * @param body A closure that contains the test execution logic.
+ * @return An IRunExecutionSummary object summarizing the test execution results.
+ * @throws IllegalArgumentException if reportPortalRunType is empty when useReportPortal is true.
+ * @throws Exception if an error occurs during test execution.
+ */
+IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = false, String reportPortalRunType = '', Closure body) {
+  if (useReportPortal && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
     throw new IllegalArgumentException("ReportPortal run type could not be empty!")
   }
 
   List resultPathsList = []
-
   IRunExecutionSummary testRunExecutionSummary
 
+  // Initialize the Report Portal client
   ReportPortalClient reportPortalClient = new ReportPortalClient(this,
     TestType.CYPRESS,
     ciBuildId,
@@ -59,6 +72,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = fals
     env.WORKSPACE,
     reportPortalRunType)
 
+  // Set up Report Portal (consider checking if this value is used)
   String reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
 
   try {
@@ -67,7 +81,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = fals
     body() // Execute the provided closure
 
     echo "Test execution flow completed."
-  } catch (e) {
+  } catch (Exception e) {
     echo "Error executing tests: ${e.message}"
     throw e // Rethrow the exception for further handling if necessary
   } finally {
