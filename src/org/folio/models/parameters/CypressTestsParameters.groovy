@@ -3,14 +3,14 @@ package org.folio.models.parameters
 import org.folio.models.OkapiTenant
 
 //TODO Switch parameters in Cypress pipelines and move report portal setting to ReportPortal package
-class CypressTestsParameters {
-  String buildName
+class CypressTestsParameters implements Cloneable {
+  String ciBuildId
 
   String testsSrcBranch
 
-  String parallelExecParameters
+  String browserName
 
-  String sequentialExecParameters
+  String execParameters
 
   String okapiUrl
 
@@ -18,9 +18,9 @@ class CypressTestsParameters {
 
   OkapiTenant tenant
 
-  String testrailProjectID
+  String testrailProjectID = ''
 
-  String testrailRunID
+  String testrailRunID = ''
 
   String workerLabel
 

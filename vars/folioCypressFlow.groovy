@@ -1,8 +1,61 @@
-import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
-import org.folio.testing.TestType
-import org.folio.testing.cypress.results.CypressRunExecutionSummary
+
+List<String> runMultiThread(CypressTestsParameters params){
+  echo "Temporary!"
+}
+
+String runSingleThread(CypressTestsParameters params) {
+  node(params.workerLabel) {
+    stage('[Cypress] Single thread run') {
+      String workerId = folioCypress.generateRandomId(3)
+      echo "Running tests with worker ID: ${workerId}"
+
+      // Clone the Cypress repository
+      folioCypress.cloneCypressRepo(params.testsSrcBranch)
+
+      // Set up common environment variables
+      folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
+        params.okapiUrl,
+        params.tenant.tenantId,
+        params.tenant.adminUser.username,
+        params.tenant.adminUser.password)
+
+      // Compile Cypress tests
+      folioCypress.compileCypressTests()
+
+      timeout(time: params.timeout, unit: 'MINUTES') {
+        // Execute tests
+        folioCypress.executeTests(params.ciBuildId,
+          params.browserName,
+          params.execParameters,
+          params.testrailProjectID,
+          params.testrailRunID,
+          workerId)
+      }
+
+      // Archive test results
+      return folioCypress.archiveTestResults(workerId)
+    }
+  }
+}
+
+IRunExecutionSummary runWrapper(Closure body){
+  List resultPathsList = []
+  IRunExecutionSummary testRunExecutionSummary
+  try{
+    body()
+  }catch(e){
+    echo "Error executing tests: ${e.message}"
+    throw e
+  }finally{
+    folioCypress.generateAndPublishAllureReport(resultPathsList)
+    testRunExecutionSummary = folioCypress.analyzeResults()
+
+    return testRunExecutionSummary
+  }
+}
 
 /**
  * !Attention! This method should be called inside node block in parent
@@ -30,29 +83,28 @@ IRunExecutionSummary call(params) {
   folioTools.validateParams(params, ['parallelExecParameters', 'sequentialExecParameters', 'testrailProjectID', 'testrailRunID', 'numberOfWorkers'])
 
   /* Define variables */
-  String customBuildName = params.customBuildName?.trim() ?
-    "#${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
-  String branch = params.branch
-  String tenantUrl = params.tenantUrl
-  String okapiUrl = params.okapiUrl
+  String customBuildName = params.customBuildName?.trim() ? "#${params.customBuildName.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
+//  String branch = params.branch
+//  String tenantUrl = params.tenantUrl
+//  String okapiUrl = params.okapiUrl
   String tenantId = params.tenantId
   String adminUsername = params.adminUsername
   String adminPassword = params.adminPassword
-  String parallelExecParameters = params.parallelExecParameters
-  String sequentialExecParameters = params.sequentialExecParameters
-  String testsTimeout = params.testsTimeout?.trim() ?: Constants.GLOBAL_BUILD_TIMEOUT
-  String testrailProjectID = params.testrailProjectID
-  String testrailRunID = params.testrailRunID
-  String runType = params.runType
+//  String parallelExecParameters = params.parallelExecParameters
+//  String sequentialExecParameters = params.sequentialExecParameters
+//  String testsTimeout = params.testsTimeout?.trim() ?: Constants.GLOBAL_BUILD_TIMEOUT
+//  String testrailProjectID = params.testrailProjectID
+//  String testrailRunID = params.testrailRunID
+//  String runType = params.runType
   IRunExecutionSummary testRunExecutionSummary
   boolean sendSlackNotification = params.sendSlackNotification ? params?.sendSlackNotification?.trim()?.toLowerCase()?.toBoolean() : true
-  int numberOfWorkers = params.numberOfWorkers as int ?: 1
-  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
+//  int numberOfWorkers = params.numberOfWorkers as int ?: 1
+//  boolean useReportPortal = params?.useReportPortal?.trim()?.toLowerCase()?.toBoolean()
   boolean runSanityCheck = params?.runSanityCheck?.trim()?.toLowerCase()?.toBoolean()
 
   def rpLaunchID
 
-  String agent = params.agent
+//  String agent = params.agent
   String browserName = "chrome"
   String cypressImageVersion = ''
   List resultPaths = []
@@ -61,27 +113,27 @@ IRunExecutionSummary call(params) {
 
   buildName customBuildName
 
-  if (useReportPortal) {
-    stage('[ReportPortal config bind & launch]') {
-      try {
-        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
-
-        rpLaunchID = reportPortal.launch()
-        println("${rpLaunchID}")
-
-        String portalExecParams = reportPortal.getExecParams()
-        println("Report portal execution parameters: ${portalExecParams}")
-
-        parallelExecParameters = parallelExecParameters?.trim() ?
-          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
-
-        sequentialExecParameters = sequentialExecParameters?.trim() ?
-          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
-      } catch (Exception e) {
-        println("Error: " + e.getMessage())
-      }
-    }
-  }
+//  if (useReportPortal) {
+//    stage('[ReportPortal config bind & launch]') {
+//      try {
+//        reportPortal = new ReportPortalClient(this, TestType.CYPRESS, customBuildName, env.BUILD_NUMBER, env.WORKSPACE, runType)
+//
+//        rpLaunchID = reportPortal.launch()
+//        println("${rpLaunchID}")
+//
+//        String portalExecParams = reportPortal.getExecParams()
+//        println("Report portal execution parameters: ${portalExecParams}")
+//
+//        parallelExecParameters = parallelExecParameters?.trim() ?
+//          "${parallelExecParameters} ${portalExecParams}" : parallelExecParameters
+//
+//        sequentialExecParameters = sequentialExecParameters?.trim() ?
+//          "${sequentialExecParameters} ${portalExecParams}" : sequentialExecParameters
+//      } catch (Exception e) {
+//        println("Error: " + e.getMessage())
+//      }
+//    }
+//  }
 
   try {
     timeout(time: testsTimeout, unit: 'HOURS') {
@@ -196,61 +248,61 @@ IRunExecutionSummary call(params) {
     println(e)
     error("Tests execution stage failed")
   } finally {
-    if (useReportPortal) {
-      stage("[ReportPortal] Finish run") {
-        try {
-          def res_end = reportPortal.launchFinish()
-          println("${res_end}")
-        } catch (Exception e) {
-          println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
-        }
-      }
-    }
-    stage('[Allure] Generate report') {
-      script {
-        for (path in resultPaths) {
-          unstash name: path
-          unzip zipFile: "${path}.zip", dir: path
-        }
-        def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-        sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-      }
-    }
+//    if (useReportPortal) {
+//      stage("[ReportPortal] Finish run") {
+//        try {
+//          def res_end = reportPortal.launchFinish()
+//          println("${res_end}")
+//        } catch (Exception e) {
+//          println("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+//        }
+//      }
+//    }
+//    stage('[Allure] Generate report') {
+//      script {
+//        for (path in resultPaths) {
+//          unstash name: path
+//          unzip zipFile: "${path}.zip", dir: path
+//        }
+//        def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+//        sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+//      }
+//    }
+//
+//    stage('[Allure] Publish report') {
+//      script {
+//        allure([
+//          includeProperties: false,
+//          jdk              : '',
+//          commandline      : Constants.CYPRESS_ALLURE_VERSION,
+//          properties       : [],
+//          reportBuildPolicy: 'ALWAYS',
+//          results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
+//        ])
+//      }
+//    }
 
-    stage('[Allure] Publish report') {
-      script {
-        allure([
-          includeProperties: false,
-          jdk              : '',
-          commandline      : Constants.CYPRESS_ALLURE_VERSION,
-          properties       : [],
-          reportBuildPolicy: 'ALWAYS',
-          results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }
-        ])
-      }
-    }
+//    stage('[Report] Analyze results') {
+//      def jsonSuites = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
+//      def jsonDefects = readJSON(file: "${WORKSPACE}/allure-report/data/categories.json")
+//
+//      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
+//      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+//    }
 
-    stage('[Report] Analyze results') {
-      def jsonSuites = readJSON(file: "${WORKSPACE}/allure-report/data/suites.json")
-      def jsonDefects = readJSON(file: "${WORKSPACE}/allure-report/data/categories.json")
-
-      testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
-      testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
-    }
-
-    if (sendSlackNotification) {
-      stage('[Slack] Send notification') {
-        slackSend(attachments: folioSlackNotificationUtils
-          .renderBuildAndTestResultMessage(
-            TestType.CYPRESS
-            , testRunExecutionSummary
-            , customBuildName
-            , useReportPortal
-            , "${env.BUILD_URL}allure/"
-          )
-          , channel: "#rancher_tests_notifications")
-      }
-    }
+//    if (sendSlackNotification) {
+//      stage('[Slack] Send notification') {
+//        slackSend(attachments: folioSlackNotificationUtils
+//          .renderBuildAndTestResultMessage(
+//            TestType.CYPRESS
+//            , testRunExecutionSummary
+//            , customBuildName
+//            , useReportPortal
+//            , "${env.BUILD_URL}allure/"
+//          )
+//          , channel: "#rancher_tests_notifications")
+//      }
+//    }
   }
   return testRunExecutionSummary
 }

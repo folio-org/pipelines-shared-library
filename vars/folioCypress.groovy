@@ -446,7 +446,8 @@ void generateAndPublishAllureReport(List resultPaths) {
  * @param testRunExecutionSummary The summary of the test run execution.
  * @return The updated test run execution summary.
  */
-IRunExecutionSummary analyzeResults(IRunExecutionSummary testRunExecutionSummary) {
+IRunExecutionSummary analyzeResults() {
+  IRunExecutionSummary testRunExecutionSummary
   stage('[Report] Analyze results') {
     def jsonSuites = readJSON(file: "${env.WORKSPACE}/allure-report/data/suites.json")
     def jsonDefects = readJSON(file: "${env.WORKSPACE}/allure-report/data/categories.json")
@@ -478,4 +479,25 @@ void sendNotifications(IRunExecutionSummary testRunExecutionSummary, String ciBu
       ),
       channel: channel)
   }
+}
+
+/**
+ * Generates a random alphanumeric string of the specified length.
+ *
+ * @param length The desired length of the generated ID.
+ * @return A random alphanumeric string.
+ * @throws IllegalArgumentException if the length is less than or equal to zero.
+ */
+String generateRandomId(int length) {
+  // Validate input parameter
+  if (length <= 0) {
+    throw new IllegalArgumentException("Length must be greater than zero.")
+  }
+
+  // Define the character pool
+  def chars = ('A'..'Z') + ('0'..'9')
+  Random random = new Random()
+
+  // Generate the random ID
+  return (1..length).collect { chars[random.nextInt(chars.size())] }.join()
 }
