@@ -1,8 +1,9 @@
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
+import org.folio.testing.TestType
 
-List<String> runMultiThread(CypressTestsParameters params){
+List<String> runMultiThread(CypressTestsParameters params) {
   echo "Temporary!"
 }
 
@@ -41,17 +42,45 @@ String runSingleThread(CypressTestsParameters params) {
   }
 }
 
-IRunExecutionSummary runWrapper(Closure body){
+IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = false, String reportPortalRunType = '',
+                                Closure body) {
+  if(useReportPortal && reportPortalRunType.isEmpty()){
+    throw new IllegalArgumentException("ReportPortal run type could not be empty!")
+  }
+
   List resultPathsList = []
+
   IRunExecutionSummary testRunExecutionSummary
-  try{
-    body()
-  }catch(e){
+
+  ReportPortalClient reportPortalClient = new ReportPortalClient(this,
+    TestType.CYPRESS,
+    ciBuildId,
+    env.BUILD_NUMBER,
+    env.WORKSPACE,
+    reportPortalRunType)
+
+  String reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+
+  try {
+    echo "Starting test execution flow..."
+
+    body() // Execute the provided closure
+
+    echo "Test execution flow completed."
+  } catch (e) {
     echo "Error executing tests: ${e.message}"
-    throw e
-  }finally{
+    throw e // Rethrow the exception for further handling if necessary
+  } finally {
+    folioCypress.finalizeReportPortal(reportPortalClient)
+
+    // Generate and publish Allure report
     folioCypress.generateAndPublishAllureReport(resultPathsList)
+
+    // Analyze results
     testRunExecutionSummary = folioCypress.analyzeResults()
+
+    // Send notifications
+    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, useReportPortal)
 
     return testRunExecutionSummary
   }

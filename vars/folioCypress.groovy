@@ -372,23 +372,20 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
 /**
  * Sets up the Report Portal client and initializes the launch.
  *
- * @param ciBuildId The custom build ID.
- * @param runType The type of run being executed.
+ * @param reportPortalClient The Report Portal client.
  * @param execParameters The parameters for execution.
  * @return A string containing the combined execution parameters.
- * @throws Exception if there is an error during Report Portal setup.
  */
-String setupReportPortal(ReportPortalClient reportPortal, String ciBuildId, String runType, String execParameters) {
+String setupReportPortal(ReportPortalClient reportPortalClient) {
   stage('[ReportPortal] Config bind & launch') {
     try {
-      reportPortal = new ReportPortalClient(this, TestType.CYPRESS, ciBuildId, env.BUILD_NUMBER, env.WORKSPACE, runType)
-      String rpLaunchID = reportPortal.launch()
+      String rpLaunchID = reportPortalClient.launch()
       echo "Report Portal Launch ID: ${rpLaunchID}"
 
-      String portalExecParams = reportPortal.getExecParams()
+      String portalExecParams = reportPortalClient.getExecParams()
       echo "Report portal execution parameters: ${portalExecParams}"
 
-      return "${execParameters} ${portalExecParams}"
+      return portalExecParams
     } catch (Exception e) {
       echo "Error during Report Portal setup: ${e.message}"
     }
@@ -398,12 +395,12 @@ String setupReportPortal(ReportPortalClient reportPortal, String ciBuildId, Stri
 /**
  * Finalizes the Report Portal session.
  *
- * @param reportPortal The Report Portal client.
+ * @param reportPortalClient The Report Portal client.
  */
-void finalizeReportPortal(ReportPortalClient reportPortal) {
+void finalizeReportPortal(ReportPortalClient reportPortalClient) {
   stage("[ReportPortal] Finish run") {
     try {
-      def response = reportPortal.launchFinish()
+      def response = reportPortalClient.launchFinish()
       echo "${response}"
     } catch (Exception e) {
       echo "Couldn't stop run in ReportPortal\nError: ${e.getMessage()}"

@@ -28,10 +28,6 @@ class CypressTestsParameters implements Cloneable {
 
   boolean reportPortalUse
 
-  String reportPortalProjectName
-
-  String reportPortalProjectId
-
   String reportPortalRunType
 
   String timeout
