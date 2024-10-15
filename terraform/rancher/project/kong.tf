@@ -104,14 +104,34 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+   - name: KONG_UPSTREAM_TIMEOUT
+     value: "600000"
+   - name: KONG_UPSTREAM_SEND_TIMEOUT
+     value: "600000"
+   - name: KONG_UPSTREAM_READ_TIMEOUT
+     value: "600000"
+   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
+     value: "error timeout http_500 http_502 http_503 http_504"
+   - name: "KONG_PROXY_SEND_TIMEOUT"
+     value: "600000"
+   - name: "KONG_UPSTREAM_CONNECT_TIMEOUT"
+     value: "600000"
+   - name: "KONG_PROXY_READ_TIMEOUT"
+     value: "600000"
+   - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
+     value: "600000"
+   - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
+     value: "600000"
    - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-     value: "600"
+     value: "600000"
    - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
      value: "1024"
    - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
      value: "20000"
    - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
      value: "20000"
+   - name: KONG_RETRIES
+     value: "10"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
@@ -141,7 +161,7 @@ kong:
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
-     value: "2"
+     value: "auto"
    - name: EUREKA_RESOLVE_SIDECAR_IP
      value: "false"
 resources:
