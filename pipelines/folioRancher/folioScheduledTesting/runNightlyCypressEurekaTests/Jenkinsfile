@@ -69,7 +69,7 @@ Map cypressFlowParameters = [
   tenantId              : 'diku',
   adminUsername         : 'diku_admin',
   adminPassword         : 'admin',
-  parallelExecParameters: '--env grepTags="smoke"',
+  parallelExecParameters: '--env grepTags="smoke --eureka"',
   testsTimeout          : '8',
   testrailProjectID     : '14',
   testrailRunID         : '2723',
