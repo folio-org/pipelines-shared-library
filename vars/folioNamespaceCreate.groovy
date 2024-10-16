@@ -145,7 +145,8 @@ void call(CreateNamespaceParameters args) {
 //      namespace.getTenants()
       InstallRequestParams installRequestParams1 = new InstallRequestParams()
         .withTenantParameters("purge=true")
-      main.deleteTenant(namespace.getTenants()['diku'].setInstallRequestParams(installRequestParams1))
+      namespace.getTenants()['diku'].setInstallRequestParams(installRequestParams1)
+      main.deleteTenant(namespace.getTenants()['diku'])
     }
 
     stage('[Rest] Initialize') {
