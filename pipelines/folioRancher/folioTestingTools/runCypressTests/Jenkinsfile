@@ -114,6 +114,7 @@ ansiColor('xterm') {
  * @param numberOfWorkers The number of workers currently specified.
  * @return True if execution limit is reached; false otherwise.
  */
+@SuppressWarnings('GrMethodMayBeStatic')
 boolean isLimitReached(Integer dayOfWeek, Integer hourOfDay, String numberOfWorkers) {
   int workers = numberOfWorkers.toInteger()
 
