@@ -52,7 +52,7 @@ def agent() {
   return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def cypress_agent() {
+def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 

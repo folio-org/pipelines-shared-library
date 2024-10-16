@@ -49,15 +49,15 @@ String runSingleThread(CypressTestsParameters params) {
  * finalizes Report Portal, generates an Allure report, analyzes results, and sends notifications.
  *
  * @param ciBuildId The CI build ID to associate with the test run.
- * @param useReportPortal A flag indicating whether to use Report Portal for reporting.
- * @param reportPortalRunType The type of run for Report Portal (required if useReportPortal is true).
+ * @param reportPortalUse A flag indicating whether to use Report Portal for reporting.
+ * @param reportPortalRunType The type of run for Report Portal (required if reportPortalUse is true).
  * @param body A closure that contains the test execution logic.
  * @return An IRunExecutionSummary object summarizing the test execution results.
- * @throws IllegalArgumentException if reportPortalRunType is empty when useReportPortal is true.
+ * @throws IllegalArgumentException if reportPortalRunType is empty when reportPortalUse is true.
  * @throws Exception if an error occurs during test execution.
  */
-IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = false, String reportPortalRunType = '', Closure body) {
-  if (useReportPortal && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
+IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
+  if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
     throw new IllegalArgumentException("ReportPortal run type could not be empty!")
   }
 
@@ -94,7 +94,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean useReportPortal = fals
     testRunExecutionSummary = folioCypress.analyzeResults()
 
     // Send notifications
-    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, useReportPortal)
+    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
 
     return testRunExecutionSummary
   }
