@@ -127,8 +127,8 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Preinstall') {
-//      main.publishDescriptors(namespace.getModules().getInstallJson())
-//      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+      main.publishDescriptors(namespace.getModules().getInstallJson())
+      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
     }
 
     stage('[Helm] Deploy backend') {
