@@ -139,13 +139,14 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest Delete tenant]') {
-//      def tmp_install = namespace.getModules().getInstallJson()
-//      tmp_install.each { module -> module.action = "disable" }
-//      main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
-//      namespace.getTenants()
+      def tmp_install = namespace.getModules().getInstallJson()
+      tmp_install.each { module -> module.action = "disable" }
+      main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
+      namespace.getTenants()
       InstallRequestParams installRequestParams1 = new InstallRequestParams()
         .withTenantParameters("purge=true")
       namespace.getTenants()['diku'].setInstallRequestParams(installRequestParams1)
+      main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
       main.deleteTenant(namespace.getTenants()['diku'])
     }
 
