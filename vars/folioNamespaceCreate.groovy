@@ -140,7 +140,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest Delete tenant]') {
       def tmp_install = namespace.getModules().getInstallJson()
-      tmp_install..each { module -> module.action = "disable" }
+      tmp_install.each { module -> module.action = "disable" }
       main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
       namespace.getTenants()
       InstallRequestParams installRequestParams1 = new InstallRequestParams()
