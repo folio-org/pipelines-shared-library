@@ -40,7 +40,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
 
     stage('[Terraform] Provision') {
-      container('jnlp') {
+      container('jnlp1') {
         folioTerraformFlow.manageNamespace('apply', tfConfig)
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
@@ -139,7 +139,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      sleep time: 15, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
       main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 

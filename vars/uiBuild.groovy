@@ -45,7 +45,7 @@ void call(Map params, boolean releaseVersion = false) {
     }
   }
   stage('Prepare ECR Creds') {
-    container('jnlp') {
+    container('jnlp1') {
       withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                         credentialsId    : 'aws-ecr-rw-credentials',
                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
