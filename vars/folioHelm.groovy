@@ -265,12 +265,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Enable RTR functionality
-  if (ns.enableRtr) {
-    moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
-  }
+
 
   //mod-authtoken jwt.signing.key
   if (moduleName == 'mod-authtoken') {
+    if (ns.enableRtr) {
+      moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
+    }
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
   }
 

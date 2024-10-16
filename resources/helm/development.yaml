@@ -1019,9 +1019,7 @@ mod-data-export-worker:
     enabled: true
     maxUnavailable: 1
 mod-data-import:
-  extraEnvVars:
-  - name: S3_FORCEPATHSTYLE
-    value: 'true'
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
