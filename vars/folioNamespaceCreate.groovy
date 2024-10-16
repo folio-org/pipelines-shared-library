@@ -111,7 +111,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy Okapi') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
+//        folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
 //        if (namespace.getDeploymentConfigType() ==~ /testing|performance/) {
 //          sleep time: 1, unit: 'MINUTES'
 //          kubectl.setKubernetesResourceCount('deployment', 'okapi', namespace.getNamespaceName(), '2')
@@ -127,13 +127,13 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Preinstall') {
-      main.publishDescriptors(namespace.getModules().getInstallJson())
-      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+//      main.publishDescriptors(namespace.getModules().getInstallJson())
+//      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
     }
 
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
