@@ -1,5 +1,5 @@
 #!groovy
-
+import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -13,9 +13,12 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    string(name: 'TENANT_ID', defaultValue: '', description: '(Required) Tenant ID for building UI'),
-    folioParameters.branch(),
     folioParameters.configType(),
+    folioParameters.repository(),
+    folioParameters.branch(),
+    folioParameters.tenantId(),
+    string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -33,42 +36,61 @@ ansiColor('xterm') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
       }
-      String folioRepository = 'application-descriptors'
-      boolean releaseVersion = true
-      RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-      namespace.setDefaultTenantId("${params.TENANT_ID}")
-      namespace.withDeploymentConfigType('testing')
-      namespace.addDeploymentConfig('RANCHER-1334')
-      String commitHash = common.getLastCommitHash('platform-complete', 'snapshot')
-      List installJson = new GitHubUtility(this).getEnableList(folioRepository, 'master/Quesnelia')
-      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        "${commitHash}", "${params.FOLIO_BRANCH}")
-      namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-        .withInstallJson(namespace.getModules().getInstallJson().collect())
-        .withIndex(new Index(true, true))
-        .withTenantUi(tenantUi.clone())
+
+      boolean releaseVersion = false
+
+      String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
+              : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+
+      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
+
+      EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+              .withDefaultTenant("${params.TENANT_ID}")
+              .withDeploymentConfigType(params.CONFIG_TYPE)
+
+      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+      namespace.getModules().setInstallJson(installJson)
+
+      if (params.CONSORTIA)
+        namespace.setEnableConsortia(true)
+
+      OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID]
+      tenant = tenant ? tenant : folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), new InstallRequestParams())[params.TENANT_ID]
+
+      namespace.addTenant(tenant
+              .withInstallJson(namespace.getModules().getInstallJson().collect())
+              .withTenantUi(tenantUi.clone())
       )
 
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
-                             kongUrl             : "https://${namespace.getDomains()['kong']}",
-                             keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
-                             tenantUrl           : "https://${namespace.generateDomain("${params.TENANT_ID}")}",
-                             hasAllPerms         : true,
+                             kongUrl             : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
+                             keycloakUrl         : "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
+                             tenantUrl           : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}",
+                             hasAllPerms         : false,
                              isSingleTenant      : true,
                              tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
-                             custom_url          : "https://${namespace.getDomains()['kong']}",
-                             custom_tag          : commitHash.toString().take(7),
-                             consortia           : false,
+                             custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
+                             custom_tag          : tenant.getTenantUi().getTag(),
+                             consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
                              rancher_cluster_name: params.CLUSTER,
                              rancher_project_name: params.NAMESPACE,
                              folio_branch        : params.FOLIO_BRANCH]
+
         uiBuild(jobParameters, releaseVersion)
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModule(namespace, 'ui-bundle', "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}", false, "${params.TENANT_ID}")
+
+        folioHelm.withKubeConfig(params.CLUSTER) {
+          folioHelm.deployFolioModule(
+                  namespace
+                  , 'ui-bundle'
+                  , "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}"
+                  , false
+                  , "${params.TENANT_ID}"
+          )
         }
       }
     } catch (e) {
