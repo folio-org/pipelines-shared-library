@@ -127,27 +127,27 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Preinstall') {
-//      main.publishDescriptors(namespace.getModules().getInstallJson())
-//      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+      main.publishDescriptors(namespace.getModules().getInstallJson())
+      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
     }
 
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
       }
     }
 
-    stage('[Rest Delete tenant]') {
-//      def tmp_install = namespace.getModules().getInstallJson()
-//      tmp_install.each { module -> module.action = "disable" }
-//      main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
-//      namespace.getTenants()
-      InstallRequestParams installRequestParams1 = new InstallRequestParams()
-        .withTenantParameters("purge=true")
-      namespace.getTenants()['diku'].setInstallRequestParams(installRequestParams1)
-      main.deleteTenant(namespace.getTenants()['diku'])
-    }
+//    stage('[Rest Delete tenant]') {
+////      def tmp_install = namespace.getModules().getInstallJson()
+////      tmp_install.each { module -> module.action = "disable" }
+////      main.tenantInstall(namespace.getTenants()['diku'], tmp_install)
+////      namespace.getTenants()
+//      InstallRequestParams installRequestParams1 = new InstallRequestParams()
+//        .withTenantParameters("purge=true")
+//      namespace.getTenants()['diku'].setInstallRequestParams(installRequestParams1)
+//      main.deleteTenant(namespace.getTenants()['diku'])
+//    }
 
     stage('[Rest] Initialize') {
       sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
