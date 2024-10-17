@@ -94,7 +94,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     testRunExecutionSummary = folioCypress.analyzeResults()
 
     // Send notifications
-    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
+    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
 
     return testRunExecutionSummary
   }
