@@ -64,8 +64,8 @@ CreateNamespaceParameters namespaceBaseParams2 = new CreateNamespaceParameters.B
 
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-etesting')
-  .namespaceName('snapshot')
+  .clusterName('folio-tmp')
+  .namespaceName('dmtest')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
