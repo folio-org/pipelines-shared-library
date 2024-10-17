@@ -12,7 +12,7 @@ String runSingleThread(CypressTestsParameters params) {
 
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
-      String workerId = folioCypress.generateRandomId(3)
+      String workerId = '1'
       echo "Running tests with worker ID: ${workerId}"
 
       // Clone the Cypress repository
