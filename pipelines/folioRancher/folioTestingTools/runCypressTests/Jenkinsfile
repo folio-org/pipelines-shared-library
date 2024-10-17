@@ -39,8 +39,6 @@ if (params.REFRESH_PARAMETERS) {
 
 String ciBuildId = params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME
 boolean reportPortalUse = params.REPORT_PORTAL_USE
-println(reportPortalUse)
-println(reportPortalUse.getClass())
 String reportPortalRunType = params.REPORT_PORTAL_RUN_TYPE
 
 CypressTestsParameters cypressParameters = new CypressTestsParameters()
@@ -54,8 +52,6 @@ cypressParameters.setExecParameters(params.EXEC_PARAMETERS)
 cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
 cypressParameters.setTestrailProjectID(params.TESTRAIL_PROJECTID)
 cypressParameters.setTestrailRunID(params.TESTRAIL_RUN_ID)
-//cypressParameters.setReportPortalUse(params.REPORT_PORTAL_USE)
-//cypressParameters.setReportPortalRunType(params.REPORT_PORTAL_RUN_TYPE)
 cypressParameters.setWorkerLabel(params.AGENT)
 cypressParameters.setTimeout(params.TIMEOUT)
 
