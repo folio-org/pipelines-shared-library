@@ -161,7 +161,7 @@ kong:
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
-     value: "auto"
+     value: "2"
    - name: EUREKA_RESOLVE_SIDECAR_IP
      value: "false"
 resources:
