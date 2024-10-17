@@ -89,7 +89,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 
     echo "Test execution flow completed."
   } catch (e) {
-    echo "Error executing tests: ${e.message}"
+//    echo "Error executing tests: ${e.message}"
     throw e // Rethrow the exception for further handling if necessary
   } finally {
     if (reportPortalUse) {
