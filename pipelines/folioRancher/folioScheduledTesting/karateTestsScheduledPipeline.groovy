@@ -153,7 +153,7 @@ private List getEnvironmentJobParameters(String okapiVersion, clusterName, proje
    booleanParam(name: 'GREENMAIL', value: false),
    booleanParam(name: 'MOCK_SERVER', value: true),
    string(name: 'POSTGRESQL', value: 'built-in'),
-   string(name: 'DB_VERSION', value: '13.13'),
+   string(name: 'DB_VERSION', value: '16.1'),
    string(name: 'KAFKA', value: 'built-in'),
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
