@@ -112,26 +112,26 @@ CreateNamespaceParameters namespaceParams2 = new CreateNamespaceParameters.Build
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Ini') {
-        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
-
-      stage('[TF] Destroy') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
-      }
+//      stage('Ini') {
+//        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
+//        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
+//      }
+//
+//      stage('Checkout') {
+//        checkout scm
+//      }
+//
+//      stage('[TF] Destroy') {
+//        def nsExists
+//        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+//          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+//        }
+//        if (nsExists) {
+//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+//        } else {
+//          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+//        }
+//      }
 
       if (namespaceParams.eureka) {
 
@@ -182,7 +182,7 @@ ansiColor('xterm') {
 
 
       } else {
-        folioNamespaceCreate(namespaceParams)
+//        folioNamespaceCreate(namespaceParams)
       }
 
     } catch (e) {
