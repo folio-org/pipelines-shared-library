@@ -16,7 +16,7 @@ String runSingleThread(CypressTestsParameters params) {
       echo "Running tests with worker ID: ${workerId}"
 
       // Clone the Cypress repository
-      folioCypress.cloneCypressRepo(params.testsSrcBranch)
+//      folioCypress.cloneCypressRepo(params.testsSrcBranch)
 
       // Set up common environment variables
       folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
