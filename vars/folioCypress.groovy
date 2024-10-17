@@ -19,7 +19,7 @@ void cloneCypressRepo(String branch) {
   if (!branch) {
     throw new IllegalArgumentException("Branch name must be provided and cannot be empty.")
   }
-  
+
   stage('Checkout Cypress repo') {
     try {
       echo "Checking out branch: ${branch}"
