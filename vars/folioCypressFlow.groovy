@@ -28,6 +28,7 @@ String runSingleThread(CypressTestsParameters params) {
       // Compile Cypress tests
       folioCypress.compileCypressTests()
 
+      println(params.dump())
       timeout(time: params.timeout, unit: 'MINUTES') {
         // Execute tests
         folioCypress.executeTests(params.ciBuildId,

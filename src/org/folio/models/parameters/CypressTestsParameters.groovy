@@ -12,7 +12,7 @@ import org.folio.models.OkapiTenant
 class CypressTestsParameters implements Cloneable {
   String ciBuildId
   String testsSrcBranch
-  String browserName
+  String browserName = 'chrome'
   String execParameters
   String okapiUrl
   String tenantUrl
