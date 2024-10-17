@@ -62,7 +62,7 @@ cypressParameters.setTimeout(params.TIMEOUT)
 ansiColor('xterm') {
   node('rancher') {
     stage('Ini') {
-      buildName env.BUILD_ID
+      buildName "#${env.BUILD_ID}"
       buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
     }
 
