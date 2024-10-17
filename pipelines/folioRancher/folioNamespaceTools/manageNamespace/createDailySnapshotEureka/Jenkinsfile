@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1359-test') _
+@Library('pipelines-shared-library@RANCHER-1818) _
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([folioParameters.cluster(),
@@ -46,8 +46,47 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .worker('rancher')
   .build()
 
+CreateNamespaceParameters namespaceBaseParams2 = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('snapshot')
+  .configType('testing')
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('')
+  .worker('rancher')
+  .build()
+
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('snapshot')
+  .folioBranch('snapshot')
+  .okapiVersion('latest')
+  .configType('testing')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(true)
+  .eureka(true)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .pgType('built-in')
+  .pgVersion('13.13')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
+  .uiBuild(true)
+  .build()
+
+CreateNamespaceParameters namespaceParams2 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
   .folioBranch('snapshot')
@@ -95,7 +134,53 @@ ansiColor('xterm') {
       }
 
       if (namespaceParams.eureka) {
-        folioNamespaceCreateEureka(namespaceParams)
+
+        // Check if both environments exist
+        def env1Exists = kubectl.checkNamespaceExistence("dmtest")
+        def env2Exists = kubectl.checkNamespaceExistence("dmtest2")
+        println "$env1Exists dmtest"
+        println "$env2Exists dmtest2"
+        // Check both environments status
+        def buildStatusEnv1 = kubectl.getLabelValue("dmtest", "build-status")
+        def buildStatusEnv2 = kubectl.getLabelValue("dmtest2", "build-status")
+        println "$buildStatusEnv1 dmtest status"
+        println "$buildStatusEnv2 dmtest2 status"
+        // Destroy the older environment
+//        if (env1Exists && env2Exists) {
+//          if (buildStatusEnv1 == 'SUCCESS' && buildStatusEnv2 == 'SUCCESS') {
+//            // Check environments build date
+//            def env1BuildDate = kubectl.getLabelValue("dmtest", "build-date")
+//            def env2BuildDate = kubectl.getLabelValue("dmtest2", "build-date")
+//
+//            if (env1BuildDate < env2BuildDate) {
+//              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+//              println "Older namespace1 destroyed."
+//            } else {
+//              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
+//              println "Older namespace2 destroyed."
+//            }
+//          }
+//        } else if (!env1Exists) {
+//          // Deploy new environment in place of env1
+//          folioNamespaceCreateEureka(namespaceParams)
+//          buildStatusEnv1 = kubectl.getLabelValue("snapshot", "build-status")
+//          if (buildStatusEnv1 == 'SUCCESS') {
+//            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
+//            println "New environment snapshot is successful, destroyed snapshot2."
+//          }
+//        } else if (!env2Exists) {
+//          // Deploy new environment in place of env2
+//          folioNamespaceCreateEureka(namespaceParams2)
+//          buildStatusEnv2 = kubectl.getLabelValue("snapshot2", "build-status")
+//          if (buildStatusEnv2 == 'SUCCESS') {
+//            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+//            println "New environment snapshot2 is successful, destroyed snapshot."
+//          }
+//        } else {
+//          folioNamespaceCreateEureka(namespaceParams)
+//        }
+
+
       } else {
         folioNamespaceCreate(namespaceParams)
       }

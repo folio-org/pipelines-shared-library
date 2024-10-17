@@ -190,6 +190,22 @@ def deleteLabelFromNamespace(String namespace, String labelKey) {
   }
 }
 
+def getLabelValue(String namespace, String labelKey) {
+  try {
+    def labelValue = sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels.${labelKey}}'", returnStdout: true).trim()
+    if (labelValue) {
+      return labelValue
+    } else {
+      println("Label ${labelKey} does not exist in namespace ${namespace}.")
+      return null
+    }
+  } catch (Exception e) {
+    println(e.getMessage())
+    return null
+  }
+}
+
+
 def collectDeploymentState(String namespace) {
   String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
   try {
