@@ -126,10 +126,9 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
   }
 
   stage('Run tests') {
-    String runId = generateRunId(workerId)
-    String execString = createExecString(runId, browserName, ciBuildId, execParameters)
+    String execString = createExecString(browserName, ciBuildId, execParameters)
 
-    runInDocker("worker-${runId}", {
+    runInDocker("worker-${workerId}", {
       if (testrailProjectID?.trim() && testrailRunID?.trim()) {
         runTestsWithTestRail(testrailProjectID, testrailRunID, execString)
       } else {
@@ -137,28 +136,6 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
       }
     })
   }
-}
-
-/**
- * Generates a CI build id based on the provided name and current build ID.
- *
- * @param ciBuildId The custom build name provided by the user.
- * @return A formatted CI build id string.
- */
-String getCiBuildId(String ciBuildId) {
-  return ciBuildId?.trim() ? "#${ciBuildId.replaceAll(/[^A-Za-z0-9\s.]/, "").replace(' ', '_')}.${env.BUILD_ID}" : "#${env.BUILD_ID}"
-}
-
-
-/**
- * Generates a unique run ID based on the worker ID.
- *
- * @param workerId The optional identifier for the worker.
- * @return A string representing the run ID.
- */
-String generateRunId(String workerId) {
-  String runId = workerId?.trim() ? "${env.BUILD_ID}${workerId}" : env.BUILD_ID
-  return runId.length() > 2 ? runId : "0${runId}"
 }
 
 /**
@@ -171,11 +148,12 @@ String generateRunId(String workerId) {
  * @return The command string for executing tests.
  */
 @SuppressWarnings('GrMethodMayBeStatic')
-String createExecString(String runId, String browserName, String ciBuildId, String execParameters) {
+String createExecString(String browserName, String ciBuildId, String execParameters) {
+  String screenId = (new Random().nextInt(90) + 10).toString()
   return """
     export HOME=\$(pwd)
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
-    export DISPLAY=:${runId[-2..-1]}
+    export DISPLAY=:${screenId}
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
     env
@@ -492,6 +470,7 @@ void sendNotifications(IRunExecutionSummary testRunExecutionSummary, String ciBu
  * @return A random alphanumeric string.
  * @throws IllegalArgumentException if the length is less than or equal to zero.
  */
+@SuppressWarnings('GrMethodMayBeStatic')
 String generateRandomId(int length) {
   // Validate input parameter
   if (length <= 0) {

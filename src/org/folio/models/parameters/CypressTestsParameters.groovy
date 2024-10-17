@@ -23,6 +23,12 @@ class CypressTestsParameters implements Cloneable {
   int numberOfWorkers = 1
   String timeout = '480' // Minutes
 
+  // Custom setter for ciBuildId
+  void setCiBuildId(String ciBuildId) {
+    // Sanitize input: remove unwanted characters and replace spaces with dashes
+    this.ciBuildId = ciBuildId?.replaceAll(/[^A-Za-z0-9\s.]/, "")?.replace(' ', '-')
+  }
+
   @Override
   Object clone() {
     return super.clone()

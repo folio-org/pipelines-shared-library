@@ -9,10 +9,12 @@ List<String> runMultiThread(CypressTestsParameters params) {
 
 String runSingleThread(CypressTestsParameters params) {
   String allureResultPath = ''
+  String workerId = folioCypress.generateRandomId(3)
+  params.ciBuildId = "single-thread-${params.ciBuildId}-${workerId}"
 
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
-      String workerId = '1'
+
       echo "Running tests with worker ID: ${workerId}"
 
       // Clone the Cypress repository
