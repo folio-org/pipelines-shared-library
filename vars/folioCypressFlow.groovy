@@ -61,6 +61,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     throw new IllegalArgumentException("ReportPortal run type could not be empty!")
   }
 
+  String reportPortalExecParameters = ''
   List resultPathsList = []
   IRunExecutionSummary testRunExecutionSummary
 
@@ -72,8 +73,10 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     env.WORKSPACE,
     reportPortalRunType)
 
-  // Set up Report Portal (consider checking if this value is used)
-  String reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+  if (reportPortalUse) {
+    // Set up Report Portal (consider checking if this value is used)
+    reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+  }
 
   try {
     echo "Starting test execution flow..."
@@ -85,7 +88,9 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     echo "Error executing tests: ${e.message}"
     throw e // Rethrow the exception for further handling if necessary
   } finally {
-    folioCypress.finalizeReportPortal(reportPortalClient)
+    if (reportPortalUse) {
+      folioCypress.finalizeReportPortal(reportPortalClient)
+    }
 
     // Generate and publish Allure report
     folioCypress.generateAndPublishAllureReport(resultPathsList)

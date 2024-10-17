@@ -25,7 +25,7 @@ properties([
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
-    choice(name: 'REPORT_PORTAL_RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week", "evrk"]),
+    choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
     booleanParam(name: 'RUN_SANITY_CHECK', defaultValue: true, description: 'Set to true, to run sanity check before main tests execution'),
     folioParameters.cypressAgent(),
     folioParameters.refreshParameters()
