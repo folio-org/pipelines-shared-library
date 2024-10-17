@@ -5,7 +5,7 @@ import org.folio.utilities.Logger
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
-  container('jnlp1') {
+  container('jnlp') {
     withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
                       credentialsId    : Constants.AWS_CREDENTIALS_ID,
                       accessKeyVariable: 'AWS_ACCESS_KEY_ID',

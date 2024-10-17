@@ -7,7 +7,7 @@ void client(Closure closure) {
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
                    string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')])
     {
-      container('jnlp1') {
+      container('jnlp') {
         closure.call()
 
       }
