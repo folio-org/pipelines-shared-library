@@ -19,22 +19,20 @@ void cloneCypressRepo(String branch) {
   if (!branch) {
     throw new IllegalArgumentException("Branch name must be provided and cannot be empty.")
   }
-
+  
   stage('Checkout Cypress repo') {
-    script {
-      try {
-        echo "Checking out branch: ${branch}"
-        checkout([$class           : 'GitSCM',
-                  branches         : [[name: "*/${branch}"]],
-                  extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
-                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                  userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
-                                       url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
-      } catch (Exception e) {
-        // Log an error if the checkout fails
-        echo "Failed to checkout branch '${branch}': ${e.message}"
-        throw e
-      }
+    try {
+      echo "Checking out branch: ${branch}"
+      checkout([$class           : 'GitSCM',
+                branches         : [[name: "*/${branch}"]],
+                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
+                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                userRemoteConfigs: [[credentialsId: Constants.GITHUB_SSH_CREDENTIALS_ID,
+                                     url          : Constants.CYPRESS_SSH_REPOSITORY_URL]]])
+    } catch (Exception e) {
+      // Log an error if the checkout fails
+      echo "Failed to checkout branch '${branch}': ${e.message}"
+      throw e
     }
   }
 }
@@ -408,7 +406,7 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
   }
 }
 
-void unpackAllureReport(List resultPaths){
+void unpackAllureReport(List resultPaths) {
   stage('[Allure] Unpack report') {
     for (path in resultPaths) {
       unstash name: path
