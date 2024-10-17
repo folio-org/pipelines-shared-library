@@ -51,7 +51,8 @@ void cloneCypressRepo(String branch) {
  *
  * @throws IllegalArgumentException if any required parameter is null or empty.
  */
-void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername, String adminPassword) {
+void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
+                                     String adminPassword) {
   // Validate input parameters
   if (!tenantUrl || !okapiUrl || !tenantId || !adminUsername || !adminPassword) {
     throw new IllegalArgumentException("All parameters must be provided and cannot be empty.")

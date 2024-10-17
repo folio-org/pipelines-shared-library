@@ -18,6 +18,7 @@ String runSingleThread(CypressTestsParameters params) {
       // Clone the Cypress repository
       folioCypress.cloneCypressRepo(params.testsSrcBranch)
 
+      println(params.tenant.adminUser.password.getClass())
       // Set up common environment variables
       folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
         params.okapiUrl,
