@@ -307,8 +307,9 @@ String archiveTestResults(String workerId) {
   stage('Archive test results') {
     script {
       try {
+        String stashName = "allure-results-${workerId}"
         // Define the zip file name
-        String zipFileName = "allure-results-${workerId}.zip"
+        String zipFileName = "${stashName}.zip"
 
         // Zipping allure results
         zip zipFile: zipFileName, glob: "allure-results/*"
@@ -318,11 +319,11 @@ String archiveTestResults(String workerId) {
           defaultExcludes: false
 
         // Stashing the artifacts for later use in other stages
-        stash name: "allure-results-${workerId}", includes: zipFileName
+        stash name: stashName, includes: zipFileName
 
         echo "Successfully archived and stashed test results for worker: ${workerId}"
 
-        return zipFileName
+        return stashName
       } catch (Exception e) {
         // Log an error if something goes wrong
         echo "Failed to archive and stash test results: ${e.message}"
@@ -426,10 +427,6 @@ void unpackAllureReport(List resultPaths) {
 void generateAndPublishAllureReport(List resultPaths) {
   stage('[Allure] Generate report') {
     script {
-//      for (path in resultPaths) {
-//        unstash name: path
-//        unzip zipFile: "${path}.zip", dir: path
-//      }
       def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
       sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
     }

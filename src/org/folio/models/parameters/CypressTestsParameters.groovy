@@ -21,8 +21,6 @@ class CypressTestsParameters implements Cloneable {
   String testrailRunID = ''
   String workerLabel = 'cypress'
   int numberOfWorkers = 1
-//  boolean reportPortalUse = false
-//  String reportPortalRunType = ''
   String timeout = '480' // Minutes
 
   @Override
