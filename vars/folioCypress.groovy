@@ -58,6 +58,7 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   }
 
   stage('Set env variables') {
+    echo "I am here!"
     // Set environment variables
     env.CYPRESS_BASE_URL = tenantUrl
     env.CYPRESS_OKAPI_HOST = okapiUrl
