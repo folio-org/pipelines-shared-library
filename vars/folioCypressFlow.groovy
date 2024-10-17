@@ -18,13 +18,12 @@ String runSingleThread(CypressTestsParameters params) {
       // Clone the Cypress repository
       folioCypress.cloneCypressRepo(params.testsSrcBranch)
 
-      println(params.tenant.adminUser.password.getClass())
       // Set up common environment variables
       folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
         params.okapiUrl,
         params.tenant.tenantId,
         params.tenant.adminUser.username,
-        params.tenant.adminUser.getPasswordPlainText())
+        params.tenant.adminUser.password)
 
       // Compile Cypress tests
       folioCypress.compileCypressTests()
@@ -83,31 +82,31 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
   }
 
-  try {
+//  try {
     echo "Starting test execution flow..."
 
     body() // Execute the provided closure
 
     echo "Test execution flow completed."
-  } catch (Exception e) {
-    echo "Error executing tests: ${e.message}"
-    throw e // Rethrow the exception for further handling if necessary
-  } finally {
-    if (reportPortalUse) {
-      folioCypress.finalizeReportPortal(reportPortalClient)
-    }
-
-    // Generate and publish Allure report
-    folioCypress.generateAndPublishAllureReport(resultPathsList)
-
-    // Analyze results
-    testRunExecutionSummary = folioCypress.analyzeResults()
-
-    // Send notifications
-    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
-
-    return testRunExecutionSummary
-  }
+//  } catch (Exception e) {
+//    echo "Error executing tests: ${e.message}"
+//    throw e // Rethrow the exception for further handling if necessary
+//  } finally {
+//    if (reportPortalUse) {
+//      folioCypress.finalizeReportPortal(reportPortalClient)
+//    }
+//
+//    // Generate and publish Allure report
+//    folioCypress.generateAndPublishAllureReport(resultPathsList)
+//
+//    // Analyze results
+//    testRunExecutionSummary = folioCypress.analyzeResults()
+//
+//    // Send notifications
+//    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
+//
+//    return testRunExecutionSummary
+//  }
 }
 
 /**
