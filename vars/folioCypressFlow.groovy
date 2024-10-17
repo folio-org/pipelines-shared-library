@@ -24,7 +24,7 @@ String runSingleThread(CypressTestsParameters params) {
         params.okapiUrl,
         params.tenant.tenantId,
         params.tenant.adminUser.username,
-        params.tenant.adminUser.password)
+        params.tenant.adminUser.getPasswordPlainText())
 
       // Compile Cypress tests
       folioCypress.compileCypressTests()
