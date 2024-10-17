@@ -8,6 +8,8 @@ List<String> runMultiThread(CypressTestsParameters params) {
 }
 
 String runSingleThread(CypressTestsParameters params) {
+  String allureResultPath = ''
+
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
       String workerId = folioCypress.generateRandomId(3)
@@ -37,9 +39,11 @@ String runSingleThread(CypressTestsParameters params) {
       }
 
       // Archive test results
-      return folioCypress.archiveTestResults(workerId)
+      allureResultPath = folioCypress.archiveTestResults(workerId)
     }
   }
+
+  folioCypress.unpackAllureReport([allureResultPath])
 }
 
 /**

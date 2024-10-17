@@ -408,6 +408,15 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
   }
 }
 
+void unpackAllureReport(List resultPaths){
+  stage('[Allure] Unpack report') {
+    for (path in resultPaths) {
+      unstash name: path
+      unzip zipFile: "${path}.zip", dir: path
+    }
+  }
+}
+
 /**
  * Generates and Publishes the Allure report from the test results.
  *
@@ -416,10 +425,10 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
 void generateAndPublishAllureReport(List resultPaths) {
   stage('[Allure] Generate report') {
     script {
-      for (path in resultPaths) {
-        unstash name: path
-        unzip zipFile: "${path}.zip", dir: path
-      }
+//      for (path in resultPaths) {
+//        unstash name: path
+//        unzip zipFile: "${path}.zip", dir: path
+//      }
       def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
       sh "${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
     }
