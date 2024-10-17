@@ -136,15 +136,17 @@ ansiColor('xterm') {
       if (namespaceParams.eureka) {
 
         // Check if both environments exist
-        def env1Exists = kubectl.checkNamespaceExistence("dmtest")
-        def env2Exists = kubectl.checkNamespaceExistence("dmtest2")
-        println "$env1Exists dmtest"
-        println "$env2Exists dmtest2"
-        // Check both environments status
-        def buildStatusEnv1 = kubectl.getLabelValue("dmtest", "build-status")
-        def buildStatusEnv2 = kubectl.getLabelValue("dmtest2", "build-status")
-        println "$buildStatusEnv1 dmtest status"
-        println "$buildStatusEnv2 dmtest2 status"
+        folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
+          def env1Exists = kubectl.checkNamespaceExistence("dmtest")
+          def env2Exists = kubectl.checkNamespaceExistence("dmtest2")
+          println "$env1Exists dmtest"
+          println "$env2Exists dmtest2"
+          // Check both environments status
+          def buildStatusEnv1 = kubectl.getLabelValue("dmtest", "build-status")
+          def buildStatusEnv2 = kubectl.getLabelValue("dmtest2", "build-status")
+          println "$buildStatusEnv1 dmtest status"
+          println "$buildStatusEnv2 dmtest2 status"
+        }
         // Destroy the older environment
 //        if (env1Exists && env2Exists) {
 //          if (buildStatusEnv1 == 'SUCCESS' && buildStatusEnv2 == 'SUCCESS') {
