@@ -39,7 +39,8 @@ if (params.REFRESH_PARAMETERS) {
 
 String ciBuildId = params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME
 boolean reportPortalUse = params.REPORT_PORTAL_USE
-echo reportPortalUse
+println(reportPortalUse)
+println(reportPortalUse.getClass())
 String reportPortalRunType = params.REPORT_PORTAL_RUN_TYPE
 
 CypressTestsParameters cypressParameters = new CypressTestsParameters()
