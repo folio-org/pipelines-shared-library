@@ -57,15 +57,17 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
     throw new IllegalArgumentException("All parameters must be provided and cannot be empty.")
   }
 
-  // Set environment variables
-  env.CYPRESS_BASE_URL = tenantUrl
-  env.CYPRESS_OKAPI_HOST = okapiUrl
-  env.CYPRESS_OKAPI_TENANT = tenantId
-  env.CYPRESS_diku_login = adminUsername
-  env.CYPRESS_diku_password = adminPassword
-  env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+  stage('Set env variables') {
+    // Set environment variables
+    env.CYPRESS_BASE_URL = tenantUrl
+    env.CYPRESS_OKAPI_HOST = okapiUrl
+    env.CYPRESS_OKAPI_TENANT = tenantId
+    env.CYPRESS_diku_login = adminUsername
+    env.CYPRESS_diku_password = adminPassword
+    env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-  echo "Environment variables set for Cypress testing."
+    echo "Environment variables set for Cypress testing."
+  }
 }
 
 /**
