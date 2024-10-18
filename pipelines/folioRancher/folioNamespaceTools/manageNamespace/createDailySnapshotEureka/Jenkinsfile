@@ -29,6 +29,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .clusterName('folio-tmp')
@@ -153,13 +154,13 @@ ansiColor('xterm') {
             def env2BuildDate = folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.getLabelValue("dmtest2", "build-date")}
 
             if (env1BuildDate < env2BuildDate) {
-              folioNamespaceCreateEureka(namespaceParams2)
+              folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams2)
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest2", "build-status", "SUCCESS")}
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest2", "build-date")}
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
               println "Older namespace1 destroyed."
             } else {
-              folioNamespaceCreateEureka(namespaceParams)
+              folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
@@ -168,7 +169,7 @@ ansiColor('xterm') {
           }
         } else if (!env1Exists) {
           // Deploy new environment in place of env1
-          folioNamespaceCreateEureka(namespaceParams)
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
           folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
           folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
           buildStatusEnv1 = kubectl.getLabelValue("snapshot", "build-status")
@@ -178,7 +179,7 @@ ansiColor('xterm') {
           }
         } else if (!env2Exists) {
           // Deploy new environment in place of env2
-          folioNamespaceCreateEureka(namespaceParams2)
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams2)
           folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest2", "build-status", "SUCCESS")}
           folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest2", "build-date")}
           buildStatusEnv2 = kubectl.getLabelValue("snapshot2", "build-status")
@@ -188,7 +189,7 @@ ansiColor('xterm') {
           }
 
         } else {
-          folioNamespaceCreateEureka(namespaceParams)
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
         }
 
       } else {
