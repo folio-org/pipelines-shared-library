@@ -207,8 +207,8 @@ def getLabelValue(String namespace, String labelKey) {
 
 def setLabel(String namespace, String labelKey, String labelValue) {
   try {
-    // Execute kubectl command to set the label on the namespace
-    sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue} --overwrite", returnStdout: true)
+    // Escape the dollar sign in the date command
+    sh(script: "kubectl label namespace ${namespace} ${labelKey}=\"\\$(date +%Y-%m-%d)\" --overwrite", returnStdout: true)
     println("Label ${labelKey} set to ${labelValue} in namespace ${namespace}.")
   } catch (Exception e) {
     // Handle any exceptions that occur during the command execution

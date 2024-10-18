@@ -156,13 +156,13 @@ ansiColor('xterm') {
               if (env1BuildDate < env2BuildDate) {
                 folioNamespaceCreateEureka(namespaceParams2)
                 kubectl.setLabel("dmtest2", "build-status", "SUCCESS")
-                kubectl.setLabel("dmtest2", "build-date", "${date +%Y-%m-%d}")
+                kubectl.setLabel("dmtest2", "build-date", "$(date +%Y-%m-%d)")
                 folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
                 println "Older namespace1 destroyed."
               } else {
                 folioNamespaceCreateEureka(namespaceParams)
                 kubectl.setLabel("dmtest", "build-status", "SUCCESS")
-                kubectl.setLabel("dmtest", "build-date", "${date +%Y-%m-%d}")
+                kubectl.setLabel("dmtest", "build-date", "$(date +%Y-%m-%d)")
                 folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
                 println "Older namespace2 destroyed."
               }
@@ -171,7 +171,7 @@ ansiColor('xterm') {
             // Deploy new environment in place of env1
             folioNamespaceCreateEureka(namespaceParams)
             kubectl.setLabel("dmtest", "build-status", "SUCCESS")
-            kubectl.setLabel("dmtest", "build-date", "${date +%Y-%m-%d}")
+            kubectl.setLabel("dmtest", "build-date", "$(date +%Y-%m-%d)")
             buildStatusEnv1 = kubectl.getLabelValue("snapshot", "build-status")
             if (buildStatusEnv1 == 'SUCCESS') {
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
@@ -181,7 +181,7 @@ ansiColor('xterm') {
             // Deploy new environment in place of env2
             folioNamespaceCreateEureka(namespaceParams2)
             kubectl.setLabel("dmtest2", "build-status", "SUCCESS")
-            kubectl.setLabel("dmtest2", "build-date", "${date +%Y-%m-%d}")
+            kubectl.setLabel("dmtest2", "build-date", "$(date +%Y-%m-%d)")
             buildStatusEnv2 = kubectl.getLabelValue("snapshot2", "build-status")
             if (buildStatusEnv2 == 'SUCCESS') {
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
