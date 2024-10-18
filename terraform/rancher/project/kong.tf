@@ -169,11 +169,11 @@ kong:
     limits:
       cpu: 2048m
       memory: 3Gi
-  ingressController:
-    enabled: false
-  migration:
-    command: ["/bin/sh", "-c"]
-    args: ["echo 'Hello kong!'"]
+ingressController:
+  enabled: false
+migration:
+  command: ["/bin/sh", "-c"]
+  args: ["echo 'Hello kong!'"]
   EOF
   ]
 }
