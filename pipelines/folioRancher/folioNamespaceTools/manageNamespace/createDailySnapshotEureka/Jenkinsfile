@@ -139,49 +139,59 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
           def env1Exists = kubectl.checkNamespaceExistence("dmtest")
           def env2Exists = kubectl.checkNamespaceExistence("dmtest2")
-          println "$env1Exists dmtest"
-          println "$env2Exists dmtest2"
+          println "dmtest exist $env1Exists"
+          println "dmtest2 exist $env2Exists"
           // Check both environments status
           def buildStatusEnv1 = kubectl.getLabelValue("dmtest", "build-status")
           def buildStatusEnv2 = kubectl.getLabelValue("dmtest2", "build-status")
-          println "$buildStatusEnv1 dmtest status"
-          println "$buildStatusEnv2 dmtest2 status"
-        }
-        // Destroy the older environment
-//        if (env1Exists && env2Exists) {
-//          if (buildStatusEnv1 == 'SUCCESS' && buildStatusEnv2 == 'SUCCESS') {
-//            // Check environments build date
-//            def env1BuildDate = kubectl.getLabelValue("dmtest", "build-date")
-//            def env2BuildDate = kubectl.getLabelValue("dmtest2", "build-date")
-//
-//            if (env1BuildDate < env2BuildDate) {
-//              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-//              println "Older namespace1 destroyed."
-//            } else {
-//              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
-//              println "Older namespace2 destroyed."
-//            }
-//          }
-//        } else if (!env1Exists) {
-//          // Deploy new environment in place of env1
-//          folioNamespaceCreateEureka(namespaceParams)
-//          buildStatusEnv1 = kubectl.getLabelValue("snapshot", "build-status")
-//          if (buildStatusEnv1 == 'SUCCESS') {
-//            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
-//            println "New environment snapshot is successful, destroyed snapshot2."
-//          }
-//        } else if (!env2Exists) {
-//          // Deploy new environment in place of env2
-//          folioNamespaceCreateEureka(namespaceParams2)
-//          buildStatusEnv2 = kubectl.getLabelValue("snapshot2", "build-status")
-//          if (buildStatusEnv2 == 'SUCCESS') {
-//            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-//            println "New environment snapshot2 is successful, destroyed snapshot."
-//          }
-//        } else {
-//          folioNamespaceCreateEureka(namespaceParams)
-//        }
+          println "dmtest2 status is $buildStatusEnv1"
+          println "dmtest2 status is $buildStatusEnv2"
+          //Destroy the older environment
+          if (env1Exists && env2Exists) {
+            if (buildStatusEnv1 == 'SUCCESS' && buildStatusEnv2 == 'SUCCESS') {
+              // Check environments build date
+              def env1BuildDate = kubectl.getLabelValue("dmtest", "build-date")
+              def env2BuildDate = kubectl.getLabelValue("dmtest2", "build-date")
 
+              if (env1BuildDate < env2BuildDate) {
+                folioNamespaceCreateEureka(namespaceParams2)
+                kubectl.setLabel("dmtest", "build-status=SUCCESS")
+                kubectl.setLabel("dmtest", "build-date=$(date +%Y-%m-%d)")
+                folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+                println "Older namespace1 destroyed."
+              } else {
+                folioNamespaceCreateEureka(namespaceParams)
+                kubectl.setLabel("dmtest", "build-status=SUCCESS")
+                kubectl.setLabel("dmtest", "build-date=$(date +%Y-%m-%d)")
+                folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
+                println "Older namespace2 destroyed."
+              }
+            }
+          } else if (!env1Exists) {
+            // Deploy new environment in place of env1
+            folioNamespaceCreateEureka(namespaceParams)
+            kubectl.setLabel("dmtest", "build-status=SUCCESS")
+            kubectl.setLabel("dmtest", "build-date=$(date +%Y-%m-%d)")
+            buildStatusEnv1 = kubectl.getLabelValue("snapshot", "build-status")
+            if (buildStatusEnv1 == 'SUCCESS') {
+              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams2)
+              println "New environment snapshot is successful, destroyed snapshot2."
+            }
+          } else if (!env2Exists) {
+            // Deploy new environment in place of env2
+            folioNamespaceCreateEureka(namespaceParams2)
+            kubectl.setLabel("dmtest", "build-status=SUCCESS")
+            kubectl.setLabel("dmtest", "build-date=$(date +%Y-%m-%d)")
+            buildStatusEnv2 = kubectl.getLabelValue("snapshot2", "build-status")
+            if (buildStatusEnv2 == 'SUCCESS') {
+              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+              println "New environment snapshot2 is successful, destroyed snapshot."
+            }
+
+          } else {
+            folioNamespaceCreateEureka(namespaceParams)
+          }
+        }
 
       } else {
 //        folioNamespaceCreate(namespaceParams)
