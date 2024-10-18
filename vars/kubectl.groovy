@@ -205,6 +205,17 @@ def getLabelValue(String namespace, String labelKey) {
   }
 }
 
+def setLabel(String namespace, String labelKey, String labelValue) {
+  try {
+    // Execute kubectl command to set the label on the namespace
+    sh(script: "kubectl label namespace ${namespace} ${labelKey}=${labelValue} --overwrite", returnStdout: true)
+    println("Label ${labelKey} set to ${labelValue} in namespace ${namespace}.")
+  } catch (Exception e) {
+    // Handle any exceptions that occur during the command execution
+    println("Failed to set label ${labelKey} in namespace ${namespace}. Error: ${e.getMessage()}")
+  }
+}
+
 
 def collectDeploymentState(String namespace) {
   String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
