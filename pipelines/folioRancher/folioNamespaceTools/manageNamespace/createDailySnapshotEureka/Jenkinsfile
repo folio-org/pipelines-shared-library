@@ -87,8 +87,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 CreateNamespaceParameters namespaceParams2 = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-etesting')
-  .namespaceName('snapshot')
+  .clusterName('folio-tmp')
+  .namespaceName('dmtest2')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
@@ -112,14 +112,14 @@ CreateNamespaceParameters namespaceParams2 = new CreateNamespaceParameters.Build
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-//      stage('Ini') {
-//        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
-//        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
-//      }
-//
-//      stage('Checkout') {
-//        checkout scm
-//      }
+      stage('Ini') {
+        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
 //
 //      stage('[TF] Destroy') {
 //        def nsExists
