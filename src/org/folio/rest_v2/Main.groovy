@@ -10,6 +10,7 @@ class Main extends Okapi {
   private Configurations config
   private Consortia consortia
   private static KNOWN_INSTALL_ERRORS = ['Connection refused',
+                                         'Bad Request(400) - POST request for mod-service-interaction',
                                          'Bad Request(400) - POST request for mod-serials-management',
                                          'Bad Request(400) - POST request for mod-licenses',
                                          'Bad Request(400) - POST request for mod-agreements',
