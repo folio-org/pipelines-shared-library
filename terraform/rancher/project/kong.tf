@@ -130,8 +130,6 @@ kong:
      value: "20000"
    - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
      value: "20000"
-   - name: KONG_RETRIES
-     value: "10"
    - name: KONG_PG_DATABASE
      value: "kong"
    - name: KONG_NGINX_PROXY_PROXY_BUFFERS
@@ -161,7 +159,7 @@ kong:
    - name: KONG_PROXY_LISTEN
      value: "0.0.0.0:8000"
    - name: KONG_NGINX_WORKER_PROCESSES
-     value: "2"
+     value: "auto"
    - name: EUREKA_RESOLVE_SIDECAR_IP
      value: "false"
 resources:
