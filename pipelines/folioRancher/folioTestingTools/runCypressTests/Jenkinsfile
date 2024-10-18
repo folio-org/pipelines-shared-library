@@ -89,16 +89,16 @@ ansiColor('xterm') {
           folioCypressFlow.runSingleThread(cypressSanityParameters)
         }
 
-        switch (cypressParameters.numberOfWorkers) {
-          case 1:
-            folioCypressFlow.runSingleThread(cypressParameters)
-            break
-          case { it > 1 }:
-            folioCypressFlow.runMultiThread(cypressParameters)
-            break
-          default:
-            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
-        }
+//        switch (cypressParameters.numberOfWorkers) {
+//          case 1:
+//            folioCypressFlow.runSingleThread(cypressParameters)
+//            break
+//          case { it > 1 }:
+//            folioCypressFlow.runMultiThread(cypressParameters)
+//            break
+//          default:
+//            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
+//        }
       }
     }
   }
