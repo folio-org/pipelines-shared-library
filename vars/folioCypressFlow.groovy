@@ -184,11 +184,9 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //  try {
     echo "Starting test execution flow..."
 
-    // Create a context map to hold parameters
-    def context = [reportPortalExecParameters: reportPortalExecParameters]
-
-    // Pass the context to the closure
-    body(context)
+    // Use binding to share variables
+    binding.setVariable('reportPortalExecParameters', reportPortalExecParameters)
+    body()
 
     echo "Test execution flow completed."
 //  } catch (Exception e) {
