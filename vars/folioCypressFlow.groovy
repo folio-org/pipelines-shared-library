@@ -107,6 +107,7 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
   String workerId = folioCypress.generateRandomId(3)
   params.execParameters += reportPortalExecParameters
   params.ciBuildId = "single-thread-${params.ciBuildId}-${workerId}"
+  println(params.execParameters)
 
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
@@ -127,15 +128,15 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
       // Compile Cypress tests
       folioCypress.compileCypressTests()
 
-      timeout(time: params.timeout, unit: 'MINUTES') {
-        // Execute tests
-        folioCypress.executeTests(params.ciBuildId,
-          params.browserName,
-          params.execParameters,
-          params.testrailProjectID,
-          params.testrailRunID,
-          workerId)
-      }
+//      timeout(time: params.timeout, unit: 'MINUTES') {
+//        // Execute tests
+//        folioCypress.executeTests(params.ciBuildId,
+//          params.browserName,
+//          params.execParameters,
+//          params.testrailProjectID,
+//          params.testrailRunID,
+//          workerId)
+//      }
 
       // Archive test results
       allureResultPath = folioCypress.archiveTestResults(workerId)
@@ -164,7 +165,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
       throw new IllegalArgumentException("ReportPortal run type could not be empty!")
     }
 
-    String reportPortalExecParameters = ''
+    String reportPortalExecParameters = 'dasdasdedas'
     List resultPathsList = []
 
     // Initialize the Report Portal client
