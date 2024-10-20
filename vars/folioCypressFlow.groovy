@@ -3,7 +3,7 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 
-List<String> runMultiThread(CypressTestsParameters params, String reportPortalExecParameters) {
+List<String> runMultiThread(CypressTestsParameters params, String reportPortalExecParameters = '') {
   List allureResultPaths = []
   String workerId = folioCypress.generateRandomId(3)
   params.execParameters += reportPortalExecParameters
@@ -102,7 +102,7 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   return allureResultPaths
 }
 
-String runSingleThread(CypressTestsParameters params, String reportPortalExecParameters) {
+String runSingleThread(CypressTestsParameters params, String reportPortalExecParameters = '') {
   String allureResultPath = ''
   String workerId = folioCypress.generateRandomId(3)
   params.execParameters += reportPortalExecParameters
@@ -183,9 +183,9 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //  try {
     echo "Starting test execution flow..."
 
-    // Define properties for the closure
-    body.reportPortalExecParameters = reportPortalExecParameters
-    body() // Execute the provided closure
+    // Set the delegate to this closure to allow accessing reportPortalExecParameters
+    body.delegate = this
+    body(reportPortalExecParameters) // Execute the provided closure with the parameter
 
     echo "Test execution flow completed."
 //  } catch (Exception e) {
