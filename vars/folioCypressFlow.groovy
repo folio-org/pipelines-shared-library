@@ -159,7 +159,6 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
  * @throws IllegalArgumentException if reportPortalRunType is empty when reportPortalUse is true.
  * @throws Exception if an error occurs during test execution.
  */
-@NonCPS
 IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
     if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
       throw new IllegalArgumentException("ReportPortal run type could not be empty!")
@@ -184,7 +183,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //  try {
     echo "Starting test execution flow..."
 
-    // Use binding to share variables
+    // Set up a binding for the closure to access shared variables
     binding.setVariable('reportPortalExecParameters', reportPortalExecParameters)
     body()
 
