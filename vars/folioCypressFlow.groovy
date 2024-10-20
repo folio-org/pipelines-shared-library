@@ -6,7 +6,7 @@ import org.folio.testing.TestType
 List<String> runMultiThread(CypressTestsParameters params, String reportPortalExecParameters = '') {
   List allureResultPaths = []
   String workerId = folioCypress.generateRandomId(3)
-  params.execParameters += reportPortalExecParameters
+  params.execParameters += " " + reportPortalExecParameters
   params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
 
   int workersLimit
@@ -105,9 +105,8 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
 String runSingleThread(CypressTestsParameters params, String reportPortalExecParameters = '') {
   String allureResultPath = ''
   String workerId = folioCypress.generateRandomId(3)
-  params.execParameters += reportPortalExecParameters
+  params.execParameters += " " + reportPortalExecParameters
   params.ciBuildId = "single-thread-${params.ciBuildId}-${workerId}"
-  println(params.execParameters)
 
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
@@ -165,7 +164,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
       throw new IllegalArgumentException("ReportPortal run type could not be empty!")
     }
 
-    String reportPortalExecParameters = 'dasdasdedas'
+    String reportPortalExecParameters = ''
     List resultPathsList = []
 
     // Initialize the Report Portal client
