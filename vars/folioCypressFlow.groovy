@@ -161,7 +161,6 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
  */
 @NonCPS
 IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
-  script {
     if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
       throw new IllegalArgumentException("ReportPortal run type could not be empty!")
     }
@@ -209,5 +208,4 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //
 //    return testRunExecutionSummary
 //  }
-  }
 }
