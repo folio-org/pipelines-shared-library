@@ -183,7 +183,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //  try {
     echo "Starting test execution flow..."
 
-    body(reportPortalExecParameters) // Execute the provided closure
+    body() // Execute the provided closure
 
     echo "Test execution flow completed."
 //  } catch (Exception e) {
