@@ -160,32 +160,35 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
  * @throws Exception if an error occurs during test execution.
  */
 IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
-  if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
-    throw new IllegalArgumentException("ReportPortal run type could not be empty!")
-  }
+  script {
+    if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
+      throw new IllegalArgumentException("ReportPortal run type could not be empty!")
+    }
 
-  String reportPortalExecParameters = ''
-  List resultPathsList = []
+    String reportPortalExecParameters = ''
+    List resultPathsList = []
 
-  // Initialize the Report Portal client
-  ReportPortalClient reportPortalClient = new ReportPortalClient(this,
-    TestType.CYPRESS,
-    ciBuildId,
-    env.BUILD_NUMBER,
-    env.WORKSPACE,
-    reportPortalRunType)
+    // Initialize the Report Portal client
+    ReportPortalClient reportPortalClient = new ReportPortalClient(this,
+      TestType.CYPRESS,
+      ciBuildId,
+      env.BUILD_NUMBER,
+      env.WORKSPACE,
+      reportPortalRunType)
 
-  if (reportPortalUse) {
-    // Set up Report Portal (consider checking if this value is used)
-    reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
-  }
+    if (reportPortalUse) {
+      // Set up Report Portal (consider checking if this value is used)
+      reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+    }
 
 //  try {
     echo "Starting test execution flow..."
 
-    // Set the delegate to this closure to allow accessing reportPortalExecParameters
-    body.delegate = this
-    body(reportPortalExecParameters) // Execute the provided closure with the parameter
+    // Create a context map to hold parameters
+    def context = [reportPortalExecParameters: reportPortalExecParameters]
+
+    // Pass the context to the closure
+    body(context)
 
     echo "Test execution flow completed."
 //  } catch (Exception e) {
@@ -207,4 +210,5 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //
 //    return testRunExecutionSummary
 //  }
+  }
 }

@@ -82,20 +82,20 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) { reportPortalExecParameters ->
+      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) { context ->
         if (params.RUN_SANITY_CHECK) {
           CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
           cypressSanityParameters.setNumberOfWorkers(1)
           cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
-          folioCypressFlow.runSingleThread(cypressSanityParameters, reportPortalExecParameters)
+          folioCypressFlow.runSingleThread(cypressSanityParameters, context.reportPortalExecParameters)
         }
 
         switch (cypressParameters.numberOfWorkers) {
           case 1:
-            folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
+            folioCypressFlow.runSingleThread(cypressParameters, context.reportPortalExecParameters)
             break
           case { it > 1 }:
-            folioCypressFlow.runMultiThread(cypressParameters, reportPortalExecParameters)
+            folioCypressFlow.runMultiThread(cypressParameters, context.reportPortalExecParameters)
             break
           default:
             error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
