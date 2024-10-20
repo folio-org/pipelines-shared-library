@@ -176,7 +176,7 @@ ingressController:
 migration:
   command: ["/bin/sh", "-c"]
   args: ["echo 'Hello kong!'"]
-  EOF
+EOF
   ]
 }
 resource "kubernetes_service" "kong_admin_api" {
