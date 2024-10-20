@@ -3705,6 +3705,12 @@ mod-okapi-facade:
       value: 'false'
     - name: TENANT_APPS_TTL
       value: '600s'
+    - name: AM_CLIENT_URL
+      value: http://mgr-applications
+    - name: MT_CLIENT_URL
+      value: http://mgr-tenants
+    - name: TE_URL
+      value: http://mgr-tenant-entitlements
   integrations:
     db:
       enabled: true
