@@ -180,29 +180,29 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
   }
 
-  try {
+//  try {
     echo "Starting test execution flow..."
 
     body(reportPortalExecParameters) // Execute the provided closure
 
     echo "Test execution flow completed."
-  } catch (Exception e) {
-    echo "Error executing tests: ${e.message}"
-    throw e // Rethrow the exception for further handling if necessary
-  } finally {
-    if (reportPortalUse) {
-      folioCypress.finalizeReportPortal(reportPortalClient)
-    }
-
-    // Generate and publish Allure report
-    folioCypress.generateAndPublishAllureReport(resultPathsList)
-
-    // Analyze results
-    IRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
-
-    // Send notifications
-    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
-
-    return testRunExecutionSummary
-  }
+//  } catch (Exception e) {
+//    echo "Error executing tests: ${e.message}"
+//    throw e // Rethrow the exception for further handling if necessary
+//  } finally {
+//    if (reportPortalUse) {
+//      folioCypress.finalizeReportPortal(reportPortalClient)
+//    }
+//
+//    // Generate and publish Allure report
+//    folioCypress.generateAndPublishAllureReport(resultPathsList)
+//
+//    // Analyze results
+//    IRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
+//
+//    // Send notifications
+//    folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
+//
+//    return testRunExecutionSummary
+//  }
 }
