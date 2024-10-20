@@ -90,7 +90,8 @@ ansiColor('xterm') {
           folioCypressFlow.runSingleThread(cypressSanityParameters, reportPortalExecParameters)
         }
 
-        println('I am here')
+        println(cypressParameters.numberOfWorkers)
+        println(cypressParameters.numberOfWorkers.getClass())
         switch (cypressParameters.numberOfWorkers) {
           case 1:
             folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
