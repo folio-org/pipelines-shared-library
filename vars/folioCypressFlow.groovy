@@ -159,6 +159,7 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
  * @throws IllegalArgumentException if reportPortalRunType is empty when reportPortalUse is true.
  * @throws Exception if an error occurs during test execution.
  */
+@NonCPS
 IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
   script {
     if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
