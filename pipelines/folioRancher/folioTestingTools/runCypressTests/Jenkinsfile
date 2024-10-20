@@ -95,6 +95,7 @@ ansiColor('xterm') {
             folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
             break
           case { it > 1 }:
+            println('I am here')
             folioCypressFlow.runMultiThread(cypressParameters, reportPortalExecParameters)
             break
           default:
