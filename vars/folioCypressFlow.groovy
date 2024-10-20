@@ -25,12 +25,12 @@ String runSingleThread(CypressTestsParameters params) {
         params.okapiUrl,
         params.tenant.tenantId,
         params.tenant.adminUser.username,
-        params.tenant.adminUser.getPasswordPlainText())
+        params.tenant.adminUser.password)
+//        params.tenant.adminUser.getPasswordPlainText())
 
       // Compile Cypress tests
       folioCypress.compileCypressTests()
 
-      println(params.dump())
       timeout(time: params.timeout, unit: 'MINUTES') {
         // Execute tests
         folioCypress.executeTests(params.ciBuildId,
