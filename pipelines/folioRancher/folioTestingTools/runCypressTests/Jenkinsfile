@@ -83,7 +83,6 @@ ansiColor('xterm') {
 
     stage('[Flow] Execute tests') {
       folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) {
-        println('I am here')
         if (params.RUN_SANITY_CHECK) {
           CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
           cypressSanityParameters.setNumberOfWorkers(1)
@@ -91,6 +90,7 @@ ansiColor('xterm') {
           folioCypressFlow.runSingleThread(cypressSanityParameters, reportPortalExecParameters)
         }
 
+        println('I am here')
         switch (cypressParameters.numberOfWorkers) {
           case 1:
             folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
