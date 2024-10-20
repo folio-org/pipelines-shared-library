@@ -3,17 +3,114 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 
-List<String> runMultiThread(CypressTestsParameters params) {
-  echo "Temporary!"
+List<String> runMultiThread(CypressTestsParameters params, String reportPortalExecParameters) {
+  List allureResultPaths = []
+  String workerId = folioCypress.generateRandomId(3)
+  params.execParameters += reportPortalExecParameters
+  params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
+
+  int workersLimit
+  int batchSize
+  switch (params.workerLabel) {
+    case 'cypress-ci':
+      workersLimit = 4
+      batchSize = 4
+      break
+    case 'cypress-static':
+      workersLimit = 6
+      batchSize = 6
+      break
+    case 'cypress':
+      workersLimit = 12
+      batchSize = 4
+      break
+    default:
+      error("Worker agent label unknown! '${params.workerLabel}'")
+      break
+  }
+  int maxWorkers = Math.min(params.numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
+  println("maxWorkers: ${maxWorkers}")
+  List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
+  println("batches: ${batches.dump()}")
+
+  // Set up common environment variables
+  folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
+    params.okapiUrl,
+    params.tenant.tenantId,
+    params.tenant.adminUser.username,
+    params.tenant.adminUser.getPasswordPlainText())
+
+  // Divide workers into batches
+  Map<String, Closure> batchExecutions = [failFast: false]
+  batches.eachWithIndex { batch, batchIndex ->
+    println("batch: ${batch}")
+    println("batchIndex: ${batchIndex}")
+    batchExecutions["Batch#${batchIndex + 1}"] = {
+      node(params.workerLabel) {
+        stage("[Cypress] Multi thread run #${batchIndex + 1}") {
+          cleanWs notFailBuild: true
+
+          dir("cypress-${batch[0]}") {
+            // Clone the Cypress repository
+            folioCypress.cloneCypressRepo(params.testsSrcBranch)
+            // Compile Cypress tests
+            folioCypress.compileCypressTests()
+          }
+
+          batch.eachWithIndex { copyBatch, copyBatchIndex ->
+            if (copyBatchIndex > 0) {
+              sh "mkdir -p cypress-${copyBatch}"
+              sh "cp -r cypress-${batch[0]}/. cypress-${copyBatch}"
+            }
+          }
+
+          Map<String, Closure> parallelWorkers = [failFast: false]
+          batch.each { workerNumber ->
+            parallelWorkers["Worker#${workerNumber}"] = {
+              dir("cypress-${workerNumber}") {
+                // Execute tests
+                println("${workerId}${workerNumber}")
+//                folioCypress.executeTests(params.ciBuildId,
+//                  params.browserName,
+//                  params.execParameters,
+//                  params.testrailProjectID,
+//                  params.testrailRunID,
+//                  "${workerId}${workerNumber}")
+              }
+            }
+          }
+
+          println("parallelWorkers: ${parallelWorkers.dump()}")
+          parallel(parallelWorkers)
+
+//          batch.each { workerNumber ->
+//            dir("cypress-${workerNumber}") {
+//              allureResultPaths.add(folioCypress.archiveTestResults("${workerId}${workerNumber}"))
+//            }
+//          }
+        }
+      }
+    }
+  }
+
+  timeout(time: params.timeout, unit: 'MINUTES') {
+    println("batchExecutions: ${batchExecutions.dump()}")
+    parallel(batchExecutions)
+  }
+
+  input('Test')
+  return allureResultPaths
 }
 
-String runSingleThread(CypressTestsParameters params) {
+String runSingleThread(CypressTestsParameters params, String reportPortalExecParameters) {
   String allureResultPath = ''
   String workerId = folioCypress.generateRandomId(3)
+  params.execParameters += reportPortalExecParameters
   params.ciBuildId = "single-thread-${params.ciBuildId}-${workerId}"
 
   node(params.workerLabel) {
     stage('[Cypress] Single thread run') {
+      cleanWs notFailBuild: true
 
       echo "Running tests with worker ID: ${workerId}"
 
@@ -25,8 +122,7 @@ String runSingleThread(CypressTestsParameters params) {
         params.okapiUrl,
         params.tenant.tenantId,
         params.tenant.adminUser.username,
-        params.tenant.adminUser.password)
-//        params.tenant.adminUser.getPasswordPlainText())
+        params.tenant.adminUser.getPasswordPlainText())
 
       // Compile Cypress tests
       folioCypress.compileCypressTests()
@@ -70,7 +166,6 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 
   String reportPortalExecParameters = ''
   List resultPathsList = []
-  IRunExecutionSummary testRunExecutionSummary
 
   // Initialize the Report Portal client
   ReportPortalClient reportPortalClient = new ReportPortalClient(this,
@@ -88,7 +183,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
   try {
     echo "Starting test execution flow..."
 
-    body() // Execute the provided closure
+    body(reportPortalExecParameters) // Execute the provided closure
 
     echo "Test execution flow completed."
   } catch (Exception e) {
@@ -103,7 +198,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
     folioCypress.generateAndPublishAllureReport(resultPathsList)
 
     // Analyze results
-    testRunExecutionSummary = folioCypress.analyzeResults()
+    IRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
 
     // Send notifications
     folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')

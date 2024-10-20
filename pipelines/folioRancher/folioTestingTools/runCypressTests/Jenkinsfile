@@ -60,6 +60,7 @@ ansiColor('xterm') {
     stage('Ini') {
       buildName "#${env.BUILD_ID}"
       buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
+      cleanWs notFailBuild: true
     }
 
     stage('[Conditional check]') {
@@ -81,24 +82,24 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) {
+      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) { reportPortalExecParameters ->
         if (params.RUN_SANITY_CHECK) {
           CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
           cypressSanityParameters.setNumberOfWorkers(1)
           cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
-          folioCypressFlow.runSingleThread(cypressSanityParameters)
+          folioCypressFlow.runSingleThread(cypressSanityParameters, reportPortalExecParameters)
         }
 
-//        switch (cypressParameters.numberOfWorkers) {
-//          case 1:
-//            folioCypressFlow.runSingleThread(cypressParameters)
-//            break
-//          case { it > 1 }:
-//            folioCypressFlow.runMultiThread(cypressParameters)
-//            break
-//          default:
-//            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
-//        }
+        switch (cypressParameters.numberOfWorkers) {
+          case 1:
+            folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
+            break
+          case { it > 1 }:
+            folioCypressFlow.runMultiThread(cypressParameters, reportPortalExecParameters)
+            break
+          default:
+            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
+        }
       }
     }
   }
