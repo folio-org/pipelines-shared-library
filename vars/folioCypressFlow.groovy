@@ -184,10 +184,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //  try {
     echo "Starting test execution flow..."
 
-    // Set up a binding for the closure to access shared variables
-    binding.setVariable('reportPortalExecParameters', reportPortalExecParameters)
-    println(body().dump())
-    body()
+    body(reportPortalExecParameters)
 
     echo "Test execution flow completed."
 //  } catch (Exception e) {
