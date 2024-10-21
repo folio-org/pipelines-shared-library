@@ -214,16 +214,6 @@ def setLabel(String namespace, String labelKey, String labelValue) {
   }
 }
 
-def setLabelWithDate(String namespace, String labelKey) {
-  try {
-    def currentDate = sh(script: "date +%Y-%m-%d", returnStdout: true).trim()
-    kubectl.setLabel(namespace, labelKey, currentDate)
-  } catch (Exception e) {
-    println("Failed to set date label ${labelKey} in namespace ${namespace}. Error: ${e.getMessage()}")
-  }
-}
-
-
 def collectDeploymentState(String namespace) {
   String jsonPath = '-o jsonpath=\'{range .items[?(@.kind=="Deployment")]}"{.metadata.name}"{":"}"{.status.replicas}"{","}{end}\''
   try {
