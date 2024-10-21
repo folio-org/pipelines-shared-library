@@ -9,26 +9,10 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   params.execParameters += " " + reportPortalExecParameters
   params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
 
-  int workersLimit
-  int batchSize
-  switch (params.workerLabel) {
-    case 'cypress-ci':
-      workersLimit = 4
-      batchSize = 4
-      break
-    case 'cypress-static':
-      workersLimit = 6
-      batchSize = 6
-      break
-    case 'cypress':
-      workersLimit = 12
-      batchSize = 4
-      break
-    default:
-      error("Worker agent label unknown! '${params.workerLabel}'")
-      break
-  }
+  int workersLimit = _getWorkersLimit(params.workerLabel)
+  int batchSize = _getBatchSize(params.workerLabel)
   int maxWorkers = Math.min(params.numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
+
   List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
 
   // Set up common environment variables
@@ -120,15 +104,15 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
       // Compile Cypress tests
       folioCypress.compileCypressTests()
 
-//      timeout(time: params.timeout, unit: 'MINUTES') {
-//        // Execute tests
-//        folioCypress.executeTests(params.ciBuildId,
-//          params.browserName,
-//          params.execParameters,
-//          params.testrailProjectID,
-//          params.testrailRunID,
-//          workerId)
-//      }
+      timeout(time: params.timeout, unit: 'MINUTES') {
+        // Execute tests
+        folioCypress.executeTests(params.ciBuildId,
+          params.browserName,
+          params.execParameters,
+          params.testrailProjectID,
+          params.testrailRunID,
+          workerId)
+      }
 
       // Archive test results
       allureResultPath = folioCypress.archiveTestResults(workerId)
@@ -153,32 +137,32 @@ String runSingleThread(CypressTestsParameters params, String reportPortalExecPar
  * @throws Exception if an error occurs during test execution.
  */
 IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', Closure body) {
-    if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
-      throw new IllegalArgumentException("ReportPortal run type could not be empty!")
-    }
+  if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
+    throw new IllegalArgumentException("ReportPortal run type could not be empty!")
+  }
 
-    String reportPortalExecParameters = ''
-    List resultPathsList = []
+  String reportPortalExecParameters = ''
+  List resultPathsList = []
 
-    // Initialize the Report Portal client
-    ReportPortalClient reportPortalClient = new ReportPortalClient(this,
-      TestType.CYPRESS,
-      ciBuildId,
-      env.BUILD_NUMBER,
-      env.WORKSPACE,
-      reportPortalRunType)
+  // Initialize the Report Portal client
+  ReportPortalClient reportPortalClient = new ReportPortalClient(this,
+    TestType.CYPRESS,
+    ciBuildId,
+    env.BUILD_NUMBER,
+    env.WORKSPACE,
+    reportPortalRunType)
 
-    if (reportPortalUse) {
-      // Set up Report Portal (consider checking if this value is used)
-      reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
-    }
+  if (reportPortalUse) {
+    // Set up Report Portal (consider checking if this value is used)
+    reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+  }
 
 //  try {
-    echo "Starting test execution flow..."
+  echo "Starting test execution flow..."
 
-    body(reportPortalExecParameters)
+  body(reportPortalExecParameters)
 
-    echo "Test execution flow completed."
+  echo "Test execution flow completed."
 //  } catch (Exception e) {
 //    echo "Error executing tests: ${e.message}"
 //    throw e // Rethrow the exception for further handling if necessary
@@ -198,4 +182,26 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 //
 //    return testRunExecutionSummary
 //  }
+}
+
+Map < Map < String , Integer>> 
+
+@SuppressWarnings('GrMethodMayBeStatic')
+private int _getWorkersLimit(String workerLabel) {
+  switch (workerLabel) {
+    case 'cypress-ci': return 4
+    case 'cypress-static': return 6
+    case 'cypress': return 12
+    default: throw new IllegalArgumentException("Worker agent label unknown! '${workerLabel}'")
+  }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+private int _getBatchSize(String workerLabel) {
+  switch (workerLabel) {
+    case 'cypress-ci': return 4
+    case 'cypress-static': return 6
+    case 'cypress': return 4
+    default: throw new IllegalArgumentException("Worker agent label unknown! '${workerLabel}'")
+  }
 }
