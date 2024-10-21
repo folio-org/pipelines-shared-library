@@ -59,3 +59,55 @@ void renderEphemeralProperties(RancherNamespace namespace) {
     }
   }
 }
+
+void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
+  Tools tools = new Tools(this)
+  Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
+  Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
+  String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
+  List mappings = []
+  String users = ''
+
+  def json = tools.steps.sh(script: "curl --silent https://${namespace.generateDomain('kong')}/tenants", returnStdout: true)
+
+  common.logger.info("Response: ${json}")
+
+  def dataToProcess = tools.jsonParse(json as String)
+
+  common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
+
+  if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
+    mappings.add('fs09000000')
+  } else {
+    mappings.add('diku')
+  }
+
+  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
+    if (candidate['name']) {
+      common.logger.info("Binding tenant: " + candidate['name'])
+      def tenant = folioDefault.tenants()[candidate['name']]
+      users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
+      common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
+    }
+  }
+
+  namespace.getModules().getEdgeModules().each { name, version ->
+    def tenants = dataToProcess['tenants']['name'] as List
+    String institutionalUsers = ''
+    if (edgeConfig[(name)]['tenants']) {
+      edgeConfig[(name)]['tenants'].each { institutional ->
+        if (institutional.tenant == 'default') {
+          tenants.each { tenantName ->
+            institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
+          }
+        } else {
+          tenants.add(institutional.tenant)
+          institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
+        }
+      }
+      LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${name} created.")
+    }
+  }
+}
