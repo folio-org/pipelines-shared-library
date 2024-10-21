@@ -207,7 +207,7 @@ class Eureka extends Base {
     tenants.each { tenantId, tenant ->
       if (tenant.indexes) {
         tenant.indexes.each { index ->
-          Indexes.get(kong).runIndex(tenant, index)
+          Indexes.get(kong).runIndexFlow(tenant, index)
         }
       }
     }
