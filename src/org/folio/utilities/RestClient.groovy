@@ -41,7 +41,7 @@ class RestClient {
   private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
 
     if (debug) {
-      logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
+      logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}, connectionTimeout${connectionTimeout}, readTimeout=${readTimeout}")
     }
 
     HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
