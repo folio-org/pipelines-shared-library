@@ -161,12 +161,18 @@ ansiColor('xterm') {
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest2", "build-date")}
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
               println "Older namespace1 destroyed."
-            } else {
+            } else if (env1BuildDate > env2BuildDate){
               folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
               folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams2)
               println "Older namespace2 destroyed."
+            } else {
+            println"mmm"
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+            folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
+            folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
+            folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
             }
           }
         } else if (!env1Exists) {
