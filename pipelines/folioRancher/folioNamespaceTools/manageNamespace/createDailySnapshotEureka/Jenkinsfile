@@ -152,27 +152,21 @@ ansiColor('xterm') {
         if (env1Exists && env2Exists) {
           if (buildStatusEnv1 == 'SUCCESS' && buildStatusEnv2 == 'SUCCESS') {
             // Check environments build date
-            def env1BuildDate = folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.getLabelValue("dmtest", "build-date")}
-            def env2BuildDate = folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.getLabelValue("dmtest2", "build-date")}
+            def env1BuildDate = folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.getLabelValue("dmtest", "build-date") }
+            def env2BuildDate = folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.getLabelValue("dmtest2", "build-date") }
 
             if (env1BuildDate < env2BuildDate) {
               folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams2)
-              folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest2", "build-status", "SUCCESS")}
-              folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest2", "build-date")}
+              folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.setLabel("dmtest2", "build-status", "SUCCESS") }
+              folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.setLabelWithDate("dmtest2", "build-date") }
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
               println "Older namespace1 destroyed."
-            } else if (env1BuildDate > env2BuildDate){
+            } else if (env1BuildDate > env2BuildDate) {
               folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
-              folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
-              folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
+              folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.setLabel("dmtest", "build-status", "SUCCESS") }
+              folioHelm.withKubeConfig(namespaceParams.getClusterName()) { kubectl.setLabelWithDate("dmtest", "build-date") }
               folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams2)
               println "Older namespace2 destroyed."
-            } else {
-            println"mmm"
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-            folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
-            folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
-            folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
             }
           }
         } else if (!env1Exists) {
