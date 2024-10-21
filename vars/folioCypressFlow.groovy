@@ -8,7 +8,6 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   String workerId = folioCypress.generateRandomId(3)
   params.execParameters += " " + reportPortalExecParameters
   params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
-  println(params.ciBuildId)
 
   int workersLimit
   int batchSize
@@ -30,9 +29,7 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
       break
   }
   int maxWorkers = Math.min(params.numberOfWorkers, workersLimit) // Ensuring not more than limited workers number
-  println("maxWorkers: ${maxWorkers}")
   List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize)
-  println("batches: ${batches.dump()}")
 
   // Set up common environment variables
   folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
@@ -44,8 +41,6 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   // Divide workers into batches
   Map<String, Closure> batchExecutions = [failFast: false]
   batches.eachWithIndex { batch, batchIndex ->
-    println("batch: ${batch}")
-    println("batchIndex: ${batchIndex}")
     batchExecutions["Batch#${batchIndex + 1}"] = {
       node(params.workerLabel) {
         stage("[Cypress] Multi thread run #${batchIndex + 1}") {
@@ -70,25 +65,23 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
             parallelWorkers["Worker#${workerNumber}"] = {
               dir("cypress-${workerNumber}") {
                 // Execute tests
-                println("${workerId}${workerNumber}")
-//                folioCypress.executeTests(params.ciBuildId,
-//                  params.browserName,
-//                  params.execParameters,
-//                  params.testrailProjectID,
-//                  params.testrailRunID,
-//                  "${workerId}${workerNumber}")
+                folioCypress.executeTests(params.ciBuildId,
+                  params.browserName,
+                  params.execParameters,
+                  params.testrailProjectID,
+                  params.testrailRunID,
+                  "${workerId}${workerNumber}")
               }
             }
           }
 
-          println("parallelWorkers: ${parallelWorkers.dump()}")
           parallel(parallelWorkers)
 
-//          batch.each { workerNumber ->
-//            dir("cypress-${workerNumber}") {
-//              allureResultPaths.add(folioCypress.archiveTestResults("${workerId}${workerNumber}"))
-//            }
-//          }
+          batch.each { workerNumber ->
+            dir("cypress-${workerNumber}") {
+              allureResultPaths.add(folioCypress.archiveTestResults("${workerId}${workerNumber}"))
+            }
+          }
         }
         input('Test')
       }
@@ -96,7 +89,6 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   }
 
   timeout(time: params.timeout, unit: 'MINUTES') {
-    println("batchExecutions: ${batchExecutions.dump()}")
     parallel(batchExecutions)
   }
 
