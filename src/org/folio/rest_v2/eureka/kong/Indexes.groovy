@@ -21,6 +21,31 @@ class Indexes extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
+  //TODO: Fix that clutch/workaround/shit in the near future
+  String runIndexFlow(EurekaTenant tenant, Index index){
+    if(index.getType() == 'instance'){
+      runInstanceIndex(tenant)
+    }else{
+      runIndex(tenant, index)
+    }
+  }
+
+  Indexes runInstanceIndex(EurekaTenant tenant){
+    logger.info("Perform instance index on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    String url = generateUrl("/search/index/instance-records/reindex/full")
+
+    Map body = [
+      "indexSettings": []
+    ]
+
+    restClient.post(url, body, headers).body
+
+    return this
+  }
+
   String runIndex(EurekaTenant tenant, Index index) {
     logger.info("Perform index on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -48,7 +73,7 @@ class Indexes extends Kong{
   void checkIndexStatus(EurekaTenant tenant, String jobId) {
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/instance-storage/reindex/${jobId}")
+    String url = generateUrl("/authority-storage/reindex/${jobId}")
 
     context.timeout(1440) {
       while (true) {
