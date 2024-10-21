@@ -195,8 +195,7 @@ ansiColor('xterm') {
         }
 
       } else {
-//        folioNamespaceCreate(namespaceParams)
-        println "NOOOOOOOOOOOOOOO."
+        folioNamespaceCreate(namespaceParams)
       }
 
     } catch (e) {
