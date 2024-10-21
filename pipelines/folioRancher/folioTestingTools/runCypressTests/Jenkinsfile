@@ -90,23 +90,11 @@ ansiColor('xterm') {
           folioCypressFlow.runSingleThread(cypressSanityParameters, reportPortalExecParameters)
         }
 
-        println(cypressParameters.numberOfWorkers)
-        println(cypressParameters.numberOfWorkers.getClass())
-        switch (4) {
-          case 1:
-            println('Here')
-            break
-          case { it > 1 }:
-            println('Here 2')
-            break
-          default:
-            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
-        }
         switch (cypressParameters.numberOfWorkers) {
           case 1:
             folioCypressFlow.runSingleThread(cypressParameters, reportPortalExecParameters)
             break
-          case { it > 1 }:
+          case 2..Integer.MAX_VALUE:
             folioCypressFlow.runMultiThread(cypressParameters, reportPortalExecParameters)
             break
           default:
