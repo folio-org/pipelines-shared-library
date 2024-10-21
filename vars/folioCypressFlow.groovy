@@ -89,6 +89,7 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
 //            }
 //          }
         }
+        input('Test')
       }
     }
   }
@@ -98,7 +99,6 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
     parallel(batchExecutions)
   }
 
-  input('Test')
   return allureResultPaths
 }
 
