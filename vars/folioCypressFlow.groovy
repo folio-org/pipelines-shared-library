@@ -8,6 +8,7 @@ List<String> runMultiThread(CypressTestsParameters params, String reportPortalEx
   String workerId = folioCypress.generateRandomId(3)
   params.execParameters += " " + reportPortalExecParameters
   params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
+  println(params.ciBuildId)
 
   int workersLimit
   int batchSize
