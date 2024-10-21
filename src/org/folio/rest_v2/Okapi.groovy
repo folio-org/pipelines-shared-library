@@ -311,7 +311,11 @@ class Okapi extends Authorization {
       "indexSettings": []
     ]
 
+    logger.info("[${tenant.getTenantId()}] Starting Elastic Search 'instance' reindex")
+
     restClient.post(url, body, headers).body
+
+    logger.info("[${tenant.getTenantId()}] Finished Elastic Search 'instance' reindex")
   }
 
 
