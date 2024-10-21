@@ -146,7 +146,7 @@ ansiColor('xterm') {
         // Check both environments status
         def buildStatusEnv1 = folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.getLabelValue("dmtest", "build-status")}
         def buildStatusEnv2 = folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.getLabelValue("dmtest2", "build-status")}
-        println "dmtest2 status is $buildStatusEnv1"
+        println "dmtest status is $buildStatusEnv1"
         println "dmtest2 status is $buildStatusEnv2"
         //Destroy the older environment
         if (env1Exists && env2Exists) {
