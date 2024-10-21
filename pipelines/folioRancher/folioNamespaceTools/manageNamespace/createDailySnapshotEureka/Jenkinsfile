@@ -191,7 +191,10 @@ ansiColor('xterm') {
           }
 
         } else {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
+          folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
+          folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabelWithDate("dmtest", "build-date")}
         }
 
       } else {
