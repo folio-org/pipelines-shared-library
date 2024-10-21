@@ -191,6 +191,7 @@ ansiColor('xterm') {
           }
 
         } else {
+          println"mmm"
           folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceParams)
           folioHelm.withKubeConfig(namespaceParams.getClusterName()) {kubectl.setLabel("dmtest", "build-status", "SUCCESS")}
