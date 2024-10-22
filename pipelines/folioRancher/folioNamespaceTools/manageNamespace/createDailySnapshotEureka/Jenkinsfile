@@ -24,8 +24,8 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-testing')
-  .namespaceName('snapshot')
+  .clusterName('folio-tmp')
+  .namespaceName('dmtest')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
@@ -48,8 +48,8 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .build()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-testing')
-  .namespaceName('snapshot2')
+  .clusterName('folio-tmp')
+  .namespaceName('dmtest2')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
