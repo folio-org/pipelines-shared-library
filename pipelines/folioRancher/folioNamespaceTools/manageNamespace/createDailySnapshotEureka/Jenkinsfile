@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1359-test') _
+@Library('pipelines-shared-library@RANCHER-1818') _
 
 @Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
 @Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/VasylA/createNamespaceFromBranch-Eureka-1818'
