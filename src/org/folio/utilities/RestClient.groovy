@@ -9,12 +9,14 @@ class RestClient {
   private int defaultConnectionTimeout
   private int defaultReadTimeout
   private Logger logger
+  public Object steps
 
   RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
     this.logger = new Logger(context, 'RestClient')
+    this.steps = steps
   }
 
   def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
@@ -40,33 +42,36 @@ class RestClient {
 
   private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
 
-    if (debug) {
-      logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}, connectionTimeout${connectionTimeout}, readTimeout=${readTimeout}")
+    steps.timeout('1400') {
+
+      if (debug) {
+        logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}, connectionTimeout${connectionTimeout}, readTimeout=${readTimeout}")
+      }
+
+      HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
+
+      if (body) {
+        sendRequestBody(connection, body)
+      }
+
+      Map response = [:]
+      try {
+        response = parseResponse(connection)
+      } catch (e) {
+        logger.error(e.getMessage())
+      }
+
+      if (debug) {
+        logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
+      }
+
+      if (connection.responseCode >= 400) {
+        handleHttpError(connection.responseCode, connection.responseMessage, response.body.toString())
+      }
+
+      return response
+
     }
-
-    HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
-
-    if (body) {
-      sendRequestBody(connection, body)
-    }
-
-    Map response = [:]
-    try {
-      response = parseResponse(connection)
-    } catch (e) {
-      logger.error(e.getMessage())
-    }
-
-    if (debug) {
-      logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
-    }
-
-    if (connection.responseCode >= 400) {
-      handleHttpError(connection.responseCode, connection.responseMessage, response.body.toString())
-    }
-
-    return response
-
   }
 
   private HttpURLConnection setupConnection(String url, String method, Map<String, String> headers, int connectionTimeout, int readTimeout) {
