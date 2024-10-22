@@ -73,26 +73,14 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-//      stage('Ini') {
-//        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
-//        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
-//      }
-//
-//      stage('Checkout') {
-//        checkout scm
-//      }
-//
-//      stage('[TF] Destroy') {
-//        def nsExists
-//        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-//          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-//        }
-//        if (nsExists) {
-//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-//        } else {
-//          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-//        }
-//      }
+      stage('Ini') {
+        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
 
       // Check if both environments exist
       def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) {kubectl.checkNamespaceExistence(namespace1.getNamespaceName())}
@@ -115,16 +103,16 @@ ansiColor('xterm') {
       println "dmtest build date is $env1BuildDate"
       println "dmtest2 build date is $env2BuildDate"
 
-      try{
-        env1BuildDate = new Date(Long.parseLong(env1BuildDate))
-      }catch (Error ignored){
-        env1BuildDate = new Date(0)
+      try {
+        env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
+      } catch (Exception ignored) {
+        env1BuildDate = new Date(0) // fallback in case of error
       }
 
-      try{
-        env2BuildDate = new Date(Long.parseLong(env2BuildDate))
-      }catch (Error ignored){
-        env2BuildDate = new Date(0)
+      try {
+        env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
+      } catch (Exception ignored) {
+        env2BuildDate = new Date(0) // fallback in case of error
       }
 
       env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
