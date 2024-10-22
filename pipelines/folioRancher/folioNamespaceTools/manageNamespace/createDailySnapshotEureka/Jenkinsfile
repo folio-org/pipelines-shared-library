@@ -72,15 +72,15 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
 
 ansiColor('xterm') {
   node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
+//    try {
+//      stage('Ini') {
+//        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
+//        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
+//      }
+//
+//      stage('Checkout') {
+//        checkout scm
+//      }
 
       // Check if both environments exist
       def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) {kubectl.checkNamespaceExistence(namespace1.getNamespaceName())}
