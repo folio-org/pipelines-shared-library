@@ -1,12 +1,16 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
 
-
+import groovy.transform.Field
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1818') _
+
+@Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([folioParameters.agent(),
@@ -18,9 +22,6 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
-
-final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-tmp')
@@ -73,68 +74,72 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Ini') {
-        buildName "${namespace1.getClusterName()}-${namespace1.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Config: ${namespace1.getConfigType()}"
-      }
-
       stage('Checkout') {
         checkout scm
       }
 
-      // Check if both environments exist
-      def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) {kubectl.checkNamespaceExistence(namespace1.getNamespaceName())}
-      def env2Exists = folioHelm.withKubeConfig(namespace2.getClusterName()) {kubectl.checkNamespaceExistence(namespace2.getNamespaceName())}
+      CreateNamespaceParameters createdEnv = namespace1
+      CreateNamespaceParameters eliminatedEnv = namespace2
 
-      println "dmtest exist $env1Exists"
-      println "dmtest2 exist $env2Exists"
+      stage('Determination') {
+        // Check if both environments exist
+        def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.checkNamespaceExistence(namespace1.getNamespaceName()) }
+        def env2Exists = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.checkNamespaceExistence(namespace2.getNamespaceName()) }
 
-      // Check both environments status
-      def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) {kubectl.getLabelValue(namespace1.getNamespaceName(), "build-status")}
-      def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) {kubectl.getLabelValue(namespace2.getNamespaceName(), "build-status")}
+        println "${namespace1.getNamespaceName()} exist $env1Exists"
+        println "${namespace2.getNamespaceName()} exist $env2Exists"
 
-      println "dmtest status is $buildStatusEnv1"
-      println "dmtest2 status is $buildStatusEnv2"
+        // Check both environments status
+        def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelValue(namespace1.getNamespaceName(), "build-status") }
+        def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelValue(namespace2.getNamespaceName(), "build-status") }
 
-      // Check environments build date
-      def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelValue(namespace1.getNamespaceName(), "build-date") }
-      def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelValue(namespace2.getNamespaceName(), "build-date") }
+        println "${namespace1.getNamespaceName()} status is $buildStatusEnv1"
+        println "${namespace2.getNamespaceName()} status is $buildStatusEnv2"
 
-      println "dmtest build date is $env1BuildDate"
-      println "dmtest2 build date is $env2BuildDate"
+        // Check environments build date
+        def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelValue(namespace1.getNamespaceName(), "build-date") }
+        def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelValue(namespace2.getNamespaceName(), "build-date") }
 
-      try {
-        env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
-      } catch (Exception ignored) {
-        env1BuildDate = new Date(0) // fallback in case of error
+        println "${namespace1.getNamespaceName()} build date is $env1BuildDate"
+        println "${namespace2.getNamespaceName()} build date is $env2BuildDate"
+
+        try {
+          env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
+        } catch (Exception ignored) {
+          env1BuildDate = new Date(0) // fallback in case of error
+        }
+
+        try {
+          env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
+        } catch (Exception ignored) {
+          env2BuildDate = new Date(0) // fallback in case of error
+        }
+
+        env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
+        env2Exists = env2Exists && buildStatusEnv2 == 'SUCCESS'
+
+        env1Exists = env1Exists && env2Exists ? env2BuildDate <= env1BuildDate : env1Exists
+        env2Exists = env1Exists && env2Exists ? env1BuildDate < env2BuildDate : env2Exists
+
+        createdEnv = env1Exists ? namespace2 : namespace1
+        eliminatedEnv = env1Exists ? namespace1 : namespace2
       }
 
-      try {
-        env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
-      } catch (Exception ignored) {
-        env2BuildDate = new Date(0) // fallback in case of error
+      stage('Build name') {
+        buildName "${createdEnv.getClusterName()}-${createdEnv.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${createdEnv.getConfigType()}"
       }
 
-      env1Exists = env1Exists && (buildStatusEnv1 == 'SUCCESS' || buildStatusEnv1 == null)
-      env2Exists = env2Exists && (buildStatusEnv2 == 'SUCCESS' || buildStatusEnv2 == null)
-
-      env1Exists = env1Exists && env2Exists && env2BuildDate >= env1BuildDate
-      env2Exists = env1Exists && env2Exists && env1BuildDate < env2BuildDate
-
-
-      CreateNamespaceParameters createdEnv = env2Exists ? namespace2 : namespace1
-      CreateNamespaceParameters eliminatedEnv = env2Exists ? namespace1 : namespace2
-
-      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
-
-      // Deploy new environment in place of env1
-      folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
-
-      folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
-      folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+      stage("Spin up ${createdEnv.getNamespaceName()}") {
+        spinUpNamespaces(createdEnv, eliminatedEnv)
+      }
 
       //TODO: Decision needs to be made
-      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName()) {
+        stage("Spin up ${namespace1.getNamespaceName()}") {
+          spinUpNamespaces(eliminatedEnv, createdEnv)
+        }
+      }
 
     } catch (e) {
       println "Caught exception: ${e}"
@@ -146,3 +151,16 @@ ansiColor('xterm') {
     }
   }
 }
+
+void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv){
+  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
+
+  // Deploy new environment in place of env1
+  folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
+
+  folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
+  folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+
+  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+}
+
