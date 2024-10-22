@@ -99,78 +99,78 @@ kong:
   startupProbe:
     enabled: false
   extraEnvVars:
-   - name: KONG_PASSWORD
-     valueFrom:
+  - name: KONG_PASSWORD
+    valueFrom:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
-   - name: KONG_UPSTREAM_TIMEOUT
-     value: "600000"
-   - name: KONG_UPSTREAM_SEND_TIMEOUT
-     value: "600000"
-   - name: KONG_UPSTREAM_READ_TIMEOUT
-     value: "600000"
-   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
-     value: "error timeout http_500 http_502 http_503 http_504"
-   - name: "KONG_PROXY_SEND_TIMEOUT"
-     value: "600000"
-   - name: "KONG_UPSTREAM_CONNECT_TIMEOUT"
-     value: "600000"
-   - name: "KONG_PROXY_READ_TIMEOUT"
-     value: "600000"
-   - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
-     value: "600000"
-   - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
-     value: "600000"
-   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-     value: "600000"
-   - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
-     value: "1024"
-   - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
-     value: "20000"
-   - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
-     value: "20000"
-   - name: KONG_RETRIES
-     value: "10"
-   - name: KONG_PG_DATABASE
-     value: "kong"
-   - name: KONG_NGINX_PROXY_PROXY_BUFFERS
-     value: "64 160k"
-   - name: KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE
-     value: "16k"
-   - name: KONG_NGINX_HTTP_CLIENT_HEADER_BUFFER_SIZE
-     value: "16k"
-   - name: KONG_ADMIN_LISTEN
-     value: "0.0.0.0:8001"
-   - name: KONG_NGINX_PROXY_PROXY_BUFFER_SIZE
-     value: "160k"
-   - name: KONG_NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS
-     value: "4 16k"
-   - name: KONG_PLUGINS
-     value: "bundled"
-   - name: KONG_MEM_CACHE_SIZE
-     value: "2048m"
-   - name: KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS
-     value: "4 16k"
-   - name: KONG_LOG_LEVEL
-     value: "info"
-   - name: KONG_ADMIN_GUI_API_URL
-     value: "${local.kong_url}"
-   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
-     value: "4 16k"
-   - name: KONG_PROXY_LISTEN
-     value: "0.0.0.0:8000"
-   - name: KONG_NGINX_WORKER_PROCESSES
-     value: "auto"
-   - name: EUREKA_RESOLVE_SIDECAR_IP
-     value: "false"
-resources:
-  requests:
-    cpu: 512m
-    memory: 2Gi
-  limits:
-    cpu: 2048m
-    memory: 3Gi
+  - name: KONG_UPSTREAM_TIMEOUT
+    value: "600000"
+  - name: KONG_UPSTREAM_SEND_TIMEOUT
+    value: "600000"
+  - name: KONG_UPSTREAM_READ_TIMEOUT
+    value: "600000"
+  - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
+    value: "error timeout http_500 http_502 http_503 http_504"
+  - name: "KONG_PROXY_SEND_TIMEOUT"
+    value: "600000"
+  - name: "KONG_UPSTREAM_CONNECT_TIMEOUT"
+    value: "600000"
+  - name: "KONG_PROXY_READ_TIMEOUT"
+    value: "600000"
+  - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
+    value: "600000"
+  - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
+    value: "600000"
+  - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
+    value: "600000"
+  - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
+    value: "1024"
+  - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
+    value: "20000"
+  - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
+    value: "20000"
+  - name: KONG_PG_DATABASE
+    value: "kong"
+  - name: KONG_NGINX_PROXY_PROXY_BUFFERS
+    value: "64 160k"
+  - name: KONG_NGINX_PROXY_CLIENT_HEADER_BUFFER_SIZE
+    value: "16k"
+  - name: KONG_NGINX_HTTP_CLIENT_HEADER_BUFFER_SIZE
+    value: "16k"
+  - name: KONG_ADMIN_LISTEN
+    value: "0.0.0.0:8001"
+  - name: KONG_NGINX_PROXY_PROXY_BUFFER_SIZE
+    value: "160k"
+  - name: KONG_NGINX_PROXY_LARGE_CLIENT_HEADER_BUFFERS
+    value: "4 16k"
+  - name: KONG_PLUGINS
+    value: "bundled"
+  - name: KONG_MEM_CACHE_SIZE
+    value: "2048m"
+  - name: KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS
+    value: "4 16k"
+  - name: KONG_LOG_LEVEL
+    value: "info"
+  - name: KONG_ADMIN_GUI_API_URL
+    value: "${local.kong_url}"
+  - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
+    value: "4 16k"
+  - name: KONG_PROXY_LISTEN
+    value: "0.0.0.0:8000"
+  - name: KONG_NGINX_WORKER_PROCESSES
+    value: "auto"
+  - name: EUREKA_RESOLVE_SIDECAR_IP
+    value: "false"
+  resources:
+    requests:
+      cpu: 512m
+      ephemeral-storage: 50Mi
+      memory: 2Gi
+    limits:
+      cpu: 2048m
+      ephemeral-storage: 1Gi
+      memory: 3Gi
 ingressController:
   enabled: false
 migration:

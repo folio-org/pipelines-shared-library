@@ -682,6 +682,8 @@ mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
+  - name: PLATFORM
+    value: 'eureka'
   integrations:
     db:
       enabled: true
@@ -898,7 +900,9 @@ mod-courses:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
 mod-data-export:
-  extraEnvVars: []
+  extraEnvVars:
+  - name: PLATFORM
+    value: 'eureka'
   integrations:
     db:
       enabled: true
@@ -937,7 +941,9 @@ mod-data-export-spring:
     requests:
       memory: 256Mi
 mod-data-export-worker:
-  extraEnvVars: []
+  extraEnvVars:
+  - name: PLATFORM
+    value: 'eureka'
   integrations:
     db:
       enabled: true
