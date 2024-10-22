@@ -90,15 +90,15 @@ ansiColor('xterm') {
         println "${namespace2.getNamespaceName()} exist $env2Exists"
 
         // Check both environments status
-        def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelValue(namespace1.getNamespaceName(), "build-status") }
-        def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelValue(namespace2.getNamespaceName(), "build-status") }
+        def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-status") }
+        def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-status") }
 
         println "${namespace1.getNamespaceName()} status is $buildStatusEnv1"
         println "${namespace2.getNamespaceName()} status is $buildStatusEnv2"
 
         // Check environments build date
-        def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelValue(namespace1.getNamespaceName(), "build-date") }
-        def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelValue(namespace2.getNamespaceName(), "build-date") }
+        def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-date") }
+        def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-date") }
 
         println "${namespace1.getNamespaceName()} build date is $env1BuildDate"
         println "${namespace2.getNamespaceName()} build date is $env2BuildDate"
@@ -161,8 +161,8 @@ void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParam
   }
 
   stage('Labeling new env') {
-    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
-    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.addLabelToNamespace(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.addLabelToNamespace(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
   }
 
   stage('Deleting old env') {
