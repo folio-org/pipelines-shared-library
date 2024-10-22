@@ -9,7 +9,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 @Library('pipelines-shared-library@RANCHER-1818') _
 
 @Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/VasylA/createNamespaceFromBranch-Eureka-1818'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
