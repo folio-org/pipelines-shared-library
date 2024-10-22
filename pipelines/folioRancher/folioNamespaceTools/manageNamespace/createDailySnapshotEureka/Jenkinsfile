@@ -134,12 +134,12 @@ ansiColor('xterm') {
         spinUpNamespaces(createdEnv, eliminatedEnv)
       }
 
-      //TODO: Decision needs to be made
-      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName()) {
-        stage("Spin up ${namespace1.getNamespaceName()}") {
-          spinUpNamespaces(eliminatedEnv, createdEnv)
-        }
-      }
+//      //TODO: Decision needs to be made
+//      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName()) {
+//        stage("Spin up ${namespace1.getNamespaceName()}") {
+//          spinUpNamespaces(eliminatedEnv, createdEnv)
+//        }
+//      }
 
     } catch (e) {
       println "Caught exception: ${e}"
@@ -161,6 +161,6 @@ void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParam
   folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
   folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
 
-  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+//  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
 }
 
