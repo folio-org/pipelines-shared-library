@@ -115,8 +115,8 @@ ansiColor('xterm') {
         env2BuildDate = new Date(0) // fallback in case of error
       }
 
-      env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
-      env2Exists = env2Exists && buildStatusEnv2 == 'SUCCESS'
+      env1Exists = env1Exists && (buildStatusEnv1 == 'SUCCESS' || buildStatusEnv1 == null)
+      env2Exists = env2Exists && (buildStatusEnv2 == 'SUCCESS' || buildStatusEnv2 == null)
 
       env1Exists = env1Exists && env2Exists && env2BuildDate >= env1BuildDate
       env2Exists = env1Exists && env2Exists && env1BuildDate < env2BuildDate
