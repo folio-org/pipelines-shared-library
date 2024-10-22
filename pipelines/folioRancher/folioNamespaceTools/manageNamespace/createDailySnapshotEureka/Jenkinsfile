@@ -1,26 +1,21 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
 
-import org.folio.utilities.Logger
+import groovy.transform.Field
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1359-test') _
+
+@Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
-            parameters([folioParameters.cluster(),
-                        folioParameters.namespace(),
-                        folioParameters.configType(),
-                        booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
-                        booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
-                        folioParameters.pgType(),
-                        folioParameters.kafkaType(),
-                        folioParameters.opensearchType(['aws']),
-                        folioParameters.s3Type(),
-                        folioParameters.agent(),
+            parameters([folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 21 * * * %CLUSTER=folio-etesting;NAMESPACE=snapshot;EUREKA=true;CONFIG_TYPE=testing;CONSORTIA=false;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 21 * * * %AGENT=rancher''')])])
 
 
 if (params.REFRESH_PARAMETERS) {
@@ -28,27 +23,8 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-
-CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-etesting')
-  .namespaceName('snapshot')
-  .configType('testing')
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .pgType('built-in')
-  .pgVersion('16.1')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .members('')
-  .worker('rancher')
-  .build()
-
-
-CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-etesting')
+CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-testing')
   .namespaceName('snapshot')
   .folioBranch('snapshot')
   .okapiVersion('latest')
@@ -68,37 +44,101 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type('built-in')
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
+  .worker('rancher')
+  .build()
+
+CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-testing')
+  .namespaceName('snapshot2')
+  .folioBranch('snapshot')
+  .okapiVersion('latest')
+  .configType('testing')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(true)
+  .eureka(true)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .pgType('built-in')
+  .pgVersion('16.1')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
+  .uiBuild(true)
+  .worker('rancher')
   .build()
 
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Ini') {
-        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
-      }
-
       stage('Checkout') {
         checkout scm
       }
 
-      stage('[TF] Destroy') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+      CreateNamespaceParameters createdEnv = namespace1
+      CreateNamespaceParameters eliminatedEnv = namespace2
+
+      stage('Determination') {
+        // Check if both environments exist
+        def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.checkNamespaceExistence(namespace1.getNamespaceName()) }
+        def env2Exists = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.checkNamespaceExistence(namespace2.getNamespaceName()) }
+
+        println "${namespace1.getNamespaceName()} exist $env1Exists"
+        println "${namespace2.getNamespaceName()} exist $env2Exists"
+
+        // Check both environments status
+        def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-status") }
+        def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-status") }
+
+        println "${namespace1.getNamespaceName()} status is $buildStatusEnv1"
+        println "${namespace2.getNamespaceName()} status is $buildStatusEnv2"
+
+        // Check environments build date
+        def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-date") }
+        def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-date") }
+
+        println "${namespace1.getNamespaceName()} build date is $env1BuildDate"
+        println "${namespace2.getNamespaceName()} build date is $env2BuildDate"
+
+        try {
+          env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
+        } catch (Exception ignored) {
+          env1BuildDate = new Date(0) // fallback in case of error
         }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          new Logger(this, 'dailySnapshotEureka').warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+
+        try {
+          env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
+        } catch (Exception ignored) {
+          env2BuildDate = new Date(0) // fallback in case of error
         }
+
+        env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
+        env2Exists = env2Exists && buildStatusEnv2 == 'SUCCESS'
+
+        env1Exists = env1Exists && env2Exists ? env2BuildDate <= env1BuildDate : env1Exists
+        env2Exists = env1Exists && env2Exists ? env1BuildDate < env2BuildDate : env2Exists
+
+        createdEnv = env1Exists ? namespace2 : namespace1
+        eliminatedEnv = env1Exists ? namespace1 : namespace2
+
+        println "Env will be created: ${createdEnv.getNamespaceName()}"
       }
 
-      if (namespaceParams.eureka) {
-        folioNamespaceCreateEureka(namespaceParams)
-      } else {
-        folioNamespaceCreate(namespaceParams)
+      stage('Build name') {
+        buildName "${createdEnv.getClusterName()}-${createdEnv.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${createdEnv.getConfigType()}"
       }
+
+      spinUpNamespaces(createdEnv, eliminatedEnv)
+
+      //TODO: Decision needs to be made
+      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
+        stage('Spinning up N1 del N2') {
+          spinUpNamespaces(eliminatedEnv, createdEnv)
+        }
 
     } catch (e) {
       println "Caught exception: ${e}"
@@ -110,3 +150,23 @@ ansiColor('xterm') {
     }
   }
 }
+
+void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv){
+  stage('Cleaning new env') {
+    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
+  }
+
+  stage('Spinning up new env') {
+    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
+  }
+
+  stage('Labeling new env') {
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.addLabelToNamespace(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.addLabelToNamespace(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+  }
+
+  stage('Deleting old env') {
+    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+  }
+}
+
