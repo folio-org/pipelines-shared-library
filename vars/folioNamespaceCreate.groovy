@@ -152,7 +152,9 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
 //      sleep time: 12, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      timeout(time: 10, unit: 'MINUTES') {
+        main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
     }
 
     stage('[Rest] Configure edge') {
