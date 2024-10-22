@@ -136,7 +136,9 @@ ansiColor('xterm') {
 
       //TODO: Decision needs to be made
       if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
+        stage('Spinning up N1 del N2') {
           spinUpNamespaces(eliminatedEnv, createdEnv)
+        }
 
     } catch (e) {
       println "Caught exception: ${e}"
@@ -150,20 +152,20 @@ ansiColor('xterm') {
 }
 
 void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv){
-  stage("Deleting ${createdEnv.getNamespaceName()}") {
+  stage('Cleaning new env') {
     folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
   }
 
-  stage("Spinning up ${createdEnv.getNamespaceName()}") {
+  stage('Spinning up new env') {
     folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
   }
 
-  stage("Labeling ${createdEnv.getNamespaceName()}") {
+  stage('Labeling new env') {
     folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
     folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
   }
 
-  stage("Deleting old env ${createdEnv.getNamespaceName()}") {
+  stage('Deleting old env') {
     folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
   }
 }
