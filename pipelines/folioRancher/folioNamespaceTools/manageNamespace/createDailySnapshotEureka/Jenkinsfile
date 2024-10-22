@@ -153,14 +153,21 @@ ansiColor('xterm') {
 }
 
 void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv){
-  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
+  stage("Delete ${createdEnv.getNamespaceName()}") {
+    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
+  }
 
-  // Deploy new environment in place of env1
-  folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
+  stage("Spin up ${createdEnv.getNamespaceName()}") {
+    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, createdEnv)
+  }
 
-  folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
-  folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+  stage("Labeled ${createdEnv.getNamespaceName()}") {
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-status", "SUCCESS") }
+    folioHelm.withKubeConfig(createdEnv.getClusterName()) { kubectl.setLabel(createdEnv.getNamespaceName(), "build-date", new Date().getTime().toString()) }
+  }
 
+//  stage("Delete old env ${createdEnv.getNamespaceName()}") {
 //  folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+//  }
 }
 
