@@ -6,10 +6,10 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1818') _
+@Library('pipelines-shared-library@RANCHER-1359-test') _
 
 @Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/VasylA/createNamespaceFromBranch-Eureka-1818'
+@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -24,8 +24,8 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-tmp')
-  .namespaceName('dmtest')
+  .clusterName('folio-testing')
+  .namespaceName('snapshot')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
@@ -48,8 +48,8 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .build()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-tmp')
-  .namespaceName('dmtest2')
+  .clusterName('folio-testing')
+  .namespaceName('snapshot2')
   .folioBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
