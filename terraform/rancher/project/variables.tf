@@ -177,6 +177,12 @@ variable "opensearch_shared_name" {
   description = "Name of shared OpenSearch cluster"
 }
 
+variable "opensearch_single_node" {
+  description = "Deploy OpenSearch in single-node mode (master, data, and client combined)"
+  type        = bool
+  default     = true
+}
+
 variable "es_ebs_volume_size" {
   type    = number
   default = 100
