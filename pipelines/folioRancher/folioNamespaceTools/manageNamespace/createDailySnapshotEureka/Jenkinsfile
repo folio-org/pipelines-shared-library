@@ -72,7 +72,7 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
 
 ansiColor('xterm') {
   node(params.AGENT) {
-//    try {
+    try {
 //      stage('Ini') {
 //        buildName "${namespaceBaseParams.getClusterName()}-${namespaceBaseParams.getNamespaceName()}.${env.BUILD_ID}"
 //        buildDescription "Config: ${namespaceBaseParams.getConfigType()}"
