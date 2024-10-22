@@ -186,9 +186,9 @@ boolean checkKubernetesResourceExist(String resource_type, String resource_name,
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
 
-def getLabelsFromNamespace(String namespace) {
+def getLabelsFromNamespace(String namespace, String labelKey = null) {
   try {
-    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels}'", returnStdout: true).trim()
+    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels${labelKey ? '.' + labelKey : ''}}'", returnStdout: true).trim()
   } catch (Exception e) {
     println(e.getMessage())
   }
