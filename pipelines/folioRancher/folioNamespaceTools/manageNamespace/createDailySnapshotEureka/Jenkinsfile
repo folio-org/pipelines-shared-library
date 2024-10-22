@@ -130,16 +130,11 @@ ansiColor('xterm') {
         buildDescription "Config: ${createdEnv.getConfigType()}"
       }
 
-      stage("Spin up ${createdEnv.getNamespaceName()}") {
-        spinUpNamespaces(createdEnv, eliminatedEnv)
-      }
+      spinUpNamespaces(createdEnv, eliminatedEnv)
 
 //      //TODO: Decision needs to be made
-//      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName()) {
-//        stage("Spin up ${namespace1.getNamespaceName()}") {
+//      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
 //          spinUpNamespaces(eliminatedEnv, createdEnv)
-//        }
-//      }
 
     } catch (e) {
       println "Caught exception: ${e}"
