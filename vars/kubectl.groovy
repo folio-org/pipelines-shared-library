@@ -166,9 +166,9 @@ boolean checkKubernetesResourceExist(String resource_type, String resource_name,
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
 
-def getLabelsFromNamespace(String namespace) {
+def getLabelsFromNamespace(String namespace, String labelKey = null) {
   try {
-    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels}'", returnStdout: true).trim()
+    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels${labelKey ? '.' + labelKey : ''}}'", returnStdout: true).trim()
   } catch (Exception e) {
     println(e.getMessage())
   }
@@ -187,30 +187,6 @@ def deleteLabelFromNamespace(String namespace, String labelKey) {
     sh(script: "kubectl label namespace ${namespace} ${labelKey}-")
   } catch (Exception e) {
     println(e.getMessage())
-  }
-}
-
-def getLabelValue(String namespace, String labelKey) {
-  try {
-    def labelValue = sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels.${labelKey}}'", returnStdout: true).trim()
-    if (labelValue) {
-      return labelValue
-    } else {
-      println("Label ${labelKey} does not exist in namespace ${namespace}.")
-      return null
-    }
-  } catch (Exception e) {
-    println(e.getMessage())
-    return null
-  }
-}
-
-def setLabel(String namespace, String labelKey, String labelValue) {
-  try {
-    sh(script: "kubectl label namespace ${namespace} ${labelKey}='${labelValue}' --overwrite", returnStdout: true)
-    println("Label ${labelKey} set to ${labelValue} in namespace ${namespace}.")
-  } catch (Exception e) {
-    println("Failed to set label ${labelKey} in namespace ${namespace}. Error: ${e.getMessage()}")
   }
 }
 
