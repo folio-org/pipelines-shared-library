@@ -121,7 +121,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Okapi healthcheck') {
-      sleep time: 10, unit: 'MINUTES'
+      sleep time: 1, unit: 'MINUTES'
       println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
       common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
     }
@@ -152,7 +152,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
 //      sleep time: 12, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-      timeout(time: 10, unit: 'MINUTES') {
+      timeout(time: 1, unit: 'MINUTES') {
         main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
       }
     }
