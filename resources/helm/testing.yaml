@@ -1915,10 +1915,7 @@ mod-ldp:
     maxUnavailable: 1
 mod-reporting:
   extraEnvVars: []
-  integrations:
-    okapi:
-      enabled: true
-      existingSecret: okapi-credentials
+  integrations: {}
   replicaCount: 1
   resources:
     limits:
@@ -2708,9 +2705,6 @@ mod-quick-marc:
 mod-reading-room:
   extraEnvVars: []
   integrations:
-    okapi:
-      enabled: true
-      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2742,9 +2736,6 @@ mod-reading-room:
 mod-record-specifications:
   extraEnvVars: []
   integrations:
-    okapi:
-      enabled: true
-      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
