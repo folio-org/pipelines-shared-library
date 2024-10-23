@@ -1319,9 +1319,9 @@ mod-finance:
   replicaCount: 1
   resources:
     limits:
-      memory: 318Mi
+      memory: 366Mi
     requests:
-      memory: 276Mi
+      memory: 318Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
