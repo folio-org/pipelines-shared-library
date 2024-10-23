@@ -60,7 +60,7 @@ class Tools {
    */
   @NonCPS
   static def jsonParse(String json) {
-    new JsonSlurperClassic().parseText(json)
+    return new JsonSlurperClassic().parseText(json)
   }
 
   /**
