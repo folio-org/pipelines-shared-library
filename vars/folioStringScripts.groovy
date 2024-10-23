@@ -134,7 +134,7 @@ static String getPostgresqlVersion() {
   return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
 List pg_versions = []
 versions.each {version ->
-if(version == '13.13') {
+if(version == '16.1') {
   pg_versions.add(0, version)
 } else{
   pg_versions.add(version)
