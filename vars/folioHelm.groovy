@@ -172,22 +172,26 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     )
 
     switch (moduleName) {
-    //TODO: Temporary solution just to bug avoiding workaround
+      //TODO: Temporary solution just to bug avoiding workaround
       case "mod-inn-reach":
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        moduleConfig['integrations']['systemuser']['enabled'] = false
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig['integrations']['systemuser']['enabled'] = false
         moduleConfig <<
           [
             [eureka: [enabled         : true,
                       sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
+
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
-      case "mod-data-export-spring":
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
+      //TODO: Temporary solution just to bug avoiding workaround
+      case "mod-fqm-manager":
         moduleConfig <<
           [
             [eureka: [enabled         : true,
@@ -195,10 +199,41 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
 
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
 
+        moduleConfig['extraEnvVars'] += [name: 'IS_EUREKA', value: 'true']
         break
+      //TODO: Temporary solution just to bug avoiding workaround
+      case ~/mod-(bulk-operations|data-export|data-export-worker)$/:
+        moduleConfig <<
+          [
+            [eureka: [enabled         : true,
+                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+          ]
+
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+
+        moduleConfig['extraEnvVars'] += [name: 'PLATFORM', value: 'true']
+        break
+//      case "mod-data-export-spring":
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//
+////        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//
+//        break
       case ~/mgr-.*$/:
         moduleConfig['integrations'] += [eureka: [enabled       : true,
                                                   existingSecret: 'eureka-common']]
