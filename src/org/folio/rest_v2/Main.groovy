@@ -99,11 +99,7 @@ class Main extends Okapi {
     tenants.each { tenantId, tenant ->
       if (tenant.indexes) {
         tenant.indexes.each { index ->
-          if(index.getType() == 'instance'){
-            runInstanceIndex(tenant)
-          }else{
-            runIndex(tenant, index)
-          }
+          runIndex(tenant, index)
         }
       }
     }
