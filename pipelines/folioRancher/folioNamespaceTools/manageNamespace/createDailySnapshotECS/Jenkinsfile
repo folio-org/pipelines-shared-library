@@ -23,13 +23,14 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.configType(),
                         booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
                         booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
+                        booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
                         folioParameters.pgType(),
                         folioParameters.kafkaType(),
                         folioParameters.opensearchType(['aws']),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -47,7 +48,7 @@ tfConfig.addVar('rancher_project_name', params.NAMESPACE)
 tfConfig.addVar('tenant_id', defaultTenantId)
 tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
 tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-tfConfig.addVar('pg_version', '12.15')
+tfConfig.addVar('pg_version', '16.1')
 tfConfig.addVar('pg_dbname', 'folio')
 tfConfig.addVar('pg_vol_size', 100)
 tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
@@ -100,39 +101,39 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-
-      stage('[TF] Destroy') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+      if (!params.RETRY_ENABLE) {
+        stage('[TF] Destroy') {
+          def nsExists
+          folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+            nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+          }
+          if (nsExists) {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          } else {
+            logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+          }
         }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+
+        stage('[TF] Provision') {
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+        }
+
+        stage('[DB and Indices] Restore') {
+          folioPrint.colored("Restoring indices...", "green")
+          withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+            folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+          }
+
+          folioHelm.withKubeConfig(params.CLUSTER) {
+            folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
+              "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+              "ecs-snapshot", "${params.NAMESPACE}")
+            sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
+            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+          }
         }
       }
-
-      stage('[TF] Provision') {
-        folioTerraformFlow.manageNamespace('apply', tfConfig)
-      }
-
-      stage('[DB and Indices] Restore') {
-        folioPrint.colored("Restoring indices...", "green")
-        withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-          folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-        }
-
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-          psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
-            "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-            "ecs-snapshot", "${params.NAMESPACE}")
-          sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
-          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
-        }
-      }
-
       stage('Restore') {
         folioHelm.withK8sClient {
           namespace.getModules().setInstallJson(new Tools(this)
@@ -159,8 +160,10 @@ ansiColor('xterm') {
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
-          def ldp_disable = """[{"id": "mod-ldp-1.1.3","action": "disable"},{"id": "folio_ldp-2.1.0","action": "disable"}]"""
-          main.tenantInstall(id, new JsonSlurperClassic().parseText(ldp_disable) as List)
+          if (!params.RETRY_ENABLE) {
+            def ldp_disable = """[{"id": "mod-ldp-1.1.3","action": "disable"},{"id": "folio_ldp-2.1.0","action": "disable"}]"""
+            main.tenantInstall(id, new JsonSlurperClassic().parseText(ldp_disable) as List)
+          }
           switch (id.getTenantId()) {
             case ['cs00000int']:
               id.getModules().setInstallJson(newInstallJson)
@@ -201,8 +204,8 @@ ansiColor('xterm') {
         retry(2) {
           sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
           main.update(namespace.getTenants())
+          main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
         }
-        main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
       }
 
       stage('Build and deploy UI') {
