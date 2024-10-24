@@ -465,9 +465,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 1951Mi
+      memory: 1536Mi
     requests:
-      memory: 1697Mi
+      memory: 1128Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -853,9 +853,9 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: 601Mi
+      memory: 883Mi
     requests:
-      memory: 523Mi
+      memory: 767Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -1319,9 +1319,9 @@ mod-finance:
   replicaCount: 1
   resources:
     limits:
-      memory: 366Mi
+      memory: 563Mi
     requests:
-      memory: 318Mi
+      memory: 489Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -1487,9 +1487,9 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 715Mi
+      memory: 1850Mi
     requests:
-      memory: 622Mi
+      memory: 1609Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -1706,9 +1706,9 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
-      memory: 1826Mi
+      memory: 1415Mi
     requests:
-      memory: 1588Mi
+      memory: 1231Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2239,9 +2239,9 @@ mod-patron-blocks:
   replicaCount: 1
   resources:
     limits:
-      memory: 207Mi
+      memory: 298Mi
     requests:
-      memory: 180Mi
+      memory: 259Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2603,9 +2603,9 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
-      memory: 1964Mi
+      memory: 1499Mi
     requests:
-      memory: 1708Mi
+      memory: 1303Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2634,9 +2634,9 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
-      memory: 1470Mi
+      memory: 975Mi
     requests:
-      memory: 1279Mi
+      memory: 847Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2718,9 +2718,9 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1255Mi
+      memory: 786Mi
     requests:
-      memory: 1092Mi
+      memory: 684Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2877,9 +2877,9 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: 456Mi
+      memory: 1067Mi
     requests:
-      memory: 396Mi
+      memory: 927Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
