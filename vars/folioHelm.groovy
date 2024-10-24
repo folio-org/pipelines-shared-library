@@ -176,7 +176,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case "mod-inn-reach":
 //        moduleConfig['integrations'] += [eureka: [enabled       : true,
 //                                                  existingSecret: 'eureka-common']]
-//        moduleConfig['integrations']['systemuser']['enabled'] = false
+        moduleConfig['integrations']['systemuser']['enabled'] = false
         moduleConfig <<
           [
             [eureka: [enabled         : true,
@@ -184,9 +184,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                           tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
           ]
 
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
 
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
