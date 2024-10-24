@@ -518,6 +518,9 @@ mod-agreements:
   - name: CONCURRENT_JOBS_GLOBAL
     value: '4'
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -1151,9 +1154,7 @@ mod-data-export-worker:
     enabled: true
     maxUnavailable: 1
 mod-data-import:
-  extraEnvVars:
-  - name: S3_FORCEPATHSTYLE
-    value: 'true'
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
@@ -1943,6 +1944,9 @@ mod-reporting:
 mod-licenses:
   extraEnvVars: []
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2230,6 +2234,9 @@ mod-notify:
 mod-oa:
   extraEnvVars: []
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2369,6 +2376,9 @@ mod-dcb:
   - name: consumer.verticle.mandatory
     value: 'false'
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2408,6 +2418,9 @@ mod-circulation-item:
   - name: consumer.verticle.mandatory
     value: 'false'
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2756,6 +2769,9 @@ mod-record-specifications:
 mod-remote-storage:
   extraEnvVars: []
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -2965,6 +2981,9 @@ mod-serials-management:
   - name: DB_MAXPOOLSIZE
     value: '50'
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials

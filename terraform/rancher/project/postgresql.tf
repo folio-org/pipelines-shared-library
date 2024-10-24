@@ -75,13 +75,13 @@ readReplicas:
       memory: 8192Mi
     limits:
       memory: 10240Mi
-  podAffinityPreset: soft
+  podAffinityPreset: hard
   persistence:
     enabled: true
     size: '${var.pg_vol_size}Gi'
     storageClass: gp2
   extendedConfiguration: |-
-    shared_buffers = '2560MB'
+    shared_buffers = '3096MB'
     max_connections = '${var.pg_max_conn}'
     listen_addresses = '0.0.0.0'
     effective_cache_size = '7680MB'
@@ -91,7 +91,7 @@ readReplicas:
     default_statistics_target = '100'
     random_page_cost = '1.1'
     effective_io_concurrency = '200'
-    work_mem = '1310kB'
+    work_mem = '3096kB'
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
@@ -130,9 +130,9 @@ primary:
     fsGroup: 1001
   containerSecurityContext:
     runAsUser: 1001
-  podAffinityPreset: soft
+  podAffinityPreset: hard
   extendedConfiguration: |-
-    shared_buffers = '2560MB'
+    shared_buffers = '3096MB'
     max_connections = '${var.pg_max_conn}'
     listen_addresses = '0.0.0.0'
     effective_cache_size = '7680MB'
@@ -142,7 +142,7 @@ primary:
     default_statistics_target = '100'
     random_page_cost = '1.1'
     effective_io_concurrency = '200'
-    work_mem = '1310kB'
+    work_mem = '3096kB'
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}

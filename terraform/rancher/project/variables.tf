@@ -98,7 +98,7 @@ variable "pg_max_conn" {
 
 variable "pg_version" {
   type        = string
-  default     = "13.13"
+  default     = "16.1"
   description = "Postgres version"
 }
 
@@ -175,6 +175,12 @@ variable "opensearch_shared_name" {
   type        = string
   default     = "folio-opensearch"
   description = "Name of shared OpenSearch cluster"
+}
+
+variable "opensearch_single_node" {
+  description = "Deploy OpenSearch in single-node mode (master, data, and client combined)"
+  type        = bool
+  default     = true
 }
 
 variable "es_ebs_volume_size" {
