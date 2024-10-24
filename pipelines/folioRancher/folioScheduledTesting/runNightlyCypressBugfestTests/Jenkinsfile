@@ -1,4 +1,7 @@
 #!groovy
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.models.parameters.CypressTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -19,34 +22,34 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-Map cypressBugfestFlowParameters = [
-  customBuildName       : env.JOB_BASE_NAME,
-  branch                : params.CYPRESS_BUGFEST_BRANCH,
-  tenantUrl             : "https://bugfest-quesnelia-aqa.int.aws.folio.org",
-  okapiUrl              : "https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org",
-  tenantId              : 'fs09000003',
-  adminUsername         : 'folio-aqa',
-  adminPassword         : 'Folio-aqa1',
-  parallelExecParameters: '--env grepTags="smoke criticalPth extendedPath"',
-//  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPth+nonParallel extendedPath+nonParallel"',
-  testsTimeout          : '14',
-  testrailProjectID     : '14',
-  testrailRunID         : '2421',
-  numberOfWorkers       : '6',
-  agent                 : 'cypress-static',
-  useReportPortal       : 'false'
-]
+CypressTestsParameters cypressParameters = new CypressTestsParameters()
+cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+cypressParameters.setTestsSrcBranch(params.CYPRESS_BUGFEST_BRANCH)
+cypressParameters.setTenantUrl('https://bugfest-quesnelia-aqa.int.aws.folio.org')
+cypressParameters.setOkapiUrl('https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org')
+cypressParameters.setTenant(new OkapiTenant('fs09000003')
+  .withAdminUser(new OkapiUser('folio-aqa', 'Folio-aqa1')))
+cypressParameters.setExecParameters('--env grepTags="smoke criticalPth extendedPath"')
+cypressParameters.setTestrailProjectID('14')
+cypressParameters.setTestrailRunID('2421')
+cypressParameters.setWorkerLabel('cypress-static')
+cypressParameters.setNumberOfWorkers(6)
+cypressParameters.setTimeout('840')
+
+boolean reportPortalUse = false
+String reportPortalRunType = ''
 
 ansiColor('xterm') {
   node(params.AGENT) {
     stage('Ini') {
-      buildName env.BUILD_ID
       buildDescription "Branch: ${params.CYPRESS_BUGFEST_BRANCH}\nEnv: ${cypressBugfestFlowParameters.tenantUrl}"
       cleanWs()
     }
 
     stage('[Flow] Execute tests') {
-      folioCypressFlow(cypressBugfestFlowParameters)
+      cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
+        folioCypressFlow.multiThreadRun(cypressParameters)
+      }
     }
   }
 }

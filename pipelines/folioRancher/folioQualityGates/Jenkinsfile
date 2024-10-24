@@ -1,6 +1,9 @@
 #!groovy
 import org.folio.models.ChangelogEntry
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.Constants
 import org.folio.slack.SlackHelper
@@ -55,6 +58,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('built-in')
   .opensearchType('built-in')
   .s3Type('built-in')
+  .runSanityCheck(false)
   .members('')
   .worker(params.AGENT)
   .build()
@@ -107,23 +111,21 @@ ansiColor('xterm') {
       stage('Execute quality gates') {
         Map branches = [failFast: false]
         branches['Cypress'] = { ->
-          Map cypressParams = [
-            branch                : 'master',
-            tenantUrl             : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}",
-            okapiUrl              : "https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}",
-            tenantId              : 'diku',
-            adminUsername         : 'diku_admin',
-            adminPassword         : 'admin',
-            parallelExecParameters: '--env grepTags="shiftLeft"',
-            testsTimeout          : '2',
-            testrailProjectID     : '', //TODO Add testrail Project ID
-            testrailRunID         : '', //TODO Add testrail Run ID
-            numberOfWorkers       : '4',
-            useReportPortal       : 'true',
-            runType               : 'ci',
-            sendSlackNotification : 'false',
-            agent                 : 'cypress-ci']
-          cypressTestsExecutionSummary = folioCypressFlow(cypressParams)
+          CypressTestsParameters cypressParameters = new CypressTestsParameters()
+          cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+          cypressParameters.setTestsSrcBranch('master')
+          cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
+          cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}")
+          cypressParameters.setTenant(new OkapiTenant('diku')
+            .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+          cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+          cypressParameters.setWorkerLabel('cypress-ci')
+          cypressParameters.setNumberOfWorkers(4)
+          cypressParameters.setTimeout('120')
+
+          cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), true, 'ci', false) {
+            folioCypressFlow.multiThreadRun(cypressParameters)
+          }
         }
         branches['Karate'] = { ->
           KarateTestsParameters karateTestsParams = new KarateTestsParameters()

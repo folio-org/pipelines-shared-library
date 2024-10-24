@@ -101,6 +101,7 @@ ansiColor('xterm') {
                          string(name: 'KAFKA', value: 'built-in'),
                          string(name: 'OPENSEARCH', value: 'aws'),
                          string(name: 'S3_BUCKET', value: 'built-in'),
+                         string(name: 'RUN_SANITY_CHECK', value: false),
                          string(name: 'MEMBERS', value: ''),
                          booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
       }

@@ -157,6 +157,7 @@ private List getEnvironmentJobParameters(String okapiVersion, clusterName, proje
    string(name: 'KAFKA', value: 'built-in'),
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
+   string(name: 'RUN_SANITY_CHECK', value: false),
    string(name: 'MEMBERS', value: ''),
    string(name: 'AGENT', value: 'jenkins-agent-java17'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]

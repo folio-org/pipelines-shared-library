@@ -1,5 +1,9 @@
 #!groovy
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.CypressTestsParameters
 
 @Library('pipelines-shared-library') _
 
@@ -24,6 +28,7 @@ properties([
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
+    folioParameters.runSanityCheck(),
     string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
@@ -60,6 +65,20 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .members(params.MEMBERS)
   .build()
 
+RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
+
+CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
+cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
+cypressSanityParameters.setTestsSrcBranch('master')
+cypressSanityParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
+cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
+cypressSanityParameters.setTenant(new OkapiTenant('diku')
+  .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+cypressSanityParameters.setWorkerLabel('cypress')
+cypressSanityParameters.setNumberOfWorkers(4)
+cypressSanityParameters.setTimeout('60')
+
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
@@ -75,6 +94,14 @@ ansiColor('xterm') {
       }
 
       folioNamespaceCreate(namespaceParams)
+
+      stage('[Cypress] Run sanity check'){
+        if(params.RUN_SANITY_CHECK) {
+          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
+            folioCypressFlow.multiThreadRun(cypressSanityParameters)
+          }
+        }
+      }
 
     } catch (e) {
       println "Caught exception: ${e}"
