@@ -104,16 +104,16 @@ void call(CreateNamespaceParameters args) {
 
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
         .values().each { tenant ->
-          tenant.withInstallJson(namespace.getModules().getInstallJson())
-                  .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+        tenant.withInstallJson(namespace.getModules().getInstallJson())
+          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
-          if (tenant.getIsCentralConsortiaTenant()) {
-            tenant.withTenantUi(tenantUi.clone())
+        if (tenant.getIsCentralConsortiaTenant()) {
+          tenant.withTenantUi(tenantUi.clone())
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
-          }
-
-          namespace.addTenant(tenant)
         }
+
+        namespace.addTenant(tenant)
+      }
     }
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
@@ -177,9 +177,9 @@ void call(CreateNamespaceParameters args) {
       )
 
       eureka.registerModulesFlow(
-              namespace.getModules()
-              , namespace.getApplications()
-              , namespace.getTenants().values() as List<EurekaTenant>
+        namespace.getModules()
+        , namespace.getApplications()
+        , namespace.getTenants().values() as List<EurekaTenant>
       )
 
 //      namespace.withApplications([
@@ -210,8 +210,8 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralPropertiesEureka(namespace)
-
+//        folioEdge.renderEphemeralPropertiesEureka(namespace)
+        folioEdge.renderEphemeralProperties(namespace)
         namespace.getModules().getEdgeModules().each { name, version ->
           kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
@@ -230,10 +230,10 @@ void call(CreateNamespaceParameters args) {
         counter++
 
         eureka.initializeFromScratch(
-                namespace.getTenants()
-                , namespace.getClusterName()
-                , namespace.getNamespaceName()
-                , namespace.getEnableConsortia()
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
         )
       }
     }
