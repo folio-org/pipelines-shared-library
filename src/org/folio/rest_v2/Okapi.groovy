@@ -304,21 +304,6 @@ class Okapi extends Authorization {
     return response*.id
   }
 
-  void runInstanceIndex(OkapiTenant tenant){
-    String url = generateUrl("/search/index/instance-records/reindex/full")
-    Map<String, String> headers = getAuthorizedHeaders(tenant)
-    Map body = [
-      "indexSettings": []
-    ]
-
-    logger.info("[${tenant.getTenantId()}] Starting Elastic Search 'instance' reindex")
-
-    restClient.post(url, body, headers).body
-
-    logger.info("[${tenant.getTenantId()}] Finished Elastic Search 'instance' reindex")
-  }
-
-
   String runIndex(OkapiTenant tenant, Index index) {
     String url = generateUrl("/search/index/inventory/reindex")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
@@ -340,7 +325,7 @@ class Okapi extends Authorization {
   }
 
   void checkIndexStatus(OkapiTenant tenant, String jobId) {
-    String url = generateUrl("/authority-storage/reindex/${jobId}")
+    String url = generateUrl("/instance-storage/reindex/${jobId}")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
 
     steps.timeout(1440) {
