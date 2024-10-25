@@ -60,6 +60,15 @@ tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
 tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
 
 /**
+ * TODO This is temporary solution for slightly migration from db.r5.xlarge shape to db.r6g.xlarge
+ * As currently we have 2 reserved plans purchased for db.r5.xlarge
+ * Final switch for db.r6g.xlarge should be on April 08, 2024
+ */
+if(params.CLUSTER ==~ /folio-testing|folio-etesting/ && params.NAMESPACE == 'sprint' ){
+  tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
+}
+
+/**
  * Set namespace configuration
  */
 
