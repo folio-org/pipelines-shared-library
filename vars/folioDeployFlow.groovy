@@ -61,7 +61,7 @@ void edge(RancherNamespace namespace, boolean skipEdgeUsersCreation = false, Clo
 
   stage('[Rest] Render ephemeral-properties') {
     folioEdge.renderEphemeralProperties(namespace)
-    if (!skipEdgeUsersCreation) {
+    if (skipEdgeUsersCreation) {
       edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
     }
   }
