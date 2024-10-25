@@ -52,7 +52,7 @@ def agent() {
   return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def cypress_agent() {
+def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
@@ -166,4 +166,8 @@ def adminPassword(String admin_password = defaultAdminUser().password, String de
 
 def eurekaModules() {
   return _paramChoice('MODULE_NAME', Constants.EUREKA_MODULES, 'Eureka module name to build')
+}
+
+def runSanityCheck(boolean value = true) {
+  return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
 }
