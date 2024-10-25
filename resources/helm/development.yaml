@@ -1743,7 +1743,7 @@ mod-lists:
       existingSecret: okapi-credentials
     systemuser:
       enabled: true
-      existingSecret: mod-lists
+      existingSecret: mod-lists-systemuser
   replicaCount: 1
   resources:
     limits:
