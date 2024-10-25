@@ -162,6 +162,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Helm] Deploy mgr-*') {
+      sleep time: 3, unit: 'MINUTES'
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
       }
