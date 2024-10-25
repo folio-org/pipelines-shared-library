@@ -9,7 +9,7 @@ import org.folio.rest_v2.Main
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1827') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
