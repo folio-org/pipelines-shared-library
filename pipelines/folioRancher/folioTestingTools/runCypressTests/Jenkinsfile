@@ -1,8 +1,10 @@
 #!groovy
 import hudson.util.Secret
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.models.parameters.CypressTestsParameters
 
 @Library('pipelines-shared-library') _
-//@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -15,17 +17,16 @@ properties([
     string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
-    string(name: 'PARALLEL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress parallel execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
-    string(name: 'SEQUENTIAL_EXEC_PARAMETERS', defaultValue: "", description: 'Cypress sequential execution parameters.\nExample: --env grepTags="smoke+nonParallel"', trim: true),
-    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if sequential run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
-    string(name: 'TIMEOUT', defaultValue: "4", description: '(HOURS) Timeout for tests execution', trim: true),
+    string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
+    choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if single thread run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
+    string(name: 'TIMEOUT', defaultValue: "240", description: '(MINUTES) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
-    choice(name: 'RUN_TYPE', defaultValue: "", description: 'Parameter for Report portal filtering', choices: ["day", "night", "week", "evrk"]),
-    booleanParam(name: 'RUN_SANITY_CHECK', defaultValue: true, description: 'Set to true, to run sanity check before main tests execution'),
-    booleanParam(name: 'SEND_TO_REPORT_PORTAL', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
-    folioParameters.cypress_agent(),
+    booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
+    choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
+    folioParameters.runSanityCheck(),
+    folioParameters.cypressAgent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -35,59 +36,93 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+String ciBuildId = params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME
+boolean reportPortalUse = params.REPORT_PORTAL_USE
+String reportPortalRunType = params.REPORT_PORTAL_RUN_TYPE
 
-Map cypressFlowParameters = [
-  customBuildName         : params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME,
-  branch                  : params.CYPRESS_BRANCH,
-  tenantUrl               : params.TENANT_URL,
-  okapiUrl                : params.OKAPI_URL,
-  tenantId                : params.TENANT_ID,
-  adminUsername           : params.ADMIN_USERNAME,
-  adminPassword           : params.ADMIN_PASSWORD,
-  parallelExecParameters  : params.PARALLEL_EXEC_PARAMETERS,
-  sequentialExecParameters: params.SEQUENTIAL_EXEC_PARAMETERS,
-  testsTimeout            : params.TIMEOUT,
-  testrailProjectID       : params.TESTRAIL_PROJECTID,
-  testrailRunID           : params.TESTRAIL_RUN_ID,
-  numberOfWorkers         : params.NUMBER_OF_WORKERS,
-  agent                   : params.AGENT,
-  runType                 : params.RUN_TYPE,
-  useReportPortal         : params.SEND_TO_REPORT_PORTAL.toString(),
-  runSanityCheck          : params.RUN_SANITY_CHECK.toString()
-]
+CypressTestsParameters cypressParameters = new CypressTestsParameters()
+cypressParameters.setCiBuildId(ciBuildId)
+cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
+cypressParameters.setTenantUrl(params.TENANT_URL)
+cypressParameters.setOkapiUrl(params.OKAPI_URL)
+cypressParameters.setTenant(new OkapiTenant(params.TENANT_ID)
+  .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD)))
+cypressParameters.setExecParameters(params.EXEC_PARAMETERS)
+cypressParameters.setTestrailProjectID(params.TESTRAIL_PROJECTID)
+cypressParameters.setTestrailRunID(params.TESTRAIL_RUN_ID)
+cypressParameters.setWorkerLabel(params.AGENT)
+cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
+cypressParameters.setTimeout(params.TIMEOUT)
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  node('rancher') {
     stage('Ini') {
-      buildName env.BUILD_ID
-      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressFlowParameters.tenantUrl}"
+      buildName "#${cypressParameters.getCiBuildId()}.${env.BUILD_ID}"
+      buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
+      cleanWs notFailBuild: true
     }
-    stage('[Conditional check]') {
-      Calendar cal = Calendar.getInstance()
 
+    stage('[Conditional check]') {
+      // Get current time and date
+      Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
       Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
       Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
 
-      boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
-        (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) || (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
+      // Check if current time falls within restricted execution times
+      if (isLimitReached(dayOfWeek, hourOfDay, params.NUMBER_OF_WORKERS)) {
+        echo "Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
+          "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again."
+        echo "Current time: ${hourOfDay}"
+        echo "Number of workers: ${params.NUMBER_OF_WORKERS}"
 
-      boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
-
-      boolean isLimitReach = (isRestOfWeek6To24 && params.NUMBER_OF_WORKERS.toInteger() > 4) ||
-        (isFri18ToSun18 && params.NUMBER_OF_WORKERS.toInteger() > 8)
-
-      if (isLimitReach) {
-        println("Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
-          "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again.")
-        println("Current time: " + hourOfDay)
-        println("Number of workers: " + params.NUMBER_OF_WORKERS.toInteger())
         currentBuild.result = 'ABORTED'
         error("Not a proper condition.")
       }
     }
 
     stage('[Flow] Execute tests') {
-      folioCypressFlow(cypressFlowParameters)
+      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) {
+        if (params.RUN_SANITY_CHECK) {
+          CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
+          cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+          cypressSanityParameters.setNumberOfWorkers(4)
+          cypressSanityParameters.setTimeout('60')
+          folioCypressFlow.singleThreadRun(cypressSanityParameters)
+        }
+
+        switch (cypressParameters.numberOfWorkers) {
+          case 1:
+            folioCypressFlow.singleThreadRun(cypressParameters)
+            break
+          case 2..Integer.MAX_VALUE:
+            folioCypressFlow.multiThreadRun(cypressParameters)
+            break
+          default:
+            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
+        }
+      }
     }
   }
+}
+
+/**
+ * Determines if the execution limit has been reached based on the current day, time, and number of workers.
+ *
+ * @param dayOfWeek The current day of the week (1=Sunday, 2=Monday, ..., 7=Saturday).
+ * @param hourOfDay The current hour of the day (0-23).
+ * @param numberOfWorkers The number of workers currently specified.
+ * @return True if execution limit is reached; false otherwise.
+ */
+@SuppressWarnings('GrMethodMayBeStatic')
+boolean isLimitReached(Integer dayOfWeek, Integer hourOfDay, String numberOfWorkers) {
+  int workers = numberOfWorkers.toInteger()
+
+  boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
+    (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) ||
+    (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
+
+  boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
+
+  return (isRestOfWeek6To24 && workers > 4) ||
+    (isFri18ToSun18 && workers > 8)
 }

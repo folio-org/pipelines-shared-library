@@ -42,6 +42,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String s3Type
 
+  boolean runSanityCheck
+
   String members
 
   boolean namespaceOnly = false
@@ -262,6 +264,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder s3Type(String s3Type) {
       parameters.s3Type = s3Type
+      return this
+    }
+
+    /**
+     * Identify if Cypress sanity check should be run.
+     * @param runSanityCheck The option to run or skip cypress sanity check.
+     * @return Builder instance for method chaining.
+     */
+    Builder runSanityCheck(String runSanityCheck) {
+      parameters.runSanityCheck = runSanityCheck
       return this
     }
 
