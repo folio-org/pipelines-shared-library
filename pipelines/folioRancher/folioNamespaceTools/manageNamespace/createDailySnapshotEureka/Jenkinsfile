@@ -15,7 +15,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 21 * * * %AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''H 23 * * * %AGENT=rancher''')])])
 
 
 if (params.REFRESH_PARAMETERS) {
