@@ -1,6 +1,10 @@
 #!groovy
+import groovy.transform.Field
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.utilities.Logger
 
 @Library('pipelines-shared-library@RANCHER-1334') _
@@ -9,7 +13,7 @@ import org.folio.utilities.Logger
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 21 * * 1')]),
+  pipelineTriggers([cron('H 21 * * 0,2,4')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -28,8 +32,10 @@ if (params.REFRESH_PARAMETERS) {
  * Job variables
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
-//final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
-final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+
+@Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
+@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+
 final String platformCompleteBranch = 'snapshot'
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
@@ -61,23 +67,22 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
 
-Map cypressFlowParameters = [
-  customBuildName       : env.JOB_BASE_NAME,
-  branch                : params.CYPRESS_BRANCH,
-  tenantUrl             : "https://${namespace.generateDomain('diku')}",
-  okapiUrl              : "https://${namespace.getDomains().kong}",
-  tenantId              : 'diku',
-  adminUsername         : 'diku_admin',
-  adminPassword         : 'admin',
-  parallelExecParameters: '--env grepTags="smoke --eureka"',
-  testsTimeout          : '8',
-  testrailProjectID     : '14',
-  testrailRunID         : '2723',
-  numberOfWorkers       : '8',
-  agent                 : 'cypress',
-  runType               : 'evrk',
-  useReportPortal       : 'true'
-]
+CypressTestsParameters cypressParameters = new CypressTestsParameters()
+cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
+cypressParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
+cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressParameters.setTenant(new OkapiTenant('diku')
+  .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+cypressParameters.setExecParameters('--env grepTags="smoke criticalPath --eurekaTemporaryECS"')
+cypressParameters.setTestrailProjectID('14')
+cypressParameters.setTestrailRunID('2723')
+cypressParameters.setWorkerLabel('cypress')
+cypressParameters.setNumberOfWorkers(12)
+cypressParameters.setTimeout('480')
+
+boolean reportPortalUse = true
+String reportPortalRunType = 'evrk'
 
 /**
  * Pipeline
@@ -110,8 +115,7 @@ ansiColor('xterm') {
 
       stage('[Job] Provision environment') {
         try {
-          //TODO Change to folioTriggerJob.createNamespaceFromBranch() once it will support Eureka
-          folioNamespaceCreateEureka(namespaceFromBranchParams)
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
         } catch (Exception new_ex) {
           slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
             , channel: "#rancher_tests_notifications")
@@ -120,7 +124,9 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        folioCypressFlow(cypressFlowParameters)
+        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
+          folioCypressFlow.multiThreadRun(cypressParameters)
+        }
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
