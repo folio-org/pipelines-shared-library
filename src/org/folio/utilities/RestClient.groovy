@@ -10,7 +10,7 @@ class RestClient {
   private int defaultReadTimeout
   private Logger logger
 
-  RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
+  RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 9999999) {
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
@@ -41,7 +41,7 @@ class RestClient {
   private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
 
       if (debug) {
-        logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}, connectionTimeout${connectionTimeout}, readTimeout=${readTimeout}")
+        logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}, connectionTimeout=${connectionTimeout}, readTimeout=${readTimeout}")
       }
 
       HttpURLConnection connection = setupConnection(url, method, headers, connectionTimeout, readTimeout)
