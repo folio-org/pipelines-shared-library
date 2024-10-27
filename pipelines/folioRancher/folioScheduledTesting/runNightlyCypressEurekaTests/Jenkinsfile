@@ -91,7 +91,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressFlowParameters.tenantUrl}"
+        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
         cleanWs()
       }
 
