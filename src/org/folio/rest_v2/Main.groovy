@@ -68,8 +68,8 @@ class Main extends Okapi {
     createTenant(tenant)
     tenantInstall(tenant, tenant.modules.generateInstallJsonFromIds(['okapi'], 'enable'))
 
-    tenantInstallRetry(3, 300000, KNOWN_INSTALL_ERRORS) {
-      tenantInstall(tenant, tenant.modules.installJson, 900000)
+    tenantInstallRetry(3, 60000, KNOWN_INSTALL_ERRORS) {
+      tenantInstall(tenant, tenant.modules.installJson, 60000)
     }
 
     if (tenant.adminUser) {
