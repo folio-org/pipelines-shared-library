@@ -287,7 +287,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param runSanityCheck The option to run or skip cypress sanity check.
      * @return Builder instance for method chaining.
      */
-    Builder runSanityCheck(String runSanityCheck) {
+    Builder runSanityCheck(boolean runSanityCheck) {
       parameters.runSanityCheck = runSanityCheck
       return this
     }
