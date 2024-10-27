@@ -1,6 +1,9 @@
 #!groovy
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.utilities.Logger
 
 @Library('pipelines-shared-library') _
@@ -9,7 +12,7 @@ import org.folio.utilities.Logger
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 21 * * 0,2-6')]),
+  pipelineTriggers([cron('H 21 * * 1,3,5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -45,6 +48,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('built-in')
   .opensearchType('aws')
   .s3Type('built-in')
+  .runSanityCheck(false)
   .members('')
   .worker('rancher')
   .build()
@@ -61,24 +65,22 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
 
-Map cypressFlowParameters = [
-  customBuildName       : env.JOB_BASE_NAME,
-  branch                : params.CYPRESS_BRANCH,
-  tenantUrl             : "https://${namespace.generateDomain('diku')}",
-  okapiUrl              : "https://${namespace.getDomains().okapi}",
-  tenantId              : 'diku',
-  adminUsername         : 'diku_admin',
-  adminPassword         : 'admin',
-  parallelExecParameters: '--env grepTags="smoke criticalPath"',
-//  sequentialExecParameters: '--env grepTags="smoke+nonParallel criticalPath+nonParallel"',
-  testsTimeout          : '8',
-  testrailProjectID     : '14',
-  testrailRunID         : '2108',
-  numberOfWorkers       : '12',
-  agent                 : 'cypress',
-  runType               : 'night',
-  useReportPortal       : 'true'
-]
+CypressTestsParameters cypressParameters = new CypressTestsParameters()
+cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
+cypressParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
+cypressParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
+cypressParameters.setTenant(new OkapiTenant('diku')
+  .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
+cypressParameters.setTestrailProjectID('14')
+cypressParameters.setTestrailRunID('2108')
+cypressParameters.setWorkerLabel('cypress')
+cypressParameters.setNumberOfWorkers(12)
+cypressParameters.setTimeout('480')
+
+boolean reportPortalUse = true
+String reportPortalRunType = 'night'
 
 /**
  * Pipeline
@@ -116,7 +118,9 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        folioCypressFlow(cypressFlowParameters)
+        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
+          folioCypressFlow.multiThreadRun(cypressParameters)
+        }
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
