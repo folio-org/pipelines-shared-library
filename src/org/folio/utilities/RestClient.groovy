@@ -73,7 +73,6 @@ class RestClient {
     connection.requestMethod = method
     connection.connectTimeout = connectionTimeout
     connection.readTimeout = readTimeout
-    connection.notify()
     headers.each { header, value ->
       connection.setRequestProperty(header, value)
     }
