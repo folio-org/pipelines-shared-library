@@ -133,9 +133,9 @@ void updatePreparation(RancherNamespace namespace, InstallRequestParams installR
     }
 
     if (installRequestParams.getReinstall()) {
-      namespace.getModules().setInstallJson(fullCompareResultMap.UPGRADE + fullCompareResultMap.EQUAL)
+      namespace.getModules().setInstallJsonObject(fullCompareResultMap.UPGRADE + fullCompareResultMap.EQUAL)
     } else {
-      namespace.getModules().setInstallJson(fullCompareResultMap.UPGRADE)
+      namespace.getModules().setInstallJsonObject(fullCompareResultMap.UPGRADE)
     }
 
   } else {

@@ -39,7 +39,7 @@ RancherNamespace namespace = new RancherNamespace("${params.CLUSTER}", "${params
   .withDefaultTenant("${defaultTenantId}")
   .withDeploymentConfigType("${params.CONFIG_TYPE}")
 
-namespace.getModules().setInstallJson(installJson)
+namespace.getModules().setInstallJsonObject(installJson)
 
 namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
   .withInstallJson(namespace.getModules().getInstallJson().collect())

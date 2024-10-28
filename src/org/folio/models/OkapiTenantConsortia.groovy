@@ -3,7 +3,7 @@ package org.folio.models
 /**
  * OkapiTenantConsortia class is a subclass of OkapiTenant
  * representing a tenant configuration specifically for consortia.
- * It provides chainable setter methods following builder pattern for ease of use.
+ * It provides chainable setter methods following the builder pattern for ease of use.
  */
 class OkapiTenantConsortia extends OkapiTenant {
   /** Flag indicating if the tenant is the central consortia tenant. */
@@ -19,7 +19,9 @@ class OkapiTenantConsortia extends OkapiTenant {
   String tenantCode
 
   /**
-   * Constructor that sets the tenantId, initializes modules, and sets the isCentralConsortiaTenant flag.
+   * Constructor that sets the tenantId, initializes modules,
+   * and sets the isCentralConsortiaTenant flag.
+   *
    * @param tenantId Tenant's identifier.
    * @param isCentralConsortiaTenant Boolean flag indicating if the tenant is the central consortia tenant.
    */
@@ -30,8 +32,10 @@ class OkapiTenantConsortia extends OkapiTenant {
 
   /**
    * Chainable setter for tenant code.
+   * This method allows for setting the code associated with the tenant in a fluent manner.
+   *
    * @param tenantCode Code associated with the tenant.
-   * @return The OkapiTenantConsortia object.
+   * @return The OkapiTenantConsortia object for method chaining.
    */
   OkapiTenantConsortia withTenantCode(String tenantCode) {
     this.tenantCode = tenantCode
@@ -40,8 +44,10 @@ class OkapiTenantConsortia extends OkapiTenant {
 
   /**
    * Chainable setter for consortia name.
+   * This method allows for setting the name of the consortia in a fluent manner.
+   *
    * @param consortiaName Name of the consortia.
-   * @return The OkapiTenantConsortia object.
+   * @return The OkapiTenantConsortia object for method chaining.
    */
   OkapiTenantConsortia withConsortiaName(String consortiaName) {
     this.consortiaName = consortiaName
@@ -49,30 +55,39 @@ class OkapiTenantConsortia extends OkapiTenant {
   }
 
   /**
-   * Chainable setter for install JSON.
-   * It removes 'folio_consortia-settings' module for non-central consortia tenants.
-   * @param installJson The install JSON object.
-   * @return The OkapiTenantConsortia object.
+   * Chainable setter for installation request parameters.
+   * This method allows for setting installation request parameters for the tenant.
+   * It removes the "loadSample" tenant parameter for non-central consortia tenants.
+   *
+   * @param installRequestParams The InstallRequestParams object.
+   * @return The OkapiTenantConsortia object for method chaining.
    */
-  OkapiTenantConsortia withInstallJson(Object installJson) {
-    this.getModules().setInstallJson(installJson)
+  @Override
+  OkapiTenantConsortia withInstallRequestParams(InstallRequestParams installRequestParams) {
+    super.withInstallRequestParams(installRequestParams)
+    // Remove the "loadSample" parameter if this tenant is not the central consortia tenant
     if (!this.isCentralConsortiaTenant) {
-      this.getModules().removeModule('folio_consortia-settings')
+      this.getInstallRequestParams().removeTenantParameter("loadSample")
     }
     return this
   }
 
   /**
-   * Chainable setter for install query parameters.
-   * It removes "loadSample" tenant parameter for non-central consortia tenants.
-   * @param installRequestParams The InstallRequestParams object.
-   * @return The OkapiTenantConsortia object.
+   * Enables specified Folio extensions for the consortia tenant.
+   * This method retrieves the latest version of each specified extension module
+   * and adds them to the tenant's installed modules. Additionally, it removes the
+   * 'folio_consortia-settings' module if this tenant is not the central consortia tenant.
+   *
+   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param extensions List of extension IDs to enable.
+   * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
    */
-  OkapiTenantConsortia withInstallRequestParams(InstallRequestParams installRequestParams) {
-    super.withInstallRequestParams(installRequestParams)
+  @Override
+  void enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+    super.enableFolioExtensions(script, extensions, isRelease)
+    // Remove the 'folio_consortia-settings' module if this tenant is not the central consortia tenant
     if (!this.isCentralConsortiaTenant) {
-      this.getInstallRequestParams().removeTenantParameter("loadSample")
+      this.getModules().removeModuleByName('folio_consortia-settings')
     }
-    return this
   }
 }
