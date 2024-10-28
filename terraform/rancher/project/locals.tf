@@ -11,7 +11,8 @@ locals {
   db_snapshot_arn   = "arn:aws:rds:${var.aws_region}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:${var.pg_rds_snapshot_name}"
 
   system_user_modules = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
-  "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists"]
+    "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists",
+  "mod-linked-data"]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
   "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations"]
