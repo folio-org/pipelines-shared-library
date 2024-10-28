@@ -100,7 +100,14 @@ void call(CreateNamespaceParameters args) {
     )
 
     if (args.consortia) {
+      logger.debug("Check existences mod-consortia")
+      logger.debug(namespace.getModules().installJson.any { it.id.startsWith(Modules.extractModuleNameFromId(namespace.getModules().getModuleVersion('mod-consortia', releaseVersion))) })
+
+      logger.debug("Check existences folio_consortia-settings")
+      logger.debug(namespace.getModules().installJson.any { it.id.startsWith(Modules.extractModuleNameFromId(namespace.getModules().getModuleVersion('folio_consortia-settings', releaseVersion))) })
+
       namespace.setEnableConsortia(true, releaseVersion)
+
       logger.debug("namespace.modules:")
       logger.debug(namespace.getModules())
 
