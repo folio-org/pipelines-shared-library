@@ -115,7 +115,7 @@ class Modules {
    */
   void addModules(List<String> modulesIds) {
     modulesIds.each { moduleId ->
-      boolean moduleExist = this.installJson.any { it.id.startsWith(extractModuleNameFromId(moduleId)) }
+      boolean moduleExist = this.installJson.any { it.id =~ /${extractModuleNameFromId(moduleId)}-\d+\..*/ }
       if (moduleExist) {
         return
       }
