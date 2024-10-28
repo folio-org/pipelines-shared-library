@@ -3,6 +3,7 @@ import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Edge
 import org.folio.rest_v2.Main
+import org.folio.utilities.Logger
 
 /**
  * Deploys Okapi module.
@@ -62,7 +63,7 @@ void edge(RancherNamespace namespace, boolean skipEdgeUsersCreation = false, Clo
   stage('[Rest] Render ephemeral-properties') {
     folioEdge.renderEphemeralProperties(namespace)
     if (skipEdgeUsersCreation) {
-      println("Skipping edge users creation for tenant ${namespace.getDefaultTenantId()}")
+      new Logger(this, 'edgeRendering').warning("Skipping edge users creation for tenant ${namespace.getDefaultTenantId()}")
     } else {
       edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
     }
@@ -205,7 +206,7 @@ void update(RancherNamespace namespace, boolean debug = false) {
 
     //Deploy edge modules
     if (namespace.getModules().getEdgeModules()) {
-      edge(namespace)
+      edge(namespace, true)
     } else {
       println('Skipping Edge modules deploy stage: No Edge modules to update.')
     }
