@@ -38,4 +38,11 @@ class EurekaNamespace extends RancherNamespace {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
     } as EurekaTenantConsortia
   }
+
+  @Override
+  void setEnableConsortia(boolean enableConsortia, boolean releaseVersion = false) {
+    this.modules.addModules([this.modules.getModuleVersion('mod-consortia-keycloak', releaseVersion),
+                             this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
+    this.enableConsortia = enableConsortia
+  }
 }
