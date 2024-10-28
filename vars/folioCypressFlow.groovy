@@ -305,7 +305,7 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
 
     if (sendNotification) {
       // Send notifications based on the execution summary
-      folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse, '#rancher-test-notifications')
+      folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
     }
 
     return testRunExecutionSummary
