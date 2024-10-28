@@ -36,6 +36,10 @@ RUN curl -fsSL "https://releases.hashicorp.com/terraform/${terraform_ver}/terraf
     curl -LO "https://dl.k8s.io/release/${kubectl_ver}/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
+    
+COPY ./jenkins-agent /usr/local/bin/jenkins-agent
+RUN chmod +x /usr/local/bin/jenkins-agent &&\
+    ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
 
 # Set the working directory
 WORKDIR /home/jenkins
