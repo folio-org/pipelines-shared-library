@@ -9,7 +9,7 @@ import org.folio.rest_v2.Main
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library@ecs-snapshot-enhancements') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
