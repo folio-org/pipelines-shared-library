@@ -23,8 +23,11 @@ def getSlackColor(def buildStatus) {
   }
 }
 
-def getMigrationTime(rancher_cluster_name, rancher_project_name, resultMap, srcInstallJson, dstInstallJson, totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack, startMigrationTime, pgadminURL) {
-
+List getMigrationTime(rancher_cluster_name, rancher_project_name, srcInstallJson, dstInstallJson, startMigrationTime) {
+  Map resultMap = [:]
+  int totalTimeInMs = 0
+  Map modulesLongMigrationTimeSlack = [:]
+  List modulesMigrationFailedSlack = []
 
   srcInstallJson.each { item ->
     def (fullModuleName, moduleName, moduleVersion) = (item.id =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
@@ -53,8 +56,9 @@ def getMigrationTime(rancher_cluster_name, rancher_project_name, resultMap, srcI
   // Create tenants map with information about each module: moduleName, moduleVersionDst, moduleVersionSrc and migration time
   def tenants = []
   result.hits.hits.each {
-    def logField = it.fields.log[0]
+    def logField = it.fields.message[0]
     def parsedMigrationInfo = logField.split("'")
+
     def (fullModuleName, moduleName, moduleVersion) = (parsedMigrationInfo[1] =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)[0]
     def time
 
@@ -179,7 +183,7 @@ def createTimeHtmlReport(tenantName, tenants) {
 }
 
 void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
-  def buildStatus = currentBuild.result
+  def buildStatus = currentBuild.currentResult
   def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
 
   def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
