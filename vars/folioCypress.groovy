@@ -180,12 +180,12 @@ void runTests(String execString) {
  * @param execString The command string for executing tests. Must not be null or empty.
  */
 void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String execString) {
-  execString += """
+  execString = """
         export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
         export TESTRAIL_PROJECTID=${testrailProjectID}
         export TESTRAIL_RUN_ID=${testrailRunID}
         export CYPRESS_allureReuseAfterSpec=true
-    """
+    """ + execString
 
   echo "Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}"
 

@@ -1,5 +1,4 @@
 #!groovy
-
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
