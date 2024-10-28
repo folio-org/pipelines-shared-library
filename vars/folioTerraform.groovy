@@ -16,7 +16,7 @@ void client(Closure closure) {
   def init(String path, String opts = '') {
     stage('[TF] Init') {
       dir(path) {
-        sh "terraform init ${opts}"
+        sh "terraform init ${opts} -upgrade"
       }
     }
   }
