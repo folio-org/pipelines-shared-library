@@ -277,7 +277,9 @@ IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = fals
   // Set up Report Portal and gather execution parameters if requested
   if (reportPortalUse) {
     String reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
-    writeFile(file: _reportPortalExecPramsPath(), text: reportPortalExecParameters)
+    if (reportPortalExecParameters) {
+      writeFile(file: _reportPortalExecPramsPath(), text: reportPortalExecParameters)
+    }
   }
 
   try {
