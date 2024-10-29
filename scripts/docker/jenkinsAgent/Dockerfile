@@ -3,7 +3,7 @@ FROM jenkins/agent:alpine-jdk17
 
 # Set environment variables to avoid user interaction during installation
 ENV DEBIAN_FRONTEND=noninteractive
-ARG terraform_ver=1.6.0
+ARG terraform_ver=1.1.9
 ARG helm_ver=3.15.4
 ARG kubectl_ver=v1.28.0
 ARG kafka_ver=3.8.0
