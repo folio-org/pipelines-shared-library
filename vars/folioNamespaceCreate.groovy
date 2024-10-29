@@ -151,8 +151,10 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+      node('single-agent') {
+        sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
         main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+      }
     }
 
     stage('[Rest] Configure edge') {
