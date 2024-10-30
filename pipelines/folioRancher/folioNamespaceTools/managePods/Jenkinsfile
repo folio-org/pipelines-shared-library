@@ -90,7 +90,7 @@ ansiColor('xterm') {
                 if (status['status'] == "stopped") {
                   def scale_state = kubectl.getConfigMap("scale-state", "${params.NAMESPACE}", "schedule")
                   def scale_state_start = new JsonSlurperClassic().parseText("${scale_state}")
-                  List core_modules = ["okapi", "keycloak", "kong", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
+                  List core_modules = ["okapi", "kong", "mod-users", "mod-users-bl", "mod-login", "mod-permissions", "mod-authtoken"]
                   def services = scale_state_start.findAll { key, value -> !["mod-", "edge-", "mgr-", "okapi", "kong", "ldp-server", "ui-bundle"].any { prefix -> key.startsWith(prefix) } }
                   def core = scale_state_start.findAll { key, value -> core_modules.any { prefix -> key.startsWith(prefix) } }
                   def backend = scale_state_start.findAll { key, value -> ["mod-"].any { prefix -> key.startsWith(prefix) } }
@@ -113,15 +113,15 @@ ansiColor('xterm') {
                     opensearch.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1")
                     }
                   }
+                  if (keycloak) {
+                    keycloak.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1") }
+                  }
                   services.each { deployment, replica_count ->
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
                   core.each { deployment, replica_count ->
-                    if (deployment == "keycloak") {
-                      kubectl.setKuberneteresResourceCount('StatefulSet', deployment.toString() + "-${params.NAMESPACE}", "${params.NAMESPACE}", "1")
-                    }
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
