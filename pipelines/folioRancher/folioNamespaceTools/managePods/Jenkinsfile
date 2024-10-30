@@ -23,7 +23,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=sprint
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-        30 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
+        0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
+        0 12 * * * %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
         25 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
         20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         15 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
@@ -118,8 +119,8 @@ ansiColor('xterm') {
                     sleep 5
                   }
                   core.each { deployment, replica_count ->
-                    if(deployment.toString().startsWith("keycloak")) {
-                      kubectl.setKuberneteresResourceCount('StatefulSet', deployment.toString(), "${params.NAMESPACE}", "1")
+                    if (deployment == "keycloak") {
+                      kubectl.setKuberneteresResourceCount('StatefulSet', deployment.toString() + "-${params.NAMESPACE}", "${params.NAMESPACE}", "1")
                     }
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
