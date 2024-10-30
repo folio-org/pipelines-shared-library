@@ -84,7 +84,6 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
       String moduleVersion = backendModule.value
       branches[moduleName] = {
         deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
-        sleep time: '5', unit: 'SECONDS'
       }
     }
     parallel branches
@@ -172,91 +171,137 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       , ns.getModules().allModules['folio-module-sidecar']
     )
 
+    println("folioHelm.generateModuleValues: ${moduleConfig}")
+
+    moduleConfig['eureka'] = true
+
+    moduleConfig << [
+      sidecarContainers: [
+        eureka: [
+          image: [
+            repository: "${sidecarRepository}/folio-module-sidecar",
+            tag       : ns.getModules().allModules['folio-module-sidecar']
+          ]
+        ]
+      ]
+    ]
+
     switch (moduleName) {
     //TODO: Temporary solution just to bug avoiding workaround
       case "mod-inn-reach":
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
         moduleConfig['integrations']['systemuser']['enabled'] = false
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
-      case "mod-data-export-spring":
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
+      //TODO: Temporary solution just to bug avoiding workaround
+      case "mod-fqm-manager":
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
 
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+        moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
+        moduleConfig['extraEnvVars'] += [name: 'IS_EUREKA', value: 'true']
+        break
+      //TODO: Temporary solution just to bug avoiding workaround
+      case ~/mod-(bulk-operations|data-export|data-export-worker)$/:
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
 
+        moduleConfig['extraEnvVars'] += [name: 'PLATFORM', value: 'true']
         break
-      case ~/mgr-.*$/:
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        break
+//      case "mod-data-export-spring":
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_PASSWORD', value: 'false123']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//
+//        break
+//      case ~/mgr-.*$/:
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        break
       case ~/mod-.*-keycloak/:
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
         break
-      case 'mod-scheduler':
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+//      case 'mod-scheduler':
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+//        break
+//      case 'mod-okapi-facade':
+//        moduleConfig['integrations'] += [eureka: [enabled       : true,
+//                                                  existingSecret: 'eureka-common']]
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
         break
-      case 'mod-okapi-facade':
-        moduleConfig['integrations'] += [eureka: [enabled       : true,
-                                                  existingSecret: 'eureka-common']]
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
-        break
-      case ~/mod-.*$/:
-        moduleConfig <<
-          [
-            [eureka: [enabled         : true,
-                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-          ]
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
-        break
-      case ~/edge-.*$/:
-        moduleConfig['integrations']['okapi'] = [enabled: false]
-        moduleConfig['integrations'] += ["eurekaEdge": [enabled       : true,
-                                                         existingSecret: 'eureka-edge']]
-        break
+//      case ~/mod-.*$/:
+//        moduleConfig <<
+//          [
+//            [eureka: [enabled         : true,
+//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
+//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
+//          ]
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
+//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
+//        break
+//      case ~/edge-.*$/:
+//        moduleConfig['integrations']['okapi'] = [enabled: false]
+//        moduleConfig['integrations'] += ["eurekaEdge": [enabled       : true,
+//                                                         existingSecret: 'eureka-edge']]
+//        break
       case ~/ui-bundle/:
         break
     }
