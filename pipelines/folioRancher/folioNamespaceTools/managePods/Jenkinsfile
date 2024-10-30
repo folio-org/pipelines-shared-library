@@ -5,7 +5,7 @@ import org.folio.Constants
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@MP-test-v1') _
+@Library('pipelines-shared-library') _
 
 
 def postgresql
