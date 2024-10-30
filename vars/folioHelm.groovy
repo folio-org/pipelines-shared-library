@@ -173,7 +173,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     println("folioHelm.generateModuleValues: ${moduleConfig}")
 
-    moduleConfig['eureka'] = "&is_eureka true"
+    moduleConfig['eureka'] = true
 
     moduleConfig << [
       sidecarContainers: [
