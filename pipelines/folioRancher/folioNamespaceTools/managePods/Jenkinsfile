@@ -118,6 +118,9 @@ ansiColor('xterm') {
                     sleep 5
                   }
                   core.each { deployment, replica_count ->
+                    if(deployment.toString().startsWith("keycloak")) {
+                      kubectl.setKuberneteresResourceCount('StatefulSet', deployment.toString(), "${params.NAMESPACE}", "1")
+                    }
                     kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
