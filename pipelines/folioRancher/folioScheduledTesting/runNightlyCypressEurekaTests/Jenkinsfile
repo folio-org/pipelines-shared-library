@@ -124,6 +124,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
+        logger.debug(cypressParameters.dump())
         cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
           folioCypressFlow.multiThreadRun(cypressParameters)
         }
