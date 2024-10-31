@@ -274,7 +274,7 @@ void call(CreateNamespaceParameters args) {
         }
         parallel branches
       }
-      slackNotifications.sendPipelineSuccessSlackNotification('#rancher_tests_notifications')
+//      slackNotifications.sendPipelineSuccessSlackNotification('#rancher_tests_notifications')
     }
 
 //    stage('Deploy ldp') {
@@ -285,7 +285,7 @@ void call(CreateNamespaceParameters args) {
 
   } catch (Exception e) {
     println(e)
-    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
+//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
