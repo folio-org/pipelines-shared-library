@@ -160,14 +160,14 @@ void call(CreateNamespaceParameters args) {
 //        }
 //      }
 //    }
-
+//
 //    stage('[Helm] Deploy mgr-*') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
 //      }
 //    }
 
-    stage('[Rest] Preinstall') {
+//    stage('[Rest] Preinstall') {
 //      namespace.withApplications(
 //        eureka.registerApplicationsFlow(
 //          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
@@ -181,24 +181,24 @@ void call(CreateNamespaceParameters args) {
 //        , namespace.getApplications()
 //        , namespace.getTenants().values() as List<EurekaTenant>
 //      )
-
-      namespace.withApplications([
-        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
-        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
-      ])
-
-      namespace.getTenants().values().each {tenant ->
-        if(tenant instanceof EurekaTenantConsortia)
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
-            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
-          ])
-        else
-          tenant.setApplications([
-            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
-          ])
-      }
-    }
+//
+//      namespace.withApplications([
+//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
+//      ])
+//
+//      namespace.getTenants().values().each {tenant ->
+//        if(tenant instanceof EurekaTenantConsortia)
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
+//          ])
+//        else
+//          tenant.setApplications([
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+//          ])
+//      }
+//    }
 
 //    stage('[Helm] Deploy modules') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -222,25 +222,25 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Rest] Initialize') {
-      int counter = 0
-      retry(10) {
-        // The first wait time should be at least 10 minutes due to module's long time instantiation
+//    stage('[Rest] Initialize') {
+//      int counter = 0
+//      retry(10) {
+//        // The first wait time should be at least 10 minutes due to module's long time instantiation
 //        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
 //        counter++
+//
+//        eureka.initializeFromScratch(
+//          namespace.getTenants()
+//          , namespace.getClusterName()
+//          , namespace.getNamespaceName()
+//          , namespace.getEnableConsortia()
+//        )
+//      }
+//    }
 
-        eureka.initializeFromScratch(
-          namespace.getTenants()
-          , namespace.getClusterName()
-          , namespace.getNamespaceName()
-          , namespace.getEnableConsortia()
-        )
-      }
-    }
-
-    stage('[Rest] Configure edge') {
-      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
-    }
+//    stage('[Rest] Configure edge') {
+//      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+//    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {
@@ -274,6 +274,7 @@ void call(CreateNamespaceParameters args) {
         }
         parallel branches
       }
+      slackNotifications.sendPipelineSuccessSlackNotification('#rancher_tests_notifications')
     }
 
 //    stage('Deploy ldp') {
@@ -284,7 +285,7 @@ void call(CreateNamespaceParameters args) {
 
   } catch (Exception e) {
     println(e)
-//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
+    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
