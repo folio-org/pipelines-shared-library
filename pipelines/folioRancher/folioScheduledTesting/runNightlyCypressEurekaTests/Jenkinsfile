@@ -84,6 +84,8 @@ cypressParameters.setTimeout('480')
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
 
+println("cypressParameters.tenant.adminUser ${cypressParameters.tenant.adminUser}")
+
 /**
  * Pipeline
  */
@@ -99,29 +101,29 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Job] Destroy environment') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-          }
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
-      }
-
-      stage('[Job] Provision environment') {
-        try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-        } catch (Exception new_ex) {
-          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-            , channel: "#rancher_tests_notifications")
-          throw new Exception("Provision of the environment is failed: " + new_ex)
-        }
-      }
+//      stage('[Job] Destroy environment') {
+//        def nsExists
+//        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+//          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+//        }
+//        if (nsExists) {
+//          retry(2) {
+//            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+//          }
+//        } else {
+//          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+//        }
+//      }
+//
+//      stage('[Job] Provision environment') {
+//        try {
+//          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+//        } catch (Exception new_ex) {
+//          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+//            , channel: "#rancher_tests_notifications")
+//          throw new Exception("Provision of the environment is failed: " + new_ex)
+//        }
+//      }
 
       stage('[Flow] Execute tests') {
         cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
