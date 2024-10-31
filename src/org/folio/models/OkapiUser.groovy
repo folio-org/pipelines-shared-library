@@ -206,7 +206,7 @@ class OkapiUser extends User {
   String toString() {
     return """
     OkapiUser:
-      {username='${this.username}', firstName='${this.firstName}', lastName='${this.lastName}', email='${this.email}', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
+      {username='${super.username}', firstName='${super.firstName}', lastName='${super.lastName}', email='${super.email}', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
     """
   }
 }
