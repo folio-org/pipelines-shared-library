@@ -161,33 +161,12 @@ class OkapiUser extends User {
     this.permissions.remove(permission)
   }
 
-//  /**
-//   * Returns password in plain text form.
-//   *
-//   * @return String Password in plain text.
-//   */
-//  @Override
-//  String getPasswordPlainText() {
-//    return password.getPlainText()
-//  }
-
   /**
    * Generates a UUID for the user.
    */
   void generateUserUuid() {
     this.uuid = UUID.randomUUID().toString()
   }
-
-//  /**
-//   * Checks if the UUID is set for the user.
-//   * Throws an exception if it's not set.
-//   */
-//  @Override
-//  void checkUuid() {
-//    if (!this.uuid) {
-//      throw new IllegalStateException("UUID is not set for the user")
-//    }
-//  }
 
   /**
    * Checks if the permissions ID is set for the user.
@@ -210,7 +189,7 @@ class OkapiUser extends User {
   String toString() {
     return """
     OkapiUser:
-      {username='${getUsername()}', firstName='${getFirstName()}', lastName='${getLastName()}', email='${getEmail()}', uuid='${getUuid()}', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='${getType()}'}
+      {username='$username', firstName='$firstName', lastName='$lastName', email='$email', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
     """
   }
 }

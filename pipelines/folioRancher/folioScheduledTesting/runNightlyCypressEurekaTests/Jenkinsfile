@@ -99,6 +99,8 @@ ansiColor('xterm') {
         checkout scm
       }
 
+      println("cypressParameters.tenant.adminUser ${cypressParameters.tenant.adminUser}")
+
 //      stage('[Job] Destroy environment') {
 //        def nsExists
 //        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
