@@ -111,6 +111,28 @@ class Users extends Kong{
     return this
   }
 
+  Users getAndAssignSPs(EurekaTenant tenant, User user) {
+
+    logger.info("Retreiving and assigning service points for user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
+
+    String url = generateUrl("/service-points")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    List servicePointsIds = restClient.get(url, headers).body.servicepoints*.id
+
+    Map body = [userId               : user.uuid,
+                servicePointsIds     : servicePointsIds,
+                defaultServicePointId: servicePointsIds.first()]
+
+    restClient.post(generateUrl("/service-points-users"), body, headers, [201, 400, 422])
+
+    logger.info("Service points: ${servicePointsIds.join(", ")} successfully assigned to user ${user.username}(${user.uuid})")
+
+    return this
+
+  }
+
   @NonCPS
   static Users get(Kong kong){
     return new Users(kong)
