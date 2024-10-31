@@ -50,7 +50,6 @@ class OkapiUser extends User {
    * @param password The password of the Okapi user.
    */
   OkapiUser(String username, def password) {
-    super()
     this.username = username
     this.password = password instanceof Secret ? password : Secret.fromString(password)
     this.email = "$username@example.org"
@@ -179,16 +178,16 @@ class OkapiUser extends User {
     this.uuid = UUID.randomUUID().toString()
   }
 
-  /**
-   * Checks if the UUID is set for the user.
-   * Throws an exception if it's not set.
-   */
-  @Override
-  void checkUuid() {
-    if (!this.uuid) {
-      throw new IllegalStateException("UUID is not set for the user")
-    }
-  }
+//  /**
+//   * Checks if the UUID is set for the user.
+//   * Throws an exception if it's not set.
+//   */
+//  @Override
+//  void checkUuid() {
+//    if (!this.uuid) {
+//      throw new IllegalStateException("UUID is not set for the user")
+//    }
+//  }
 
   /**
    * Checks if the permissions ID is set for the user.
