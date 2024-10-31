@@ -166,6 +166,7 @@ class OkapiUser extends User {
    *
    * @return String Password in plain text.
    */
+  @Override
   String getPasswordPlainText() {
     return password.getPlainText()
   }
@@ -181,6 +182,7 @@ class OkapiUser extends User {
    * Checks if the UUID is set for the user.
    * Throws an exception if it's not set.
    */
+  @Override
   void checkUuid() {
     if (!this.uuid) {
       throw new IllegalStateException("UUID is not set for the user")
@@ -207,7 +209,7 @@ class OkapiUser extends User {
   String toString() {
     return """
     OkapiUser:
-      {username='${super.username}', firstName='${super.firstName}', lastName='${super.lastName}', email='${super.email}', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
+      {username='${getUsername()}', firstName='${getFirstName()}', lastName='${super.lastName}', email='${super.email}', uuid='$uuid', permissions='$permissions', permissionsId='$permissionsId', barcode='$barcode', group='$group',type='$type'}
     """
   }
 }
