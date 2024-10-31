@@ -1,5 +1,6 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
 
 /**
@@ -205,6 +206,7 @@ class OkapiUser extends User {
    *
    * @return String String representation of the object.
    */
+  @NonCPS
   @Override
   String toString() {
     return """
