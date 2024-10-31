@@ -84,8 +84,6 @@ cypressParameters.setTimeout('480')
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
 
-println("cypressParameters.tenant.adminUser ${cypressParameters.tenant.adminUser}")
-
 /**
  * Pipeline
  */
