@@ -49,6 +49,7 @@ class OkapiUser extends User {
    * @param password The password of the Okapi user.
    */
   OkapiUser(String username, def password) {
+    super()
     this.username = username
     this.password = password instanceof Secret ? password : Secret.fromString(password)
     this.email = "$username@example.org"
