@@ -162,15 +162,15 @@ class OkapiUser extends User {
     this.permissions.remove(permission)
   }
 
-  /**
-   * Returns password in plain text form.
-   *
-   * @return String Password in plain text.
-   */
-  @Override
-  String getPasswordPlainText() {
-    return password.getPlainText()
-  }
+//  /**
+//   * Returns password in plain text form.
+//   *
+//   * @return String Password in plain text.
+//   */
+//  @Override
+//  String getPasswordPlainText() {
+//    return password.getPlainText()
+//  }
 
   /**
    * Generates a UUID for the user.
