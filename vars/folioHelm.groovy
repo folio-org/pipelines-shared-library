@@ -171,8 +171,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       , ns.getModules().allModules['folio-module-sidecar']
     )
 
-    println("folioHelm.generateModuleValues: ${moduleConfig}")
-
     moduleConfig['eureka'] = true
 
     moduleConfig << [
@@ -381,8 +379,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     }
     moduleConfig['service']['annotations'] += ['external-dns.alpha.kubernetes.io/hostname': edgeNlbDomain]
   }
-
-  println("folioHelm.generateModuleValues after: ${moduleConfig}")
 
   writeYaml file: valuesFilePath, data: moduleConfig, overwrite: true
   return valuesFilePath
