@@ -14,7 +14,7 @@ class User {
 
   String username = ""
 
-  public Secret password = Secret.fromString("")
+  Secret password = Secret.fromString("")
 
   String firstName = ""
 
