@@ -44,7 +44,7 @@ void call(Map params, boolean releaseVersion = false) {
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
         writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
         def packageJson = readJSON file: 'package.json'
-        List ui_eureka = ["@folio/authorization-policies", "@folio/authorization-roles", "folio/plugin-select-application"]
+        List ui_eureka = ["@folio/authorization-policies", "@folio/authorization-roles", "@folio/plugin-select-application"]
         ui_eureka.each { module ->
           packageJson.dependencies.put(module, ">=1.0.0")
         }
