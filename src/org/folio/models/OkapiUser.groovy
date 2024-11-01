@@ -1,5 +1,6 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
 
 /**
@@ -161,29 +162,10 @@ class OkapiUser extends User {
   }
 
   /**
-   * Returns password in plain text form.
-   *
-   * @return String Password in plain text.
-   */
-  String getPasswordPlainText() {
-    return password.getPlainText()
-  }
-
-  /**
    * Generates a UUID for the user.
    */
   void generateUserUuid() {
     this.uuid = UUID.randomUUID().toString()
-  }
-
-  /**
-   * Checks if the UUID is set for the user.
-   * Throws an exception if it's not set.
-   */
-  void checkUuid() {
-    if (!this.uuid) {
-      throw new IllegalStateException("UUID is not set for the user")
-    }
   }
 
   /**
@@ -202,6 +184,7 @@ class OkapiUser extends User {
    *
    * @return String String representation of the object.
    */
+  @NonCPS
   @Override
   String toString() {
     return """

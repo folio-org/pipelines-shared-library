@@ -27,14 +27,16 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-connexion:
   service:
     annotations:
@@ -54,14 +56,16 @@ edge-connexion:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-courses:
   ingress:
     enabled: true
@@ -99,14 +103,16 @@ edge-courses:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-dcb:
   ingress:
     enabled: true
@@ -136,14 +142,16 @@ edge-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-dematic:
   ingress:
     enabled: true
@@ -173,9 +181,11 @@ edge-dematic:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-fqm:
   ingress:
     enabled: true
@@ -214,10 +224,10 @@ edge-fqm:
     requests:
       memory: 256Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
 edge-inn-reach:
   ingress:
     enabled: true
@@ -247,14 +257,16 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-inventory:
   ingress:
     enabled: true
@@ -390,14 +402,16 @@ edge-ncip:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-oai-pmh:
   ingress:
     enabled: true
@@ -427,14 +441,16 @@ edge-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      memory: 756Mi
+      memory: 1512Mi
     requests:
-      memory: 680Mi
+      memory: 1440Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-orders:
   ingress:
     enabled: true
@@ -464,14 +480,16 @@ edge-orders:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
 edge-patron:
   ingress:
     enabled: true
@@ -501,14 +519,16 @@ edge-patron:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-rtac:
   ingress:
     enabled: true
@@ -538,14 +558,16 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-sip2:
   service:
     annotations:
@@ -562,23 +584,37 @@ edge-sip2:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 mod-aes:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 480Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-agreements:
   jmx:
     enabled: false
@@ -586,7 +622,7 @@ mod-agreements:
   - name: DB_MAXPOOLSIZE
     value: '50'
   - name: CONCURRENT_JOBS_GLOBAL
-    value: '5'
+    value: '4'
   integrations:
     okapi:
       enabled: true
@@ -598,15 +634,29 @@ mod-agreements:
   resources:
     limits:
       cpu: 2048m
-      memory: 2Gi
+      memory: 1592Mi
     requests:
       cpu: 256m
-      memory: 256Mi
+      memory: 1488Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
-    maxReplicas: 4
-    targetMemoryUtilizationPercentage: 70
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -619,18 +669,33 @@ mod-audit:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
   - -Dallow.cross.tenant.requests=true
+  - -XX:MaxRAMPercentage=85.0
   integrations:
     okapi:
       enabled: true
@@ -641,14 +706,26 @@ mod-authtoken:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-batch-print:
   extraEnvVars: []
   integrations:
@@ -658,30 +735,29 @@ mod-batch-print:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
-mod-reporting:
-  extraEnvVars: []
-  integrations: {}
-  replicaCount: 1
-  resources:
-    limits:
-      memory: 1Gi
-    requests:
-      memory: 256Mi
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-bulk-operations:
-  extraJavaOpts: []
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
@@ -700,14 +776,28 @@ mod-bulk-operations:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 3072Mi
     requests:
-      memory: 256Mi
+      memory: 2600Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -717,14 +807,28 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-camunda:
   extraEnvVars: []
   integrations:
@@ -737,9 +841,23 @@ mod-camunda:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 402Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-circulation:
   extraEnvVars:
   - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
@@ -756,14 +874,28 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 9801
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-circulation-bff:
   extraEnvVars: []
   integrations:
@@ -773,9 +905,28 @@ mod-circulation-bff:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -790,41 +941,91 @@ mod-circulation-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1536Mi
     requests:
-      memory: 256Mi
+      memory: 1440Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 427Mi
     requests:
-      memory: 256Mi
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-codex-inventory:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 427Mi
     requests:
-      memory: 256Mi
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-codex-mux:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 427Mi
     requests:
-      memory: 256Mi
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-configuration:
   extraEnvVars: []
   integrations:
@@ -834,14 +1035,28 @@ mod-configuration:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -860,14 +1075,28 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-copycat:
   extraEnvVars: []
   integrations:
@@ -877,14 +1106,28 @@ mod-copycat:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -894,14 +1137,28 @@ mod-courses:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-data-export:
   extraEnvVars:
   - name: PLATFORM
@@ -919,9 +1176,23 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2048Mi
     requests:
-      memory: 256Mi
+      memory: 1844Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -940,9 +1211,23 @@ mod-data-export-spring:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2048Mi
     requests:
-      memory: 256Mi
+      memory: 1844Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-data-export-worker:
   extraEnvVars:
   - name: PLATFORM
@@ -960,14 +1245,28 @@ mod-data-export-worker:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 3072Mi
     requests:
-      memory: 256Mi
+      memory: 2600Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-data-import:
   extraEnvVars:
   - name: S3_FORCEPATHSTYLE
@@ -988,9 +1287,23 @@ mod-data-import:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2048Mi
     requests:
-      memory: 256Mi
+      memory: 1844Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -1000,28 +1313,56 @@ mod-di-converter-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1248Mi
     requests:
-      memory: 256Mi
+      memory: 1024Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-email:
   extraEnvVars: []
   integrations:
@@ -1031,14 +1372,28 @@ mod-email:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 1024Mi
     requests:
-      memory: 448Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -1068,14 +1423,28 @@ mod-entities-links:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 2592Mi
     requests:
-      memory: 256Mi
+      memory: 2480Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -1085,14 +1454,28 @@ mod-erm-usage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -1108,14 +1491,28 @@ mod-erm-usage-harvester:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -1125,14 +1522,28 @@ mod-eusage-reports:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -1142,14 +1553,28 @@ mod-event-config:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -1159,28 +1584,56 @@ mod-feesfines:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-finance:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -1190,14 +1643,28 @@ mod-finance-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -1213,42 +1680,84 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 3000Mi
     requests:
-      memory: 256Mi
+      memory: 2600Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-gobi:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-graphql:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 3001
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -1269,14 +1778,28 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -1289,14 +1812,28 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 4096Mi
     requests:
-      memory: 256Mi
+      memory: 3688Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 9403
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1313,28 +1850,56 @@ mod-inventory-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 2208Mi
     requests:
-      memory: 256Mi
+      memory: 1952Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -1351,14 +1916,28 @@ mod-invoice:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1440Mi
     requests:
-      memory: 256Mi
+      memory: 1152Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -1368,14 +1947,28 @@ mod-invoice-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -1385,14 +1978,28 @@ mod-kb-ebsco-java:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -1402,14 +2009,56 @@ mod-ldp:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8001
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-reporting:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 12369
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-licenses:
   extraEnvVars: []
   integrations:
@@ -1422,14 +2071,65 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 2480Mi
     requests:
-      memory: 256Mi
+      memory: 2312Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-linked-data:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-linked-data-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1178Mi
+    requests:
+      memory: 1024Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 80
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-lists:
   extraEnvVars:
   - name: MAX_LIST_SIZE
@@ -1454,14 +2154,28 @@ mod-lists:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 3000Mi
     requests:
-      memory: 256Mi
+      memory: 2600Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-login:
   extraEnvVars: []
   integrations:
@@ -1471,28 +2185,56 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1440Mi
     requests:
-      memory: 256Mi
+      memory: 1298Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-login-saml:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-marc-migrations:
   extraEnvVars: []
   integrations:
@@ -1508,14 +2250,28 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 640Mi
     requests:
-      memory: 256Mi
+      memory: 512Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -1525,23 +2281,49 @@ mod-marccat:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1040Mi
     requests:
-      memory: 256Mi
+      memory: 832Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-ncip:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-notes:
   extraEnvVars: []
   integrations:
@@ -1551,14 +2333,28 @@ mod-notes:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -1568,14 +2364,28 @@ mod-notify:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -1588,16 +2398,30 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      memory: 3Gi
+      memory: 1024Mi
       cpu: 2048m
     requests:
+      memory: 896Mi
       cpu: 256m
-      memory: 1Gi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -1612,14 +2436,28 @@ mod-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 3072Mi
     requests:
-      memory: 256Mi
+      memory: 2765Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-orders:
   extraEnvVars: []
   integrations:
@@ -1632,14 +2470,28 @@ mod-orders:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2048Mi
     requests:
-      memory: 256Mi
+      memory: 1440Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1654,14 +2506,28 @@ mod-orders-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1682,14 +2548,28 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -1704,28 +2584,56 @@ mod-circulation-item:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-organizations:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -1735,14 +2643,28 @@ mod-organizations-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -1752,28 +2674,56 @@ mod-password-validator:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1440Mi
     requests:
-      memory: 256Mi
+      memory: 1298Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-patron:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -1783,14 +2733,28 @@ mod-patron-blocks:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -1800,14 +2764,28 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1684Mi
     requests:
-      memory: 256Mi
+      memory: 1544Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -1826,14 +2804,28 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1536Mi
     requests:
-      memory: 256Mi
+      memory: 1440Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1850,9 +2842,23 @@ mod-quick-marc:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2288Mi
     requests:
-      memory: 256Mi
+      memory: 2176Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -1862,14 +2868,28 @@ mod-reading-room:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -1881,14 +2901,28 @@ mod-record-specifications:
       existingSecret: kafka-credentials
   resources:
     limits:
-      memory: 1Gi
+      memory: 640Mi
     requests:
-      memory: 256Mi
+      memory: 512Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -1907,14 +2941,28 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1872Mi
     requests:
-      memory: 256Mi
+      memory: 1692Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -1924,28 +2972,56 @@ mod-requests-mediated:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-rtac:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -2007,28 +3083,56 @@ mod-search:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 2592Mi
     requests:
-      memory: 256Mi
+      memory: 2480Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-sender:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -2043,16 +3147,30 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
+      memory: 2480Mi
       cpu: 2048m
-      memory: 3Gi
     requests:
+      memory: 2312Mi
       cpu: 256m
-      memory: 256Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -2067,14 +3185,28 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 2048Mi
     requests:
-      memory: 256Mi
+      memory: 1844Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -2084,14 +3216,28 @@ mod-settings:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-source-record-manager:
   extraEnvVars: []
   integrations:
@@ -2104,14 +3250,28 @@ mod-source-record-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 4096Mi
     requests:
-      memory: 256Mi
+      memory: 3688Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-source-record-storage:
   extraEnvVars: []
   integrations:
@@ -2124,14 +3284,28 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 4096Mi
     requests:
-      memory: 256Mi
+      memory: 3688Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -2141,14 +3315,28 @@ mod-tags:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -2158,14 +3346,28 @@ mod-template-engine:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -2184,28 +3386,56 @@ mod-tlr:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-user-import:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-users:
   extraEnvVars: []
   integrations:
@@ -2218,28 +3448,56 @@ mod-users:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 1024Mi
     requests:
-      memory: 256Mi
+      memory: 896Mi
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-workflow:
   extraEnvVars: []
   integrations:
@@ -2252,9 +3510,23 @@ mod-workflow:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
-      memory: 256Mi
+      memory: 384Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-z3950:
   extraEnvVars: []
   integrations: {}
@@ -2264,8 +3536,9 @@ mod-z3950:
       memory: 341Mi
     requests:
       memory: 256Mi
-  postJob:
-    enabled: false
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mgr-applications:
   extraEnvVars:
     - name: MODULE_URL
@@ -2551,21 +3824,34 @@ okapi:
         servicePort: 9130
   service:
     type: NodePort
-  replicaCount: 1
   resources:
     limits:
-      memory: 842Mi
+      memory: 1684Mi
     requests:
-      memory: 720Mi
+      memory: 1440Mi
   integrations:
     db:
       enabled: true
       existingSecret: db-credentials
   autoscaling:
-    enabled: false
+    enabled: true
     minReplicas: 1
-    maxReplicas: 2
-    targetMemoryUtilizationPercentage: 70
+    maxReplicas: 3
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /_/proxy/health
+      port: 9130
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 ui-bundle:
   ingress:
     enabled: true
