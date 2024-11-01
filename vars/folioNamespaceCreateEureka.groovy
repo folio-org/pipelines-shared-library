@@ -183,19 +183,19 @@ void call(CreateNamespaceParameters args) {
       )
 
 //      namespace.withApplications([
-//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+//        "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+//        , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
 //      ])
 //
 //      namespace.getTenants().values().each {tenant ->
 //        if(tenant instanceof EurekaTenantConsortia)
 //          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.660"
-//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.660"
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+//            , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
 //          ])
 //        else
 //          tenant.setApplications([
-//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.10"
+//            "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
 //          ])
 //      }
     }
@@ -274,6 +274,12 @@ void call(CreateNamespaceParameters args) {
         }
         parallel branches
       }
+
+    }
+
+    stage('[Notify] Eureka') {
+      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
+        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
     }
 
 //    stage('Deploy ldp') {
@@ -284,7 +290,7 @@ void call(CreateNamespaceParameters args) {
 
   } catch (Exception e) {
     println(e)
-//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
+    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
