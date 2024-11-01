@@ -3634,6 +3634,9 @@ mod-roles-keycloak:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-roles-keycloak-systemuser
   replicaCount: 1
   resources:
     limits:
