@@ -2178,6 +2178,9 @@ mod-tlr:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-tlr-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2416,6 +2419,9 @@ mod-roles-keycloak:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-roles-keycloak-systemuser
   replicaCount: 1
   resources:
     limits:
