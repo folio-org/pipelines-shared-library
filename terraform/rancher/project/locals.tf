@@ -12,7 +12,7 @@ locals {
 
   system_user_modules = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists",
-  "mod-linked-data"]
+  "mod-linked-data", "mod-tlr"]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
   "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations"]
