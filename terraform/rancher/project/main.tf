@@ -35,8 +35,9 @@ resource "rancher2_namespace" "this" {
     requests_memory = "128Mi"
   }
   labels = {
-    team                          = var.rancher_project_name,
-    "kubernetes.io/metadata.name" = var.rancher_project_name
+    team                                      = var.rancher_project_name,
+    "kubernetes.io/metadata.name"             = var.rancher_project_name,
+    "elbv2.k8s.aws/pod-readiness-gate-inject" = "enabled"
   }
 }
 

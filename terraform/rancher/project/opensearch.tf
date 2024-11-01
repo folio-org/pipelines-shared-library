@@ -17,14 +17,48 @@ resource "rancher2_secret" "opensearch-credentials" {
   }
 }
 
+resource "helm_release" "opensearch-single-node" {
+  count      = !var.opensearch_shared && var.opensearch_single_node ? 1 : 0
+  namespace  = rancher2_namespace.this.name
+  repository = local.catalogs.opensearch
+  name       = "opensearch-single-node"
+  chart      = "opensearch"
+  version    = "2.16.0"
+  values = [<<-EOF
+clusterName: "opensearch-${var.rancher_project_name}"
+masterService: "opensearch-${var.rancher_project_name}"
+singleNode: true
+roles:
+  - master
+  - ingest
+  - data
+  - remote_cluster_client
+extraEnvs:
+  - name: DISABLE_SECURITY_PLUGIN
+    value: "true"
+resources:
+  requests:
+    memory: 1536Mi
+  limits:
+    memory: 2048Mi
+persistence:
+  size: ${join("", [var.es_ebs_volume_size, "Gi"])}
+plugins:
+  enabled: true
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+${local.schedule_value}
+EOF
+  ]
+}
+
 # Opensearch master deployment
 resource "helm_release" "opensearch-master" {
-  count      = var.opensearch_shared ? 0 : 1
+  count      = !var.opensearch_shared && !var.opensearch_single_node ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.opensearch
   name       = "opensearch-master"
   chart      = "opensearch"
-  version    = "1.14.0"
+  version    = "2.16.0"
   values = [<<-EOF
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
@@ -42,7 +76,7 @@ resources:
     memory: 2048Mi
 plugins:
   enabled: true
-  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
 ${local.schedule_value}
 EOF
   ]
@@ -50,12 +84,12 @@ EOF
 
 # Opensearch data deployment
 resource "helm_release" "opensearch-data" {
-  count      = var.opensearch_shared ? 0 : 1
+  count      = !var.opensearch_shared && !var.opensearch_single_node ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.opensearch
   name       = "opensearch-data"
   chart      = "opensearch"
-  version    = "1.14.0"
+  version    = "2.16.0"
   values = [<<-EOF
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
@@ -75,7 +109,7 @@ persistence:
   size: ${join("", [var.es_ebs_volume_size, "Gi"])}
 plugins:
   enabled: true
-  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
 ${local.schedule_value}
 EOF
   ]
@@ -83,12 +117,12 @@ EOF
 
 # Opensearch client deployment
 resource "helm_release" "opensearch-client" {
-  count      = var.opensearch_shared ? 0 : 1
+  count      = !var.opensearch_shared && !var.opensearch_single_node ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.opensearch
   name       = "opensearch-client"
   chart      = "opensearch"
-  version    = "1.14.0"
+  version    = "2.16.0"
   values = [<<-EOF
 service:
   type: NodePort
@@ -110,7 +144,7 @@ resources:
     memory: 2048Mi
 plugins:
   enabled: true
-  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/1.3.5.0/prometheus-exporter-1.3.5.0.zip]
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
 ingress:
   hosts:
     - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-client"]), var.root_domain])}
@@ -129,15 +163,13 @@ EOF
 
 # Opensearch dashboards deployment
 resource "helm_release" "opensearch-dashboards" {
-  count      = var.opensearch_shared ? 0 : 1
+  count      = !var.opensearch_shared ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.opensearch
   name       = "opensearch-dashboards"
   chart      = "opensearch-dashboards"
-  version    = "1.4.1"
+  version    = "2.14.0"
   values = [<<-EOF
-service:
-  type: NodePort
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
 replicas: 1
@@ -156,12 +188,17 @@ resources:
     memory: 512Mi
   limits:
     memory: 2048Mi
+service:
+  type: NodePort
 ingress:
   enabled: true
   hosts:
     - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-dashboards"]), var.root_domain])}
       paths:
         - path: /
+          backend:
+            serviceName: ""
+            servicePort: ""
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
