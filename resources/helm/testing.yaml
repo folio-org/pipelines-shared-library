@@ -2178,6 +2178,9 @@ mod-tlr:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-tlr-systemuser
   replicaCount: 1
   resources:
     limits:
