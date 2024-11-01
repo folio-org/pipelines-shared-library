@@ -277,6 +277,11 @@ void call(CreateNamespaceParameters args) {
 
     }
 
+    stage('[Notify] Eureka') {
+      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
+        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
+    }
+
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioHelmFlow.deployLdp(namespace)
@@ -285,7 +290,7 @@ void call(CreateNamespaceParameters args) {
 
   } catch (Exception e) {
     println(e)
-//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
+    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
