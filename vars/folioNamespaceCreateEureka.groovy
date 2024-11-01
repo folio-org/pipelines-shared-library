@@ -264,6 +264,12 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+    stage('[Notify] Eureka') {
+      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
+        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
+    }
+
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        folioHelmFlow.deployLdp(namespace)
@@ -272,7 +278,8 @@ void call(CreateNamespaceParameters args) {
 
   } catch (Exception e) {
     println(e)
-//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
+    //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
