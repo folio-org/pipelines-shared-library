@@ -1,149 +1,173 @@
+import groovy.transform.Field
+import org.folio.models.InstallRequestParams
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.models.RancherNamespace
+import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
-import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest_v2.Main
+import org.folio.utilities.Logger
 
 import java.time.LocalDateTime
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'master'
+properties([buildDiscarder(logRotator(numToKeepStr: '20')),
+            disableConcurrentBuilds(),
+            parameters([folioParameters.repository(),
+                        folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
+                        folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
+                        string(name: 'RDS_SNAPSHOT_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
+                        string(name: 'SLACK_CHANNEL', defaultValue: '', description: '(Optional) Slack channel name where send report (without #)', trim: true),
+                        folioParameters.agent(),
+                        folioParameters.refreshParameters()])])
 
-properties([
-  buildDiscarder(logRotator(numToKeepStr: '20')),
-  disableConcurrentBuilds(),
-  parameters([
-    folioParameters.repository(),
-    folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
-    folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
-    string(name: 'RDS_SNAPSHOT_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
-    string(name: 'SLACK_CHANNEL', defaultValue: '', description: '(Optional) Slack channel name where send report (without #)', trim: true),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
-  ])
-])
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
 
-def clusterName = 'folio-perf'
-def projectName = 'data-migration'
-def configType = 'performance'
-def snapshotName = params.RDS_SNAPSHOT_NAME
-def folioBranch = params.FOLIO_BRANCH_SRC
-def tenantId
-def adminUsername
-def adminPassword
-def startMigrationTime = LocalDateTime.now()
-Integer totalTimeInMs = 0
-LinkedHashMap modulesLongMigrationTimeSlack = [:]
-List modulesMigrationFailedSlack = []
-def resultMap = [:]
+/**
+ * Job variables*/
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+@Field final String createNamespaceFromRdsSnapshotJobPath =
+  '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot'
+@Field final String createNamespaceFromBranchJobPath = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch-R1-2024'
+@Field final String deleteNamespaceJobPath = '/folioRancher/folioNamespaceTools/deleteNamespace'
+@Field final String installModulesFromJsonJobPath = '/folioRancher/folioDevTools/moduleDeployment/installModulesFromJson'
+@Field final String configType = 'testing'
+
+String dbSnapshotName = params.RDS_SNAPSHOT_NAME
+String folioSrcBranch = params.FOLIO_BRANCH_SRC
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH_SRC])[0]
-def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
-def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
-def pgadminURL = "https://${clusterName}-${projectName}-pgadmin.ci.folio.org/"
+LocalDateTime migrationStart
+int totalTimeMs = 0
+Map modulesLongMigrationTimeSlack = [:]
+List modulesMigrationFailedSlack = []
+List srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
+List dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
+/**
+ * TODO workaround for migration from R1-2024 DB Snapshot
+ */
+boolean hasModConsortiaId = dstInstallJson.any { it.id.startsWith('mod-consortia') }
+if (!hasModConsortiaId && params.RDS_SNAPSHOT_NAME) {
+  dstInstallJson.addAll([["id": "mod-consortia-1.3.0-SNAPSHOT.148", "action": "enable"],
+                         ["id": "folio_consortia-settings-2.0.1090000001261", "action": "enable"]])
+}
 
-println("LOCALTIME: ${LocalDateTime.now()}")
+
+RancherNamespace namespace = new RancherNamespace('folio-perf', 'data-migration')
+  .withSuperTenantAdminUser()
+
+OkapiTenant tenant = setupTenant(dbSnapshotName)
+tenant.setInstallRequestParams(new InstallRequestParams())
+
+Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+
+String pgAdminUrl = "https://${namespace.getClusterName()}-${namespace.getNamespaceName()}-pgadmin.ci.folio.org/"
+
+CreateNamespaceParameters jobParams = new CreateNamespaceParameters.Builder()
+  .clusterName(namespace.getClusterName())
+  .namespaceName(namespace.getNamespaceName())
+  .folioBranch(folioSrcBranch)
+  .okapiVersion(okapiVersion)
+  .configType(configType)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .pgVersion('16.1')
+  .kafkaType('aws')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .runSanityCheck(false)
+  .members('')
+  .worker(params.AGENT)
+  .build()
+
+if (params.RDS_SNAPSHOT_NAME) {
+  jobParams.setPgType('aws')
+} else {
+  jobParams.setPgType('built-in')
+  jobParams.setLoadReference(true)
+  jobParams.setLoadSample(true)
+  jobParams.setConsortia(false)
+}
+
+logger.info("LOCALTIME: ${LocalDateTime.now()}")
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('PARAMETERS REFRESHED!')
-  }
   node(params.AGENT) {
     try {
-      stage('Init') {
-        currentBuild.result = 'SUCCESS'
+      stage('Ini') {
+        setBuildDetails(tenant, dbSnapshotName)
+      }
+      stage('Restoring namespace from RDS snapshot') {
         if (params.RDS_SNAPSHOT_NAME) {
-          tenantId = 'fs09000000'
-          adminUsername = 'folio'
-          adminPassword = 'folio'
-          buildName tenantId + '-' + params.RDS_SNAPSHOT_NAME + '.' + env.BUILD_ID
-        } else {
-          tenantId = 'diku'
-          adminUsername = 'diku'
-          adminPassword = 'diku_admin'
-          buildName tenantId + '.' + 'without-restore' + '.' + env.BUILD_ID
+          build job: createNamespaceFromRdsSnapshotJobPath,
+            parameters: [
+              string(name: 'CLUSTER', value: jobParams.getClusterName()),
+              string(name: 'NAMESPACE', value: jobParams.getNamespaceName()),
+              string(name: 'CONFIG_TYPE', value: jobParams.getConfigType()),
+              string(name: 'RDS_SNAPSHOT_NAME', value: dbSnapshotName),
+              booleanParam(name: 'CONSORTIA', value: jobParams.getConsortia()),
+              booleanParam(name: 'RW_SPLIT', value: jobParams.getRwSplit()),
+              string(name: 'UI_TENANTS_IDS', value: tenant.getTenantId()),
+              string(name: 'KAFKA', value: jobParams.getKafkaType()),
+              string(name: 'OPENSEARCH', value: jobParams.getOpensearchType()),
+              string(name: 'S3_BUCKET', value: jobParams.getS3Type()),
+              booleanParam(name: 'NAMESPACE_ONLY', value: false),
+              string(name: 'AGENT', value: jobParams.getWorker()),
+              booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
         }
       }
 
-      stage('Restoring namespace from RDS snapshot') {
-        if (params.RDS_SNAPSHOT_NAME)
-          build job: '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot',
-            parameters: [string(name: 'CLUSTER', value: clusterName),
-                         string(name: 'NAMESPACE', value: projectName),
-                         string(name: 'CONFIG_TYPE', value: configType),
-                         string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
-                         booleanParam(name: 'CONSORTIA', value: false),
-                         booleanParam(name: 'RW_SPLIT', value: false),
-                         string(name: 'UI_TENANTS_IDS', value: 'fs09000000'),
-                         string(name: 'POSTGRESQL', value: 'aws'),
-                         string(name: 'KAFKA', value: 'built-in'),
-                         string(name: 'OPENSEARCH', value: 'aws'),
-                         string(name: 'S3_BUCKET', value: 'built-in'),
-                         booleanParam(name: 'NAMESPACE_ONLY', value: false),
-                         booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
-      }
-
       stage('Creating an environment from scratch') {
-        if (!params.RDS_SNAPSHOT_NAME)
-          build job: '/folioRancher/folioNamespaceTools/createNamespaceFromBranch',
-            parameters: [string(name: 'CLUSTER', value: clusterName),
-                         string(name: 'NAMESPACE', value: projectName),
-                         string(name: 'FOLIO_BRANCH', value: folioBranch),
-                         string(name: 'OKAPI_VERSION', value: okapiVersion),
-                         string(name: 'CONFIG_TYPE', value: configType),
-                         string(name: 'RDS_SNAPSHOT_NAME', value: snapshotName),
-                         booleanParam(name: 'LOAD_REFERENCE', value: false),
-                         booleanParam(name: 'LOAD_SAMPLE', value: false),
-                         booleanParam(name: 'CONSORTIA', value: false),
-                         booleanParam(name: 'RW_SPLIT', value: false),
-                         booleanParam(name: 'GREENMAIL', value: false),
-                         booleanParam(name: 'MOCK_SERVER', value: false),
-                         booleanParam(name: 'RTR', value: false),
-                         string(name: 'POSTGRESQL', value: 'built-in'),
-                         string(name: 'KAFKA', value: 'built-in'),
-                         string(name: 'OPENSEARCH', value: 'aws'),
-                         string(name: 'S3_BUCKET', value: 'built-in'),
-                         string(name: 'RUN_SANITY_CHECK', value: false),
-                         string(name: 'MEMBERS', value: ''),
-                         booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+        if (!params.RDS_SNAPSHOT_NAME) {
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceFromBranchJobPath, jobParams)
+        }
       }
 
 
       stage('Updating to the desired modules version') {
-        build job: '/Rancher/Update/backend-modules-deploy-branch',
+        /**
+         * TODO Workaround for renaming of mod-ldp
+         */
+        if (params.FOLIO_BRANCH_SRC == 'R1-2024' && params.FOLIO_BRANCH_DST == 'snapshot') {
+          List ldpDisable = [["id": "mod-ldp", "action": "disable"], ["id": "folio_ldp", "action": "disable"]]
+          try {
+            main.tenantInstall(tenant, ldpDisable)
+          } catch (e) {
+            logger.warning(e.getMessage())
+          }
+        }
+        migrationStart = LocalDateTime.now()
+        logger.info(migrationStart)
+        build job: installModulesFromJsonJobPath,
           parameters: [
-            string(name: 'rancher_cluster_name', value: clusterName),
-            string(name: 'rancher_project_name', value: projectName),
-            string(name: 'config_type', value: configType),
-            string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
-            string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
-            string(name: 'tenant_id', value: tenantId),
-            string(name: 'admin_username', value: adminUsername),
-            string(name: 'admin_password', value: adminPassword)
-          ]
+            string(name: 'CLUSTER', value: jobParams.getClusterName()),
+            string(name: 'NAMESPACE', value: jobParams.getNamespaceName()),
+            string(name: 'TENANTS_LIST', value: tenant.getTenantId()),
+            string(name: 'CONFIG_TYPE', value: jobParams.getConfigType()),
+            text(name: 'INSTALL_JSON', value: writeJSON(returnText: true, json: dstInstallJson)),
+            booleanParam(name: 'LOAD_REFERENCE', value: false),
+            booleanParam(name: 'LOAD_SAMPLE', value: false),
+            booleanParam(name: 'SIMULATE', value: false),
+            booleanParam(name: 'REINSTALL', value: false),
+            string(name: 'AGENT', value: jobParams.getWorker()),
+            booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
       }
 
       stage('Generating Data Migration Time report') {
-        def result = folioexecuteDataMigrationUtils.getMigrationTime(
-          clusterName,
-          projectName,
-          resultMap,
-          srcInstallJson,
-          dstInstallJson,
-          totalTimeInMs,
-          modulesLongMigrationTimeSlack,
-          modulesMigrationFailedSlack,
-          startMigrationTime,
-          pgadminURL
-        )
-        totalTimeInMs += result[0]
+        List result = folioexecuteDataMigrationUtils.getMigrationTime(jobParams.getClusterName(),
+          jobParams.getNamespaceName(), srcInstallJson, dstInstallJson, migrationStart)
+
+        totalTimeMs += result[0]
         modulesLongMigrationTimeSlack += result[1]
         modulesMigrationFailedSlack += result[2]
       }
 
-    } catch (exception) {
-      currentBuild.result = 'FAILURE'
-      error(exception.getMessage())
-    }
-    finally {
       stage('Publish HTML Reports') {
         publishHTML([
           reportDir            : 'reportTime',
@@ -155,28 +179,48 @@ ansiColor('xterm') {
       }
 
       stage('Send Slack notification') {
-        folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+        if (params.SLACK_CHANNEL) {
+          folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}", totalTimeMs,
+            modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+        }
       }
 
       timeout(time: 120, unit: 'MINUTES') {
-        input 'PAUSED FOR TESTING'
+        input 'Paused for results check'
       }
-
-      stage('Destroying data-migration project') {
-        build job: '/folioRancher/folioNamespaceTools/deleteNamespace',
-          parameters: [string(name: 'CLUSTER', value: clusterName),
-                       string(name: 'NAMESPACE', value: projectName),
-                       booleanParam(name: 'RW_SPLIT', value: false),
-                       string(name: 'POSTGRESQL', value: 'aws'),
-                       string(name: 'KAFKA', value: 'built-in'),
-                       string(name: 'OPENSEARCH', value: 'aws'),
-                       string(name: 'S3_BUCKET', value: 'built-in'),
-                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+    } catch (e) {
+      currentBuild.result = 'FAILURE'
+      logger.error(e.getMessage())
+    } finally {
+      stage('Destroy namespace') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobPath, jobParams)
       }
 
       stage('Cleanup') {
         cleanWs notFailBuild: true
       }
     }
+  }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+// Helper method to initialize the tenant based on the snapshot name
+private OkapiTenant setupTenant(String snapshotName) {
+  if (snapshotName) {
+    return new OkapiTenant('fs09000000')
+      .withAdminUser(new OkapiUser('folio', 'folio'))
+  } else {
+    return new OkapiTenant('diku').withAdminUser(new OkapiUser('diku_admin', 'admin'))
+  }
+}
+
+// Helper method to set the build details
+private void setBuildDetails(OkapiTenant tenant, String snapshotName) {
+  if (snapshotName) {
+    buildName "#from-db-snapshot.${env.BUILD_ID}"
+    buildDescription "Tenant: ${tenant.getTenantId()}\nDB snapshot: ${snapshotName}"
+  } else {
+    buildName "#from-scratch.${env.BUILD_ID}"
+    buildDescription "Tenant: ${tenant.getTenantId()}"
   }
 }
