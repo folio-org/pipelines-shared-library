@@ -40,7 +40,7 @@ class Consortia extends Kong{
       "name": centralConsortiaTenant.consortiaName
     ]
 
-    def response = restClient.post(generateUrl("/consortia"), body, headers)
+    def response = restClient.post(generateUrl("/consortia"), body, headers, [201, 409])
     Map content = response.body as Map
 
     logger.info("""
