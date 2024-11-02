@@ -228,6 +228,39 @@ resource "rancher2_app_v2" "fluentd" {
         failureThreshold: 8
         successThreshold: 1
       configMapFiles:
+        fluentd-inputs.conf: |
+          # HTTP input for the liveness and readiness probes
+          <source>
+            @type http
+            port 9880
+          </source>
+          # Get the logs from the containers running in the node
+          <source>
+            @type tail
+            path /var/log/containers/*.log
+            # exclude Fluentd logs
+            exclude_path /var/log/containers/*fluentd*.log
+            pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
+            tag kubernetes.*
+            read_from_head true
+            <parse>
+              @type multiline
+              format_firstline /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z (stdout|stderr) (F|P).*(\n)?/  # Match the first line with timestamp, stdout F, and optional newline
+              format1 /^(?<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)\s+(stdout|stderr)\s+(F|P)\s+(?<inner_time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{3})\t(?<log_level>\w+)\t\?(?<message>.*)$/
+              time_format %Y-%m-%dT%H:%M:%S.%NZ
+            </parse>
+          </source>
+          # enrich with kubernetes metadata
+          <filter kubernetes.**>
+            @type kubernetes_metadata
+          </filter>
+          <filter kubernetes.okapi>
+            @type grep
+            <regexp>
+              key log_level
+              pattern (FATAL|ERROR|WARN|INFO|DEBUG|TRACE|ALL)  # Filter for logs
+            </regexp>
+          </filter>
         fluentd-output.conf: |
           # Throw the healthcheck to the standard output instead of forwarding it
           <match fluentd.healthcheck>

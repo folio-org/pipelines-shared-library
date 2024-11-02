@@ -10,7 +10,7 @@
     ],
     "fields": [
     {
-        "field": "log",
+        "field": "message",
         "include_unmapped": "true"
     }
     ],
@@ -95,7 +95,7 @@
         "@/kibana-highlighted-field@"
     ],
     "fields": {
-        "log": {}
+        "message": {}
     },
     "fragment_size": 2147483647
     }
