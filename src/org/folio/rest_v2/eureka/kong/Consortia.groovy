@@ -1,7 +1,6 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
