@@ -171,7 +171,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       , ns.getModules().allModules['folio-module-sidecar']
     )
 
-    moduleConfig['eureka'] = true
+    moduleConfig['eureka']['enabled'] = true
 
     moduleConfig << [
       sidecarContainers: [
@@ -211,11 +211,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
 //        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
 
-//        moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
-        moduleConfig['extraEnvVars'] += [name: 'IS_EUREKA', value: 'true']
+        moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
+//        moduleConfig['extraEnvVars'] += [name: 'IS_EUREKA', value: 'true']
         break
       //TODO: Temporary solution just to bug avoiding workaround
-      case ~/mod-(bulk-operations|data-export|data-export-worker)$/:
+//      case ~/mod-(bulk-operations|data-export|data-export-worker)$/:
 //        moduleConfig <<
 //          [
 //            [eureka: [enabled         : true,
@@ -226,9 +226,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
 //        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
 //        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
-
-        moduleConfig['extraEnvVars'] += [name: 'PLATFORM', value: 'eureka']
-        break
+//
+//        moduleConfig['extraEnvVars'] += [name: 'PLATFORM', value: 'eureka']
+//        break
       case ~/mod-.*-keycloak/:
 //        moduleConfig['integrations'] += [eureka: [enabled       : true,
 //                                                  existingSecret: 'eureka-common']]
