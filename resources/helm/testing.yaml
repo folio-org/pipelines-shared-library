@@ -2247,6 +2247,9 @@ mod-marc-migrations:
     s3:
       enabled: true
       existingSecret: s3-mod-marc-migrations-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-marc-migrations-systemuser
   replicaCount: 1
   resources:
     limits:
