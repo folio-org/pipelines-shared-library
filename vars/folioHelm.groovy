@@ -84,7 +84,6 @@ void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean c
       String moduleVersion = backendModule.value
       branches[moduleName] = {
         deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
-        sleep time: '5', unit: 'SECONDS'
       }
     }
     parallel branches
