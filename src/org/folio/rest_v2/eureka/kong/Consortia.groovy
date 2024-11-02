@@ -40,8 +40,23 @@ class Consortia extends Kong{
       "name": centralConsortiaTenant.consortiaName
     ]
 
-    def response = restClient.post(generateUrl("/consortia"), body, headers)
+    def response = restClient.post(generateUrl("/consortia"), body, headers, [201, 409])
+    String contentStr = response.body.toString()
     Map content = response.body as Map
+
+    if (response.responseCode == 409) {
+      logger.info("""
+        Consortia already exists
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+
+      centralConsortiaTenant.consortiaUuid = getConsortiaID(centralConsortiaTenant)
+
+      logger.info("Continue with existing consortia id -> ${centralConsortiaTenant.consortiaUuid}")
+
+      return centralConsortiaTenant.consortiaUuid
+    }
 
     logger.info("""
       Info about the newly created consortia \"${content.id}\"
@@ -50,6 +65,28 @@ class Consortia extends Kong{
       ${content.toString()}""")
 
     return content.id
+  }
+
+  String getConsortiaID(EurekaTenantConsortia centralConsortiaTenant){
+    logger.info("Get tenant's ${centralConsortiaTenant.getTenantId()} ${centralConsortiaTenant.getUuid()} consortia ID ...")
+
+    Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant, true)
+
+    def response = restClient.get(generateUrl("/consortia"), headers).body
+
+    if (response.totalRecords == 1) {
+      logger.debug("Found consortia: ${response.consortia}")
+
+      return response.consortia[0].id
+    }else if (response.totalRecords > 1){
+      logger.debug("${response.totalRecords} consortias have been found")
+      logger.debug("HTTP response is: ${response}")
+      throw new Exception("Too many consortias")
+    } else {
+      logger.debug("Consortia hasn't been found")
+      logger.debug("HTTP response is: ${response}")
+      throw new Exception("Consortia(s) not found")
+    }
   }
 
   /**
