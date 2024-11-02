@@ -2854,6 +2854,9 @@ mod-requests-mediated:
     db:
       enabled: true
       existingSecret: db-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-requests-mediated-systemuser
   replicaCount: 1
   resources:
     limits:
