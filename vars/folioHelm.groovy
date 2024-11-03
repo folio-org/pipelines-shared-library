@@ -191,60 +191,16 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     switch (moduleName) {
     //TODO: Temporary solution just to bug avoiding workaround
       case "mod-inn-reach":
-//        moduleConfig['integrations'] += [eureka: [enabled       : true,
-//                                                  existingSecret: 'eureka-common']]
         moduleConfig['integrations']['systemuser']['enabled'] = false
-//        moduleConfig <<
-//          [
-//            [eureka: [enabled         : true,
-//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-//          ]
+
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
       //TODO: Temporary solution just to bug avoiding workaround
       case "mod-fqm-manager":
-//        moduleConfig <<
-//          [
-//            [eureka: [enabled         : true,
-//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-//          ]
-//
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
-
         moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
-//        moduleConfig['extraEnvVars'] += [name: 'IS_EUREKA', value: 'true']
         break
-      //TODO: Temporary solution just to bug avoiding workaround
-//      case ~/mod-(bulk-operations|data-export|data-export-worker)$/:
-//        moduleConfig <<
-//          [
-//            [eureka: [enabled         : true,
-//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-//          ]
-//
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
-//
-//        moduleConfig['extraEnvVars'] += [name: 'PLATFORM', value: 'eureka']
-//        break
+      //TODO: Necessity is under investigation
       case ~/mod-.*-keycloak/:
-//        moduleConfig['integrations'] += [eureka: [enabled       : true,
-//                                                  existingSecret: 'eureka-common']]
-//        moduleConfig <<
-//          [
-//            [eureka: [enabled         : true,
-//                      sidecarContainer: [ image: "${sidecarRepository}/folio-module-sidecar",
-//                                          tag  : ns.getModules().allModules['folio-module-sidecar'] ]]]
-//          ]
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_CREATE', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'SYSTEM_USER_ENABLED', value: 'false']
-//        moduleConfig['extraEnvVars'] += [name: 'FOLIO_SYSTEM_USER_ENABLED', value: 'false']
         moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
         break
     }
