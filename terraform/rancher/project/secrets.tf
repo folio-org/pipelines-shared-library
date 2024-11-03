@@ -34,7 +34,11 @@ resource "rancher2_secret" "system_user" {
       SYSTEM_USER_NAME     = base64encode("${each.value}${var.eureka ? "" : "-system"}")
       SYSTEM_USER_USERNAME = base64encode("${each.value}${var.eureka ? "" : "-system"}")
     },
-    var.eureka ? {} : {
+    var.eureka ? {
+      SYSTEM_USER_CREATE        = base64encode("false")
+      SYSTEM_USER_ENABLED       = base64encode("false")
+      FOLIO_SYSTEM_USER_ENABLED = base64encode("false")
+    } : {
       SYSTEM_USER_PASSWORD = base64encode(random_password.system_user_password[each.value].result)
     }
   )
