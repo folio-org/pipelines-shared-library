@@ -171,7 +171,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       , ns.getModules().allModules['folio-module-sidecar']
     )
 
-    moduleConfig['eureka']['enabled'] = true
+    moduleConfig << [
+      eureka: [
+        enabled: true
+      ]
+    ]
 
     moduleConfig << [
       sidecarContainers: [
