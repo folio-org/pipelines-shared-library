@@ -761,8 +761,6 @@ mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
-  - name: PLATFORM
-    value: 'eureka'
   integrations:
     db:
       enabled: true
@@ -1160,9 +1158,7 @@ mod-courses:
     enabled: true
     maxUnavailable: 1
 mod-data-export:
-  extraEnvVars:
-  - name: PLATFORM
-    value: 'eureka'
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
@@ -1229,9 +1225,7 @@ mod-data-export-spring:
     enabled: true
     maxUnavailable: 1
 mod-data-export-worker:
-  extraEnvVars:
-  - name: PLATFORM
-    value: 'eureka'
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
@@ -1671,8 +1665,6 @@ mod-fqm-manager:
     value: 3h
   - name: task.execution.pool.max-size
     value: '10'
-  - name: mod-fqm-manager.bypass-permissions
-    value: 'true'
   integrations:
     db:
       enabled: true
