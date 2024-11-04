@@ -2129,6 +2129,9 @@ mod-marc-migrations:
     s3:
       enabled: true
       existingSecret: s3-mod-marc-migrations-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-marc-migrations-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2849,6 +2852,9 @@ mod-requests-mediated:
     db:
       enabled: true
       existingSecret: db-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-requests-mediated-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -3258,6 +3264,9 @@ mod-tlr:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-tlr-systemuser
   replicaCount: 1
   resources:
     limits:
