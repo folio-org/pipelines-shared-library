@@ -196,9 +196,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
         break
       //TODO: Temporary solution just to bug avoiding workaround
-      case "mod-fqm-manager":
-        moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
-        break
+//      case "mod-fqm-manager":
+//        moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.bypass-permissions', value: 'true']
+//        break
       //TODO: Necessity is under investigation
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
