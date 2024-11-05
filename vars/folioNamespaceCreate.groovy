@@ -118,16 +118,16 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Okapi healthcheck') {
-      sleep time: 3, unit: 'MINUTES'
-      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
-    }
+//    stage('[Rest] Okapi healthcheck') {
+//      sleep time: 3, unit: 'MINUTES'
+//      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+//      common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+//    }
 
-    stage('[Rest] Preinstall') {
-      main.publishDescriptors(namespace.getModules().getInstallJson())
-      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-    }
+//    stage('[Rest] Preinstall') {
+//      main.publishDescriptors(namespace.getModules().getInstallJson())
+//      main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+//    }
 
     stage('[Helm] Deploy backend') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -136,14 +136,14 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
-    }
+//    stage('[Rest] Initialize') {
+//      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+//      main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
+//    }
 
     stage('[Rest] Configure edge') {
       folioEdge.renderEphemeralProperties(namespace)
-      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
+//      edge.createEdgeUsers(namespace.getTenants()[namespace.getDefaultTenantId()])
     }
 
     stage('[Helm] Deploy edge') {
@@ -155,34 +155,34 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('Build and deploy UI') {
-      Map branches = [:]
-      namespace.getTenants().each { tenantId, tenant ->
-        if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
-          branches[tenantId] = {
-            def jobParameters = [
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['okapi']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, releaseVersion)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-            }
-          }
-        }
-      }
-      parallel branches
-    }
+//    stage('Build and deploy UI') {
+//      Map branches = [:]
+//      namespace.getTenants().each { tenantId, tenant ->
+//        if (tenant.getTenantUi()) {
+//          TenantUi ui = tenant.getTenantUi()
+//          branches[tenantId] = {
+//            def jobParameters = [
+//              tenant_id  : ui.getTenantId(),
+//              custom_hash: ui.getHash(),
+//              custom_url : "https://${namespace.getDomains()['okapi']}",
+//              custom_tag : ui.getTag(),
+//              consortia  : tenant instanceof OkapiTenantConsortia
+//            ]
+//            uiBuild(jobParameters, releaseVersion)
+//            folioHelm.withKubeConfig(namespace.getClusterName()) {
+//              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//            }
+//          }
+//        }
+//      }
+//      parallel branches
+//    }
 
-    stage('Deploy ldp') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelmFlow.deployLdp(namespace)
-      }
-    }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
   } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')

@@ -1,6 +1,6 @@
 edge-caiasoft:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -68,7 +68,7 @@ edge-connexion:
   - -XX:MaxRAMPercentage=85.0
 edge-courses:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -115,7 +115,7 @@ edge-courses:
   - -XX:MaxRAMPercentage=85.0
 edge-dcb:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -154,7 +154,7 @@ edge-dcb:
   - -XX:MaxRAMPercentage=85.0
 edge-dematic:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -188,7 +188,7 @@ edge-dematic:
   - -XX:MaxRAMPercentage=85.0
 edge-fqm:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -230,7 +230,7 @@ edge-fqm:
     targetMemoryUtilizationPercentage: 65
 edge-inn-reach:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -269,7 +269,7 @@ edge-inn-reach:
   - -XX:MaxRAMPercentage=85.0
 edge-inventory:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -301,7 +301,7 @@ edge-inventory:
       memory: 256Mi
 edge-ncip:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -340,7 +340,7 @@ edge-ncip:
   - -XX:MaxRAMPercentage=85.0
 edge-oai-pmh:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -379,7 +379,7 @@ edge-oai-pmh:
   - -XX:MaxRAMPercentage=85.0
 edge-orders:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -418,7 +418,7 @@ edge-orders:
   - -XX:MaxRAMPercentage=80.0
 edge-patron:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -457,7 +457,7 @@ edge-patron:
   - -XX:MaxRAMPercentage=85.0
 edge-rtac:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /admin/health
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -3461,7 +3461,7 @@ okapi:
   - -hazelcast-config-file
   - /etc/hazelcast/hazelcast.xml
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /_/version
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -3506,7 +3506,7 @@ okapi:
     maxUnavailable: 1
 ui-bundle:
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       alb.ingress.kubernetes.io/healthcheck-path: /
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
