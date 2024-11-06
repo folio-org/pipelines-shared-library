@@ -35,6 +35,12 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
+    if (args.clusterName !in ['folio-edev', 'folio-etmp', 'folio-etesting', 'folio-eperf']) {
+      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
+      currentBuild.result = 'ABORTED'
+      return
+    }
+
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
     }
