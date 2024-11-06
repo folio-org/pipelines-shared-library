@@ -17,7 +17,7 @@ import static groovy.json.JsonOutput.toJson
 class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full": "snapshot"
+    "app-platform-full": "snapshot-bff"
     , "app-consortia": "snapshot"
   ]
 
