@@ -695,6 +695,9 @@ mod-circulation-bff:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-circulation-bff-systemuser
   replicaCount: 1
   resources:
     limits:
