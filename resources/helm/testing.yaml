@@ -623,10 +623,8 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      cpu: 2048m
       memory: 1592Mi
     requests:
-      cpu: 256m
       memory: 1488Mi
   autoscaling:
     enabled: true
@@ -2385,10 +2383,8 @@ mod-oa:
   resources:
     limits:
       memory: 1024Mi
-      cpu: 2048m
     requests:
       memory: 896Mi
-      cpu: 256m
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -3137,10 +3133,8 @@ mod-serials-management:
   resources:
     limits:
       memory: 2480Mi
-      cpu: 2048m
     requests:
       memory: 2312Mi
-      cpu: 256m
   autoscaling:
     enabled: true
     minReplicas: 1
