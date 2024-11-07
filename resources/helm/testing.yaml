@@ -3548,9 +3548,9 @@ mgr-applications:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 1024Mi
     requests:
-      memory: 1Gi
+      memory: 675Mi
 mgr-tenants:
   extraEnvVars:
     - name: MODULE_URL
@@ -3574,9 +3574,9 @@ mgr-tenants:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 818Mi
     requests:
-      memory: 1Gi
+      memory: 562Mi
 mgr-tenant-entitlements:
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
@@ -3603,9 +3603,9 @@ mgr-tenant-entitlements:
   replicaCount: 1
   resources:
     limits:
-      memory: 2Gi
+      memory: 1024Mi
     requests:
-      memory: 1Gi
+      memory: 800Mi
 mod-consortia-keycloak:
   extraEnvVars:
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
@@ -3630,9 +3630,9 @@ mod-consortia-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 628Mi
     requests:
-      memory: 256Mi
+      memory: 494Mi
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
@@ -3654,9 +3654,9 @@ mod-login-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 563Mi
     requests:
-      memory: 256Mi
+      memory: 435Mi
 mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -3681,9 +3681,9 @@ mod-roles-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 773Mi
     requests:
-      memory: 256Mi
+      memory: 645Mi
 mod-users-keycloak:
   extraEnvVars:
     - name: MOD_USERS_URL
@@ -3718,9 +3718,9 @@ mod-users-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 582Mi
     requests:
-      memory: 256Mi
+      memory: 454Mi
 mod-scheduler:
   extraEnvVars:
     - name: KC_IMPERSONATION_CLIENT
@@ -3757,9 +3757,9 @@ mod-scheduler:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 764Mi
     requests:
-      memory: 256Mi
+      memory: 508Mi
 mod-okapi-facade:
   extraEnvVars:
     - name: AM_TLS_ENABLED
@@ -3783,7 +3783,7 @@ mod-okapi-facade:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      memory: 512Mi
     requests:
       memory: 256Mi
 okapi:
