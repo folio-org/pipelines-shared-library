@@ -60,6 +60,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
+  .splitFiles(false)
   .rtr(false)
   .build()
 

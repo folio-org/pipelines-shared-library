@@ -79,6 +79,7 @@ void call(CreateNamespaceParameters args) {
 
     namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
+    namespace.setEnableSplitFiles(args.splitFiles)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())

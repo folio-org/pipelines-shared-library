@@ -19,6 +19,7 @@ properties([
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
@@ -53,6 +54,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
+  .splitFiles(params.SPLIT_FILES)
   .rwSplit(params.RW_SPLIT)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
