@@ -24,6 +24,23 @@ class FolioModule {
 
   VersionType versionType
 
+  // Build Tool Name (Maven or Gradle)
+  String buildTool
+
+  // Build Folder Path
+  String buildDir
+
+  // Module Descriptor File Path
+  String modDescriptorPath
+
+  enum VersionType {
+    RELEASE, SNAPSHOT, CUSTOM
+  }
+
+  enum ModuleType {
+    BACKEND, FRONTEND, EDGE
+  }
+
   FolioModule() {}
 
   FolioModule loadModuleDetails(String id, String action = null) {
