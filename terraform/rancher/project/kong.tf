@@ -164,13 +164,11 @@ kong:
     value: "false"
   resources:
     requests:
-      cpu: 512m
       ephemeral-storage: 50Mi
-      memory: 2Gi
+      memory: 2428Mi
     limits:
-      cpu: 2048m
       ephemeral-storage: 1Gi
-      memory: 3Gi
+      memory: 3072Mi
 ingressController:
   enabled: false
 migration:
