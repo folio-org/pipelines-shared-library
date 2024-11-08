@@ -1,11 +1,15 @@
 #!groovy
+package folioRancher.folioScheduledTesting.runNightlyCypressEurekaTests
+
 import groovy.transform.Field
+import org.folio.Constants
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-1334') _
 
@@ -33,8 +37,8 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-@Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
 
 final String platformCompleteBranch = 'snapshot'
 
