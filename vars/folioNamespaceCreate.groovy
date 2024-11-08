@@ -102,16 +102,16 @@ void call(CreateNamespaceParameters args) {
     if (args.folioExtensions.contains('consortia')) {
       namespace.setEnableConsortia(true, isRelease)
       folioDefault.consortiaTenants(installJson, installRequestParams).values().each { tenant ->
-        tenant.enableFolioExtensions(this, args.folioExtensions)
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
           tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
+        tenant.enableFolioExtensions(this, args.folioExtensions)
         namespace.addTenant(tenant)
       }
     }
 
-    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant(), true)
+    Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
     Edge edge = new Edge(this, namespace.getDomains()['okapi'])
 
     stage('[Helm] Deploy Okapi') {
@@ -141,9 +141,6 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Initialize') {
       sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-      namespace.getTenants().each { tenantId, tenant ->
-        logger.debug(prettyPrint(toJson(tenant.modules.installJson)))
-      }
       main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 
@@ -165,19 +162,9 @@ void call(CreateNamespaceParameters args) {
       Map branches = [:]
       namespace.getTenants().each { tenantId, tenant ->
         if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
           branches[tenantId] = {
-            def jobParameters = [
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['okapi']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, isRelease)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-            }
+            logger.debug(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(tenant.getTenantUi())))
+            folioUI.buildAndDeploy(namespace, tenant)
           }
         }
       }

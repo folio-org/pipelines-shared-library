@@ -1,6 +1,7 @@
 package org.folio.models
 
 import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 
 /**
  * OkapiTenant class representing a tenant configuration for Okapi.
@@ -22,14 +23,16 @@ class OkapiTenant {
   /** Modules that are installed for the tenant. */
   FolioInstallJson modules = new FolioInstallJson()
 
+  List<String> enabledExtensions = []
+
   /** List of index information associated with the tenant. */
   List<Index> indexes = new ArrayList<>()
 
   /** Parameters for installation requests for the tenant. */
-  InstallRequestParams installRequestParams
+  InstallRequestParams installRequestParams = new InstallRequestParams()
 
   /** Okapi configuration for the tenant. */
-  OkapiConfig okapiConfig
+  OkapiConfig okapiConfig = new OkapiConfig()
 
   /** User Interface (UI) details for the tenant. */
   TenantUi tenantUi
@@ -159,8 +162,14 @@ class OkapiTenant {
           String moduleId = new FolioModule().getLatestVersionFromRegistry(moduleName, isRelease)
           this.modules.addModule(moduleId, 'enable')
         }
+        FolioModule module = this.modules.getModuleByName(moduleName)
+        if (this.tenantUi && module.type == ModuleType.FRONTEND) {
+          this.tenantUi.customUiModules.add(module)
+        }
       }
     }
+
+    this.enabledExtensions = extensions
   }
 
   /**
