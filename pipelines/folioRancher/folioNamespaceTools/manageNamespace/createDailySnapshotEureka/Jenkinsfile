@@ -2,14 +2,15 @@
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
 
 import groovy.transform.Field
+import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1334') _
 
-@Field final String deleteNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka'
-@Field final String createNamespaceJobName = '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q'
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),

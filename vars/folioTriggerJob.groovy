@@ -36,7 +36,7 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
       string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
 //      string(name: 'RUN_SANITY_CHECK', value: namespaceParams.getRunSanityCheck()), //TODO should be uncommented
-//       once '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka-Q' will suppport
+//       once '/folioRancher/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka' will suppport
       string(name: 'MEMBERS', value: namespaceParams.getMembers()),
       string(name: 'AGENT', value: namespaceParams.getWorker())]
   return jobResult
