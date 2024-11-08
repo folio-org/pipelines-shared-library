@@ -1,6 +1,10 @@
-@Library('pipelines-shared-library') _
+package folioRancher.folioScheduledTesting
 
+import org.folio.Constants
 import org.folio.utilities.Tools
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
 
 def clusterName = "folio-testing"
 def projectName = "karate"
@@ -10,8 +14,8 @@ def okapiUrl = "https://${clusterName}-${projectName}-okapi.ci.folio.org"
 def edgeUrl = "https://${clusterName}-${projectName}-edge.ci.folio.org"
 def prototypeTenant = "consortium"
 
-def spinUpEnvironmentJobName = "/folioRancher/folioNamespaceTools/createNamespaceFromBranch"
-def destroyEnvironmentJobName = "/folioRancher/folioNamespaceTools/deleteNamespace"
+def spinUpEnvironmentJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+def destroyEnvironmentJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 def spinUpEnvironmentJob
 def tearDownEnvironmentJob
 

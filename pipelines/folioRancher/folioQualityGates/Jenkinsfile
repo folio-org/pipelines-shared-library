@@ -1,4 +1,6 @@
 #!groovy
+package folioRancher.folioQualityGates
+
 import org.folio.models.ChangelogEntry
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -11,6 +13,8 @@ import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
 import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
+import org.folio.Constants as CommonConstants
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -38,8 +42,8 @@ String previousBuildSha
 CypressRunExecutionSummary cypressTestsExecutionSummary
 KarateRunExecutionSummary karateTestsExecutionSummary
 
-String createNamespaceFromBranchJob = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
-String deleteNamespaceJob = '/folioRancher/folioNamespaceTools/deleteNamespace'
+String createNamespaceFromBranchJob = CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+String deleteNamespaceJob = CommonConstants.JENKINS_DELETE_NAMESPACE_JOB
 String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 

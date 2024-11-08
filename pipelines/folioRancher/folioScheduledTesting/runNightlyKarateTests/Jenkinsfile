@@ -1,8 +1,12 @@
 #!groovy
+package folioRancher.folioScheduledTesting.runNightlyKarateTests
+
+import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -31,8 +35,8 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-final String createNamespaceJobName = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch'
-final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
+final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()

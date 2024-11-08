@@ -1,4 +1,7 @@
+package folioRancher.folioTestingTools.folioDataMigrationExecutionTime
+
 import groovy.transform.Field
+import org.folio.Constants
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -7,6 +10,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Main
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.LocalDateTime
 
@@ -34,7 +38,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 @Field final String createNamespaceFromRdsSnapshotJobPath =
   '/folioRancher/folioNamespaceTools/createNamespaceFromRdsSnapshot'
 @Field final String createNamespaceFromBranchJobPath = '/folioRancher/folioNamespaceTools/createNamespaceFromBranch-R1-2024'
-@Field final String deleteNamespaceJobPath = '/folioRancher/folioNamespaceTools/deleteNamespace'
+@Field final String deleteNamespaceJobPath = Constants.JENKINS_DELETE_NAMESPACE_JOB
 @Field final String installModulesFromJsonJobPath = '/folioRancher/folioDevTools/moduleDeployment/installModulesFromJson'
 @Field final String configType = 'testing'
 

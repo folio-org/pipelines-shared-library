@@ -74,7 +74,7 @@ InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: 
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
-final String deleteNamespaceJobName = '/folioRancher/folioNamespaceTools/deleteNamespace'
+final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .clusterName('folio-testing')
