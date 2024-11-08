@@ -2,17 +2,10 @@ package org.folio.rest_v2.eureka
 
 import hudson.util.Secret
 import org.folio.Constants
-import org.folio.models.EurekaModules
-import org.folio.models.EurekaTenant
-import org.folio.models.EurekaTenantConsortia
-import org.folio.models.FolioModule
-import org.folio.models.Role
-import org.folio.models.User
+import org.folio.models.*
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
-
-import static groovy.json.JsonOutput.prettyPrint
-import static groovy.json.JsonOutput.toJson
 
 class Eureka extends Base {
 
