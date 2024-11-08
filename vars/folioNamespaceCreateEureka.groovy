@@ -35,6 +35,13 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
+    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
+    if (args.clusterName in ['folio-dev', 'folio-tmp', 'folio-testing', 'folio-perf']) {
+      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
+      currentBuild.result = 'ABORTED'
+      return
+    }
+
     stage('[Terraform] Provision') {
       folioTerraformFlow.manageNamespace('apply', tfConfig)
     }
