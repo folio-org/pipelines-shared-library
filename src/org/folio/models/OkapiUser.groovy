@@ -27,14 +27,6 @@ class OkapiUser extends User {
    */
   String token
 
-  String firstName = ""
-
-  String lastName = ""
-
-  String email = "noreply@ci.folio.org"
-
-  String type = "staff"
-
   /**
    * Barcode associated with the Okapi user.
    */
@@ -70,7 +62,7 @@ class OkapiUser extends User {
    * @return the OkapiUser instance with the first name set.
    */
   OkapiUser withFirstName(String firstName) {
-    this.firstName = firstName
+    setFirstName(firstName)
     return this
   }
 
@@ -81,7 +73,7 @@ class OkapiUser extends User {
    * @return the OkapiUser instance with the last name set.
    */
   OkapiUser withLastName(String lastName) {
-    this.lastName = lastName
+    setLastName(lastName)
     return this
   }
 
@@ -92,7 +84,7 @@ class OkapiUser extends User {
    * @return the OkapiUser instance with the email set.
    */
   OkapiUser withEmail(String email) {
-    this.email = email
+    setEmail(email)
     return this
   }
 
@@ -136,7 +128,7 @@ class OkapiUser extends User {
    * @return the OkapiUser instance with the user type set.
    */
   OkapiUser withType(String type) {
-    this.type = type
+    setType(type)
     return this
   }
 
