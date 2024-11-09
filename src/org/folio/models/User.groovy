@@ -37,16 +37,6 @@ class User {
     return password.getPlainText()
   }
 
-  User withFirstName(String firstName) {
-    this.firstName = firstName
-    return this
-  }
-
-  User withLastName(String lastName) {
-    this.lastName = lastName
-    return this
-  }
-
   User withPatronGroup(UserGroup group){
     patronGroup = group
 

@@ -27,6 +27,10 @@ class OkapiUser extends User {
    */
   String token
 
+  String firstName = ""
+
+  String lastName = ""
+
   /**
    * Barcode associated with the Okapi user.
    */
@@ -61,7 +65,6 @@ class OkapiUser extends User {
    * @param firstName The first name of the user.
    * @return the OkapiUser instance with the first name set.
    */
-  @Override
   OkapiUser withFirstName(String firstName) {
     this.firstName = firstName
     return this
@@ -73,7 +76,6 @@ class OkapiUser extends User {
    * @param lastName The last name of the user.
    * @return the OkapiUser instance with the last name set.
    */
-  @Override
   OkapiUser withLastName(String lastName) {
     this.lastName = lastName
     return this
