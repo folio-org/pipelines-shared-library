@@ -61,8 +61,8 @@ class OkapiUser extends User {
    * @param firstName The first name of the user.
    * @return the OkapiUser instance with the first name set.
    */
-  OkapiUser withFirstName(String name) {
-    firstName = name
+  OkapiUser withFirstName(String firstName) {
+    setFirstName(firstName)
     return this
   }
 
@@ -72,8 +72,8 @@ class OkapiUser extends User {
    * @param lastName The last name of the user.
    * @return the OkapiUser instance with the last name set.
    */
-  OkapiUser withLastName(String name) {
-    lastName = name
+  OkapiUser withLastName(String lastName) {
+    setLastName(lastName)
     return this
   }
 
@@ -83,8 +83,8 @@ class OkapiUser extends User {
    * @param email The email of the user.
    * @return the OkapiUser instance with the email set.
    */
-  OkapiUser withEmail(String mail) {
-    email = mail
+  OkapiUser withEmail(String email) {
+    setEmail(email)
     return this
   }
 
@@ -127,8 +127,8 @@ class OkapiUser extends User {
    * @param type The user type of the user.
    * @return the OkapiUser instance with the user type set.
    */
-  OkapiUser withType(String val) {
-    type = val
+  OkapiUser withType(String type) {
+    setType(type)
     return this
   }
 
