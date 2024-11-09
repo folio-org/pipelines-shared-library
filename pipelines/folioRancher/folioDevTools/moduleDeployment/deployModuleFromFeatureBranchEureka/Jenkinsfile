@@ -4,10 +4,10 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
-import org.folio.models.FolioModule
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Eureka
+import org.jenkinsci.plugins.workflow.libs.Library
 
-// TODO: RANCHER-1700 - get rid off custom branch mention once feature development is done
 @Library('pipelines-shared-library@RANCHER-1334') _
 
 /** Job properties and parameters */

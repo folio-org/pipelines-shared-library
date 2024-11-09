@@ -2,9 +2,9 @@ package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
-import org.folio.models.FolioModule
 import org.folio.utilities.RequestException
 
 class Applications extends Kong{
