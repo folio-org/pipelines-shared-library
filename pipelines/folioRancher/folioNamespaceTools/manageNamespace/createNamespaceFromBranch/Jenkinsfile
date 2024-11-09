@@ -74,13 +74,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .uiBuild(params.BUILD_UI)
   .build()
 
-println(namespaceParams)
-
-println("params.RUN_SANITY_CHECK ${params.RUN_SANITY_CHECK}")
-println("params.RUN_SANITY_CHECK determination ${params.RUN_SANITY_CHECK ? "true" : "false"}")
-
-input message: "Are you ready to proceed?"
-
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
@@ -109,11 +102,11 @@ ansiColor('xterm') {
         checkout scm
       }
 
-//      if (namespaceParams.eureka) {
-//        folioNamespaceCreateEureka(namespaceParams)
-//      } else {
-//        folioNamespaceCreate(namespaceParams)
-//      }
+      if (namespaceParams.eureka) {
+        folioNamespaceCreateEureka(namespaceParams)
+      } else {
+        folioNamespaceCreate(namespaceParams)
+      }
 
       stage('[Cypress] Run sanity check'){
         if(params.RUN_SANITY_CHECK) {
