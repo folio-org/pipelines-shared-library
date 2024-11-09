@@ -74,12 +74,6 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .runSanityCheck(false)
   .build()
 
-
-println("namespace1 $namespace1")
-println("namespece2 $namespace2")
-
-input message: "Are you ready to proceed?"
-
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
