@@ -33,6 +33,8 @@ class OkapiUser extends User {
 
   String email = "noreply@ci.folio.org"
 
+  String type = "staff"
+
   /**
    * Barcode associated with the Okapi user.
    */
