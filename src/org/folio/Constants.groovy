@@ -163,10 +163,10 @@ class Constants {
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/deleteNamespace"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
 
   static final String JENKINS_DELETE_NAMESPACE_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka"
 
   //PostgreSQL
   static String PSQL_DUMP_HELM_CHART_NAME = 'psql-dump'
