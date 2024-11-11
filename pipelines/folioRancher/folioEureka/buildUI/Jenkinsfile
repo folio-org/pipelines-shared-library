@@ -5,7 +5,7 @@ import org.folio.rest.GitHubUtility
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1897') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -73,7 +73,7 @@ ansiColor('xterm') {
                              tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
                              tenantId            : "${params.TENANT_ID}",
                              custom_hash         : commitHash,
-                             custom_url          : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
+                             custom_url          : "${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
                              custom_tag          : tenant.getTenantUi().getTag(),
                              consortia           : params.CONSORTIA,
                              clientId            : "${params.TENANT_ID}" + "-application",
