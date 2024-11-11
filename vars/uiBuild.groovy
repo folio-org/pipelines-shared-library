@@ -77,7 +77,7 @@ void call(Map params, boolean releaseVersion = false) {
         retry(2) {
           def image = docker.build(
             ui_bundle.getImageName(),
-            "--build-arg OKAPI_URL=${okapi_url} " +
+            "--build-arg OKAPI_URL=https://${okapi_url} " +
               "--build-arg TENANT_ID=${tenant.getId()} " +
               "-f docker/Dockerfile  " +
               "."
