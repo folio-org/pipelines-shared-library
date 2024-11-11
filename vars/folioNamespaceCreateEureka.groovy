@@ -246,7 +246,7 @@ void call(CreateNamespaceParameters args) {
                                    tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
                                    tenantId            : ui.getTenantId(),
                                    custom_hash         : ui.getHash(),
-                                   custom_url          : "https://${namespace.getDomains()['kong']}",
+                                   custom_url          : "${namespace.getDomains()['kong']}", //Used for CNAME Record creation, DON'T CHANGE!!!
                                    custom_tag          : ui.getTag(),
                                    consortia           : tenant instanceof EurekaTenantConsortia,
                                    clientId            : ui.getTenantId() + "-application",
@@ -262,6 +262,17 @@ void call(CreateNamespaceParameters args) {
         }
         parallel branches
       }
+      def cmd = "aws route53 change-resource-record-sets --hosted-zone-id ${Constants.HOSTED_ZONE_ID} --change-batch " +
+        "'{\"Changes\":[{\"Action\":\"CREATE\",\"ResourceRecordSet\":{\"Name\":\"ecs-${namespace.getDomains()['kong']}.\",\"Type\":\"CNAME\",\"TTL\":60," +
+        "\"ResourceRecords\":[{\"Value\":\"${namespace.getDomains()['kong']}.\"}]}}]}'\n"
+      try {
+        awscli.withAwsClient() {
+          sh(script: cmd, returnStdout: true)
+        }
+      } catch (ignored) {
+        logger.warn("Unable to create CNAME record for ${namespace.getDomains()['kong']}\nRecord already exists?")
+      }
+
     }
 
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892

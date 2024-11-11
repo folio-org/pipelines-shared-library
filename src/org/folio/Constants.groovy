@@ -295,4 +295,6 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
+
+  static String HOSTED_ZONE_ID = "Z3T7T50VQ846GQ"
 }
