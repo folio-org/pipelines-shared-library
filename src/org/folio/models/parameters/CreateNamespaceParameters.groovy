@@ -24,6 +24,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean consortia
 
+  boolean splitFiles
+
   boolean rwSplit
 
   boolean greenmail
@@ -171,6 +173,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder consortia(boolean consortia) {
       parameters.consortia = consortia
+      return this
+    }
+
+    /**
+     * Enables or disables split-files features within the namespace.
+     * @param splitFiles `true` to enable split-files features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder splitFiles(boolean splitFiles) {
+      parameters.splitFiles = splitFiles
       return this
     }
 

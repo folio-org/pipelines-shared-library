@@ -16,6 +16,7 @@ properties([
     folioParameters.configType(),
     string(name: 'RDS_SNAPSHOT_NAME', defaultValue: '', description: 'RDS snapshot name'),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
+    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
     string(name: 'UI_TENANTS_IDS', defaultValue: '', description: 'A comma-separated list of tenant IDs that require a UI.'),
     folioParameters.kafkaType(Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse()),
@@ -81,6 +82,7 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDeploymentConfigType(params.CONFIG_TYPE)
 
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+namespace.setEnableSplitFiles(params.SPLIT_FILES)
 namespace.setEnableRwSplit(params.RW_SPLIT)
 
 ansiColor('xterm') {
