@@ -270,7 +270,7 @@ void call(CreateNamespaceParameters args) {
           sh(script: cmd, returnStdout: true)
         }
       } catch (ignored) {
-        logger.warn("Unable to create CNAME record for ${namespace.getDomains()['kong']}\nRecord already exists?")
+        logger.warning("Unable to create CNAME record for ${namespace.getDomains()['kong']}\nRecord already exists?")
       }
 
     }
