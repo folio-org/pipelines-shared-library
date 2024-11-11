@@ -91,6 +91,17 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: "200-399"
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
+ extraRules:
+  - host: ${join(".", [join("-", ["ecs", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+    http:
+      paths:
+      - backend:
+          service:
+            name: kong-${var.rancher_project_name}
+            port:
+              name: http-proxy
+        path: /*
+        pathType: ImplementationSpecific
 kong:
   livenessProbe:
     enabled: false
