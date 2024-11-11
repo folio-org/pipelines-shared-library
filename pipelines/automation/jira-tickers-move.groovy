@@ -12,15 +12,16 @@ String jira_host_link = "https://folio-org.atlassian.net"
 String jira_credentialsId = 'jenkins-jira'
 LinkedHashMap bugfest_map = [:]
 JiraClient jiraClient = getJiraClient(jira_host_link, jira_credentialsId)
-LinkedHashMap host_map = ["Nolana"       :"https://okapi-bugfest-nolana.int.aws.folio.org",
-                          "Orchid"       :"https://okapi-bugfest-orchid.int.aws.folio.org",
-                          "Poppy"        :"https://okapi-bugfest-poppy.int.aws.folio.org",
-                          "Pre-Orchid"   :"https://okapi-pre-bugfest-orchid.int.aws.folio.org",
-                          "Morning-Glory":"https://okapi-bugfest-mg.int.aws.folio.org",
-                          "Quesnelia"    :"https://okapi-bugfest-quesnelia.int.aws.folio.org"
-                    ] as LinkedHashMap
-ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Poppy","Morning-Glory","Quesnelia"]
-String tenant="fs09000000"
+LinkedHashMap host_map = ["Nolana"       : "https://okapi-bugfest-nolana.int.aws.folio.org",
+                          "Orchid"       : "https://okapi-bugfest-orchid.int.aws.folio.org",
+                          "Poppy"        : "https://okapi-bugfest-poppy.int.aws.folio.org",
+                          "Pre-Orchid"   : "https://okapi-pre-bugfest-orchid.int.aws.folio.org",
+                          "Morning-Glory": "https://okapi-bugfest-mg.int.aws.folio.org",
+                          "Quesnelia"    : "https://okapi-bugfest-quesnelia.int.aws.folio.org",
+                          "Ramsons"      : "https://okapi-bugfest-ramsons.int.aws.folio.org"
+] as LinkedHashMap
+ArrayList<String> Bugfest_envs = ["Orchid", "Nolana", "Pre-Orchid", "Poppy", "Morning-Glory", "Quesnelia", "Ramsons"]
+String tenant = "fs09000000"
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -45,62 +46,61 @@ ansiColor('xterm') {
     node(params.agent) {
         try {
             stage('Check input') {
-                double_check=0
-                if ((Release!=null) && (Release!="")){
-                    release_check="release = \"${Release}\""
+                double_check = 0
+                if ((Release != null) && (Release != "")) {
+                    release_check = "release = \"${Release}\""
                     double_check++
                 }
-                if ((JiraTaskStatus!=null) && (JiraTaskStatus!="")){
-                    jira_status_check="status = \"${JiraTaskStatus}\""
+                if ((JiraTaskStatus != null) && (JiraTaskStatus != "")) {
+                    jira_status_check = "status = \"${JiraTaskStatus}\""
                     double_check++
                 }
-                if (double_check==2){
-                    search_pattern="${release_check} and ${jira_status_check}"
-                }
-                else {
+                if (double_check == 2) {
+                    search_pattern = "${release_check} and ${jira_status_check}"
+                } else {
                     error("Error in input data")
                 }
             }
             stage('Search Jira tasks') {
                 List<JiraIssue> issues = jiraClient.searchIssues(search_pattern,
-                    ["key","status","fixVersions","project"])
-                list_of_found_jira_tasks=SortJiraTickersByVersion(issues)
+                    ["key", "status", "fixVersions", "project"])
+                list_of_found_jira_tasks = SortJiraTickersByVersion(issues)
             }
             stage('Get map with services from bugfest') {
                 String host = host_map[BugfestEnv]
                 def response = getRequest(host, tenant)
                 def json = new groovy.json.JsonSlurper().parseText(response)
 
-                json.each{ i ->
-                    list_key_value="${i}".split(':')
+                json.each { i ->
+                    list_key_value = "${i}".split(':')
                     value = list_key_value[-1].substring(0, list_key_value[-1].length() - 1)
 
-                    if (value.contains("folio_")){
-                        value=value.replace("folio_","ui-")
+                    if (value.contains("folio_")) {
+                        value = value.replace("folio_", "ui-")
                     }
-                    pattern="-[0-9]"
-                    key="${value}".split(pattern)[0]
-                    value="${value}".split("${key}-")[-1]
+                    pattern = "-[0-9]"
+                    key = "${value}".split(pattern)[0]
+                    value = "${value}".split("${key}-")[-1]
 
                     bugfest_map.put(key, value)
                 }
             }
             stage('Compare versions of modules') {
-                for(i in list_of_found_jira_tasks){
-                    check_is_less=false
+                for (i in list_of_found_jira_tasks) {
+                    check_is_less = false
                     try {
-                        service_version=bugfest_map[i.project]
-                        jira_service_version=i.fixVersions.substring(1, i.fixVersions.length() - 1)
-                        if (service_version!=null){
-                            check_is_less=false
-                            service_version_list=service_version.replace(".","").split(",")
-                            jira_service_version_list=jira_service_version.replace(".","").split(",")
+                        service_version = bugfest_map[i.project]
+                        jira_service_version = i.fixVersions.substring(1, i.fixVersions.length() - 1)
+                        if (service_version != null) {
+                            check_is_less = false
+                            service_version_list = service_version.replace(".", "").split(",")
+                            jira_service_version_list = jira_service_version.replace(".", "").split(",")
 
-                            if (service_version_list.length == jira_service_version_list.length){
-                                for (j=0 ; j < jira_service_version_list.size(); j++){
+                            if (service_version_list.length == jira_service_version_list.length) {
+                                for (j = 0; j < jira_service_version_list.size(); j++) {
                                     //Compare jira and bugfest versions
-                                    if (jira_service_version_list[j].toInteger() <= service_version_list[j].toInteger()){
-                                        check_is_less=true
+                                    if (jira_service_version_list[j].toInteger() <= service_version_list[j].toInteger()) {
+                                        check_is_less = true
                                         break
                                     }
                                 }
@@ -109,13 +109,13 @@ ansiColor('xterm') {
                         if (check_is_less) {
                             list_of_jira_tasks_to_change.add(i)
                         }
-                    }catch (exception){
+                    } catch (exception) {
                         println(exception)
                     }
                 }
             }
             stage('Change status of Jira ticket') {
-                for(i in list_of_jira_tasks_to_change) {
+                for (i in list_of_jira_tasks_to_change) {
                     jiraClient.addIssueComment(i.id, Comment)
                     jiraClient.issueTransition(i.id, NextJiraTaskStatus)
                     println "Jira ticket '${i.key}' status changed to '${NextJiraTaskStatus}'"
@@ -137,25 +137,25 @@ private JiraClient getJiraClient(String url, String credentialsId) {
     withCredentials([
         usernamePassword(credentialsId: credentialsId, usernameVariable: 'jiraUsername', passwordVariable: 'jiraPassword')
     ]) {
-        return new JiraClient(this, url , jiraUsername, jiraPassword)
+        return new JiraClient(this, url, jiraUsername, jiraPassword)
     }
 }
 
-private static SortJiraTickersByVersion(List<JiraIssue> list_of_jira_maps){
+private static SortJiraTickersByVersion(List<JiraIssue> list_of_jira_maps) {
     ArrayList list_maps_with_empty_params = []
-    for(i in list_of_jira_maps){
-        if ((i.key==null) || (i.status==null) || (i.fixVersions=="[]") || (!i.fixVersions.contains(".")) || (i.project==null)){
+    for (i in list_of_jira_maps) {
+        if ((i.key == null) || (i.status == null) || (i.fixVersions == "[]") || (!i.fixVersions.contains(".")) || (i.project == null)) {
             list_maps_with_empty_params.add(i)
         }
     }
     //Remove all jira tickers from list that has empty fields or none correct version
-    for(i in list_maps_with_empty_params){
-            list_of_jira_maps.remove(i)
+    for (i in list_maps_with_empty_params) {
+        list_of_jira_maps.remove(i)
     }
     return list_of_jira_maps as Object
 }
 
-private getRequest(String host,String tenant) {
+private getRequest(String host, String tenant) {
     pipeline = new URL("${host}/_/proxy/tenants/${tenant}/modules")
         .getText(connectTimeout: 5000,
             readTimeout: 10000,
