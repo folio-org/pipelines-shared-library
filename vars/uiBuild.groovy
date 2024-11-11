@@ -41,6 +41,12 @@ void call(Map params, boolean releaseVersion = false) {
     if (params.eureka) {
       dir("platform-complete-${params.tenantId}") {
         sh(script: "cp -R -f eureka-tpl/* .")
+        if (params.consortia) {
+          params.kongUrl = "https://ecs-${params.custom_url}" // TODO Temporary solution
+          params.custom_url = "https://ecs-${params.custom_url}"
+          params.isSingleTenant = false
+          okapi_url = params.custom_url - 'https://'
+        }
         println("Parameters for UI:\n${JsonOutput.prettyPrint(JsonOutput.toJson(params))}")
         writeFile file: 'stripes.config.js', text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, params), encoding: 'UTF-8'
         def packageJson = readJSON file: 'package.json'

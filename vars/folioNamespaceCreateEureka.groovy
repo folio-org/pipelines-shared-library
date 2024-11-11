@@ -246,7 +246,7 @@ void call(CreateNamespaceParameters args) {
                                    tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
                                    tenantId            : ui.getTenantId(),
                                    custom_hash         : ui.getHash(),
-                                   custom_url          : "https://${namespace.getDomains()['kong']}",
+                                   custom_url          : "${namespace.getDomains()['kong']}", //Used for CNAME Record creation, DON'T CHANGE!!!
                                    custom_tag          : ui.getTag(),
                                    consortia           : tenant instanceof EurekaTenantConsortia,
                                    clientId            : ui.getTenantId() + "-application",
