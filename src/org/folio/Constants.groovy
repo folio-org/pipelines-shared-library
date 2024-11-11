@@ -155,6 +155,19 @@ class Constants {
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
   static String JENKINS_JOB_DATA_MIGRATION = '/Rancher/folioDataMigrationExecutionTime'
 
+  static final String JENKINS_FOLIO_RANCHER_FOLDER = '/folioRancher'
+
+  static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB =
+    "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/createNamespaceFromBranch"
+
+  static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/deleteNamespace"
+
+  static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
+    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
+
+  static final String JENKINS_DELETE_NAMESPACE_JOB_EUREKA =
+    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka"
+
   //PostgreSQL
   static String PSQL_DUMP_HELM_CHART_NAME = 'psql-dump'
   static String PSQL_DUMP_HELM_INSTALL_CHART_VERSION = '1.0.3'
