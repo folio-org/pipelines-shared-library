@@ -57,14 +57,14 @@ class Constants {
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
-  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'      : AWS_EKS_DEV_NAMESPACES,
-                                          'folio-testing'  : AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-perf'     : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
-                                          'folio-tmp'      : AWS_EKS_TMP_NAMESPACES,
-                                          'folio-edev'     : AWS_EKS_DEV_NAMESPACES,
-                                          'folio-etesting' : AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-eperf'    : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
-                                          'folio-etmp'     : AWS_EKS_TMP_NAMESPACES]
+  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'     : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-testing' : AWS_EKS_TESTING_NAMESPACES,
+                                          'folio-perf'    : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
+                                          'folio-tmp'     : AWS_EKS_TMP_NAMESPACES,
+                                          'folio-edev'    : AWS_EKS_DEV_NAMESPACES,
+                                          'folio-etesting': AWS_EKS_TESTING_NAMESPACES,
+                                          'folio-eperf'   : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
+                                          'folio-etmp'    : AWS_EKS_TMP_NAMESPACES]
 
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
@@ -296,6 +296,4 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
-
-  static String HOSTED_ZONE_ID = "Z3T7T50VQ846GQ"
 }
