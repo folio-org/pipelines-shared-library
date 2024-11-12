@@ -6,7 +6,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.module.FolioModule
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@mod-bulk-op-temp-debug') _
 
 /**
  * Job properties and parameters
