@@ -191,14 +191,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
     ]
 
-    switch (moduleName) {
-    //TODO: Temporary solution just to bug avoiding workaround
-      case "mod-inn-reach":
-//        moduleConfig['integrations']['systemuser']['enabled'] = false
-
-        moduleConfig['extraEnvVars'] += [name: 'FOR_EUREKA', value: 'true']
-        break
-      //TODO: Necessity is under investigation
+    switch (moduleName) { // let it still be switch in case we need to add an additional module
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
         break
