@@ -188,6 +188,7 @@ class CreateNamespaceParameters implements Cloneable {
      */
     public Builder eureka(boolean eureka) {
       parameters.eureka = eureka
+      return this
     }
 
     /**
