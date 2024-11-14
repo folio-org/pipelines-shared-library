@@ -34,6 +34,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtr
 
+  List<String> folioExtensions = []
+
   String pgType
 
   String pgVersion

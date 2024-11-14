@@ -32,6 +32,6 @@ class Logger implements Serializable {
   @NonCPS
   def error(def message) {
     context.println("\u001B[31m [${className}][ERROR] - ${message} \u001B[0m")
-    throw new AbortException(message)
+    throw new Exception(message)
   }
 }

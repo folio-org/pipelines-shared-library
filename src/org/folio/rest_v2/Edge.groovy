@@ -37,8 +37,8 @@ class Edge extends Authorization {
     Map edgeUsersConfig = steps.readYaml file: tools.copyResourceFileToWorkspace(EDGE_USERS_CONFIG_PATH)
     List edgePermissionsList = []
 
-    tenant.modules.edgeModules.each { name, version ->
-      def edgeUserConfig = edgeUsersConfig[(name)]
+    tenant.modules.edgeModules.each { module ->
+      def edgeUserConfig = edgeUsersConfig[(module.name)]
       def edgePermissions = edgeUserConfig['permissions']
       def tenants = edgeUserConfig['tenants']
 

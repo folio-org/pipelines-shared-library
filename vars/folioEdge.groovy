@@ -18,11 +18,11 @@ void renderEphemeralProperties(RancherNamespace namespace) {
   Map edgeUsersConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config.yaml")
   String defaultTenantId = namespace.getDefaultTenantId()
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
-  namespace.getModules().getEdgeModules().each { name, version ->
+  namespace.getModules().getEdgeModules().each { module ->
     String edgeTenantsId = defaultTenantId
     String institutional = ""
     String admin_users = ""
-    Map edgeUserConfig = edgeUsersConfig[(name)]
+    Map edgeUserConfig = edgeUsersConfig[(module.name)]
     try {
       if (edgeUserConfig['tenants']) {
         edgeUserConfig['tenants'].each {
@@ -53,9 +53,9 @@ void renderEphemeralProperties(RancherNamespace namespace) {
         }
       }
       LinkedHashMap config_data = [edge_tenants: edgeTenantsId, edge_mappings: defaultTenantId, edge_users: admin_users, institutional_users: institutional]
-      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
     } catch (Exception e) {
-      common.logger.warning("Faulty module name: ${name}, error: ${e.getMessage()}")
+      common.logger.warning("Faulty module name: ${module.name}, error: ${e.getMessage()}")
     }
   }
 }

@@ -19,6 +19,7 @@ properties([
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
@@ -66,6 +67,14 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .members(params.MEMBERS)
   .build()
+
+if (params.CONSORTIA) {
+  namespaceParams.folioExtensions.add('consortia')
+}
+
+if (params.LINKED_DATA) {
+  namespaceParams.folioExtensions.add('linked-data')
+}
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 
