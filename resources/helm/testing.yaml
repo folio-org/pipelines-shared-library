@@ -772,16 +772,16 @@ mod-bulk-operations:
   replicaCount: 1
   resources:
     limits:
-      memory: 3072Mi
+      memory: 3335Mi
     requests:
-      memory: 2600Mi
+      memory: 2900Mi
   autoscaling:
     enabled: true
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 80
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=60.0
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health

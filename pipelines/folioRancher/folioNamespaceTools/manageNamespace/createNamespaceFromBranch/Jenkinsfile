@@ -25,6 +25,7 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
@@ -61,6 +62,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
   .eureka(params.EUREKA)
+  .splitFiles(params.SPLIT_FILES)
   .rwSplit(params.RW_SPLIT)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)

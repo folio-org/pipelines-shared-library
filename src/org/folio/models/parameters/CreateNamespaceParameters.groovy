@@ -26,6 +26,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean eureka
 
+  boolean splitFiles
+
   boolean rwSplit
 
   boolean greenmail
@@ -186,6 +188,15 @@ class CreateNamespaceParameters implements Cloneable {
      */
     public Builder eureka(boolean eureka) {
       parameters.eureka = eureka
+    }
+
+    /**
+     * Enables or disables split-files features within the namespace.
+     * @param splitFiles `true` to enable split-files features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder splitFiles(boolean splitFiles) {
+      parameters.splitFiles = splitFiles
       return this
     }
 
