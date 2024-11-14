@@ -1861,6 +1861,9 @@ mod-invoice-storage:
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2558,6 +2561,9 @@ mod-organizations-storage:
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
