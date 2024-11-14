@@ -655,6 +655,16 @@ mod-agreements:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -689,6 +699,16 @@ mod-audit:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
@@ -755,6 +775,16 @@ mod-batch-print:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
@@ -794,6 +824,16 @@ mod-bulk-operations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -825,6 +865,16 @@ mod-calendar:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-camunda:
   extraEnvVars: []
   integrations:
@@ -892,6 +942,16 @@ mod-circulation:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-circulation-bff:
   extraEnvVars: []
   integrations:
@@ -926,6 +986,16 @@ mod-circulation-bff:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -962,6 +1032,16 @@ mod-circulation-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
@@ -1056,6 +1136,16 @@ mod-configuration:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -1127,6 +1217,16 @@ mod-copycat:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -1158,6 +1258,16 @@ mod-courses:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-data-export:
   extraEnvVars: []
   integrations:
@@ -1190,6 +1300,16 @@ mod-data-export:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -1225,6 +1345,16 @@ mod-data-export-spring:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -1262,6 +1392,16 @@ mod-data-export-worker:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-data-import:
   extraEnvVars: []
   integrations:
@@ -1297,6 +1437,16 @@ mod-data-import:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -1328,6 +1478,16 @@ mod-di-converter-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
@@ -1356,6 +1516,16 @@ mod-ebsconet:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-email:
   extraEnvVars: []
   integrations:
@@ -1387,6 +1557,16 @@ mod-email:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -1438,6 +1618,16 @@ mod-entities-links:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -1469,6 +1659,16 @@ mod-erm-usage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -1506,6 +1706,16 @@ mod-erm-usage-harvester:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -1537,6 +1747,16 @@ mod-eusage-reports:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -1568,6 +1788,16 @@ mod-event-config:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -1599,6 +1829,16 @@ mod-feesfines:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -1627,6 +1867,16 @@ mod-finance:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -1658,6 +1908,16 @@ mod-finance-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -1693,6 +1953,16 @@ mod-fqm-manager:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-gobi:
   extraEnvVars: []
   integrations: {}
@@ -1721,6 +1991,16 @@ mod-gobi:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}
@@ -1749,6 +2029,16 @@ mod-graphql:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -1791,6 +2081,16 @@ mod-inn-reach:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -1825,6 +2125,16 @@ mod-inventory:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1863,6 +2173,16 @@ mod-inventory-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
@@ -1891,6 +2211,16 @@ mod-inventory-update:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -1929,6 +2259,16 @@ mod-invoice:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -1963,6 +2303,16 @@ mod-invoice-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -1994,6 +2344,16 @@ mod-kb-ebsco-java:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -2087,6 +2447,16 @@ mod-licenses:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-linked-data:
   extraEnvVars: []
   integrations:
@@ -2170,6 +2540,16 @@ mod-lists:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-login:
   extraEnvVars: []
   integrations:
@@ -2269,6 +2649,16 @@ mod-marc-migrations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -2352,6 +2742,16 @@ mod-notes:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -2383,6 +2783,16 @@ mod-notify:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -2417,6 +2827,16 @@ mod-oa:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -2453,6 +2873,16 @@ mod-oai-pmh:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-orders:
   extraEnvVars: []
   integrations:
@@ -2487,6 +2917,16 @@ mod-orders:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2523,6 +2963,16 @@ mod-orders-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2565,6 +3015,16 @@ mod-dcb:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2601,6 +3061,16 @@ mod-circulation-item:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-organizations:
   extraEnvVars: []
   integrations: {}
@@ -2629,6 +3099,16 @@ mod-organizations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -2663,6 +3143,16 @@ mod-organizations-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -2694,6 +3184,16 @@ mod-password-validator:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-patron:
   extraEnvVars: []
   integrations: {}
@@ -2722,6 +3222,16 @@ mod-patron:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -2753,6 +3263,16 @@ mod-patron-blocks:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -2784,6 +3304,16 @@ mod-permissions:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -2824,6 +3354,16 @@ mod-pubsub:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -2857,6 +3397,16 @@ mod-quick-marc:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -2888,6 +3438,16 @@ mod-reading-room:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -2921,6 +3481,16 @@ mod-record-specifications:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -2961,6 +3531,16 @@ mod-remote-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -2995,6 +3575,16 @@ mod-requests-mediated:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-rtac:
   extraEnvVars: []
   integrations: {}
@@ -3023,6 +3613,16 @@ mod-rtac:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -3106,6 +3706,16 @@ mod-search:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-sender:
   extraEnvVars: []
   integrations: {}
@@ -3134,6 +3744,16 @@ mod-sender:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -3170,6 +3790,16 @@ mod-serials-management:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -3206,6 +3836,16 @@ mod-service-interaction:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -3237,6 +3877,16 @@ mod-settings:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-source-record-manager:
   extraEnvVars: []
   integrations:
@@ -3271,6 +3921,16 @@ mod-source-record-manager:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms192m -Xmx192m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 330Mi
 mod-source-record-storage:
   extraEnvVars: []
   integrations:
@@ -3305,6 +3965,16 @@ mod-source-record-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -3336,6 +4006,16 @@ mod-tags:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -3367,6 +4047,16 @@ mod-template-engine:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -3407,6 +4097,16 @@ mod-tlr:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 260Mi
 mod-user-import:
   extraEnvVars: []
   integrations: {}
@@ -3435,6 +4135,16 @@ mod-user-import:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-users:
   extraEnvVars: []
   integrations:
@@ -3469,6 +4179,16 @@ mod-users:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
@@ -3494,6 +4214,16 @@ mod-users-bl:
     timeoutSeconds: 5
     successThreshold: 1
     failureThreshold: 30
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
   pdb:
     enabled: true
     maxUnavailable: 1
@@ -3554,6 +4284,7 @@ mgr-applications:
       value: "941241418"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - -XX:MaxRAMPercentage=80.0
   integrations:
     db:
       enabled: true
@@ -3583,6 +4314,7 @@ mgr-tenants:
       value: "941241418"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - -XX:MaxRAMPercentage=75.0
   integrations:
     db:
       enabled: true
@@ -3596,6 +4328,7 @@ mgr-tenants:
 mgr-tenant-entitlements:
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
@@ -3630,6 +4363,8 @@ mod-consortia-keycloak:
       value: '5'
     - name: SERVER_PORT
       value: '8080'
+  extraJavaOpts:
+    - -XX:MaxRAMPercentage=70.0
   integrations:
     db:
       enabled: true
@@ -3649,6 +4384,16 @@ mod-consortia-keycloak:
       memory: 628Mi
     requests:
       memory: 494Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
@@ -3673,6 +4418,16 @@ mod-login-keycloak:
       memory: 563Mi
     requests:
       memory: 435Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -3700,6 +4455,16 @@ mod-roles-keycloak:
       memory: 773Mi
     requests:
       memory: 645Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-users-keycloak:
   extraEnvVars:
     - name: MOD_USERS_URL
@@ -3737,6 +4502,16 @@ mod-users-keycloak:
       memory: 582Mi
     requests:
       memory: 454Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-scheduler:
   extraEnvVars:
     - name: KC_IMPERSONATION_CLIENT
@@ -3776,6 +4551,16 @@ mod-scheduler:
       memory: 764Mi
     requests:
       memory: 508Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 500Mi
+        requests:
+          memory: 390Mi
 mod-okapi-facade:
   extraEnvVars:
     - name: AM_TLS_ENABLED
@@ -3802,6 +4587,16 @@ mod-okapi-facade:
       memory: 512Mi
     requests:
       memory: 256Mi
+  sidecarContainers:
+    eureka:
+      env:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 230Mi
 okapi:
   args:
   - cluster
