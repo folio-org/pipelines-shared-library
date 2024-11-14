@@ -284,6 +284,80 @@ edge-inventory:
             servicePort: 80
   service:
     type: NodePort
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-inventory-ephemeral-properties
+      existingConfig: edge-inventory-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+edge-users:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+          - path: /users*
+            pathType: ImplementationSpecific
+            servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-users-ephemeral-properties
+      existingConfig: edge-users-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+edge-erm:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+      - paths:
+          - path: /erm*
+            pathType: ImplementationSpecific
+            servicePort: 80
+  service:
+    type: NodePort
   extraEnvVars: []
   integrations:
     okapi:
@@ -291,8 +365,8 @@ edge-inventory:
       existingSecret: okapi-credentials
   configMaps:
     ephemeral:
-      fileName: edge-inventory-ephemeral-properties
-      existingConfig: edge-inventory-ephemeral-properties
+      fileName: edge-erm-ephemeral-properties
+      existingConfig: edge-erm-ephemeral-properties
   replicaCount: 1
   resources:
     limits:
@@ -543,7 +617,7 @@ mod-aes:
     maxUnavailable: 1
 mod-agreements:
   jmx:
-    enabled: true
+    enabled: false
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
     value: '50'
@@ -3464,6 +3538,270 @@ mod-z3950:
   pdb:
     enabled: true
     maxUnavailable: 1
+mgr-applications:
+  extraEnvVars:
+    - name: MODULE_URL
+      value: "http://mgr-applications"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
+  extraJavaOpts:
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 675Mi
+mgr-tenants:
+  extraEnvVars:
+    - name: MODULE_URL
+      value: "http://mgr-tenants"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
+  extraJavaOpts:
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 818Mi
+    requests:
+      memory: 562Mi
+mgr-tenant-entitlements:
+  extraJavaOpts:
+    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  extraEnvVars:
+    - name: MODULE_URL
+      value: "http://mgr-tenant-entitlements"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 800Mi
+mod-consortia-keycloak:
+  extraEnvVars:
+    - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
+      value: '5000'
+    - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
+      value: '5'
+    - name: SERVER_PORT
+      value: '8080'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 628Mi
+    requests:
+      memory: 494Mi
+mod-login-keycloak:
+  extraEnvVars:
+    - name: KC_ADMIN_TOKEN_TTL
+      value: '410s'
+    - name: X_OKAPI_TOKEN_HEADER_ENABLED
+      value: 'false'
+    - name: LOGIN_COOKIE_SAMESITE
+      value: 'NONE'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 563Mi
+    requests:
+      memory: 435Mi
+mod-roles-keycloak:
+  extraEnvVars:
+    - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
+    - name: CAPABILITY_TOPIC_RETRY_DELAY
+      value: '1s'
+    - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
+      value: '9223372036854775807'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-roles-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 773Mi
+    requests:
+      memory: 645Mi
+mod-users-keycloak:
+  extraEnvVars:
+    - name: MOD_USERS_URL
+      value: 'http://mod-users'
+    - name: KAFKA_SYS_USER_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
+      value: '1s'
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
+      value: '9223372036854775807'
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
+      value: '5s'
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
+      value: '60'
+    - name: MIGRATION_BATCH_SIZE
+      value: '20'
+    - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
+      value: 'false'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 582Mi
+    requests:
+      memory: 454Mi
+mod-scheduler:
+  extraEnvVars:
+    - name: KC_IMPERSONATION_CLIENT
+      value: 'impersonation-client'
+    - name: KAFKA_JOB_CONSUMER_PATTERN
+      value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
+    - name: KAFKA_JOB_CONCURRENCY
+      value: '1'
+    - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
+      value: '200'
+    - name: QUARTZ_STARTUP_DELAY
+      value: '0s'
+    - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
+      value: '10000'
+    - name: QUARTZ_MISFIRE_THRESHOLD
+      value: '250'
+    - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
+      value: '500'
+    - name: QUARTZ_POOL_THREAD_COUNT
+      value: '5'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-scheduler-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 764Mi
+    requests:
+      memory: 508Mi
+mod-okapi-facade:
+  extraEnvVars:
+    - name: AM_TLS_ENABLED
+      value: 'false'
+    - name: TM_TLS_ENABLED
+      value: 'false'
+    - name: TE_TLS_ENABLED
+      value: 'false'
+    - name: TENANT_APPS_TTL
+      value: '600s'
+    - name: AM_CLIENT_URL
+      value: http://mgr-applications
+    - name: MT_CLIENT_URL
+      value: http://mgr-tenants
+    - name: TE_URL
+      value: http://mgr-tenant-entitlements
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
 okapi:
   args:
   - cluster
