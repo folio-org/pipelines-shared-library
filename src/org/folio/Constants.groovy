@@ -19,6 +19,7 @@ class Constants {
                                         'bama',
                                         'bienenvolk',
                                         'bulk-edit',
+                                        'citation',
                                         'concorde',
                                         'consortia',
                                         'corsair',
@@ -180,6 +181,7 @@ class Constants {
 
   //Teams
   static Map ENVS_MEMBERS_LIST = ['bama'          : 'Bama',
+                                  'citation'      : 'Citation',
                                   'concorde'      : 'concorde',
                                   'consortia'     : 'thunderjet',
                                   'core-platform' : 'core-platform',
