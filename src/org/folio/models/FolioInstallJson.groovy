@@ -113,6 +113,10 @@ class FolioInstallJson {
     return this.installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
   }
 
+  FolioModule getModuleByName(String moduleName) {
+    return this.installJsonObject.find { module -> module.getName() == moduleName }
+  }
+
   /**
    * Converts the current installJsonObject into a list of maps suitable for installation JSON.
    *
