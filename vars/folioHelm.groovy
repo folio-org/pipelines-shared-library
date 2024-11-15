@@ -184,11 +184,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     println("folioHelm.generateModuleValues after eureka.enabled=true moduleName=${moduleName} moduleConfig=${moduleConfig}")
 
-    moduleConfig += (moduleConfig.sidecarContainers ? [] : [sidecarContainers: [eureka: []]])
+    moduleConfig += (moduleConfig.sidecarContainers ? [] : [sidecarContainers: [eureka: [:]]])
 
     println("folioHelm.generateModuleValues after sidecarContainers+ moduleName=${moduleName} moduleConfig=${moduleConfig}")
 
-    moduleConfig.sidecarContainers += (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: []])
+    moduleConfig.sidecarContainers += (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: [:]])
 
     println("folioHelm.generateModuleValues after sidecarContainers.eureka+ moduleName=${moduleName} moduleConfig=${moduleConfig}")
 
