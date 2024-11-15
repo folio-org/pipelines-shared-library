@@ -180,14 +180,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
     ]
 
-    moduleConfig << [
-      sidecarContainers: [
-        eureka: [
-          image: [
-            repository: "${sidecarRepository}/folio-module-sidecar",
-            tag       : ns.getModules().allModules['folio-module-sidecar']
-          ]
-        ]
+    moduleConfig << (moduleConfig.sidecarContainers ? [] : [sidecarContainers: []])
+    moduleConfig.sidecarContainers << (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: []])
+
+    moduleConfig.sidecarContainers.eureka << [
+      image: [
+        repository: "${sidecarRepository}/folio-module-sidecar",
+        tag       : ns.getModules().allModules['folio-module-sidecar']
       ]
     ]
 
@@ -197,9 +196,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
     }
   }
-
-  //Enable RTR functionality
-
 
   //mod-authtoken jwt.signing.key
   if (moduleName == 'mod-authtoken') {
