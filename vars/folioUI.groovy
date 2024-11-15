@@ -81,7 +81,6 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
   // Ensure that changes are written back to the file
   try {
     writeFile(file: stripesConfigFile, text: fileContent)
-    sh "cat ${stripesConfigFile}"
   } catch (Exception e) {
     echo "Error writing to file: ${e.message}"
     throw e
@@ -110,7 +109,6 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
   // Safely write the updated package.json file
   try {
     writeJSON(file: packageJsonFile, json: packageJson, pretty: 2)
-    sh "cat ${packageJsonFile}"
   } catch (Exception e) {
     echo "Error writing to ${packageJsonFile}: ${e.message}"
     throw e
