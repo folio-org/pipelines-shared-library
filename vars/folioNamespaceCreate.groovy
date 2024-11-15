@@ -84,10 +84,10 @@ void call(CreateNamespaceParameters args) {
       .withOkapiVersion(args.okapiVersion)
       .withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
-    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
     namespace.setEnableSplitFiles(args.splitFiles)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
     OkapiTenant defaultTenant = folioDefault.tenants()[namespace.getDefaultTenantId()]
       .withInstallJson(installJson)

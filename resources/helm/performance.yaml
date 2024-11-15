@@ -1718,7 +1718,47 @@ mod-inn-reach:
     enabled: true
     maxUnavailable: 1
 mod-inventory:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: DI_INVENTORY_INSTANCE_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_HOLDING_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_ITEM_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_INSTANCE_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_HOLDING_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_ITEM_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_INSTANCE_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_HOLDING_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_ITEM_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_INSTANCE_NOT_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_HOLDING_NOT_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_ITEM_NOT_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_NOT_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_AUTHORITY_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_HOLDINGS_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_AUTHORITY_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_INVENTORY_AUTHORITY_UPDATED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_MODIFIED_PARTITIONS
+      value: '8'
+    - name: INVENTORY_INSTANCE_INGRESS_PARTITIONS
+      value: '8'
   integrations:
     db:
       enabled: true
@@ -1739,6 +1779,7 @@ mod-inventory:
     targetMemoryUtilizationPercentage: 75
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dinventory.kafka.DataImportConsumer.loadLimit=16
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2381,7 +2422,13 @@ mod-oai-pmh:
     enabled: true
     maxUnavailable: 1
 mod-orders:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: DI_ORDER_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_ORDER_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_PENDING_ORDER_CREATED_PARTITIONS
+      value: '8'
   integrations:
     db:
       enabled: true
@@ -3164,7 +3211,27 @@ mod-settings:
     enabled: true
     maxUnavailable: 1
 mod-source-record-manager:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: DI_COMPLETED_PARTITIONS
+      value: '8'
+    - name: DI_ERROR_PARTITIONS
+      value: '8'
+    - name: DI_INCOMING_MARC_BIB_FOR_ORDER_PARSED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_RECORD_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_MARC_FOR_UPDATE_RECEIVED_PARTITIONS
+      value: '8'
+    - name: DI_MARC_FOR_DELETE_RECEIVED_PARTITIONS
+      value: '8'
+    - name: DI_INCOMING_MARC_BIB_RECORD_PARSED_PARTITIONS
+      value: '8'
+    - name: DI_INCOMING_EDIFACT_RECORD_PARSED_PARTITIONS
+      value: '8'
+    - name: DI_RAW_RECORDS_CHUNK_PARSED_PARTITIONS
+      value: '8'
   integrations:
     db:
       enabled: true
@@ -3185,6 +3252,8 @@ mod-source-record-manager:
     targetMemoryUtilizationPercentage: 75
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dsrm.kafka.DataImportConsumer.loadLimit=8
+  - -Dsrm.kafka.DataImportConsumer.globalLoadLimit=64
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3198,7 +3267,41 @@ mod-source-record-manager:
     enabled: true
     maxUnavailable: 1
 mod-source-record-storage:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: DI_PARSED_RECORDS_CHUNK_SAVED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_NOT_MATCHED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_DELETED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_HOLDING_HRID_SET_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_RECORD_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_MATCHED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
+    - name: DI_LOG_SRS_MARC_AUTHORITY_RECORD_CREATED_PARTITIONS
+      value: '8'
+    - name: DI_LOG_SRS_MARC_AUTHORITY_RECORD_UPDATED_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_RECORD_MATCHED
+      value: '8'
+    - name: DI_SRS_MARC_HOLDINGS_RECORD_NOT_MATCHED
+      value: '8'
+    - name: DI_SRS_MARC_AUTHORITY_RECORD_UPDATED
+      value: '8'
+    - name: SRS_SOURCE_RECORDS_PARTITIONS
+      value: '8'
+    - name: DI_SRS_MARC_BIB_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+      value: '8'
   integrations:
     db:
       enabled: true
@@ -3219,6 +3322,11 @@ mod-source-record-storage:
     targetMemoryUtilizationPercentage: 75
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dsrs.kafka.AuthorityDomainConsumer.loadLimit=4
+  - -Dsrs.kafka.AuthorityLinkChunkConsumer.loadLimit=4
+  - -Dsrs.kafka.DataImportConsumer.loadLimit=16
+  - -Dsrs.kafka.ParsedMarcChunkConsumer.loadLimit=16
+  - -Dsrs.kafka.QuickMarcConsumer.loadLimit=4
   startupProbe:
     httpGet:
       path: /admin/health
