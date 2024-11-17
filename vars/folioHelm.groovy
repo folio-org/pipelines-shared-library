@@ -174,23 +174,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       , ns.getModules().allModules['folio-module-sidecar']
     )
 
-    println("folioHelm.generateModuleValues moduleName=${moduleName} moduleConfig=${moduleConfig}")
-
     moduleConfig << [
       eureka: [
         enabled: true
       ]
     ]
 
-    println("folioHelm.generateModuleValues after eureka.enabled=true moduleName=${moduleName} moduleConfig=${moduleConfig}")
-
     moduleConfig += (moduleConfig.sidecarContainers ? [] : [sidecarContainers: [eureka: [:]]])
-
-    println("folioHelm.generateModuleValues after sidecarContainers+ moduleName=${moduleName} moduleConfig=${moduleConfig}")
-
     moduleConfig.sidecarContainers += (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: [:]])
-
-    println("folioHelm.generateModuleValues after sidecarContainers.eureka+ moduleName=${moduleName} moduleConfig=${moduleConfig}")
 
     moduleConfig.sidecarContainers.eureka << [
       image: [
@@ -198,8 +189,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         tag       : ns.getModules().allModules['folio-module-sidecar']
       ]
     ]
-
-    println("folioHelm.generateModuleValues after sidecarContainers.eureka.image+ moduleName=${moduleName} moduleConfig=${moduleConfig}")
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
       case ~/mod-.*-keycloak/:
