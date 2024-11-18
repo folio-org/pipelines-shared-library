@@ -166,6 +166,40 @@ edge-dematic:
       memory: 222Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+edge-erm:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /erm*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-erm-ephemeral-properties
+      existingConfig: edge-erm-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 340Mi
+    requests:
+      memory: 295Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
 edge-fqm:
   ingress:
     enabled: true
