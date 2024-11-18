@@ -78,3 +78,4 @@ edge-dcb:
     password: password
   permissions:
   - dcb.all
+edge-erm: {}

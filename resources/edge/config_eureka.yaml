@@ -100,3 +100,4 @@ edge-dcb:
     password: password
   capabilitiesSet:
   - dcb.manage
+edge-erm: {}
