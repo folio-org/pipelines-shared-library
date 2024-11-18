@@ -55,6 +55,20 @@ class OkapiTenantConsortia extends OkapiTenant {
   }
 
   /**
+   * Chainable setter for install JSON.
+   * This method sets the installation JSON object while ensuring that specific
+   * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
+   *
+   * @param installJson The install JSON object.
+   * @return The OkapiTenant object for method chaining.
+   */
+  @Override
+  OkapiTenant withInstallJson(Object installJson) {
+    this.getModules().setInstallJsonObject(installJson)
+    return this
+  }
+
+  /**
    * Chainable setter for installation request parameters.
    * This method allows for setting installation request parameters for the tenant.
    * It removes the "loadSample" tenant parameter for non-central consortia tenants.
