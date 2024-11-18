@@ -716,6 +716,12 @@ mod-batch-print:
     enabled: true
     maxUnavailable: 1
 mod-bulk-operations:
+  jmx:
+    enabled: true
+    agentVersion: 0.19.0
+    agentPath: /jmx_exporter
+    port: 9991
+  heapDumpEnabled: true
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
