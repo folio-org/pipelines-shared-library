@@ -56,7 +56,7 @@ ansiColor('xterm') {
 
     try {
       stage('Set properties') {
-        namespace.getModules().setInstallJson(main.getInstallJson(params.BASE_TENANT_ID))
+        namespace.getModules().setInstallJsonObject(main.getInstallJson(params.BASE_TENANT_ID))
         namespace.setEnableConsortia(true)
 
         folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->

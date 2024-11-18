@@ -1815,6 +1815,8 @@ mod-linked-data:
       memory: 1024Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dspring.profiles.active=folio,search
+  - -Dserver.port=8081
   startupProbe:
     httpGet:
       path: /admin/health

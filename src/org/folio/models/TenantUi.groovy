@@ -1,5 +1,6 @@
 package org.folio.models
 
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Constants
 
 /**
@@ -31,6 +32,8 @@ class TenantUi implements Cloneable {
   /** Workspace of the tenant. */
   String workspace
 
+  List<FolioModule> customUiModules = []
+
   /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.
    * @param workspace The workspace of the tenant.
@@ -61,5 +64,20 @@ class TenantUi implements Cloneable {
       this.tag = "${this.workspace}.${this.tenantId}.${this.hash.take(7)}"
       this.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${IMAGE_NAME}:${this.tag}"
     }
+  }
+
+  /**
+   * Clones the TenantUi object. Performs a deep clone of the list customUiModules.
+   * @return A new TenantUi object with copied properties.
+   */
+  @Override
+  TenantUi clone() {
+    // Create a shallow clone of the current object
+    TenantUi cloned = (TenantUi) super.clone()
+
+    // Deep clone the customUiModules list to ensure no shared references
+    cloned.customUiModules = this.customUiModules.collect { it.clone() }
+
+    return cloned
   }
 }

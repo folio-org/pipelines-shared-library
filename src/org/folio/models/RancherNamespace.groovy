@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Constants
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
@@ -25,7 +26,7 @@ class RancherNamespace {
 
   String okapiVersion
 
-  Modules modules = new Modules()
+  FolioInstallJson modules = new FolioInstallJson()
 
   OkapiTenant superTenant = new OkapiTenant("supertenant")
 
@@ -74,9 +75,10 @@ class RancherNamespace {
     return this
   }
 
+  @Deprecated
   void setEnableConsortia(boolean enableConsortia, boolean releaseVersion = false) {
-    this.modules.addModules([this.modules.getModuleVersion('mod-consortia', releaseVersion),
-                             this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
+//    this.modules.addModules([this.modules.getModuleVersion('mod-consortia', releaseVersion),
+//                             this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
     this.enableConsortia = enableConsortia
   }
 
@@ -91,12 +93,29 @@ class RancherNamespace {
    */
   void addTenant(OkapiTenant tenant) {
     if (tenant.tenantId.toLowerCase() == "supertenant") {
-      throw new IllegalArgumentException("Cannot add 'supertenant' to tenant map. As it is already exists")
+      throw new IllegalArgumentException("Cannot add 'supertenant' to tenant map. As it already exists")
     }
+
+    // Compare modules of RancherNamespace with OkapiTenant
+    List<FolioModule> tenantModules = tenant.modules.installJsonObject
+    List<FolioModule> namespaceModules = this.modules.installJsonObject
+
+    // Create a set of RancherNamespace module IDs for quick lookup
+    Set<String> rancherModuleIds = namespaceModules*.id as Set
+
+    // Iterate over OkapiTenant modules and add any missing to RancherNamespace
+    tenantModules.each { tenantModule ->
+      if (!rancherModuleIds.contains(tenantModule.id)) {
+        this.modules.addModule(tenantModule.id, tenantModule.action)
+      }
+    }
+
+    // Proceed with the rest of the addTenant logic
     if (tenant.tenantUi) {
       tenant.tenantUi.domain = generateDomain(tenant.tenantId)
       tenant.okapiConfig.resetPasswordLink = "https://" + tenant.tenantUi.domain
     }
+
     this.tenants.put(tenant.tenantId, tenant)
     updateConsortiaTenantsConfig()
   }

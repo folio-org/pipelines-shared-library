@@ -1,10 +1,12 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 
 /**
  * OkapiTenant class representing a tenant configuration for Okapi.
- * It provides chainable setter methods following builder pattern for ease of use.
+ * It provides chainable setter methods following the builder pattern for ease of use.
  */
 // TODO: Rename to Tenant
 class OkapiTenant extends DTO{
@@ -21,16 +23,18 @@ class OkapiTenant extends DTO{
   User adminUser
 
   /** Modules that are installed for the tenant. */
-  Modules modules
+  FolioInstallJson modules = new FolioInstallJson()
+
+  List<String> enabledExtensions = []
 
   /** List of index information associated with the tenant. */
-  List<Index> indexes
+  List<Index> indexes = new ArrayList<>()
 
   /** Parameters for installation requests for the tenant. */
-  InstallRequestParams installRequestParams
+  InstallRequestParams installRequestParams = new InstallRequestParams()
 
   /** Okapi configuration for the tenant. */
-  OkapiConfig okapiConfig
+  OkapiConfig okapiConfig = new OkapiConfig()
 
   /** User Interface (UI) details for the tenant. */
   TenantUi tenantUi
@@ -43,14 +47,14 @@ class OkapiTenant extends DTO{
    */
   OkapiTenant(String tenantId) {
     this.tenantId = tenantId
-    this.modules = new Modules()
-    this.indexes = new ArrayList<>()
   }
 
   /**
    * Chainable setter for tenant's name.
+   * This method allows for setting the name of the tenant in a fluent manner.
+   *
    * @param tenantName Name of the tenant.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withTenantName(String tenantName) {
     this.tenantName = tenantName
@@ -59,8 +63,10 @@ class OkapiTenant extends DTO{
 
   /**
    * Chainable setter for tenant's description.
+   * This method allows for setting the description of the tenant in a fluent manner.
+   *
    * @param tenantDescription Description of the tenant.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withTenantDescription(String tenantDescription) {
     this.tenantDescription = tenantDescription
@@ -68,9 +74,11 @@ class OkapiTenant extends DTO{
   }
 
   /**
-   * Chainable setter for admin user.
+   * Chainable setter for the administrator user.
+   * This method allows for specifying the admin user of the tenant in a fluent manner.
+   *
    * @param adminUser Administrator user of the tenant.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withAdminUser(User adminUser) {
     this.adminUser = adminUser
@@ -79,18 +87,22 @@ class OkapiTenant extends DTO{
 
   /**
    * Chainable setter for install JSON.
-   * It removes 'mod-consortia' and 'folio_consortia-settings' modules.
+   * This method sets the installation JSON object while ensuring that specific
+   * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
+   *
    * @param installJson The install JSON object.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withInstallJson(Object installJson) {
-    this.modules.setInstallJson(installJson)
-    this.modules.removeModules(['mod-consortia', 'folio_consortia-settings'])
+    this.modules.setInstallJsonObject(installJson)
+    this.modules.removeModulesByName(['mod-consortia', 'folio_consortia-settings'])
     return this
   }
 
   /**
    * Method to add an index to the tenant.
+   * This method allows for adding an Index object to the tenant's index list in a fluent manner.
+   *
    * @param index The Index object to add.
    * @return The OkapiTenant instance for method chaining.
    */
@@ -100,9 +112,11 @@ class OkapiTenant extends DTO{
   }
 
   /**
-   * Chainable setter for install request parameters.
+   * Chainable setter for installation request parameters.
+   * This method allows for setting the parameters for installation requests in a fluent manner.
+   *
    * @param installRequestParams Parameters for installation requests for the tenant.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withInstallRequestParams(InstallRequestParams installRequestParams) {
     this.installRequestParams = installRequestParams
@@ -111,9 +125,11 @@ class OkapiTenant extends DTO{
 
   /**
    * Chainable setter for Okapi configuration.
-   * It performs a deep copy of the configuration object.
-   * @param config The OkapiConfig object.
-   * @return The OkapiTenant object.
+   * This method allows for setting the Okapi configuration for the tenant,
+   * performing a deep copy of the configuration object.
+   *
+   * @param okapiConfig The OkapiConfig object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withConfiguration(OkapiConfig okapiConfig) {
     this.okapiConfig = okapiConfig
@@ -122,8 +138,11 @@ class OkapiTenant extends DTO{
 
   /**
    * Chainable setter for tenant UI.
+   * This method allows for setting the User Interface (UI) details for the tenant.
+   * It also associates the tenant ID with the UI details.
+   *
    * @param tenantUi User Interface (UI) details for the tenant.
-   * @return The OkapiTenant object.
+   * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withTenantUi(TenantUi tenantUi) {
     this.tenantUi = tenantUi
@@ -133,7 +152,7 @@ class OkapiTenant extends DTO{
 
   @NonCPS
   @Override
-  String toString(){
+  String toString() {
     return """
       "class_name": "OkapiTenant",
       "tenantId": "$tenantId",
@@ -142,5 +161,46 @@ class OkapiTenant extends DTO{
       "modules": $modules,
       "indexes": $indexes
     """
+  }
+
+  /**
+   * Enables specified Folio extensions for the tenant.
+   * This method retrieves the latest version of each specified extension module
+   * and adds them to the tenant's installed modules.
+   *
+   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param extensions List of extension IDs to enable.
+   * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
+   */
+  void enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+    extensions.each { extentionId ->
+      List modulesList = getExtensionModulesList(script, extentionId)
+      modulesList*.id.each { moduleName ->
+        if (!this.modules.installJsonObject.any { module -> (module.name == moduleName) }) {
+          String moduleId = new FolioModule().getLatestVersionFromRegistry(moduleName, isRelease)
+          this.modules.addModule(moduleId, 'enable')
+        }
+        FolioModule module = this.modules.getModuleByName(moduleName)
+        if (this.tenantUi && module.type == ModuleType.FRONTEND) {
+          this.tenantUi.customUiModules.add(module)
+        }
+      }
+    }
+
+    this.enabledExtensions = extensions
+  }
+
+  /**
+   * Retrieves a list of module names associated with the specified extension.
+   * This method reads the JSON file for the extension and returns the list of modules.
+   *
+   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param extensionName The name of the extension to retrieve modules for.
+   * @return A list of module names associated with the extension.
+   */
+  @SuppressWarnings('GrMethodMayBeStatic')
+  List getExtensionModulesList(def script, String extensionName) {
+    final String EXTENSIONS_PATH = 'folio-extensions'
+    return script.readJSON(text: script.libraryResource("${EXTENSIONS_PATH}/${extensionName}.json"))
   }
 }

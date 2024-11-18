@@ -132,7 +132,7 @@ ansiColor('xterm') {
           }
         }
 
-        namespace.getModules().setInstallJson(installJson)
+        namespace.getModules().setInstallJsonObject(installJson)
       }
 
       stage('Install') {
