@@ -103,7 +103,7 @@ class FolioModule {
 
     // Adjust request parameters based on module type
     switch (moduleName) {
-      case ~/mod-.*/:
+      case ~/(mod-|mgr)-.*/:
         reqParams += "&preRelease=${isRelease ? 'false' : 'only'}"
         break
       case ~/folio_.*/:
@@ -150,6 +150,8 @@ class FolioModule {
         return ModuleType.EDGE
       case ~/^folio_.*/:
         return ModuleType.FRONTEND
+      case ~/^mgr-.*/:
+        return ModuleType.MGR
       case 'okapi':
         return ModuleType.OKAPI
       default:
