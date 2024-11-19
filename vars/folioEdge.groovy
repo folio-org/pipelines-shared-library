@@ -62,42 +62,28 @@ void renderEphemeralProperties(RancherNamespace namespace) {
 
 void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   Tools tools = new Tools(this)
-  Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
   Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
   List mappings = []
   String users = ''
 
-  def json = tools.steps.sh(script: "curl --silent https://${namespace.generateDomain('kong')}/tenants", returnStdout: true)
-
-  common.logger.info("Response: ${json}")
-
-  def dataToProcess = tools.jsonParse(json as String)
-
-  common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
-
-  if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
-    mappings.add('fs09000000')
-  } else {
-    mappings.add('diku')
-  }
-
-  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
-    if (candidate['name']) {
-      common.logger.info("Binding tenant: " + candidate['name'])
-      def tenant = folioDefault.tenants()[candidate['name']]
+  namespace.tenants.each { tenant_id, tenant_info ->
+    if (tenant_id) {
+      common.logger.info("Binding tenant: " + tenant_id)
+      def tenant = folioDefault.tenants()[tenant_id]
       users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
-      common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
+      users += tenant.getTenantId() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
+      common.logger.info("Tenant: " + tenant_id + " bind complete.")
     }
   }
 
   namespace.getModules().getEdgeModules().each { name, version ->
-    def tenants = dataToProcess['tenants']['name'] as List
     String institutionalUsers = ''
+    def tenants = []
     if (edgeConfig[(name)]['tenants']) {
       edgeConfig[(name)]['tenants'].each { institutional ->
         if (institutional.tenant == 'default') {
-          tenants.each { tenantName ->
+          namespace.tenants.each { tenantName, tenant_info ->
             institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
           }
         } else {
