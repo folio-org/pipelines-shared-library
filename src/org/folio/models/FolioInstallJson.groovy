@@ -23,7 +23,7 @@ class FolioInstallJson {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  List<FolioModule> setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
+  FolioInstallJson setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
     this.installJsonObject = installJsonOrig.collect {
       module -> new FolioModule().loadModuleDetails(module['id'], module['action'])
     }
@@ -191,7 +191,7 @@ class FolioInstallJson {
    * @param modules the list of FolioModules to convert.
    * @return a list of discovery details for the modules.
    */
-  private List _convertToDiscoveryList(List<FolioModule> modules) {
+  private static List _convertToDiscoveryList(List<FolioModule> modules) {
     return modules.collect { module -> module?.discovery }
   }
 
