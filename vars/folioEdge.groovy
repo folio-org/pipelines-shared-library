@@ -77,6 +77,12 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     }
   }
 
+  if ('fs09000000' == namespace.getDefaultTenantId()) {
+    mappings.add('fs09000000')
+  } else {
+    mappings.add('diku')
+  }
+
   namespace.getModules().getEdgeModules().each { name, version ->
     String institutionalUsers = ''
     def tenants = []
