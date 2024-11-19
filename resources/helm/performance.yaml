@@ -2205,8 +2205,13 @@ mod-login:
     enabled: true
     maxUnavailable: 1
 mod-login-saml:
-  extraEnvVars: []
-  integrations: {}
+  extraEnvVars:
+    - name: DB_MAXPOOLSIZE
+      value: '20'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
