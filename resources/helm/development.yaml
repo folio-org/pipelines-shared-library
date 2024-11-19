@@ -1898,7 +1898,10 @@ mod-login:
     maxUnavailable: 1
 mod-login-saml:
   extraEnvVars: []
-  integrations: {}
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
