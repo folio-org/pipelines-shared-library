@@ -72,8 +72,8 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     if (tenant_id) {
       common.logger.info("Binding tenant: " + tenant_id)
       def tenant = folioDefault.tenants()[tenant_id]
-      users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
-      users += tenant.getTenantId() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
+      users += tenant_id.toString() + '=' + tenant_info.getAdminUser().getUsername() + ',' + tenant_info.getAdminUser().getPasswordPlainText() + '\n'
+      users += tenant_id.toString() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
       common.logger.info("Tenant: " + tenant_id + " bind complete.")
     }
   }
