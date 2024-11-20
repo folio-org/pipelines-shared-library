@@ -71,7 +71,7 @@ void edge(RancherNamespace namespace, boolean skipEdgeUsersCreation = false, Clo
 
   stage('[Helm] Deploy edge') {
     folioHelm.withKubeConfig(namespace.getClusterName()) {
-      Map edgeModules = namespace.getModules().getEdgeModules() // Store result in a variable for efficiency
+      List edgeModules = namespace.getModules().getEdgeModules() // Store result in a variable for efficiency
       edgeModules.each { name, version ->
         kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
       }
