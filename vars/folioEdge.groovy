@@ -105,6 +105,9 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
       tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
       common.logger.info("ephemeralProperties file for module ${name} created.")
+    } else {
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: "dummy data"
+      common.logger.info("Dummy ephemeralProperties file for module ${name} created.")
     }
   }
 }
