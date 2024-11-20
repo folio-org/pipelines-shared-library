@@ -1,8 +1,8 @@
-#!groovy
+`#!groovy
 import org.folio.Constants
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library'@RNACHER-1600-2) _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
