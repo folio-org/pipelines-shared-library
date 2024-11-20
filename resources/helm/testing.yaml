@@ -742,7 +742,7 @@ mod-bulk-operations:
     requests:
       memory: 2900Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 80
