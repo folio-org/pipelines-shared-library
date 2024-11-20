@@ -1,4 +1,4 @@
-`#!groovy
+#!groovy
 import org.folio.Constants
 import org.folio.models.TerraformConfig
 
