@@ -144,7 +144,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 6
+        max_size     = 4
         desired_size = 1
 
         taints = {
@@ -180,7 +180,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 6
+        max_size     = 4
         desired_size = 1
 
         taints = {
