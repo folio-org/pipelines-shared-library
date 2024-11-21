@@ -94,9 +94,15 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
+    logger.debug("folioNamespaceCreateEureka before removing modules:")
+    logger.debug(namespace.getModules().installJsonObject)
+
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     namespace.getModules().removeModuleByName('mod-login')
     namespace.getModules().removeModuleByName('mod-authtoken')
+
+    logger.debug("folioNamespaceCreateEureka after removing modules:")
+    logger.debug(namespace.getModules().installJsonObject)
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
