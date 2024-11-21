@@ -173,6 +173,8 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
+    input message: 'Deploy mgr and reg applications?'
+
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
@@ -194,6 +196,8 @@ void call(CreateNamespaceParameters args) {
         , namespace.getTenants().values() as List<EurekaTenant>
       )
     }
+
+    input message: 'Continue deploy?'
 
     stage('[Helm] Deploy modules') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
