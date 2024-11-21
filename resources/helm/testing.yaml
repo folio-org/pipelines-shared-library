@@ -1833,6 +1833,8 @@ mod-inventory-storage:
     value: '1'
   - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
     value: '2'
+  - name: ECS_TLR_FEATURE_ENABLED
+    value: 'true'
   integrations:
     db:
       enabled: true

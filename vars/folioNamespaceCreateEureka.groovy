@@ -249,6 +249,7 @@ void call(CreateNamespaceParameters args) {
                                    custom_tag          : ui.getTag(),
                                    consortia           : tenant instanceof EurekaTenantConsortia,
                                    clientId            : ui.getTenantId() + "-application",
+                                   enableEcsRequests   : true,
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]
 
