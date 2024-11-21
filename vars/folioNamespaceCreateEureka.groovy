@@ -143,30 +143,30 @@ void call(CreateNamespaceParameters args) {
       .defineKeycloakTTL()
 
     // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
-    stage('[ASG] configure') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        def nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
-
-        def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
-          "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
-          "--region ${Constants.AWS_REGION}", returnStdout: true)
-        writeJSON file: 'asg.json', json: asg_json
-        def asg_data = readJSON file: './asg.json'
-        sh(script: "aws autoscaling set-desired-capacity " +
-          "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
-          "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
-          "--region ${Constants.AWS_REGION}")
-
-        //Make sure that the new node has joined target EKS cluster
-        def nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
-
-        while (nodes_before.toInteger() == nodes_after.toInteger()) {
-          logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
-          nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
-          sleep time: 10, unit: "SECONDS"
-        }
-      }
-    }
+//    stage('[ASG] configure') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        def nodes_before = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+//
+//        def asg_json = sh(script: "aws autoscaling describe-auto-scaling-groups " +
+//          "--filters \"Name=tag:\"eks:cluster-name\",Values=${namespace.getClusterName()}\" " +
+//          "--region ${Constants.AWS_REGION}", returnStdout: true)
+//        writeJSON file: 'asg.json', json: asg_json
+//        def asg_data = readJSON file: './asg.json'
+//        sh(script: "aws autoscaling set-desired-capacity " +
+//          "--auto-scaling-group-name ${asg_data.AutoScalingGroups[0].AutoScalingGroupName} " +
+//          "--desired-capacity ${asg_data.AutoScalingGroups[0].DesiredCapacity + 1} " +
+//          "--region ${Constants.AWS_REGION}")
+//
+//        //Make sure that the new node has joined target EKS cluster
+//        def nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+//
+//        while (nodes_before.toInteger() == nodes_after.toInteger()) {
+//          logger.debug("New worker node is joining to cluster: ${namespace.getClusterName()}...")
+//          nodes_after = sh(script: "kubectl get nodes --no-headers | wc -l", returnStdout: true).trim()
+//          sleep time: 10, unit: "SECONDS"
+//        }
+//      }
+//    }
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -200,8 +200,7 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioEdge.renderEphemeralPropertiesEureka(namespace)
-        folioEdge.renderEphemeralProperties(namespace)
+        folioEdge.renderEphemeralPropertiesEureka(namespace)
         namespace.getModules().getEdgeModules().each { name, version ->
           kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }

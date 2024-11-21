@@ -68,36 +68,28 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   List mappings = []
   String users = ''
 
-  def json = tools.steps.sh(script: "curl --silent https://${namespace.generateDomain('kong')}/tenants", returnStdout: true)
+  namespace.tenants.each { tenant_id, tenant_info ->
+    if (tenant_id) {
+      common.logger.info("Binding tenant: " + tenant_id)
+      def tenant = folioDefault.tenants()[tenant_id]
+      users += tenant_id.toString() + '=' + tenant_info.getAdminUser().getUsername() + ',' + tenant_info.getAdminUser().getPasswordPlainText() + '\n'
+      common.logger.info("Tenant: " + tenant_id + " bind complete.")
+    }
+  }
 
-  common.logger.info("Response: ${json}")
-
-  def dataToProcess = tools.jsonParse(json as String)
-
-  common.logger.info("List of existing tenants: ${dataToProcess['tenants']['name']}")
-
-  if ('fs09000000' in dataToProcess['tenants']['name']) { // to the mappings part
+  if ('fs09000000' == namespace.getDefaultTenantId()) {
     mappings.add('fs09000000')
   } else {
     mappings.add('diku')
   }
 
-  dataToProcess['tenants'].each { candidate -> // real existing tenant's metadata include
-    if (candidate['name']) {
-      common.logger.info("Binding tenant: " + candidate['name'])
-      def tenant = folioDefault.tenants()[candidate['name']]
-      users += tenant.getTenantId() + '=' + tenant.getAdminUser().getUsername() + ',' + tenant.getAdminUser().getPasswordPlainText() + '\n'
-      common.logger.info("Tenant: " + candidate['name'] + " bind complete.")
-    }
-  }
-
   namespace.getModules().getEdgeModules().each { name, version ->
-    def tenants = dataToProcess['tenants']['name'] as List
     String institutionalUsers = ''
+    def tenants = []
     if (edgeConfig[(name)]['tenants']) {
       edgeConfig[(name)]['tenants'].each { institutional ->
         if (institutional.tenant == 'default') {
-          tenants.each { tenantName ->
+          namespace.tenants.each { tenantName, tenant_info ->
             institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
           }
         } else {
@@ -105,7 +97,16 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
           institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
         }
       }
+      if (name == 'edge-oai-pmh') {
+        namespace.getTenants().each { tenant_id, tenant ->
+          users += tenant_id.toString() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
+        }
+      }
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
+      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${name} created.")
+    } else {
+      LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: '']
       tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
       common.logger.info("ephemeralProperties file for module ${name} created.")
     }
