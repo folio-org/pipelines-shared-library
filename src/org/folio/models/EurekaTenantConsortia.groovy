@@ -59,7 +59,7 @@ class EurekaTenantConsortia extends EurekaTenant {
    * @return The OkapiTenantConsortia object.
    */
   EurekaTenantConsortia withInstallJson(Object installJson) {
-    this.getModules().setInstallJson(installJson)
+    this.getModules().setInstallJsonObject(installJson)
     return this
   }
 
@@ -74,6 +74,30 @@ class EurekaTenantConsortia extends EurekaTenant {
     if (!this.isCentralConsortiaTenant) {
       this.getInstallRequestParams().removeTenantParameter("loadSample")
     }
+    return this
+  }
+
+  /**
+   * Enables specified Folio extensions for the consortia tenant.
+   * This method retrieves the latest version of each specified extension module
+   * and adds them to the tenant's installed modules. Additionally, it removes the
+   * 'folio_consortia-settings' module if this tenant is not the central consortia tenant.
+   *
+   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param extensions List of extension IDs to enable.
+   * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
+   */
+  @Override
+  EurekaTenantConsortia enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+    super.enableFolioExtensions(script, extensions, isRelease)
+    // Remove the 'folio_consortia-settings, folio_ld-folio-wrapper, and mod-linked-data' module if this tenant is not
+    // the central consortia tenant
+    if (!this.isCentralConsortiaTenant) {
+      this.getModules().removeModuleByName('folio_consortia-settings')
+      this.getModules().removeModuleByName('folio_ld-folio-wrapper')
+      this.getModules().removeModuleByName('mod-linked-data')
+    }
+
     return this
   }
 
