@@ -4,7 +4,7 @@ package org.folio.models
  * Represents a Rancher Eureka namespace and its configuration.*/
 class EurekaNamespace extends RancherNamespace {
 
-  EurekaModules modules = new EurekaModules()
+  EurekaInstallJson modules = new EurekaInstallJson()
 
   Map<String, EurekaTenant> tenants = [:]
 
@@ -37,12 +37,5 @@ class EurekaNamespace extends RancherNamespace {
     return tenants.values().find {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
     } as EurekaTenantConsortia
-  }
-
-  @Override
-  void setEnableConsortia(boolean enableConsortia, boolean releaseVersion = false) {
-    this.modules.addModules([this.modules.getModuleVersion('mod-consortia-keycloak', releaseVersion),
-                             this.modules.getModuleVersion('folio_consortia-settings', releaseVersion)])
-    this.enableConsortia = enableConsortia
   }
 }
