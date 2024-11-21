@@ -82,6 +82,7 @@ void call(CreateNamespaceParameters args) {
     installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken)-\d+\..*/ }
 
     logger.debug("folioNamespaceCreateEureka installJson after changing installJson:")
+    logger.debug(installJson)
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
