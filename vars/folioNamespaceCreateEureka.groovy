@@ -112,6 +112,18 @@ void call(CreateNamespaceParameters args) {
     logger.debug("folioNamespaceCreateEureka after removing modules:")
     logger.debug(namespace.getModules().installJsonObject)
 
+    folioDefault.tenants()[namespace.getDefaultTenantId()]
+            .convertTo(EurekaTenant.class)
+//            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+//            .withInstallJson(installJson)
+//            .withIndex(new Index('instance', true, true))
+//            .withIndex(new Index('authority', true, false))
+//            .withInstallRequestParams(installRequestParams.clone())
+//            .withTenantUi(tenantUi.clone())
+//            .enableFolioExtensions(this, args.folioExtensions - 'consortia')
+
+    logger.debug("folioNamespaceCreateEureka before adding default tenant")
+
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
