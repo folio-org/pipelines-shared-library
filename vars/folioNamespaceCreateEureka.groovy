@@ -124,6 +124,8 @@ void call(CreateNamespaceParameters args) {
         .enableFolioExtensions(this, args.folioExtensions - 'consortia')
     )
 
+    logger.debug("folioNamespaceCreateEureka after adding default tenant")
+
     if (args.folioExtensions.contains('consortia')) {
       namespace.setEnableConsortia(true, isRelease)
 
