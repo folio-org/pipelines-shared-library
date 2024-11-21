@@ -100,11 +100,11 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> moduleList){
+  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules){
     Map<String, String> apps = [:]
 
     appNames.each {appName, appBranch ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList, appBranch, getDebug())
+      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
     }
@@ -124,21 +124,21 @@ class Eureka extends Base {
   }
 
   Map<String, String> registerApplicationsFlow(Map<String, String> appNames
-                                               , EurekaModules modules
+                                               , Map<String, String> modules
                                                , List<EurekaTenant> tenants){
 
-    Map<String, String> registeredApps = registerApplications(appNames, modules.getAllModules())
+    Map<String, String> registeredApps = registerApplications(appNames, modules)
 
     assignAppToTenants(tenants, registeredApps)
 
     return registeredApps
   }
 
-  Eureka registerModulesFlow(EurekaModules modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
-    updateRegisteredModules(modules, apps)
-
-    if(tenants)
-      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
+  Eureka registerModulesFlow(EurekaInstallJson modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
+//    updateRegisteredModules(modules, apps)
+//
+//    if(tenants)
+//      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
 
     Applications.get(kong).registerModules(
       [
@@ -149,25 +149,25 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka updateTenantRegisteredModules(EurekaTenant tenant, Map<String, String> apps){
-    updateRegisteredModules(tenant.getModules(), apps)
+//  Eureka updateTenantRegisteredModules(EurekaTenant tenant, Map<String, String> apps){
+//    updateRegisteredModules(tenant.getModules(), apps)
+//
+//    return this
+//  }
 
-    return this
-  }
-
-  Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
-    List restrictionList = []
-    apps.values().each {appId ->
-      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
-        if(!restrictionList.contains(module.id))
-          restrictionList.add(module.id)
-      }
-    }
-
-    modules.updateDiscoveryList(restrictionList)
-
-    return this
-  }
+//  Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
+//    List restrictionList = []
+//    apps.values().each {appId ->
+//      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
+//        if(!restrictionList.contains(module.id))
+//          restrictionList.add(module.id)
+//      }
+//    }
+//
+//    modules.updateDiscoveryList(restrictionList)
+//
+//    return this
+//  }
 
   /**
    * Sets up a consortia with the given tenants.
@@ -279,7 +279,7 @@ class Eureka extends Base {
    * @param module FolioModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModules modules, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaInstallJson modules, FolioModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 

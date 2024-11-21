@@ -96,6 +96,15 @@ class FolioInstallJson {
   }
 
   /**
+   * Retrieves all edge modules from the installJsonObject.
+   *
+   * @return a list of edge FolioModules.
+   */
+  List<FolioModule> getMgrModules() {
+    return _getModulesByType(ModuleType.MGR)
+  }
+
+  /**
    * Retrieves all UI modules from the installJsonObject.
    *
    * @return a list of frontend FolioModules.
@@ -124,6 +133,18 @@ class FolioInstallJson {
    */
   List<Map<String, String>> getInstallJson() {
     return _convertToInstallJson(this.installJsonObject)
+  }
+
+  /**
+   * Retrieves Map contains all modules in the
+   * module name : module version format
+   *
+   * @return a module name : module version map.
+   */
+  Map<String, String> getModuleVersionMap(){
+    return this.installJsonObject.collectEntries {module ->
+      [(module.name): module.version]
+    }
   }
 
   /**
