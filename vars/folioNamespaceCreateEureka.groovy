@@ -79,7 +79,7 @@ void call(CreateNamespaceParameters args) {
     logger.debug("folioNamespaceCreateEureka installJson before changing installJson:")
     logger.debug(installJson)
 
-    installJson.removeAll{ module -> module.id =~ /${moduleName}-\d+\..*/ }
+    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken)-\d+\..*/ }
 
     logger.debug("folioNamespaceCreateEureka installJson after changing installJson:")
 
