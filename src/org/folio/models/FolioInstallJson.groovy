@@ -33,7 +33,7 @@ class FolioInstallJson<T extends FolioModule> {
     if(context)
       context.println("I'm in FolioInstallJson.setInstallJsonObject")
 
-    installJsonObject = installJsonOrig.collect(({
+    this.installJsonObject = installJsonOrig.collect(({
       module -> moduleType.getDeclaredConstructor().newInstance()
         .loadModuleDetails(module['id'] as String, module['action'] as String, context)
     } as Closure<T>))
