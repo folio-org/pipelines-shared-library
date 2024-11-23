@@ -109,10 +109,6 @@ void call(CreateNamespaceParameters args) {
         .enableFolioExtensions(this, args.folioExtensions - 'consortia')
     )
 
-    logger.debug("folioNamespaceCreateEureka after adding default tenant")
-    logger.debug(namespace.tenants["diku"].modules.installJsonObject)
-    input message: "Add additional tenants?"
-
     if (args.folioExtensions.contains('consortia')) {
       namespace.setEnableConsortia(true, isRelease)
 
@@ -129,6 +125,12 @@ void call(CreateNamespaceParameters args) {
         tenant.enableFolioExtensions(this, args.folioExtensions)
         namespace.addTenant(tenant)
       }
+    }
+
+    logger.debug("folioNamespaceCreateEureka after adding tenants")
+    namespace.tenants.each {tenant ->
+      logger.debug("${tenant.value.uuid}:")
+      logger.debug(tenant.value.modules.installJsonObject)
     }
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
