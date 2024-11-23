@@ -77,6 +77,9 @@ class EurekaTenant extends OkapiTenant {
    * @return The OkapiTenant object for method chaining.
    */
   EurekaTenant withInstallJson(List<Map<String, String>> installJson, def context = null) {
+    if(context)
+      context.println("I'm in EurekaTenant.withInstallJson")
+
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
 
