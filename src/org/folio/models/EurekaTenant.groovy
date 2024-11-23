@@ -75,8 +75,14 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  OkapiTenant withInstallJson(Object installJson) {
+  OkapiTenant withInstallJson(Object installJson, def context = null) {
+    if(context)
+      context.println("I'm in the EurekaTenant.withInstallJson")
+
     super.withInstallJson(installJson)
+
+    if(context)
+      context.println("I'm in the EurekaTenant.withInstallJson after the super method call.")
 
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
     return this
