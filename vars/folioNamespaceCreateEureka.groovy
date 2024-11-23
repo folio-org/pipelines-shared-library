@@ -114,7 +114,7 @@ void call(CreateNamespaceParameters args) {
 
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
         .values().each { tenant ->
-        tenant.withInstallJson(namespace.getModules().getInstallJson())
+        tenant.withInstallJson(installJson)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
         if (tenant.getIsCentralConsortiaTenant()) {
@@ -128,6 +128,8 @@ void call(CreateNamespaceParameters args) {
     }
 
     logger.debug("folioNamespaceCreateEureka after adding tenants")
+    logger.debug("installJson:")
+    logger.debug(installJson)
     namespace.tenants.each {tenant ->
       logger.debug("${tenant.value.tenantId}:")
       logger.debug(tenant.value.modules.installJsonObject)
