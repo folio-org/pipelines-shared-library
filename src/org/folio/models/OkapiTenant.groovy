@@ -94,7 +94,7 @@ class OkapiTenant extends DTO{
    * @return The OkapiTenant object for method chaining.
    */
   OkapiTenant withInstallJson(Object installJson, def context = null) {
-    this.modules.setInstallJsonObject(installJson)
+    this.modules.setInstallJsonObject(installJson, context)
 
     if(context)
       context.println("I'm in the OkapiTenant.withInstallJson after the this.modules.setInstallJsonObject")
