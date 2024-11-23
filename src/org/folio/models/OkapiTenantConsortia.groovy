@@ -65,7 +65,7 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @return The OkapiTenant object for method chaining.
    */
   @Override
-  OkapiTenant withInstallJson(Object installJson) {
+  OkapiTenantConsortia withInstallJson(Object installJson) {
     this.getModules().setInstallJsonObject(installJson)
     return this
   }
