@@ -77,14 +77,11 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  EurekaTenant withInstallJson(Object installJson, def context = null) {
+  EurekaTenant withInstallJson(List<Map<String, String>> installJson, def context = null) {
+    modules = new FolioInstallJson(EurekaModule.class)
+
     if(context) {
       context.println("I'm in the EurekaTenant.withInstallJson")
-      context.println("I'm in the EurekaTenant.withInstallJson modules.moduleType:${modules.moduleType}")
-      context.println("I'm in the EurekaTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
-
-      modules = new FolioInstallJson(EurekaModule.class)
-
       context.println("I'm in the EurekaTenant.withInstallJson modules.moduleType:${modules.moduleType}")
       context.println("I'm in the EurekaTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
     }
