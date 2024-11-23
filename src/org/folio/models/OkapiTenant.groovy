@@ -96,7 +96,8 @@ class OkapiTenant extends DTO{
   OkapiTenant withInstallJson(Object installJson, def context = null) {
     if(context) {
       context.println("I'm in the OkapiTenant.withInstallJson")
-      context.println("I'm in the EurekaTenant.withInstallJson modules:${modules}")
+      context.println("I'm in the OkapiTenant.withInstallJson modules.moduleType:${modules.moduleType}")
+      context.println("I'm in the OkapiTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
     }
 
     modules.setInstallJsonObject(installJson, context)
