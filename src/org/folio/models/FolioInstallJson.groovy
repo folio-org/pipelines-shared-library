@@ -23,7 +23,10 @@ class FolioInstallJson {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  FolioInstallJson setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
+  FolioInstallJson setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
+    if(context)
+      context.println("I'm in FolioInstallJson.setInstallJsonObject")
+
     this.installJsonObject = installJsonOrig.collect {
       module -> new FolioModule().loadModuleDetails(module['id'], module['action'])
     }
