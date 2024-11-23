@@ -106,7 +106,7 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
-        .enableFolioExtensions(this, args.folioExtensions - 'consortia')
+        .enableFolioExtensions(this, args.folioExtensions - 'consortia-keycloak' - 'consortia')
     )
 
     if (args.folioExtensions.contains('consortia')) {
