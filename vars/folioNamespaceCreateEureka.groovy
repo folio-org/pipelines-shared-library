@@ -129,7 +129,7 @@ void call(CreateNamespaceParameters args) {
 
     logger.debug("folioNamespaceCreateEureka after adding tenants")
     namespace.tenants.each {tenant ->
-      logger.debug("${tenant.value.uuid}:")
+      logger.debug("${tenant.value.tenantId}:")
       logger.debug(tenant.value.modules.installJsonObject)
     }
 
