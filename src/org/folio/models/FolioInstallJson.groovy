@@ -28,7 +28,7 @@ class FolioInstallJson {
       context.println("I'm in FolioInstallJson.setInstallJsonObject")
 
     this.installJsonObject = installJsonOrig.collect {
-      module -> new FolioModule().loadModuleDetails(module['id'], module['action'])
+      module -> new FolioModule().loadModuleDetails(module['id'], module['action'], context)
     }
     return this
   }

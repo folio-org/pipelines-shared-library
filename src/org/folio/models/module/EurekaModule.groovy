@@ -23,8 +23,14 @@ class EurekaModule extends FolioModule {
    * @return This instance of EurekaModule for method chaining.
    */
   @Override
-  EurekaModule loadModuleDetails(String id, String action = null) {
+  EurekaModule loadModuleDetails(String id, String action = null, def context = null) {
+    if(context)
+      context.println("I'm in EurekaModule.loadModuleDetails")
+
     super.loadModuleDetails(id, action)
+
+    if(context)
+      context.println("I'm in EurekaModule.loadModuleDetails after super.loadModuleDetails")
 
     // Set discovery information for backend modules
     if (this.type == ModuleType.BACKEND || this.type == ModuleType.EDGE) {
