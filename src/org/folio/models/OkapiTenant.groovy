@@ -23,7 +23,7 @@ class OkapiTenant extends DTO{
   User adminUser
 
   /** Modules that are installed for the tenant. */
-  FolioInstallJson modules = new FolioInstallJson()
+  FolioInstallJson<FolioModule> modules = new FolioInstallJson(FolioModule.class)
 
   List<String> enabledExtensions = []
 

@@ -8,14 +8,20 @@ import org.folio.models.module.ModuleType
  * It provides methods to manipulate and retrieve details about these modules,
  * facilitating the generation of installation JSON configurations.
  */
-class FolioInstallJson {
+class FolioInstallJson<T extends FolioModule> {
 
-  List<FolioModule> installJsonObject = []
+  List<T> installJsonObject = []
+  Class<T> moduleType
 
-  /**
-   * Default constructor for FolioInstallJson.
-   */
-  FolioInstallJson() {}
+  FolioInstallJson(List<Map<String, String>> installJsonOrig, Class<T> moduleType) {
+    this(moduleType)
+
+    setInstallJsonObject(installJsonOrig)
+  }
+
+  FolioInstallJson(Class<T> moduleType) {
+    this.moduleType = moduleType
+  }
 
   /**
    * Initializes the installJsonObject with a list of modules defined in the provided JSON-like structure.
@@ -23,13 +29,15 @@ class FolioInstallJson {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  FolioInstallJson setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
+  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
     if(context)
       context.println("I'm in FolioInstallJson.setInstallJsonObject")
 
-    this.installJsonObject = installJsonOrig.collect {
-      module -> new FolioModule().loadModuleDetails(module['id'], module['action'], context)
-    }
+    this.installJsonObject = installJsonOrig.collect(({
+      module -> moduleType.getDeclaredConstructor().newInstance()
+        .loadModuleDetails(module['id'] as String, module['action'] as String, context)
+    } as Closure<T>))
+
     return this
   }
 
@@ -40,7 +48,7 @@ class FolioInstallJson {
    * @param action the action to perform on the module (optional).
    */
   void addModule(String id, String action = null) {
-    this.installJsonObject.add(new FolioModule().loadModuleDetails(id, action))
+    installJsonObject.add(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
   }
 
   /**
@@ -85,7 +93,7 @@ class FolioInstallJson {
    *
    * @return a list of backend FolioModules.
    */
-  List<FolioModule> getBackendModules() {
+  List<T> getBackendModules() {
     return _getModulesByType(ModuleType.BACKEND)
   }
 
@@ -94,7 +102,7 @@ class FolioInstallJson {
    *
    * @return a list of edge FolioModules.
    */
-  List<FolioModule> getEdgeModules() {
+  List<T> getEdgeModules() {
     return _getModulesByType(ModuleType.EDGE)
   }
 
@@ -103,7 +111,7 @@ class FolioInstallJson {
    *
    * @return a list of edge FolioModules.
    */
-  List<FolioModule> getMgrModules() {
+  List<T> getMgrModules() {
     return _getModulesByType(ModuleType.MGR)
   }
 
@@ -112,7 +120,7 @@ class FolioInstallJson {
    *
    * @return a list of frontend FolioModules.
    */
-  List<FolioModule> getUiModules() {
+  List<T> getUiModules() {
     return _getModulesByType(ModuleType.FRONTEND)
   }
 
@@ -121,11 +129,11 @@ class FolioInstallJson {
    *
    * @return the FolioModule representing Okapi, or null if not found.
    */
-  FolioModule getOkapiModule() {
+  T getOkapiModule() {
     return this.installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
   }
 
-  FolioModule getModuleByName(String moduleName) {
+  T getModuleByName(String moduleName) {
     return this.installJsonObject.find { module -> module.getName() == moduleName }
   }
 
@@ -192,7 +200,7 @@ class FolioInstallJson {
    * @param type the ModuleType to filter by.
    * @return a list of FolioModules matching the specified type.
    */
-  private List<FolioModule> _getModulesByType(ModuleType type) {
+  private List<T> _getModulesByType(ModuleType type) {
     return this.installJsonObject.findAll { module -> module.getType() == type }
   }
 
@@ -202,7 +210,7 @@ class FolioInstallJson {
    * @param modules the list of FolioModules to convert.
    * @return a list of maps containing module IDs and their actions.
    */
-  private List<Map<String, String>> _convertToInstallJson(List<FolioModule> modules) {
+  private List<Map<String, String>> _convertToInstallJson(List<T> modules) {
     return modules.collect { module ->
       _validateAction(module)
       [id: module.id, action: module.action]
@@ -215,7 +223,7 @@ class FolioInstallJson {
    * @param modules the list of FolioModules to convert.
    * @return a list of discovery details for the modules.
    */
-  private static List _convertToDiscoveryList(List<FolioModule> modules) {
+  private static List _convertToDiscoveryList(List<T> modules) {
     return modules.collect { module -> module?.discovery }
   }
 
@@ -226,7 +234,7 @@ class FolioInstallJson {
    * @throws IllegalArgumentException if the action is null or empty.
    */
   @SuppressWarnings('GrMethodMayBeStatic')
-  private void _validateAction(FolioModule module) {
+  private void _validateAction(T module) {
     if (!module.action?.trim()) {
       throw new IllegalArgumentException("Action for module '${module.id}' is null or empty")
     }

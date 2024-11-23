@@ -27,7 +27,7 @@ class EurekaModule extends FolioModule {
     if(context)
       context.println("I'm in EurekaModule.loadModuleDetails")
 
-    super.loadModuleDetails(id, action)
+    super.loadModuleDetails(id, action, context)
 
     if(context)
       context.println("I'm in EurekaModule.loadModuleDetails after super.loadModuleDetails")

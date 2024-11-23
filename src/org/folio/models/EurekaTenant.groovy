@@ -2,6 +2,7 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.folio.models.module.EurekaModule
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -28,7 +29,7 @@ class EurekaTenant extends OkapiTenant {
   EurekaRequestParams installRequestParams
 
   /** Modules that are installed for the tenant. */
-  EurekaInstallJson modules = new EurekaInstallJson()
+  FolioInstallJson<EurekaModule> modules = new FolioInstallJson(EurekaModule.class)
 
   Map<String, String> applications = [:]
 

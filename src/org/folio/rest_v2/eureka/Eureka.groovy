@@ -3,6 +3,7 @@ package org.folio.rest_v2.eureka
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
@@ -134,7 +135,7 @@ class Eureka extends Base {
     return registeredApps
   }
 
-  Eureka registerModulesFlow(EurekaInstallJson modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
 //    updateRegisteredModules(modules, apps)
 //
 //    if(tenants)
@@ -279,7 +280,7 @@ class Eureka extends Base {
    * @param module FolioModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaInstallJson modules, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, FolioModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
