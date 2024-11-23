@@ -76,14 +76,11 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  EurekaTenant withInstallJson(List<Map<String, String>> installJson, def context = null) {
-    if(context)
-      context.println("I'm in EurekaTenant.withInstallJson")
-
+  EurekaTenant withInstallJson(List<Map<String, String>> installJson) {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
 
-    super.withInstallJson(installJson, context)
+    super.withInstallJson(installJson)
 
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
     return this

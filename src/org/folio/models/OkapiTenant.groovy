@@ -93,11 +93,8 @@ class OkapiTenant extends DTO{
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  OkapiTenant withInstallJson(List<Map<String, String>> installJson, def context = null) {
-    if(context)
-      context.println("I'm in OkapiTenant.withInstallJson")
-
-    this.modules.setInstallJsonObject(installJson, context)
+  OkapiTenant withInstallJson(List<Map<String, String>> installJson) {
+    this.modules.setInstallJsonObject(installJson)
     this.modules.removeModulesByName(['mod-consortia', 'folio_consortia-settings'])
     return this
   }

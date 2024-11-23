@@ -97,18 +97,6 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-    folioDefault.tenants()[namespace.getDefaultTenantId()]
-            .convertTo(EurekaTenant.class)
-            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-            .withInstallJson(installJson, this)
-            .withIndex(new Index('instance', true, true))
-            .withIndex(new Index('authority', true, false))
-            .withInstallRequestParams(installRequestParams.clone())
-            .withTenantUi(tenantUi.clone())
-            .enableFolioExtensions(this, args.folioExtensions - 'consortia')
-
-    input message: "Add default tenant?"
-
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
