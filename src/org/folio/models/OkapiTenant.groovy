@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
 

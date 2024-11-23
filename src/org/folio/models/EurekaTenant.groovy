@@ -2,6 +2,7 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.folio.models.module.EurekaModule
 
 /**
@@ -79,6 +80,11 @@ class EurekaTenant extends OkapiTenant {
   EurekaTenant withInstallJson(Object installJson, def context = null) {
     if(context) {
       context.println("I'm in the EurekaTenant.withInstallJson")
+      context.println("I'm in the EurekaTenant.withInstallJson modules.moduleType:${modules.moduleType}")
+      context.println("I'm in the EurekaTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
+
+      modules = new FolioInstallJson(EurekaModule.class)
+
       context.println("I'm in the EurekaTenant.withInstallJson modules.moduleType:${modules.moduleType}")
       context.println("I'm in the EurekaTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
     }
