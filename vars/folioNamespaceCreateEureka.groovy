@@ -101,11 +101,11 @@ void call(CreateNamespaceParameters args) {
             .convertTo(EurekaTenant.class)
             .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
             .withInstallJson(installJson, this)
-//            .withIndex(new Index('instance', true, true))
-//            .withIndex(new Index('authority', true, false))
-//            .withInstallRequestParams(installRequestParams.clone())
-//            .withTenantUi(tenantUi.clone())
-//            .enableFolioExtensions(this, args.folioExtensions - 'consortia')
+            .withIndex(new Index('instance', true, true))
+            .withIndex(new Index('authority', true, false))
+            .withInstallRequestParams(installRequestParams.clone())
+            .withTenantUi(tenantUi.clone())
+            .enableFolioExtensions(this, args.folioExtensions - 'consortia')
 
     input message: "Add default tenant?"
 

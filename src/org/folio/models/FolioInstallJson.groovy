@@ -48,7 +48,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @param action the action to perform on the module (optional).
    */
   void addModule(String id, String action = null) {
-    installJsonObject.add(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
+    this.installJsonObject.add(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
   }
 
   /**
@@ -76,7 +76,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @param name the name of the module to remove.
    */
   void removeModuleByName(String name) {
-    installJsonObject.removeAll { module -> module.name == name }
+    this.installJsonObject.removeAll { module -> module.name == name }
   }
 
   /**
@@ -139,11 +139,11 @@ class FolioInstallJson<T extends FolioModule> {
    * @return the FolioModule representing Okapi, or null if not found.
    */
   T getOkapiModule() {
-    return installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
+    return this.installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
   }
 
   T getModuleByName(String moduleName) {
-    return installJsonObject.find { module -> module.getName() == moduleName }
+    return this.installJsonObject.find { module -> module.getName() == moduleName }
   }
 
   /**
@@ -173,7 +173,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a list of discovery details for the backend modules.
    */
   List getDiscoveryList() {
-    return installJsonObject.collect { module -> module?.discovery }
+    return this.installJsonObject.collect { module -> module?.discovery }
 //    return _convertToDiscoveryList(getBackendModules()) + (moduleType == EurekaModule.class ? _convertToDiscoveryList(getBackendModules()) : )
   }
 
@@ -211,7 +211,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a list of FolioModules matching the specified type.
    */
   private List<T> _getModulesByType(ModuleType type) {
-    return installJsonObject.findAll { module -> module.getType() == type }
+    return this.installJsonObject.findAll { module -> module.getType() == type }
   }
 
   /**
