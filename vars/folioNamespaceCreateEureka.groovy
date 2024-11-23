@@ -110,6 +110,8 @@ void call(CreateNamespaceParameters args) {
     )
 
     logger.debug("folioNamespaceCreateEureka after adding default tenant")
+    logger.debug(namespace.tenants["diku"].modules.installJsonObject)
+    input message: "Add additional tenants?"
 
     if (args.folioExtensions.contains('consortia')) {
       namespace.setEnableConsortia(true, isRelease)
