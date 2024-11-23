@@ -27,7 +27,7 @@ class EurekaInstallJson extends FolioInstallJson {
     if(context)
       context.println("I'm in EurekaInstallJson.setInstallJsonObject")
 
-    super.setInstallJsonObject(installJsonOrig)
+    super.setInstallJsonObject(installJsonOrig, context)
 
     return this
   }
