@@ -76,13 +76,8 @@ void call(CreateNamespaceParameters args) {
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
-    logger.debug("folioNamespaceCreateEureka installJson before changing installJson:")
-    logger.debug(installJson)
-
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken)-\d+\..*/ }
-
-    logger.debug("folioNamespaceCreateEureka installJson after changing installJson:")
-    logger.debug(installJson)
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -102,15 +97,17 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-    logger.debug("folioNamespaceCreateEureka before removing modules:")
-    logger.debug(namespace.getModules().installJsonObject)
+    folioDefault.tenants()[namespace.getDefaultTenantId()]
+            .convertTo(EurekaTenant.class)
+            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+            .withInstallJson(installJson)
+//            .withIndex(new Index('instance', true, true))
+//            .withIndex(new Index('authority', true, false))
+//            .withInstallRequestParams(installRequestParams.clone())
+//            .withTenantUi(tenantUi.clone())
+//            .enableFolioExtensions(this, args.folioExtensions - 'consortia')
 
-    //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    namespace.getModules().removeModuleByName('mod-login')
-    namespace.getModules().removeModuleByName('mod-authtoken')
-
-    logger.debug("folioNamespaceCreateEureka after removing modules:")
-    logger.debug(namespace.getModules().installJsonObject)
+    input message: "Add default tenant?"
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
