@@ -1,7 +1,6 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.codehaus.groovy.runtime.InvokerHelper
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
 
@@ -94,19 +93,9 @@ class OkapiTenant extends DTO{
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  OkapiTenant withInstallJson(List<Map<String, String>> installJson, def context = null) {
-    if(context) {
-      context.println("I'm in the OkapiTenant.withInstallJson")
-      context.println("I'm in the OkapiTenant.withInstallJson modules.moduleType:${modules.moduleType}")
-      context.println("I'm in the OkapiTenant.withInstallJson getModules().moduleType:${getModules().moduleType}")
-    }
-
-    modules.setInstallJsonObject(installJson, context)
-
-    if(context)
-      context.println("I'm in the OkapiTenant.withInstallJson after the this.modules.setInstallJsonObject")
-
-    this.modules.removeModulesByName(['mod-consortia', 'folio_consortia-settings'])
+  OkapiTenant withInstallJson(List<Map<String, String>> installJson) {
+    modules.setInstallJsonObject(installJson)
+    modules.removeModulesByName(['mod-consortia', 'folio_consortia-settings'])
     return this
   }
 

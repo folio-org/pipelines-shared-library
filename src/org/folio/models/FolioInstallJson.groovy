@@ -29,13 +29,10 @@ class FolioInstallJson<T extends FolioModule> {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
-    if(context)
-      context.println("I'm in FolioInstallJson.setInstallJsonObject")
-
-    this.installJsonObject = installJsonOrig.collect(({
+  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
+    installJsonObject = installJsonOrig.collect(({
       module -> moduleType.getDeclaredConstructor().newInstance()
-        .loadModuleDetails(module['id'] as String, module['action'] as String, context)
+        .loadModuleDetails(module['id'] as String, module['action'] as String)
     } as Closure<T>))
 
     return this
@@ -76,7 +73,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @param name the name of the module to remove.
    */
   void removeModuleByName(String name) {
-    this.installJsonObject.removeAll { module -> module.name == name }
+    installJsonObject.removeAll { module -> module.name == name }
   }
 
   /**
@@ -116,6 +113,15 @@ class FolioInstallJson<T extends FolioModule> {
   }
 
   /**
+   * Retrieves sidecars from the installJsonObject.
+   *
+   * @return a list of edge FolioModules.
+   */
+  List<T> getSidecars() {
+    return _getModulesByType(ModuleType.SIDECAR)
+  }
+
+  /**
    * Retrieves all UI modules from the installJsonObject.
    *
    * @return a list of frontend FolioModules.
@@ -130,11 +136,11 @@ class FolioInstallJson<T extends FolioModule> {
    * @return the FolioModule representing Okapi, or null if not found.
    */
   T getOkapiModule() {
-    return this.installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
+    return installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
   }
 
   T getModuleByName(String moduleName) {
-    return this.installJsonObject.find { module -> module.getName() == moduleName }
+    return installJsonObject.find { module -> module.getName() == moduleName }
   }
 
   /**
@@ -143,7 +149,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a list of maps containing module IDs and their actions.
    */
   List<Map<String, String>> getInstallJson() {
-    return _convertToInstallJson(this.installJsonObject)
+    return _convertToInstallJson(installJsonObject)
   }
 
   /**
@@ -153,7 +159,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a module name : module version map.
    */
   Map<String, String> getModuleVersionMap(){
-    return this.installJsonObject.collectEntries {module ->
+    return installJsonObject.collectEntries {module ->
       [(module.name): module.version]
     }
   }
@@ -164,7 +170,8 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a list of discovery details for the backend modules.
    */
   List getDiscoveryList() {
-    return _convertToDiscoveryList(getBackendModules())
+    return installJsonObject.collect { module -> module?.discovery }
+//    return _convertToDiscoveryList(getBackendModules()) + (moduleType == EurekaModule.class ? _convertToDiscoveryList(getBackendModules()) : )
   }
 
   /**
@@ -201,7 +208,7 @@ class FolioInstallJson<T extends FolioModule> {
    * @return a list of FolioModules matching the specified type.
    */
   private List<T> _getModulesByType(ModuleType type) {
-    return this.installJsonObject.findAll { module -> module.getType() == type }
+    return installJsonObject.findAll { module -> module.getType() == type }
   }
 
   /**
@@ -217,15 +224,15 @@ class FolioInstallJson<T extends FolioModule> {
     }
   }
 
-  /**
-   * Converts a list of FolioModules into a discovery list.
-   *
-   * @param modules the list of FolioModules to convert.
-   * @return a list of discovery details for the modules.
-   */
-  private static List _convertToDiscoveryList(List<T> modules) {
-    return modules.collect { module -> module?.discovery }
-  }
+//  /**
+//   * Converts a list of FolioModules into a discovery list.
+//   *
+//   * @param modules the list of FolioModules to convert.
+//   * @return a list of discovery details for the modules.
+//   */
+//  private static List _convertToDiscoveryList(List<? extends FolioModule> modules) {
+//    return modules.collect { module -> module?.discovery }
+//  }
 
   /**
    * Validates that the action for a given module is not null or empty.

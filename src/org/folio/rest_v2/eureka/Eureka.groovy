@@ -4,7 +4,6 @@ import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.module.EurekaModule
-import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
 
@@ -140,6 +139,9 @@ class Eureka extends Base {
 //
 //    if(tenants)
 //      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
+
+    logger.debug("Eureka.registerModulesFlow modules.getDiscoveryList():")
+    logger.debug(modules.getDiscoveryList())
 
     Applications.get(kong).registerModules(
       [
@@ -277,10 +279,10 @@ class Eureka extends Base {
    * Update Application Descriptor Flow.
    * @param applications Map of enabled applications in namespace.
    * @param modules EurekaModules object.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, EurekaModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -329,7 +331,7 @@ class Eureka extends Base {
    * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
-  Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, EurekaModule module, String buildNumber) {
     // Update Application Descriptor with incremented Application Version
     String currentAppVersion = appDescriptor.version
     String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
@@ -371,9 +373,9 @@ class Eureka extends Base {
 
   /**
    * Run Module Discovery Flow.
-   * @param module FolioModule object to discover
+   * @param module EurekaModule object to discover
    */
-  void runModuleDiscoveryFlow(FolioModule module) {
+  void runModuleDiscoveryFlow(EurekaModule module) {
     try {
       logger.info("Check if ${module.name}-${module.version} module discovery exists...")
       Applications.get(kong).getModuleDiscovery(module)
@@ -400,9 +402,9 @@ class Eureka extends Base {
    * Remove Stale Resources Flow.
    * @param applications Map of enabled applications in namespace.
    * @param updatedApplications Map of updated applications in namespace.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    */
-  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, FolioModule module) {
+  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, EurekaModule module) {
     // Remove Previous Application Descriptor with Stale Module Version
     configuredApps.each { appName, appId ->
       if (updatedApplications.containsKey(appName)) {
@@ -424,9 +426,9 @@ class Eureka extends Base {
   /**
    * Remove Resources on Fail Flow.
    * @param updatedApplications Map of updated applications in namespace.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    */
-  void removeResourcesOnFailFlow(Map<String, String> updatedApplications, FolioModule module) {
+  void removeResourcesOnFailFlow(Map<String, String> updatedApplications, EurekaModule module) {
     if (updatedApplications.isEmpty()) {
       logger.info("No updated applications found to remove resources.")
     }

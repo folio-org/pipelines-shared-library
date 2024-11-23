@@ -41,10 +41,7 @@ class FolioModule {
    * @throws InputMismatchException if the module ID format is incorrect.
    * @return This instance of FolioModule for method chaining.
    */
-  FolioModule loadModuleDetails(String id, String action = null, def context = null) {
-    if(context)
-      context.println("I'm in FolioModule.loadModuleDetails")
-
+  FolioModule loadModuleDetails(String id, String action = null) {
     // Validate the module ID
     if (id == null || id.trim().isEmpty()) {
       throw new IllegalArgumentException("Module id cannot be null or empty")
