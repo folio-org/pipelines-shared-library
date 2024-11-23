@@ -79,7 +79,7 @@ class EurekaTenant extends OkapiTenant {
     if(context)
       context.println("I'm in the EurekaTenant.withInstallJson")
 
-    super.withInstallJson(installJson)
+    super.withInstallJson(installJson, context)
 
     if(context)
       context.println("I'm in the EurekaTenant.withInstallJson after the super method call.")
