@@ -127,6 +127,10 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    logger.debug("args.folioExtensions: ${args.folioExtensions}")
+    logger.debug("args.folioExtensions - 'consortia-keycloak': ${args.folioExtensions - 'consortia-keycloak'}")
+    logger.debug("args.folioExtensions - 'consortia-keycloak' - 'consortia': ${args.folioExtensions - 'consortia-keycloak' - 'consortia'}")
+
     logger.debug("folioNamespaceCreateEureka after adding tenants")
     logger.debug("installJson:")
     logger.debug(installJson)
