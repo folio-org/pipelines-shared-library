@@ -137,6 +137,7 @@ void call(CreateNamespaceParameters args) {
     namespace.tenants.each {tenant ->
       logger.debug("${tenant.value.tenantId}:")
       logger.debug(tenant.value.modules.installJsonObject)
+      input message: "Proceed?"
     }
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
