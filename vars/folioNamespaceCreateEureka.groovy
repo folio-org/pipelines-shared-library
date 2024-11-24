@@ -109,7 +109,7 @@ void call(CreateNamespaceParameters args) {
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
-    if (args.folioExtensions.contains('consortia')) {
+    if (args.folioExtensions.contains('consortia-eureka')) {
       namespace.setEnableConsortia(true, isRelease)
 
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
@@ -137,7 +137,6 @@ void call(CreateNamespaceParameters args) {
     namespace.tenants.each {tenant ->
       logger.debug("${tenant.value.tenantId}:")
       logger.debug(tenant.value.modules.installJsonObject)
-      input message: "Proceed?"
     }
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
