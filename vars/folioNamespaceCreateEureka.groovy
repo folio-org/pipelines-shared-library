@@ -127,18 +127,31 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    logger.debug("args.folioExtensions: ${args.folioExtensions}")
-    logger.debug("args.folioExtensions - 'consortia-eureka': ${args.folioExtensions - 'consortia-eureka'}")
-    logger.debug("args.folioExtensions - 'consortia-eureka' - 'consortia': ${args.folioExtensions - 'consortia-eureka' - 'consortia'}")
+//    logger.debug("args.folioExtensions: ${args.folioExtensions}")
+//    logger.debug("args.folioExtensions - 'consortia-eureka': ${args.folioExtensions - 'consortia-eureka'}")
+//    logger.debug("args.folioExtensions - 'consortia-eureka' - 'consortia': ${args.folioExtensions - 'consortia-eureka' - 'consortia'}")
+//
+//    logger.debug("folioNamespaceCreateEureka after adding tenants")
+//    logger.debug("installJson:")
+//    logger.debug(installJson)
+//    namespace.tenants.each {tenant ->
+//      logger.debug("${tenant.value.tenantId}:")
+//      logger.debug(tenant.value.modules.installJsonObject)
+//      input message: "Proceed?"
+//    }
 
-    logger.debug("folioNamespaceCreateEureka after adding tenants")
-    logger.debug("installJson:")
-    logger.debug(installJson)
-    namespace.tenants.each {tenant ->
-      logger.debug("${tenant.value.tenantId}:")
-      logger.debug(tenant.value.modules.installJsonObject)
-      input message: "Proceed?"
-    }
+    logger.debug("namespace.modules:")
+    logger.debug(namespace.getModules().installJsonObject)
+
+    input message: "Proceed?"
+
+    logger.debug("namespace.modules.ModuleVersionMap:")
+    logger.debug(namespace.getModules().getModuleVersionMap())
+
+    input message: "Proceed?"
+
+    logger.debug("getDiscoveryList():")
+    logger.debug(namespace.getModules().getDiscoveryList())
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 25, unit: 'MINUTES') {
