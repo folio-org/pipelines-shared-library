@@ -173,7 +173,7 @@ class FolioInstallJson<T extends FolioModule> {
     return this.installJsonObject
       .findAll{module -> module?.discovery }
       .collect { module -> module?.discovery }
-//    return _convertToDiscoveryList(getBackendModules()) + (moduleType == EurekaModule.class ? _convertToDiscoveryList(getBackendModules()) : )
+//    return _convertToDiscoveryList(getBackendModules())
   }
 
   /**
