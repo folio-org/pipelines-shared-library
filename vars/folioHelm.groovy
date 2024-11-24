@@ -192,7 +192,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
       case ~/mod-.*-keycloak/:
-        moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
+        moduleConfig['extraEnvVars'] += [
+          name: 'MOD_USERS_ID',
+          value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
+        ]
         break
     }
   }
