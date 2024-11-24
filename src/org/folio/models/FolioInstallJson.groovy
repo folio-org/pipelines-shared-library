@@ -171,7 +171,9 @@ class FolioInstallJson<T extends FolioModule> {
    */
   List getDiscoveryList(List<String> restrictionList = null) {
     return this.installJsonObject
-      .findAll{module -> module?.discovery && !(restrictionList && !restrictionList.find({ value -> value == id })) }
+      .findAll{module ->
+        module?.discovery && !(restrictionList && !restrictionList.find({ value -> value == module.id }))
+      }
       .collect { module -> module?.discovery }
 //    return _convertToDiscoveryList(getBackendModules())
   }
