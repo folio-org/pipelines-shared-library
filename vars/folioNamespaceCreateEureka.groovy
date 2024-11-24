@@ -106,7 +106,7 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
-        .enableFolioExtensions(this, args.folioExtensions - 'consortia-keycloak' - 'consortia')
+        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
     if (args.folioExtensions.contains('consortia')) {
@@ -128,8 +128,8 @@ void call(CreateNamespaceParameters args) {
     }
 
     logger.debug("args.folioExtensions: ${args.folioExtensions}")
-    logger.debug("args.folioExtensions - 'consortia-keycloak': ${args.folioExtensions - 'consortia-keycloak'}")
-    logger.debug("args.folioExtensions - 'consortia-keycloak' - 'consortia': ${args.folioExtensions - 'consortia-keycloak' - 'consortia'}")
+    logger.debug("args.folioExtensions - 'consortia-eureka': ${args.folioExtensions - 'consortia-eureka'}")
+    logger.debug("args.folioExtensions - 'consortia-eureka' - 'consortia': ${args.folioExtensions - 'consortia-eureka' - 'consortia'}")
 
     logger.debug("folioNamespaceCreateEureka after adding tenants")
     logger.debug("installJson:")
