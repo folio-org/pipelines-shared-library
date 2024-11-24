@@ -134,43 +134,27 @@ class Eureka extends Base {
     return registeredApps
   }
 
-  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
-//    updateRegisteredModules(modules, apps)
-//
-//    if(tenants)
-//      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
-
-    logger.debug("Eureka.registerModulesFlow modules.getDiscoveryList():")
-    logger.debug(modules.getDiscoveryList())
-
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps){
     Applications.get(kong).registerModules(
       [
-        "discovery": modules.getDiscoveryList()
+        "discovery": modules.getDiscoveryList(getApplicationModules(apps))
       ]
     )
 
     return this
   }
 
-//  Eureka updateTenantRegisteredModules(EurekaTenant tenant, Map<String, String> apps){
-//    updateRegisteredModules(tenant.getModules(), apps)
-//
-//    return this
-//  }
+  List<String> getApplicationModules(Map<String, String> apps){
+    List<String> modules = []
+    apps.values().each {appId ->
+      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
+        if(!modules.contains(module.id))
+          modules.add(module.id)
+      }
+    }
 
-//  Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
-//    List restrictionList = []
-//    apps.values().each {appId ->
-//      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
-//        if(!restrictionList.contains(module.id))
-//          restrictionList.add(module.id)
-//      }
-//    }
-//
-//    modules.updateDiscoveryList(restrictionList)
-//
-//    return this
-//  }
+    return modules
+  }
 
   /**
    * Sets up a consortia with the given tenants.

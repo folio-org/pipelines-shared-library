@@ -77,7 +77,7 @@ void call(CreateNamespaceParameters args) {
     installJson.addAll(eurekaPlatform)
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken)-\d+\..*/ }
+    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -148,11 +148,6 @@ void call(CreateNamespaceParameters args) {
     logger.debug("namespace.modules.ModuleVersionMap:")
     logger.debug(namespace.getModules().getModuleVersionMap())
 
-    input message: "Proceed?"
-
-    logger.debug("getDiscoveryList():")
-    logger.debug(namespace.getModules().getDiscoveryList())
-
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 25, unit: 'MINUTES') {
       def check = ''
@@ -215,10 +210,14 @@ void call(CreateNamespaceParameters args) {
         )
       )
 
+      logger.debug("namespace.getModules().getDiscoveryList(eureka.getApplicationModules(namespace.getApplications):")
+      logger.debug(namespace.getModules().getDiscoveryList(eureka.getApplicationModules(namespace.getApplications())))
+
+      input message: "Proceed?"
+
       eureka.registerModulesFlow(
         namespace.getModules()
         , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
       )
     }
 
