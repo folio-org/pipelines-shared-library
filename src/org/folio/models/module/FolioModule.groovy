@@ -106,7 +106,7 @@ class FolioModule {
 
     // Adjust request parameters based on module type
     switch (moduleName) {
-      case ~/(mod-|mgr)-.*/:
+      case ~/(mod|mgr)-.*/:
         reqParams += "&preRelease=${isRelease ? 'false' : 'only'}"
         break
       case ~/folio_.*/:
