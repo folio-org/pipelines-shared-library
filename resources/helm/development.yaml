@@ -2106,6 +2106,7 @@ mod-oai-pmh:
       memory: 908Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dfile.encoding=UTF-8
   startupProbe:
     httpGet:
       path: /admin/health

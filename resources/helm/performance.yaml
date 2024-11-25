@@ -2449,6 +2449,7 @@ mod-oai-pmh:
     targetMemoryUtilizationPercentage: 70
   extraJavaOpts:
   - -XX:MaxRAMPercentage=80.0
+  - -Dfile.encoding=UTF-8
   startupProbe:
     httpGet:
       path: /admin/health
