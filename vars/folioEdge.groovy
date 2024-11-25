@@ -83,6 +83,8 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     mappings.add('diku')
   }
 
+  println("folioEdge. before namespace.getModules().each")
+
   namespace.getModules().getEdgeModules().each { name, version ->
     String institutionalUsers = ''
     def tenants = []
