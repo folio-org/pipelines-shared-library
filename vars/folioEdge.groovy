@@ -1,6 +1,7 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.RancherNamespace
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Common
 import org.folio.utilities.Tools
 
@@ -85,11 +86,12 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   println("folioEdge. before namespace.getModules().each")
 
-  namespace.getModules().getEdgeModules().each { name, version ->
+  namespace.getModules().getEdgeModules().each { module ->
+//    name, version ->
     String institutionalUsers = ''
     def tenants = []
-    if (edgeConfig[(name)]['tenants']) {
-      edgeConfig[(name)]['tenants'].each { institutional ->
+    if (edgeConfig[(module.name)]['tenants']) {
+      edgeConfig[(module.name)]['tenants'].each { institutional ->
         if (institutional.tenant == 'default') {
           namespace.tenants.each { tenantName, tenant_info ->
             institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
@@ -99,18 +101,18 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
           institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
         }
       }
-      if (name == 'edge-oai-pmh') {
+      if (module.name == 'edge-oai-pmh') {
         namespace.getTenants().each { tenant_id, tenant ->
           users += tenant_id.toString() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
         }
       }
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
-      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-      common.logger.info("ephemeralProperties file for module ${name} created.")
+      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name} created.")
     } else {
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: '']
-      tools.steps.writeFile file: "${name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-      common.logger.info("ephemeralProperties file for module ${name} created.")
+      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name} created.")
     }
   }
 }
