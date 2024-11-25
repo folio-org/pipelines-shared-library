@@ -234,6 +234,9 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioEdge.renderEphemeralPropertiesEureka(namespace)
+
+        input message: 'Continue deploy edge?'
+
         namespace.getModules().getEdgeModules().each { name, version ->
           kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
         }
