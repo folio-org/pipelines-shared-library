@@ -1,10 +1,12 @@
 package org.folio.models
 
+import org.folio.models.module.EurekaModule
+
 /**
  * Represents a Rancher Eureka namespace and its configuration.*/
 class EurekaNamespace extends RancherNamespace {
 
-  EurekaInstallJson modules = new EurekaInstallJson()
+  FolioInstallJson<EurekaModule> modules = new FolioInstallJson(EurekaModule.class)
 
   Map<String, EurekaTenant> tenants = [:]
 
