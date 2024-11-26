@@ -178,7 +178,7 @@ class RancherNamespace {
     }
   }
 
-  private Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
+  protected Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
     return fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/features/${feature}.yaml")
   }
 
