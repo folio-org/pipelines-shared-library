@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.module.EurekaModule
 
 /**
  * OkapiTenantConsortia class is a subclass of OkapiTenant
@@ -58,7 +59,10 @@ class EurekaTenantConsortia extends EurekaTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenantConsortia object.
    */
-  EurekaTenantConsortia withInstallJson(Object installJson) {
+  EurekaTenantConsortia withInstallJson(List<Map<String, String>> installJson) {
+    //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
+    setModules(new FolioInstallJson(EurekaModule.class))
+
     this.getModules().setInstallJsonObject(installJson)
     return this
   }
