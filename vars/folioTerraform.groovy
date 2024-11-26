@@ -76,7 +76,8 @@ def statePull(String path) {
 def removeFromState(String path, String resource) {
   stage('[TF] Remove from state') {
     dir(path) {
-      sh "terraform destroy --target rancher2*"
+      def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
+      resources.each { sh("terraform destroy -target $it") }
       sh "terraform state rm ${resource}"
     }
   }
