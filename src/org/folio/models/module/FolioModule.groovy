@@ -152,6 +152,8 @@ class FolioModule {
         return ModuleType.FRONTEND
       case ~/^mgr-.*/:
         return ModuleType.MGR
+      case ~/.*sidecar.*/:
+        return ModuleType.SIDECAR
       case 'okapi':
         return ModuleType.OKAPI
       default:
