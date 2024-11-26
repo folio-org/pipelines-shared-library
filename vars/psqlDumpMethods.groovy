@@ -79,7 +79,7 @@ void metaDbRestore(RancherNamespace namespace, Map ldpDatabase) {
     def pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name'=pgadmin4 --namespace ${namespace.getNamespaceName()} -o=jsonpath='{.items..metadata.name}'", returnStdout: true).trim()
     sh(script: "curl ${Constants.META_DB_DUMP_URL} -o /tmp/dump.sql.gz", returnStdout: true)
     sh(script: "gzip -d /tmp/dump.sql.gz && kubectl cp /tmp/dump.sql ${namespace.getNamespaceName()}/${pod}:/tmp/dump.sql", returnStdout: true)
-    String restore = "export PGPASSWORD=${ldpDatabase.database_super_password} && /usr/local/pgsql-14/psql --host \"${ldpDatabase.database_host}\" " +
+    String restore = "export PGPASSWORD=${ldpDatabase.database_super_password} && /usr/local/psql-14/psql --host \"${ldpDatabase.database_host}\" " +
       "--port \"${ldpDatabase.database_port}\" --username \"${ldpDatabase.database_super_user}\" --no-password --dbname \"${ldpDatabase.database_name}\" --file /tmp/dump.sql"
     kubectl.execCommand(namespace.getNamespaceName(), "${pod}", restore)
   }
