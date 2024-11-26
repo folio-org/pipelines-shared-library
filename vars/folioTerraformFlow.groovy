@@ -11,6 +11,8 @@ void manageCluster(String action, TerraformConfig config) {
         case 'destroy':
           Closure preAction = {
             try {
+              def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
+              resources.tokenize().each { sh("terraform destroy -target $it -auto-approve") }
               folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
             } catch (e) {
               println(e.getMessage())
