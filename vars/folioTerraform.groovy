@@ -75,11 +75,7 @@ def statePull(String path) {
 
 def removeFromState(String path, String resource) {
   stage('[TF] Remove from state') {
-    dir(path) {
-      def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
-      resources.tokenize().each { sh("terraform destroy -target $it") }
-      sh "terraform state rm ${resource}"
-    }
+    sh "terraform state rm ${resource}"
   }
 }
 
@@ -94,6 +90,8 @@ def apply(String path) {
 def destroy(String path, String opts) {
   stage('[TF] Destroy') {
     dir(path) {
+      def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
+      resources.tokenize().each { sh("terraform destroy -target $it -auto-approve ${opts}") }
       sh "terraform destroy -auto-approve ${opts}"
     }
   }
