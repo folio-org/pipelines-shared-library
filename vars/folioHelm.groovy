@@ -88,6 +88,20 @@ void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, 
   }
 }
 
+void deleteFolioModulesParallel(String ns) {
+  def releases = sh(script: "helm list --short --namespace $ns", returnStdout: true).trim()
+  int limit = 10
+  releases.tokenize().collate(limit).each { release ->
+    def branches = [:]
+    release.each { rel ->
+      branches[rel.toString()] = {
+        sh(script: "helm uninstall $rel --namespace $ns")
+      }
+    }
+    parallel branches
+  }
+}
+
 void checkPodRunning(String ns, String podName) {
   timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
