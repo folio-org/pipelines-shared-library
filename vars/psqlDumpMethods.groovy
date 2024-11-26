@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.RancherNamespace
 
 def configureKubectl(String region, String cluster_name) {
   stage('Configure kubectl') {
@@ -70,5 +71,16 @@ def savePlatformCompleteImageTag(String project_namespace, String db_backup_name
         do IMAGE_TAG=\$(kubectl get pod \$IMAGE -n ${project_namespace} -o jsonpath='{.spec.containers[*].image}' | \
         sed 's/.*://' | grep .*-${tenant_id}-.*);if [ ! -z \$IMAGE_TAG  ];then break;fi;done; \
         echo \$IMAGE_TAG > ${db_backup_name}-image-tag.txt; aws s3 cp ${db_backup_name}-image-tag.txt ${s3_postgres_backups_bucket_name}/${postgresql_backups_directory}/${db_backup_name}/"
+  }
+}
+
+void metaDbRestore(RancherNamespace namespace, Map ldpDatabase) {
+  stage('[metaDB] restore') {
+    def pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name'=pgadmin4 --namespace ${namespace.getNamespaceName()} -o=jsonpath='{.items..metadata.name}'", returnStdout: true).trim()
+    sh(script: "curl ${Constants.META_DB_DUMP_URL} -o /tmp/dump.sql.gz", returnStdout: true)
+    sh(script: "gzip -d /tmp/dump.sql.gz && kubectl cp /tmp/dump.sql ${namespace.getNamespaceName()}/${pod}:/tmp/dump.sql", returnStdout: true)
+    String restore = "export PGPASSWORD=${ldpDatabase.database_super_password} && /usr/local/pgsql-14/psql --host \"${ldpDatabase.database_host}\" " +
+      "--port \"${ldpDatabase.database_port}\" --username \"${ldpDatabase.database_super_user}\" --no-password --dbname \"${ldpDatabase.database_name}\" --file /tmp/dump.sql"
+    kubectl.execCommand(namespace.getNamespaceName(), "${pod}", restore)
   }
 }

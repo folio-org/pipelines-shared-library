@@ -111,4 +111,7 @@ void deployLdp(RancherNamespace namespace) {
   kubectl.createConfigMap('ldp-config', namespaceName, './ldpconf.json')
 
   folioHelm.upgrade("ldp", namespaceName, '', Constants.FOLIO_HELM_V2_REPO_NAME, "ldp")
+
+  psqlDumpMethods.metaDbRestore(namespace, ldpDatabase)
+
 }

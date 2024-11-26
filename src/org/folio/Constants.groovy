@@ -109,6 +109,9 @@ class Constants {
   //Eureka base constants
   static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
 
+  //metaDB static URL
+  static String META_DB_DUMP_URL = 'https://metadb.dev/pg_dump/metadb_folio.sql.gz'
+
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
   static String EMAIL_SMTP_SERVER = 'email-smtp.us-west-2.amazonaws.com'
