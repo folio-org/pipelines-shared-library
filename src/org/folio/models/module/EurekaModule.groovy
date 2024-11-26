@@ -1,6 +1,6 @@
 package org.folio.models.module
 
-import java.util.regex.Matcher
+import com.cloudbees.groovy.cps.NonCPS
 
 /**
  * Represents a Eureka module with associated properties and methods to manage
@@ -34,5 +34,24 @@ class EurekaModule extends FolioModule {
     }
 
     return this
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "EurekaModule",
+      "id": "$id"
+      "name": "$name",
+      "version": "$version",
+      "action": "$action",
+      "type": "$type",
+      "buildId": $buildId,
+      "discovery": $discovery,
+      "versionType": "$versionType",
+      "buildTool": "$buildTool",
+      "buildDir": $buildDir,
+      "modDescriptorPath": $modDescriptorPath
+    """
   }
 }
