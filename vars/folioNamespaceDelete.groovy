@@ -43,6 +43,9 @@ void call(CreateNamespaceParameters args) {
         }
       }
     }
+    stage('[Helm uninstall] All') {
+      folioHelm.deleteFolioModulesParallel(args.namespaceName)
+    }
   }
 
   stage('[Terraform] Destroy') {
