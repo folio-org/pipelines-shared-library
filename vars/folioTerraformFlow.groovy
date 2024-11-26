@@ -12,6 +12,9 @@ void manageCluster(String action, TerraformConfig config) {
           Closure preAction = {
             try {
               folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
+              dir(config.getWorkDir()){
+                sh "terraform destroy --target rancher2*"
+              }
             } catch (e) {
               println(e.getMessage())
             }
