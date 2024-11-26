@@ -237,8 +237,8 @@ void call(CreateNamespaceParameters args) {
 
         input message: 'Continue deploy edge?'
 
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
         }
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
