@@ -26,7 +26,7 @@ class RancherNamespace {
 
   String okapiVersion
 
-  FolioInstallJson modules = new FolioInstallJson()
+  FolioInstallJson<FolioModule> modules = new FolioInstallJson(FolioModule.class)
 
   OkapiTenant superTenant = new OkapiTenant("supertenant")
 
