@@ -195,6 +195,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
         break
+      case ~/edge-.*$/:
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+        break
     }
   }
 
