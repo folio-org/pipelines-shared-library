@@ -800,6 +800,9 @@ mod-camunda:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
