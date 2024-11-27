@@ -100,6 +100,8 @@ ansiColor('xterm') {
               // Load Module Details for Maven builds
               module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
 
+              input message: "Go for withMaven?"
+
               // Build Module as Maven Project
               withMaven(
                 jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
