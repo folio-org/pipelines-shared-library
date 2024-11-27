@@ -47,7 +47,6 @@ resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
 }
 
 resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
-  depends_on   = [aws_cognito_user_pool_client.kibana_userpool_client]
   domain       = "${module.eks_cluster.cluster_name}-kibana"
   user_pool_id = aws_cognito_user_pool.kibana_user_pool.id
 }
