@@ -12,11 +12,12 @@ void manageCluster(String action, TerraformConfig config) {
           Closure preAction = {
             dir(config.getWorkDir()) {
               try {
-                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
                 def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
-                resources.tokenize().each { sh("set +e && terraform destroy -target $it -auto-approve") }
+                resources.tokenize().each { sh("terraform destroy -target $it -auto-approve") }
               } catch (e) {
                 println(e.getMessage())
+              } finally {
+                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
               }
             }
           }
