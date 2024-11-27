@@ -19,6 +19,7 @@
 
 #Creating a new project in Rancher.
 resource "rancher2_project" "kubecost" {
+  depends_on                = [module.eks_cluster.eks_managed_node_groups]
   count                     = var.deploy_kubecost ? 1 : 0
   provider                  = rancher2
   name                      = "kubecost"
@@ -32,6 +33,7 @@ resource "rancher2_project" "kubecost" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "kubecost" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.deploy_kubecost ? 1 : 0
   name        = "kubecost"
   project_id  = rancher2_project.kubecost[0].id
@@ -44,6 +46,7 @@ resource "rancher2_namespace" "kubecost" {
 
 # Create rancher2 Kubecost app in kubecost namespace
 resource "rancher2_app_v2" "kubecost" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.deploy_kubecost ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.kubecost[0].name

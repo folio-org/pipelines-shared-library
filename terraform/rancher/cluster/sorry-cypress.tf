@@ -1,5 +1,6 @@
 #Creating a sorry-cypress project in Rancher.
 resource "rancher2_project" "sorry-cypress" {
+  depends_on                = [module.eks_cluster.eks_managed_node_groups]
   count                     = var.deploy_sorry_cypress ? 1 : 0
   provider                  = rancher2
   name                      = "sorry-cypress"
@@ -13,6 +14,7 @@ resource "rancher2_project" "sorry-cypress" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "sorry-cypress" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.deploy_sorry_cypress ? 1 : 0
   name        = "sorry-cypress"
   project_id  = rancher2_project.sorry-cypress[0].id
@@ -24,6 +26,7 @@ resource "rancher2_namespace" "sorry-cypress" {
 }
 
 resource "rancher2_app_v2" "sorry-cypress" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.deploy_sorry_cypress ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.sorry-cypress[0].name

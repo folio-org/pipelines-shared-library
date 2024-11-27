@@ -1,5 +1,6 @@
 #AWS Load Balancer controller Helm chart for Kubernetes
 resource "helm_release" "alb_controller" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   name       = "aws-load-balancer-controller"
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
@@ -37,6 +38,7 @@ resource "helm_release" "alb_controller" {
 
 #Add External DNS
 resource "helm_release" "external_dns" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   name       = "external-dns"
   namespace  = "kube-system"
   repository = "https://charts.bitnami.com/bitnami"
@@ -77,6 +79,7 @@ resource "helm_release" "external_dns" {
 }
 
 resource "helm_release" "aws_cluster_autoscaler" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   name       = "aws-cluster-autoscaler"
   namespace  = "kube-system"
   repository = "https://kubernetes.github.io/autoscaler"
