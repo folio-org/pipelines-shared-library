@@ -17,7 +17,7 @@ void manageCluster(String action, TerraformConfig config) {
               } catch (e) {
                 println(e.getMessage())
               } finally {
-                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
+                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_template.index_template[0]')
               }
             }
           }
