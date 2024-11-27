@@ -105,7 +105,7 @@ def fetchModules(String url) {
     processResponse(nextConn)
   }
   processResponse(new URL(url).openConnection())
-  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') || it.startWith('folio-module-sidecar') }.sort()
+  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') }.sort()
 }
 fetchModules("${apiUrl}?per_page=${perPage}")'''
 }
