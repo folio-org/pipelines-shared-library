@@ -14,7 +14,7 @@ void manageCluster(String action, TerraformConfig config) {
               try {
                 def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
                 resources.tokenize().each {
-                  it ==~ /rancher2_cluster/ ? null : folioTerraform.removeFromState(config.getWorkDir(), "${it}")
+                  it ==~ /rancher2_cluster.*/ ? null : folioTerraform.removeFromState(config.getWorkDir(), "${it}")
                 }
                 folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_template.index_template[0]')
               } catch (e) {
