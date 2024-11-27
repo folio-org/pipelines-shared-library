@@ -1815,6 +1815,8 @@ mod-linked-data:
       memory: 1024Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dspring.profiles.active=folio,search
+  - -Dserver.port=8081
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1895,8 +1897,13 @@ mod-login:
     enabled: true
     maxUnavailable: 1
 mod-login-saml:
-  extraEnvVars: []
-  integrations: {}
+  extraEnvVars:
+    - name: DB_MAXPOOLSIZE
+      value: '20'
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:

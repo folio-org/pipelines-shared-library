@@ -1,10 +1,13 @@
 #!groovy
+package folioRancher.folioDevTools.moduleDeployment.installModulesFromJson
+
 import org.folio.models.FolioInstallJson
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.module.FolioModule
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -56,7 +59,7 @@ validateInputs(params)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 List tenants = params.TENANTS_LIST.split(',').collect { it.trim() }
-FolioInstallJson installJsonObject = new FolioInstallJson().setInstallJsonObject(readJSON(text: params.INSTALL_JSON))
+FolioInstallJson installJsonObject = new FolioInstallJson(FolioModule.class).setInstallJsonObject(readJSON(text: params.INSTALL_JSON))
 
 InstallRequestParams installRequestParams = new InstallRequestParams()
   .withTenantParameters("loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}")
@@ -132,7 +135,7 @@ ansiColor('xterm') {
           }
         }
 
-        namespace.getModules().setInstallJson(installJson)
+        namespace.getModules().setInstallJsonObject(installJson)
       }
 
       stage('Install') {
