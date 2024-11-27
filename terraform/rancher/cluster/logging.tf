@@ -323,7 +323,7 @@ resource "rancher2_app_v2" "fluentd" {
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   count = var.register_in_rancher && var.enable_logging ? 1 : 0
   name  = var.index_policy_name
-  depends_on = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output]
+  depends_on = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output, rancher2_app_v2.fluentd]
   hot {
     min_age = "0ms"
     set_priority {
