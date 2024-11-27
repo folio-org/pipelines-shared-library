@@ -1,5 +1,6 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
+  depends_on                = [module.eks_cluster.eks_managed_node_groups]
   count                     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider                  = rancher2
   name                      = "logging"
@@ -13,6 +14,7 @@ resource "rancher2_project" "logging" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "logging" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.register_in_rancher && var.enable_logging ? 1 : 0
   name        = "logging"
   project_id  = rancher2_project.logging[0].id
@@ -51,6 +53,7 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "elasticsearch" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
@@ -126,6 +129,7 @@ resource "rancher2_app_v2" "elasticsearch" {
 
 # Create Elasticsearch manifest
 resource "kubectl_manifest" "elasticsearch_output" {
+  depends_on         = [module.eks_cluster.eks_managed_node_groups]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
   override_namespace = rancher2_namespace.logging[0].name
@@ -195,6 +199,7 @@ data:
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "fluentd" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
@@ -321,8 +326,8 @@ resource "rancher2_app_v2" "fluentd" {
 
 // Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
-  count = var.register_in_rancher && var.enable_logging ? 1 : 0
-  name  = var.index_policy_name
+  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
+  name       = var.index_policy_name
   depends_on = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output, rancher2_app_v2.fluentd]
   hot {
     min_age = "0ms"

@@ -1,5 +1,6 @@
 # Folio helm charts catalog
 resource "rancher2_catalog_v2" "folio-helm" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "folio-helm"
@@ -8,6 +9,7 @@ resource "rancher2_catalog_v2" "folio-helm" {
 
 # Folio service helm charts catalog
 resource "rancher2_catalog_v2" "folio-helm-service" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "folio-helm-service"
@@ -16,6 +18,7 @@ resource "rancher2_catalog_v2" "folio-helm-service" {
 
 # OpenSearch helm charts catalog
 resource "rancher2_catalog_v2" "opensearch" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "opensearch"
@@ -24,6 +27,7 @@ resource "rancher2_catalog_v2" "opensearch" {
 
 # Bitnami helm charts catalog
 resource "rancher2_catalog_v2" "bitnami" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "bitnami"
@@ -32,6 +36,7 @@ resource "rancher2_catalog_v2" "bitnami" {
 
 # AWS ebs csi driver charts catalog
 resource "rancher2_catalog_v2" "aws-ebs-csi-driver" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "aws-ebs-csi-driver"
@@ -40,6 +45,7 @@ resource "rancher2_catalog_v2" "aws-ebs-csi-driver" {
 
 # Helm charts catalog
 resource "rancher2_catalog_v2" "helm" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "helm"
@@ -48,6 +54,7 @@ resource "rancher2_catalog_v2" "helm" {
 
 # Helm incubator charts catalog
 resource "rancher2_catalog_v2" "helm-incubator" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "helm-incubator"
@@ -56,6 +63,7 @@ resource "rancher2_catalog_v2" "helm-incubator" {
 
 # Influx charts catalog
 resource "rancher2_catalog_v2" "influx" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "influx"
@@ -64,6 +72,7 @@ resource "rancher2_catalog_v2" "influx" {
 
 # Grafana charts catalog
 resource "rancher2_catalog_v2" "grafana" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "grafana"
@@ -72,6 +81,7 @@ resource "rancher2_catalog_v2" "grafana" {
 
 # Runix charts catalog
 resource "rancher2_catalog_v2" "runix" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "runix"
@@ -80,6 +90,7 @@ resource "rancher2_catalog_v2" "runix" {
 
 # Kubecost charts catalog
 resource "rancher2_catalog_v2" "kubecost" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "cost-analyzer"
@@ -88,6 +99,7 @@ resource "rancher2_catalog_v2" "kubecost" {
 
 # Provectus charts catalog, for Kafka_ui
 resource "rancher2_catalog_v2" "provectus" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "provectus"
@@ -96,6 +108,7 @@ resource "rancher2_catalog_v2" "provectus" {
 
 # Prometheus Community charts catalog, for prometheus
 resource "rancher2_catalog_v2" "prometheus-community" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "prometheus-community"
@@ -104,6 +117,7 @@ resource "rancher2_catalog_v2" "prometheus-community" {
 
 # Kubernetes-sigs chart catalog, for metrics-server
 resource "rancher2_catalog_v2" "metrics-server" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "metrics-server"
@@ -112,6 +126,7 @@ resource "rancher2_catalog_v2" "metrics-server" {
 
 # Sorry Cypress charts catalog
 resource "rancher2_catalog_v2" "sorry-cypress" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "sorry-cypress"
@@ -120,6 +135,7 @@ resource "rancher2_catalog_v2" "sorry-cypress" {
 
 # MockServer charts catalog
 resource "rancher2_catalog_v2" "mock-server" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "mock-server"
