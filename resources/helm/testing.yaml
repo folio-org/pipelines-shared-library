@@ -792,7 +792,9 @@ mod-calendar:
     enabled: true
     maxUnavailable: 1
 mod-camunda:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: SPRING_JERSEY_APPLICATIONPATH
+      value: camunda
   integrations:
     db:
       enabled: true
