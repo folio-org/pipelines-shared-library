@@ -2,7 +2,7 @@
 import org.folio.Constants
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library@RANCHER-1727') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
