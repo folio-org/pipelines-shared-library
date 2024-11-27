@@ -36,6 +36,7 @@ resource "aws_cognito_user_pool" "kibana_user_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
+  depends_on                           = [aws_cognito_user_pool_domain.kibana_cognito_domain]
   name                                 = "${module.eks_cluster.cluster_name}-kibana"
   user_pool_id                         = aws_cognito_user_pool.kibana_user_pool.id
   generate_secret                      = true
