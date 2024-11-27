@@ -10,10 +10,16 @@ void manageCluster(String action, TerraformConfig config) {
           break
         case 'destroy':
           Closure preAction = {
-            try {
-              folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_lifecycle.index_policy')
-            } catch (e) {
-              println(e.getMessage())
+            dir(config.getWorkDir()) {
+              try {
+                def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
+                resources.tokenize().each {
+                  it ==~ /rancher2_cluster.*/ ? null : folioTerraform.removeFromState(config.getWorkDir(), "${it}")
+                }
+                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_template.index_template[0]')
+              } catch (e) {
+                println(e.getMessage())
+              }
             }
           }
           destroy(config, true, preAction)
