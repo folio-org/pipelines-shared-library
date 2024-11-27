@@ -97,10 +97,10 @@ ansiColor('xterm') {
               // Read module version from pom.xml
               module.version = readMavenPom(file: 'pom.xml').version
 
+              input message: "Go for withMaven?"
+
               // Load Module Details for Maven builds
               module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
-
-              input message: "Go for withMaven?"
 
               // Build Module as Maven Project
               withMaven(
