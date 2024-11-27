@@ -1,0 +1,85 @@
+#!groovy
+import org.folio.models.OkapiConfig
+import org.folio.models.OkapiTenant
+import org.folio.models.RancherNamespace
+import org.folio.models.TenantUi
+import org.folio.utilities.Logger
+
+@Library('pipelines-shared-library') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.repository(),
+    folioParameters.branch(),
+    string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+    folioParameters.tenantId(),
+    booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
+    booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
+List extensions = []
+if (params.CONSORTIA) {
+  extensions.add('consortia')
+}
+
+if (params.LINKED_DATA) {
+  extensions.add('linked-data')
+}
+
+/**
+ * Job variables
+ **/
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+final String deploymentConfigType = 'testing'
+boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
+String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+
+RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+  .withDeploymentConfigType(deploymentConfigType)
+
+TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH)
+
+OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+  .withTenantUi(tenantUi)
+  .withConfiguration(new OkapiConfig())
+
+tenant.enableFolioExtensions(this, extensions, isRelease)
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+namespace.addTenant(tenant)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
+      }
+
+      folioUI.buildAndDeploy(namespace, tenant)
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+

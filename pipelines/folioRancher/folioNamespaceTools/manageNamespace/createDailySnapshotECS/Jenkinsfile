@@ -136,7 +136,7 @@ ansiColor('xterm') {
       }
       stage('Restore') {
         folioHelm.withK8sClient {
-          namespace.getModules().setInstallJson(new Tools(this)
+          namespace.getModules().setInstallJsonObject(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
         }
@@ -156,7 +156,7 @@ ansiColor('xterm') {
           }
         }
         Users users = new Users(this, namespace.generateDomain('okapi'))
-        namespace.getModules().setInstallJson(newInstallJson)
+        namespace.getModules().setInstallJsonObject(newInstallJson)
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
@@ -190,9 +190,9 @@ ansiColor('xterm') {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 
           folioEdge.renderEphemeralProperties(namespace)
-          namespace.getModules().getEdgeModules().each { name, version ->
-            kubectl.deleteConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName())
-            kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+          namespace.getModules().getEdgeModules().each { module ->
+            kubectl.deleteConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName())
+            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
           }
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
@@ -209,7 +209,7 @@ ansiColor('xterm') {
       }
 
       stage('Build and deploy UI') {
-        namespace.getModules().setInstallJson(newInstallJson)
+        namespace.getModules().setInstallJsonObject(newInstallJson)
         String folioBranch = 'snapshot'
         String commitHash = common.getLastCommitHash("platform-complete", "snapshot")
         namespace.setEnableConsortia(true)

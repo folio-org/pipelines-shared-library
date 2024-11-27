@@ -4,13 +4,16 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.Edge
 import org.folio.rest_v2.Main
+import org.folio.utilities.Logger
 
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
 void call(CreateNamespaceParameters args) {
+  Logger logger = new Logger(this, 'folioNamespaceCreate.groovy')
+
   try {
-    println("Create operation parameters:\n${prettyPrint(toJson(args))}")
+    logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
     LdpConfig ldpConfig = new LdpConfig()
@@ -69,7 +72,7 @@ void call(CreateNamespaceParameters args) {
     //Set install configuration
     String defaultTenantId = 'diku'
     String folioRepository = 'platform-complete'
-    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
+    boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
@@ -77,30 +80,33 @@ void call(CreateNamespaceParameters args) {
     InstallRequestParams installRequestParams = new InstallRequestParams()
       .withTenantParameters("loadReference=${args.loadReference},loadSample=${args.loadSample}")
 
-    namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
+    namespace.withSuperTenantAdminUser()
+      .withOkapiVersion(args.okapiVersion)
+      .withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(args.configType)
     namespace.setEnableSplitFiles(args.splitFiles)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().setInstallJson(installJson)
 
-    namespace.addTenant(folioDefault.tenants()[namespace.getDefaultTenantId()]
-      .withInstallJson(namespace.getModules().getInstallJson().collect())
+    OkapiTenant defaultTenant = folioDefault.tenants()[namespace.getDefaultTenantId()]
+      .withInstallJson(installJson)
       .withIndex(new Index('instance', true, true))
       .withIndex(new Index('authority', true, false))
       .withInstallRequestParams(installRequestParams.clone())
       .withTenantUi(tenantUi.clone())
-    )
+    defaultTenant.enableFolioExtensions(this, args.folioExtensions - 'consortia')
+    namespace.addTenant(defaultTenant)
     namespace.getTenants()[namespace.getDefaultTenantId()].okapiConfig.setLdpConfig(ldpConfig)
 
-    if (args.consortia) {
-      namespace.setEnableConsortia(true, releaseVersion)
-      folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+    if (args.folioExtensions.contains('consortia')) {
+      namespace.setEnableConsortia(true, isRelease)
+      folioDefault.consortiaTenants(installJson, installRequestParams).values().each { tenant ->
         if (tenant.getIsCentralConsortiaTenant()) {
           tenant.withTenantUi(tenantUi.clone())
           tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
+        tenant.enableFolioExtensions(this, args.folioExtensions)
         namespace.addTenant(tenant)
       }
     }
@@ -111,17 +117,13 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy Okapi') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModule(namespace, 'okapi', namespace.getOkapiVersion())
-//        if (namespace.getDeploymentConfigType() ==~ /testing|performance/) {
-//          sleep time: 1, unit: 'MINUTES'
-//          kubectl.setKubernetesResourceCount('deployment', 'okapi', namespace.getNamespaceName(), '2')
-//        }
 //        folioHelm.checkPodRunning(namespace.getNamespaceName(), 'okapi')
       }
     }
 
     stage('[Rest] Okapi healthcheck') {
       sleep time: 3, unit: 'MINUTES'
-      println("https://${namespace.getDomains()['okapi']}/_/proxy/health")
+      logger.info("https://${namespace.getDomains()['okapi']}/_/proxy/health")
       common.healthCheck("https://${namespace.getDomains()['okapi']}/_/proxy/health")
     }
 
@@ -149,8 +151,8 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
         }
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
       }
@@ -160,19 +162,9 @@ void call(CreateNamespaceParameters args) {
       Map branches = [:]
       namespace.getTenants().each { tenantId, tenant ->
         if (tenant.getTenantUi()) {
-          TenantUi ui = tenant.getTenantUi()
           branches[tenantId] = {
-            def jobParameters = [
-              tenant_id  : ui.getTenantId(),
-              custom_hash: ui.getHash(),
-              custom_url : "https://${namespace.getDomains()['okapi']}",
-              custom_tag : ui.getTag(),
-              consortia  : tenant instanceof OkapiTenantConsortia
-            ]
-            uiBuild(jobParameters, releaseVersion)
-            folioHelm.withKubeConfig(namespace.getClusterName()) {
-              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-            }
+            logger.debug(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(tenant.getTenantUi())))
+            folioUI.buildAndDeploy(namespace, tenant)
           }
         }
       }
@@ -187,6 +179,6 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
 //    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
-    throw new Exception(e)
+    logger.error(e)
   }
 }

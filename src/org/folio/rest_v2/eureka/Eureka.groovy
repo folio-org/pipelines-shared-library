@@ -3,7 +3,7 @@ package org.folio.rest_v2.eureka
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.*
-import org.folio.models.module.FolioModule
+import org.folio.models.module.EurekaModule
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
 
@@ -100,11 +100,11 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> moduleList){
+  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules){
     Map<String, String> apps = [:]
 
     appNames.each {appName, appBranch ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, moduleList, appBranch, getDebug())
+      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
     }
@@ -124,49 +124,36 @@ class Eureka extends Base {
   }
 
   Map<String, String> registerApplicationsFlow(Map<String, String> appNames
-                                               , EurekaModules modules
+                                               , Map<String, String> modules
                                                , List<EurekaTenant> tenants){
 
-    Map<String, String> registeredApps = registerApplications(appNames, modules.getAllModules())
+    Map<String, String> registeredApps = registerApplications(appNames, modules)
 
     assignAppToTenants(tenants, registeredApps)
 
     return registeredApps
   }
 
-  Eureka registerModulesFlow(EurekaModules modules, Map<String, String> apps, List<EurekaTenant> tenants = null){
-    updateRegisteredModules(modules, apps)
-
-    if(tenants)
-      tenants.each {tenant -> updateTenantRegisteredModules(tenant, apps)}
-
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps){
     Applications.get(kong).registerModules(
       [
-        "discovery": modules.getDiscoveryList()
+        "discovery": modules.getDiscoveryList(getApplicationModules(apps))
       ]
     )
 
     return this
   }
 
-  Eureka updateTenantRegisteredModules(EurekaTenant tenant, Map<String, String> apps){
-    updateRegisteredModules(tenant.getModules(), apps)
-
-    return this
-  }
-
-  Eureka updateRegisteredModules(EurekaModules modules, Map<String, String> apps){
-    List restrictionList = []
+  List<String> getApplicationModules(Map<String, String> apps){
+    List<String> modules = []
     apps.values().each {appId ->
       Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
-        if(!restrictionList.contains(module.id))
-          restrictionList.add(module.id)
+        if(!modules.contains(module.id))
+          modules.add(module.id)
       }
     }
 
-    modules.updateDiscoveryList(restrictionList)
-
-    return this
+    return modules
   }
 
   /**
@@ -276,10 +263,10 @@ class Eureka extends Base {
    * Update Application Descriptor Flow.
    * @param applications Map of enabled applications in namespace.
    * @param modules EurekaModules object.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModules modules, FolioModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, EurekaModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -328,7 +315,7 @@ class Eureka extends Base {
    * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
-  Map getUpdatedApplicationDescriptor(Map appDescriptor, FolioModule module, String buildNumber) {
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, EurekaModule module, String buildNumber) {
     // Update Application Descriptor with incremented Application Version
     String currentAppVersion = appDescriptor.version
     String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
@@ -370,9 +357,9 @@ class Eureka extends Base {
 
   /**
    * Run Module Discovery Flow.
-   * @param module FolioModule object to discover
+   * @param module EurekaModule object to discover
    */
-  void runModuleDiscoveryFlow(FolioModule module) {
+  void runModuleDiscoveryFlow(EurekaModule module) {
     try {
       logger.info("Check if ${module.name}-${module.version} module discovery exists...")
       Applications.get(kong).getModuleDiscovery(module)
@@ -399,9 +386,9 @@ class Eureka extends Base {
    * Remove Stale Resources Flow.
    * @param applications Map of enabled applications in namespace.
    * @param updatedApplications Map of updated applications in namespace.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    */
-  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, FolioModule module) {
+  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, EurekaModule module) {
     // Remove Previous Application Descriptor with Stale Module Version
     configuredApps.each { appName, appId ->
       if (updatedApplications.containsKey(appName)) {
@@ -423,9 +410,9 @@ class Eureka extends Base {
   /**
    * Remove Resources on Fail Flow.
    * @param updatedApplications Map of updated applications in namespace.
-   * @param module FolioModule object.
+   * @param module EurekaModule object.
    */
-  void removeResourcesOnFailFlow(Map<String, String> updatedApplications, FolioModule module) {
+  void removeResourcesOnFailFlow(Map<String, String> updatedApplications, EurekaModule module) {
     if (updatedApplications.isEmpty()) {
       logger.info("No updated applications found to remove resources.")
     }
