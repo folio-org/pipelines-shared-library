@@ -63,7 +63,7 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @return The OkapiTenant object for method chaining.
    */
   @Override
-  OkapiTenant withInstallJson(Object installJson) {
+  OkapiTenantConsortia withInstallJson(List<Map<String, String>> installJson) {
     this.getModules().setInstallJsonObject(installJson)
     return this
   }
@@ -97,7 +97,7 @@ class OkapiTenantConsortia extends OkapiTenant {
    * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
    */
   @Override
-  void enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+  OkapiTenantConsortia enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
     super.enableFolioExtensions(script, extensions, isRelease)
     // Remove the 'folio_consortia-settings, folio_ld-folio-wrapper, and mod-linked-data' module if this tenant is not
     // the central consortia tenant
@@ -106,5 +106,7 @@ class OkapiTenantConsortia extends OkapiTenant {
       this.getModules().removeModuleByName('folio_ld-folio-wrapper')
       this.getModules().removeModuleByName('mod-linked-data')
     }
+
+    return this
   }
 }

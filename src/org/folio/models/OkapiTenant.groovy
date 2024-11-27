@@ -21,7 +21,7 @@ class OkapiTenant {
   OkapiUser adminUser
 
   /** Modules that are installed for the tenant. */
-  FolioInstallJson modules = new FolioInstallJson()
+  FolioInstallJson<FolioModule> modules = new FolioInstallJson(FolioModule.class)
 
   List<String> enabledExtensions = []
 
@@ -89,7 +89,7 @@ class OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
-  OkapiTenant withInstallJson(Object installJson) {
+  OkapiTenant withInstallJson(List<Map<String, String>> installJson) {
     this.modules.setInstallJsonObject(installJson)
     this.modules.removeModulesByName(['mod-consortia', 'folio_consortia-settings'])
     return this
@@ -155,7 +155,7 @@ class OkapiTenant {
    * @param extensions List of extension IDs to enable.
    * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
    */
-  void enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+  OkapiTenant enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
     extensions.each { extentionId ->
       List modulesList = getExtensionModulesList(script, extentionId)
       modulesList*.id.each { moduleName ->
@@ -171,6 +171,8 @@ class OkapiTenant {
     }
 
     this.enabledExtensions = extensions
+
+    return this
   }
 
   /**
