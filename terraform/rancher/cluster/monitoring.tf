@@ -14,7 +14,7 @@ resource "rancher2_project" "monitoring" {
 
 # Create a namespace assigned to monitoring project
 resource "rancher2_namespace" "monitoring" {
-  depends_on  = [module.eks_cluster.eks_managed_node_groups]
+  depends_on  = [module.eks_cluster.eks_managed_node_groups, rancher2_project.monitoring]
   count       = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   name        = "monitoring"
   project_id  = rancher2_project.monitoring[0].id
@@ -27,7 +27,7 @@ resource "rancher2_namespace" "monitoring" {
 
 # Create metrics-server app in monitoring namespace
 resource "rancher2_app_v2" "metrics-server" {
-  depends_on    = [module.eks_cluster.eks_managed_node_groups]
+  depends_on    = [module.eks_cluster.eks_managed_node_groups, rancher2_catalog_v2.metrics-server]
   count         = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = "kube-system"
@@ -39,7 +39,7 @@ resource "rancher2_app_v2" "metrics-server" {
 
 # Create prometheus app in monitoring namespace
 resource "rancher2_app_v2" "prometheus" {
-  depends_on    = [module.eks_cluster.eks_managed_node_groups]
+  depends_on    = [module.eks_cluster.eks_managed_node_groups, rancher2_catalog_v2.grafana]
   count         = var.register_in_rancher && var.enable_monitoring ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.monitoring[0].name

@@ -1,6 +1,6 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
+  depends_on                = [module.eks_cluster.eks_managed_node_groups, rancher2_catalog_v2.grafana]
   count                     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider                  = rancher2
   name                      = "logging"
@@ -14,7 +14,7 @@ resource "rancher2_project" "logging" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "logging" {
-  depends_on  = [module.eks_cluster.eks_managed_node_groups]
+  depends_on  = [module.eks_cluster.eks_managed_node_groups, rancher2_project.logging]
   count       = var.register_in_rancher && var.enable_logging ? 1 : 0
   name        = "logging"
   project_id  = rancher2_project.logging[0].id
