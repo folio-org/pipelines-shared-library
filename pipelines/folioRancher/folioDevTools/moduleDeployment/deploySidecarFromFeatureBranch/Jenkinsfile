@@ -98,15 +98,15 @@ ansiColor('xterm') {
           "https://${Constants.ECR_FOLIO_REPOSITORY}",
           "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
         ) {
-          /**
-           * Check if ECR Repository exists
-           * If it does not exist, create it
-           */
+          /** Check if ECR Repository exists. If it does not exist, create it */
           common.checkEcrRepoExistence(params.MODULE_NAME)
 
           dir(sidecarWorkDir) {
-            /** Build and Push Docker Image */
-            docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .').push()
+            /** Build Docker Image */
+            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .')
+
+            /** Push Docker Image to ECR */
+            dockerImage.push()
           }
         }
       }
