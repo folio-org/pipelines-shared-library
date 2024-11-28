@@ -56,8 +56,11 @@ ansiColor('xterm') {
       println("installJson:")
       println(installJson)
 
-      println("FolioInstallJson:")
-      println(namespace.getModules())
+      println("FolioInstallJson.moduleType:")
+      println(namespace.getModules().moduleType)
+
+      println("FolioInstallJson.installJsonObject:")
+      println(namespace.getModules().installJsonObject)
 
       namespace.getModules().setInstallJsonObject(installJson)
 
