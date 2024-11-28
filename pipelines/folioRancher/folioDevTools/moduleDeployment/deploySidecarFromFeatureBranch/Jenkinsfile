@@ -1,0 +1,74 @@
+package folioRancher.folioDevTools.moduleDeployment.deploySidecarFromFeatureBranch
+
+import org.folio.models.EurekaNamespace
+import org.folio.utilities.Logger
+import org.folio.utilities.GitHubClient
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1894') _
+
+/** Pipeline properties and parameters */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'MODULE_NAME', defaultValue: 'folio-module-sidecar', description: 'GitHub Repository Name for Sidecar application'),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.configType(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters(),
+  ])
+])
+
+/** Re-read updated Jenkinsfile code */
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/** Job variables */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+/** Collect Rancher Namespace Configuration */
+EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+  .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
+
+/** Collect feature branch and hash */
+String featureBranch = params.MODULE_BRANCH
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+
+/** Pipeline */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      }
+
+      stage('[Git] Checkout source') {
+        checkout([
+          $class           : 'GitSCM',
+          branches         : [[name: "*/${featureBranch}"]],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                              [$class: 'AuthorInChangelog'],
+                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+        ])
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
