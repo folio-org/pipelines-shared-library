@@ -64,6 +64,9 @@ ansiColor('xterm') {
       println("installJson:")
       println(installJson)
 
+      println("FolioInstallJson:")
+      println(namespace.getModules())
+
       namespace.getModules().setInstallJsonObject(installJson)
 
       input message: "Continue 5"
