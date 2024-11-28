@@ -170,7 +170,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (ns instanceof EurekaNamespace) {
     String sidecarRepository = determineModulePlacement(
       "folio-module-sidecar"
-      , ns.getModules().getModuleByName('folio-module-sidecar')?.getVersion()
+      , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
     )
 
     moduleConfig << [
