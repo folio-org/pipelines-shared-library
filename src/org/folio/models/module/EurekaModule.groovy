@@ -27,8 +27,8 @@ class EurekaModule extends FolioModule {
     super.loadModuleDetails(id, action)
 
     // Set discovery information for backend modules
-    if (this.type == ModuleType.BACKEND || this.type == ModuleType.EDGE) {
-      String location = "http://${this.name}${this.type == ModuleType.BACKEND ? ':8082' : ''}"
+    if (this.getType() == ModuleType.BACKEND || this.getType() == ModuleType.EDGE) {
+      String location = "http://${this.name}${this.getType() == ModuleType.BACKEND ? ':8082' : ''}"
 
       this.discovery = [id: "${name}-${version}", name: name, version: version, location: location]
     }
