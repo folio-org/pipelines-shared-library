@@ -29,11 +29,11 @@ class FolioInstallJson<T extends FolioModule> {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
+  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
     this.installJsonObject = installJsonOrig.collect(({
       module ->
-        if(context)
-          context.println(module)
+//        if(context)
+//          context.println(module)
 
         moduleType.getDeclaredConstructor().newInstance()
         .loadModuleDetails(module['id'] as String, module['action'] as String)
