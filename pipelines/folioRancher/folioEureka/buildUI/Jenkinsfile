@@ -56,7 +56,8 @@ ansiColor('xterm') {
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
               .withDefaultTenant("${params.TENANT_ID}")
               .withDeploymentConfigType(params.CONFIG_TYPE)
-              .addDeploymentConfig(folioTools.getPipelineBranch())
+
+      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
@@ -65,6 +66,7 @@ ansiColor('xterm') {
       tenant = tenant ? tenant : folioDefault.consortiaTenants([], new InstallRequestParams())[params.TENANT_ID]
 
       namespace.addTenant(tenant
+              .convertTo(EurekaTenant.class)
               .withInstallJson(installJson)
               .withTenantUi(tenantUi.clone())
       )
