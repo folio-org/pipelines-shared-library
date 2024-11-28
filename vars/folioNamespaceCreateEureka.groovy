@@ -69,12 +69,15 @@ void call(CreateNamespaceParameters args) {
     //Set install configuration
     String defaultTenantId = 'diku'
     String folioRepository = 'platform-complete'
-    boolean releaseVersion = args.folioBranch ==~ /^R\d-\d{4}.*/
+    boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
+
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
+    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -84,34 +87,34 @@ void call(CreateNamespaceParameters args) {
       .doLoadReference(args.loadReference)
       .doLoadSample(args.loadSample) as EurekaRequestParams
 
-    namespace.withSuperTenantAdminUser().withOkapiVersion(args.okapiVersion).withDefaultTenant(defaultTenantId)
-      .withDeploymentConfigType(args.configType)
+    namespace.withSuperTenantAdminUser()
+            .withOkapiVersion(args.okapiVersion)
+            .withDefaultTenant(defaultTenantId)
+            .withDeploymentConfigType(args.configType)
 
+    namespace.setEnableSplitFiles(args.splitFiles)
+    namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-    namespace.getModules().setInstallJson(installJson)
-
-    //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    namespace.getModules().removeModule('mod-login')
-    namespace.getModules().removeModule('mod-authtoken')
 
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-        .withInstallJson(namespace.getModules().getInstallJson().collect())
+        .withInstallJson(installJson)
         .withIndex(new Index('instance', true, true))
         .withIndex(new Index('authority', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
+        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
-    if (args.consortia) {
-      namespace.setEnableConsortia(true, releaseVersion)
+    if (args.folioExtensions.contains('consortia-eureka')) {
+      namespace.setEnableConsortia(true, isRelease)
 
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
         .values().each { tenant ->
-        tenant.withInstallJson(namespace.getModules().getInstallJson())
+        tenant.withInstallJson(installJson)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
         if (tenant.getIsCentralConsortiaTenant()) {
@@ -119,6 +122,7 @@ void call(CreateNamespaceParameters args) {
 //          tenant.okapiConfig.setLdpConfig(ldpConfig)
         }
 
+        tenant.enableFolioExtensions(this, args.folioExtensions)
         namespace.addTenant(tenant)
       }
     }
@@ -178,7 +182,7 @@ void call(CreateNamespaceParameters args) {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
           args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
-          , namespace.getModules()
+          , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )
       )
@@ -186,7 +190,6 @@ void call(CreateNamespaceParameters args) {
       eureka.registerModulesFlow(
         namespace.getModules()
         , namespace.getApplications()
-        , namespace.getTenants().values() as List<EurekaTenant>
       )
     }
 
@@ -201,8 +204,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioEdge.renderEphemeralPropertiesEureka(namespace)
-        namespace.getModules().getEdgeModules().each { name, version ->
-          kubectl.createConfigMap("${name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
         }
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
@@ -252,7 +255,7 @@ void call(CreateNamespaceParameters args) {
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]
 
-              uiBuild(jobParameters, releaseVersion)
+              uiBuild(jobParameters, isRelease)
               folioHelm.withKubeConfig(namespace.getClusterName()) {
                 folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
               }
