@@ -44,8 +44,8 @@ String featureHash = new GitHubClient(this).getBranchInfo(params.MODULE_NAME, fe
 /** Collect Maven arguments */
 def mavenArguments = params.MAVEN_ARGS.trim()
 
-/** Read Sidecar version from its pom.xml file */
-def sidecarVersion = readMavenPom(file: 'pom.xml').version
+/** Sidecar version */
+def sidecarVersion = ""
 
 def sidecarWorkDir = "${env.WORKSPACE}/${params.MODULE_NAME}"
 
@@ -72,6 +72,9 @@ ansiColor('xterm') {
 
       stage('[Maven] Compile') {
         dir(sidecarWorkDir) {
+          /** Read Sidecar version from its pom.xml file */
+          sidecarVersion = readMavenPom(file: 'pom.xml')['version']
+
           /** Build Sidecar as Maven Project */
           withMaven(
             jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
