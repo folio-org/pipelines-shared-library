@@ -184,7 +184,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         eureka: [
           image: [
             repository: "${sidecarRepository}/folio-module-sidecar",
-            tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
+            tag       : ns.getModules().getModuleByName('folio-module-sidecar')?.getVersion()
           ]
         ]
       ]
