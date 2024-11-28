@@ -60,6 +60,10 @@ ansiColor('xterm') {
       input message: "Continue 4"
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+      println("installJson:")
+      println(installJson)
+
       namespace.getModules().setInstallJsonObject(installJson)
 
       input message: "Continue 5"
