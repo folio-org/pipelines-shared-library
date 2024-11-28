@@ -53,6 +53,7 @@ void call(Map params, boolean releaseVersion = false) {
         List ui_eureka = ["@folio/authorization-policies", "@folio/authorization-roles", "@folio/plugin-select-application"]
         ui_eureka.each { module ->
           packageJson.dependencies.put(module, ">=1.0.0")
+          sh 'sed -i "/modules: {/a \\    \'' + module + '\': {}," stripes.config.js'
         }
         writeJSON file: 'package.json', json: packageJson, pretty: 2
       }
@@ -66,7 +67,7 @@ void call(Map params, boolean releaseVersion = false) {
         String moduleVersion = moduleId - 'folio_consortia-settings-'
         packageJson.dependencies.put('@folio/consortia-settings', moduleVersion)
         writeJSON file: 'package.json', json: packageJson, pretty: 2
-        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\' : {}," stripes.config.js'
+        sh 'sed -i "/modules: {/a \\    \'@folio/consortia-settings\': {}," stripes.config.js'
       }
     }
   }
