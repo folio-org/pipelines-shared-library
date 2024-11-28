@@ -53,11 +53,11 @@ ansiColor('xterm') {
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${featureBranch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: params.MODULE_NAME],
                               [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                               [$class: 'AuthorInChangelog'],
                               [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${params.MODULE_NAME}.git"]]
         ])
       }
 
