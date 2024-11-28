@@ -4,7 +4,7 @@ import org.folio.rest_v2.Configurations
 import org.folio.rest_v2.Constants
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library@RANCHER-1494') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -13,14 +13,15 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.agent(),
-    folioParameters.refreshParameters(),
+    booleanParam(name: 'ResetPasswordLink', defaultValue: false, description: 'ResetPasswordLink for tenant'),
     string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant ID'),
+    folioParameters.refreshParameters()
   ])
 ])
 
 OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID as String]
 tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}")
-Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}", true)
+Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
 
 
 if (params.REFRESH_PARAMETERS) {
@@ -38,15 +39,22 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName "CONFIGURE"
-        buildDescription "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+        buildDescription "CONFIGURE: ${params.TENANT_ID}"
       }
       stage('Checkout') {
         checkout scm
       }
 
       stage('Configure tenant') {
-        config.setResetPasswordLink(tenant)
+        if (params.ResetPasswordLink) {
+          config.setResetPasswordLink(tenant)
+        }
+
+        /**
+         * The rest configuration activities placeholder: Reindex, SMTP, etc.
+         */
+
       }
 
     } catch (e) {
