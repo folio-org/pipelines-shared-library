@@ -103,7 +103,7 @@ ansiColor('xterm') {
 
           dir(sidecarWorkDir) {
             /** Build Docker Image */
-            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}.${env.BUILD_NUMBER}", '--no-cache=true --pull=true .')
+            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .')
 
             /** Push Docker Image to ECR */
             dockerImage.push()
