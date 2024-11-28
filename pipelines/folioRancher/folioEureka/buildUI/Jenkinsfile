@@ -7,7 +7,7 @@ import org.folio.rest.GitHubUtility
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1944') _
+@Library('pipelines-shared-library@RANCHER-1334-test2') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -44,7 +44,7 @@ ansiColor('xterm') {
       String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
 
-      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      List<Map<String, String>> installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
 
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
@@ -52,7 +52,19 @@ ansiColor('xterm') {
               .withDeploymentConfigType(params.CONFIG_TYPE)
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-      namespace.getModules().setInstallJsonObject(installJson)
+
+      println("installJson:")
+      println(installJson)
+
+      println("FolioInstallJson.moduleType:")
+      println(namespace.getModules().moduleType)
+
+      println("FolioInstallJson.installJsonObject:")
+      println(namespace.getModules().installJsonObject)
+
+      namespace.getModules().setInstallJsonObject(installJson, this)
+
+      input message: "Continue 5"
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
