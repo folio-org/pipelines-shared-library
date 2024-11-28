@@ -44,7 +44,13 @@ ansiColor('xterm') {
       String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
 
-      List<Map<String, String>> installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+      installJson.addAll(eurekaPlatform)
+
+      //TODO: Temporary solution. Unused by Eureka modules have been removed.
+      installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+
       TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
 
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
@@ -52,19 +58,7 @@ ansiColor('xterm') {
               .withDeploymentConfigType(params.CONFIG_TYPE)
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-      println("installJson:")
-      println(installJson)
-
-      println("FolioInstallJson.moduleType:")
-      println(namespace.getModules().moduleType)
-
-      println("FolioInstallJson.installJsonObject:")
-      println(namespace.getModules().installJsonObject)
-
-      namespace.getModules().setInstallJsonObject(installJson, this)
-
-      input message: "Continue 5"
+      namespace.getModules().setInstallJsonObject(installJson)
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
