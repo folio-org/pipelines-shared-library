@@ -53,7 +53,7 @@ ansiColor('xterm') {
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-      namespace.getModules().setInstallJsonObject(installJson, this)
+      namespace.getModules().setInstallJsonObject(installJson)
 
 
       if (params.CONSORTIA)

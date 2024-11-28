@@ -29,14 +29,11 @@ class FolioInstallJson<T extends FolioModule> {
    * @param installJsonOrig a list of maps containing module details (id and action).
    * @return the instance of FolioInstallJson for method chaining.
    */
-  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig, def context = null) {
+  FolioInstallJson<T> setInstallJsonObject(List<Map<String, String>> installJsonOrig) {
     this.installJsonObject = installJsonOrig.collect(({
       module ->
-        if(context)
-          context.println(module)
-
         moduleType.getDeclaredConstructor().newInstance()
-        .loadModuleDetails(module['id'] as String, module['action'] as String)
+          .loadModuleDetails(module['id'] as String, module['action'] as String)
     } as Closure<T>))
 
     return this
@@ -162,8 +159,8 @@ class FolioInstallJson<T extends FolioModule> {
    *
    * @return a module name : module version map.
    */
-  Map<String, String> getModuleVersionMap(){
-    return installJsonObject.collectEntries {module ->
+  Map<String, String> getModuleVersionMap() {
+    return installJsonObject.collectEntries { module ->
       [(module.name): module.version]
     }
   }
@@ -175,7 +172,7 @@ class FolioInstallJson<T extends FolioModule> {
    */
   List getDiscoveryList(List<String> restrictionList = null) {
     return this.installJsonObject
-      .findAll{module ->
+      .findAll { module ->
         module?.discovery && !(restrictionList && !restrictionList.find({ value -> value == module.id }))
       }
       .collect { module -> module?.discovery }
