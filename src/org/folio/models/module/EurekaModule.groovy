@@ -27,10 +27,10 @@ class EurekaModule extends FolioModule {
     super.loadModuleDetails(id, action)
 
     // Set discovery information for backend modules
-    if (this.type == ModuleType.BACKEND || this.type == ModuleType.EDGE) {
-      String location = "http://${this.name}${this.type == ModuleType.BACKEND ? ':8082' : ''}"
+    if (getType() == ModuleType.BACKEND || getType() == ModuleType.EDGE) {
+      String location = "http://${getName()}${getType() == ModuleType.BACKEND ? ':8082' : ''}"
 
-      this.discovery = [id: "${name}-${version}", name: name, version: version, location: location]
+      setDiscovery([id: "${getName()}-${getVersion()}", name: getName(), version: getVersion(), location: location])
     }
 
     return this
