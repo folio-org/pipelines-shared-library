@@ -47,11 +47,13 @@ def mavenArguments = params.MAVEN_ARGS.trim()
 /** Sidecar version */
 def sidecarVersion = ""
 
-def sidecarWorkDir = "${env.WORKSPACE}/${params.MODULE_NAME}"
 
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
+    /** Directory to build Sidecar within */
+    def sidecarWorkDir = "${env.WORKSPACE}/${params.MODULE_NAME}"
+
     try {
       stage('Ini') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
