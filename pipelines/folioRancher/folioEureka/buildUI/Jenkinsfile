@@ -71,6 +71,11 @@ ansiColor('xterm') {
               .withTenantUi(tenantUi.clone())
       )
 
+      println("tenant:")
+      println(tenant)
+      println("tenant.getTenantUi()")
+      println(tenant.getTenantUi())
+
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
                              kongUrl             : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
