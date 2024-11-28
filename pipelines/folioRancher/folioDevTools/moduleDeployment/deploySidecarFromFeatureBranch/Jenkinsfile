@@ -42,7 +42,12 @@ String featureBranch = params.MODULE_BRANCH
 String featureHash = new GitHubClient(this).getBranchInfo(params.MODULE_NAME, featureBranch).commit.sha.take(7)
 
 /** Collect Maven arguments */
-String mavenArguments = params.MAVEN_ARGS.trim()
+def mavenArguments = params.MAVEN_ARGS.trim()
+
+/** Read Sidecar version from its pom.xml file */
+def sidecarVersion = readMavenPom(file: 'pom.xml').version
+
+def sidecarWorkDir = "${env.WORKSPACE}/${params.MODULE_NAME}"
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -66,20 +71,37 @@ ansiColor('xterm') {
       }
 
       stage('[Maven] Compile') {
-        dir("${env.WORKSPACE}/${params.MODULE_NAME}") {
-          // Read Sidecar version from its pom.xml file
-          def sidecarVersion = readMavenPom(file: 'pom.xml').version
+        dir(sidecarWorkDir) {
+          /** Build Sidecar as Maven Project */
+          withMaven(
+            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+            maven: Constants.MAVEN_TOOL_NAME,
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]
+          ) {
+            sh """
+              mvn versions:set -DnewVersion=${sidecarVersion}
+              mvn package ${mavenArguments}
+            """.stripIndent()
+          }
+        }
+      }
 
-          // Build Sidecar as Maven Project
-          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-                    maven: Constants.MAVEN_TOOL_NAME,
-                    traceability: false,
-                    options: [artifactsPublisher(disabled: true)])
-          {
-              sh """
-                mvn versions:set -DnewVersion=${sidecarVersion}
-                mvn package ${mavenArguments}
-              """.stripIndent()
+      stage('[Docker] Build and Push') {
+        /** Put Docker Image to Amazon ECR repository */
+        docker.withRegistry(
+          "https://${Constants.ECR_FOLIO_REPOSITORY}",
+          "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
+        ) {
+          /**
+           * Check if ECR Repository exists
+           * If it does not exist, create it
+           */
+          common.checkEcrRepoExistence(params.MODULE_NAME)
+
+          dir(sidecarWorkDir) {
+            /** Build and Push Docker Image */
+            docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .').push()
           }
         }
       }
