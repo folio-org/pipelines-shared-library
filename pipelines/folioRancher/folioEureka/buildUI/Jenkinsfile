@@ -1,4 +1,6 @@
 #!groovy
+package folioRancher.folioEureka.buildUI
+
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
@@ -37,7 +39,7 @@ ansiColor('xterm') {
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
       }
 
-      boolean releaseVersion = false
+      boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
 
       String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
@@ -50,7 +52,7 @@ ansiColor('xterm') {
               .withDeploymentConfigType(params.CONFIG_TYPE)
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-      namespace.getModules().setInstallJson(installJson)
+      namespace.getModules().setInstallJsonObject(installJson)
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
@@ -81,7 +83,7 @@ ansiColor('xterm') {
                              rancher_project_name: params.NAMESPACE,
                              folio_branch        : params.FOLIO_BRANCH]
 
-        uiBuild(jobParameters, releaseVersion)
+        uiBuild(jobParameters, isRelease)
 
         folioHelm.withKubeConfig(params.CLUSTER) {
           folioHelm.deployFolioModule(
