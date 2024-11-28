@@ -45,7 +45,7 @@ ansiColor('xterm') {
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
 
       List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-      def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+      def eurekaPlatform = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
       installJson.addAll(eurekaPlatform)
 
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
