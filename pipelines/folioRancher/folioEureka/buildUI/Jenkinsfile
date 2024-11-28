@@ -64,17 +64,12 @@ ansiColor('xterm') {
 
       OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID]
       tenant = tenant ? tenant : folioDefault.consortiaTenants([], new InstallRequestParams())[params.TENANT_ID]
-
-      namespace.addTenant(tenant
+      tenant = tenant
               .convertTo(EurekaTenant.class)
               .withInstallJson(installJson)
               .withTenantUi(tenantUi.clone())
-      )
 
-      println("tenant:")
-      println(tenant)
-      println("tenant.getTenantUi()")
-      println(tenant.getTenantUi())
+      namespace.addTenant(tenant)
 
       stage('Build and deploy UI') {
         def jobParameters = [eureka              : true,
