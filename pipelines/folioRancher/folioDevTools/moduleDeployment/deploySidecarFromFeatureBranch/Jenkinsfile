@@ -38,7 +38,7 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+String featureHash = new GitHubClient(this).getBranchInfo(params.MODULE_NAME, featureBranch).commit.sha.take(7)
 
 /** Pipeline */
 ansiColor('xterm') {
