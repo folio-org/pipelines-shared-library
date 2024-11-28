@@ -74,8 +74,8 @@ ansiColor('xterm') {
 
       stage('[Maven] Compile') {
         dir(sidecarWorkDir) {
-          /** Read Sidecar version from its pom.xml file */
-          sidecarVersion = readMavenPom(file: 'pom.xml').version
+          /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
+          sidecarVersion = readMavenPom(file: 'pom.xml').version + ".${featureHash}"
 
           /** Build Sidecar as Maven Project */
           withMaven(
@@ -103,7 +103,7 @@ ansiColor('xterm') {
 
           dir(sidecarWorkDir) {
             /** Build Docker Image */
-            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .')
+            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}.${env.BUILD_NUMBER}", '--no-cache=true --pull=true .')
 
             /** Push Docker Image to ECR */
             dockerImage.push()
