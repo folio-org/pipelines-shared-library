@@ -44,7 +44,7 @@ ansiColor('xterm') {
       String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
 
-      List<Map<String, String>> installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
 
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
@@ -52,9 +52,7 @@ ansiColor('xterm') {
               .withDeploymentConfigType(params.CONFIG_TYPE)
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
       namespace.getModules().setInstallJsonObject(installJson)
-
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
