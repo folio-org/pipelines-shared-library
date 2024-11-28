@@ -75,7 +75,7 @@ ansiColor('xterm') {
       stage('[Maven] Compile') {
         dir(sidecarWorkDir) {
           /** Read Sidecar version from its pom.xml file */
-          sidecarVersion = readMavenPom(file: 'pom.xml')['version']
+          sidecarVersion = readMavenPom(file: 'pom.xml').version
 
           /** Build Sidecar as Maven Project */
           withMaven(
