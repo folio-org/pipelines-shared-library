@@ -154,7 +154,10 @@ class Configurations extends Authorization {
         restClient.post(url, body, headers)
       } catch (RequestException e) {
         if (e.statusCode == 422) {
-          logger.warning("Configuration already presented. ${e.getMessage()}")
+          logger.warning("Configuration already presented. ${e.getMessage()}\nDeleting old configuration & applying new one")
+          def response = restClient.get(generateUrl("/configurations/entries?query=configs=module=USERSBL"), headers).body['configs'].find { it['value'] ==~ /http.*/ }
+          restClient.delete(generateUrl("/configurations/entries/${response['id']}"), headers)
+          restClient.post(url, body, headers)
         } else {
           logger.error("Template ${it} can not be applied: ${e.getMessage()}. Status code: ${e.statusCode}")
         }
