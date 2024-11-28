@@ -56,18 +56,16 @@ ansiColor('xterm') {
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
               .withDefaultTenant("${params.TENANT_ID}")
               .withDeploymentConfigType(params.CONFIG_TYPE)
-
-      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-      namespace.getModules().setInstallJsonObject(installJson)
+              .addDeploymentConfig(folioTools.getPipelineBranch())
 
       if (params.CONSORTIA)
         namespace.setEnableConsortia(true)
 
       OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID]
-      tenant = tenant ? tenant : folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), new InstallRequestParams())[params.TENANT_ID]
+      tenant = tenant ? tenant : folioDefault.consortiaTenants([], new InstallRequestParams())[params.TENANT_ID]
 
       namespace.addTenant(tenant
-              .withInstallJson(namespace.getModules().getInstallJson().collect())
+              .withInstallJson(installJson)
               .withTenantUi(tenantUi.clone())
       )
 
