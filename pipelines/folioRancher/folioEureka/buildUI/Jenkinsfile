@@ -41,23 +41,15 @@ ansiColor('xterm') {
 
       boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
 
-      input message: "Continue 1"
-
       String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
               : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-
-      input message: "Continue 2"
 
       List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
       TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
 
-      input message: "Continue 3"
-
       EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
               .withDefaultTenant("${params.TENANT_ID}")
               .withDeploymentConfigType(params.CONFIG_TYPE)
-
-      input message: "Continue 4"
 
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
