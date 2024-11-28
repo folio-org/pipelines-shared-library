@@ -1,5 +1,6 @@
 package folioRancher.folioDevTools.moduleDeployment.deploySidecarFromFeatureBranch
 
+import org.folio.Constants
 import org.folio.models.EurekaNamespace
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
@@ -40,6 +41,9 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 String featureBranch = params.MODULE_BRANCH
 String featureHash = new GitHubClient(this).getBranchInfo(params.MODULE_NAME, featureBranch).commit.sha.take(7)
 
+/** Collect Maven arguments */
+String mavenArguments = params.MAVEN_ARGS.trim()
+
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -59,6 +63,25 @@ ansiColor('xterm') {
                               [$class: 'SubmoduleOption', recursiveSubmodules: true]],
           userRemoteConfigs: [[url: "https://github.com/folio-org/${params.MODULE_NAME}.git"]]
         ])
+      }
+
+      stage('[Maven] Compile') {
+        dir("${env.WORKSPACE}/${params.MODULE_NAME}") {
+          // Read Sidecar version from its pom.xml file
+          def sidecarVersion = readMavenPom(file: 'pom.xml').version
+
+          // Build Sidecar as Maven Project
+          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+                    maven: Constants.MAVEN_TOOL_NAME,
+                    traceability: false,
+                    options: [artifactsPublisher(disabled: true)])
+          {
+              sh """
+                mvn versions:set -DnewVersion=${sidecarVersion}
+                mvn package ${mavenArguments}
+              """.stripIndent()
+          }
+        }
       }
 
     } catch (e) {
