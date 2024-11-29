@@ -43,15 +43,16 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         15 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega-2nd
         20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
         20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        0 22 * * * %action=STOP;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
         25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
         35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
         0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
         15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
         20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
-        10 22 * * * %action=STOP;CLUSTER=folio-edev;NAMESPACE=corsair
-        0 22 * * * %action=STOP;CLUSTER=folio-edev;NAMESPACE=eureka
+        10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
+        0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
    ''')])])
 
 ansiColor('xterm') {

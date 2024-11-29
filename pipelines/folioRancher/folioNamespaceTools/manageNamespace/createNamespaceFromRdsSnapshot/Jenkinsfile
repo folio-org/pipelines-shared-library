@@ -116,7 +116,7 @@ ansiColor('xterm') {
         String folioBranch = ''
 
         folioHelm.withK8sClient {
-          namespace.getModules().setInstallJson(new Tools(this)
+          namespace.getModules().setInstallJsonObject(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-install.json")))
           Map uiJson = new Tools(this)
             .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-ui.json"))

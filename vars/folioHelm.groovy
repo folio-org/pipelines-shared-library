@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.models.EurekaNamespace
 import org.folio.models.RancherNamespace
+import org.folio.models.module.FolioModule
 import org.folio.utilities.Logger
 
 import java.time.LocalDateTime
@@ -71,21 +72,19 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
   upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
 }
 
-void deployFolioModules(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
-  folioModules.each { moduleName, moduleVersion -> deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId) }
+void deployFolioModules(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+  modules.each { module -> deployFolioModule(ns, module.name, module.version, customModule, tenantId) }
 }
 
-void deployFolioModulesParallel(RancherNamespace ns, Map folioModules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
   int limit = 10
-  folioModules.entrySet().toList().collate(limit).each { moduleGroup ->
+  modules.collate(limit).each { moduleGroup ->
     def branches = [:]
-    moduleGroup.each { backendModule ->
-      String moduleName = backendModule.key
-      String moduleVersion = backendModule.value
-      branches[moduleName] = {
+    moduleGroup.each { module ->
+      branches[module.name] = {
 //        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
 //        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
-        deployFolioModule(ns, moduleName, moduleVersion, customModule, tenantId)
+        deployFolioModule(ns, module.name, module.version, customModule, tenantId)
 //        }
       }
     }
@@ -171,7 +170,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (ns instanceof EurekaNamespace) {
     String sidecarRepository = determineModulePlacement(
       "folio-module-sidecar"
-      , ns.getModules().allModules['folio-module-sidecar']
+      , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
     )
 
     moduleConfig << [
@@ -185,7 +184,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         eureka: [
           image: [
             repository: "${sidecarRepository}/folio-module-sidecar",
-            tag       : ns.getModules().allModules['folio-module-sidecar']
+            tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
           ]
         ]
       ]
@@ -193,7 +192,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
       case ~/mod-.*-keycloak/:
-        moduleConfig['extraEnvVars'] += [name: 'MOD_USERS_ID', value: 'mod-users-' + ns.getModules().allModules['mod-users']]
+        moduleConfig['extraEnvVars'] += [
+          name: 'MOD_USERS_ID',
+          value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
+        ]
         break
     }
   }

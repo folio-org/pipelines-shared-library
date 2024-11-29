@@ -8,7 +8,6 @@ String DEPLOYMENT_CONFIG_BRANCH = 'master'
 
 @Library('pipelines-shared-library') _
 
-
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),

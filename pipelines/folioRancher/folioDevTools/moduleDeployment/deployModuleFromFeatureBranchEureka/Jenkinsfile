@@ -1,6 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
 import org.folio.Constants
+import org.folio.models.module.EurekaModule
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -47,7 +48,7 @@ String defaultTenantId = 'diku'
 namespace.withDefaultTenant(defaultTenantId)
 
 /** Collect Folio module configuration */
-FolioModule module = new FolioModule()
+EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
 
 /** Collect feature branch and hash */
