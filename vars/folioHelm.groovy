@@ -197,6 +197,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
         break
+      case ~/edge-.*$/:
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+        break
     }
   }
 
