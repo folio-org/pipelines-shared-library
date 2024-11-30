@@ -9,7 +9,7 @@ import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1950-test') _
 
 /** Job properties and parameters */
 properties([

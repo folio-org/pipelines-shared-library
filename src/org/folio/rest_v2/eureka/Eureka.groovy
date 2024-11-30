@@ -282,7 +282,7 @@ class Eureka extends Base {
     Map<String, String> updatedAppInfoMap = [:]
 
     // Init existing modules information with empty map
-    modules.allModules = [:]
+//    modules.allModules = [:]
 
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor->
@@ -302,7 +302,7 @@ class Eureka extends Base {
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
 
       // Collect Current Application Modules Information to EurekaModules Object in the Namespace
-      modules.allModules.putAll(updatedAppDescriptor['modules'].collectEntries {[(it['name']), it['version']]} as Map)
+//      modules.allModules.putAll(updatedAppDescriptor['modules'].collectEntries {[(it['name']), it['version']]} as Map)
     }
 
     return updatedAppInfoMap
