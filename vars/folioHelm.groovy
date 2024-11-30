@@ -179,14 +179,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
     ]
 
-    moduleConfig << [
-      sidecarContainers: [
-        eureka: [
-          image: [
-            repository: "${sidecarRepository}/folio-module-sidecar",
-            tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
-          ]
-        ]
+    moduleConfig += (moduleConfig.sidecarContainers ? [] : [sidecarContainers: [eureka: [:]]])
+    moduleConfig.sidecarContainers += (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: [:]])
+
+    moduleConfig.sidecarContainers.eureka << [
+      image: [
+        repository: "${sidecarRepository}/folio-module-sidecar",
+        tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
       ]
     ]
 
