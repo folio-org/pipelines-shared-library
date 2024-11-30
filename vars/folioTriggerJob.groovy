@@ -25,6 +25,7 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'LOAD_REFERENCE', value: namespaceParams.getLoadReference()),
       booleanParam(name: 'LOAD_SAMPLE', value: namespaceParams.getLoadSample()),
       booleanParam(name: 'CONSORTIA', value: namespaceParams.getConsortia()),
+      booleanParam(name: 'LINKED_DATA', value: namespaceParams.getLinkedData()),
       booleanParam(name: 'SPLIT_FILES', value: namespaceParams.getSplitFiles()),
       booleanParam(name: 'RW_SPLIT', value: namespaceParams.getRwSplit()),
       booleanParam(name: 'GREENMAIL', value: namespaceParams.getGreenmail()),

@@ -25,6 +25,7 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
@@ -75,6 +76,17 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .members(params.MEMBERS)
   .uiBuild(params.BUILD_UI)
   .build()
+
+if (params.CONSORTIA) {
+  if (namespaceParams.eureka)
+    namespaceParams.folioExtensions.add('consortia-eureka')
+  else
+    namespaceParams.folioExtensions.add('consortia')
+}
+
+if (params.LINKED_DATA) {
+  namespaceParams.folioExtensions.add('linked-data')
+}
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 

@@ -7,6 +7,7 @@ import com.cloudbees.groovy.cps.NonCPS
  * and allows operations such as setting installation JSON, removing modules,
  * and generating installation JSON from module IDs.
  */
+@Deprecated
 class EurekaModules extends Modules {
 
   /** Prefix used to distinguish mgr modules. */

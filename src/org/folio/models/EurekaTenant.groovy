@@ -2,6 +2,7 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.folio.models.module.EurekaModule
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -28,7 +29,7 @@ class EurekaTenant extends OkapiTenant {
   EurekaRequestParams installRequestParams
 
   /** Modules that are installed for the tenant. */
-  EurekaModules modules = new EurekaModules()
+  FolioInstallJson<EurekaModule> modules = new FolioInstallJson(EurekaModule.class)
 
   Map<String, String> applications = [:]
 
@@ -64,6 +65,24 @@ class EurekaTenant extends OkapiTenant {
 
   EurekaTenant withAWSSecretStoragePathName(String namespace){
     secretStoragePathName = "${namespace}_${tenantId}_${clientId}"
+    return this
+  }
+
+  /**
+   * Chainable setter for install JSON.
+   * This method sets the installation JSON object while ensuring that specific
+   * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
+   *
+   * @param installJson The install JSON object.
+   * @return The OkapiTenant object for method chaining.
+   */
+  EurekaTenant withInstallJson(List<Map<String, String>> installJson) {
+    //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
+    modules = new FolioInstallJson(EurekaModule.class)
+
+    super.withInstallJson(installJson)
+
+    this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
     return this
   }
 

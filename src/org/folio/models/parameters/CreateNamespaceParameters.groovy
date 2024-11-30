@@ -26,6 +26,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean eureka
 
+  boolean linkedData
+
   boolean splitFiles
 
   boolean rwSplit
@@ -37,6 +39,8 @@ class CreateNamespaceParameters implements Cloneable {
   boolean rtr
 
   boolean uiBuild
+
+  List<String> folioExtensions = []
 
   String pgType
 
@@ -188,6 +192,19 @@ class CreateNamespaceParameters implements Cloneable {
      */
     public Builder eureka(boolean eureka) {
       parameters.eureka = eureka
+      return this
+    }
+
+    /**
+     * Enables or disables linked data features within the namespace.
+     * Linked data allows for the creation of relationships between disparate data sources,
+     * facilitating data sharing and integration across systems.
+     *
+     * @param linkedData `true` to enable linked data features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder linkedData(boolean linkedData) {
+      parameters.linkedData = linkedData
       return this
     }
 
