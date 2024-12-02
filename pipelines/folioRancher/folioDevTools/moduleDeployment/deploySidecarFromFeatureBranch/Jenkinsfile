@@ -60,7 +60,7 @@ ansiColor('xterm') {
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
       }
 
-      stage('[Git] Checkout source') {
+      stage('[Git] Checkout') {
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${featureBranch}"]],
@@ -108,6 +108,41 @@ ansiColor('xterm') {
             /** Push Docker Image to ECR */
             dockerImage.push()
           }
+        }
+      }
+
+      stage('[Kubectl] Deploy') {
+        try {
+          folioHelm.withKubeConfig(namespace.clusterName) {
+            /** Deploy Sidecar to Kubernetes namespace */
+            def getHelmReleasesCmd = "helm list --short --namespace ${params.NAMESPACE} --filter mod-*" as String
+            def releases = sh(script: getHelmReleasesCmd, returnStdout: true).trim()
+
+            int limit = 10
+            releases.tokenize().collate(limit).each { release ->
+              def branches = [:]
+              release.each { rel ->
+                branches[rel.toString()] = {
+                  def helmCmd = """
+                    helm upgrade ${rel} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${rel} \
+                    --namespace ${params.NAMESPACE} \
+                    --reuse-values \
+                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar \
+                    --set sidecarContainers.eureka.image.tag=${sidecarVersion} \
+                    --atomic \
+                    --dry-run \
+                    --debug
+                  """.stripIndent() as String
+
+                  sh(script: helmCmd, returnStdout: true)
+                }
+              }
+              parallel branches
+            }
+          }
+        } catch (e) {
+          logger.warning("Failed to deploy new Sidecar version from feature branch: ${e.getMessage()}")
+          throw e
         }
       }
 
