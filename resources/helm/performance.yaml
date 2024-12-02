@@ -4783,6 +4783,6 @@ ui-bundle:
   replicaCount: 1
   resources:
     limits:
-      memory: 80Mi
+      memory: 200Mi
     requests:
-      memory: 64Mi
+      memory: 100Mi
