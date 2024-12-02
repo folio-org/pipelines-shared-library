@@ -121,12 +121,12 @@ ansiColor('xterm') {
             def releases = sh(script: getHelmReleasesCmd, returnStdout: true).trim()
 
             int limit = 10
-            releases.tokenize().collate(limit).each { release ->
+            releases.tokenize().collate(limit).each { setOfReleases ->
               def branches = [:]
-              release.each { rel ->
-                branches[rel.toString()] = {
+              setOfReleases.each { release ->
+                branches[release.toString()] = {
                   def upgradeHelmReleaseCmd = """
-                    helm upgrade ${rel} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${rel} \
+                    helm upgrade ${release} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${release} \
                     --namespace ${params.NAMESPACE} \
                     --reuse-values \
                     --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName} \
