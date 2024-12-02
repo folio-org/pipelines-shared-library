@@ -8,13 +8,16 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@master') _
 
+
+/** Sidecar module name (repository name) */
+def sidecarModuleName = 'folio-module-sidecar'
+
 /** Pipeline properties and parameters */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'MODULE_NAME', defaultValue: 'folio-module-sidecar', description: 'GitHub Repository Name for Sidecar application'),
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    folioParameters.branchWithRef('MODULE_BRANCH', sidecarModuleName),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -39,7 +42,7 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(params.MODULE_NAME, featureBranch).commit.sha.take(7)
+String featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
 /** Collect Maven arguments */
 def mavenArguments = params.MAVEN_ARGS.trim()
@@ -52,11 +55,11 @@ def sidecarVersion = ""
 ansiColor('xterm') {
   node(params.AGENT) {
     /** Directory to build Sidecar within */
-    def sidecarWorkDir = "${env.WORKSPACE}/${params.MODULE_NAME}"
+    def sidecarWorkDir = "${env.WORKSPACE}/${sidecarModuleName}"
 
     try {
       stage('Ini') {
-        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+        buildName "#${sidecarModuleName}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
       }
 
@@ -64,11 +67,11 @@ ansiColor('xterm') {
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${featureBranch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: params.MODULE_NAME],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: sidecarModuleName],
                               [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                               [$class: 'AuthorInChangelog'],
                               [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${params.MODULE_NAME}.git"]]
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${sidecarModuleName}.git"]]
         ])
       }
 
@@ -99,11 +102,11 @@ ansiColor('xterm') {
           "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
         ) {
           /** Check if ECR Repository exists. If it does not exist, create it */
-          common.checkEcrRepoExistence(params.MODULE_NAME)
+          common.checkEcrRepoExistence(sidecarModuleName)
 
           dir(sidecarWorkDir) {
             /** Build Docker Image */
-            def dockerImage = docker.build("${params.MODULE_NAME}:${sidecarVersion}", '--no-cache=true --pull=true .')
+            def dockerImage = docker.build("${sidecarModuleName}:${sidecarVersion}", '--no-cache=true --pull=true .')
 
             /** Push Docker Image to ECR */
             dockerImage.push()
@@ -126,7 +129,7 @@ ansiColor('xterm') {
                     helm upgrade ${rel} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${rel} \
                     --namespace ${params.NAMESPACE} \
                     --reuse-values \
-                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/${params.MODULE_NAME} \
+                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName} \
                     --set sidecarContainers.eureka.image.tag=${sidecarVersion} \
                     --atomic
                   """.stripIndent() as String
