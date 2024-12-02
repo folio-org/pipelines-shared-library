@@ -126,7 +126,7 @@ ansiColor('xterm') {
                     helm upgrade ${rel} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${rel} \
                     --namespace ${params.NAMESPACE} \
                     --reuse-values \
-                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar \
+                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/${params.MODULE_NAME} \
                     --set sidecarContainers.eureka.image.tag=${sidecarVersion} \
                     --atomic
                   """.stripIndent() as String
