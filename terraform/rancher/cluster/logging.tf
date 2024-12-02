@@ -248,23 +248,14 @@ resource "rancher2_app_v2" "fluentd" {
             pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
             tag kubernetes.*
             read_from_head true
+            follow_inodes true
             <parse>
-              @type multiline
-              format_firstline /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z (stdout|stderr) (F|P).*(\n)?/  # Match the first line with timestamp, stdout F, and optional newline
-              format1 /^(?<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)\s+(stdout|stderr)\s+(F|P)\s+(?<inner_time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{3})\t(?<log_level>\w+)\t\?(?<message>.*)$/
-              time_format %Y-%m-%dT%H:%M:%S.%NZ
+              @type none
             </parse>
           </source>
           # enrich with kubernetes metadata
           <filter kubernetes.**>
             @type kubernetes_metadata
-          </filter>
-          <filter kubernetes.okapi>
-            @type grep
-            <regexp>
-              key log_level
-              pattern (FATAL|ERROR|WARN|INFO|DEBUG|TRACE|ALL)  # Filter for logs
-            </regexp>
           </filter>
         fluentd-output.conf: |
           # Throw the healthcheck to the standard output instead of forwarding it
