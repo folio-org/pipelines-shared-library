@@ -17,7 +17,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.branchWithRef('MODULE_BRANCH', sidecarModuleName),
+    folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.cluster(),
     folioParameters.namespace(),
