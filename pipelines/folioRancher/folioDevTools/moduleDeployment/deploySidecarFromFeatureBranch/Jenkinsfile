@@ -130,7 +130,6 @@ ansiColor('xterm') {
                     --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/folio-module-sidecar \
                     --set sidecarContainers.eureka.image.tag=${sidecarVersion} \
                     --atomic \
-                    --dry-run \
                     --debug
                   """.stripIndent() as String
 
