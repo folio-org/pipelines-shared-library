@@ -15,6 +15,11 @@ variable "vpc_cidr_block" {
   description = "CIDR block for VPC"
 }
 
+variable "snapshot_id" {
+  description = "ebs snapshot id, if not set - new ebs volume will be created ."
+  default     = null
+}
+
 variable "jenkins_home_size" {
   type        = number
   default     = 500
