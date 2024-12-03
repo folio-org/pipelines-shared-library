@@ -30,6 +30,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean splitFiles
 
+  boolean ecsCCL
+
   boolean rwSplit
 
   boolean greenmail
@@ -215,6 +217,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder splitFiles(boolean splitFiles) {
       parameters.splitFiles = splitFiles
+      return this
+    }
+
+    /**
+     * Enables or disables ECS_CCL feature within the namespace.
+     * @param ecsCCL `true` to enable ECS_CCL features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder ecsCCL(boolean ecsCCL) {
+      parameters.ecsCCL = ecsCCL
       return this
     }
 
