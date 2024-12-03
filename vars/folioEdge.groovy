@@ -67,12 +67,14 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
   List mappings = []
   String users = ''
+  List tenants = []
 
   namespace.tenants.each { tenant_id, tenant_info ->
     if (tenant_id) {
       common.logger.info("Binding tenant: " + tenant_id)
       def tenant = folioDefault.tenants()[tenant_id]
       users += tenant_id.toString() + '=' + tenant_info.getAdminUser().getUsername() + ',' + tenant_info.getAdminUser().getPasswordPlainText() + '\n'
+      tenants.add(tenant_id)
       common.logger.info("Tenant: " + tenant_id + " bind complete.")
     }
   }
@@ -85,7 +87,6 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   namespace.getModules().getEdgeModules().each { module ->
     String institutionalUsers = ''
-    def tenants = []
     if (edgeConfig[(module.name)]['tenants']) {
       edgeConfig[(module.name)]['tenants'].each { institutional ->
         if (institutional.tenant == 'default') {
