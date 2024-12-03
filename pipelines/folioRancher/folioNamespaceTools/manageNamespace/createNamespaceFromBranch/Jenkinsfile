@@ -28,6 +28,7 @@ properties([
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
+    booleanParam(name: 'ECS_CCL', defaultValue: true, description: '(Optional) Set true to enable ECS_CCL functionality'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
@@ -64,6 +65,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .consortia(params.CONSORTIA)
   .eureka(params.EUREKA)
   .splitFiles(params.SPLIT_FILES)
+  .ecsCCL(params.ECS_CCL)
   .rwSplit(params.RW_SPLIT)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
