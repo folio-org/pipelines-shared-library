@@ -3612,6 +3612,9 @@ mod-requests-mediated:
     systemuser:
       enabled: true
       existingSecret: mod-requests-mediated-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
