@@ -155,6 +155,7 @@ class Tenants extends Kong{
     return this
   }
 
+  //TODO: This shit definitely should be refactored
   Tenants enableApplicationsOnTenant(EurekaTenant tenant){
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -162,6 +163,9 @@ class Tenants extends Kong{
 
     if(tenant.applications.containsKey("app-consortia"))
       enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
+
+    if(tenant.applications.containsKey("app-consortia-manager"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-consortia-manager"])
 
     return this
   }
