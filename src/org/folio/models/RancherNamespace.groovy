@@ -171,9 +171,11 @@ class RancherNamespace {
   void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH) {
     if (this.deploymentConfigType) {
       Map deploymentConfig = fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/${this.deploymentConfigType}.yaml")
+
       if (this.enableSplitFiles) {
         deploymentConfig = mergeMaps(deploymentConfig, getFeatureConfig('split-files', branch))
       }
+
       this.deploymentConfig = deploymentConfig
     }
   }
