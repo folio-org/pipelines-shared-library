@@ -17,9 +17,9 @@ terraform destroy -auto-approve
 
 ### Restore
 **_Important:_**
-terraform destroy needs to be done before restore
+Jenkins server needs to be tainted to be recreated with the new ebs attached
 ```
-terraform destroy 
+terraform taint aws_instance.jenkins_server
 terraform apply -var "snapshot_id=<snap-ID>"
 ```
 
