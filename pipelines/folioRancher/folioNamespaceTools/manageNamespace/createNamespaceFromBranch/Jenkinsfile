@@ -93,7 +93,6 @@ RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
 cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
 cypressSanityParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
-cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
 cypressSanityParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
 cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
@@ -101,10 +100,13 @@ cypressSanityParameters.setWorkerLabel('cypress')
 cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
-if(namespaceParams.eureka)
+if(namespaceParams.eureka) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test')
-else
+  cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+}else {
   cypressSanityParameters.setTestsSrcBranch('master')
+  cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
+}
 
 ansiColor('xterm') {
   node(params.AGENT) {

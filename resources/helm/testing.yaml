@@ -3612,6 +3612,9 @@ mod-requests-mediated:
     systemuser:
       enabled: true
       existingSecret: mod-requests-mediated-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -4788,6 +4791,6 @@ ui-bundle:
   replicaCount: 1
   resources:
     limits:
-      memory: 80Mi
+      memory: 200Mi
     requests:
-      memory: 64Mi
+      memory: 100Mi
