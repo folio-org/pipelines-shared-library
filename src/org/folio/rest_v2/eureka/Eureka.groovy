@@ -117,8 +117,11 @@ class Eureka extends Base {
     tenants.each {tenant ->
       tenant.applications = registeredApps.clone() as Map
 
-      if(!(tenant instanceof EurekaTenantConsortia))
+      //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+      if(!(tenant instanceof EurekaTenantConsortia)) {
         tenant.applications.remove("app-consortia")
+        tenant.applications.remove("app-consortia-manager")
+      }
     }
 
     return this
