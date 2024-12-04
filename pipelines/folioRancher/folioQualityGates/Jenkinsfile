@@ -201,18 +201,26 @@ ansiColor('xterm') {
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
   stage('Provisioning') {
     try {
-      Map branches = [failFast: false]
-      envsMap.each { id, metadata ->
-        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-          .clusterName(metadata['cluster'])
-          .namespaceName(metadata['namespace'])
-          .build()
-        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-          def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
-          println(jobResult.dump())
-        }
-      }
-      parallel(branches)
+      CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+        .clusterName('folio-testing')
+        .namespaceName('cikarate')
+        .build()
+
+      def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+      println(jobResult.dump())
+
+//      Map branches = [failFast: false]
+//      envsMap.each { id, metadata ->
+//        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+//          .clusterName(metadata['cluster'])
+//          .namespaceName(metadata['namespace'])
+//          .build()
+//        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
+//          def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+//          println(jobResult.dump())
+//        }
+//      }
+//      parallel(branches)
     } catch (e) {
       currentBuild.result = 'FAILURE'
       slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
