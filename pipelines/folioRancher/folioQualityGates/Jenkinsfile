@@ -224,7 +224,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespaceParameters namespaceBaseParams, String slackChannel) {
   stage('Destroy') {
     /** Skip this stage for testing */
-    return
+//    return
 
     try {
       Map branches = [failFast: false]
