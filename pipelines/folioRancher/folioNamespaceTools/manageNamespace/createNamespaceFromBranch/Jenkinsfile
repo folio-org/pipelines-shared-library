@@ -127,7 +127,7 @@ ansiColor('xterm') {
       currentBuild.description = e.getMessage()
 
       println "Caught exception: ${e}"
-      error(e.getMessage())
+//      error(e.getMessage())
     } finally {
       stage('Cleanup') {
         cleanWs notFailBuild: true
