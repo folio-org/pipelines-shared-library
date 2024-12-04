@@ -125,6 +125,7 @@ ansiColor('xterm') {
     } catch (e) {
       /** Put error message to the Job Run description */
       currentBuild.description = e.getMessage()
+      currentBuild.result = 'FAILURE'
 
       println "Caught exception: ${e}"
 //      error(e.getMessage())
