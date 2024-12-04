@@ -170,7 +170,7 @@ ansiColor('xterm') {
               break
             case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
               id.getModules().setInstallJsonObject(newInstallJson)
-              id.getModules().removeModule('folio_consortia-settings')
+              id.getModules().removeModuleByName('folio_consortia-settings')
               break
             default:
               println("${id.tenantId} --> leaving blank")
