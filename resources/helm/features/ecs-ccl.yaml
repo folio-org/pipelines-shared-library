@@ -1,0 +1,5 @@
+---
+mod-inventory-storage:
+  extraEnvVars:
+    - name: ECS_TLR_FEATURE_ENABLED
+      value: 'true'
