@@ -12,6 +12,8 @@ class EurekaNamespace extends RancherNamespace {
 
   Map<String, String> applications = [:]
 
+  boolean enableECS_CCL = false
+
   EurekaNamespace(String clusterName, String namespaceName) {
     super(clusterName, namespaceName)
   }
@@ -33,6 +35,14 @@ class EurekaNamespace extends RancherNamespace {
           tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
         }
     }
+  }
+
+  @Override
+  void addDeploymentConfig(String branch = DEPLOYMENT_CONFIG_BRANCH) {
+    super.addDeploymentConfig(branch)
+
+    if (getDeploymentConfigType() && enableECS_CCL)
+      setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig('ecs-ccl', branch)))
   }
 
   private EurekaTenantConsortia findCentralConsortiaTenant() {
