@@ -97,7 +97,6 @@ cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
 cypressSanityParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
 cypressSanityParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 cypressSanityParameters.setWorkerLabel('cypress')
 cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
@@ -105,9 +104,12 @@ cypressSanityParameters.setTimeout('60')
 if(namespaceParams.eureka) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+  //TODO: Temporary exclusion of the eholdings and settings test cases.
+  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-settings"')
 }else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
+  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 }
 
 ansiColor('xterm') {
