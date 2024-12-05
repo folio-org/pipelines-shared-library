@@ -211,8 +211,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      /** Wait while until Exception is triggered */
-      sleep time: 3, unit: 'MINUTES'
 //      Map branches = [failFast: false]
 //      envsMap.each { id, metadata ->
 //        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
