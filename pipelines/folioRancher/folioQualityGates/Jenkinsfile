@@ -206,7 +206,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
     try {
       CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
         .clusterName('folio-testing')
-        .namespaceName('cikarate')
+        .namespaceName('cikarate-yi')
         .build()
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
