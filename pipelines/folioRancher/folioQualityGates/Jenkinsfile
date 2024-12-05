@@ -110,7 +110,7 @@ ansiColor('xterm') {
         return
       }
 
-      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
+//      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
 
       provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
 
