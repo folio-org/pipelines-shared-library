@@ -211,9 +211,9 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      println(jobResult?.dump())
-      println(jobResult?.getResult())
-      println(jobResult?.getDescription())
+      if (jobResult?.getResult() == 'FAILURE') {
+        throw new Exception(jobResult?.getDescription() as String)
+      }
 
 //      Map branches = [failFast: false]
 //      envsMap.each { id, metadata ->
@@ -228,8 +228,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      }
 //      parallel(branches)
     } catch (e) {
-      println(jobResult?.toString())
-      println(jobResult?.dump())
       currentBuild.result = 'FAILURE'
       slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
