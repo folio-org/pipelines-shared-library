@@ -199,6 +199,9 @@ ansiColor('xterm') {
 }
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
+  /** Sub-Task object */
+  def jobResult
+
   stage('Provisioning') {
     try {
       CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
@@ -206,10 +209,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
         .namespaceName('cikarate')
         .build()
 
-      def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
-      println(jobResult.dump())
-      println(jobResult.toString())
-
+      jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 //      Map branches = [failFast: false]
 //      envsMap.each { id, metadata ->
 //        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
@@ -223,8 +223,8 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      }
 //      parallel(branches)
     } catch (e) {
-      println(jobResult.dump())
       println(jobResult.toString())
+      println(jobResult.dump())
       currentBuild.result = 'FAILURE'
       slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
