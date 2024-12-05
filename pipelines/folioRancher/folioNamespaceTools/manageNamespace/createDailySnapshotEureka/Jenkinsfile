@@ -47,7 +47,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(false)
+  .runSanityCheck(true)
   .build()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
@@ -73,7 +73,7 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(false)
+  .runSanityCheck(true)
   .build()
 
 ansiColor('xterm') {
