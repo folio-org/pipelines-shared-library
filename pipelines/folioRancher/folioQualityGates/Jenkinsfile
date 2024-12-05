@@ -44,7 +44,7 @@ KarateRunExecutionSummary karateTestsExecutionSummary
 
 String createNamespaceFromBranchJob = CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 String deleteNamespaceJob = CommonConstants.JENKINS_DELETE_NAMESPACE_JOB
-String globalSlackChannel = '#rancher-tests-notifications'
+String globalSlackChannel = '#rancher-test-notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
