@@ -121,6 +121,8 @@ class Eureka extends Base {
       if(!(tenant instanceof EurekaTenantConsortia)) {
         tenant.applications.remove("app-consortia")
         tenant.applications.remove("app-consortia-manager")
+      }else if(!tenant.isCentralConsortiaTenant){
+        tenant.applications.remove("app-consortia-manager")
       }
     }
 
