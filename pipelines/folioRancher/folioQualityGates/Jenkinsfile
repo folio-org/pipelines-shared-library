@@ -214,7 +214,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       println(jobResult?.dump())
       println(jobResult?.getResult())
       println(jobResult?.getDescription())
-      println(jobResult?.getEnvironment())
 
 //      Map branches = [failFast: false]
 //      envsMap.each { id, metadata ->
