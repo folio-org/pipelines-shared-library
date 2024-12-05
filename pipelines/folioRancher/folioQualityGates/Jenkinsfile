@@ -223,6 +223,8 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      }
 //      parallel(branches)
     } catch (e) {
+      println(jobResult.dump())
+      println(jobResult.toString())
       currentBuild.result = 'FAILURE'
       slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
