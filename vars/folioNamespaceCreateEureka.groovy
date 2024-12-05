@@ -36,7 +36,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('eureka', args.eureka)
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
-    if (args.clusterName in ['folio-dev', 'folio-tmp', 'folio-testing', 'folio-perf']) {
+    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
       folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
       currentBuild.result = 'ABORTED'
       return
@@ -95,6 +95,7 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableSplitFiles(args.splitFiles)
     namespace.setEnableRwSplit(args.rwSplit)
     namespace.setEnableRtr(args.rtr)
+    namespace.setEnableECS_CCL(args.ecsCCL)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
     namespace.addTenant(
@@ -252,6 +253,7 @@ void call(CreateNamespaceParameters args) {
                                    custom_tag          : ui.getTag(),
                                    consortia           : tenant instanceof EurekaTenantConsortia,
                                    clientId            : ui.getTenantId() + "-application",
+                                   enableEcsRequests   : args.ecsCCL,
                                    rancher_cluster_name: namespace.getClusterName(),
                                    rancher_project_name: namespace.getNamespaceName()]
 
