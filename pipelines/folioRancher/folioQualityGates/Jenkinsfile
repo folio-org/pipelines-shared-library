@@ -48,9 +48,9 @@ String globalSlackChannel = '#rancher-tests-notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-testing', namespace: 'cikarate']
-//  cypress: [cluster: 'folio-testing', namespace: 'cicypress'],
-//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
+  karate : [cluster: 'folio-testing', namespace: 'cikarate-yi']
+//  cypress: [cluster: 'folio-testing', namespace: 'cicypress-yi'],
+//  schema : [cluster: 'folio-tmp', namespace: 'cischema-yi']
 ]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
