@@ -105,7 +105,7 @@ if(namespaceParams.eureka) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings test case.
-  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity-eholdings"')
+  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings"')
 }else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
