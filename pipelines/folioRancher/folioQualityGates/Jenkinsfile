@@ -264,34 +264,3 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
     }
   }
 }
-
-getNumber(): Returns the build number. This is an integer that uniquely identifies the build within its job.
-
-getResult(): Returns the result of the build, which can be one of several statuses:
-
-  SUCCESS: The build had no errors.
-FAILURE: The build had a fatal error.
-  UNSTABLE: The build was marked unstable, for example, if tests failed or some other issue was detected.
-  ABORTED: The build was manually aborted.
-  NOT_BUILT: The build was skipped.
-getDisplayName(): Provides a human-readable display name for the build, typically consisting of the job name followed by the build number.
-
-  isBuilding(): Returns a boolean indicating whether the build is currently running.
-
-getDuration(): Returns the duration of the build in milliseconds.
-
-  getStartTimeInMillis(): Returns the start time of the build as milliseconds since the epoch.
-
-getBuiltOnStr(): Returns the name of the agent or node where the build was executed.
-
-getArtifacts(): Returns a list of artifacts produced by the build. Each artifact in the list is represented by an object with properties like fileName and relativePath.
-
-getAbsoluteUrl(): Returns the absolute URL to the build on the Jenkins server, which can be used to access the build's webpage directly.
-
-getProjectName(): Returns the name of the job that this build belongs to.
-
-getPreviousBuild(), getNextBuild(): Methods to navigate to the previous or next build in the job's build history.
-
-getDescription(): Returns the description of the build, if any was set.
-
-getEnvironment(TaskListener listener): Allows you to get a map of the environment variables that were in effect during the build. Note that you need to pass a TaskListener to thi
