@@ -145,8 +145,8 @@ ansiColor('xterm') {
         }
 
         stage("Pause") {
-          // Wait for dns flush.
-          sleep time: 3, unit: 'MINUTES'
+`          // Wait for dns flush.
+          sleep time: 3, unit: 'MINUTES'`
         }
 
         stage("Health check") {
