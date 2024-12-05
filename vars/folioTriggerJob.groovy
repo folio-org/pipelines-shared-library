@@ -15,7 +15,7 @@ def deleteNamespace(String jobName, CreateNamespaceParameters namespaceParams) {
 }
 
 def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespaceParams) {
-  def jobResult = build job: jobName, propagate: true
+  def jobResult = build job: jobName, wait: true, propagate: false
     parameters: [
       string(name: 'CLUSTER', value: namespaceParams.getClusterName()),
       string(name: 'NAMESPACE', value: namespaceParams.getNamespaceName()),
