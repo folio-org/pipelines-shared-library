@@ -211,7 +211,9 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      println(jobResult?.toString())
+      println(jobResult?.getDisplayName())
+      println(jobResult?.getResult())
+      println(jobResult?.getDescription())
       println(jobResult?.dump())
 
 //      Map branches = [failFast: false]
