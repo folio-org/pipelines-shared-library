@@ -208,6 +208,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
       println(jobResult.dump())
+      println(jobResult.toString())
 
 //      Map branches = [failFast: false]
 //      envsMap.each { id, metadata ->

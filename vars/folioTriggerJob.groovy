@@ -11,6 +11,8 @@ def deleteNamespace(String jobName, CreateNamespaceParameters namespaceParams) {
       string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
       string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
       string(name: 'AGENT', value: namespaceParams.getWorker())]
+  println(jobResult.dump())
+  println(jobResult.toString())
   return jobResult
 }
 
@@ -39,5 +41,7 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'RUN_SANITY_CHECK', value: namespaceParams.getRunSanityCheck()),
       string(name: 'MEMBERS', value: namespaceParams.getMembers()),
       string(name: 'AGENT', value: namespaceParams.getWorker())]
+  println(jobResult.dump())
+  println(jobResult.toString())
   return jobResult
 }
