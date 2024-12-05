@@ -24,7 +24,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: true, description: 'Skip check of changes since last build.'),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
