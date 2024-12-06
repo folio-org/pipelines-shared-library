@@ -182,7 +182,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Preinstall') {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
           , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )
