@@ -104,8 +104,8 @@ cypressSanityParameters.setTimeout('60')
 if(namespaceParams.eureka) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-  //TODO: Temporary exclusion of the eholdings and settings test cases.
-  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-settings"')
+  //TODO: Temporary exclusion of the eholdings and software-version test cases.
+  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-software-version"')
 }else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
