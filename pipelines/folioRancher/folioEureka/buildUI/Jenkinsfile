@@ -1,9 +1,9 @@
 #!groovy
 package folioRancher.folioEureka.buildUI
 
-import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
@@ -18,94 +18,73 @@ properties([
     folioParameters.configType(),
     folioParameters.repository(),
     folioParameters.branch(),
-    folioParameters.tenantId(),
     string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
+    folioParameters.tenantId(),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
+    booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
+    booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
     folioParameters.agent(),
-    folioParameters.refreshParameters()
-  ])
+    folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
+List extensions = []
+if (params.CONSORTIA) {
+  extensions.add('consortia')
+}
+
+if (params.LINKED_DATA) {
+  extensions.add('linked-data')
+}
+
+/**
+ * Job variables
+ **/
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
+String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+List installJson = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+
+EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+  .withDefaultTenant("${params.TENANT_ID}")
+  .withDeploymentConfigType(params.CONFIG_TYPE)
+
+TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH)
+
+OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+  .convertTo(EurekaTenant.class)
+  .withInstallJson(installJson)
+  .withTenantUi(tenantUi)
+  .withConfiguration(new OkapiConfig())
+
+tenant.enableFolioExtensions(this, extensions, isRelease)
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+namespace.addTenant(tenant)
+
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        cleanWs()
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}"
+        buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
       }
 
-      boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
-
-      String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH
-              : common.getLastCommitHash("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-
-      List installJson = new GitHubUtility(this).getEnableList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-      def eurekaPlatform = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-      installJson.addAll(eurekaPlatform)
-
-      //TODO: Temporary solution. Unused by Eureka modules have been removed.
-      installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
-
-      TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, "${params.FOLIO_BRANCH}")
-
-      EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-              .withDefaultTenant("${params.TENANT_ID}")
-              .withDeploymentConfigType(params.CONFIG_TYPE)
-
-      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-      if (params.CONSORTIA)
-        namespace.setEnableConsortia(true)
-
-      OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID]
-      tenant = tenant ? tenant : folioDefault.consortiaTenants([], new InstallRequestParams())[params.TENANT_ID]
-      tenant = tenant
-              .convertTo(EurekaTenant.class)
-              .withInstallJson(installJson)
-              .withTenantUi(tenantUi.clone())
-
-      namespace.addTenant(tenant)
-
-      stage('Build and deploy UI') {
-        def jobParameters = [eureka              : true,
-                             kongUrl             : "https://${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-                             keycloakUrl         : "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.${Constants.CI_ROOT_DOMAIN}",
-                             tenantUrl           : "https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}",
-                             hasAllPerms         : false,
-                             isSingleTenant      : true,
-                             tenantOptions       : """{${params.TENANT_ID}: {name: "${params.TENANT_ID}", clientId: "${params.TENANT_ID}-application"}}""",
-                             tenantId            : "${params.TENANT_ID}",
-                             custom_hash         : commitHash,
-                             custom_url          : "${params.CLUSTER}-${params.NAMESPACE}-kong.${Constants.CI_ROOT_DOMAIN}",
-                             custom_tag          : tenant.getTenantUi().getTag(),
-                             consortia           : params.CONSORTIA,
-                             clientId            : "${params.TENANT_ID}" + "-application",
-                             rancher_cluster_name: params.CLUSTER,
-                             rancher_project_name: params.NAMESPACE,
-                             folio_branch        : params.FOLIO_BRANCH]
-
-        uiBuild(jobParameters, isRelease)
-
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          folioHelm.deployFolioModule(
-                  namespace
-                  , 'ui-bundle'
-                  , "${params.CLUSTER}-${params.NAMESPACE}.${params.TENANT_ID}.${commitHash.toString().take(7)}"
-                  , false
-                  , "${params.TENANT_ID}"
-          )
-        }
-      }
+      folioUI.buildAndDeploy(namespace
+        , tenant
+        , true
+        , namespace.getDomains()['kong']
+        , namespace.getDomains()['keycloak']
+        , params.ECS_CCL)
     } catch (e) {
-      println "Caught exception: ${e}"
+      logger.warning("Caught exception: ${e}")
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
     }

@@ -9,6 +9,11 @@ import org.folio.utilities.RestClient
 import org.folio.utilities.model.Module
 import org.folio.utilities.model.Project
 
+/**
+ * !!!DEPRECATED!!! - replaced by folioUI lib
+ * Please avoid usage of this lib.
+ */
+
 void call(Map params, boolean releaseVersion = false) {
   OkapiTenant tenant = new OkapiTenant(id: params.tenantId)
   Project project_config = new Project(

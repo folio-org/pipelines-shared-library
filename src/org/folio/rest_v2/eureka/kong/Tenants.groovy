@@ -161,6 +161,9 @@ class Tenants extends Kong{
 
     enableApplicationOnTenant(tenant, tenant.applications["app-platform-full"])
 
+    if(tenant.applications.containsKey("app-linked-data"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-linked-data"])
+
     if(tenant.applications.containsKey("app-consortia"))
       enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
 
