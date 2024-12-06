@@ -182,6 +182,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Preinstall') {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
+          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
           (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
             (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
           , namespace.getModules().getModuleVersionMap()
