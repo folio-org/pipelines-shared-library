@@ -3,6 +3,10 @@ package org.folio.rest
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Tools
 
+@Deprecated
+/**
+ * Functions from this class should be or already moved to other places
+ */
 class GitHubUtility implements Serializable {
 
   private Object steps

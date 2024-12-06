@@ -77,7 +77,7 @@ void call(CreateNamespaceParameters args) {
     installJson.addAll(eurekaPlatform)
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
@@ -88,9 +88,9 @@ void call(CreateNamespaceParameters args) {
       .doLoadSample(args.loadSample) as EurekaRequestParams
 
     namespace.withSuperTenantAdminUser()
-            .withOkapiVersion(args.okapiVersion)
-            .withDefaultTenant(defaultTenantId)
-            .withDeploymentConfigType(args.configType)
+      .withOkapiVersion(args.okapiVersion)
+      .withDefaultTenant(defaultTenantId)
+      .withDeploymentConfigType(args.configType)
 
     namespace.setEnableSplitFiles(args.splitFiles)
     namespace.setEnableRwSplit(args.rwSplit)
@@ -182,7 +182,8 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Preinstall') {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
-          args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA
+          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
           , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )
@@ -238,29 +239,9 @@ void call(CreateNamespaceParameters args) {
         Map branches = [:]
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
             branches[tenantId] = {
-              def jobParameters = [eureka              : args.eureka,
-                                   kongUrl             : "https://${namespace.getDomains()['kong']}",
-                                   keycloakUrl         : "https://${namespace.getDomains()['keycloak']}",
-                                   tenantUrl           : "https://${namespace.generateDomain(tenantId)}",
-                                   hasAllPerms         : false,
-                                   isSingleTenant      : true,
-                                   tenantOptions       : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
-                                   tenantId            : ui.getTenantId(),
-                                   custom_hash         : ui.getHash(),
-                                   custom_url          : "${namespace.getDomains()['kong']}", //Used for CNAME Record creation, DON'T CHANGE!!!
-                                   custom_tag          : ui.getTag(),
-                                   consortia           : tenant instanceof EurekaTenantConsortia,
-                                   clientId            : ui.getTenantId() + "-application",
-                                   enableEcsRequests   : args.ecsCCL,
-                                   rancher_cluster_name: namespace.getClusterName(),
-                                   rancher_project_name: namespace.getNamespaceName()]
-
-              uiBuild(jobParameters, isRelease)
-              folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-              }
+              folioUI.buildAndDeploy(namespace, tenant, args.eureka, namespace.getDomains()['kong']
+                , namespace.getDomains()['keycloak'], args.ecsCCL)
             }
           }
         }

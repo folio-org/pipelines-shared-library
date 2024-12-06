@@ -10,13 +10,15 @@ import org.folio.utilities.RequestException
 class Eureka extends Base {
 
   static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full": "snapshot"
-    , "app-consortia": "snapshot"
+    "app-platform-full"      : "snapshot"
+    , "app-consortia"        : "snapshot"
     , "app-consortia-manager": "master"
+    , "app-linked-data"      : "snapshot"
   ]
 
   static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
     "app-platform-full": "snapshot"
+    , "app-linked-data": "snapshot"
   ]
 
   private Kong kong
@@ -63,10 +65,10 @@ class Eureka extends Base {
    * @param EurekaTenant object
    * @return client secret as Secret object
    */
-  Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant){
+  Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant) {
     context.awscli.withAwsClient {
       return Secret.fromString(
-              context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName, true) as String
+        context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName, true) as String
       )
     }
   }
@@ -101,10 +103,10 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules){
+  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules) {
     Map<String, String> apps = [:]
 
-    appNames.each {appName, appBranch ->
+    appNames.each { appName, appBranch ->
       def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug())
 
       apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
@@ -113,16 +115,17 @@ class Eureka extends Base {
     return apps
   }
 
-  Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps){
-    tenants.each {tenant ->
+  Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps) {
+    tenants.each { tenant ->
       tenant.applications = registeredApps.clone() as Map
 
       //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-      if(!(tenant instanceof EurekaTenantConsortia)) {
+      if (!(tenant instanceof EurekaTenantConsortia)) {
         tenant.applications.remove("app-consortia")
         tenant.applications.remove("app-consortia-manager")
-      }else if(!tenant.isCentralConsortiaTenant){
+      } else if (!tenant.isCentralConsortiaTenant) {
         tenant.applications.remove("app-consortia-manager")
+        tenant.applications.remove("app-linked-data")
       }
     }
 
@@ -131,7 +134,7 @@ class Eureka extends Base {
 
   Map<String, String> registerApplicationsFlow(Map<String, String> appNames
                                                , Map<String, String> modules
-                                               , List<EurekaTenant> tenants){
+                                               , List<EurekaTenant> tenants) {
 
     Map<String, String> registeredApps = registerApplications(appNames, modules)
 
@@ -140,7 +143,7 @@ class Eureka extends Base {
     return registeredApps
   }
 
-  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps){
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps) {
     Applications.get(kong).registerModules(
       [
         "discovery": modules.getDiscoveryList(getApplicationModules(apps))
@@ -150,11 +153,11 @@ class Eureka extends Base {
     return this
   }
 
-  List<String> getApplicationModules(Map<String, String> apps){
+  List<String> getApplicationModules(Map<String, String> apps) {
     List<String> modules = []
-    apps.values().each {appId ->
-      Applications.get(kong).getRegisteredApplication(appId).modules.each{ module ->
-        if(!modules.contains(module.id))
+    apps.values().each { appId ->
+      Applications.get(kong).getRegisteredApplication(appId).modules.each { module ->
+        if (!modules.contains(module.id))
           modules.add(module.id)
       }
     }
@@ -169,7 +172,7 @@ class Eureka extends Base {
    */
   Eureka setUpConsortiaFlow(List<EurekaTenantConsortia> consortiaTenants) {
     EurekaTenantConsortia centralConsortiaTenant =
-            consortiaTenants.find { it.isCentralConsortiaTenant }
+      consortiaTenants.find { it.isCentralConsortiaTenant }
 
     Consortia.get(kong).createConsortia(centralConsortiaTenant)
 
@@ -237,8 +240,7 @@ class Eureka extends Base {
       if (enabledAppsMap.isEmpty()) {
         // Remove tenant without requested module from the configured tenants map
         configuredTenantsMap.remove(tenantName)
-      }
-      else {
+      } else {
         // Assign enabled applications to Tenant object
         tenant.applications = enabledAppsMap.clone() as Map
       }
@@ -253,11 +255,11 @@ class Eureka extends Base {
    */
   static Map<String, String> getEnabledApplications(Map<String, EurekaTenant> tenants) {
     /** Enabled Applications in Environment */
-    Map <String, String> enabledAppsMap = [:]
+    Map<String, String> enabledAppsMap = [:]
 
     // Get enabled applications from EurekaTenant List
-    tenants.values().each {tenant ->
-      tenant.applications.each {appName, appId ->
+    tenants.values().each { tenant ->
+      tenant.applications.each { appName, appId ->
         enabledAppsMap.put(appName, appId)
       }
     }
@@ -291,7 +293,7 @@ class Eureka extends Base {
 //    modules.allModules = [:]
 
     // Get Application Descriptor Updated with New Module Version
-    appDescriptorsMap.each { appId, descriptor->
+    appDescriptorsMap.each { appId, descriptor ->
       // Get Incremental Number for New Application Version
       String incrementalNumber = descriptor['version'].toString().tokenize('.').last().toInteger() + 2
 
@@ -421,8 +423,7 @@ class Eureka extends Base {
   void removeResourcesOnFailFlow(Map<String, String> updatedApplications, EurekaModule module) {
     if (updatedApplications.isEmpty()) {
       logger.info("No updated applications found to remove resources.")
-    }
-    else {
+    } else {
       logger.info("Removing resources for failed module update...")
 
       // Remove Updated Application Descriptor with New Module Version
