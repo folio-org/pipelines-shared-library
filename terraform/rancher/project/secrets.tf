@@ -103,4 +103,9 @@ resource "aws_ssm_parameter" "ssm_param" {
   name     = join("_", [join("-", [var.rancher_cluster_name, rancher2_namespace.this.name]), each.value])
   type     = "SecureString"
   value    = "SecretPassword"
+  lifecycle {
+    ignore_changes = [
+      value,
+    ]
+  }
 }
