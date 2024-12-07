@@ -253,7 +253,7 @@ class Eureka extends Base {
 
       context.println("I'm before adding updated module: ${module.getId()}")
 
-      context.println("I'm before adding updated module tenant.getModules(): ${tenant.getModules()}")
+//      context.println("I'm before adding updated module tenant.getModules(): ${tenant.getModules()}")
 
 //      tenant.getModules()
 //        .addModule(module.getId())
