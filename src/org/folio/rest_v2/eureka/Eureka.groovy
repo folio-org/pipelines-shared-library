@@ -258,7 +258,7 @@ class Eureka extends Base {
 //      tenant.getModules()
 //        .addModule(module.getId())
 
-      context.input message: "I'm after adding updated module"
+//      context.input message: "I'm after adding updated module"
     }
 
     return tenants.collectEntries { tenantName, tenantDetails ->
