@@ -191,6 +191,7 @@ ansiColor('xterm') {
 
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
+        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
       input message: "Do we need to proceed?"
