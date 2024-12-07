@@ -248,6 +248,8 @@ class Eureka extends Base {
           moduleId -> tenant.getModules().addModule(moduleId as String)
         }
       }
+
+      tenant.getModules().addModule(module.getId())
     }
 
     return tenants.collectEntries { tenantName, tenantDetails ->
