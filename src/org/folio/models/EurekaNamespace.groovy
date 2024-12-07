@@ -24,6 +24,18 @@ class EurekaNamespace extends RancherNamespace {
   }
 
   /**
+   * Adds a tenant to the RancherNamespace.
+   * @param tenant the OkapiTenant to add
+   * @throws IllegalArgumentException if the tenant ID is "supertenant"
+   */
+  @Override
+  void addTenant(OkapiTenant tenant) {
+    super.addTenant(tenant)
+
+    applications.putAll((tenant as EurekaTenant).applications)
+  }
+
+  /**
    * Updates the configuration for consortia tenants in the RancherNamespace.*/
   @Override
   protected void updateConsortiaTenantsConfig() {
