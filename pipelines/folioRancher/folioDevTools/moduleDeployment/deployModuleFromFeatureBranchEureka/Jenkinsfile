@@ -95,10 +95,10 @@ ansiColor('xterm') {
 
             dir(module.buildDir) {
               // Read module version from pom.xml
-              module.version = readMavenPom(file: 'pom.xml').version
+              String moduleVersion = readMavenPom(file: 'pom.xml').version
 
               // Load Module Details for Maven builds
-              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+              module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
               // Build Module as Maven Project
               withMaven(
@@ -121,13 +121,13 @@ ansiColor('xterm') {
 
             dir(module.buildDir) {
               // Read module version from gradle.properties
-              module.version = readProperties(file: "gradle.properties")['appVersion']
+              String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
 
               // Load Module Details for Gradle builds
-              module.loadModuleDetails("${module.name}-${module.version}.${featureHash}")
+              module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
               // Build Module as Gradle Project
-              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.version} assemble"
+              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble"
             }
             break
 
@@ -185,7 +185,7 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
-      stage("Retrieve module's sidecar") {
+      stage("Retrieve module's sidecar"){
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           String sidecarImage =
             kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
@@ -214,7 +214,7 @@ ansiColor('xterm') {
       // 1. Register Application Descriptor with Updated Module Version
       stage('[Rest] Update App Descriptor') {
         try {
-          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, namespace.getModules(), module)
+          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
         } catch (e) {
           logger.warning("Failed to register new application descriptor: ${e}")
           eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
