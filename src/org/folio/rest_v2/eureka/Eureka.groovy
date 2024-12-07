@@ -226,6 +226,8 @@ class Eureka extends Base {
     // Get enabled (entitled) applications for configured Tenants
     tenants.each { tenantName, tenant ->
 
+      context.println("getExistedTenantsForModule tenants.each: ${tenantName}")
+
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
         .findAll{appId, entitlement ->
@@ -250,6 +252,8 @@ class Eureka extends Base {
       }
 
       context.println("I'm before adding updated module: ${module.getId()}")
+
+      context.println("I'm before adding updated module tenant.getModules(): ${tenant.getModules()}")
 
       tenant.getModules().addModule(module.getId())
 
