@@ -185,9 +185,11 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
-      stage("Retrieve module's sidecar"){
+      stage("Retrieve module's sidecar") {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-          String sidecarImage = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+          String sidecarImage =
+            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+              .replace(':', '-')
 
           logger.debug("Sidecar image: $sidecarImage")
 
