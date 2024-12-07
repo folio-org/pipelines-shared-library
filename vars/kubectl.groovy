@@ -107,6 +107,21 @@ String patchSecret(String secret_name, String value_name, String secret_value, S
   sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
 }
 
+String getDeploymentContainerImage(String namespace, String deploymentName, String containerName) {
+  try {
+    return sh(script: "kubectl get deployment ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[?(@.name==\"${containerName}\")].image}'", returnStdout: true).trim()
+  } catch (Exception e) {
+    println("Error retrieving container image: ${e.getMessage()}")
+    throw e
+  }
+}
+
+String getDeploymentContainerImageName(String namespace, String deploymentName, String containerName) {
+  String fullPath = getDeploymentContainerImage(namespace, deploymentName, containerName)
+
+  return fullPath.substring(fullPath.lastIndexOf('/') + 1)
+}
+
 def patchConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []
