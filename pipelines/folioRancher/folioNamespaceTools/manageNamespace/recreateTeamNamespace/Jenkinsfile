@@ -1,0 +1,91 @@
+#!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.recreateTeamNamespace
+
+import groovy.transform.Field
+import org.folio.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.models.parameters.CreateNamespaceParameters
+
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-1334') _
+
+@Field final String deleteNamespaceJobNameEureka = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String createNamespaceJobNameEureka = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+
+properties([buildDiscarder(logRotator(numToKeepStr: '30')),
+            disableConcurrentBuilds(),
+            parameters([folioParameters.cluster(),
+                        folioParameters.namespace(),
+                        folioParameters.configType(),
+                        booleanParam(name: 'EUREKA', defaultValue: false, description: '(Optional) Set true to enable EUREKA'),
+                        folioParameters.agent(),
+                        folioParameters.refreshParameters()]),
+            pipelineTriggers([parameterizedCron('''
+              H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=eureka;EUREKA=true;AGENT=rancher
+            ''')])])
+
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
+  .clusterName(params.CLUSTER)
+  .namespaceName(params.NAMESPACE)
+  .folioBranch('snapshot')
+  .okapiVersion('latest')
+  .configType('development')
+  .loadReference(true)
+  .loadSample(true)
+  .consortia(true)
+  .linkedData(true)
+  .eureka(params.EUREKA)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .ecsCCL(false)
+  .pgType('built-in')
+  .pgVersion('16.1')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .uiBuild(true)
+  .worker('rancher')
+  .runSanityCheck(true)
+  .build()
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('Build name') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: development"
+      }
+
+      stage('Cleaning env') {
+        folioTriggerJob.deleteNamespace(params.EUREKA ? deleteNamespaceJobNameEureka : deleteNamespaceJobName, namespace)
+      }
+
+      stage('Spinning up env') {
+        folioTriggerJob.createNamespaceFromBranch(params.EUREKA ? createNamespaceJobNameEureka : createNamespaceJobName, namespace)
+      }
+
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
