@@ -249,6 +249,8 @@ class Eureka extends Base {
         }
       }
 
+      context.input message: "I'm before adding updated module"
+
       tenant.getModules().addModule(module.getId())
     }
 
