@@ -170,7 +170,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   if (ns instanceof EurekaNamespace) {
     String sidecarRepository = determineModulePlacement(
       "folio-module-sidecar"
-      , ns.getModules().getModuleByName('folio-module-sidecar')?.getVersion()
+      , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
     )
 
     moduleConfig << [
@@ -185,7 +185,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig.sidecarContainers.eureka << [
       image: [
         repository: "${sidecarRepository}/folio-module-sidecar",
-        tag       : ns.getModules().getModuleByName('folio-module-sidecar')?.getVersion()
+        tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
       ]
     ]
 
@@ -193,7 +193,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
-          value: 'mod-users-' + ns.getModules().getModuleByName('mod-users')?.getVersion()
+          value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
         break
       case ~/edge-.*$/:
