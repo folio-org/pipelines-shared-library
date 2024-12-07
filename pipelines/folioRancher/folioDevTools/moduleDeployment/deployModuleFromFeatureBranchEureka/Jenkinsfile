@@ -187,7 +187,10 @@ ansiColor('xterm') {
 
       stage("Retrieve module's sidecar"){
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-          String sidecarImage = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+          String sidecarImage =
+            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+              .replace(':', '-')
+
           namespace.modules.addModule(sidecarImage)
         }
       }
@@ -198,6 +201,7 @@ ansiColor('xterm') {
 
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
+        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
