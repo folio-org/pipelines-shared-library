@@ -5,7 +5,6 @@ import org.folio.models.module.EurekaModule
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
-import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -187,12 +186,11 @@ ansiColor('xterm') {
       }
 
       stage('Generate context') {
-        namespace.tenants = eureka.getExistedTenants(module.name)
+        eureka.getExistedTenantsForModule(module).values()
+          .each {namespace.addTenant(it)}
 
-        logger.info("Configured Tenants: ${namespace.tenants}")
-
-        namespace.withApplications(eureka.getEnabledApplications(namespace.tenants))
-        logger.info("Configured Applications: ${namespace.applications}")
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Applications: ${namespace.applications}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
