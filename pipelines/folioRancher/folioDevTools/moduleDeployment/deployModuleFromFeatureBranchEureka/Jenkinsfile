@@ -201,6 +201,8 @@ ansiColor('xterm') {
         eureka.getExistedTenantsForModule(module).values()
           .each {namespace.addTenant(it)}
 
+        logger.debug("I'm in the Generate context stage")
+
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
         logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
