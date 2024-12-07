@@ -24,7 +24,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-              H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=eureka;EUREKA=true;AGENT=rancher
+              H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
             ''')])])
 
 
@@ -38,7 +38,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .namespaceName(params.NAMESPACE)
   .folioBranch('snapshot')
   .okapiVersion('latest')
-  .configType('development')
+  .configType(params.CONFIG_TYPE)
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
