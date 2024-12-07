@@ -188,6 +188,9 @@ ansiColor('xterm') {
       stage("Retrieve module's sidecar"){
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           String sidecarImage = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+
+          logger.debug("Sidecar image: $sidecarImage")
+
           namespace.modules.addModule(sidecarImage)
         }
       }
