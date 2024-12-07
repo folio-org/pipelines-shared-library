@@ -280,7 +280,7 @@ class Eureka extends Base {
    * @param module EurekaModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, EurekaModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -294,9 +294,6 @@ class Eureka extends Base {
 
     /** Updated Application Info, Map<AppName, AppID> */
     Map<String, String> updatedAppInfoMap = [:]
-
-    // Init existing modules information with empty map
-    modules.allModules = [:]
 
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor ->
@@ -314,9 +311,6 @@ class Eureka extends Base {
 
       // Collect Updated Application information to Map<AppName, AppID>
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
-
-      // Collect Current Application Modules Information to EurekaModules Object in the Namespace
-      modules.allModules.putAll(updatedAppDescriptor['modules'].collectEntries { [(it['name']), it['version']] } as Map)
     }
 
     return updatedAppInfoMap
