@@ -212,41 +212,49 @@ class Eureka extends Base {
   }
 
   /**
-   * Get Configured Tenants on Environment Namespace.
-   * @param moduleName Module Name to filter enabled applications.
+   * Get existed tenants where specific module is resides.
+   * @param module Module Name to filter.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenants(String moduleName) {
-    /** Configured Tenants in Environment (namespace) */
-    Map<String, EurekaTenant> configuredTenantsMap
+  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module) {
+    Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
+      tenant -> [tenant.tenantName, tenant]
+    }
 
-    // Get configured Tenants from the Environment (namespace)
-    configuredTenantsMap = Tenants.get(kong).getTenants().collectEntries { tenant -> [tenant.tenantName, tenant] }
+    Map<String, EurekaTenant> tenantsForDeletion = [:]
 
     // Get enabled (entitled) applications for configured Tenants
-    configuredTenantsMap.each { tenantName, tenant ->
-      /** Enabled (entitled) applications for Tenant*/
-      Map<String, String> enabledAppsMap = [:]
+    tenants.each { tenantName, tenant ->
 
-      // Get enabled applications from the Environment
-      Tenants.get(kong).getEnabledApplications(tenant, "", true).each { appId, entitlement ->
-        // Check if the module is enabled for the tenant
-        if (entitlement.modules.find { moduleId -> moduleId.startsWith(moduleName) }) {
-          // Save enabled application with the module to Map for processing
-          enabledAppsMap.put(appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId)
+      // Get applications where the passed module exists
+      Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
+        .findAll{appId, entitlement ->
+          entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
+        }
+
+      if(applications.isEmpty()){
+        tenantsForDeletion.put(tenantName, tenant) //let's delete it later from the tenant list
+        return
+      }
+
+      // Update tenant application list
+      tenant.applications = applications.collectEntries { appId, entitlement ->
+        [appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId]
+      } as Map<String, String>
+
+      // Update tenant module list
+      applications.each { appId, entitlement ->
+        entitlement.modules.each {
+          moduleId -> tenant.getModules().addModule(moduleId as String)
         }
       }
 
-      if (enabledAppsMap.isEmpty()) {
-        // Remove tenant without requested module from the configured tenants map
-        configuredTenantsMap.remove(tenantName)
-      } else {
-        // Assign enabled applications to Tenant object
-        tenant.applications = enabledAppsMap.clone() as Map
-      }
+      tenant.getModules().addModule(module.getId())
     }
 
-    return configuredTenantsMap
+    return tenants.collectEntries { tenantName, tenantDetails ->
+        (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
+      } as Map<String, EurekaTenant>
   }
 
   /**
@@ -274,7 +282,7 @@ class Eureka extends Base {
    * @param module EurekaModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, FolioInstallJson<EurekaModule> modules, EurekaModule module) {
+  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModule module) {
     /** Enabled Application Descriptors Map */
     Map<String, Object> appDescriptorsMap = [:]
 
@@ -288,9 +296,6 @@ class Eureka extends Base {
 
     /** Updated Application Info, Map<AppName, AppID> */
     Map<String, String> updatedAppInfoMap = [:]
-
-    // Init existing modules information with empty map
-    modules.allModules = [:]
 
     // Get Application Descriptor Updated with New Module Version
     appDescriptorsMap.each { appId, descriptor ->
@@ -308,9 +313,6 @@ class Eureka extends Base {
 
       // Collect Updated Application information to Map<AppName, AppID>
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
-
-      // Collect Current Application Modules Information to EurekaModules Object in the Namespace
-      modules.allModules.putAll(updatedAppDescriptor['modules'].collectEntries { [(it['name']), it['version']] } as Map)
     }
 
     return updatedAppInfoMap
