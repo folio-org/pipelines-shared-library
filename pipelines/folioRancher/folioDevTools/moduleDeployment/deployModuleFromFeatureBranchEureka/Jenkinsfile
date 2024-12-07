@@ -193,6 +193,8 @@ ansiColor('xterm') {
         logger.debug("Configured Applications: ${namespace.applications}")
       }
 
+      input message: "Do we need to proceed?"
+
       /** Updated Applications Info Map<AppName, AppID> */
       Map<String, String> updatedAppInfoMap = [:]
 
