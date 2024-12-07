@@ -185,6 +185,13 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
+      stage("Retrieve module's sidecar"){
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          String sidecarImage = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+          namespace.modules.addModule(sidecarImage)
+        }
+      }
+
       stage('Generate context') {
         eureka.getExistedTenantsForModule(module).values()
           .each {namespace.addTenant(it)}
