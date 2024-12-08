@@ -24,7 +24,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-              H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
+              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
             ''')])])
 
 
