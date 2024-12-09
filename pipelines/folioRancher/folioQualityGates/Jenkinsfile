@@ -229,11 +229,12 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      parallel(branches)
     } catch (e) {
       def multiLineString = """
-          getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
-          getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
-          getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
-          getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-          getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
+        getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
+        getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
+        getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
+        getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
+        getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
+        getFailedStageName(): ${getFailedStageName(jobResult?: 'N/A')} // The name of the failed stage.
       """
       println(multiLineString) // Print all sul-job properties
 
@@ -264,4 +265,15 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
       throw new Exception("Destroy of the environment is failed: " + e)
     }
   }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
+String getFailedStageName(subJobResult) {
+  String failedStageName = ''
+  subJobResult.stages.each { stage ->
+    if (stage.status == 'FAILED') {
+      failedStageName = stage.name
+    }
+  }
+  return failedStageName
 }
