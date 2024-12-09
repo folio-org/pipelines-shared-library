@@ -212,6 +212,20 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
       if (jobResult?.getResult() == 'FAILURE') {
+        def multiLineString = """
+          fullDisplayName: ${jobResult?.fullDisplayName} // The full display name of the build.
+          id: ${jobResult?.id} // The ID of the build.
+          number: ${jobResult?.number} // The build number.
+          result: ${jobResult?.result} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
+          duration: ${jobResult?.duration} // The duration of the build in milliseconds.
+          timestampString: ${jobResult?.timestampString} // The timestamp of the build as a string.
+          url: ${jobResult?.url} // The URL of the build.
+          description: ${jobResult?.description} // The description of the build.
+          currentResult: ${jobResult?.currentResult} // The current result of the build.
+          previousBuild: ${jobResult?.previousBuild} // The previous build.
+          nextBuild: ${jobResult?.nextBuild} // The next build.
+        """
+        println(multiLineString) // Print all sul-job properties
         throw new Exception(jobResult?.getDescription() as String)
       }
 
@@ -229,7 +243,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      parallel(branches)
     } catch (e) {
       currentBuild.result = 'FAILURE'
-      slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage(), channel: slackChannel)
+      slackSend(attachments: folioSlackNotificationUtils.renderFailedSubJobMessage(), channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
