@@ -229,18 +229,18 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      parallel(branches)
     } catch (e) {
       def multiLineString = """
-          fullDisplayName: ${jobResult?.fullDisplayName} // The full display name of the build.
-          id: ${jobResult?.id} // The ID of the build.
-          number: ${jobResult?.number} // The build number.
-          result: ${jobResult?.result} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-          duration: ${jobResult?.duration} // The duration of the build in milliseconds.
-          timestampString: ${jobResult?.timestampString} // The timestamp of the build as a string.
-          url: ${jobResult?.url} // The URL of the build.
-          description: ${jobResult?.description} // The description of the build.
-          currentResult: ${jobResult?.currentResult} // The current result of the build.
-          previousBuild: ${jobResult?.previousBuild} // The previous build.
-          nextBuild: ${jobResult?.nextBuild} // The next build.
-        """
+        fullDisplayName: ${jobResult?.hasPoperty('fullDisplayName') ? jobResult?.fullDisplayName : 'N/A'} // The full display name of the build.
+        id: ${jobResult?.hasPoperty('id') ? jobResult?.id : 'N/A'} // The ID of the build.
+        number: ${jobResult?.hasPoperty('number') ? jobResult?.number : 'N/A'} // The build number.
+        result: ${jobResult?.hasPoperty('result') ? jobResult?.result : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
+        duration: ${jobResult?.hasPoperty('duration') ? jobResult?.duration : 'N/A'} // The duration of the build in milliseconds.
+        timestampString: ${jobResult?.hasPoperty('timestampString') ? jobResult?.timestampString : 'N/A'} // The timestamp of the build as a string.
+        url: ${jobResult?.hasPoperty('url') ? jobResult?.url : 'N/A'} // The URL of the build.
+        description: ${jobResult?.hasPoperty('description') ? jobResult?.description : 'N/A'} // The description of the build.
+        currentResult: ${jobResult?.hasPoperty('currentResult') ? jobResult?.currentResult : 'N/A'} // The current result of the build.
+        previousBuild: ${jobResult?.hasPoperty('previousBuild') ? jobResult?.previousBuild : 'N/A'} // The previous build.
+        nextBuild: ${jobResult?.hasPoperty('nextBuild') ? jobResult?.nextBuild : 'N/A'} // The next build.
+      """
       println(multiLineString) // Print all sul-job properties
 
       currentBuild.result = 'FAILURE'
