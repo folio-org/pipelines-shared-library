@@ -98,7 +98,7 @@ cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
 cypressSanityParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
 cypressSanityParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-cypressSanityParameters.setWorkerLabel('cypress')
+cypressSanityParameters.setWorkerLabel('cypress-static') // Switch back to cypress when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
 cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
