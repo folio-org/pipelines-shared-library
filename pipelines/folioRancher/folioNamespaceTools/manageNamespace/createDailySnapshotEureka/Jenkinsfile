@@ -48,7 +48,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(true)
+  .runSanityCheck(false) // Set true when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
   .build()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
@@ -75,7 +75,7 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,bama,aggies,dreamliner,leipzig')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(true)
+  .runSanityCheck(false) // Set true when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
   .build()
 
 ansiColor('xterm') {
