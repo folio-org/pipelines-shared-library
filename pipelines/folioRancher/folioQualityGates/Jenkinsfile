@@ -9,6 +9,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.Constants
+import org.folio.slack.SlackBuildResultRenderer
 import org.folio.slack.SlackHelper
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -234,12 +235,24 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
         getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
         getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
         getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
-        getFailedStageName(): ${getFailedStageName(jobResult?: 'N/A')} // The name of the failed stage.
+        getFailedStageName(): ${env.STAGE_NAME} // The name of the failed stage.
       """
       println(multiLineString) // Print all sul-job properties
 
       currentBuild.result = 'FAILURE'
-      slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage(), channel: slackChannel)
+
+      def subJobName = jobResult?.getProjectName()
+      def buildNumber = jobResult?.getNumber()
+      def stageName = env.STAGE_NAME
+      def jobUrl = jobResult?.getAbsoluteUrl()
+      def jobDescription = jobResult?.getDescription() + 'console'
+
+//      String attachments = SlackHelper.renderMessage([
+//        folioSlackNotificationUtils.renderFailedSubJobSection(subJobName, buildNumber, stageName, jobUrl, jobDescription),
+//        folioSlackNotificationUtils.renderBuildResultSection()
+//      ])
+//
+//      slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
@@ -265,15 +278,4 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
       throw new Exception("Destroy of the environment is failed: " + e)
     }
   }
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-String getFailedStageName(subJobResult) {
-  String failedStageName = ''
-  subJobResult.stages.each { stage ->
-    if (stage.status == 'FAILED') {
-      failedStageName = stage.name
-    }
-  }
-  return failedStageName
 }
