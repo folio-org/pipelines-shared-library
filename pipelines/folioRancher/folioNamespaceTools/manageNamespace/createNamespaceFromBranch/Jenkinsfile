@@ -57,6 +57,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .consortia(params.CONSORTIA)
   .splitFiles(params.SPLIT_FILES)
   .rwSplit(params.RW_SPLIT)
+  .linkedData(params.LINKED_DATA)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
