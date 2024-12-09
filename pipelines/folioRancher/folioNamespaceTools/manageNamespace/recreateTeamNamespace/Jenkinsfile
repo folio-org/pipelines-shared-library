@@ -24,8 +24,12 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
+              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=jenkins-agent-java17
             ''')])])
+// Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
+//            pipelineTriggers([parameterizedCron('''
+//              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
+//            ''')])])
 
 
 if (params.REFRESH_PARAMETERS) {
@@ -56,7 +60,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .s3Type('built-in')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(false) // Set true when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
+  .runSanityCheck(true)
   .build()
 
 ansiColor('xterm') {
