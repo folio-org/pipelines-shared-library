@@ -736,7 +736,9 @@ mod-calendar:
     enabled: true
     maxUnavailable: 1
 mod-camunda:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: SPRING_JERSEY_APPLICATIONPATH
+      value: camunda
   integrations:
     db:
       enabled: true
@@ -744,6 +746,9 @@ mod-camunda:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2148,6 +2153,7 @@ mod-oai-pmh:
       memory: 908Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
+  - -Dfile.encoding=UTF-8
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3063,7 +3069,11 @@ mod-users-bl:
     enabled: true
     maxUnavailable: 1
 mod-workflow:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: OKAPI_CAMUNDA_BASEPATH
+      value: '/'
+    - name: OKAPI_CAMUNDA_RESTPATH
+      value: '/camunda'
   integrations:
     db:
       enabled: true
@@ -3071,6 +3081,9 @@ mod-workflow:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:

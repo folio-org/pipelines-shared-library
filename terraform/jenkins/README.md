@@ -15,7 +15,13 @@ terraform apply -input=false tfplan
 terraform destroy -auto-approve
 ```
 
-
+### Restore
+**_Important:_**
+Jenkins server needs to be tainted to be recreated with the new ebs attached
+```
+terraform taint aws_instance.jenkins_server
+terraform apply -var "snapshot_id=<snap-ID>"
+```
 
 > **_NOTE:_** 
 > Before commit changes in scripts do not forget to format

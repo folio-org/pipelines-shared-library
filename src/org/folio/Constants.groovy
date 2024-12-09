@@ -190,6 +190,7 @@ class Constants {
                                   'cypress'       : 'AQA',
                                   'dreamliner'    : 'Dreamliner',
                                   'ebsco-core'    : 'ebsco-core',
+                                  'eureka'        : 'Eureka',
                                   'falcon'        : 'falcon',
                                   'firebird'      : 'firebird',
                                   'folijet'       : 'folijet',

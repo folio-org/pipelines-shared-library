@@ -24,9 +24,9 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean consortia
 
-  boolean eureka
-
   boolean linkedData
+
+  boolean eureka
 
   boolean splitFiles
 

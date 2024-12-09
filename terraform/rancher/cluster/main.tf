@@ -1,5 +1,6 @@
 #Creating a cloud credential in Rancher.
 resource "rancher2_cloud_credential" "aws" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.register_in_rancher ? 1 : 0
   name        = module.eks_cluster.cluster_name
   description = "AWS EKS Cluster"
@@ -11,6 +12,7 @@ resource "rancher2_cloud_credential" "aws" {
 
 #Creating a Rancher2 cluster object.
 resource "rancher2_cluster" "this" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.register_in_rancher ? 1 : 0
   name        = module.eks_cluster.cluster_name
   description = "Terraform EKS Cluster"
@@ -24,6 +26,7 @@ resource "rancher2_cluster" "this" {
 
 #Syncing the cluster with Rancher.
 resource "rancher2_cluster_sync" "this" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster.this[0].id
   timeouts {

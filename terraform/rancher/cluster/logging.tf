@@ -1,5 +1,6 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
+  depends_on                = [module.eks_cluster.eks_managed_node_groups]
   count                     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider                  = rancher2
   name                      = "logging"
@@ -13,6 +14,7 @@ resource "rancher2_project" "logging" {
 
 # Create a new rancher2 Namespace assigned to cluster project
 resource "rancher2_namespace" "logging" {
+  depends_on  = [module.eks_cluster.eks_managed_node_groups]
   count       = var.register_in_rancher && var.enable_logging ? 1 : 0
   name        = "logging"
   project_id  = rancher2_project.logging[0].id
@@ -51,6 +53,7 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "elasticsearch" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
@@ -126,6 +129,7 @@ resource "rancher2_app_v2" "elasticsearch" {
 
 # Create Elasticsearch manifest
 resource "kubectl_manifest" "elasticsearch_output" {
+  depends_on         = [module.eks_cluster.eks_managed_node_groups]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
   override_namespace = rancher2_namespace.logging[0].name
@@ -195,6 +199,7 @@ data:
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "fluentd" {
+  depends_on    = [module.eks_cluster.eks_managed_node_groups]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
@@ -243,23 +248,14 @@ resource "rancher2_app_v2" "fluentd" {
             pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
             tag kubernetes.*
             read_from_head true
+            follow_inodes true
             <parse>
-              @type multiline
-              format_firstline /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z (stdout|stderr) (F|P).*(\n)?/  # Match the first line with timestamp, stdout F, and optional newline
-              format1 /^(?<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)\s+(stdout|stderr)\s+(F|P)\s+(?<inner_time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{3})\t(?<log_level>\w+)\t\?(?<message>.*)$/
-              time_format %Y-%m-%dT%H:%M:%S.%NZ
+              @type none
             </parse>
           </source>
           # enrich with kubernetes metadata
           <filter kubernetes.**>
             @type kubernetes_metadata
-          </filter>
-          <filter kubernetes.okapi>
-            @type grep
-            <regexp>
-              key log_level
-              pattern (FATAL|ERROR|WARN|INFO|DEBUG|TRACE|ALL)  # Filter for logs
-            </regexp>
           </filter>
         fluentd-output.conf: |
           # Throw the healthcheck to the standard output instead of forwarding it
@@ -321,9 +317,9 @@ resource "rancher2_app_v2" "fluentd" {
 
 // Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
-  count = var.register_in_rancher && var.enable_logging ? 1 : 0
-  name  = var.index_policy_name
-
+  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
+  name       = var.index_policy_name
+  depends_on = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output, rancher2_app_v2.fluentd]
   hot {
     min_age = "0ms"
     set_priority {

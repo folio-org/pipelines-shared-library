@@ -75,9 +75,7 @@ def statePull(String path) {
 
 def removeFromState(String path, String resource) {
   stage('[TF] Remove from state') {
-    dir(path) {
-      sh "terraform state rm ${resource}"
-    }
+    sh "terraform state rm ${resource}"
   }
 }
 

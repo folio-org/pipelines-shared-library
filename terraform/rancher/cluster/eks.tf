@@ -37,7 +37,7 @@ module "eks_cluster" {
   version = "~>19.12.0"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.28"
+  cluster_version   = "1.29"
   cluster_ip_family = "ipv4"
 
   cluster_endpoint_private_access = false
@@ -144,7 +144,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 4
+        max_size     = 6
         desired_size = 1
 
         taints = {
@@ -180,7 +180,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 4
+        max_size     = 6
         desired_size = 1
 
         taints = {
