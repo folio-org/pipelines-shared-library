@@ -261,6 +261,7 @@ class Eureka extends Base {
     }
 
     logger.debug("I'm in Eureka. After tenants handling")
+    logger.debug("I'm in Eureka. tenants: $tenants")
     logger.debug("I'm in Eureka. return:")
     logger.debug(tenants.collectEntries { tenantName, tenantDetails ->
       (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
