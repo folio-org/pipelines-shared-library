@@ -266,6 +266,8 @@ class Eureka extends Base {
       (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
     })
 
+    logger.debug("I'm in Eureka. Finish")
+
     return tenants.collectEntries { tenantName, tenantDetails ->
         (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
       } as Map<String, EurekaTenant>
