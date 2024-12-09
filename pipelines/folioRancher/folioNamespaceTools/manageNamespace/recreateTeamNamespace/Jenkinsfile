@@ -56,7 +56,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .s3Type('built-in')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(true)
+  .runSanityCheck(false) // Set true when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
   .build()
 
 ansiColor('xterm') {
