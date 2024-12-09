@@ -229,31 +229,12 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 //      parallel(branches)
     } catch (e) {
       def multiLineString = """
-        fullDisplayName: ${jobResult?.hasProperty('fullDisplayName') ? jobResult?.fullDisplayName : 'N/A'} // The full display name of the build.
-        id: ${jobResult?.hasProperty('id') ? jobResult?.id : 'N/A'} // The ID of the build.
-        number: ${jobResult?.hasProperty('number') ? jobResult?.number : 'N/A'} // The build number.
-        result: ${jobResult?.hasProperty('result') ? jobResult?.result : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-        duration: ${jobResult?.hasProperty('duration') ? jobResult?.duration : 'N/A'} // The duration of the build in milliseconds.
-        timestampString: ${jobResult?.hasProperty('timestampString') ? jobResult?.timestampString : 'N/A'} // The timestamp of the build as a string.
-        url: ${jobResult?.hasProperty('url') ? jobResult?.url : 'N/A'} // The URL of the build.
-        description: ${jobResult?.hasProperty('description') ? jobResult?.description : 'N/A'} // The description of the build.
-        currentResult: ${jobResult?.hasProperty('currentResult') ? jobResult?.currentResult : 'N/A'} // The current result of the build.
-        previousBuild: ${jobResult?.hasProperty('previousBuild') ? jobResult?.previousBuild : 'N/A'} // The previous build.
-        nextBuild: ${jobResult?.hasProperty('nextBuild') ? jobResult?.nextBuild : 'N/A'} // The next build.
-
-        getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
-        getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-        getDuration(): ${jobResult.metaClass.respondsTo(jobResult, 'getDuration') ? jobResult?.getDuration() : 'N/A'} // The duration of the build in milliseconds.
-        getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getDisplayName') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
-        isBuilding(): ${jobResult.metaClass.respondsTo(jobResult, 'isBuilding') ? jobResult?.isBuilding() : 'N/A'} // True if the build is currently running.
-        getStartTimeInMillis(): ${jobResult.metaClass.respondsTo(jobResult, 'getStartTimeInMillis') ? jobResult?.getStartTimeInMillis() : 'N/A'} // The start time of the build in milliseconds since the epoch.
-        getBuiltOnStr(): ${jobResult.metaClass.respondsTo(jobResult, 'getBuiltOnStr') ? jobResult?.getBuiltOnStr() : 'N/A'} // The node the build was built on.
-        getArtifacts(): ${jobResult.metaClass.respondsTo(jobResult, 'getArtifacts') ? jobResult?.getArtifacts() : 'N/A'} // The artifacts produced by the build.
-        getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
-        getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
-        getPreviousBuild(): ${jobResult.metaClass.respondsTo(jobResult, 'getPreviousBuild') ? jobResult?.getPreviousBuild() : 'N/A'} // The previous build.
-        getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
-//        getEnvironment(слухач TaskListener)
+          getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
+          getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
+          getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
+          getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
+          getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getDisplayName') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
+          getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
       """
       println(multiLineString) // Print all sul-job properties
 
