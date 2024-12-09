@@ -233,7 +233,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
           getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
           getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
           getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-          getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getDisplayName') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
           getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
       """
       println(multiLineString) // Print all sul-job properties
