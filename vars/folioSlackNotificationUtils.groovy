@@ -115,3 +115,10 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
     .fromType(type, TestExecutionResult.byTestResults(results))
     .renderSection(team, results, existingIssuesUrl, createdIssuesUrl)
 }
+
+@SuppressWarnings('GrMethodMayBeStatic')
+String renderSubJobBuildResultSection(String jobName, String buildNumber, String stageName, String buildUrl, String buildStatus) {
+  SlackBuildResultRenderer buildResult = SlackBuildResultRenderer.fromResult(buildStatus)
+
+  return buildResult.renderSection(jobName, buildNumber, stageName, buildUrl)
+}
