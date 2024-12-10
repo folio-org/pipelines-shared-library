@@ -250,7 +250,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       String attachments = SlackHelper.renderMessage([
         folioSlackNotificationUtils.renderBuildResultSection(),
-        folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus)
+        folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
       ])
 
       slackSend(attachments: attachments, channel: slackChannel)
