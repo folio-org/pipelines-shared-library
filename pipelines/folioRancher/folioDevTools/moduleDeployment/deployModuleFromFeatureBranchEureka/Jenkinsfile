@@ -200,7 +200,7 @@ ansiColor('xterm') {
           .each {namespace.addTenant(it)}
 
         if(!(namespace.tenants))
-          throw new Error("There are no tenants with the module ${module.getName()}")
+          throw new Exception("There are no tenants with the module ${module.getName()}")
 
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
