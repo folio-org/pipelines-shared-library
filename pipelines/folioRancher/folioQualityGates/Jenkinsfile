@@ -242,7 +242,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       currentBuild.result = 'FAILURE'
 
       String subJobName = jobResult?.getProjectName()
-      String buildNumber = jobResult?.getDisplayName()()
+      String buildNumber = jobResult?.getDisplayName()
       String stageName = env.STAGE_NAME
       String subJobUrl = jobResult?.getAbsoluteUrl() + 'console'
       String jobDescription = jobResult?.getDescription()
