@@ -248,7 +248,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       String jobDescription = jobResult?.getDescription()
 
       String attachments = SlackHelper.renderMessage([
-        SlackBuildResultRenderer.renderSection(subJobName, buildNumber, stageName, jobUrl),
+        SlackHelper.renderSection('', jobDescription, '#E9D502', [], []),
         folioSlackNotificationUtils.renderBuildResultSection()
       ])
 
