@@ -252,9 +252,9 @@ class Eureka extends Base {
       tenant.getModules().addModule(module.getId())
     }
 
-    return tenants.collectEntries { tenantName, tenantDetails ->
-        (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
-      } as Map<String, EurekaTenant>
+    return tenants.findAll { tenantName, tenant ->
+      !tenantsForDeletion.containsKey(tenantName)
+    }
   }
 
   /**

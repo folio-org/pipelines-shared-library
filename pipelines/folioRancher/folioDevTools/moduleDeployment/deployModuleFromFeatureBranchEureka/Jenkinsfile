@@ -199,6 +199,9 @@ ansiColor('xterm') {
         eureka.getExistedTenantsForModule(module).values()
           .each {namespace.addTenant(it)}
 
+        if(!(namespace.tenants))
+          throw new Exception("There are no tenants with the module ${module.getName()}")
+
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
         logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
