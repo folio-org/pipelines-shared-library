@@ -241,18 +241,18 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       currentBuild.result = 'FAILURE'
 
-      def subJobName = jobResult?.getProjectName()
-      def buildNumber = jobResult?.getNumber()
-      def stageName = env.STAGE_NAME
-      def jobUrl = jobResult?.getAbsoluteUrl()
-      def jobDescription = jobResult?.getDescription() + 'console'
+      String subJobName = jobResult?.getProjectName()
+      String buildNumber = jobResult?.getNumber()
+      String stageName = env.STAGE_NAME
+      String jobUrl = jobResult?.getAbsoluteUrl()
+      String jobDescription = jobResult?.getDescription()
 
-//      String attachments = SlackHelper.renderMessage([
-//        folioSlackNotificationUtils.renderFailedSubJobSection(subJobName, buildNumber, stageName, jobUrl, jobDescription),
-//        folioSlackNotificationUtils.renderBuildResultSection()
-//      ])
-//
-//      slackSend(attachments: attachments, channel: slackChannel)
+      String attachments = SlackHelper.renderMessage([
+        SlackBuildResultRenderer.renderSection(subJobName, buildNumber, stageName, jobUrl),
+        folioSlackNotificationUtils.renderBuildResultSection()
+      ])
+
+      slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
