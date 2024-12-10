@@ -231,7 +231,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
     } catch (e) {
       def multiLineString = """
         getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
-        getNumber(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getNumber() : 'N/A'} // The build number.
+        getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
         getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
         getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
         getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
@@ -242,7 +242,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       currentBuild.result = 'FAILURE'
 
       String subJobName = jobResult?.getProjectName()
-      String buildNumber = jobResult?.getNumber()
+      String buildNumber = jobResult?.getDisplayName()()
       String stageName = env.STAGE_NAME
       String subJobUrl = jobResult?.getAbsoluteUrl() + 'console'
       String jobDescription = jobResult?.getDescription()
