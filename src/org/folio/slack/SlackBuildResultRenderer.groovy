@@ -31,7 +31,10 @@ enum SlackBuildResultRenderer {
   }
 
   String renderSubJobErrorSection(String jobName, String buildNumber, String stageName, String errorMessage, String buildUrl) {
-    String text = SlackHelper.fillTemplate(SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName, errorMessage), SlackBuildResultTemplates.FAILED_WITH_ERROR_TEXT)
+    String text = SlackHelper.fillTemplate(
+      SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName, errorMessage),
+      SlackBuildResultTemplates.FAILED_WITH_ERROR_TEXT
+    )
 
     String action = SlackHelper.renderAction(buildUrl, SlackBuildResultTemplates.ACTION_TEXT)
 
