@@ -226,22 +226,16 @@ class Eureka extends Base {
     // Get enabled (entitled) applications for configured Tenants
     tenants.each { tenantName, tenant ->
 
-      logger.debug("I'm in Eureka. Tenant $tenantName Start.")
-
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
         .findAll{appId, entitlement ->
           entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
         }
 
-      logger.debug("I'm in Eureka. Tenant $tenantName After getEnabledApplications")
-
       if(applications.isEmpty()){
         tenantsForDeletion.put(tenantName, tenant) //let's delete it later from the tenant list
         return
       }
-
-      logger.debug("I'm in Eureka. Tenant $tenantName After applications.isEmpty()")
 
       // Update tenant application list
       tenant.applications = applications.collectEntries { appId, entitlement ->
@@ -255,24 +249,12 @@ class Eureka extends Base {
         }
       }
 
-      logger.debug("I'm in Eureka. Tenant $tenantName Before tenant.getModules().addModule")
-
       tenant.getModules().addModule(module.getId())
     }
 
-    logger.debug("I'm in Eureka. After tenants handling")
-    logger.debug("I'm in Eureka. tenants: $tenants")
-    logger.debug("I'm in Eureka. return:")
-    logger.debug(tenants.collectEntries { tenantName, tenant ->
-      logger.debug("I'm in Eureka. Tenants for !tenantsForDeletion.containsKey(tenantName) ${!tenantsForDeletion.containsKey(tenantName)}")
-      [tenantName, tenant]
-    })
-
-    logger.debug("I'm in Eureka. Finish")
-
-    return tenants.collectEntries { tenantName, tenantDetails ->
-        (!tenantsForDeletion.containsKey(tenantName)) ? [tenantName, tenantDetails] : null
-      } as Map<String, EurekaTenant>
+    return tenants.findAll { tenantName, tenant ->
+      !tenantsForDeletion.containsKey(tenantName)
+    }
   }
 
   /**
