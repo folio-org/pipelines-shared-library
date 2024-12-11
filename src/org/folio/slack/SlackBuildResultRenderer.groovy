@@ -30,6 +30,17 @@ enum SlackBuildResultRenderer {
     return renderSection(SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName), buildUrl)
   }
 
+  String renderSubJobErrorSection(String jobName, String buildNumber, String stageName, String errorMessage, String buildUrl) {
+    String text = SlackHelper.fillTemplate(
+      SlackBuildResultTemplates.getTextParams(jobName, buildNumber, stageName, errorMessage),
+      SlackBuildResultTemplates.FAILED_WITH_ERROR_TEXT
+    )
+
+    String action = SlackHelper.renderAction(buildUrl, SlackBuildResultTemplates.ACTION_TEXT)
+
+    return SlackHelper.renderSection("", text, color, [action], [])
+  }
+
   @NonCPS
   static SlackBuildResultRenderer fromResult(String result) throws Error {
     for (SlackBuildResultRenderer elem : values()) {
