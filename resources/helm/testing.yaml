@@ -2100,7 +2100,11 @@ mod-licenses:
     enabled: true
     maxUnavailable: 1
 mod-linked-data:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: CACHE_TTL_SPEC_RULES_MS
+      value: 0
+    - name: CACHE_TTL_SETTINGS_ENTRIES_MS
+      value: 0
   integrations:
     db:
       enabled: true
