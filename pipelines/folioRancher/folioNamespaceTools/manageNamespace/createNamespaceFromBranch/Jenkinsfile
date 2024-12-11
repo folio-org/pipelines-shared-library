@@ -105,13 +105,6 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      /** Fake Error Message for testing */
-      String errorMessage = 'org.folio.utilities.RequestException: Internal Server Error(500) - Error getting user-tenant record; username=super_admin; userId=null; tenantId=null: Response status code 500 is not equal to 200'
-
-      /** Throw some dummy Exception to verify error handling approach */
-      throw new Exception(errorMessage)
-
-      /** Stages below will never be executed due to throwing dummy exception in previous line*/
       folioNamespaceCreate(namespaceParams)
 
       stage('[Cypress] Run sanity check') {
@@ -128,7 +121,7 @@ ansiColor('xterm') {
       currentBuild.result = 'FAILURE'
 
       println "Caught exception: ${e}"
-//      error(e.getMessage())
+      error(e.getMessage())
     } finally {
       stage('Cleanup') {
         cleanWs notFailBuild: true

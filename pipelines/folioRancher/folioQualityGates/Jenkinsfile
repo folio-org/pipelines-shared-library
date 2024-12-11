@@ -9,7 +9,6 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.Constants
-import org.folio.slack.SlackBuildResultRenderer
 import org.folio.slack.SlackHelper
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -17,15 +16,15 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1692') _
+@Library('pipelines-shared-library') _
 
 properties([
-//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-    booleanParam(name: 'SKIP_CHECK', defaultValue: true, description: 'Skip check of changes since last build.'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
@@ -45,13 +44,13 @@ KarateRunExecutionSummary karateTestsExecutionSummary
 
 String createNamespaceFromBranchJob = CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 String deleteNamespaceJob = CommonConstants.JENKINS_DELETE_NAMESPACE_JOB
-String globalSlackChannel = '#rancher-test-notifications'
+String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-testing', namespace: 'cikarate-yi']
-//  cypress: [cluster: 'folio-testing', namespace: 'cicypress-yi'],
-//  schema : [cluster: 'folio-tmp', namespace: 'cischema-yi']
+  karate : [cluster: 'folio-testing', namespace: 'cikarate'],
+  cypress: [cluster: 'folio-testing', namespace: 'cicypress'],
+//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
@@ -111,47 +110,47 @@ ansiColor('xterm') {
         return
       }
 
-//      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
+      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
 
       provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
 
-//      stage('Execute quality gates') {
-//        Map branches = [failFast: false]
-//        branches['Cypress'] = { ->
-//          CypressTestsParameters cypressParameters = new CypressTestsParameters()
-//          cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
-//          cypressParameters.setTestsSrcBranch('master')
-//          cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
-//          cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}")
-//          cypressParameters.setTenant(new OkapiTenant('diku')
-//            .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-//          cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
-//          cypressParameters.setWorkerLabel('cypress-ci')
-//          cypressParameters.setNumberOfWorkers(4)
-//          cypressParameters.setTimeout('120')
-//
-//          cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), true, 'ci', false) {
-//            folioCypressFlow.multiThreadRun(cypressParameters)
-//          }
-//        }
-//        branches['Karate'] = { ->
-//          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-//          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-//          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
-//          karateTestsParams.tenant = 'supertenant'
-//          karateTestsParams.prototypeTenant = 'consortium'
-//          karateTestsParams.adminUserName = 'super_admin'
-//          karateTestsParams.adminPassword = 'admin'
-//          karateTestsParams.threadsCount = '4'
-//          karateTestsParams.reportPortalProjectName = 'junit5-integration'
-//          karateTestsParams.sendSlackNotification = false
-//          karateTestsParams.sendTeamsSlackNotification = true
-//          karateTestsParams.syncWithJira = true
-//          karateTestsParams.timeout = '3'
-//          karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
-//        }
-//        parallel(branches)
-//      }
+      stage('Execute quality gates') {
+        Map branches = [failFast: false]
+        branches['Cypress'] = { ->
+          CypressTestsParameters cypressParameters = new CypressTestsParameters()
+          cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+          cypressParameters.setTestsSrcBranch('master')
+          cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
+          cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}")
+          cypressParameters.setTenant(new OkapiTenant('diku')
+            .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+          cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+          cypressParameters.setWorkerLabel('cypress-ci')
+          cypressParameters.setNumberOfWorkers(4)
+          cypressParameters.setTimeout('120')
+
+          cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), true, 'ci', false) {
+            folioCypressFlow.multiThreadRun(cypressParameters)
+          }
+        }
+        branches['Karate'] = { ->
+          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.tenant = 'supertenant'
+          karateTestsParams.prototypeTenant = 'consortium'
+          karateTestsParams.adminUserName = 'super_admin'
+          karateTestsParams.adminPassword = 'admin'
+          karateTestsParams.threadsCount = '4'
+          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+          karateTestsParams.sendSlackNotification = false
+          karateTestsParams.sendTeamsSlackNotification = true
+          karateTestsParams.syncWithJira = true
+          karateTestsParams.timeout = '3'
+          karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
+        }
+        parallel(branches)
+      }
 
       stage('[AWS] Update ssm') {
         if (currentBuildSha) {
@@ -200,45 +199,29 @@ ansiColor('xterm') {
 }
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
-  /** Sub-Task object */
-  def jobResult
-
   stage('Provisioning') {
+    /** Sub-Task object */
+    def jobResult = null
+
     try {
-      CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-        .clusterName('folio-testing')
-        .namespaceName('cikarate-yi')
-        .build()
+      Map branches = [failFast: false]
 
-      jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+      envsMap.each { id, metadata ->
+        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+          .clusterName(metadata['cluster'] as String)
+          .namespaceName(metadata['namespace'] as String)
+          .build()
+        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
+          jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      if (jobResult?.getResult() == 'FAILURE') {
-        throw new Exception(jobResult?.getDescription() as String)
+          if (jobResult?.getResult() == 'FAILURE') {
+            throw new Exception(jobResult?.getDescription() as String)
+          }
+        }
       }
+      parallel(branches)
 
-//      Map branches = [failFast: false]
-//      envsMap.each { id, metadata ->
-//        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-//          .clusterName(metadata['cluster'])
-//          .namespaceName(metadata['namespace'])
-//          .build()
-//        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-//          def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
-//          println(jobResult.dump())
-//        }
-//      }
-//      parallel(branches)
     } catch (e) {
-      def multiLineString = """
-        getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
-        getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
-        getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
-        getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-        getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
-        getFailedStageName(): ${env.STAGE_NAME} // The name of the failed stage.
-      """
-      println(multiLineString) // Print all sul-job properties
-
       currentBuild.result = 'FAILURE'
 
       String subJobName = jobResult?.getProjectName()
