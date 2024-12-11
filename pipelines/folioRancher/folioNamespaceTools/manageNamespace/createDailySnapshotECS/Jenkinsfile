@@ -127,8 +127,8 @@ ansiColor('xterm') {
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
-              "ecs-snapshot-01_backup", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup",
+              "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
@@ -145,99 +145,99 @@ ansiColor('xterm') {
         sleep time: 5, unit: "MINUTES"
       }
 
-      // stage('Prepare update') {
-      //   main.getTenantsList().each {
-      //     switch (it) {
-      //       case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
-      //         namespace.addTenant(new OkapiTenant("${it}")
-      //           .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
-      //           .withInstallRequestParams(installRequestParams)
-      //           .withConfiguration(new OkapiConfig()))
-      //         break
-      //     }
-      //   }
-      //   Users users = new Users(this, namespace.generateDomain('okapi'))
-      //   namespace.getModules().setInstallJsonObject(newInstallJson)
-      //   OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
-      //   namespace.setEnableConsortia(params.CONSORTIA, false)
-      //   namespace.tenants.each { name, id ->
-      //     switch (id.getTenantId()) {
-      //       case ['cs00000int']:
-      //         id.getModules().setInstallJsonObject(newInstallJson)
-      //         break
-      //       case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
-      //         id.getModules().setInstallJsonObject(newInstallJson)
-      //         id.getModules().removeModuleByName('folio_consortia-settings')
-      //         break
-      //       default:
-      //         println("${id.tenantId} --> leaving blank")
-      //         break
-      //     }
-      //     def user = users.getUserByName(id, okapiUser)
-      //     okapiUser.setUuid(user.get('id'))
-      //     users.resetUserPassword(id, okapiUser)
-      //     println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
-      //   }
-      //   main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
-      //   main.publishDescriptors(namespace.getModules().getInstallJson())
-      // }
+      stage('Prepare update') {
+        main.getTenantsList().each {
+          switch (it) {
+            case ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              namespace.addTenant(new OkapiTenant("${it}")
+                .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
+                .withInstallRequestParams(installRequestParams)
+                .withConfiguration(new OkapiConfig()))
+              break
+          }
+        }
+        Users users = new Users(this, namespace.generateDomain('okapi'))
+        namespace.getModules().setInstallJsonObject(newInstallJson)
+        OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
+        namespace.setEnableConsortia(params.CONSORTIA, false)
+        namespace.tenants.each { name, id ->
+          switch (id.getTenantId()) {
+            case ['cs00000int']:
+              id.getModules().setInstallJsonObject(newInstallJson)
+              break
+            case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
+              id.getModules().setInstallJsonObject(newInstallJson)
+              id.getModules().removeModuleByName('folio_consortia-settings')
+              break
+            default:
+              println("${id.tenantId} --> leaving blank")
+              break
+          }
+          def user = users.getUserByName(id, okapiUser)
+          okapiUser.setUuid(user.get('id'))
+          users.resetUserPassword(id, okapiUser)
+          println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
+        }
+        main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
+        main.publishDescriptors(namespace.getModules().getInstallJson())
+      }
 
-      // stage('Update') {
-      //   folioHelm.withKubeConfig(namespace.getClusterName()) {
-      //     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+      stage('Update') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 
-      //     folioEdge.renderEphemeralProperties(namespace)
-      //     namespace.getModules().getEdgeModules().each { module ->
-      //       kubectl.deleteConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName())
-      //       kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
-      //     }
+          folioEdge.renderEphemeralProperties(namespace)
+          namespace.getModules().getEdgeModules().each { module ->
+            kubectl.deleteConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName())
+            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+          }
 
-      //     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      //     folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-      //   }
-      // }
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+        }
+      }
 
-      // stage('Enable') {
-      //   retry(2) {
-      //     sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
-      //     main.update(namespace.getTenants())
-      //     main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
-      //   }
-      // }
+      stage('Enable') {
+        retry(2) {
+          sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
+          main.update(namespace.getTenants())
+          main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
+        }
+      }
 
-      // stage('Build and deploy UI') {
-      //   namespace.getModules().setInstallJsonObject(newInstallJson)
-      //   String folioBranch = 'snapshot'
-      //   String commitHash = common.getLastCommitHash("platform-complete", "snapshot")
-      //   namespace.setEnableConsortia(true)
+      stage('Build and deploy UI') {
+        namespace.getModules().setInstallJsonObject(newInstallJson)
+        String folioBranch = 'snapshot'
+        String commitHash = common.getLastCommitHash("platform-complete", "snapshot")
+        namespace.setEnableConsortia(true)
 
-      //   TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
+        TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
 
-      //   namespace.addTenant(new OkapiTenant(defaultTenantId)
-      //     .withInstallRequestParams(installRequestParams)
-      //     .withConfiguration(new OkapiConfig())
-      //     .withTenantUi(tenantUi.clone()))
+        namespace.addTenant(new OkapiTenant(defaultTenantId)
+          .withInstallRequestParams(installRequestParams)
+          .withConfiguration(new OkapiConfig())
+          .withTenantUi(tenantUi.clone()))
 
-      //   namespace.getTenants().each { tenantId, tenant ->
-      //     if (tenant.getTenantUi()) {
-      //       TenantUi ui = tenant.getTenantUi()
-      //       def jobParameters = [tenant_id  : ui.getTenantId(),
-      //                            custom_hash: ui.getHash(),
-      //                            custom_url : "https://${namespace.getDomains()['okapi']}",
-      //                            custom_tag : ui.getTag(),
-      //                            consortia  : true]
-      //       uiBuild(jobParameters)
-      //       folioHelm.withKubeConfig(namespace.getClusterName()) {
-      //         folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-      //       }
-      //     }
-      //   }
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            TenantUi ui = tenant.getTenantUi()
+            def jobParameters = [tenant_id  : ui.getTenantId(),
+                                 custom_hash: ui.getHash(),
+                                 custom_url : "https://${namespace.getDomains()['okapi']}",
+                                 custom_tag : ui.getTag(),
+                                 consortia  : true]
+            uiBuild(jobParameters)
+            folioHelm.withKubeConfig(namespace.getClusterName()) {
+              folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+            }
+          }
+        }
 
-      //   slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
-      // }
-      // stage('The rest components placeholder') {
-      //   // GreenMail, LDP, Mock server, etc.
-      // }
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
+      }
+      stage('The rest components placeholder') {
+        // GreenMail, LDP, Mock server, etc.
+      }
 
     } catch (e) {
       stage('Notify') {
