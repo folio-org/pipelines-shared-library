@@ -8,7 +8,7 @@ import org.folio.models.EurekaNamespace
 import org.folio.rest_v2.eureka.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1334-buildECRImage') _
 
 /** Job properties and parameters */
 properties([
@@ -195,73 +195,73 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Generate context') {
-        eureka.getExistedTenantsForModule(module).values()
-          .each {namespace.addTenant(it)}
-
-        if(!(namespace.tenants))
-          throw new Exception("There are no tenants with the module ${module.getName()}")
-
-        logger.debug("Configured Tenants: ${namespace.tenants}")
-        logger.debug("Configured Applications: ${namespace.applications}")
-        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
-      }
-
-      /** Updated Applications Info Map<AppName, AppID> */
-      Map<String, String> updatedAppInfoMap = [:]
-
-      // 1. Register Application Descriptor with Updated Module Version
-      stage('[Rest] Update App Descriptor') {
-        try {
-          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
-        } catch (e) {
-          logger.warning("Failed to register new application descriptor: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      // 2. Enable New Module Version (Discovery) for Application
-      stage('[Rest] Module Discovery') {
-        try {
-          eureka.runModuleDiscoveryFlow(module)
-        } catch (e) {
-          logger.warning("Failed to perform new module discovery: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      // 3. Deploy New Module Version to Rancher Namespace via Helm
-      stage('[Helm] Deploy Module Ver') {
-        try {
-          folioHelm.withKubeConfig(namespace.clusterName) {
-            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-            echo "Waiting another 3 minutes to get module initialized..."
-            sleep time: 3, unit: 'MINUTES'
-          }
-        } catch (e) {
-          logger.warning("Failed to deploy new module version via Helm: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
-      stage('[Rest] Enable New App') {
-        try {
-          eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
-        } catch (e) {
-          logger.warning("Failed to enable (entitle) new application version: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      stage('[Rest] Remove Stale Resources') {
-        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
-      }
+//      stage('Generate context') {
+//        eureka.getExistedTenantsForModule(module).values()
+//          .each {namespace.addTenant(it)}
+//
+//        if(!(namespace.tenants))
+//          throw new Exception("There are no tenants with the module ${module.getName()}")
+//
+//        logger.debug("Configured Tenants: ${namespace.tenants}")
+//        logger.debug("Configured Applications: ${namespace.applications}")
+//        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+//      }
+//
+//      /** Updated Applications Info Map<AppName, AppID> */
+//      Map<String, String> updatedAppInfoMap = [:]
+//
+//      // 1. Register Application Descriptor with Updated Module Version
+//      stage('[Rest] Update App Descriptor') {
+//        try {
+//          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+//        } catch (e) {
+//          logger.warning("Failed to register new application descriptor: ${e}")
+//          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+//          throw e
+//        }
+//      }
+//
+//      // 2. Enable New Module Version (Discovery) for Application
+//      stage('[Rest] Module Discovery') {
+//        try {
+//          eureka.runModuleDiscoveryFlow(module)
+//        } catch (e) {
+//          logger.warning("Failed to perform new module discovery: ${e}")
+//          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+//          throw e
+//        }
+//      }
+//
+//      // 3. Deploy New Module Version to Rancher Namespace via Helm
+//      stage('[Helm] Deploy Module Ver') {
+//        try {
+//          folioHelm.withKubeConfig(namespace.clusterName) {
+//            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+//            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+//            echo "Waiting another 3 minutes to get module initialized..."
+//            sleep time: 3, unit: 'MINUTES'
+//          }
+//        } catch (e) {
+//          logger.warning("Failed to deploy new module version via Helm: ${e}")
+//          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+//          throw e
+//        }
+//      }
+//
+//      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+//      stage('[Rest] Enable New App') {
+//        try {
+//          eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+//        } catch (e) {
+//          logger.warning("Failed to enable (entitle) new application version: ${e}")
+//          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+//          throw e
+//        }
+//      }
+//
+//      stage('[Rest] Remove Stale Resources') {
+//        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+//      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
