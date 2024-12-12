@@ -135,6 +135,9 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
 void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
                     , String keycloakDomain = '', boolean enableEcsRequests = false) {
   build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests)
+
+  input message: "Let's wait for check"
+
   deploy(namespace, tenant)
 }
 
