@@ -52,7 +52,7 @@ def restoreHelmData(String repo_name, String chart_name, String chart_version, S
     }
     finally {
       folioPrint.colored("Performing helm chart ${chart_name}:${chart_version} uninstall operation...", "green")
-      sh "helm uninstall psql-dump --namespace=${namespace}"
+      // sh "helm uninstall psql-dump --namespace=${namespace}"
     }
   }
 }
