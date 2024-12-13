@@ -100,7 +100,7 @@ String generateRandomString(int length) {
 def getRancherProjectInfo(String project) {
   withCredentials([string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'RANCHER_TOKEN')]) {
     Map rancher_headers = ["Content-Type": "application/json", "Authorization": "Bearer ${env.RANCHER_TOKEN}"]
-    return new RestClient(this).get("http:${Constants.RANCHER_API_URL}/projects?name=${project.trim()}", rancher_headers).body['data']['id']
+    return new RestClient(this).get("${Constants.RANCHER_API_URL}/projects?name=${project.trim()}", rancher_headers).body['data']['id']
   }
 }
 
