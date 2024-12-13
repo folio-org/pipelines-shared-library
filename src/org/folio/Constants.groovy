@@ -110,6 +110,8 @@ class Constants {
   //Eureka base constants
   static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
 
+  static String RANCHER_API_URL = 'https://rancher.ci.folio.org/v3'
+
   //SMTP
   static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
   static String EMAIL_SMTP_SERVER = 'email-smtp.us-west-2.amazonaws.com'

@@ -1,0 +1,50 @@
+#!groovy
+import org.folio.utilities.Logger
+import java.time.LocalDateTime
+
+@Library('pipelines-shared-library@RANCHER-1979') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  parameters([
+    string(name: 'TEAM_NAME', defaultValue: '', description: '(REQUIRED) Coma separated list of GitHub teams who need an access to the namespace'),
+    string(name: 'NAMESPACE', defaultValue: '', description: '(REQUIRED) Possible values: folijet, spitfire, volaris etc.'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "Add GitHub team ${params.TEAM_NAME} to ${params.NAMESPACE}"
+        buildDescription "${LocalDateTime.now().toString()}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('Add GitHub team') {
+        folioTools.addGithubTeamsToRancherProjectMembersList("${params.TEAM_NAME}", "${params.NAMESPACE}")
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
