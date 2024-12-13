@@ -113,9 +113,9 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
       def projects = getRancherProjectInfo(project)
       projects.each { projectInfo ->
         members.each { member ->
-          client.post(Constants.RANCHER_API_URL + "/projectroletemplatebindings", rancher_headers, ["roleTemplateId"  : "project-member",
-                                                                                                    "projectId"       : projectInfo,
-                                                                                                    "groupPrincipalId": "github_team://" + member])
+          client.post(Constants.RANCHER_API_URL + "/projectroletemplatebindings", ["roleTemplateId"  : "project-member",
+                                                                                   "projectId"       : projectInfo,
+                                                                                   "groupPrincipalId": "github_team://" + member], rancher_headers)
         }
       }
     }

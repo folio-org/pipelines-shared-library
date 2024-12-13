@@ -13,7 +13,6 @@ properties([
     folioParameters.refreshParameters()
   ])
 ])
-
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
