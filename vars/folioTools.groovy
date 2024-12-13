@@ -43,7 +43,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     while (check.toInteger() != 0) {
       logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
-      sleep time: 15, unit: 'SECONDS'
+      sleep time: 30, unit: 'SECONDS'
       check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     }
   }

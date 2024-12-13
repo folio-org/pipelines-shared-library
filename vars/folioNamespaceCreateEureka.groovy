@@ -241,8 +241,8 @@ void call(CreateNamespaceParameters args) {
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
             branches[tenantId] = {
-              folioUI.buildAndDeploy(namespace, tenant, args.eureka, namespace.getDomains()['kong']
-                , namespace.getDomains()['keycloak'], args.ecsCCL)
+              folioUI.buildAndDeploy(namespace, tenant, args.eureka, namespace.getDomains()['kong'] as String
+                , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
             }
           }
         }
