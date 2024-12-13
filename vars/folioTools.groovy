@@ -90,9 +90,36 @@ String getPipelineBranch() {
   return scm.branches[0].name - "*/"
 }
 
-String generateRandomString(int length){
-  return new Random().with{r->
+String generateRandomString(int length) {
+  return new Random().with { r ->
     List pool = ('a'..'z') + ('A'..'Z')
     (1..length).collect { pool[r.nextInt(pool.size())] }.join('')
+  }
+}
+
+def getRancherProjectInfo(String project) {
+  withCredentials([string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'RANCHER_TOKEN')]) {
+    Map rancher_headers = ["Content-Type": "application/json", "Authorization": "Bearer ${env.RANCHER_TOKEN}"]
+    return new RestClient(this).get("${Constants.RANCHER_API_URL}/projects?name=${project.trim()}", rancher_headers).body['data']['id']
+  }
+}
+
+def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
+  if (project.trim() in Constants.AWS_EKS_DEV_NAMESPACES) {
+    RestClient client = new RestClient(this)
+    def members = getGitHubTeamsIds(teams)
+    withCredentials([string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'RANCHER_TOKEN')]) {
+      Map rancher_headers = ["Content-Type": "application/json", "Authorization": "Bearer ${env.RANCHER_TOKEN}"]
+      def projects = getRancherProjectInfo(project)
+      projects.each { projectInfo ->
+        members.each { member ->
+          client.post(Constants.RANCHER_API_URL + "/projectroletemplatebindings", ["roleTemplateId"  : "project-member",
+                                                                                   "projectId"       : projectInfo,
+                                                                                   "groupPrincipalId": "github_team://" + member], rancher_headers)
+        }
+      }
+    }
+  } else {
+    folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
   }
 }
