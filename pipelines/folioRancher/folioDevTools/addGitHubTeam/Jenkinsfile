@@ -2,7 +2,7 @@
 import org.folio.utilities.Logger
 import java.time.LocalDateTime
 
-@Library('pipelines-shared-library@RANCHER-1979') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
