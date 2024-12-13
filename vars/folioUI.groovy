@@ -26,7 +26,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   }
 
   stage('[UI] Add folio extensions') {
-    if (tenantUi.getCustomUiModules()) {
+    if (tenantUi.getCustomUiModules() || isEureka) {
       dir(baseDir) {
         //TODO refactoring and reviewing required.
         if (isEureka) {
