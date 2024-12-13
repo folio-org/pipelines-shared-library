@@ -120,6 +120,6 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
       }
     }
   } else {
-    println("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}")
+    folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
   }
 }
