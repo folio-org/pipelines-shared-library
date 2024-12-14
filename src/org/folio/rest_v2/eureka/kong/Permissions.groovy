@@ -101,7 +101,7 @@ class Permissions extends Kong{
     }
   }
 
-  List<String> getCapabilitiesId(EurekaTenant tenant, int limit = 3000){
+  List<String> getCapabilitiesId(EurekaTenant tenant, int limit = 5000){
     logger.info("Get capabilities list for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
@@ -116,7 +116,7 @@ class Permissions extends Kong{
     return ids
   }
 
-  List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 3000){
+  List<String> getCapabilitySetsId(EurekaTenant tenant, int limit = 5000){
     logger.info("Get capability sets list for ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
