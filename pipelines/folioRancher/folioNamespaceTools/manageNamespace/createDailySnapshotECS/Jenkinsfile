@@ -189,7 +189,7 @@ ansiColor('xterm') {
           folioEdge.renderEphemeralProperties(namespace)
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.deleteConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName())
-            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
           }
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
