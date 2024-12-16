@@ -12,8 +12,13 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-        0 23 * * * %ACTION=stop
-   ''')])])
+                #Europe TimeZone
+                TZ=Europe/Kiev
+                H 22 * * * * %ACTION=stop
+                #America TimeZone
+                TZ=EST5EDT
+                H 18 * * * * %ACTION=stop
+                ''')])])
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'

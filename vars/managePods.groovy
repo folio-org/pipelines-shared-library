@@ -5,10 +5,15 @@ import org.folio.utilities.Logger
 def handlePods(String clusterName, String action, String ns) {
   buildName "${clusterName}"
   folioHelm.withKubeConfig(clusterName) {
+    Calendar calendar = Calendar.getInstance()
     Logger logger = new Logger(this, 'managePods')
     List namespaces = sh(script: "kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'", returnStdout: true).trim().tokenize()
+    def day_of_week = calendar.get(Calendar.DAY_OF_WEEK)
+    def hour_of_day = calendar.get(Calendar.HOUR_OF_DAY) - 3
+    def check = day_of_week in [1, 7] ? Constants.RANCHER_KNOWN_NAMESPACES.remove('sprint') : Constants.RANCHER_KNOWN_NAMESPACES
+    def TO_PROCESS = hour_of_day < 22 && hour_of_day >= 18 ? check.add('citation') : check
     namespaces.each { namespace ->
-      if (namespace.toString().trim() in Constants.RANCHER_KNOWN_NAMESPACES) {
+      if (namespace.toString().trim() in TO_PROCESS) {
         logger.info("Service namespace: ${namespace} bypassed. Skipping pods management.")
       } else {
         logger.info("Running in namespace: ${namespace}")
