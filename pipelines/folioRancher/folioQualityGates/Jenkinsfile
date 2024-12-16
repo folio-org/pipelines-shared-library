@@ -240,7 +240,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       """
       println(multiLineString) // Print all sul-job properties
 
-      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
+//      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
 
       println(jobResult.dump())
 
