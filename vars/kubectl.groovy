@@ -176,6 +176,10 @@ def getKubernetesResourceCount(String resource_type, String resource_name, Strin
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.spec.replicas}'", returnStdout: true)
 }
 
+def getKubernetesStsNames(String namespace) {
+  return sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
+}
+
 void setKubernetesResourceCount(String resource_type, String resource_name, String namespace, String replica_count) {
   sh(script: "kubectl scale ${resource_type} ${resource_name} -n ${namespace} --replicas=${replica_count}")
 }
