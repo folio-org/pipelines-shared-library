@@ -122,12 +122,19 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
 
   def message = "Pipeline run status *${buildStatus}* :x: : `${jobName}` *#${buildNumber}* \\n:moyai: _Error message_ - `${errorMessage}`"
 
-  List<String> actions =
-    [
-      SlackHelper.renderAction(buildUrl, '*Check out failed console output* :information_source: ')
-    ]
+  List<String> actions = [
+    SlackHelper.renderAction(buildUrl, '*Check out failed console output* :information_source: ')
+  ]
 
-  String section = SlackHelper.renderSection(':triangular_flag_on_post:Deploy from Feature Branch Result:triangular_flag_on_post:', message, '#FF0000', actions, [])
+  List<String> fields = []
+
+  fields.add(SlackHelper.renderField(
+    ":gear: Error Reason"
+    , errorMessage
+    , false
+  ))
+
+  String section = SlackHelper.renderSection(':triangular_flag_on_post:Deploy from Feature Branch Result:triangular_flag_on_post:', message, '#FF0000', actions, fields)
 
   return section
 }
