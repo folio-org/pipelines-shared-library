@@ -176,10 +176,10 @@ class Eureka extends Base {
 
     Consortia.get(kong).createConsortia(centralConsortiaTenant)
 
-//    Consortia.get(kong)
-//      .addCentralConsortiaTenant(centralConsortiaTenant)
-//      .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
-//
+    Consortia.get(kong)
+      .addCentralConsortiaTenant(centralConsortiaTenant)
+      .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
+
 //    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
 //      .each { institutionalTenant ->
 //        Consortia.get(kong)
@@ -200,13 +200,13 @@ class Eureka extends Base {
         } as List<EurekaTenantConsortia>
       )
 
-    tenants.each { tenantId, tenant ->
-      if (tenant.indexes) {
-        tenant.indexes.each { index ->
-          Indexes.get(kong).runIndexFlow(tenant, index)
-        }
-      }
-    }
+//    tenants.each { tenantId, tenant ->
+//      if (tenant.indexes) {
+//        tenant.indexes.each { index ->
+//          Indexes.get(kong).runIndexFlow(tenant, index)
+//        }
+//      }
+//    }
 
     return this
   }
