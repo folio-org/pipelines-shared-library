@@ -40,8 +40,8 @@ def handlePods(String clusterName, String action, String ns, String start_time =
                         }
                         break
                     case 'start':
-                        buildDescription "Starting pods management for namespace: ${namespace}"
                         if (ns.trim() == namespace.toString().trim()) {
+                            buildDescription "Action: start\nEnvironment: ${namespace}"
                             def sts = kubectl.getKubernetesStsNames(namespace.toString().trim())
                             if (!sts.contains('postgresql')) {
                                 awscli.startRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
@@ -56,6 +56,7 @@ def handlePods(String clusterName, String action, String ns, String start_time =
                         break
                     case 'suspend':
                         if (ns.trim() == namespace.toString().trim()) {
+                            buildDescription "Action: suspend\nEnvironment: ${namespace}"
                             kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
                             folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TONIGHT!", "green")
                         }
