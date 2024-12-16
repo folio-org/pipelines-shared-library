@@ -118,7 +118,10 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
 
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderSubJobBuildResultSection(String jobName, String buildNumber, String stageName, String buildUrl, String buildStatus, String errorMessage) {
-  SlackBuildResultRenderer buildResult = SlackBuildResultRenderer.fromResult(buildStatus)
 
-  return buildResult.renderSubJobErrorSection(jobName, buildNumber, stageName, errorMessage, buildUrl)
+  def message = "Pipeline run status *${buildStatus}* :x: : `${jobName}` *#${buildNumber}* \\n:thinking_face: _Error message_ - `${errorMessage}`"
+
+  String section = SlackHelper.renderSection(':scroll:Deploy from Feature Branch Result:scroll:', message, '#FF0000', [], [])
+
+  return section
 }
