@@ -13,6 +13,7 @@ class Constants {
                                           'sorry-cypress',
                                           'snapshot',
                                           'snapshot2',
+                                          'sprint',
                                           'default',
                                           'ecs-snapshot',
                                           'kube-node-lease',
