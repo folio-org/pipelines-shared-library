@@ -17,54 +17,54 @@ void call(CreateNamespaceParameters args) {
 
     EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
     //Set terraform configuration
-    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-      .withWorkspace("${args.clusterName}-${args.namespaceName}")
-
-    tfConfig.addVar('rancher_cluster_name', args.clusterName)
-    tfConfig.addVar('rancher_project_name', args.namespaceName)
-    tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
-    tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-    tfConfig.addVar('pg_embedded', args.pgType == 'built-in')
-    tfConfig.addVar('kafka_shared', args.kafkaType != 'built-in')
-    tfConfig.addVar('opensearch_shared', args.opensearchType != 'built-in')
-    tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
-    tfConfig.addVar('pgadmin4', 'true')
-    tfConfig.addVar('enable_rw_split', args.rwSplit)
-    tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-    tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
-    tfConfig.addVar('pg_version', args.pgVersion)
-    tfConfig.addVar('eureka', args.eureka)
-
-    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
-    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
-      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
-      currentBuild.result = 'ABORTED'
-      return
-    }
-
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+//      .withWorkspace("${args.clusterName}-${args.namespaceName}")
+//
+//    tfConfig.addVar('rancher_cluster_name', args.clusterName)
+//    tfConfig.addVar('rancher_project_name', args.namespaceName)
+//    tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+//    tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+//    tfConfig.addVar('pg_embedded', args.pgType == 'built-in')
+//    tfConfig.addVar('kafka_shared', args.kafkaType != 'built-in')
+//    tfConfig.addVar('opensearch_shared', args.opensearchType != 'built-in')
+//    tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
+//    tfConfig.addVar('pgadmin4', 'true')
+//    tfConfig.addVar('enable_rw_split', args.rwSplit)
+//    tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+//    tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
+//    tfConfig.addVar('pg_version', args.pgVersion)
+//    tfConfig.addVar('eureka', args.eureka)
+//
+//    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
+//    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
+//      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
+//      currentBuild.result = 'ABORTED'
+//      return
+//    }
+//
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -189,37 +189,32 @@ void call(CreateNamespaceParameters args) {
           , namespace.getTenants().values() as List<EurekaTenant>
         )
       )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-      )
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        logger.info(namespace.getModules().getBackendModules())
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-      }
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralPropertiesEureka(namespace)
-        namespace.getModules().getEdgeModules().each { module ->
-          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-        }
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        logger.info(namespace.getModules().getBackendModules())
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//      }
+//    }
+//
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioEdge.renderEphemeralPropertiesEureka(namespace)
+//        namespace.getModules().getEdgeModules().each { module ->
+//          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+//        }
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//      }
+//    }
 
     stage('[Rest] Initialize') {
       int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(
@@ -230,6 +225,8 @@ void call(CreateNamespaceParameters args) {
         )
       }
     }
+
+    input message: "Let's go?"
 
     stage('[Rest] Configure edge') {
       new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)

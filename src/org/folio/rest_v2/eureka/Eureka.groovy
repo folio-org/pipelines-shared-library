@@ -47,7 +47,7 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
-    Tenants.get(kong).enableApplicationsOnTenant(tenant)
+    Tenants.get(kong).enableApplicationsOnTenant(tenant, tenant.applications.values().toList())
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
@@ -56,6 +56,23 @@ class Eureka extends Base {
       , new Role(name: "adminRole", desc: "Admin role")
       , Permissions.get(kong).getCapabilitiesId(tenant)
       , Permissions.get(kong).getCapabilitySetsId(tenant))
+
+    return this
+  }
+
+  Eureka enableApplicationsOnTenant(EurekaTenant tenant){
+    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    enableApplicationOnTenant(tenant, tenant.applications["app-platform-full"])
+
+    if(tenant.applications.containsKey("app-linked-data"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-linked-data"])
+
+    if(tenant.applications.containsKey("app-consortia"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
+
+    if(tenant.applications.containsKey("app-consortia-manager"))
+      enableApplicationOnTenant(tenant, tenant.applications["app-consortia-manager"])
 
     return this
   }
@@ -136,7 +153,10 @@ class Eureka extends Base {
                                                , Map<String, String> modules
                                                , List<EurekaTenant> tenants) {
 
-    Map<String, String> registeredApps = registerApplications(appNames, modules)
+    Map<String, String> registeredApps = [
+      "app-platform-full": "app-platform-full-1.0.0-SNAPSHOT.792"
+      , "app-consortia": "app-consortia-1.0.0-SNAPSHOT.792"
+    ]
 
     assignAppToTenants(tenants, registeredApps)
 

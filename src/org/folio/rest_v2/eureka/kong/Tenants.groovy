@@ -110,7 +110,7 @@ class Tenants extends Kong{
   }
 
   //TODO: Remove this shit
-  Tenants enableApplicationOnTenant(EurekaTenant tenant, String appId){
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds){
 
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -118,7 +118,7 @@ class Tenants extends Kong{
 
     Map body = [
       tenantId    : tenant.uuid,
-      applications: [appId]
+      applications: appIds
     ]
 
     logger.debug("enableApplicationsOnTenant body: ${body}")
