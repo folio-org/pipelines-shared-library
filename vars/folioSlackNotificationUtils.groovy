@@ -123,7 +123,8 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   def message = "Pipeline run status *${buildStatus}* :x: : `${jobName}` *#${buildNumber}* \\n:moyai: _Error message_ - `${errorMessage}`"
 
   List<String> actions = [
-    SlackHelper.renderAction(buildUrl, '*Check out failed console output* :information_source: ')
+    SlackHelper.renderAction(buildUrl, '*Check out failed console output #1* :information_source: '),
+    SlackHelper.renderAction(buildUrl, '*Check out failed console output #2* :information_source: ')
   ]
 
   List<String> fields = [
