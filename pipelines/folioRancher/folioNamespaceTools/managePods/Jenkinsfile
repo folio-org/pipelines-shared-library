@@ -1,7 +1,6 @@
 #!groovy
 
 import org.folio.Constants
-import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -13,9 +12,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-        0 22 * * * %ACTION=stop
+        59 23 * * * %ACTION=stop
    ''')])])
-
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
     currentBuild.result = 'ABORTED'
@@ -42,7 +40,6 @@ ansiColor('xterm') {
             break
         }
       }
-
     } catch (exception) {
       error(exception.getMessage())
     }

@@ -43,13 +43,13 @@ def handlePods(String clusterName, String action, String ns) {
               kubectl.scaleUpResources("${namespace}", "StatefulSet")
               sleep time: 3, unit: 'MINUTES'
               kubectl.scaleUpResources("${namespace}", "Deployment")
-              folioPrint.colored("Pods management started for namespace: ${ns}", "green")
+              folioPrint.colored("Pods management started for namespace: ${namespace}", "green")
             }
             break
           case 'suspend':
             if (ns.trim() == namespace.toString().trim()) {
               kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
-              folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TONIGHT", "green")
+              folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TONIGHT!", "green")
             }
             break
         }
