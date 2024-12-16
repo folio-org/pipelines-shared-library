@@ -109,9 +109,17 @@ class Consortia extends Kong{
       "isCentral": true
     ]
 
-    restClient.post(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants"), body, headers, [201, 409])
+    def response = restClient.post(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants"), body, headers, [201, 409])
+    String contentStr = response.body.toString()
 
-    logger.info("${centralConsortiaTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+    if (response.responseCode == 409)
+      logger.info("""
+        Consortia already exists
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+    else
+      logger.info("${centralConsortiaTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
 
     return this
   }

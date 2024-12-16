@@ -180,12 +180,12 @@ class Eureka extends Base {
       .addCentralConsortiaTenant(centralConsortiaTenant)
       .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
 
-//    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
-//      .each { institutionalTenant ->
-//        Consortia.get(kong)
-//          .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-//          .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
-//      }
+    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
+      .each { institutionalTenant ->
+        Consortia.get(kong)
+          .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+          .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
+      }
 
     return this
   }
