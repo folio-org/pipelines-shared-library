@@ -20,7 +20,7 @@ def createConfigMap(String name, String namespace, files) {
 
 def deleteConfigMap(String name, String namespace) {
   try {
-    sh "kubectl delete configmap ${name} --namespace=${namespace}"
+    sh "kubectl delete configmap ${name} --namespace=${namespace} --ignore-not-found=true"
   } catch (Exception e) {
     println(e.getMessage())
   }

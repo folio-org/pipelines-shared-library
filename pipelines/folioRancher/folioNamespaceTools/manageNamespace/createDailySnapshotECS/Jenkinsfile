@@ -30,7 +30,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])])
+            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
+            ])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -77,8 +78,8 @@ Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuper
 final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-testing')
-  .namespaceName('ecs-snapshot')
+  .clusterName(params.CLUSTER)
+  .namespaceName(params.NAMESPACE)
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
@@ -126,11 +127,11 @@ ansiColor('xterm') {
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "ecs-snapshot-users",
-              "ecs-snapshot-01", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup",
+              "ecs-snapshot-02", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
-            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
           }
         }
       }
@@ -160,17 +161,13 @@ ansiColor('xterm') {
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
-          if (!params.RETRY_ENABLE) {
-            def ldp_disable = """[{"id": "mod-ldp-1.1.3","action": "disable"},{"id": "folio_ldp-2.1.0","action": "disable"}]"""
-            main.tenantInstall(id, new JsonSlurperClassic().parseText(ldp_disable) as List)
-          }
           switch (id.getTenantId()) {
             case ['cs00000int']:
-              id.getModules().setInstallJson(newInstallJson)
+              id.getModules().setInstallJsonObject(newInstallJson)
               break
             case ['cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']:
-              id.getModules().setInstallJson(newInstallJson)
-              id.getModules().removeModule('folio_consortia-settings')
+              id.getModules().setInstallJsonObject(newInstallJson)
+              id.getModules().removeModuleByName('folio_consortia-settings')
               break
             default:
               println("${id.tenantId} --> leaving blank")
@@ -192,7 +189,7 @@ ansiColor('xterm') {
           folioEdge.renderEphemeralProperties(namespace)
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.deleteConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName())
-            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${name}-ephemeral-properties")
+            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
           }
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
