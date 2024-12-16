@@ -12,7 +12,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-        59 23 * * * %ACTION=stop
+        0 23 * * * %ACTION=stop
    ''')])])
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
