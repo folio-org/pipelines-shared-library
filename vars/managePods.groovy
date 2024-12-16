@@ -19,7 +19,7 @@ def handlePods(String clusterName, String action, String ns) {
             if (status['suspend'] == 'yes' && namespace == ns) {
               kubectl.deleteLabelFromNamespace("${namespace}", "suspend")
             } else {
-              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim()
+              def sts = sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
               kubectl.scaleDownResources("${namespace}", "Deployment")
               kubectl.scaleDownResources("${namespace}", "StatefulSet")
               if (!sts.tokenize().contains('postgresql')) {
@@ -35,7 +35,7 @@ def handlePods(String clusterName, String action, String ns) {
             break
           case 'start':
             if (namespace == ns) {
-              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim()
+              def sts = sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
               if (!sts.tokenize().contains('postgresql')) {
                 awscli.startRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 awscli.waitRdsClusterAvailable("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
@@ -48,7 +48,7 @@ def handlePods(String clusterName, String action, String ns) {
             }
             break
           case 'suspend':
-            if (namespace.replaceAll("\\s", "") == ns.trim()) {
+            if (ns.trim() == namespace.toString().trim()) {
               kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
               folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TO NIGHT", "green")
             }
