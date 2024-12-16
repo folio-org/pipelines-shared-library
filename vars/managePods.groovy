@@ -19,14 +19,14 @@ def handlePods(String clusterName, String action, String ns) {
             if (status['suspend'] == 'yes' && namespace == ns) {
               kubectl.deleteLabelFromNamespace("${namespace}", "suspend")
             } else {
-              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim().tokenize()
+              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim()
               kubectl.scaleDownResources("${namespace}", "Deployment")
               kubectl.scaleDownResources("${namespace}", "StatefulSet")
-              if (!sts.contains('postgresql')) {
+              if (!sts.tokenize().contains('postgresql')) {
                 try {
                   awscli.stopRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 } catch (Exception e) {
-                  println(namespace.toString() + " does not have DB to stop\n" + "Error:" + e.getMessage())
+                  println(namespace.toString() + " does not have DB to stop\n" + "Error: " + e.getMessage())
                 }
 
               }
@@ -35,8 +35,8 @@ def handlePods(String clusterName, String action, String ns) {
             break
           case 'start':
             if (namespace == ns) {
-              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim().tokenize()
-              if (!sts.contains('postgresql')) {
+              def sts = sh(returnStdout: true, script: "kubectl --namespace ${namespace} get sts -o jsonpath='{.items[0].metadata.name}' --ignore-not-found").trim()
+              if (!sts.tokenize().contains('postgresql')) {
                 awscli.startRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 awscli.waitRdsClusterAvailable("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 sleep 30
