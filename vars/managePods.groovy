@@ -14,7 +14,8 @@ def handlePods(String clusterName, String action, String ns) {
         logger.info("Running in namespace: ${namespace}")
         switch (action) {
           case 'stop':
-            def status = new JsonSlurperClassic().parseText(kubectl.getLabelsFromNamespace("${namespace}"))
+            def labels = kubectl.getLabelsFromNamespace("${namespace}")
+            def status = new JsonSlurperClassic().parseText(labels)
             if (status['suspend'] == 'yes' && namespace == ns) {
               kubectl.deleteLabelFromNamespace("${namespace}", "suspend")
             } else {
