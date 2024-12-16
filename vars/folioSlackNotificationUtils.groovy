@@ -128,13 +128,6 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
     SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-karate.57*')
   ]
 
-/*
-  List<String> fields = [
-    SlackHelper.renderField(":gear: #${buildNumber} ${buildStatus}","`${errorMessage}`",false),
-    SlackHelper.renderField(":gear: #${buildNumber} ${buildStatus}","`${errorMessage}`",false)
-  ]
-*/
-
   String section = SlackHelper.renderSection(":octagonal_sign:Failed to create Namespace ${jobName}", message, '#FF0000', actions, [])
 
   return section

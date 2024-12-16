@@ -1,6 +1,7 @@
 #!groovy
 package folioRancher.folioQualityGates
 
+import groovy.json.JsonOutput
 import org.folio.Constants as CommonConstants
 import org.folio.models.ChangelogEntry
 import org.folio.models.OkapiTenant
@@ -211,6 +212,10 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
         .build()
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+
+      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
+
+      println(jobResult.dump())
 
       if (jobResult?.getResult() == 'FAILURE') {
         throw new Exception(jobResult?.getDescription() as String)
