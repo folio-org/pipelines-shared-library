@@ -28,14 +28,21 @@ ansiColor('xterm') {
         checkout scm
       }
       stage('managePods') {
-        if (params.ACTION == "start") {
-          managePods.handlePods("${params.CLUSTER}", "${params.ACTION}", "${params.NAMESPACE}")
-        } else {
-          Constants.AWS_EKS_CLUSTERS.each { cluster ->
-            managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}")
-          }
+        switch (params.ACTION) {
+          case "start":
+            managePods.handlePods("${params.CLUSTER}", "${params.ACTION}", "${params.NAMESPACE}")
+            break
+          case "stop":
+            Constants.AWS_EKS_CLUSTERS.each { cluster ->
+              managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}")
+            }
+            break
+          case "suspend":
+            managePods.handlePods("${params.CLUSTER}", "${params.ACTION}", "${params.NAMESPACE}")
+            break
         }
       }
+
     } catch (exception) {
       error(exception.getMessage())
     }
