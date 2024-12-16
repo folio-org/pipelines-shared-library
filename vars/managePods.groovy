@@ -40,6 +40,7 @@ def handlePods(String clusterName, String action, String ns, String start_time =
                         }
                         break
                     case 'start':
+                        buildDescription "Starting pods management for namespace: ${namespace}"
                         if (ns.trim() == namespace.toString().trim()) {
                             def sts = kubectl.getKubernetesStsNames(namespace.toString().trim())
                             if (!sts.contains('postgresql')) {
