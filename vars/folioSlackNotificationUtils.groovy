@@ -128,7 +128,7 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
 
   List<String> fields = [
     SlackHelper.renderField(
-      ":gear: Error Reason"
+      ":gear: Error #${buildNumber}"
       , "`${errorMessage}`"
       , true
     )
