@@ -128,8 +128,8 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   ]
 
   List<String> fields = [
-    SlackHelper.renderField(":gear: Error #${buildNumber}","`${errorMessage}`",false),
-    SlackHelper.renderField(":gear: Error #${buildNumber}","`${errorMessage}`",false)
+    SlackHelper.renderField(":gear: #${buildNumber} ${buildStatus}","`${errorMessage}`",false),
+    SlackHelper.renderField(":gear: #${buildNumber} ${buildStatus}","`${errorMessage}`",false)
   ]
 
   String section = SlackHelper.renderSection(':triangular_flag_on_post:Deploy from Feature Branch Result:triangular_flag_on_post:', message, '#FF0000', actions, fields)
