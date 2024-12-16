@@ -124,8 +124,8 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   message += ":moyai: *#folio-testing-karate.57 - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
 
   List<String> actions = [
-    SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-cypress.56*:page_facing_up:'),
-    SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-karate.57*:page_facing_up:')
+    SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-cypress.56*'),
+    SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-karate.57*')
   ]
 
 /*
@@ -135,7 +135,7 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   ]
 */
 
-  String section = SlackHelper.renderSection(":triangular_flag_on_post:Failed to create Namespace `${jobName}`:triangular_flag_on_post:", message, '#FF0000', actions, [])
+  String section = SlackHelper.renderSection(":triangular_flag_on_post:Failed to create Namespace `${jobName}`", message, '#FF0000', actions, [])
 
   return section
 }
