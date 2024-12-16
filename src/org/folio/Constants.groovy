@@ -3,6 +3,18 @@ package org.folio
 import java.util.regex.Pattern
 
 class Constants {
+  //managePods excludes these namespaces
+  static List RANCHER_KNOWN_NAMESPACES = ['cattle-fleet-system',
+                                          'cattle-impersonation-system',
+                                          'cattle-system',
+                                          'default',
+                                          'kube-node-lease',
+                                          'kube-public',
+                                          'kube-system',
+                                          'kubecost',
+                                          'local',
+                                          'logging',
+                                          'monitoring']
   //AWS
   static String AWS_REGION = 'us-west-2'
   static String AWS_CREDENTIALS_ID = 'stanislav_test'
