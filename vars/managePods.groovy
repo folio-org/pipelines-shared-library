@@ -28,7 +28,6 @@ def handlePods(String clusterName, String action, String ns) {
                 } catch (Exception e) {
                   println(namespace.toString() + " does not have DB to stop\n" + "Error: " + e.getMessage())
                 }
-
               }
               folioPrint.colored("Pods management stopped for namespace: ${namespace}", "green")
             }
