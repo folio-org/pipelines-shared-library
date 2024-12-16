@@ -27,11 +27,11 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-
       stage('managePods') {
-        Constants.AWS_EKS_CLUSTERS.each { cluster ->
-          managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}")
-        }
+//        Constants.AWS_EKS_CLUSTERS.each { cluster ->
+//          managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}")
+//        }
+        managePods.handlePods("${params.CLUSTER}", "${params.ACTION}", "${params.NAMESPACE}")
       }
     } catch (exception) {
       println(exception)
