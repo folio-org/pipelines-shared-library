@@ -213,10 +213,6 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-//      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
-
-      println(jobResult.dump())
-
       if (jobResult?.getResult() == 'FAILURE') {
         throw new Exception(jobResult?.getDescription() as String)
       }
@@ -243,6 +239,10 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
         getFailedStageName(): ${env.STAGE_NAME} // The name of the failed stage.
       """
       println(multiLineString) // Print all sul-job properties
+
+      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
+
+      println(jobResult.dump())
 
       currentBuild.result = 'FAILURE'
 
