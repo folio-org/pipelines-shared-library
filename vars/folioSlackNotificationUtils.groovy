@@ -120,8 +120,8 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderSubJobBuildResultSection(String jobName, String buildNumber, String stageName, String buildUrl, String buildStatus, String errorMessage) {
 
-  def message = ":moyai: *#${buildNumber} - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
-  message += ":moyai: *#folio-testing-karate.57 - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
+  def message = ":triangular_flag_on_post: *#${buildNumber} - ${buildStatus}* \\n :moyai: _Error message_ - `${errorMessage}`\\n"
+  message += ":triangular_flag_on_post: *#folio-testing-karate.57 - ${buildStatus}* \\n :moyai: _Error message_ - `${errorMessage}`\\n"
 
   List<String> actions = [
     SlackHelper.renderAction(buildUrl, ':page_facing_up:*#folio-testing-cypress.56*'),
@@ -135,7 +135,7 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   ]
 */
 
-  String section = SlackHelper.renderSection(":triangular_flag_on_post:Failed to create Namespace `${jobName}`", message, '#FF0000', actions, [])
+  String section = SlackHelper.renderSection(":x:Failed to create Namespace `${jobName}`", message, '#FF0000', actions, [])
 
   return section
 }
