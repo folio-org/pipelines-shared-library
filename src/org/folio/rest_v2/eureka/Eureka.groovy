@@ -45,17 +45,17 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-    kong.keycloak.defineTTL(tenant.tenantId, 3600)
-
-    Tenants.get(kong).enableApplicationsOnTenant(tenant)
-
-    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
-
-    //create tenant admin user
-    createUserFlow(tenant, tenant.adminUser
-      , new Role(name: "adminRole", desc: "Admin role")
-      , Permissions.get(kong).getCapabilitiesId(tenant)
-      , Permissions.get(kong).getCapabilitySetsId(tenant))
+//    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+//
+//    Tenants.get(kong).enableApplicationsOnTenant(tenant)
+//
+//    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+//
+//    //create tenant admin user
+//    createUserFlow(tenant, tenant.adminUser
+//      , new Role(name: "adminRole", desc: "Admin role")
+//      , Permissions.get(kong).getCapabilitiesId(tenant)
+//      , Permissions.get(kong).getCapabilitySetsId(tenant))
 
     return this
   }
@@ -176,16 +176,16 @@ class Eureka extends Base {
 
     Consortia.get(kong).createConsortia(centralConsortiaTenant)
 
-    Consortia.get(kong)
-      .addCentralConsortiaTenant(centralConsortiaTenant)
-      .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
-
-    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
-      .each { institutionalTenant ->
-        Consortia.get(kong)
-          .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-          .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
-      }
+//    Consortia.get(kong)
+//      .addCentralConsortiaTenant(centralConsortiaTenant)
+//      .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
+//
+//    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
+//      .each { institutionalTenant ->
+//        Consortia.get(kong)
+//          .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+//          .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
+//      }
 
     return this
   }
