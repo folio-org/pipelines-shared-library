@@ -109,7 +109,7 @@ class Consortia extends Kong{
       "isCentral": true
     ]
 
-    restClient.post(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants"), body, headers)
+    restClient.post(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants"), body, headers, [201, 409])
 
     logger.info("${centralConsortiaTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
 
