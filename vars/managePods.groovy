@@ -41,7 +41,7 @@ def handlePods(String clusterName, String action, String ns) {
             }
             break
           case 'suspend':
-            if (namespace == ns) {
+            if (namespace.trim() == ns.trim()) {
               kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
               folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TO NIGHT", "green")
             }

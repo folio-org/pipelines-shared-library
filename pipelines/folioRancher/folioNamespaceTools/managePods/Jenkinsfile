@@ -10,7 +10,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
             parameters([folioParameters.cluster(),
                         folioParameters.namespace(),
                         choice(name: "ACTION", choices: ['start', 'stop', 'suspend'], description: '(Required) Choose action to perform'),
-                        string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
+                        string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
         0 22 * * * %ACTION=stop
