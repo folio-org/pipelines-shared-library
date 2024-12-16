@@ -42,7 +42,7 @@ def handlePods(String clusterName, String action, String ns) {
                 sleep 30
               }
               kubectl.scaleUpResources("${namespace}", "StatefulSet")
-              sleep time: 1, unit: 'MINUTES'
+              sleep time: 3, unit: 'MINUTES'
               kubectl.scaleUpResources("${namespace}", "Deployment")
               folioPrint.colored("Pods management started for namespace: ${ns}", "green")
             }
