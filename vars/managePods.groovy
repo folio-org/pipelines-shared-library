@@ -22,7 +22,7 @@ def handlePods(String clusterName, String action, String ns) {
               def sts = sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
               kubectl.scaleDownResources("${namespace}", "Deployment")
               kubectl.scaleDownResources("${namespace}", "StatefulSet")
-              if (!sts.tokenize().contains('postgresql')) {
+              if (!sts.contains('postgresql')) {
                 try {
                   awscli.stopRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 } catch (Exception e) {
@@ -36,7 +36,7 @@ def handlePods(String clusterName, String action, String ns) {
           case 'start':
             if (namespace == ns) {
               def sts = sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
-              if (!sts.tokenize().contains('postgresql')) {
+              if (!sts.contains('postgresql')) {
                 awscli.startRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 awscli.waitRdsClusterAvailable("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
                 sleep 30
