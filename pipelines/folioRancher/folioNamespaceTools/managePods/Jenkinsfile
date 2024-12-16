@@ -12,12 +12,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-                #Europe TimeZone
-                TZ=Europe/Kiev
-                H 22 * * * * %ACTION=stop
-                #America TimeZone
-                TZ=EST5EDT
-                H 18 * * * * %ACTION=stop
+                H 19 * * * * %ACTION=stop,START_TIME=19 #Europe
+                H 23 * * * * %ACTION=stop,START_TIME=23 #America
                 ''')])])
 ansiColor('xterm') {
   if (params.REFRESH_PARAMETERS) {
@@ -37,7 +33,7 @@ ansiColor('xterm') {
             break
           case "stop":
             Constants.AWS_EKS_CLUSTERS.each { cluster ->
-              managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}")
+              managePods.handlePods("${cluster}", "${params.ACTION}", "${params.NAMESPACE}", "${params.START_TIME}")
             }
             break
           case "suspend":
