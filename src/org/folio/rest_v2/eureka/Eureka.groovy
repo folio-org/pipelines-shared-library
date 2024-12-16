@@ -51,11 +51,11 @@ class Eureka extends Base {
 //
 //    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 //
-//    //create tenant admin user
-//    createUserFlow(tenant, tenant.adminUser
-//      , new Role(name: "adminRole", desc: "Admin role")
-//      , Permissions.get(kong).getCapabilitiesId(tenant)
-//      , Permissions.get(kong).getCapabilitySetsId(tenant))
+    //create tenant admin user
+    createUserFlow(tenant, tenant.adminUser
+      , new Role(name: "adminRole", desc: "Admin role")
+      , Permissions.get(kong).getCapabilitiesId(tenant)
+      , Permissions.get(kong).getCapabilitySetsId(tenant))
 
     return this
   }
