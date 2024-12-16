@@ -3,6 +3,7 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 
 def handlePods(String clusterName, String action, String ns) {
+  buildName "${clusterName}"
   folioHelm.withKubeConfig(clusterName) {
     Logger logger = new Logger(this, 'managePods')
     List namespaces = sh(script: "kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'", returnStdout: true).trim().tokenize()
@@ -41,7 +42,7 @@ def handlePods(String clusterName, String action, String ns) {
             }
             break
           case 'suspend':
-            if (namespace.trim() ==~ /${ns.trim()}/) {
+            if (namespace.replaceAll("\\s","") == ns.trim()) {
               kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
               folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TO NIGHT", "green")
             }
