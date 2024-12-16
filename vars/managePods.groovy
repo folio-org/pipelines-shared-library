@@ -50,7 +50,7 @@ def handlePods(String clusterName, String action, String ns, String start_time =
                             kubectl.scaleUpResources("${namespace}", "StatefulSet")
                             sleep time: 3, unit: 'MINUTES'
                             kubectl.scaleUpResources("${namespace}", "Deployment")
-                            folioPrint.colored("Pods management started for namespace: ${namespace}", "green")
+                            folioPrint.colored("Pods management started for namespace: ${namespace}\nPlease wait for a 5 minutes, before accessing the environment.", "green")
                         }
                         break
                     case 'suspend':
