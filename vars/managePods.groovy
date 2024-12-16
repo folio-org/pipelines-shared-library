@@ -23,7 +23,12 @@ def handlePods(String clusterName, String action, String ns) {
               kubectl.scaleDownResources("${namespace}", "Deployment")
               kubectl.scaleDownResources("${namespace}", "StatefulSet")
               if (!sts.contains('postgresql')) {
-                awscli.stopRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
+                try {
+                  awscli.stopRdsCluster("rds-${clusterName}-${namespace}", Constants.AWS_REGION)
+                } catch (Exception e) {
+                  println(namespace.toString() + " does not have DB to stop\n" + "Error:" + e.getMessage())
+                }
+
               }
               folioPrint.colored("Pods management stopped for namespace: ${namespace}", "green")
             }
@@ -43,7 +48,7 @@ def handlePods(String clusterName, String action, String ns) {
             }
             break
           case 'suspend':
-            if (namespace.replaceAll("\\s","") == ns.trim()) {
+            if (namespace.replaceAll("\\s", "") == ns.trim()) {
               kubectl.addLabelToNamespace("${namespace}", "suspend", "yes")
               folioPrint.colored("Pods management suspended for namespace: ${namespace}\nONLY FOR TO NIGHT", "green")
             }
