@@ -213,7 +213,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
       jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
+//      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
 
       println(jobResult.dump())
 
