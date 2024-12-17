@@ -16,7 +16,7 @@ managerRbac:
 }
 
 data "rancher2_user" "cluster_this" {
-  name = var.rancher_cluster_name
+  username = var.rancher_cluster_name
 }
 
 resource "rancher2_role_template" "port_forward" {
