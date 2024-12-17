@@ -50,8 +50,8 @@ String globalSlackChannel = '#rancher-test-notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-testing', namespace: 'cikarate-yi']
-//  cypress: [cluster: 'folio-testing', namespace: 'cicypress-yi'],
+  karate : [cluster: 'folio-testing', namespace: 'cikarate-yi'],
+  cypress: [cluster: 'folio-testing', namespace: 'cicypress-yi'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema-yi']
 ]
 
@@ -201,62 +201,55 @@ ansiColor('xterm') {
 }
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
-  /** Sub-Task object */
-  def jobResult
+  /** Map of Sub Job Objects [<id:object>,] */
+  Map subJobsMap = [:]
 
   stage('Provisioning') {
     try {
-      CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-        .clusterName('folio-testing')
-        .namespaceName('cikarate-yi')
-        .build()
+      Map branches = [failFast: false]
+      envsMap.each { id, metadata ->
+        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
+          .clusterName(metadata['cluster'] as String)
+          .namespaceName(metadata['namespace'] as String)
+          .build()
 
-      jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+        String envName = "${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"
+        branches.envName = { ->
+          subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
-      if (jobResult?.getResult() == 'FAILURE') {
-        throw new Exception(jobResult?.getDescription() as String)
+          if (subJobsMap[id]?.getResult() == 'FAILURE') {
+            throw new Exception(subJobsMap[id]?.getDescription() as String)
+          }
+        }
+      }
+      parallel(branches)
+    } catch (e) {
+      subJobsMap.each { jobId, jobObject ->
+        if (jobObject?.getResult() == 'FAILURE') {
+          def multiLineString = """
+            getProjectName(): ${jobObject.metaClass.respondsTo(jobObject, 'getProjectName') ? jobObject?.getProjectName() : 'N/A'} // The name of the project.
+            getDisplayName(): ${jobObject.metaClass.respondsTo(jobObject, 'getNumber') ? jobObject?.getDisplayName() : 'N/A'} // The full display name of the build.
+            getAbsoluteUrl(): ${jobObject.metaClass.respondsTo(jobObject, 'getAbsoluteUrl') ? jobObject?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
+            getResult(): ${jobObject.metaClass.respondsTo(jobObject, 'getResult') ? jobObject?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
+            getDescription(): ${jobObject.metaClass.respondsTo(jobObject, 'getDescription') ? jobObject?.getDescription() : 'N/A'} // The description of the build.
+          """
+          println(multiLineString) // Print all sul-job properties
+
+          String subJobName = jobObject?.getProjectName()
+          String buildNumber = jobObject?.getDisplayName()
+          String stageName = env.STAGE_NAME
+          String subJobUrl = jobObject?.getAbsoluteUrl() + 'console'
+          String jobDescription = jobObject?.getDescription()
+          String buildStatus = jobObject?.getResult()
+
+          String attachments = SlackHelper.renderMessage([
+            folioSlackNotificationUtils.renderBuildResultSection(),
+            folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
+          ])
+        }
       }
 
-//      Map branches = [failFast: false]
-//      envsMap.each { id, metadata ->
-//        CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-//          .clusterName(metadata['cluster'])
-//          .namespaceName(metadata['namespace'])
-//          .build()
-//        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-//          def jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
-//          println(jobResult.dump())
-//        }
-//      }
-//      parallel(branches)
-    } catch (e) {
-      def multiLineString = """
-        getProjectName(): ${jobResult.metaClass.respondsTo(jobResult, 'getProjectName') ? jobResult?.getProjectName() : 'N/A'} // The name of the project.
-        getDisplayName(): ${jobResult.metaClass.respondsTo(jobResult, 'getNumber') ? jobResult?.getDisplayName() : 'N/A'} // The full display name of the build.
-        getAbsoluteUrl(): ${jobResult.metaClass.respondsTo(jobResult, 'getAbsoluteUrl') ? jobResult?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
-        getResult(): ${jobResult.metaClass.respondsTo(jobResult, 'getResult') ? jobResult?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-        getDescription(): ${jobResult.metaClass.respondsTo(jobResult, 'getDescription') ? jobResult?.getDescription() : 'N/A'} // The description of the build.
-        getFailedStageName(): ${env.STAGE_NAME} // The name of the failed stage.
-      """
-      println(multiLineString) // Print all sul-job properties
-
-//      println(JsonOutput.prettyPrint(JsonOutput.toJson(jobResult)))
-
-      println(jobResult.dump())
-
       currentBuild.result = 'FAILURE'
-
-      String subJobName = jobResult?.getProjectName()
-      String buildNumber = jobResult?.getDisplayName()
-      String stageName = env.STAGE_NAME
-      String subJobUrl = jobResult?.getAbsoluteUrl() + 'console'
-      String jobDescription = jobResult?.getDescription()
-      String buildStatus = jobResult?.getResult()
-
-      String attachments = SlackHelper.renderMessage([
-        folioSlackNotificationUtils.renderBuildResultSection(),
-        folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
-      ])
 
       slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
