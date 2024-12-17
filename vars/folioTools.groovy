@@ -46,6 +46,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
       sleep time: 30, unit: 'SECONDS'
       check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
     }
+    kubectl.deletePod("${namespace}", 'kafka-sh', false)
   }
 }
 

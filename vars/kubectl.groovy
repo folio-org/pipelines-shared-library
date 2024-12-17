@@ -161,9 +161,9 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void deletePod(String namespace = 'default', String pod_name) {
+void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
-    sh "kubectl delete pod --namespace=${namespace} ${pod_name}"
+    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --wait=${wait}"
   } catch (Exception e) {
     currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
