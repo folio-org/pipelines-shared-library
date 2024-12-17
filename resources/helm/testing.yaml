@@ -2124,7 +2124,7 @@ mod-linked-data:
     targetMemoryUtilizationPercentage: 80
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
-  - -Dspring.profiles.active=folio,search
+  - -Dspring.profiles.active=nocache
   - -Dserver.port=8081
   startupProbe:
     httpGet:
