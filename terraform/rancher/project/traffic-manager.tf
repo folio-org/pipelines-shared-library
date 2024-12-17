@@ -15,10 +15,6 @@ managerRbac:
   ]
 }
 
-data "github_team" "dev_team" {
-  slug = "thunderjet"
-}
-
 resource "rancher2_role_template" "port_forward" {
   name         = "port-forward-access"
   context      = "project"
@@ -32,8 +28,9 @@ resource "rancher2_role_template" "port_forward" {
 }
 
 resource "rancher2_project_role_template_binding" "access_port_forward" {
+  count              = length(var.github_team_ids)
   name               = "access-port-forward"
   role_template_id   = rancher2_role_template.port_forward.id
   project_id         = rancher2_project.this.id
-  group_principal_id = data.github_team.dev_team.id
+  group_principal_id = "github_team://${var.github_team_ids[count.index]}"
 }
