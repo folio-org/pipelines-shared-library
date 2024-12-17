@@ -74,14 +74,14 @@ resource "kubernetes_role_binding" "port_forward_access" {
     namespace = rancher2_namespace.this.id
   }
   role_ref {
-    api_group = "rbac.authorization.k8s.io"
     kind      = "Role"
     name      = kubernetes_role.port_forward.id
+    api_group = ""
   }
   subject {
     kind      = "User"
     name      = "rancher-port-forward"
     namespace = rancher2_namespace.this.id
-    api_group = "rbac.authorization.k8s.io"
+    api_group = ""
   }
 }
