@@ -9,34 +9,59 @@ resource "helm_release" "traffic-manager" {
 image:
   registry: ghcr.io/telepresenceio
   tag: 2.20.1
+managerRbac:
+  create: true
+  namespaced: true
+  namespaces:
+  - ${rancher2_namespace.this.name}
     EOF
   ]
 }
 
 resource "rancher2_role_template" "port_forward" {
   name         = "port-forward-access"
-  context      = "cluster"
+  context      = "project"
   default_role = false
   description  = "Terraform role for telepresence"
   rules {
     api_groups = [""]
-    resources  = ["namespaces", "services", "pods"]
-    verbs      = ["get", "watch", "list", "view"]
-  }
-  rules {
-    api_groups = [""]
-    resources  = ["pods/log"]
-    verbs      = ["get", "watch", "list", "view"]
+    resources  = ["pods"]
+    verbs      = ["get", "list", "create", "delete", "patch", "update"]
   }
   rules {
     api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["create", "get", "watch", "list", "view"]
+    verbs      = ["create"]
   }
   rules {
-    api_groups = ["apps"]
-    resources  = ["deployments", "replicasets", "statefulsets"]
-    verbs      = ["get", "watch", "list", "view"]
+    api_groups = [""]
+    resources  = ["services"]
+    verbs      = ["get", "list"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["endpoints"]
+    verbs      = ["get", "list"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["networkpolicies"]
+    verbs      = ["create", "get", "delete", "list", "patch", "update"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["namespaces"]
+    verbs      = ["get", "list"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["serviceaccounts"]
+    verbs      = ["get", "list", "create", "update"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["roles", "rolebindings"]
+    verbs      = ["get", "list"]
   }
 }
 
