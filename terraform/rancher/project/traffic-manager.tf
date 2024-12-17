@@ -15,8 +15,8 @@ managerRbac:
   ]
 }
 
-data "rancher2_user" "cluster_this" {
-  username = var.rancher_cluster_name
+data "github_team" "dev_team" {
+  slug = rancher2_project.this.name
 }
 
 resource "rancher2_role_template" "port_forward" {
@@ -32,8 +32,8 @@ resource "rancher2_role_template" "port_forward" {
 }
 
 resource "rancher2_project_role_template_binding" "access_port_forward" {
-  name             = "access-port-forward"
-  role_template_id = rancher2_role_template.port_forward.id
-  project_id       = rancher2_project.this.id
-  user_id          = data.rancher2_user.cluster_this.id
+  name               = "access-port-forward"
+  role_template_id   = rancher2_role_template.port_forward.id
+  project_id         = rancher2_project.this.id
+  group_principal_id = data.github_team.dev_team.id
 }
