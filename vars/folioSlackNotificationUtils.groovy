@@ -122,10 +122,10 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
   def message = ":triangular_flag_on_post: *#${buildNumber} - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
 
   List<String> actions = [
-    SlackHelper.renderAction(buildUrl, ":page_facing_up:*#${buildNumber}*"),
+    SlackHelper.renderAction(buildUrl, "*${buildNumber}*:page_facing_up:"),
   ]
 
-  String section = SlackHelper.renderSection(":octagonal_sign:Failed to create Environment with `${jobName}` pipeline", message, '#FF0000', actions, [])
+  String section = SlackHelper.renderSection(":octagonal_sign:Failed to create Environment with '${jobName}' pipeline", message, '#FF0000', actions, [])
 
   return section
 }

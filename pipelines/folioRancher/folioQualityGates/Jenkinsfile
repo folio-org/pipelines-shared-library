@@ -233,15 +233,13 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       sections.add(folioSlackNotificationUtils.renderBuildResultSection() as String)
 
       subJobsMap.each { jobId, jobObject ->
-        if (jobObject?.getResult() == 'FAILURE') {
-          String subJobName = jobObject?.getProjectName()
-          String buildNumber = jobObject?.getDisplayName()
-          String subJobUrl = jobObject?.getAbsoluteUrl() + 'console'
-          String buildStatus = jobObject?.getResult()
-          String jobDescription = jobObject?.getDescription()
-
-          sections.add(folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, subJobUrl, buildStatus, jobDescription) as String)
-        }
+        sections.add(folioSlackNotificationUtils.renderSubJobBuildResultSection(
+          jobObject?.getProjectName(),
+          jobObject?.getDisplayName(),
+          jobObject?.getAbsoluteUrl() + 'console',
+          jobObject?.getResult(),
+          jobObject?.getDescription()
+        ) as String)
       }
 
       /** Attachments for slack notification */
