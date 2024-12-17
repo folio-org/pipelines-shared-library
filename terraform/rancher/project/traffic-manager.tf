@@ -16,7 +16,7 @@ managerRbac:
 }
 
 data "github_team" "dev_team" {
-  slug = rancher2_project.this.name
+  slug = "thunderjet"
 }
 
 resource "rancher2_role_template" "port_forward" {
