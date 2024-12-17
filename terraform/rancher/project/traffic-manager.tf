@@ -18,7 +18,7 @@ managerRbac:
   ]
 }
 
-resource "kubernetes_role_v1" "port_forward" {
+resource "kubernetes_role" "port_forward" {
   metadata {
     name      = "port_forward"
     namespace = rancher2_namespace.this.id
@@ -68,7 +68,7 @@ resource "kubernetes_role_v1" "port_forward" {
   }
 }
 
-resource "kubernetes_role_binding_v1" "port_forward_access" {
+resource "kubernetes_role_binding" "port_forward_access" {
   metadata {
     name      = "port_forward_access"
     namespace = rancher2_namespace.this.id
