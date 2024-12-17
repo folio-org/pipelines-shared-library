@@ -110,6 +110,8 @@ class Tenants extends Kong{
   }
 
   Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds){
+    if(!appIds)
+      return
 
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
