@@ -231,9 +231,3 @@ variable "pg_ldp_user_password" {
   type        = string
   description = "Postgresql password for ldp user"
 }
-
-variable "dev_team_id" {
-  type        = string
-  description = "folio-org team id"
-  default     = ""
-}
