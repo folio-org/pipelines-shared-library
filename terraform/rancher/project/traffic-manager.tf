@@ -6,6 +6,9 @@ resource "helm_release" "traffic-manager" {
   version   = "2.21.1"
   values = [
     <<-EOF
+image:
+  registry: ghcr.io/telepresenceio
+  tag: 2.20.1
 managerRbac:
   create: true
   namespaced: true
@@ -23,22 +26,22 @@ resource "rancher2_role_template" "port_forward" {
   rules {
     api_groups = [""]
     resources  = ["namespaces", "services", "pods"]
-    verbs      = ["get", "list", "watch"]
+    verbs      = ["get", "watch", "list", "view"]
   }
   rules {
     api_groups = [""]
     resources  = ["pods/log"]
-    verbs      = ["get"]
+    verbs      = ["get", "watch", "list", "view"]
   }
   rules {
     api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["create"]
+    verbs      = ["create", "get", "watch", "list", "view"]
   }
   rules {
     api_groups = ["apps"]
     resources  = ["deployments", "replicasets", "statefulsets"]
-    verbs      = ["get", "watch", "list"]
+    verbs      = ["get", "watch", "list", "view"]
   }
 }
 
