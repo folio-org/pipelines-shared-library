@@ -145,7 +145,7 @@ class Tenants extends Kong{
         logger.debug("response.body: ${response.body}")
         logger.debug("response.body.errors: ${response.body.errors}")
         logger.debug("response.body.errors.forEach: ")
-        response.body.errors.eachWithIndex{ index, error ->
+        response.body.errors.eachWithIndex{ error, index ->
           logger.debug("Index: ${index} Error: $error")
           logger.debug("response.body.errors.eachWithIndex[$index].parameters: ${error.parameters}")
           error.parameters.each{ key, value ->
