@@ -6,9 +6,6 @@ resource "helm_release" "traffic-manager" {
   chart     = "telepresence"
   version   = "2.20.1"
   values = [<<-EOF
-image:
-  registry: ghcr.io/telepresenceio
-  tag: 2.20.1
 managerRbac:
   create: true
   namespaced: true
