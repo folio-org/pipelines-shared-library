@@ -21,7 +21,7 @@ managerRbac:
 resource "kubernetes_role_v1" "port_forward" {
   metadata {
     name      = "port_forward"
-    namespace = rancher2_project.this.name
+    namespace = rancher2_namespace.this.id
     labels = {
       name = "port_forward"
     }
@@ -71,7 +71,7 @@ resource "kubernetes_role_v1" "port_forward" {
 resource "kubernetes_role_binding_v1" "port_forward_access" {
   metadata {
     name      = "port_forward_access"
-    namespace = rancher2_project.this.name
+    namespace = rancher2_namespace.this.id
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
@@ -81,7 +81,7 @@ resource "kubernetes_role_binding_v1" "port_forward_access" {
   subject {
     kind      = "User"
     name      = "rancher-port-forward"
-    namespace = rancher2_project.this.name
+    namespace = rancher2_namespace.this.id
     api_group = "rbac.authorization.k8s.io"
   }
 }
