@@ -117,6 +117,15 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
     .renderSection(team, results, existingIssuesUrl, createdIssuesUrl)
 }
 
+/**
+ * Render a section for a sub-job build result
+ * @param jobName Name of sub job
+ * @param buildNumber Number of sub job build
+ * @param buildUrl URL of sub job build
+ * @param buildStatus Status of sub job build
+ * @param errorMessage Error message for sub job build
+ * @return String Rendered section for Slack notification
+ */
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderSubJobBuildResultSection(String jobName, String buildNumber, String buildUrl, String buildStatus, String errorMessage) {
   def message = ":small_red_triangle_down: *${buildNumber} - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
