@@ -142,6 +142,13 @@ class Tenants extends Kong{
           Response content:
           ${contentStr}""")
 
+        logger.debug("response.body: ${response.body}")
+        logger.debug("response.body.errors: ${response.body.errors}")
+        logger.debug("response.body.errors.forEach: ")
+        response.body.errors.each{ index, error ->
+          logger.debug("Index: ${index} Error: $error")
+        }
+
         return this
       } else {
         logger.error("Enabling application for tenant failed: ${contentStr}")
