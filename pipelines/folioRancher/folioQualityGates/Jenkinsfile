@@ -49,8 +49,7 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 Map envsMap = [
   karate : [cluster: 'folio-testing', namespace: 'yikarate'],
-  cypress: [cluster: 'folio-testing', namespace: 'yicypress'],
-//  schema : [cluster: 'folio-tmp', namespace: 'cischema-yi']
+  cypress: [cluster: 'folio-testing', namespace: 'yicypress']
 ]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
