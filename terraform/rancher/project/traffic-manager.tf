@@ -18,57 +18,69 @@ managerRbac:
   ]
 }
 
-resource "rancher2_role_template" "port_forward" {
-  name         = "port-forward-access"
-  context      = "project"
-  default_role = false
-  description  = "Terraform role for telepresence"
-  rules {
+resource "kubernetes_role_v1" "port_forward" {
+  metadata {
+    name      = "port_forward"
+    namespace = rancher2_project.this.id
+    labels = {
+      name = "port_forward"
+    }
+  }
+  rule {
     api_groups = [""]
     resources  = ["pods"]
-    verbs      = ["get", "list", "create", "delete", "patch", "update"]
+    verbs      = ["get", "list", "watch"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["*"]
+    verbs      = ["create"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["services"]
     verbs      = ["get", "list"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["endpoints"]
     verbs      = ["get", "list"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["networkpolicies"]
-    verbs      = ["create", "get", "delete", "list", "patch", "update"]
+    verbs      = ["get", "list"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["namespaces"]
     verbs      = ["get", "list"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["serviceaccounts"]
-    verbs      = ["get", "list", "create", "update"]
+    verbs      = ["get", "list"]
   }
-  rules {
+  rule {
     api_groups = [""]
     resources  = ["roles", "rolebindings"]
     verbs      = ["get", "list"]
   }
 }
 
-resource "rancher2_project_role_template_binding" "access_port_forward" {
-  count              = length(var.github_team_ids)
-  name               = "port-forward-${var.github_team_ids[count.index]}-binding"
-  role_template_id   = rancher2_role_template.port_forward.id
-  project_id         = rancher2_project.this.id
-  group_principal_id = "github_team://${var.github_team_ids[count.index]}"
+resource "kubernetes_role_binding_v1" "port_forward_access" {
+  metadata {
+    name      = "port_forward_access"
+    namespace = rancher2_project.this.id
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "Role"
+    name      = kubernetes_role_v1.port_forward.id
+  }
+  subject {
+    kind      = "User"
+    name      = "rancher-port-forward"
+    api_group = "rbac.authorization.k8s.io"
+  }
 }
