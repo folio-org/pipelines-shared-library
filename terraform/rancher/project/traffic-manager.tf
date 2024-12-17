@@ -21,9 +21,24 @@ resource "rancher2_role_template" "port_forward" {
   default_role = false
   description  = "Terraform role for telepresence"
   rules {
-    api_groups = ["*"]
+    api_groups = [""]
+    resources  = ["namespaces", "services", "pods"]
+    verbs      = ["get", "list", "watch"]
+  }
+  rules {
+    api_groups = [""]
+    resources  = ["pods/log"]
+    verbs      = ["get"]
+  }
+  rules {
+    api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["*"]
+    verbs      = ["create"]
+  }
+  rules {
+    api_groups = ["apps"]
+    resources  = ["deployments", "replicasets", "statefulsets"]
+    verbs      = ["get", "watch", "list"]
   }
 }
 
