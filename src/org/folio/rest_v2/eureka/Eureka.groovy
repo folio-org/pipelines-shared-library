@@ -58,12 +58,12 @@ class Eureka extends Base {
 
     logger.debug("""Eureka.createTenantFlow()
         tenant.applications.values().toList().findAll{app -> entitledApps.contains(app.split("-\\\\d+\\\\.\\\\d+\\\\.\\\\d+")[0])}:
-        ${tenant.applications.values().toList().findAll{app -> entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0])}}
+        ${tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}}
     ,""")
 
     Tenants.get(kong).enableApplicationsOnTenant(
       tenant
-      , tenant.applications.values().toList().findAll{app -> entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0])}
+      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
