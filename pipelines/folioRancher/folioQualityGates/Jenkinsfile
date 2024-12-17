@@ -48,8 +48,8 @@ String globalSlackChannel = '#rancher-test-notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-testing', namespace: 'cikarate-yi'],
-  cypress: [cluster: 'folio-testing', namespace: 'cicypress-yi'],
+  karate : [cluster: 'folio-testing', namespace: 'yikarate'],
+  cypress: [cluster: 'folio-testing', namespace: 'yicypress'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema-yi']
 ]
 
