@@ -42,6 +42,6 @@ EOF
     provectus  = "https://provectus.github.io/kafka-ui-charts",
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net",
-    wiredata   = "https://getambassador.io"
+    telepresence   = "oci://ghcr.io/telepresenceio/telepresence-oss"
   }
 }
