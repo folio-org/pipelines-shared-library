@@ -29,7 +29,7 @@ resource "rancher2_role_template" "port_forward" {
 
 resource "rancher2_project_role_template_binding" "access_port_forward" {
   count              = length(var.github_team_ids)
-  name               = "access-port-forward"
+  name               = "port-forward-${var.github_team_ids[count.index]}-binding"
   role_template_id   = rancher2_role_template.port_forward.id
   project_id         = rancher2_project.this.id
   group_principal_id = "github_team://${var.github_team_ids[count.index]}"
