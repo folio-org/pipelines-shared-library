@@ -15,7 +15,7 @@ image:
 
 resource "rancher2_role_template" "port_forward" {
   name         = "port-forward-access"
-  context      = "project"
+  context      = "cluster"
   default_role = false
   description  = "Terraform role for telepresence"
   rules {
