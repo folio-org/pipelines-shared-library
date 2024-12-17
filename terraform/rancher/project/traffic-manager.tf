@@ -11,7 +11,7 @@ image:
   tag: 2.20.1
 managerRbac:
   create: true
-  namespaced: true
+  namespaced: false
   namespaces:
   - ${rancher2_namespace.this.name}
     EOF
