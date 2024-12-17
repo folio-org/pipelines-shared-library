@@ -49,14 +49,21 @@ class Eureka extends Base {
 
     logger.debug("Eureka.createTenantFlow() - tenant.applications.values().toList(): ${tenant.applications.values().toList()}")
     logger.debug("""Eureka.createTenantFlow() - Tenants.get(kong).getEnabledApplications(tenant).keySet().toList():
-        ${Tenants.get(kong).getEnabledApplications(tenant).keySet().toList()}""")
+        ${Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+    }}""")
     logger.debug("""Eureka.createTenantFlow()
         tenant.applications.values().toList() - Tenants.get(kong).getEnabledApplications(tenant).keySet().toList():
-        ${tenant.applications.values().toList() - Tenants.get(kong).getEnabledApplications(tenant).keySet().toList()}""")
+        ${tenant.applications.values().toList() - Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+    }}""")
 
     Tenants.get(kong).enableApplicationsOnTenant(
       tenant
-      , tenant.applications.values().toList() - Tenants.get(kong).getEnabledApplications(tenant).keySet().toList()
+      , tenant.applications.values().toList() -
+        Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+          appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+        }
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
