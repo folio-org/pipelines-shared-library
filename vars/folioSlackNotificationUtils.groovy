@@ -4,7 +4,6 @@ import org.folio.slack.SlackBuildResultRenderer
 import org.folio.slack.SlackHelper
 import org.folio.slack.SlackTeamTestResultRenderer
 import org.folio.slack.SlackTestResultRenderer
-import org.folio.slack.templates.SlackTeamTestResultTemplates
 import org.folio.testing.*
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
