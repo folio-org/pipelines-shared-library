@@ -41,6 +41,6 @@ EOF
     bitnami    = "https://repository.folio.org/repository/helm-bitnami-proxy",
     provectus  = "https://provectus.github.io/kafka-ui-charts",
     opensearch = "https://opensearch-project.github.io/helm-charts",
-    runix      = "https://helm.runix.net",
+    runix      = "https://helm.runix.net"
   }
 }
