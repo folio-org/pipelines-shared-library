@@ -76,7 +76,7 @@ resource "kubernetes_role_binding" "port_forward_access" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "Role"
-    name      = kubernetes_role_v1.port_forward.id
+    name      = kubernetes_role.port_forward.id
   }
   subject {
     kind      = "User"
