@@ -2100,11 +2100,7 @@ mod-licenses:
     enabled: true
     maxUnavailable: 1
 mod-linked-data:
-  extraEnvVars:
-    - name: CACHE_TTL_SPEC_RULES_MS
-      value: '0'
-    - name: CACHE_TTL_SETTINGS_ENTRIES_MS
-      value: '0'
+  extraEnvVars: []
   integrations:
     db:
       enabled: true
@@ -2128,7 +2124,7 @@ mod-linked-data:
     targetMemoryUtilizationPercentage: 80
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
-  - -Dspring.profiles.active=folio,search
+  - -Dspring.profiles.active=nocache
   - -Dserver.port=8081
   startupProbe:
     httpGet:
