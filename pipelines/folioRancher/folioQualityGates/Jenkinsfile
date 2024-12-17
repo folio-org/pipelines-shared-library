@@ -208,6 +208,12 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
   List<String> sections = []
 
   stage('Provisioning') {
+    /** Map of Sub Job Objects [<id:object>,] */
+    Map subJobsMap = [:]
+
+    /** List of sections for slack notification */
+    List<String> sections = []
+
     try {
       Map branches = [failFast: false]
       envsMap.each { id, metadata ->
