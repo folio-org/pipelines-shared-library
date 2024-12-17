@@ -125,7 +125,7 @@ String renderSubJobBuildResultSection(String jobName, String buildNumber, String
     SlackHelper.renderAction(buildUrl, ":page_facing_up:*#${buildNumber}*"),
   ]
 
-  String section = SlackHelper.renderSection(":octagonal_sign:Failed to create Namespace ${jobName}", message, '#FF0000', actions, [])
+  String section = SlackHelper.renderSection(":octagonal_sign:Failed to create Environment with `${jobName}` pipeline", message, '#FF0000', actions, [])
 
   return section
 }
