@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 properties([buildDiscarder(logRotator(numToKeepStr: '60')),
             parameters([folioParameters.cluster(),
                         folioParameters.namespace(),
-                        choice(name: "ACTION", choices: ['start', 'stop', 'suspend'], description: '(Required) Choose action to perform'),
+                        choice(name: "ACTION", choices: ['start', 'suspend'], description: '(Required) Choose action to perform'),
                         string(name: "AGENT", description: "Build agent", defaultValue: "rancher"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
