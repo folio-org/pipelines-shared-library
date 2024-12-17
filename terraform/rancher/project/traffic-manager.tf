@@ -9,11 +9,6 @@ resource "helm_release" "traffic-manager" {
 image:
   registry: ghcr.io/telepresenceio
   tag: 2.20.1
-managerRbac:
-  create: true
-  namespaced: true
-  namespaces:
-  - ${rancher2_namespace.this.name}
     EOF
   ]
 }
