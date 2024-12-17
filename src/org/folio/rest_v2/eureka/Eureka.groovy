@@ -47,7 +47,14 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
-    Tenants.get(kong).enableApplicationsOnTenant(tenant)
+    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+    }
+
+    Tenants.get(kong).enableApplicationsOnTenant(
+      tenant
+      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+    )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
