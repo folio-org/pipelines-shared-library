@@ -24,8 +24,13 @@ resource "kubernetes_role" "port_forward_role" {
     namespace = rancher2_namespace.this.id
   }
   rule {
+    api_groups = ["apps"]
+    resources  = ["deployments", "replicasets", "statefulsets"]
+    verbs      = ["get", "list", "watch"]
+  }
+  rule {
     api_groups = [""]
-    resources  = ["pods", "pods/log", "deployments", "replicasets", "statefulsets", "services"]
+    resources  = ["pods", "pods/log", "services"]
     verbs      = ["get", "list", "watch"]
   }
   rule {
