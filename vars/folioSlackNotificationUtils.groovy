@@ -128,13 +128,13 @@ String renderTeamTestResultSection(TestType type, Team team, List<IModuleExecuti
  */
 @SuppressWarnings('GrMethodMayBeStatic')
 String renderSubJobBuildResultSection(String jobName, String buildNumber, String buildUrl, String buildStatus, String errorMessage) {
-  def message = ":small_red_triangle_down: *${buildNumber} - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
+  def message = "*${buildNumber} - ${buildStatus}* \\n _Error message_ - `${errorMessage}`\\n"
 
   List<String> actions = [
     SlackHelper.renderAction(buildUrl, ":page_facing_up: Check *${buildNumber}* console output")
   ]
 
-  String section = SlackHelper.renderSection(":triangular_flag_on_post:Failed to create Environment with '${jobName}' pipeline", message, '#FF0000', actions, [])
+  String section = SlackHelper.renderSection("Failed to create Environment with '${jobName}' pipeline", message, '#FF0000', actions, [])
 
   return section
 }
