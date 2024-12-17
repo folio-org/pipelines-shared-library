@@ -109,9 +109,9 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds){
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds, boolean skipExists = false){
     if(!appIds)
-      return
+      return this
 
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -126,11 +126,30 @@ class Tenants extends Kong{
     logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
     logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
 
+    List responseCodes = skipExists ? [201, 400] : []
+
     def response = restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
+      , responseCodes
     )
+
+    String contentStr = response.body.toString()
+
+    if (response.responseCode == 400) {
+      if (contentStr.contains("value: Entitle flow finished")) {
+        logger.info("""
+          Application(s) are already entitled on tenant, no actions needed..
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+      } else {
+        logger.error("Enabling application for tenant failed: ${contentStr}")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
 
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
 
