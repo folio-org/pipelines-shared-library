@@ -217,7 +217,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
         /** Complete Environment Name */
         String envName = "${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"
 
-        branches.envName = { ->
+        branches[envName] = { ->
           subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
 
           if (subJobsMap[id]?.getResult() == 'FAILURE') {
