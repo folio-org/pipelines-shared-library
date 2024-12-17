@@ -204,6 +204,8 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
   /** Map of Sub Job Objects [<id:object>,] */
   Map subJobsMap = [:]
 
+  List<String> sections = []
+
   stage('Provisioning') {
     try {
       Map branches = [failFast: false]
@@ -224,34 +226,26 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       }
       parallel(branches)
     } catch (e) {
+      /** Set the build result to FAILURE */
+      currentBuild.result = 'FAILURE'
+
+      /** Add the build result section to the slack notification */
+      sections.add(folioSlackNotificationUtils.renderBuildResultSection() as String)
+
       subJobsMap.each { jobId, jobObject ->
         if (jobObject?.getResult() == 'FAILURE') {
-          def multiLineString = """
-            getProjectName(): ${jobObject.metaClass.respondsTo(jobObject, 'getProjectName') ? jobObject?.getProjectName() : 'N/A'} // The name of the project.
-            getDisplayName(): ${jobObject.metaClass.respondsTo(jobObject, 'getNumber') ? jobObject?.getDisplayName() : 'N/A'} // The full display name of the build.
-            getAbsoluteUrl(): ${jobObject.metaClass.respondsTo(jobObject, 'getAbsoluteUrl') ? jobObject?.getAbsoluteUrl() : 'N/A'} // The URL of the build.
-            getResult(): ${jobObject.metaClass.respondsTo(jobObject, 'getResult') ? jobObject?.getResult() : 'N/A'} // The result of the build (e.g., SUCCESS, FAILURE, ABORTED).
-            getDescription(): ${jobObject.metaClass.respondsTo(jobObject, 'getDescription') ? jobObject?.getDescription() : 'N/A'} // The description of the build.
-          """
-          println(multiLineString) // Print all sul-job properties
-
           String subJobName = jobObject?.getProjectName()
           String buildNumber = jobObject?.getDisplayName()
           String subJobUrl = jobObject?.getAbsoluteUrl() + 'console'
-          String jobDescription = jobObject?.getDescription()
           String buildStatus = jobObject?.getResult()
+          String jobDescription = jobObject?.getDescription()
 
-          return
+          sections.add(folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, subJobUrl, buildStatus, jobDescription) as String)
         }
       }
 
       /** Attachments for slack notification */
-      String attachments = SlackHelper.renderMessage([
-        folioSlackNotificationUtils.renderBuildResultSection(),
-        folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, subJobUrl, buildStatus, jobDescription)
-      ])
-
-      currentBuild.result = 'FAILURE'
+      String attachments = SlackHelper.renderMessage(sections)
 
       slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
