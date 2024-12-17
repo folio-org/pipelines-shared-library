@@ -31,7 +31,7 @@ resource "rancher2_role_template" "port_forward" {
   rules {
     api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["create"]
+    verbs      = ["*"]
   }
   rules {
     api_groups = [""]
