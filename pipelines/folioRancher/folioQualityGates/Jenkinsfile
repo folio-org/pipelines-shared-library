@@ -240,14 +240,13 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
           String subJobName = jobObject?.getProjectName()
           String buildNumber = jobObject?.getDisplayName()
-          String stageName = env.STAGE_NAME
           String subJobUrl = jobObject?.getAbsoluteUrl() + 'console'
           String jobDescription = jobObject?.getDescription()
           String buildStatus = jobObject?.getResult()
 
           attachments = SlackHelper.renderMessage([
             folioSlackNotificationUtils.renderBuildResultSection(),
-            folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
+            folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, subJobUrl, buildStatus, jobDescription)
           ])
         }
       }
