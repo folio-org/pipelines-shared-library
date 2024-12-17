@@ -26,7 +26,7 @@ locals {
     for user in split(",", var.admin_users) : {
       userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${user}"
       username = user
-      groups   = ["system:masters"]
+      groups   = user == "rancher-port-forward" ? ["rancher-port-forward"] : ["system:masters"]
     }
   ]
   testing_cluster = "folio-testing"

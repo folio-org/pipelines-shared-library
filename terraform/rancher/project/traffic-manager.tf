@@ -11,24 +11,21 @@ image:
   tag: 2.20.1
 managerRbac:
   create: true
-  namespaced: false
+  namespaced: true
   namespaces:
   - ${rancher2_namespace.this.name}
     EOF
   ]
 }
 
-resource "kubernetes_role" "port_forward" {
+resource "kubernetes_role" "port_forward_role" {
   metadata {
-    name      = "port_forward"
+    name      = "port-forward-role"
     namespace = rancher2_namespace.this.id
-    labels = {
-      name = "port_forward"
-    }
   }
   rule {
     api_groups = [""]
-    resources  = ["pods"]
+    resources  = ["pods", "pods/log"]
     verbs      = ["get", "list", "watch"]
   }
   rule {
@@ -41,47 +38,21 @@ resource "kubernetes_role" "port_forward" {
     resources  = ["services"]
     verbs      = ["get", "list"]
   }
-  rule {
-    api_groups = [""]
-    resources  = ["endpoints"]
-    verbs      = ["get", "list"]
-  }
-  rule {
-    api_groups = [""]
-    resources  = ["networkpolicies"]
-    verbs      = ["get", "list"]
-  }
-  rule {
-    api_groups = [""]
-    resources  = ["namespaces"]
-    verbs      = ["get", "list"]
-  }
-  rule {
-    api_groups = [""]
-    resources  = ["serviceaccounts"]
-    verbs      = ["get", "list"]
-  }
-  rule {
-    api_groups = [""]
-    resources  = ["roles", "rolebindings"]
-    verbs      = ["get", "list"]
-  }
 }
 
-resource "kubernetes_role_binding" "port_forward_access" {
+resource "kubernetes_role_binding" "port_forward_binding" {
   metadata {
-    name      = "port_forward_access"
+    name      = "port-forward-binding"
     namespace = rancher2_namespace.this.id
-  }
-  role_ref {
-    kind      = "Role"
-    name      = kubernetes_role.port_forward.id
-    api_group = ""
   }
   subject {
     kind      = "User"
     name      = "rancher-port-forward"
-    namespace = rancher2_namespace.this.id
-    api_group = ""
+    api_group = "rbac.authorization.k8s.io"
+  }
+  role_ref {
+    kind      = "Role"
+    name      = "port-forward-role"
+    api_group = "rbac.authorization.k8s.io"
   }
 }
