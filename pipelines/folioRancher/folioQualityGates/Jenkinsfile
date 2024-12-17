@@ -224,6 +224,9 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
       }
       parallel(branches)
     } catch (e) {
+      /** Attachments for slack notification */
+      String attachments
+
       subJobsMap.each { jobId, jobObject ->
         if (jobObject?.getResult() == 'FAILURE') {
           def multiLineString = """
@@ -242,7 +245,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
           String jobDescription = jobObject?.getDescription()
           String buildStatus = jobObject?.getResult()
 
-          String attachments = SlackHelper.renderMessage([
+          attachments = SlackHelper.renderMessage([
             folioSlackNotificationUtils.renderBuildResultSection(),
             folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
           ])
