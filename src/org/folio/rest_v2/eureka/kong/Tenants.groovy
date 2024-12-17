@@ -109,8 +109,9 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  //TODO: Remove this shit
-  Tenants enableApplicationOnTenant(EurekaTenant tenant, String appId){
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds){
+    if(!appIds)
+      return
 
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -118,7 +119,7 @@ class Tenants extends Kong{
 
     Map body = [
       tenantId    : tenant.uuid,
-      applications: [appId]
+      applications: appIds
     ]
 
     logger.debug("enableApplicationsOnTenant body: ${body}")
@@ -129,46 +130,9 @@ class Tenants extends Kong{
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
-      , [201, 400]
     )
 
-    String contentStr = response.body.toString()
-
-    if (response.responseCode == 400) {
-      if (contentStr.contains("value: Entitle flow finished")) {
-        logger.info("""
-          Application is already entitled, no actions needed..
-          Status: ${response.responseCode}
-          Response content:
-          ${contentStr}""")
-
-        return this
-      } else {
-        logger.error("Enabling application for tenant failed: ${contentStr}")
-
-        throw new Exception("Build failed: " + contentStr)
-      }
-    }
-
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
-
-    return this
-  }
-
-  //TODO: This shit definitely should be refactored
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant){
-    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
-
-    enableApplicationOnTenant(tenant, tenant.applications["app-platform-full"])
-
-    if(tenant.applications.containsKey("app-linked-data"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-linked-data"])
-
-    if(tenant.applications.containsKey("app-consortia"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
-
-    if(tenant.applications.containsKey("app-consortia-manager"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-consortia-manager"])
 
     return this
   }
