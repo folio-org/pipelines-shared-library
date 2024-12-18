@@ -158,8 +158,14 @@ class Permissions extends Kong{
     Map<String, List<String>> capabilities = [:]
 
     content.each { capability ->
-      capabilities.computeIfAbsent(capability.roleId as String) { [] } << (capability.capabilityId as String)
+      if(!(capabilities.containsKey(capability.roleId)))
+        capabilities.put(capability.roleId as String, [])
+
+      capabilities.get(capability.roleId).add(capability.capabilityId as String)
     }
+
+    logger.debug("Permissions.getRoleCapabilities:")
+    logger.debug(capabilities)
 
     return capabilities
   }
@@ -191,8 +197,14 @@ class Permissions extends Kong{
     Map<String, List<String>> capabilitySets = [:]
 
     content.each { capability ->
-      capabilitySets.computeIfAbsent(capability.roleId as String) { [] } << (capability.capabilitySetId as String)
+      if(!(capabilitySets.containsKey(capability.roleId)))
+        capabilitySets.put(capability.roleId as String, [])
+
+      capabilitySets.get(capability.roleId).add(capability.capabilitySetId as String)
     }
+
+    logger.debug("Permissions.getRoleCapabilitySets:")
+    logger.debug(capabilitySets)
 
     return capabilitySets
   }
