@@ -131,8 +131,83 @@ class Permissions extends Kong{
     return ids
   }
 
+  List<String> getRoleCapabilitiesId(EurekaTenant tenant, Role role, int limit = 5000){
+    logger.info("Get role (${role.getName()}) capabilities list for ${tenant.tenantId}...")
+
+    Collection<List<String>> capabilities = getRoleCapabilities(tenant, "roleId==${role.getUuid()}", limit).values()
+
+    if(capabilities.size() > 1) {
+      logger.debug("Capabilities: $capabilities")
+
+      throw new Exception("There are more than one capabilities list for the role ${role.getName()}")
+    }
+
+    return capabilities.size() == 0 ? [] : capabilities[0]
+  }
+
+  Map<String, List<String>> getRoleCapabilities(EurekaTenant tenant, String query = "", int limit = 5000){
+    logger.info("Get role capabilities for ${tenant.tenantId}${query ? " with query=${query}" : ""}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    String url = generateUrl("/roles/capabilities${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
+
+    def response = restClient.get(url, headers)
+    def content = response.body.roleCapabilities
+
+    Map<String, List<String>> capabilities = [:]
+
+    content.each { capability ->
+      if(!(capabilities.containsKey(capability.roleId)))
+        capabilities.put(capability.roleId as String, [])
+
+      capabilities.get(capability.roleId).add(capability.capabilityId as String)
+    }
+
+    return capabilities
+  }
+
+  List<String> getRoleCapabilitySetsId(EurekaTenant tenant, Role role, int limit = 5000){
+    logger.info("Get role (${role.getName()}) capability sets list for ${tenant.tenantId}...")
+
+    Collection<List<String>> capabilitySets = getRoleCapabilitySets(tenant, "roleId==${role.getUuid()}", limit).values()
+
+    if(capabilitySets.size() > 1) {
+      logger.debug("Capability sets: $capabilitySets")
+
+      throw new Exception("There are more than one capability sets list for the role ${role.getName()}")
+    }
+
+    return capabilitySets.size() == 0 ? [] : capabilitySets[0]
+  }
+
+  Map<String, List<String>> getRoleCapabilitySets(EurekaTenant tenant, String query = "", int limit = 5000){
+    logger.info("Get role capability sets for ${tenant.tenantId}${query ? " with query=${query}" : ""}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    String url = generateUrl("/roles/capability-sets${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
+
+    def response = restClient.get(url, headers)
+    def content = response.body.roleCapabilitySets
+
+    Map<String, List<String>> capabilitySets = [:]
+
+    content.each { capability ->
+      if(!(capabilitySets.containsKey(capability.roleId)))
+        capabilitySets.put(capability.roleId as String, [])
+
+      capabilitySets.get(capability.roleId).add(capability.capabilitySetId as String)
+    }
+
+    return capabilitySets
+  }
+
   Permissions assignCapabilitiesToRole(EurekaTenant tenant, Role role, List<String> ids
                                        , boolean skipExists = false, int connectionTimeout = 600000){
+
+    if(!ids)
+      return this
 
     logger.info("Assigning capabilities for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 
@@ -177,6 +252,9 @@ class Permissions extends Kong{
 
   Permissions assignCapabilitySetsToRole(EurekaTenant tenant, Role role, List<String> ids
                                          , boolean skipExists = false, int connectionTimeout = 600000){
+
+    if(!ids)
+      return this
 
     logger.info("Assigning capability sets for role ${role.name}(${role.uuid}) for ${tenant.tenantId}...")
 

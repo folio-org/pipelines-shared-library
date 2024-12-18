@@ -109,8 +109,9 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  //TODO: Remove this shit
-  Tenants enableApplicationOnTenant(EurekaTenant tenant, String appId){
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds, boolean skipExists = false){
+    if(!appIds)
+      return this
 
     logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
@@ -118,18 +119,20 @@ class Tenants extends Kong{
 
     Map body = [
       tenantId    : tenant.uuid,
-      applications: [appId]
+      applications: appIds
     ]
 
     logger.debug("enableApplicationsOnTenant body: ${body}")
     logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
     logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
 
+    List responseCodes = skipExists ? [201, 400] : []
+
     def response = restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
-      , [201, 400]
+      , responseCodes
     )
 
     String contentStr = response.body.toString()
@@ -137,12 +140,10 @@ class Tenants extends Kong{
     if (response.responseCode == 400) {
       if (contentStr.contains("value: Entitle flow finished")) {
         logger.info("""
-          Application is already entitled, no actions needed..
+          Application(s) are already entitled on tenant, no actions needed..
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
-
-        return this
       } else {
         logger.error("Enabling application for tenant failed: ${contentStr}")
 
@@ -151,24 +152,6 @@ class Tenants extends Kong{
     }
 
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
-
-    return this
-  }
-
-  //TODO: This shit definitely should be refactored
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant){
-    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
-
-    enableApplicationOnTenant(tenant, tenant.applications["app-platform-full"])
-
-    if(tenant.applications.containsKey("app-linked-data"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-linked-data"])
-
-    if(tenant.applications.containsKey("app-consortia"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-consortia"])
-
-    if(tenant.applications.containsKey("app-consortia-manager"))
-      enableApplicationOnTenant(tenant, tenant.applications["app-consortia-manager"])
 
     return this
   }

@@ -47,7 +47,14 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
-    Tenants.get(kong).enableApplicationsOnTenant(tenant)
+    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+    }
+
+    Tenants.get(kong).enableApplicationsOnTenant(
+      tenant
+      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+    )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
@@ -94,9 +101,15 @@ class Eureka extends Base {
         .getUuid()
     )
 
-    Permissions.get(kong).assignCapabilitiesToRole(tenant, role, permissions, true)
-      .assignCapabilitySetsToRole(tenant, role, permissionSets, true)
-      .assignRolesToUser(tenant, user, [role])
+    Permissions.get(kong).assignCapabilitiesToRole(
+            tenant
+            , role
+            , permissions - Permissions.get(kong).getRoleCapabilitiesId(tenant, role)
+    ).assignCapabilitySetsToRole(
+            tenant
+            , role
+            , permissionSets - Permissions.get(kong).getRoleCapabilitySetsId(tenant, role)
+    ).assignRolesToUser(tenant, user, [role])
 
     Users.get(kong).getAndAssignSPs(tenant, user)
 
