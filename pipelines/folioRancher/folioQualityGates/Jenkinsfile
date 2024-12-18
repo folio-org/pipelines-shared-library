@@ -200,21 +200,43 @@ ansiColor('xterm') {
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
   stage('Provisioning') {
+    /** Sub-Task object */
+    def jobResult = null
+
     try {
       Map branches = [failFast: false]
+
       envsMap.each { id, metadata ->
         CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-          .clusterName(metadata['cluster'])
-          .namespaceName(metadata['namespace'])
+          .clusterName(metadata['cluster'] as String)
+          .namespaceName(metadata['namespace'] as String)
           .build()
         branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+          jobResult = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+
+          if (jobResult?.getResult() == 'FAILURE') {
+            throw new Exception(jobResult?.getDescription() as String)
+          }
         }
       }
       parallel(branches)
+
     } catch (e) {
       currentBuild.result = 'FAILURE'
-      slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
+
+      String subJobName = jobResult?.getProjectName()
+      String buildNumber = jobResult?.getDisplayName()
+      String stageName = env.STAGE_NAME
+      String subJobUrl = jobResult?.getAbsoluteUrl() + 'console'
+      String jobDescription = jobResult?.getDescription()
+      String buildStatus = jobResult?.getResult()
+
+      String attachments = SlackHelper.renderMessage([
+        folioSlackNotificationUtils.renderBuildResultSection(),
+        folioSlackNotificationUtils.renderSubJobBuildResultSection(subJobName, buildNumber, stageName, subJobUrl, buildStatus, jobDescription)
+      ])
+
+      slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
