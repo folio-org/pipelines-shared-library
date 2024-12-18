@@ -101,9 +101,15 @@ class Eureka extends Base {
         .getUuid()
     )
 
-    Permissions.get(kong).assignCapabilitiesToRole(tenant, role, permissions, true)
-      .assignCapabilitySetsToRole(tenant, role, permissionSets, true)
-      .assignRolesToUser(tenant, user, [role])
+    Permissions.get(kong).assignCapabilitiesToRole(
+            tenant
+            , role
+            , permissions - Permissions.get(kong).getRoleCapabilitiesId(tenant, role)
+    ).assignCapabilitySetsToRole(
+            tenant
+            , role
+            , permissionSets - Permissions.get(kong).getRoleCapabilitySetsId(tenant, role)
+    ).assignRolesToUser(tenant, user, [role])
 
     Users.get(kong).getAndAssignSPs(tenant, user)
 
