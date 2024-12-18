@@ -56,3 +56,22 @@ resource "kubernetes_role_binding" "port_forward_binding" {
     api_group = "rbac.authorization.k8s.io"
   }
 }
+
+data "aws_secretsmanager_secret" "telepresence_key" {
+  name = "telepresence"
+}
+
+data "aws_secretsmanager_secret_version" "current" {
+  secret_id = data.aws_secretsmanager_secret.telepresence_key.id
+}
+
+resource "kubernetes_config_map" "telepresence-cm" {
+  metadata {
+    namespace = rancher2_namespace.this.id
+    name      = "telepresence-${rancher2_namespace.this.name}"
+  }
+  data = {
+    AWS_KEY_ID     = tostring(jsondecode(data.aws_secretsmanager_secret_version.current.secret_string)["KEY"])
+    AWS_SECRET_KEY = tostring(jsondecode(data.aws_secretsmanager_secret_version.current.secret_string)["SECRET"])
+  }
+}
