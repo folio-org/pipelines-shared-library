@@ -215,13 +215,16 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
         branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
           subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
-
+/*
           if (subJobsMap[id]?.getResult() == 'FAILURE') {
             throw new Exception(subJobsMap[id]?.getDescription() as String)
           }
+*/
         }
       }
       parallel(branches)
+
+      throw new Exception("Provision of the environment is failed here for Debug Goals")
 
     } catch (e) {
       /** Set Job build result to FAILURE */
