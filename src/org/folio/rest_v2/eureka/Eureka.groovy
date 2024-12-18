@@ -128,6 +128,11 @@ class Eureka extends Base {
         .getUuid()
     )
 
+    logger.debug("Eureka. createUserFlow.  permissions - Permissions.get(kong).getRoleCapabilitiesId(tenant, role)")
+    logger.debug(permissions - Permissions.get(kong).getRoleCapabilitiesId(tenant, role))
+    logger.debug("Eureka. createUserFlow.  permissionSets - Permissions.get(kong).getRoleCapabilitySetsId(tenant, role)")
+    logger.debug(permissionSets - Permissions.get(kong).getRoleCapabilitySetsId(tenant, role))
+
     Permissions.get(kong).assignCapabilitiesToRole(
             tenant
             , role
