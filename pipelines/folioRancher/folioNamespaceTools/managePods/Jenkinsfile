@@ -24,7 +24,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
         0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
-        0 12 * * * %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
         25 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
         20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         15 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
