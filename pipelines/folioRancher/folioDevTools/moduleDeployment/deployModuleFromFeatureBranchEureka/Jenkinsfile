@@ -191,6 +191,18 @@ ansiColor('xterm') {
             kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
               .replace(':', '-')
 
+          // In case updated module doesn't have Sidecar let's seek for it in other modules.
+          if(sidecarImage) {
+            namespace.modules.getInstallJsonObject().each { fetchedModule ->
+              sidecarImage =
+                kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+                        .replace(':', '-')
+
+              if(sidecarImage)
+                return
+            }
+          }
+
           if(sidecarImage)
             namespace.modules.addModule(sidecarImage)
           else
