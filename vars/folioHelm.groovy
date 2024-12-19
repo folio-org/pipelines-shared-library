@@ -153,7 +153,7 @@ void checkPodRunning(String ns, String podName) {
 //  }
 //}
 
-void checkAllDeploymentsRunning(String ns, List<T> deploymentNames) {
+void checkAllDeploymentsRunning(String ns, List<String> deploymentNames) {
   timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     println('Checking deployment statuses...')
     boolean allDeploymentsUpdated = false
