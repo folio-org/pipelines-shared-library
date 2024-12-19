@@ -1,5 +1,6 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
+import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.module.EurekaModule
 import org.folio.utilities.Logger
@@ -185,16 +186,6 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
-      stage("Retrieve module's sidecar"){
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          String sidecarImage =
-            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
-              .replace(':', '-')
-
-          namespace.modules.addModule(sidecarImage)
-        }
-      }
-
       stage('Generate context') {
         eureka.getExistedTenantsForModule(module).values()
           .each {namespace.addTenant(it)}
@@ -205,6 +196,31 @@ ansiColor('xterm') {
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
         logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+      }
+
+      stage("Retrieve module's sidecar"){
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          String sidecarImage =
+                  kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+                          .replace(':', '-')
+
+          // In case updated module doesn't have Sidecar let's seek for it in other modules.
+          if(!sidecarImage) {
+            EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+                      .replace(':', '-')
+            }
+
+            sidecarImage =
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
+                      .replace(':', '-')
+          }
+
+          if(sidecarImage)
+            namespace.modules.addModule(sidecarImage)
+          else
+            throw new AbortException('There are no modules with sidecar in the namespace')
+        }
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
