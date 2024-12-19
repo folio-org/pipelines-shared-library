@@ -202,6 +202,10 @@ ansiColor('xterm') {
                 kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
                         .replace(':', '-')
 
+              logger.info("Retrieve module's sidecar. I'm inside module's fetching. fetchedModule: ${fetchedModule.getName()}")
+              logger.info("Retrieve module's sidecar. I'm inside module's fetching. sidecarImage: $sidecarImage")
+              logger.info("Retrieve module's sidecar sidecarImage: $sidecarImage sidecarImage is true = ${sidecarImage ? "true" : "false"}")
+
               if(sidecarImage)
                 return
             }
