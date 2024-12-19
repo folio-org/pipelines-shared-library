@@ -33,7 +33,7 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
+  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-etesting', 'folio-edev']
   //tmp excluded: 'folio-eperf', 'folio-etmp
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
