@@ -41,9 +41,9 @@ void backend(RancherNamespace namespace, Closure preStages = { -> }, Closure pos
   stage('[Helm] Deploy backend') {
     folioHelm.withKubeConfig(namespace.getClusterName()) {
       folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//      folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+      folioHelm.checkAllDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules)
     }
-    pauseBetweenStages(10)
+    //pauseBetweenStages(10)
   }
 
   postStages()
