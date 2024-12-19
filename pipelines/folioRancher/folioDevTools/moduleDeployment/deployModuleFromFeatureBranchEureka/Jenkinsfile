@@ -192,7 +192,7 @@ ansiColor('xterm') {
               .replace(':', '-')
 
           // In case updated module doesn't have Sidecar let's seek for it in other modules.
-          if(sidecarImage) {
+          if(!sidecarImage) {
             namespace.modules.getInstallJsonObject().each { fetchedModule ->
               sidecarImage =
                 kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
