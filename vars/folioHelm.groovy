@@ -128,26 +128,63 @@ void checkPodRunning(String ns, String podName) {
   }
 }
 
-void checkAllPodsRunning(String ns) {
+//void checkAllPodsRunning(String ns) {
+//  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+//    boolean notAllRunning = true
+//    while (notAllRunning) {
+//      sleep(time: 30, unit: 'SECONDS')
+//
+//      def result = sh(script: "kubectl get pods -n ${ns} --no-headers | awk '{print \$3}'", returnStdout: true).trim()
+//
+//      notAllRunning = result.split('\n').any { status -> status != 'Running' }
+//
+//      if (notAllRunning) {
+//        def evictedPodsList
+//        println('Not all pods are running. Retrying...')
+//        try {
+//          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
+//        } catch (Error err) {
+//          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+//        }
+//      } else {
+//        println('All pods are running.')
+//      }
+//    }
+//  }
+//}
+
+void checkAllDeploymentsRunning(String ns, List<String> deploymentNames) {
   timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
-    boolean notAllRunning = true
-    while (notAllRunning) {
+    println('Checking deployment statuses...')
+    boolean allDeploymentsUpdated = false
+
+    while (!allDeploymentsUpdated) {
       sleep(time: 30, unit: 'SECONDS')
+      try {
+        def unfinishedDeployments = []
+        deploymentNames.each { name ->
+          def output = sh(
+            script: """
+                          kubectl get deployment ${name} -n ${ns} -o jsonpath='{.metadata.name}' --field-selector=status.updatedReplicas<replicas
+                      """,
+            returnStdout: true
+          ).trim()
 
-      def result = sh(script: "kubectl get pods -n ${ns} --no-headers | awk '{print \$3}'", returnStdout: true).trim()
-
-      notAllRunning = result.split('\n').any { status -> status != 'Running' }
-
-      if (notAllRunning) {
-        def evictedPodsList
-        println('Not all pods are running. Retrying...')
-        try {
-          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
-        } catch (Error err) {
-          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+          if (output) {
+            unfinishedDeployments << output
+          }
         }
-      } else {
-        println('All pods are running.')
+
+        if (unfinishedDeployments) {
+          println("Deployments not fully updated: ${unfinishedDeployments}")
+          println("Rechecking in 30 seconds...")
+        } else {
+          println("All deployments are updated successfully!")
+          allDeploymentsUpdated = true
+        }
+      } catch (Exception err) {
+        println("Error occurred: ${err.getMessage()}")
+        break
       }
     }
   }

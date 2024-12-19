@@ -5,7 +5,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1970') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
