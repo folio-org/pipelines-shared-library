@@ -22,7 +22,7 @@ def createConfigMap(String name, String namespace, files) {
 
 def deleteConfigMap(String name, String namespace) {
   try {
-    sh "kubectl delete configmap ${name} --namespace=${namespace}"
+    sh "kubectl delete configmap ${name} --namespace=${namespace} --ignore-not-found=true"
   } catch (Exception e) {
     println(e.getMessage())
   }
@@ -193,6 +193,10 @@ def getKubernetesResourceCount(String resource_type, String resource_name, Strin
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace} -o=jsonpath='{.spec.replicas}'", returnStdout: true)
 }
 
+def getKubernetesStsNames(String namespace) {
+  return sh(returnStdout: true, script: "kubectl get sts --namespace ${namespace} -o jsonpath='{.items[*].metadata.name}' --ignore-not-found").trim()
+}
+
 void setKubernetesResourceCount(String resource_type, String resource_name, String namespace, String replica_count) {
   sh(script: "kubectl scale ${resource_type} ${resource_name} -n ${namespace} --replicas=${replica_count}")
 }
@@ -237,7 +241,7 @@ def collectDeploymentState(String namespace) {
 
 def scaleDownResources(String namespace, String resource_type) {
   try {
-    return sh(script: "kubectl scale ${resource_type} --namespace ${namespace} --replicas=0 --all", returnStdout: true)
+    return sh(script: "kubectl scale ${resource_type} --replicas=0 --all --namespace ${namespace}", returnStdout: true)
   }
   catch (Exception e) {
     println(e.getMessage())
@@ -246,7 +250,7 @@ def scaleDownResources(String namespace, String resource_type) {
 
 def scaleUpResources(String namespace, String resource_type) {
   try {
-    return sh(script: "kubectl scale ${resource_type} --namespace ${namespace} --replicas=1 --all", returnStdout: true)
+    return sh(script: "kubectl scale ${resource_type} --replicas=1 --all --namespace ${namespace}", returnStdout: true)
   }
   catch (Exception e) {
     println(e.getMessage())
