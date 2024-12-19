@@ -1,5 +1,6 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranchEureka
 
+import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.module.EurekaModule
 import org.folio.utilities.Logger
@@ -209,24 +210,20 @@ ansiColor('xterm') {
           if(!sidecarImage) {
             logger.info("Retrieve module's sidecar. I'm inside modules fetching")
 
-            namespace.modules.getInstallJsonObject().each { fetchedModule ->
-              sidecarImage =
-                      kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
-                              .replace(':', '-')
-
-              logger.info("Retrieve module's sidecar. I'm inside module's fetching. fetchedModule: ${fetchedModule.getName()}")
-              logger.info("Retrieve module's sidecar. I'm inside module's fetching. sidecarImage: $sidecarImage")
-              logger.info("Retrieve module's sidecar sidecarImage: $sidecarImage sidecarImage is true = ${sidecarImage ? "true" : "false"}")
-
-              if(sidecarImage)
-                return
+            EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+                      .replace(':', '-')
             }
+
+            sidecarImage =
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
+                      .replace(':', '-')
           }
 
           if(sidecarImage)
             namespace.modules.addModule(sidecarImage)
           else
-            logger.warning("${module.getName()} does not have sidecar container.")
+            throw new AbortException('There are no modules with sidecar in the namespace')
         }
       }
 
