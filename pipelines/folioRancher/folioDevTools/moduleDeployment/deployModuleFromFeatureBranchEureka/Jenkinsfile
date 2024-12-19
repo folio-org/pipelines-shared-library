@@ -185,11 +185,23 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
+      stage('Generate context') {
+        eureka.getExistedTenantsForModule(module).values()
+          .each {namespace.addTenant(it)}
+
+        if(!(namespace.tenants))
+          throw new Exception("There are no tenants with the module ${module.getName()}")
+
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Applications: ${namespace.applications}")
+        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+      }
+
       stage("Retrieve module's sidecar"){
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           String sidecarImage =
-            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
-              .replace(':', '-')
+                  kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
+                          .replace(':', '-')
 
           logger.info("Retrieve module's sidecar sidecarImage: $sidecarImage sidecarImage is true = ${sidecarImage ? "true" : "false"}")
 
@@ -199,8 +211,8 @@ ansiColor('xterm') {
 
             namespace.modules.getInstallJsonObject().each { fetchedModule ->
               sidecarImage =
-                kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
-                        .replace(':', '-')
+                      kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+                              .replace(':', '-')
 
               logger.info("Retrieve module's sidecar. I'm inside module's fetching. fetchedModule: ${fetchedModule.getName()}")
               logger.info("Retrieve module's sidecar. I'm inside module's fetching. sidecarImage: $sidecarImage")
@@ -216,18 +228,6 @@ ansiColor('xterm') {
           else
             logger.warning("${module.getName()} does not have sidecar container.")
         }
-      }
-
-      stage('Generate context') {
-        eureka.getExistedTenantsForModule(module).values()
-          .each {namespace.addTenant(it)}
-
-        if(!(namespace.tenants))
-          throw new Exception("There are no tenants with the module ${module.getName()}")
-
-        logger.debug("Configured Tenants: ${namespace.tenants}")
-        logger.debug("Configured Applications: ${namespace.applications}")
-        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */
