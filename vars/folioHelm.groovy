@@ -153,42 +153,54 @@ void checkPodRunning(String ns, String podName) {
 //  }
 //}
 
-void checkAllDeploymentsRunning(String ns, List<String> deploymentNames) {
-  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
-    println('Checking deployment statuses...')
-    boolean allDeploymentsUpdated = false
+void checkAllDeploymentsRunning(String namespace, List<String> deploymentNames) {
+  println('Starting deployment monitoring...')
+  boolean allDeploymentsUpdated = false
 
-    while (!allDeploymentsUpdated) {
-      sleep(time: 30, unit: 'SECONDS')
+  while (!allDeploymentsUpdated) {
+    def deploymentJsonList = []
+    def unfinishedDeployments = []
+
+    // Сбор JSON-объектов для каждого деплоймента
+    deploymentNames.each { name ->
       try {
-        def unfinishedDeployments = []
-        deploymentNames.each { name ->
-          def output = sh(
-            script: """
-                          kubectl get deployment ${name} -n ${ns} -o jsonpath='{.metadata.name}' --field-selector=status.updatedReplicas=0
-                      """,
-            returnStdout: true
-          ).trim()
+        def output = sh(
+          script: """
+                        kubectl get deployment ${name} -n ${namespace} -o json
+                    """,
+          returnStdout: true
+        ).trim()
 
-          if (output) {
-            unfinishedDeployments << output
-          }
+        if (output) {
+          def deploymentJson = new JsonSlurper().parseText(output)
+          deploymentJsonList << deploymentJson
         }
-
-        if (unfinishedDeployments) {
-          println("Deployments not fully updated: ${unfinishedDeployments}")
-          println("Rechecking in 30 seconds...")
-        } else {
-          println("All deployments are updated successfully!")
-          allDeploymentsUpdated = true
-        }
-      } catch (Exception err) {
-        println("Error occurred: ${err.getMessage()}")
-        break
+      } catch (Exception e) {
+        println("Error fetching deployment '${name}': ${e.message}")
       }
+    }
+    println("Collected JSON objects: ${deploymentJsonList}")
+    // Проверка условий для каждого деплоймента
+    deploymentJsonList.each { deployment ->
+      def replicas = deployment?.status?.replicas ?: 0
+      def updatedReplicas = deployment?.status?.updatedReplicas ?: 0
+
+      if (updatedReplicas < replicas) {
+        unfinishedDeployments << deployment.metadata.name
+      }
+    }
+
+    if (unfinishedDeployments) {
+      println("Unfinished deployments: ${unfinishedDeployments}")
+      println("Rechecking in 30 seconds...")
+      sleep(time: 30, unit: 'SECONDS')
+    } else {
+      println("All deployments are successfully updated!")
+      allDeploymentsUpdated = true
     }
   }
 }
+
 
 static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
