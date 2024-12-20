@@ -165,7 +165,7 @@ void checkAllDeploymentsRunning(String ns, List<String> deploymentNames) {
         deploymentNames.each { name ->
           def output = sh(
             script: """
-                          kubectl get deployment ${name} -n ${ns} -o jsonpath='{.metadata.name}' --field-selector=status.updatedReplicas<replicas
+                          kubectl get deployment ${name} -n ${ns} -o jsonpath='{.metadata.name}' --field-selector=status.updatedReplicas=0
                       """,
             returnStdout: true
           ).trim()
