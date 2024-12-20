@@ -172,7 +172,7 @@ void checkAllDeploymentsRunning(String namespace, List<String> deploymentNames) 
         ).trim()
 
         if (output) {
-          def deploymentJson = new JsonSlurper().parseText(output)
+          def deploymentJson = readJSON(text: output)
           deploymentJsonList << deploymentJson
         }
       } catch (Exception e) {
