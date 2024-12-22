@@ -51,17 +51,15 @@ class Configurations extends Kong {
    *
    * @param tenant The tenant for which the configuration is to be set.
    */
-  void setRmapiConfig(EurekaTenant tenant) {
-    if (!tenant.okapiConfig?.kbApiKey) {
-      logger.warning("KB Api key not set. Skipping.")
-      return
-    }
-    if (!isRmapiConfigExist(tenant)) {
-      logger.warning("KB Credentials configuration not exists")
-      return
-    }
-    String url = generateUrl("/eholdings/kb-credentials/${KB_CREDENTIALS_ID}")
+  Configurations setRmapiConfig(EurekaTenant tenant) {
+    if (!tenant.okapiConfig?.kbApiKey || !isRmapiConfigExist(tenant))
+      return this
+
+    logger.info("Set RMAPI eHolding configuration on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
     Map<String, String> headers = getTenantHttpHeaders(tenant)
+    String url = generateUrl("/eholdings/kb-credentials/${KB_CREDENTIALS_ID}")
+
     headers["Content-Type"] = "application/vnd.api+json"
     Map body = [data: [type      : "kbCredentials",
                        attributes: [name      : "Knowledge Base",
@@ -71,9 +69,14 @@ class Configurations extends Kong {
 
     ]]
 
-    logger.info("Setting rmapi key")
+    logger.debug("setRmapiConfig: headers: $headers body: $body")
+
     restClient.put(url, body, headers)
-    logger.info("KB rmapi key successfully set")
+
+    logger.info("Setting RMAPI eHolding configuration on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+
+    return this
+
   }
 
   /**
