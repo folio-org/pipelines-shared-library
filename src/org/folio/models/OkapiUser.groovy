@@ -165,7 +165,7 @@ class OkapiUser extends User {
    * Generates a UUID for the user.
    */
   void generateUserUuid() {
-    this.uuid = UUID.randomUUID().toString()
+    setUuid(UUID.randomUUID().toString())
   }
 
   /**
