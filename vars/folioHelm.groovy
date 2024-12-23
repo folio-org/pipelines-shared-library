@@ -153,16 +153,12 @@ void checkAllPodsRunning(String ns) {
   }
 }
 
-void checkDeploymentsRunning(String ns, def deploymentsInput) {
-  println('Starting deployment monitoring...')
+void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
+  checkDeploymentsRunning(ns, [deploymentModule])
+}
 
-  // Check the input parameter and convert it to a list
-  List<FolioModule> deploymentsList
-  if (deploymentsInput instanceof List) {
-    deploymentsList = deploymentsInput
-  } else if (deploymentsInput instanceof FolioModule) {
-    deploymentsList = [deploymentsInput]
-  }
+void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
+  println('Starting deployment monitoring...')
 
   boolean allDeploymentsUpdated = false
   int timer = 0
