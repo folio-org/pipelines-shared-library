@@ -1,7 +1,6 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleType
 import org.folio.utilities.Logger
 
 import java.time.LocalDateTime
@@ -129,30 +128,30 @@ void checkPodRunning(String ns, String podName) {
   }
 }
 
-//void checkAllPodsRunning(String ns) {
-//  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
-//    boolean notAllRunning = true
-//    while (notAllRunning) {
-//      sleep(time: 30, unit: 'SECONDS')
-//
-//      def result = sh(script: "kubectl get pods -n ${ns} --no-headers | awk '{print \$3}'", returnStdout: true).trim()
-//
-//      notAllRunning = result.split('\n').any { status -> status != 'Running' }
-//
-//      if (notAllRunning) {
-//        def evictedPodsList
-//        println('Not all pods are running. Retrying...')
-//        try {
-//          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
-//        } catch (Error err) {
-//          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
-//        }
-//      } else {
-//        println('All pods are running.')
-//      }
-//    }
-//  }
-//}
+void checkAllPodsRunning(String ns) {
+  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+    boolean notAllRunning = true
+    while (notAllRunning) {
+      sleep(time: 30, unit: 'SECONDS')
+
+      def result = sh(script: "kubectl get pods -n ${ns} --no-headers | awk '{print \$3}'", returnStdout: true).trim()
+
+      notAllRunning = result.split('\n').any { status -> status != 'Running' }
+
+      if (notAllRunning) {
+        def evictedPodsList
+        println('Not all pods are running. Retrying...')
+        try {
+          evictedPodsList = sh(script: "kubectl delete pod -n ${ns} --field-selector=\"status.phase==Failed\"", returnStdout: true)
+        } catch (Error err) {
+          new Logger(this, "managePods").warning("Error: " + err.getMessage() + "\nList of evicted pods: ${evictedPodsList}")
+        }
+      } else {
+        println('All pods are running.')
+      }
+    }
+  }
+}
 
 void checkDeploymentsRunning(String ns, def deploymentsInput) {
   println('Starting deployment monitoring...')
