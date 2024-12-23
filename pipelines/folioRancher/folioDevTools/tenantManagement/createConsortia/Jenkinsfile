@@ -70,9 +70,8 @@ ansiColor('xterm') {
       stage('[Helm] Deploy backend') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
         }
-        sleep time: 3, unit: 'MINUTES'
       }
 
       stage('[Rest] Create tenants') {

@@ -41,9 +41,9 @@ void backend(RancherNamespace namespace, Closure preStages = { -> }, Closure pos
   stage('[Helm] Deploy backend') {
     folioHelm.withKubeConfig(namespace.getClusterName()) {
       folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//      folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
+      folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
     }
-    pauseBetweenStages(10)
+    //pauseBetweenStages(10)
   }
 
   postStages()
@@ -76,6 +76,7 @@ void edge(RancherNamespace namespace, boolean skipEdgeUsersCreation = false, Clo
         kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
       }
       folioHelm.deployFolioModulesParallel(namespace, edgeModules)
+      folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), edgeModules)
     }
     pauseBetweenStages()
   }
