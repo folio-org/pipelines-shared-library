@@ -201,10 +201,10 @@ void checkAllDeploymentsRunning(String ns, def deploymentsInput) {
       deploymentsList.each { folioModule ->
         def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
         if (deployment) {
-          if (if (deployment.status.updatedReplicas != deployment.spec.replicas ||
+          if (deployment.status.updatedReplicas != deployment.spec.replicas ||
             deployment.status.readyReplicas != deployment.spec.replicas ||
             deployment.status.unavailableReplicas > 0 ||
-            deployment.status.conditions.any { it.type == "Available" && it.status == "False" })) {
+            deployment.status.conditions.any { it.type == "Available" && it.status == "False" }) {
             unfinishedDeployments << folioModule.name
           }
         } else {
