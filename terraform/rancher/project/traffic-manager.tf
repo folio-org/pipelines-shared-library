@@ -8,7 +8,7 @@ resource "helm_release" "traffic-manager" {
     <<-EOF
 image:
   registry: ghcr.io/telepresenceio
-  tag: 2.20.1
+  tag: 2.21.1
 managerRbac:
   create: true
   namespaced: true
