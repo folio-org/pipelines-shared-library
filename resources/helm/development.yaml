@@ -1566,15 +1566,6 @@ mod-inventory:
       memory: 1609Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
-  readinessProbe:
-    httpGet:
-      path: /admin/health
-      port: 9402
-    initialDelaySeconds: 60
-    periodSeconds: 20
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 30
   startupProbe:
     httpGet:
       path: /admin/health
