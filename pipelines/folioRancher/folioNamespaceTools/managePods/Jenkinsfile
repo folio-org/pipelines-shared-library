@@ -21,6 +21,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
             pipelineTriggers([parameterizedCron('''
         45 22 * * 5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=sprint
         50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=sprint
+        0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
         0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
@@ -29,7 +30,6 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         50 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
         25 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
-        0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
         0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
         0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
         0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair-migration-testing
