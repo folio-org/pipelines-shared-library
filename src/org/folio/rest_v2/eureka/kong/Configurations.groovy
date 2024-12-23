@@ -69,7 +69,10 @@ class Configurations extends Kong {
 
     ]]
 
-    logger.debug("setRmapiConfig: headers: $headers body: $body")
+    logger.debug("""setRmapiConfig:
+      url: $url
+      headers: $headers
+      body: $body""")
 
     restClient.put(url, body, headers)
 
