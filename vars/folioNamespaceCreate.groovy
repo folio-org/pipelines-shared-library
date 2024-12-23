@@ -136,7 +136,7 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
 //        folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
-        folioHelm.checkAllDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
       }
     }
 

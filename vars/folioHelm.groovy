@@ -154,7 +154,7 @@ void checkPodRunning(String ns, String podName) {
 //  }
 //}
 
-void checkAllDeploymentsRunning(String ns, def deploymentsInput) {
+void checkDeploymentsRunning(String ns, def deploymentsInput) {
   println('Starting deployment monitoring...')
 
   // Check the input parameter and convert it to a list
@@ -201,10 +201,12 @@ void checkAllDeploymentsRunning(String ns, def deploymentsInput) {
       deploymentsList.each { folioModule ->
         def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
         if (deployment) {
-          if (deployment.status.updatedReplicas != deployment.spec.replicas ||
-            deployment.status.readyReplicas != deployment.spec.replicas ||
-            deployment.status.unavailableReplicas > 0 ||
-            deployment.status.conditions.any { it.type == "Available" && it.status == "False" }) {
+          def status = deployment.status
+          def specReplicas = deployment.spec.replicas
+          if (status.updatedReplicas != specReplicas ||
+              status.readyReplicas != specReplicas ||
+              status.unavailableReplicas > 0 ||
+              status.conditions.any { it.type == "Available" && it.status == "False" }) {
             unfinishedDeployments << folioModule.name
           }
         } else {
