@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 import org.folio.utilities.Logger
 
 import java.time.LocalDateTime
@@ -153,53 +154,84 @@ void checkPodRunning(String ns, String podName) {
 //  }
 //}
 
-void checkAllDeploymentsRunning(String namespace, List<String> deploymentNames) {
+void checkAllDeploymentsRunning(String ns, def deploymentsInput) {
   println('Starting deployment monitoring...')
+
+  // Check the input parameter and convert it to a list
+  List<FolioModule> deploymentsList
+  if (deploymentsInput instanceof List) {
+    deploymentsList = deploymentsInput
+  } else if (deploymentsInput instanceof FolioModule) {
+    deploymentsList = [deploymentsInput]
+  }
+
   boolean allDeploymentsUpdated = false
+  int timer = 0
+  int maxTime = 10 * 60 // 10 minutes in seconds
 
-  while (!allDeploymentsUpdated) {
-    def deploymentJsonList = []
-    def unfinishedDeployments = []
-
-    // Сбор JSON-объектов для каждого деплоймента
-    deploymentNames.each { name ->
+  try {
+    while (!allDeploymentsUpdated) {
+      def jsonOutput
       try {
-        def output = sh(
-          script: """
-                        kubectl get deployment ${name} -n ${namespace} -o json
-                    """,
+        // Execute the kubectl command
+        jsonOutput = sh(
+          script: "kubectl get deployments -n ${ns} -o json",
           returnStdout: true
         ).trim()
-
-        if (output) {
-          def deploymentJson = readJSON(text: output)
-          deploymentJsonList << deploymentJson
-        }
       } catch (Exception e) {
-        println("Error fetching deployment '${name}': ${e.message}")
+        error("Failed to execute kubectl command: ${e.message}")
+      }
+
+      def deploymentsJson
+      try {
+        // Parse the JSON output
+        deploymentsJson = readJSON text: jsonOutput
+      } catch (Exception e) {
+        error("Failed to parse JSON output: ${e.message}")
+      }
+
+      // Check if there are any deployments in the namespace
+      if (!deploymentsJson.items || deploymentsJson.items.isEmpty()) {
+        error("No deployments found in namespace '${ns}'. Please check the namespace or deployment configuration.")
+      }
+
+      def unfinishedDeployments = []
+
+      // Check each deployment from the list
+      deploymentsList.each { folioModule ->
+        def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
+        if (deployment) {
+          if (deployment.status.updatedReplicas != deployment.spec.replicas) {
+            unfinishedDeployments << folioModule.name
+          }
+        } else {
+          println("Warning: Deployment '${folioModule.name}' not found in namespace '${ns}'")
+        }
+      }
+
+      if (unfinishedDeployments) {
+        println("Unfinished deployments: ${unfinishedDeployments}")
+        println("Rechecking in 30 seconds...")
+        sleep(time: 30, unit: 'SECONDS')
+        timer += 30
+      } else {
+        println("All deployments are successfully updated!")
+        allDeploymentsUpdated = true
+      }
+
+      // Check the timer
+      if (timer >= maxTime) {
+        error("Timeout: Some deployments are still not updated after 10 minutes.")
       }
     }
-    println("Collected JSON objects: ${deploymentJsonList}")
-    // Проверка условий для каждого деплоймента
-    deploymentJsonList.each { deployment ->
-      def replicas = deployment?.status?.replicas ?: 0
-      def updatedReplicas = deployment?.status?.updatedReplicas ?: 0
-
-      if (updatedReplicas < replicas) {
-        unfinishedDeployments << deployment.metadata.name
-      }
-    }
-
-    if (unfinishedDeployments) {
-      println("Unfinished deployments: ${unfinishedDeployments}")
-      println("Rechecking in 30 seconds...")
-      sleep(time: 30, unit: 'SECONDS')
-    } else {
-      println("All deployments are successfully updated!")
-      allDeploymentsUpdated = true
-    }
+  } catch (Exception e) {
+    // Handle general errors
+    println("Error occurred during deployment monitoring: ${e.message}")
+    throw e // Rethrow the error to mark the Jenkins build as failed
   }
 }
+
+
 
 
 static String valuesPathOption(String path) {
