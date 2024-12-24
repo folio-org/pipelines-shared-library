@@ -200,21 +200,56 @@ ansiColor('xterm') {
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
   stage('Provisioning') {
+    /** Map of Sub Job Objects [<id:object>,] */
+    Map subJobsMap = [:]
+
+    /** List of sections for slack notification */
+    List<String> sections = []
+
     try {
       Map branches = [failFast: false]
+
       envsMap.each { id, metadata ->
         CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-          .clusterName(metadata['cluster'])
-          .namespaceName(metadata['namespace'])
+          .clusterName(metadata['cluster'] as String)
+          .namespaceName(metadata['namespace'] as String)
           .build()
-        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+
+        /** Complete Environment Name */
+        String envName = "${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"
+
+        branches[envName] = { ->
+          subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+
+          if (subJobsMap[id]?.getResult() == 'FAILURE') {
+            throw new Exception(subJobsMap[id]?.getDescription() as String)
+          }
         }
       }
       parallel(branches)
+
     } catch (e) {
+      /** Set Job build result to FAILURE */
       currentBuild.result = 'FAILURE'
-      slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
+
+      /** Add the build result section to the slack notification */
+      sections.add(folioSlackNotificationUtils.renderBuildResultSection() as String)
+
+      /** Add the sub job build result sections to the slack notification */
+      subJobsMap.each { jobId, jobObject ->
+        sections.add(folioSlackNotificationUtils.renderSubJobBuildResultSection(
+          jobObject?.getProjectName(),
+          jobObject?.getDisplayName(),
+          jobObject?.getAbsoluteUrl() + 'console',
+          jobObject?.getResult(),
+          jobObject?.getDescription()
+        ) as String)
+      }
+
+      /** Attachments for slack notification */
+      String attachments = SlackHelper.renderMessage(sections)
+
+      slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
