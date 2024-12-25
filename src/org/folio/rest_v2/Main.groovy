@@ -99,10 +99,22 @@ class Main extends Okapi {
     tenants.each { tenantId, tenant ->
       if (tenant.indexes) {
         tenant.indexes.each { index ->
-          if(index.getType() == 'instance'){
-            runInstanceIndex(tenant)
-          }else{
-            runIndex(tenant, index)
+          if (index.getType() == 'instance') {
+            try {
+              runInstanceIndex(tenant)
+            } catch (Exception e) {
+              sleep(60000)
+              logger.warning("Failed to run instance index for tenant ${tenant.tenantId}\nError: ${e.getMessage()}")
+              runInstanceIndex(tenant)
+            }
+          } else {
+            try {
+              runIndex(tenant, index)
+            } catch (Exception e) {
+              logger.warning("Failed to run index for tenant ${tenant.tenantId}\nError: ${e.getMessage()}")
+              sleep(60000)
+              runIndex(tenant, index)
+            }
           }
         }
       }
