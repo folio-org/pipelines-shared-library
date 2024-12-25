@@ -304,19 +304,18 @@ class Okapi extends Authorization {
     return response*.id
   }
 
-  void runInstanceIndex(OkapiTenant tenant) {
+  void runInstanceIndex(OkapiTenant tenant){
     String url = generateUrl("/search/index/instance-records/reindex/full")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
     Map body = [
       "indexSettings": []
     ]
+
     logger.info("[${tenant.getTenantId()}] Starting Elastic Search 'instance' reindex")
-    def response = restClient.post(url, body, headers)
-    while (response.statusCode == 500) {
-      logger.warning("[${tenant.getTenantId()}] Elastic Search 'instance' reindex failed with status code ${response.statusCode}")
-      steps.sleep time: 3, unit: 'MINUTES'
-      runInstanceIndex(tenant)
-    }
+
+    restClient.post(url, body, headers).body
+
+    logger.info("[${tenant.getTenantId()}] Finished Elastic Search 'instance' reindex")
   }
 
 
@@ -330,12 +329,7 @@ class Okapi extends Authorization {
 
     logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
-    def response = restClient.post(url, body, headers)
-    while (response.statusCode == 500) {
-      logger.warning("[${tenant.getTenantId()}] Elastic Search '${index.getType()}' reindex failed with status code ${response.statusCode}")
-      steps.sleep time: 3, unit: 'MINUTES'
-      runIndex(tenant, index)
-    }
+    def response = restClient.post(url, body, headers).body
     String jobId = response.id
 
     if (index.getWaitComplete()) {
