@@ -121,6 +121,8 @@ kong:
     value: "600000"
   - name: KONG_UPSTREAM_READ_TIMEOUT
     value: "600000"
+  - name: KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE
+    value: "256m"
   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
     value: "error timeout http_500 http_502 http_503 http_504"
   - name: "KONG_PROXY_SEND_TIMEOUT"
