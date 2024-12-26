@@ -9,36 +9,38 @@ class RestClient {
   private int defaultConnectionTimeout
   private int defaultReadTimeout
   private Logger logger
+  public boolean ignoreHttpError
 
-  RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000) {
+  RestClient(Object context, boolean debug = false, int defaultConnectionTimeout = 120000, int defaultReadTimeout = 10800000, boolean ignoreHttpError = false) {
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
     this.logger = new Logger(context, 'RestClient')
+    this.ignoreHttpError = ignoreHttpError
   }
 
   def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
     return doRequest('GET', url, null, headers, connectionTimeout, readTimeout)
   }
 
-  def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout) {
-    return doRequest('POST', url, body, headers, connectionTimeout, defaultReadTimeout)
+  def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout, ignoreHttpError = ignoreHttpError) {
+    return doRequest('POST', url, body, headers, connectionTimeout, defaultReadTimeout, ignoreHttpError)
   }
 
   def delete(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('DELETE', url, null, headers, connectionTimeout, readTimeout)
+    return doRequest('DELETE', url, null, headers, connectionTimeout, readTimeout, ignoreHttpError)
   }
 
   def put(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('PUT', url, body, headers, connectionTimeout, readTimeout)
+    return doRequest('PUT', url, body, headers, connectionTimeout, readTimeout, ignoreHttpError)
   }
 
   def upload(String url, File file, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
     headers['Content-Type'] = 'application/octet-stream'
-    return doRequest('POST', url, file.bytes, headers, connectionTimeout, readTimeout)
+    return doRequest('POST', url, file.bytes, headers, connectionTimeout, readTimeout, ignoreHttpError)
   }
 
-  private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout) {
+  private def doRequest(String method, String url, Object body, Map<String, String> headers, int connectionTimeout, int readTimeout,  ignoreHttpError) {
 
     if (debug) {
       logger.debug("[HTTP REQUEST]: method=${method}, url=${url}, headers=${headers}, body=${body}")
@@ -61,7 +63,7 @@ class RestClient {
       logger.debug("[HTTP RESPONSE]: status=${connection.responseCode}, headers=${response.headers}, body=${response.body}")
     }
 
-    if (connection.responseCode >= 400) {
+    if (connection.responseCode >= 400 && !ignoreHttpError) {
       handleHttpError(connection.responseCode, connection.responseMessage, response.body.toString())
     }
 
