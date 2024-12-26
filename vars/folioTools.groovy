@@ -20,7 +20,7 @@ void deleteKafkaTopics(String cluster, String namespace) {
   String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
   String delete_topic_command = "kafka-topics.sh --bootstrap-server ${kafka_host}:${kafka_port} --delete --topic ${cluster}-${namespace}.*"
 
-  kubectl.runPodWithCommand('kafka', 'bitnami/kafka:2.8.0')
+  kubectl.runPodWithCommand("${namespace}", 'kafka', 'bitnami/kafka:2.8.0')
   kubectl.waitPodIsRunning('kafka')
   retry(3) {
     kubectl.execCommand('kafka', delete_topic_command)
