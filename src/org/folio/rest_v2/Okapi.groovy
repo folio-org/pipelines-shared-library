@@ -313,9 +313,7 @@ class Okapi extends Authorization {
 
     logger.info("[${tenant.getTenantId()}] Starting Elastic Search 'instance' reindex")
 
-    restClient.ignoreHttpError = true
-
-    def response = restClient.post(url, body, headers)
+    def response = restClient.post(url, body, headers, [500])
     if (response.statusCode == 500) {
 
       logger.warning("[${tenant.getTenantId()}] Elastic Search 'instance' reindex failed...")
@@ -338,9 +336,7 @@ class Okapi extends Authorization {
 
     logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
-    restClient.ignoreHttpError = true
-
-    def response = restClient.post(url, body, headers)
+    def response = restClient.post(url, body, headers, [500])
 
     if (response.statusCode == 500) {
 
