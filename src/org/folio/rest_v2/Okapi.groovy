@@ -233,7 +233,7 @@ class Okapi extends Authorization {
     Instant start = Instant.now()
     def response
     if (installJson) {
-      response = restClient.post(url, installJson, headers, connectionTimeout).body
+      response = restClient.post(url, installJson, headers, [200, 201, 202], connectionTimeout).body
     } else {
       logger.warning('installJson list is empty! Nothing to install. Skipping...')
       return
@@ -313,7 +313,14 @@ class Okapi extends Authorization {
 
     logger.info("[${tenant.getTenantId()}] Starting Elastic Search 'instance' reindex")
 
-    restClient.post(url, body, headers).body
+    def response = restClient.post(url, body, headers, [500])
+    if (response.statusCode == 500) {
+
+      logger.warning("[${tenant.getTenantId()}] Elastic Search 'instance' reindex failed...")
+      sleep(60000)
+      runInstanceIndex(tenant)
+
+    }
 
     logger.info("[${tenant.getTenantId()}] Finished Elastic Search 'instance' reindex")
   }
@@ -329,8 +336,17 @@ class Okapi extends Authorization {
 
     logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
-    def response = restClient.post(url, body, headers).body
-    String jobId = response.id
+    def response = restClient.post(url, body, headers, [500])
+
+    if (response.statusCode == 500) {
+
+      logger.warning("[${tenant.getTenantId()}] Elastic Search '${index.getType()}' reindex failed...")
+      sleep(60000)
+      runIndex(tenant, index)
+
+    }
+
+    String jobId = response.body.id
 
     if (index.getWaitComplete()) {
       checkIndexStatus(tenant, jobId)
