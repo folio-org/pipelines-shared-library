@@ -20,12 +20,12 @@ void deleteKafkaTopics(String cluster, String namespace) {
   String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
   String delete_topic_command = "kafka-topics.sh --bootstrap-server ${kafka_host}:${kafka_port} --delete --topic ${cluster}-${namespace}.*"
 
-  kubectl.runPodWithCommand("${namespace}", 'kafka', 'bitnami/kafka:2.8.0')
-  kubectl.waitPodIsRunning('kafka')
+  kubectl.runPodWithCommand("${namespace}", 'kafka', 'bitnami/kafka:3.5.0')
+  kubectl.waitPodIsRunning("${namespace}", 'kafka')
   retry(3) {
-    kubectl.execCommand('kafka', delete_topic_command)
+    kubectl.execCommand("${namespace}", 'kafka', delete_topic_command)
   }
-  kubectl.deletePod('kafka')
+  kubectl.deletePod("${namespace}", 'kafka')
 }
 
 List getGitHubTeamsIds(String teams) {
