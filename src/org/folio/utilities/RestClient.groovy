@@ -20,7 +20,7 @@ class RestClient {
   }
 
   def get(String url, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int readTimeout = defaultReadTimeout) {
-    return doRequest('GET', url, null, headers, connectionTimeout, readTimeout)
+    return doRequest('GET', url, null, headers, connectionTimeout, readTimeout, ignoreHttpError)
   }
 
   def post(String url, Object body, Map<String, String> headers = [:], int connectionTimeout = defaultConnectionTimeout, int defaultReadTimeout = defaultReadTimeout, ignoreHttpError = ignoreHttpError) {
