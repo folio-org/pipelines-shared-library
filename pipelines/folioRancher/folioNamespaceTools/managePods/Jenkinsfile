@@ -123,12 +123,12 @@ ansiColor('xterm') {
                     keycloak.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1") }
                   }
                   services.each { deployment, replica_count ->
-                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
                   core.each { deployment, replica_count ->
-                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
@@ -136,14 +136,14 @@ ansiColor('xterm') {
                     if (replica_count == "") {
                       kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
                     } else {
-                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     }
                   }
-                  edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
-                  ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
-                  mgr.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  mgr.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
                   kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
