@@ -102,6 +102,10 @@ void deleteFolioModulesParallel(String ns) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkPodRunning(String ns, String podName) {
   timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
@@ -128,6 +132,10 @@ void checkPodRunning(String ns, String podName) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkAllPodsRunning(String ns) {
   timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     boolean notAllRunning = true

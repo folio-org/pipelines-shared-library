@@ -76,7 +76,6 @@ void edge(RancherNamespace namespace, boolean skipEdgeUsersCreation = false, Clo
         kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
       }
       folioHelm.deployFolioModulesParallel(namespace, edgeModules)
-      folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), edgeModules)
     }
     pauseBetweenStages()
   }
