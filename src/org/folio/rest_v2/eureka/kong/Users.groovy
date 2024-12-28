@@ -44,7 +44,7 @@ class Users extends Kong{
   }
 
   User getUserByName(EurekaTenant tenant, String name){
-    return getUsers(tenant, "", "name==${name}")[0]
+    return getUsers(tenant, "", "name=${name}")[0]
   }
 
   boolean isUserExist(EurekaTenant tenant, String userId) {
