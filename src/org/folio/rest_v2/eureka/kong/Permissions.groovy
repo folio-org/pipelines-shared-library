@@ -297,10 +297,10 @@ class Permissions extends Kong{
     return this
   }
 
-  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles){
+  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles, boolean adjustHeaders = false){
     logger.info("Assigning roles to user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    Map<String, String> headers = adjustHeaders ? getTenantHttpHeaders(tenant, true) :  getTenantHttpHeaders(tenant)
 
     List<String> roleIds = []
     roles.each {role -> roleIds.add(role.uuid)}
