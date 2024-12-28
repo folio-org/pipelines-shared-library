@@ -191,6 +191,7 @@ class Consortia extends Kong {
         break
       case 'COMPLETED_WITH_ERRORS':
         logger.warning("Tenant : ${tenant.tenantId} added with errors!")
+        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
         break
       case 'FAILED':
         steps.currentBuild.result = 'ABORTED'
