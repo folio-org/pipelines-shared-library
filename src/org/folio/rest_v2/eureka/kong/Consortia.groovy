@@ -209,9 +209,11 @@ class Consortia extends Kong {
 
   void addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean yes = false) {
     if (yes) {
+      logger.info("Adding admin role to shadow admin user in ${tenant.tenantId}...")
       Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
       User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
       Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+      logger.info("Admin role added successfully to ${tenant.tenantId}!")
     }
   }
 
