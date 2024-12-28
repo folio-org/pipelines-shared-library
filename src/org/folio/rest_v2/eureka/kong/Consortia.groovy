@@ -205,21 +205,9 @@ class Consortia extends Kong {
 
   void addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean yes = false) {
     if (yes) {
-      Map<String, String> headers = getTenantHttpHeaders(tenant)
-
-      String url = generateUrl("/roles/users")
-
-      Map body = [
-        "userId" : Users.getUserByName(centralConsortiaTenant, centralConsortiaTenant.getAdminUser().getUsername()).uuid,
-        "roleIds": [Permissions.getRoleByName(tenant, "adminRole").uuid]
-      ]
-      def response = restClient.post(url, body, headers, [201, 409])
-
-      if (response.responseCode == 409) {
-        logger.info("Role already added to shadow admin user for ${tenant.tenantId} member consortia")
-      } else {
-        logger.info("Role added to shadow admin user for ${tenant.tenantId} member consortia")
-      }
+      Users users = Users.get(this)
+      Permissions permissions = Permissions.get(this)
+      permissions.assignRolesToUser(tenant, users.getUserByName(tenant, centralConsortiaTenant.getAdminUser().getUsername()), [permissions.getRoleByName(tenant, "adminRole")])
     }
   }
 
