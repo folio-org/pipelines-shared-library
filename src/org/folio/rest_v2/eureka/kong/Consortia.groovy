@@ -2,6 +2,7 @@ package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenantConsortia
+import org.folio.models.Role
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -207,7 +208,8 @@ class Consortia extends Kong {
     if (yes) {
       Users users = Users.get(this)
       Permissions permissions = Permissions.get(this)
-      permissions.assignRolesToUser(tenant, users.getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername()), [permissions.getRoleByName(tenant, "adminRole")])
+      Role role = permissions.getRoleByName(tenant, "adminRole")
+      permissions.assignRolesToUser(tenant, users.getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername()), [role])
     }
   }
 
