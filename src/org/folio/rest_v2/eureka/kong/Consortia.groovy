@@ -207,7 +207,7 @@ class Consortia extends Kong {
     if (yes) {
       Users users = Users.get(this)
       Permissions permissions = Permissions.get(this)
-      permissions.assignRolesToUser(tenant, users.getUserByName(tenant, centralConsortiaTenant.getAdminUser().getUsername()), [permissions.getRoleByName(tenant, "adminRole")])
+      permissions.assignRolesToUser(tenant, users.getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername()), [permissions.getRoleByName(tenant, "adminRole")])
     }
   }
 
