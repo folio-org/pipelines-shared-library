@@ -13,10 +13,6 @@ class Consortia extends Kong {
     super(context, kongUrl, keycloak, debug)
   }
 
-  Consortia(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
-    super(context, kongUrl, keycloakUrl, debug)
-  }
-
   Consortia(Kong kong) {
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
@@ -187,11 +183,11 @@ class Consortia extends Kong {
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
-        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
+        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant)
         break
       case 'COMPLETED_WITH_ERRORS':
         logger.warning("Tenant : ${tenant.tenantId} added with errors!")
-        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
+        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant)
         break
       case 'FAILED':
         steps.currentBuild.result = 'ABORTED'
@@ -207,14 +203,12 @@ class Consortia extends Kong {
     return this
   }
 
-  void addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean yes = false) {
-    if (yes) {
+  Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant) {
       logger.info("Adding admin role to shadow admin user in ${tenant.tenantId}...")
       Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
       User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
-      Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
-      logger.info("Admin role added successfully to ${tenant.tenantId}!")
-    }
+      restClient.post(generateUrl("/roles/users"), ["userId": user.uuid, "roleIds": [role.uuid]], getTenantHttpHeaders(tenant, true), [200, 201, 409])
+      logger.info("Admin role added successfully to ${user.username} in tenant: ${tenant.tenantId}!")
   }
 
   @NonCPS
