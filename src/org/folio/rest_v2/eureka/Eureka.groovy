@@ -198,6 +198,7 @@ class Eureka extends Base {
         Consortia.get(kong)
           .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
           .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
+          .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
       }
 
     return this

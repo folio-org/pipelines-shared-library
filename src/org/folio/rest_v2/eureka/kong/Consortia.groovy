@@ -183,11 +183,9 @@ class Consortia extends Kong {
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
-        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant)
         break
       case 'COMPLETED_WITH_ERRORS':
         logger.warning("Tenant : ${tenant.tenantId} added with errors!")
-        tenant.isCentralConsortiaTenant ? null : addRoleToShadowAdminUser(centralConsortiaTenant, tenant)
         break
       case 'FAILED':
         steps.currentBuild.result = 'ABORTED'
@@ -204,11 +202,14 @@ class Consortia extends Kong {
   }
 
   Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant) {
-      sleep(30000) // wait for tenant to be ready in consortia
+      sleep(10000) // wait for tenant to be ready in consortia
+
       logger.info("Adding admin role to shadow admin user in ${tenant.tenantId}...")
+
       Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
       User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
-      restClient.post(generateUrl("/roles/users"), ["userId": user.uuid, "roleIds": [role.uuid]], getTenantHttpHeaders(tenant, true), [200, 201, 409, 400])
+      Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+
       logger.info("Admin role added successfully to ${user.username} in tenant: ${tenant.tenantId}!")
   }
 
