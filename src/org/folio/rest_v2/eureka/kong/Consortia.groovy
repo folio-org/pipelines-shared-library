@@ -211,6 +211,9 @@ class Consortia extends Kong {
       Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
 
       logger.info("Admin role added successfully to ${user.username} in tenant: ${tenant.tenantId}!")
+
+      return this
+
   }
 
   @NonCPS
