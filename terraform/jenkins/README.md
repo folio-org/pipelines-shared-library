@@ -15,6 +15,16 @@ terraform apply -input=false tfplan
 terraform destroy -auto-approve
 ```
 
+### Upgrade
+**_Important:_**
+Make sure you have latest Snapshot with all actual data (create one if needed).
+
+Jenkins server needs to be tainted to be recreated with newer jenkins version and attached ebs
+```
+terraform taint aws_instance.jenkins_server
+terraform apply -var "jenkins_version=<version>" -var "snapshot_id=<snap-ID>"
+```
+
 ### Restore
 **_Important:_**
 Jenkins server needs to be tainted to be recreated with the new ebs attached
