@@ -271,11 +271,10 @@ class Eureka extends Base {
           entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
         }
 
-      logger.debug("Eureka.getExistedTenantsForModule: ${Tenants.get(kong).getEnabledApplications(tenant, "", true)}")
-      logger.debug("Eureka.getExistedTenantsForModule: ${applications}")
-      logger.debug("Eureka.getExistedTenantsForModule: ${tenant.applications.findAll {appName, appId -> applications.containsValue(appId)}}")
+      logger.debug("Eureka.getExistedTenantsForModule for tenant $tenantName: ${applications}")
+      logger.debug("Eureka.getExistedTenantsForModule for tenant $tenantName: ${tenant.applications.findAll {appName, appId -> applications.containsKey(appId)}}")
 
-      tenant.applications = tenant.applications.findAll {appName, appId -> applications.containsValue(appId)}
+      tenant.applications = tenant.applications.findAll {appName, appId -> applications.containsKey(appId)}
       tenant.getModules().addModule(module.getId())
 
       return tenant.applications.size() > 0
