@@ -192,10 +192,6 @@ ansiColor('xterm') {
 
         if(!(namespace.tenants))
           throw new Exception("There are no tenants with the module ${module.getName()}")
-
-        logger.debug("Configured Tenants: ${namespace.tenants}")
-        logger.debug("Configured Applications: ${namespace.applications}")
-        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
       stage("Retrieve module's sidecar"){
@@ -221,6 +217,10 @@ ansiColor('xterm') {
           else
             throw new AbortException('There are no modules with sidecar in the namespace')
         }
+
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Applications: ${namespace.applications}")
+        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
       /** Updated Applications Info Map<AppName, AppID> */

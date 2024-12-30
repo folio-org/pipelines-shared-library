@@ -225,30 +225,19 @@ class Eureka extends Base {
   }
 
   /**
-   * Get existed tenants where specific module is resides.
-   * @param module Module Name to filter.
+   * Get existed tenants.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module) {
+  Map<String, EurekaTenant> getExistedTenantsFlow() {
     Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
       tenant -> [tenant.tenantName, tenant]
     }
-
-    Map<String, EurekaTenant> tenantsForDeletion = [:]
 
     // Get enabled (entitled) applications for configured Tenants
     tenants.each { tenantName, tenant ->
 
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
-        .findAll{appId, entitlement ->
-          entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
-        }
-
-      if(applications.isEmpty()){
-        tenantsForDeletion.put(tenantName, tenant) //let's delete it later from the tenant list
-        return
-      }
 
       // Update tenant application list
       tenant.applications = applications.collectEntries { appId, entitlement ->
@@ -261,12 +250,29 @@ class Eureka extends Base {
           moduleId -> tenant.getModules().addModule(moduleId as String)
         }
       }
-
-      tenant.getModules().addModule(module.getId())
     }
 
-    return tenants.findAll { tenantName, tenant ->
-      !tenantsForDeletion.containsKey(tenantName)
+    return tenants
+  }
+
+  /**
+   * Get existed tenants where specific module is resides.
+   * @param module Module Name to filter.
+   * @return Map of EurekaTenant objects.
+   */
+  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module) {
+    return getExistedTenantsFlow().findAll {tenantName, tenant ->
+
+      // Get applications where the passed module exists
+      Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
+        .findAll{appId, entitlement ->
+          entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
+        }
+
+      tenant.applications = tenant.applications.findAll {appName, appId -> applications.containsKey(appId)}
+      tenant.getModules().addModule(module.getId())
+
+      return tenant.applications.size() > 0
     }
   }
 
