@@ -252,6 +252,8 @@ class Eureka extends Base {
       }
     }
 
+    logger.debug("Eureka.getExistedTenantsFlow: ${tenants}")
+
     return tenants
   }
 
@@ -268,6 +270,9 @@ class Eureka extends Base {
         .findAll{appId, entitlement ->
           entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
         }
+
+      logger.debug("Eureka.getExistedTenantsForModule: ${applications}")
+      logger.debug("Eureka.getExistedTenantsForModule: ${tenant.applications.findAll {appName, appId -> applications.containsValue(appId)}}")
 
       tenant.applications = tenant.applications.findAll {appName, appId -> applications.containsValue(appId)}
       tenant.getModules().addModule(module.getId())
