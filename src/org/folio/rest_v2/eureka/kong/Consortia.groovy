@@ -202,17 +202,21 @@ class Consortia extends Kong {
   }
 
   Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant) {
-      sleep(30000) // wait for tenant to be ready in consortia
 
-      logger.info("Adding admin role to shadow admin user in ${tenant.tenantId}...")
+    sleep(30000) // wait for tenant to be ready in consortia
 
-      Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
-      User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
-      Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+    Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
+    User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
 
-      logger.info("Admin role added successfully to ${user.username} in tenant: ${tenant.tenantId}!")
+    logger.info("""Task: Add admin role to shadow admin user
+                   user: ${user.username}
+                   tenant: ${tenant.tenantId}""")
 
-      return this
+    Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+
+    logger.info("Task: Add admin role to shadow admin user completed")
+
+    return this
 
   }
 
