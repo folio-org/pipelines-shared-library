@@ -183,7 +183,7 @@ class Eureka extends Base {
    *
    * @param consortiaTenants A map of consortia tenants.
    */
-  Eureka setUpConsortiaFlow(List<EurekaTenantConsortia> consortiaTenants) {
+  Eureka setUpConsortiaFlow(List<EurekaTenantConsortia> consortiaTenants, String cluster, String namespace) {
     EurekaTenantConsortia centralConsortiaTenant =
       consortiaTenants.find { it.isCentralConsortiaTenant }
 
@@ -195,6 +195,7 @@ class Eureka extends Base {
 
     consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
       .each { institutionalTenant ->
+        context.folioTools.stsKafkaLag(cluster, namespace, institutionalTenant)
         Consortia.get(kong)
           .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
           .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
@@ -211,7 +212,9 @@ class Eureka extends Base {
       setUpConsortiaFlow(
         tenants.values().findAll {
           it instanceof EurekaTenantConsortia
-        } as List<EurekaTenantConsortia>
+        } as List<EurekaTenantConsortia>,
+        cluster,
+        namespace
       )
 
     tenants.each { tenantId, tenant ->
