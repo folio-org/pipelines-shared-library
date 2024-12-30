@@ -21,19 +21,22 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
             pipelineTriggers([parameterizedCron('''
         45 22 * * 5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=sprint
         50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=sprint
+        0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
         0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
-        0 12 * * * %ACTION=start;CLUSTER=folio-perf;NAMESPACE=spitfire
         25 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
-        20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         15 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
+        20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
         50 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
-        45 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
-        55 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
         25 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
+        0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
+        0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
+        0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair-migration-testing
+        55 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
         8 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=folijet
+        45 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
         11 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
         22 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
         10 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
@@ -42,16 +45,18 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         15 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega-2nd
         20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
         20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
-        0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
-        0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
         25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
         30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
         35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+        0 23 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
+        10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
+        0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
         0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
+        5 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=folijet
+        11 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire
         15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
         20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
-        10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
-        0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
+        20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris-2nd
    ''')])])
 
 ansiColor('xterm') {
@@ -118,12 +123,12 @@ ansiColor('xterm') {
                     keycloak.each { sts -> kubectl.setKubernetesResourceCount("StatefulSet", "${sts}", "${params.NAMESPACE}", "1") }
                   }
                   services.each { deployment, replica_count ->
-                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
                   core.each { deployment, replica_count ->
-                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                    kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     kubectl.checkDeploymentStatus("${deployment}", "${params.NAMESPACE}", "300")
                     sleep 5
                   }
@@ -131,14 +136,14 @@ ansiColor('xterm') {
                     if (replica_count == "") {
                       kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", "1")
                     } else {
-                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                      kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                     }
                   }
-                  edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  edge.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
-                  ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  ui.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
-                  mgr.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString())
+                  mgr.each { deployment, replica_count -> kubectl.setKubernetesResourceCount('deployment', deployment.toString(), "${params.NAMESPACE}", replica_count.toString() == "" ? "1" : replica_count.toString())
                   }
                   kubectl.deleteConfigMap("scale-state", "${params.NAMESPACE}")
                   kubectl.addLabelToNamespace("${params.NAMESPACE}", "status", "running")
