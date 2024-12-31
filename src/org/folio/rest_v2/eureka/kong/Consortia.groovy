@@ -150,8 +150,18 @@ class Consortia extends Kong {
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409])
+    def response = restClient.post(url, body, headers, [201, 409, 500])
+
     String contentStr = response.body.toString()
+
+    if (response.responseCode == 500) { //TODO: tmp workaround until MODCONSKC-56 is implemented (needs to be deleted)
+      logger.info("""
+        Failed to add consortia institutional tenant
+        Status: ${response.responseCode}
+        Response content:
+        ${contentStr}""")
+        restClient.delete("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}", headers)
+    }
 
     if (response.responseCode == 409)
       logger.info("""
