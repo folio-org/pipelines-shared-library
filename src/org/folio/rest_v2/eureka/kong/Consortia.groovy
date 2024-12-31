@@ -160,7 +160,7 @@ class Consortia extends Kong {
         Status: ${response.responseCode}
         Response content:
         ${contentStr}""")
-        restClient.delete("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}", headers)
+        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers)
     }
 
     if (response.responseCode == 409)
