@@ -154,14 +154,14 @@ class Consortia extends Kong {
 
     String contentStr = response.body.toString()
 
-    if (response.responseCode == 500) { //TODO: tmp workaround until MODCONSKC-56 is implemented (needs to be deleted)
-      logger.info("""
-        Failed to add consortia institutional tenant
-        Status: ${response.responseCode}
-        Response content:
-        ${contentStr}""")
-        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.uuid}"), headers)
-    }
+//    if (response.responseCode == 500) { //TODO: tmp workaround until MODCONSKC-56 is implemented (needs to be deleted)
+//      logger.info("""
+//        Failed to add consortia institutional tenant
+//        Status: ${response.responseCode}
+//        Response content:
+//        ${contentStr}""")
+//        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.uuid}"), headers)
+//    }
 
     if (response.responseCode == 409)
       logger.info("""
@@ -171,6 +171,8 @@ class Consortia extends Kong {
         ${contentStr}""")
     else
       logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+
+      addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
 
     return this
   }
