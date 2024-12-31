@@ -150,18 +150,9 @@ class Consortia extends Kong {
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409, 500])
+    def response = restClient.post(url, body, headers, [201, 409])
 
     String contentStr = response.body.toString()
-
-//    if (response.responseCode == 500) { //TODO: tmp workaround until MODCONSKC-56 is implemented (needs to be deleted)
-//      logger.info("""
-//        Failed to add consortia institutional tenant
-//        Status: ${response.responseCode}
-//        Response content:
-//        ${contentStr}""")
-//        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.uuid}"), headers)
-//    }
 
     if (response.responseCode == 409)
       logger.info("""
@@ -170,6 +161,7 @@ class Consortia extends Kong {
         Response content:
         ${contentStr}""")
     else
+
       logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
 
       addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
@@ -226,7 +218,7 @@ class Consortia extends Kong {
 
     Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
 
-    logger.info("Task: Add admin role to shadow admin user completed")
+    logger.info("Task: Add admin role to shadow admin ${user.username} in tenant ${tenant.tenantId} completed")
 
     return this
 
