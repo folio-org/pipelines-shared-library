@@ -150,7 +150,7 @@ class Consortia extends Kong {
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409, 500])
+    def response = restClient.post(url, body, headers, [201, 409])
 
     String contentStr = response.body.toString()
 
@@ -164,7 +164,7 @@ class Consortia extends Kong {
 
       logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
 
-      addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
+    addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
 
     return this
   }
@@ -182,14 +182,16 @@ class Consortia extends Kong {
 
     String url = generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${tenant.tenantId}")
 
-    def response = restClient.get(url, headers, [500], 5000).body
+    def response = restClient.get(url, headers, [], 5000).body
 
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
+        addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
         break
       case 'COMPLETED_WITH_ERRORS':
         logger.warning("Tenant : ${tenant.tenantId} added with errors!")
+        addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
         break
       case 'FAILED':
         steps.currentBuild.result = 'ABORTED'
@@ -205,21 +207,24 @@ class Consortia extends Kong {
     return this
   }
 
-  Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant) {
+  Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean execute = false) {
 
-    sleep(30000) // wait for tenant to be ready in consortia
+    if (execute) {
 
-    Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
-    User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
+      sleep(30000) // wait for tenant to be ready in consortia
 
-    logger.info("""Task: Add admin role to shadow admin user
+      Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
+      User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
+
+      logger.info("""Task: Add admin role to shadow admin user
                    user: ${user.username}
                    tenant: ${tenant.tenantId}""")
 
-    Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+      Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
 
-    logger.info("Task: Add admin role to shadow admin ${user.username} in tenant ${tenant.tenantId} completed")
+      logger.info("Task: Add admin role to shadow admin ${user.username} in tenant ${tenant.tenantId} completed")
 
+    }
     return this
 
   }
