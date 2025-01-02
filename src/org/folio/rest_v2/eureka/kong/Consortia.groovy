@@ -207,7 +207,7 @@ class Consortia extends Kong {
     return this
   }
 
-  Consortia addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean execute = false) {
+  void addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean execute = false) {
 
     if (execute) {
 
@@ -225,7 +225,6 @@ class Consortia extends Kong {
       logger.info("Task: Add admin role to shadow admin ${user.username} in tenant ${tenant.tenantId} completed")
 
     }
-    return this
 
   }
 
