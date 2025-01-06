@@ -52,6 +52,7 @@ void call(CreateNamespaceParameters args) {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folio.NamespaceMetadata.create(CreateNamespaceParameters)
         return
+      }
     }
 
     if (args.greenmail) {
