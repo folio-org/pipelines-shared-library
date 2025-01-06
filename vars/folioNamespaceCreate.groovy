@@ -50,7 +50,7 @@ void call(CreateNamespaceParameters args) {
     }
     stage('ConfigMap Metadata') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioNamespaceMetadata.create(namespaceParams)
+        folioNamespaceMetadata.create(args)
         return
       }
     }
