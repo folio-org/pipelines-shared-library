@@ -186,6 +186,9 @@ ansiColor('xterm') {
       }
     } catch (e) {
       logger.error("Caught exception: ${e}")
+
+      currentBuild.result = 'FAILURE'
+      error(e.getMessage())
     } finally {
       if (!autoCanceled) {
         destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
