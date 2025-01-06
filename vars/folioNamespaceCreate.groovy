@@ -48,6 +48,11 @@ void call(CreateNamespaceParameters args) {
         ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
       }
     }
+    stage('ConfigMap Metadata') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folio.NamespaceMetadata.create(CreateNamespaceParameters)
+        return
+    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
