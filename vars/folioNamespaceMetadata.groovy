@@ -24,9 +24,10 @@ void create(CreateNamespaceParameters param) {
     sh "rm -f ${tempFile}"
   }
 }
-boolean isExist(String name, String namespace) {
+boolean isExist(String namespace) {
+  def name = Constants.AWS_EKS_NS_METADATA
   try {
-    sh "kubectl get configmap ${name} --namespace=${namespace}"
+    sh "kubectl get configmap $name --namespace=${namespace}"
     return true
   } catch (Exception e) {
     return false
