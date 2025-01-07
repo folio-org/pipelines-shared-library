@@ -1,0 +1,64 @@
+#!/usr/bin/env groovy
+package folioTestingTools.runGatlingTests
+
+import org.folio.utilities.Logger
+import org.folio.models.parameters.GatlingTestsParameters
+
+@Library('pipelines-shared-library@RANCHER-1923') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.branch('master', 'folio-integration-tests'),
+    string(name: 'MODULES_TO_TEST', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
+    string(name: 'ENV_TYPE', defaultValue: 'dev', description: 'Environment type (dev, qa, prod).'),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Job variables
+ */
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+GatlingTestsParameters gatlingTestsParams = new GatlingTestsParameters()
+gatlingTestsParams.gitBranch = params.TESTS_BRANCH
+gatlingTestsParams.modulesToTest = params.MODULES_TO_TEST
+gatlingTestsParams.envType = params.ENV_TYPE
+gatlingTestsParams.timeout = '1'
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildDescription currentBuild.getBuildCauses()[0].shortDescription
+      }
+
+      stage('[Flow] Execute tests') {
+        folioGatlingFlow(gatlingTestsParams)
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
