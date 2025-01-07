@@ -4,7 +4,7 @@ package folioTestingTools.runGatlingTests
 import org.folio.utilities.Logger
 import org.folio.models.parameters.GatlingTestsParameters
 
-@Library('pipelines-shared-library@RANCHER-1923') _
+@Library('pipelines-shared-library@RANCHER-1922') _
 
 /**
  * Job properties and parameters
