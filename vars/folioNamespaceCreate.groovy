@@ -53,10 +53,10 @@ void call(CreateNamespaceParameters args) {
       if (!folioNamespaceMetadata.isExist) {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioNamespaceMetadata.create(args)
-        } else {
-          println "Configmap Already Exist"
-//          folioNamespaceMetadata.printMetadata()
         }
+      } else {
+        println "Configmap Already Exist"
+//          folioNamespaceMetadata.printMetadata()
       }
     }
 
