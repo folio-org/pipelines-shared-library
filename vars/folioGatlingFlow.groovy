@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
+import org.folio.models.parameters.GatlingTestsParameters
 
 call(GatlingTestsParameters args) {
   Logger logger = new Logger(this, 'Gatling flow')
