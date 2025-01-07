@@ -125,9 +125,12 @@ def patchConfigMap(String name, String namespace, files) {
   }
 }
 
-void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image, String command = 'sleep 15m') {
+void runPodWithCommand(String namespace = 'default', String pod_name, String pod_image
+                       , String command = 'sleep 15m'
+                       , String imagePullSecret = 'folio-docker') {
   try {
-    sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} --command -- ${command}"
+    String secretArg = imagePullSecret ? "--image-pull-secret=${imagePullSecret}" : ""
+    sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} ${secretArg} --command -- ${command}"
   } catch (Exception e) {
     currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
