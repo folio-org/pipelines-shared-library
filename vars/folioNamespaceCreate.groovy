@@ -48,10 +48,15 @@ void call(CreateNamespaceParameters args) {
         ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
       }
     }
-    stage('ConfigMap Metadata') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioNamespaceMetadata.create(args)
-        return
+    stage('Create metadata ConfigMap') {
+      folioNamespaceMetadata.printParams(args)
+      if (!folioNamespaceMetadata.isExist) {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioNamespaceMetadata.create(args)
+        } else {
+          println "Configmap Already Exist"
+//          folioNamespaceMetadata.printMetadata()
+        }
       }
     }
 
