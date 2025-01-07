@@ -23,6 +23,31 @@ void create(CreateNamespaceParameters param) {
   } finally {
     sh "rm -f ${tempFile}"
   }
-
+}
+boolean isExist(String name, String namespace) {
+  try {
+    sh "kubectl get configmap ${name} --namespace=${namespace}"
+    return true
+  } catch (Exception e) {
+    return false
+  }
+}
+//temp method
+void printParams(CreateNamespaceParameters param) {
+  println "*******************METADATA******************"
+  param.properties.each { key, value ->
+    if (value instanceof String || value instanceof Boolean) {
+      println "$key: $value"
+    } else if (value instanceof List && value.every { it instanceof String }) {
+      println "$key: ${value.join(', ')}"
+    }
+  }
+  println"*****************************************"
 }
 
+//void printMetadata() {
+//  def configMapName = Constants.AWS_EKS_NS_METADATA
+//  def namespace = param.namespaceName
+//  getConfigMap(String name, String namespace, String data)
+//
+//}
