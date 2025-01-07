@@ -16,7 +16,7 @@ void call(GatlingTestsParameters args) {
             [$class: 'CloneOption', depth: 10, honorRefspec: true, noTags: false, reference: '', shallow: true],
             [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
           ],
-          userRemoteConfigs: [[credentialsId: 'jenkins-github-sshkey', url: "${Constants.FOLIO_GITHUB_URL}/folio-gatling-tests.git"]]
+          userRemoteConfigs: [[credentialsId: 'jenkins-github-sshkey', url: "${Constants.FOLIO_GITHUB_URL}/folio-integration-tests.git"]]
         ]
     }
   }
