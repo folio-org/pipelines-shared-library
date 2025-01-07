@@ -24,7 +24,7 @@ void call(GatlingTestsParameters args) {
   stage('[Maven] Gatling tests') {
     dir('folio-gatling-tests') {
       timeout(time: args.timeout, unit: 'HOURS') {
-        withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
+        withMaven(jdk: args.javaVersion, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
 
           /**
            * The modules to test are passed as a comma separated list of modules.
