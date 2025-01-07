@@ -45,9 +45,8 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildDescription currentBuild.getBuildCauses()[0].shortDescription
-      }
 
-      stage('[Flow] Execute tests') {
+        // Trigger Gatling tests flow
         folioGatlingFlow(gatlingTestsParams)
       }
 
