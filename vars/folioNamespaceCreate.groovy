@@ -50,13 +50,13 @@ void call(CreateNamespaceParameters args) {
     }
     stage('Create metadata ConfigMap') {
       folioNamespaceMetadata.printParams(args)
-      if (!folioNamespaceMetadata.isExist) {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        if (!folioNamespaceMetadata.isExist(namespace.getNamespaceName())) {
           folioNamespaceMetadata.create(args)
-        }
-      } else {
-        println "Configmap Already Exist"
+        } else {
+          println "Configmap Already Exist"
 //          folioNamespaceMetadata.printMetadata()
+        }
       }
     }
 
