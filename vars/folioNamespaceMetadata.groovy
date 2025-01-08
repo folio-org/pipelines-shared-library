@@ -56,9 +56,11 @@ void compare(CreateNamespaceParameters param) {
     script: "kubectl get configmap ${configMapName} -n ${namespace} -o json",
     returnStdout: true
   ).trim()
+  println("ConfigMap JSON: $configMapJson")
   def configMapData = readJSON text: configMapJson
+  println("Parsed ConfigMap Data: $configMapData")
   def existingData = configMapData?.data ?: [:]
-
+  println("Existing Data: $existingData")
 
 // Шаг 2: Сравниваем свойства объекта с ключами ConfigMap
   def changes = [:] // Храним изменения
