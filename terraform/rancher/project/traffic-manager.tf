@@ -9,13 +9,20 @@ resource "helm_release" "traffic-manager" {
 image:
   registry: ghcr.io/telepresenceio
   tag: 2.21.1
+resources:
+  limits:
+    cpu: 256m
+    memory: 512Mi
+  requests:
+    cpu: 128m
+    memory: 128Mi
 agent:
   resources:
     requests:
-      cpu: 100m
+      cpu: 128m
       memory: 256Mi
     limits:
-      cpu: 200m
+      cpu: 256m
       memory: 512Mi
 managerRbac:
   create: true
