@@ -37,7 +37,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
     def status = sh(script: "kubectl get pod kafka-sh --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (status == '') {
-      kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
+      kubectl.runPodWithCommand("${namespace}", 'kafka-sh', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
