@@ -54,8 +54,7 @@ void call(CreateNamespaceParameters args) {
         if (!folioNamespaceMetadata.isExist(namespace.getNamespaceName())) {
           folioNamespaceMetadata.create(args)
         } else {
-          println "Configmap Already Exist"
-//          folioNamespaceMetadata.printMetadata()
+          folioNamespaceMetadata.compare(args)
         }
       }
     }
