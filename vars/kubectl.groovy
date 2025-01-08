@@ -129,7 +129,7 @@ void runPodWithCommand(String namespace = 'default', String pod_name, String pod
                        , String command = 'sleep 15m'
                        , String imagePullSecret = 'folio-docker') {
   try {
-    String secretArg = imagePullSecret ? "--overrides='{\"spec\":{\"imagePullSecrets\":[{\"name\":$imagePullSecret}]}}'" : ""
+    String secretArg = imagePullSecret ? "--overrides='{\"spec\":{\"imagePullSecrets\":[{\"name\":\"$imagePullSecret\"}]}}'" : ""
     sh "kubectl run --namespace=${namespace} ${pod_name} --image=${pod_image} ${secretArg} --command -- ${command}"
   } catch (Exception e) {
     currentBuild.result = 'UNSTABLE'
