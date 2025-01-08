@@ -24,6 +24,13 @@ agent:
     limits:
       cpu: 256m
       memory: 512Mi
+hooks:
+  curl:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    image: "curl"
+    tag: 7.88.1
+    imagePullSecrets: []
+    pullPolicy: IfNotPresent
 managerRbac:
   create: true
   namespaced: true
