@@ -19,9 +19,7 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.5.0
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka
-  pullPolicy: IfNotPresent
+  tag: 3.5
 metrics:
   kafka:
     enabled: true
@@ -99,10 +97,6 @@ ingress:
     alb.ingress.kubernetes.io/group.name: ${local.group_name}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
-image:
-  tag: v0.7.0
-  pullPolicy: IfNotPresent
-  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka-ui
 resources:
   requests:
     memory: 512Mi

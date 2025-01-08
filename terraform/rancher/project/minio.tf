@@ -26,10 +26,6 @@ defaultBuckets: ${join(",", [local.s3_buckets_string, "local-files"])}
 auth:
   rootUser: ${random_string.access_key[0].result}
   rootPassword: ${random_password.secret_access_key[0].result}
-image:
-  tag: 8.2
-  repository: 73
-  pullPolicy: IfNotPresent
 resources:
   limits:
     memory: 1536Mi
