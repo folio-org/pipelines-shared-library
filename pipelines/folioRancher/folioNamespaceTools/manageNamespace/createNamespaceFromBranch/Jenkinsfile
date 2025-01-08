@@ -127,11 +127,11 @@ ansiColor('xterm') {
         checkout scm
       }
 
-//      if (namespaceParams.eureka) {
-//        folioNamespaceCreateEureka(namespaceParams)
-//      } else {
-//        folioNamespaceCreate(namespaceParams)
-//      }
+      if (namespaceParams.eureka) {
+        folioNamespaceCreateEureka(namespaceParams)
+      } else {
+        folioNamespaceCreate(namespaceParams)
+      }
 
       stage('[Cypress] Run sanity check'){
         if(params.RUN_SANITY_CHECK) {
