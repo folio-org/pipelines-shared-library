@@ -275,6 +275,10 @@ resource "helm_release" "pgadmin" {
   chart      = "pgadmin4"
   version    = "1.10.1"
   values = [<<-EOF
+image:
+  tag: 8.14
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/pgadmin4
+  pullPolicy: IfNotPresent
 resources:
   requests:
     memory: 256Mi
