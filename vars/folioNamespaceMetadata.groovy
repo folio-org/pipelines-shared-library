@@ -62,7 +62,7 @@ void compare(CreateNamespaceParameters param) {
 
 // Шаг 2: Сравниваем свойства объекта с ключами ConfigMap
   def changes = [:] // Храним изменения
-  paramInstance.properties.each { key, value ->
+  param.properties.each { key, value ->
     if (key in ['class', 'metaClass']) return // Пропускаем технические свойства
 
     def configValue = configMapData[key]
