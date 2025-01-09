@@ -70,7 +70,7 @@ service:
   disableHttpPort: false
   ports:
     proxyHttp: 8000
-    proxyHttps: 443
+    proxyHttps: 8443
     adminHttp: 8001
     adminHttps: 8002
   nodePorts:
@@ -108,7 +108,7 @@ ingress:
        paths:
        - backend:
            service:
-             name: kong-admin-ui-${rancher2_namespace.this.id}
+             name: kong-${var.rancher_project_name}
              port:
                name: https-admin
          path: /*
@@ -205,6 +205,7 @@ migration:
 EOF
   ]
 }
+
 resource "kubernetes_service" "kong_admin_api" {
   count = var.eureka ? 1 : 0
   metadata {
