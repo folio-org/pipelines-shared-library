@@ -231,7 +231,7 @@ resource "kubernetes_service" "kong_admin_ui" {
   }
 }
 
-resource "kubernetes_ingress" "kong" {
+resource "kubernetes_ingress_v1" "kong" {
 
   count = var.eureka ? 1 : 0
   metadata {
@@ -243,7 +243,7 @@ resource "kubernetes_ingress" "kong" {
       "alb.ingress.kubernetes.io/group.name"       = local.group_name
       "alb.ingress.kubernetes.io/listen-ports"     = "[{\"HTTPS\":443}]"
       "alb.ingress.kubernetes.io/success-codes"    = "200-399"
-      "alb.ingress.kubernetes.io/healthcheck-path" = "/version"
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/"
     }
   }
   spec {
