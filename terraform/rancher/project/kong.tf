@@ -72,12 +72,14 @@ service:
     proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8002
+    adminHttps: 8443
+    kongMgr: 8002
   nodePorts:
     proxyHttp: ""
     proxyHttps: ""
     adminHttp: ""
     adminHttps: ""
+    kongMgr: ""
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
@@ -109,7 +111,7 @@ ingress:
            service:
              name: kong-admin-ui-${rancher2_namespace.this.id}
              port:
-               name: adminHttps
+               name: kongMgr
          path: /*
          pathType: ImplementationSpecific
 kong:
@@ -129,6 +131,8 @@ kong:
     value: "/"
   - name: KONG_ADMIN_GUI_URL
     value: "localhost:8002"
+  - name: KONG_ADMIN_GUI_API_URL
+    value: "localhost:8001"
   - name: KONG_UPSTREAM_TIMEOUT
     value: "600000"
   - name: KONG_UPSTREAM_SEND_TIMEOUT
@@ -179,8 +183,6 @@ kong:
     value: "4 16k"
   - name: KONG_LOG_LEVEL
     value: "info"
-  - name: KONG_ADMIN_GUI_API_URL
-    value: "${local.kong_url}"
   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
     value: "4 16k"
   - name: KONG_PROXY_LISTEN
