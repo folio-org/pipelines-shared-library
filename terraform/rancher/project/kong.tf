@@ -254,7 +254,10 @@ resource "kubernetes_ingress_v1" "kong" {
           path = "/*"
           backend {
             service {
-              name =  "kong-admin-ui-${rancher2_namespace.this.id}"
+              name = "kong-admin-ui-${rancher2_namespace.this.id}"
+              port {
+                number = 80
+              }
             }
           }
         }
