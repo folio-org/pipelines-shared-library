@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurper
 import org.folio.Constants
 import org.folio.models.parameters.CreateNamespaceParameters
+import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters param) {
