@@ -78,7 +78,6 @@ service:
     proxyHttps: ""
     adminHttp: ""
     adminHttps: ""
-    kongMgr: ""
 ingress:
   ingressClassName: ""
   pathType: ImplementationSpecific
