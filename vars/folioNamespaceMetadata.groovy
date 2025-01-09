@@ -13,7 +13,7 @@ void create(CreateNamespaceParameters param) {
   def tempFile = "metadata.json"
 
   try {
-    writeFile(file: tempfile, text: jsonString)
+    writeFile(file: tempFile, text: jsonString)
     sh "ls -la"
     kubectl.createConfigMap(configMapName, namespace, tempFile)
 
