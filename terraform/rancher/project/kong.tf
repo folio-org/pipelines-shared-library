@@ -247,8 +247,8 @@ resource "kubernetes_ingress_v1" "kong" {
     }
   }
   spec {
-    host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])
     rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])
       http {
         path {
           path = "/*"
