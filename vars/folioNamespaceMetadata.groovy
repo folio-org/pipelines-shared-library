@@ -95,14 +95,13 @@ def getMetadata() {
         message: 'There are in ConfigMap. Continue?',
         ok: 'YES',
         parameters: [
-          string(defaultValue: 'Yes', description: 'Type "yes" to continue, name: 'response')
-        ]
+          string(defaultValue: 'Yes', description: 'Type "yes" to continue', name: 'response')
+            ]
       )
 
       if (userInput.toLowerCase() != 'yes') {
         error "Pipeline Cancelled by User."
       }
-
     }
   }
 
