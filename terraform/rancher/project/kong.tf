@@ -102,6 +102,16 @@ ingress:
                name: http-proxy
          path: /*
          pathType: ImplementationSpecific
+   - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])}
+     http:
+       paths:
+       - backend:
+           service:
+             name: kong-admin-ui-${rancher2_namespace.this.id}
+             port:
+               name: http-admin
+         path: /*
+         pathType: ImplementationSpecific
 kong:
   livenessProbe:
     enabled: false
