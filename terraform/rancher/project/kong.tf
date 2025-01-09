@@ -247,13 +247,15 @@ resource "kubernetes_ingress_v1" "kong" {
     }
   }
   spec {
+    ingress_class_name = "alb"
     rule {
       http {
         path {
           path = "/*"
           backend {
-            service_name = "kong-admin-ui-${rancher2_namespace.this.id}"
-            service_port = "kong-admin-ui"
+            service {
+              name =  "kong-admin-ui-${rancher2_namespace.this.id}"
+            }
           }
         }
       }
