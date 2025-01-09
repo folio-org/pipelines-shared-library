@@ -9,11 +9,12 @@ void create(CreateNamespaceParameters param) {
 //  def allowedKeys = Constants.METADATA_KEYS
   def namespace = param.namespaceName
   def jsonString = JsonOutput.toJson(param)
+  println("json param: $jsonString")
   def tempFile = "metadata.json"
 
   try {
-  writeFile(file: tempfile, text: jsonString)
-
+    writeFile(file: tempfile, text: jsonString)
+    sh "ls -la"
     kubectl.createConfigMap(configMapName, namespace, tempFile)
 
     println "ConfigMap '${configMapName}' created successfully in namespace '${namespace}'"
