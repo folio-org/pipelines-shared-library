@@ -109,7 +109,7 @@ ingress:
            service:
              name: kong-admin-ui-${rancher2_namespace.this.id}
              port:
-               name: http-admin
+               name: ${kubernetes_service.kong_admin_ui[0].spec[0].port[0].name}
          path: /*
          pathType: ImplementationSpecific
 kong:
