@@ -10,8 +10,8 @@ void create(CreateNamespaceParameters param) {
   def jsonString = JsonOutput.toJson(param)
   tempFile = "metadata.json"
 
-// Сохраняем в файл (имитируем ConfigMap)
   def fileName = "my-config.json"
+  try {
   new File(tempFile).text = jsonString
 
     writeFile(file: tempFile, text: fileContent)
