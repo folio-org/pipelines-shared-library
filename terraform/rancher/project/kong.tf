@@ -111,7 +111,7 @@ ingress:
            service:
              name: kong-admin-ui-${rancher2_namespace.this.id}
              port:
-               name: kongMgr
+               name: mgr-kong
          path: /*
          pathType: ImplementationSpecific
 kong:
