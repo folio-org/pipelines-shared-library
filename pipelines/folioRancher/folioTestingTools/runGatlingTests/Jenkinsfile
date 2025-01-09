@@ -4,6 +4,7 @@ package folioTestingTools.runGatlingTests
 import org.folio.utilities.Logger
 import org.folio.models.parameters.GatlingTestsParameters
 
+// TODO: remove RANCHER-1922 branch specification before merging to master branch
 @Library('pipelines-shared-library@RANCHER-1922') _
 
 /**
@@ -15,7 +16,7 @@ properties([
   parameters([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'MODULES_TO_TEST', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
-    string(name: 'ENV_TYPE', defaultValue: 'dev', description: 'Environment type (dev, qa, prod).'),
+    string(name: 'ENV_TYPE', defaultValue: 'dev', description: 'Environment type.'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
