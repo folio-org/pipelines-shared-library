@@ -166,7 +166,7 @@ kong:
   - name: KONG_LOG_LEVEL
     value: "info"
   - name: KONG_ADMIN_GUI_API_URL
-    value: "${local.kong_url}"
+    value: "localhost:8001"
   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
     value: "4 16k"
   - name: KONG_PROXY_LISTEN
