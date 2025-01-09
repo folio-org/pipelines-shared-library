@@ -6,15 +6,13 @@ import groovy.json.JsonOutput
 
 void create(CreateNamespaceParameters param) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
-  def allowedKeys = Constants.METADATA_KEYS
+//  def allowedKeys = Constants.METADATA_KEYS
   def namespace = param.namespaceName
   def jsonString = JsonOutput.toJson(param)
-  tempFile = "metadata.json"
+  def tempFile = "metadata.json"
 
-  def fileName = "my-config.json"
   try {
-  new File(tempFile).text = jsonString
-    writeFile(file: tempFile, text: fileContent)
+  writeFile(file: tempfile, text: jsonString)
 
     kubectl.createConfigMap(configMapName, namespace, tempFile)
 
