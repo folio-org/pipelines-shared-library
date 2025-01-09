@@ -70,9 +70,9 @@ service:
   disableHttpPort: false
   ports:
     proxyHttp: 8000
-    proxyHttps: 8443
+    proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8002
+    adminHttps: 8444
   nodePorts:
     proxyHttp: ""
     proxyHttps: ""
@@ -102,16 +102,6 @@ ingress:
                name: http-proxy
          path: /*
          pathType: ImplementationSpecific
-   - host: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])}
-     http:
-       paths:
-       - backend:
-           service:
-             name: kong-${var.rancher_project_name}
-             port:
-               name: https-admin
-         path: /*
-         pathType: ImplementationSpecific
 kong:
   livenessProbe:
     enabled: false
@@ -125,12 +115,6 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
-  - name: KONG_ADMIN_GUI_PATH
-    value: "/"
-  - name: KONG_ADMIN_GUI_URL
-    value: "localhost:8002"
-  - name: KONG_ADMIN_GUI_API_URL
-    value: "localhost:8001"
   - name: KONG_UPSTREAM_TIMEOUT
     value: "600000"
   - name: KONG_UPSTREAM_SEND_TIMEOUT
@@ -181,6 +165,8 @@ kong:
     value: "4 16k"
   - name: KONG_LOG_LEVEL
     value: "info"
+  - name: KONG_ADMIN_GUI_API_URL
+    value: "${local.kong_url}"
   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
     value: "4 16k"
   - name: KONG_PROXY_LISTEN
@@ -204,7 +190,6 @@ migration:
 EOF
   ]
 }
-
 resource "kubernetes_service" "kong_admin_api" {
   count = var.eureka ? 1 : 0
   metadata {
@@ -220,6 +205,26 @@ resource "kubernetes_service" "kong_admin_api" {
     port {
       port        = 80
       target_port = 8001
+    }
+    type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_service" "kong_admin_ui" {
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-admin-ui-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
+      "app.kubernetes.io/name"      = "kong"
+    }
+    port {
+      port        = 80
+      target_port = 8002
     }
     type = "ClusterIP"
   }
