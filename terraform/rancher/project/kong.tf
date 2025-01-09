@@ -235,7 +235,7 @@ resource "kubernetes_ingress_v1" "kong" {
 
   count = var.eureka ? 1 : 0
   metadata {
-    name      = "kong-ingress-${rancher2_namespace.this.id}"
+    name      = "kong-ui-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
     annotations = {
       "kubernetes.io/ingress.class"                = "alb"
@@ -247,7 +247,7 @@ resource "kubernetes_ingress_v1" "kong" {
     }
   }
   spec {
-    hostname = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])
+    host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])
     rule {
       http {
         path {
