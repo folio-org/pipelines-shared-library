@@ -72,8 +72,7 @@ service:
     proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8443
-    kongMgr: 8002
+    adminHttps: 8002
   nodePorts:
     proxyHttp: ""
     proxyHttps: ""
@@ -111,7 +110,7 @@ ingress:
            service:
              name: kong-admin-ui-${rancher2_namespace.this.id}
              port:
-               name: mgr-kong
+               name: https-admin
          path: /*
          pathType: ImplementationSpecific
 kong:
