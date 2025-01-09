@@ -231,38 +231,6 @@ resource "kubernetes_service" "kong_admin_api_external" {
   }
 }
 
-resource "kubernetes_ingress_v1" "kong_admin_api_external" {
-  count = var.eureka ? 1 : 0
-  metadata {
-    name      = "kong-admin-api-external-${rancher2_namespace.this.id}"
-    namespace = rancher2_namespace.this.id
-    annotations = {
-      "kubernetes.io/ingress.class"                = "alb"
-      "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
-      "alb.ingress.kubernetes.io/group.name"       = local.group_name
-}
-  }
-  spec {
-    rule {
-      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-admin-api"]), var.root_domain])
-      http {
-        path {
-          path = "/*"
-          backend {
-            service {
-              name = "kong-admin-api-external-${rancher2_namespace.this.id}"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-
 resource "kubernetes_service" "kong_admin_ui" {
   count = var.eureka ? 1 : 0
   metadata {
@@ -308,6 +276,22 @@ resource "kubernetes_ingress_v1" "kong-ui" {
           backend {
             service {
               name = "kong-admin-ui-${rancher2_namespace.this.id}"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+    rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-admin-api"]), var.root_domain])
+      http {
+        path {
+          path = "/*"
+          backend {
+            service {
+              name = "kong-admin-api-external-${rancher2_namespace.this.id}"
               port {
                 number = 80
               }
