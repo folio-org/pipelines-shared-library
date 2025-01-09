@@ -14,7 +14,6 @@ void create(CreateNamespaceParameters param) {
   def fileName = "my-config.json"
   try {
   new File(tempFile).text = jsonString
-
     writeFile(file: tempFile, text: fileContent)
 
     kubectl.createConfigMap(configMapName, namespace, tempFile)
