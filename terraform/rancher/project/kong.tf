@@ -72,7 +72,7 @@ service:
     proxyHttp: 8000
     proxyHttps: 443
     adminHttp: 8001
-    adminHttps: 8444
+    adminHttps: 8002
   nodePorts:
     proxyHttp: ""
     proxyHttps: ""
@@ -109,7 +109,7 @@ ingress:
            service:
              name: kong-admin-ui-${rancher2_namespace.this.id}
              port:
-               name: kong-ui-public
+               name: adminHttps
          path: /*
          pathType: ImplementationSpecific
 kong:
@@ -125,6 +125,10 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+  - name: KONG_ADMIN_GUI_PATH
+    value: "/"
+  - name: KONG_ADMIN_GUI_URL
+    value: "localhost:8002"
   - name: KONG_UPSTREAM_TIMEOUT
     value: "600000"
   - name: KONG_UPSTREAM_SEND_TIMEOUT
@@ -215,27 +219,6 @@ resource "kubernetes_service" "kong_admin_api" {
     port {
       port        = 80
       target_port = 8001
-    }
-    type = "ClusterIP"
-  }
-}
-
-resource "kubernetes_service" "kong_admin_ui" {
-  count = var.eureka ? 1 : 0
-  metadata {
-    name      = "kong-admin-ui-${rancher2_namespace.this.id}"
-    namespace = rancher2_namespace.this.id
-  }
-  spec {
-    selector = {
-      "app.kubernetes.io/component" = "server"
-      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
-      "app.kubernetes.io/name"      = "kong"
-    }
-    port {
-      name        = "kong-ui-public"
-      port        = 80
-      target_port = 8002
     }
     type = "ClusterIP"
   }
