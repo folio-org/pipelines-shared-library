@@ -1,6 +1,3 @@
-import org.folio.Constants
-import org.folio.utilities.Logger
-
 def createConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []
@@ -108,21 +105,6 @@ String patchSecret(String secret_name, String value_name, String secret_value, S
   sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
 }
 
-String getDeploymentContainerImage(String namespace, String deploymentName, String containerName) {
-  try {
-    return sh(script: "kubectl get deployment ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[?(@.name==\"${containerName}\")].image}'", returnStdout: true).trim()
-  } catch (Exception e) {
-    println("Error retrieving container image: ${e.getMessage()}")
-    throw e
-  }
-}
-
-String getDeploymentContainerImageName(String namespace, String deploymentName, String containerName) {
-  String fullPath = getDeploymentContainerImage(namespace, deploymentName, containerName)
-
-  return fullPath.substring(fullPath.lastIndexOf('/') + 1)
-}
-
 def patchConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []
@@ -162,9 +144,9 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
+void deletePod(String namespace = 'default', String pod_name) {
   try {
-    sh "kubectl delete pod ${pod_name}  --ignore-not-found=true --wait=${wait} --namespace=${namespace}"
+    sh "kubectl delete pod --namespace=${namespace} ${pod_name}"
   } catch (Exception e) {
     currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
@@ -206,9 +188,9 @@ boolean checkKubernetesResourceExist(String resource_type, String resource_name,
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
 
-def getLabelsFromNamespace(String namespace, String labelKey = null) {
+def getLabelsFromNamespace(String namespace) {
   try {
-    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels${labelKey ? '.' + labelKey : ''}}'", returnStdout: true).trim()
+    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels}'", returnStdout: true).trim()
   } catch (Exception e) {
     println(e.getMessage())
   }
@@ -266,24 +248,5 @@ boolean checkNamespaceExistence(String namespace) {
   catch (Exception e) {
     println(e.getMessage())
     return false
-  }
-}
-
-void portForwardPSQL(String namespace, Map ports = [5432: 5432]) {
-  try {
-    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}")
-  } catch (Exception e) {
-    new Logger(this, 'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
-  }
-}
-
-void patchDefaultServiceAccount(String namespace) {
-  try {
-    withCredentials([usernamePassword(credentialsId: 'DockerHubIDJenkins', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
-      sh(script: """kubectl create secret docker-registry docker-hub --docker-server=https://index.docker.io/v1/ --docker-username=${env.dockerUser} --docker-password=${env.dockerPassword} --docker-email=${Constants.EMAIL_FROM} ---namespace ${namespace}""")
-      sh(script: """kubectl patch sa default -p '{"imagePullSecrets":[{"name": "docker-hub"}]} --namespace ${namespace}""")
-    }
-  } catch (Exception e) {
-    new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
   }
 }
