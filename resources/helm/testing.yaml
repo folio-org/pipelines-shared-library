@@ -4486,7 +4486,7 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: ROUTEMANAGEMENT_ENABLE
+    - name: APPLICATION_KONG_ENABLED
       value: "false"
   integrations:
     db:
