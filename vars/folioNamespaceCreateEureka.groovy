@@ -265,7 +265,7 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-//    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
+    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
