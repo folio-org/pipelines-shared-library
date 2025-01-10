@@ -19,7 +19,7 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.5.0
+  tag: 3.5
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
