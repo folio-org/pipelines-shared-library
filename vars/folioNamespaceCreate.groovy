@@ -56,6 +56,9 @@ void call(CreateNamespaceParameters args) {
         } else {
           folioNamespaceMetadata.compare(args)
         }
+        folioNamespaceMetadata.getMetadataAll(args)
+        folioNamespaceMetadata.getMetadataKey(args, 'ClusterName')
+        folioNamespaceMetadata.updateConfigMap (args, ["Arg":"true"])
       }
     }
 
