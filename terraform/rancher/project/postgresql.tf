@@ -281,7 +281,7 @@ resource "helm_release" "pgadmin" {
 image:
   tag: 8.14
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: pgadmin
+  repository: pgadmin4
   pullPolicy: IfNotPresent
 resources:
   requests:
