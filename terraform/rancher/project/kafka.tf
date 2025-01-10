@@ -39,9 +39,9 @@ metrics:
     ${indent(4, local.schedule_value)}
   jmx:
     image:
-      tag: 1.6.0-debian-11-r73
+      tag: 0.18.0-debian-11-r5
       registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-      repository: kafka
+      repository: jmx-exporter
       pullPolicy: IfNotPresent
     enabled: true
     resources:
