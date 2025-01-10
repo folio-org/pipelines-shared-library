@@ -4424,8 +4424,6 @@ mgr-applications:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: ROUTEMANAGEMENT_ENABLE
-      value: "true"
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
@@ -4486,8 +4484,6 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: APPLICATION_KONG_ENABLED
-      value: "false"
   integrations:
     db:
       enabled: true
