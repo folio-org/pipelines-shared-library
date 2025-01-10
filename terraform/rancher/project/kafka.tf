@@ -19,7 +19,9 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.5
+  tag: 3.5.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka
+  pullPolicy: IfNotPresent
 metrics:
   kafka:
     enabled: true
@@ -53,6 +55,8 @@ resources:
 zookeeper:
   image:
     tag: 3.7
+    repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/zookeeper
+    pullPolicy: IfNotPresent
   enabled: true
   persistence:
     size: 5Gi
@@ -85,6 +89,10 @@ resource "helm_release" "kafka-ui" {
   chart      = "kafka-ui"
   version    = "0.7.1"
   values = [<<-EOF
+image:
+  tag: v0.7.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka-ui
+  pullPolicy: IfNotPresent
 service:
   type: NodePort
 ingress:

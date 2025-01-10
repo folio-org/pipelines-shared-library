@@ -23,6 +23,10 @@ resource "helm_release" "minio" {
   version    = "11.8.1"
   values = [<<-EOF
 defaultBuckets: ${join(",", [local.s3_buckets_string, "local-files"])}
+image:
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/minio
+  tag: 2022.8.11-debian-11-r0
+  pullPolicy: IfNotPresent
 auth:
   rootUser: ${random_string.access_key[0].result}
   rootPassword: ${random_password.secret_access_key[0].result}

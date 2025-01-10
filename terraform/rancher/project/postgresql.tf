@@ -98,7 +98,9 @@ readReplicas:
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
 image:
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/postgresql
   tag: ${join(".", [var.pg_version, "0"])}
+  pullPolicy: IfNotPresent
 auth:
   database: ${local.pg_eureka_db_name}
   postgresPassword: ${var.pg_password}
