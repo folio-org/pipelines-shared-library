@@ -24,12 +24,12 @@ image:
   repository: kafka
   pullPolicy: IfNotPresent
 metrics:
-  image:
-    tag: 1.6.0-debian-11-r73
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: kafka-exporter
-    pullPolicy: IfNotPresent
   kafka:
+    image:
+      tag: 1.6.0-debian-11-r73
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: kafka-exporter
+      pullPolicy: IfNotPresent
     enabled: true
     resources:
       limits:
