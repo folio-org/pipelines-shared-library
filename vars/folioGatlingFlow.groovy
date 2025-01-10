@@ -1,12 +1,15 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
-import org.folio.models.parameters.GatlingTestsParameters
+import org.folio.models.parameters.KarateTestsParameters
 
-void call(GatlingTestsParameters args) {
+void call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Gatling flow')
 
+  /** Base directory to clone sources from GitHub repository */
+  String gatlingBaseDir = 'folio-gatling-tests'
+
   stage('[Git] Checkout Module repo') {
-    dir('folio-gatling-tests') {
+    dir(gatlingBaseDir) {
       checkout poll: false,
         scm: [
           $class: 'GitSCM',
@@ -21,8 +24,18 @@ void call(GatlingTestsParameters args) {
     }
   }
 
+  stage("[Groovy] Build Karate config") {
+    dir(gatlingBaseDir) {
+      def files = findFiles(glob: '**/karate-config.js')
+      files.each { file ->
+        echo "Updating file ${file.path}"
+        writeFile file: file.path, text: karateTestUtils.renderKarateConfig(readFile(file.path), args)
+      }
+    }
+  }
+
   stage('[Maven] Gatling tests') {
-    dir('folio-gatling-tests') {
+    dir(gatlingBaseDir) {
       timeout(time: args.timeout, unit: 'HOURS') {
         withMaven(jdk: args.javaVersion, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
 
@@ -33,14 +46,14 @@ void call(GatlingTestsParameters args) {
            */
           String modules = args.modulesToTest ? "-pl common,testrail-integration,${args.modulesToTest}" : ""
 
-          sh "mvn gatling:test -Dkarate.env=${args.envType} ${modules}"
+          sh "mvn gatling:test -Dkarate.env=${args.karateConfig} ${modules}"
         }
       }
     }
   }
 
   stage('[Report] Publish results') {
-    dir('folio-gatling-tests') {
+    dir(gatlingBaseDir) {
       gatlingArchive()
     }
   }
