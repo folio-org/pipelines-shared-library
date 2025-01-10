@@ -20,7 +20,8 @@ resource "helm_release" "kafka" {
   values = [<<-EOF
 image:
   tag: 3.5.0
-  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kafka
   pullPolicy: IfNotPresent
 metrics:
   kafka:
@@ -55,7 +56,8 @@ resources:
 zookeeper:
   image:
     tag: 3.7
-    repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/zookeeper
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: zookeeper
     pullPolicy: IfNotPresent
   enabled: true
   persistence:
@@ -91,7 +93,8 @@ resource "helm_release" "kafka-ui" {
   values = [<<-EOF
 image:
   tag: v0.7.0
-  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/kafka-ui
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kafka-ui
   pullPolicy: IfNotPresent
 service:
   type: NodePort

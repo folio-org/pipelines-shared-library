@@ -98,7 +98,8 @@ readReplicas:
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
 image:
-  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/postgresql
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: postgresql
   tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
 auth:
@@ -280,6 +281,11 @@ resource "helm_release" "pgadmin" {
   chart      = "pgadmin4"
   version    = "1.10.1"
   values = [<<-EOF
+image:
+  tag: 8.14
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: pgadmin
+  pullPolicy: IfNotPresent
 resources:
   requests:
     memory: 256Mi
