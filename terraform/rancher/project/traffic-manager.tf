@@ -8,7 +8,7 @@ resource "helm_release" "traffic-manager" {
     <<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: telepresence
+  repository: tel2
   tag: 2.21.1
   pullPolicy: IfNotPresent
 resources:
