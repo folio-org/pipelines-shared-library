@@ -151,6 +151,11 @@ primary:
   ${indent(2, local.schedule_value)}
 volumePermissions:
   enabled: true
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: os-shell
+    tag: 11-debian-11-r91
+    pullPolicy: IfNotPresent
 metrics:
   enabled: false
   resources:
