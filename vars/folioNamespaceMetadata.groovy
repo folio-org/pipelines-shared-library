@@ -12,7 +12,7 @@ void create(CreateNamespaceParameters params) {
   writeFile(file: tempFile, text: jsonString)
 
   try {
-    if (folioNamespaceMetadata.isExist(namespace)) {
+    if (folioNamespaceMetadata.isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overrited"
       kubectl.recreateConfigMap(configMapName, namespace, tempFile)
     } else {
@@ -28,7 +28,7 @@ void create(CreateNamespaceParameters params) {
   }
 }
 
-boolean isExist(String namespace) {
+boolean isMetadataExist(String namespace) {
   def name = Constants.AWS_EKS_NS_METADATA
   try {
     sh "kubectl get configmap $name --namespace=${namespace}"
@@ -51,6 +51,7 @@ void recreate(CreateNamespaceParameters params) {
 def getMetadataAll(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
+
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson').trim()
   return jsonData
 }
