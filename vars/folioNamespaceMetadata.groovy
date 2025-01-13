@@ -4,10 +4,10 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import groovy.json.JsonOutput
 
 
-void create(CreateNamespaceParameters param) {
+void create(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
-  def namespace = param.namespaceName
-  def jsonString = JsonOutput.toJson(param)
+  def namespace = params.namespaceName
+  def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
   writeFile(file: tempFile, text: jsonString)
 
@@ -40,8 +40,8 @@ boolean isExist(String namespace) {
 
 void recreate(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
-  def namespace = param.namespaceName
-  def jsonString = JsonOutput.toJson(param)
+  def namespace = params.namespaceName
+  def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
   writeFile(file: tempFile, text: jsonString)
 
@@ -50,14 +50,14 @@ void recreate(CreateNamespaceParameters params) {
 
 def getMetadataAll(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
-  def namespace = param.namespaceName
+  def namespace = params.namespaceName
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson').trim()
   return jsonData
 }
 
 def getMetadataKey(CreateNamespaceParameters params, String key) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
-  def namespace = param.namespaceName
+  def namespace = params.namespaceName
   def value = kubectl.getConfigMap(configMapName, namespace, "metadataJson.${key}").trim()
   println("Requested Metadata $key = value")
   return value
@@ -109,9 +109,9 @@ void updateConfigMap(String namespace, Map<String, Object> updates) {
 
 
 //temp method to print createNamespaceParameters
-  void printParams(CreateNamespaceParameters param) {
+  void printParams(CreateNamespaceParameters params) {
     println "*******************METADATA******************"
-    param.properties.each { key, value ->
+    params.properties.each { key, value ->
       if (value instanceof String || value instanceof Boolean) {
         println "$key: $value"
       } else if (value instanceof List && value.every { it instanceof String }) {
@@ -124,9 +124,9 @@ void updateConfigMap(String namespace, Map<String, Object> updates) {
 
 
 //compare with existing metadata
-  void compare(CreateNamespaceParameters param) {
+  void compare(CreateNamespaceParameters parasm) {
     def configMapName = Constants.AWS_EKS_NS_METADATA
-    def namespace = param.namespaceName
+    def namespace = params.namespaceName
     def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'configmap-data')
     def configMapData = configMapRawData.split("\n").collectEntries { line ->
       def (key, value) = line.split("=", 2)
@@ -135,7 +135,7 @@ void updateConfigMap(String namespace, Map<String, Object> updates) {
 
 // 2: compare
     def changes = [:]
-    param.properties.each { key, value ->
+    params.properties.each { key, value ->
       if (key in ['class', 'metaClass']) return
 
       def configValue = configMapData[key]
