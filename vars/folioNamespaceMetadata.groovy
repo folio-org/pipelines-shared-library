@@ -168,30 +168,30 @@ void updateConfigMap(String namespace, Map<String, Object> updates) {
   }
 
 
-  void updateConfigMap(String configMapName, String namespace, Map changes) {
-    if (!changes) {
-      println("Нет изменений для обновления.")
-      return
-    }
-
-    def updatedData = changes.collect { key, diff -> "${key}=${diff.expected}" }.join("\n")
-
-    def tempFile = "updated-configmap-data.txt"
-    writeFile(file: tempFile, text: updatedData)
-
-    //update CM
-    try {
-
-      sh """
-        kubectl create configmap ${configMapName} --namespace=${namespace} \
-            --from-file=configmap-data=${tempFile} --dry-run=client -o yaml | \
-            kubectl apply -f -
-        """
-      println("ConfigMap '${configMapName}' успешно обновлён.")
-    } catch (Exception e) {
-      println("Ошибка при обновлении ConfigMap: ${e.message}")
-    } finally {
-      // Удаляем временный файл
-      sh "rm -f ${tempFile}"
-    }
-  }
+//  void updateConfigMap(String configMapName, String namespace, Map changes) {
+//    if (!changes) {
+//      println("Нет изменений для обновления.")
+//      return
+//    }
+//
+//    def updatedData = changes.collect { key, diff -> "${key}=${diff.expected}" }.join("\n")
+//
+//    def tempFile = "updated-configmap-data.txt"
+//    writeFile(file: tempFile, text: updatedData)
+//
+//    //update CM
+//    try {
+//
+//      sh """
+//        kubectl create configmap ${configMapName} --namespace=${namespace} \
+//            --from-file=configmap-data=${tempFile} --dry-run=client -o yaml | \
+//            kubectl apply -f -
+//        """
+//      println("ConfigMap '${configMapName}' успешно обновлён.")
+//    } catch (Exception e) {
+//      println("Ошибка при обновлении ConfigMap: ${e.message}")
+//    } finally {
+//      // Удаляем временный файл
+//      sh "rm -f ${tempFile}"
+//    }
+//  }
