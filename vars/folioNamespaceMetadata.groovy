@@ -125,7 +125,7 @@ void updateConfigMap(String namespace, Map<String, Object> updates) {
 
 
 //compare with existing metadata
-  void compare(CreateNamespaceParameters parasm) {
+  void compare(CreateNamespaceParameters params) {
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'configmap-data')
