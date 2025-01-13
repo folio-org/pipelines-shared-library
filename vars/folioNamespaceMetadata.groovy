@@ -52,16 +52,37 @@ def getMetadataAll(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
 
-  def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson').trim()
+  def jsonData = sh(
+    script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson}' || echo ''",
+    returnStdout: true
+  )?.trim()
+
+  if (!jsonData) {
+    println "ConfigMap '${configMapName}' не существует в namespace '${namespace}' или данные пусты."
+    return null
+  }
+
+  println "Полученные данные ConfigMap: $jsonData"
   return jsonData
 }
 
 def getMetadataKey(CreateNamespaceParameters params, String key) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
-  def value = kubectl.getConfigMap(configMapName, namespace, "metadataJson.${key}").trim()
-  println("Requested Metadata $key = value")
+  // Выполняем команду и проверяем результат
+  def value = sh(
+    script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson.${key}}' || echo ''",
+    returnStdout: true
+  )?.trim()
+
+  if (!value) {
+    println "Ключ '${key}' отсутствует в ConfigMap '${configMapName}' в namespace '${namespace}'."
+    return null
+  }
+
+  println "Запрошенный ключ $key = $value"
   return value
+
 }
 
 
