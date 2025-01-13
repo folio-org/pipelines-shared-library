@@ -12,7 +12,7 @@ void create(CreateNamespaceParameters params) {
   writeFile(file: tempFile, text: jsonString)
 
   try {
-    if (folioNamespaceMetadata.isMetadataExist(namespace)) {
+    if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overrited"
       kubectl.recreateConfigMap(configMapName, namespace, tempFile)
     } else {
@@ -87,7 +87,7 @@ def getMetadataKey(CreateNamespaceParameters params, String key) {
 
 
 
-void updateConfigMap(String namespace, Map<String, Object> updates) {
+void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
   try {
     // Шаг 1: Считываем текущую ConfigMap
     def jsonData = sh(
