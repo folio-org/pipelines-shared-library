@@ -139,8 +139,8 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
     return sh(script: "set +x && kubectl exec --namespace=${namespace} ${pod_name} -- ${command}",
       returnStdout: true).trim()
   } catch (Exception e) {
-    currentBuild.result = 'UNSTABLE'
-    println(e.getMessage())
+//    currentBuild.result = 'UNSTABLE'
+    println("Requested command: ${command} failed\nError: " + e.getMessage())
   }
 }
 
