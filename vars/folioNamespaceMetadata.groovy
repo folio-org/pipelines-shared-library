@@ -5,7 +5,7 @@ import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters params) {
-  Println "Metadata Create"
+  println "Metadata Create"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
