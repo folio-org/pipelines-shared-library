@@ -5,6 +5,7 @@ import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters params) {
+  Println "Metadata Create"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
@@ -29,18 +30,20 @@ void create(CreateNamespaceParameters params) {
 }
 
 boolean isMetadataExist(String namespace) {
+  Println "Metadata isMetadataExist "
   def name = Constants.AWS_EKS_NS_METADATA
   try {
     sh "kubectl get configmap $name --namespace=${namespace}"
     return true
   } catch (Exception e) {
-    println "Error while checking existense Metadata ConfigMap: ${e.message}"
+    println "The metadata configMap does not exits: ${e.message}"
     e.printStackTrace()
     return false
   }
 }
 
 void recreate(CreateNamespaceParameters params) {
+  println("Metadata recreate")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
@@ -51,6 +54,7 @@ void recreate(CreateNamespaceParameters params) {
 }
 
 def getMetadataAll(CreateNamespaceParameters params) {
+  println("Metadata getMetadataAll")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   if (isMetadataExist(namespace)) {
@@ -64,6 +68,7 @@ def getMetadataAll(CreateNamespaceParameters params) {
 }
 
   def getMetadataKey(CreateNamespaceParameters params, String key) {
+    println("Metadata getMetadataKey")
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     // Выполняем команду и проверяем результат
@@ -90,6 +95,7 @@ def getMetadataAll(CreateNamespaceParameters params) {
 
 
   void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
+    println("Metadata UpdateConfigMap")
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     try {
@@ -150,6 +156,7 @@ def getMetadataAll(CreateNamespaceParameters params) {
 
 //compare with existing metadata
   void compare(CreateNamespaceParameters params) {
+    println("Metadata Compare")
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
