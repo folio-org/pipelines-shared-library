@@ -5,7 +5,7 @@ import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters params) {
-  println "Metadata Create"
+  println "************************Metadata Create"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
@@ -160,40 +160,32 @@ def getMetadataAll(CreateNamespaceParameters params) {
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-    def configMapData = configMapRawData.split("\n").collectEntries { line ->
-      def (key, value) = line.split("=", 2)
-      [(key): value]
-    }
+//    def configMapData = configMapRawData.split("\n").collectEntries { line ->
+//      def (key, value) = line.split("=", 2)
+//      [(key): value]
+//    }
+
+    def configMapData = new groovy.json.JsonSlurper().parseText(configMapRawData)
 
 // 2: compare
     def changes = [:]
     params.properties.each { key, value ->
-      if (key in ['class', 'metaClass']) return
+      if (key in ['class', 'metaClass']) return // Пропускаем мета-свойства
 
-      def configValue = configMapData[key]
-      def objectValue = value instanceof List ? value.join("\n") : value.toString()
+      def configValue = configMapData[key] // Значение из ConfigMap
+      def objectValue = value // Значение из второго экземпляра класса
 
+      // Сравниваем как списки или строки
       if (configValue != objectValue) {
         changes[key] = [current: configValue, expected: objectValue]
       }
     }
 
-// 3: output diff
+// Выводим различия
     if (changes) {
       println("Found Differences in Existing Metadata and Desired Parameters:")
       changes.each { key, diff ->
         println("Key '${key}': Existing Value '${diff.current}', New Value  '${diff.expected}'")
-      }
-      def userInput = input(
-        message: 'There are in ConfigMap. Continue?',
-        ok: 'YES',
-        parameters: [
-          string(defaultValue: 'Yes', description: 'Type "yes" to continue', name: 'response')
-        ]
-      )
-
-      if (userInput.toLowerCase() != 'yes') {
-        error "Pipeline Cancelled by User."
       }
     }
   }
