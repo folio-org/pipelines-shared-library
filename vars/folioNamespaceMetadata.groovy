@@ -13,7 +13,7 @@ void create(CreateNamespaceParameters params) {
 
   try {
     if (isMetadataExist(namespace)) {
-      println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overrited"
+      println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
       kubectl.recreateConfigMap(configMapName, namespace, tempFile)
     } else {
       kubectl.createConfigMap(configMapName, namespace, tempFile)
@@ -34,6 +34,8 @@ boolean isMetadataExist(String namespace) {
     sh "kubectl get configmap $name --namespace=${namespace}"
     return true
   } catch (Exception e) {
+    println "Error while checking existense Metadata ConfigMap: ${e.message}"
+    e.printStackTrace()
     return false
   }
 }
