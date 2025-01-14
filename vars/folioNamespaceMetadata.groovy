@@ -152,7 +152,7 @@ def getMetadataAll(CreateNamespaceParameters params) {
   void compare(CreateNamespaceParameters params) {
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
-    def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'configmap-data')
+    def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     def configMapData = configMapRawData.split("\n").collectEntries { line ->
       def (key, value) = line.split("=", 2)
       [(key): value]
