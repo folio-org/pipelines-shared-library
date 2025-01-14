@@ -30,7 +30,7 @@ void create(CreateNamespaceParameters params) {
 }
 
 boolean isMetadataExist(String namespace) {
-  Println "Metadata isMetadataExist "
+  println "Metadata isMetadataExist "
   def name = Constants.AWS_EKS_NS_METADATA
   try {
     sh "kubectl get configmap $name --namespace=${namespace}"
