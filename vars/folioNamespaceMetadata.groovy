@@ -36,7 +36,7 @@ void create(CreateNamespaceParameters params) {
 
 boolean isMetadataExist(String namespace) {
   println "Metadata isMetadataExist "
-  def name = Constants.AWS_EKS_NS_METADATA
+  def configMapName = Constants.AWS_EKS_NS_METADATA
   try {
     kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     return true
