@@ -67,8 +67,7 @@ resource "helm_release" "opensearch-master" {
   values = [<<-EOF
 image:
   tag: 2.11.0
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: opensearch
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
@@ -143,7 +142,7 @@ image:
   tag: 2.11.0
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   pullPolicy: IfNotPresent
-  repository: opensearch
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
 service:
   type: NodePort
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -192,8 +191,7 @@ resource "helm_release" "opensearch-dashboards" {
   values = [<<-EOF
 image:
   tag: 2.11.0
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: opensearch-dashboards
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
