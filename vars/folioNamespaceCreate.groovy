@@ -52,6 +52,9 @@ void call(CreateNamespaceParameters args) {
       folioNamespaceMetadata.printParams(args)
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         if (!folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())) {
+          println(
+            !folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())
+          )
           folioNamespaceMetadata.create(args)
         } else {
           folioNamespaceMetadata.compare(args)
