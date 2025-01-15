@@ -38,7 +38,7 @@ boolean isMetadataExist(String namespace) {
   println "Metadata isMetadataExist "
   def name = Constants.AWS_EKS_NS_METADATA
   try {
-    sh "kubectl get configmap $name --namespace=${namespace}"
+    kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     return true
   } catch (Exception e) {
     println "The metadata configMap does not exits: ${e.message}"
@@ -83,10 +83,10 @@ def getMetadataKey(CreateNamespaceParameters params, String key) {
   def metadataObject = jsonSlurper.parseText(jsonData)
   def value = metadataObject[key]
   if (!value) {
-    println "Ключ '${key}' отсутствует в ConfigMap '${configMapName}' в namespace '${namespace}'."
+    println "Key '${key}' does not exist in ConfigMap '${configMapName}' в namespace '${namespace}'."
     return null
   }
-  println "Запрошенный ключ $key = $value"
+  println "Requested key $key = $value"
   return value
 }
 
@@ -96,38 +96,33 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   try {
-    // Шаг 1: Считываем текущую ConfigMap
-    def jsonData = sh(
-      script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson}'",
-      returnStdout: true
-    ).trim()
+    // read currents configmap
+    def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
 
     println "Existing ConfigMap JSON: $jsonData"
 
-    // Шаг 2: Парсим JSON в объект
+    // parse json to object
     def jsonSlurper = new JsonSlurper()
     def configObject = jsonSlurper.parseText(jsonData)
 
-    // Шаг 3: Обновляем данные
+    //update data
     updates.each { key, value ->
       println "Updating key: ${key} with value: ${value}"
       configObject[key] = value
     }
 
-    // Шаг 4: Преобразуем обновлённый объект обратно в JSON
+    //convert updated object to json
     def updatedJson = JsonOutput.toJson(configObject)
     println "Updated JSON: $updatedJson"
 
-    // Шаг 5: Записываем обновлённый JSON во временный файл
+    // write json to file and save in configmap
     def tempFile = "updated_metadata.json"
     writeFile(file: tempFile, text: updatedJson)
 
-    // Шаг 6: Обновляем ConfigMap через kubectl
-    sh "kubectl create configmap ${configMapName} -n ${namespace} --from-file=metadata.json=${tempFile} -o yaml --dry-run=client | kubectl apply -f -"
+    kubectl.recreateConfigMap(configMapName, namespace, tempFile)
 
     println "ConfigMap '${configMapName}' updated successfully in namespace '${namespace}'"
 
-    // Удаляем временный файл
     sh "rm -f ${tempFile}"
 
   } catch (Exception e) {
@@ -163,7 +158,7 @@ void compare(CreateNamespaceParameters params) {
 // 2: compare
   def changes = [:]
   params.properties.each { key, value ->
-
+    if (key in ['class', 'metaClass']) return
     def configValue = configMapData[key]
     def objectValue = value
 
