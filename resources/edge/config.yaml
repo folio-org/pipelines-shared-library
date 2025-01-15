@@ -5,6 +5,13 @@ edge-rtac:
     password: test
   permissions:
   - rtac.all
+edge-inventory:
+  tenants:
+  - tenant: testinventory
+    username: test-user
+    password: test
+  permissions:
+  - inventory.all
 edge-oai-pmh:
   tenants:
   - tenant: testoaipmh
