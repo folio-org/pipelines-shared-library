@@ -15,7 +15,9 @@ void create(CreateNamespaceParameters params) {
   try {
     if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
+      compare(params)
       kubectl.recreateConfigMap(configMapName, namespace, tempFile)
+      println "ConfigMap '${configMapName}' recreated successfully in namespace '${namespace}'"
     } else {
       kubectl.createConfigMap(configMapName, namespace, tempFile)
 
@@ -160,28 +162,21 @@ def getMetadataAll(CreateNamespaceParameters params) {
     def configMapName = Constants.AWS_EKS_NS_METADATA
     def namespace = params.namespaceName
     def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-//    def configMapData = configMapRawData.split("\n").collectEntries { line ->
-//      def (key, value) = line.split("=", 2)
-//      [(key): value]
-//    }
 
     def configMapData = new groovy.json.JsonSlurper().parseText(configMapRawData)
 
 // 2: compare
     def changes = [:]
     params.properties.each { key, value ->
-      if (key in ['class', 'metaClass']) return // Пропускаем мета-свойства
 
-      def configValue = configMapData[key] // Значение из ConfigMap
-      def objectValue = value // Значение из второго экземпляра класса
+      def configValue = configMapData[key]
+      def objectValue = value
 
-      // Сравниваем как списки или строки
       if (configValue != objectValue) {
         changes[key] = [current: configValue, expected: objectValue]
       }
     }
 
-// Выводим различия
     if (changes) {
       println("Found Differences in Existing Metadata and Desired Parameters:")
       changes.each { key, diff ->
