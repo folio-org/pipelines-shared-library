@@ -16,9 +16,12 @@ void create(CreateNamespaceParameters params) {
     if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
       compare(params)
+
       kubectl.recreateConfigMap(configMapName, namespace, tempFile)
+
       println "ConfigMap '${configMapName}' recreated successfully in namespace '${namespace}'"
     } else {
+
       kubectl.createConfigMap(configMapName, namespace, tempFile)
 
       println "ConfigMap '${configMapName}' created successfully in namespace '${namespace}'"
@@ -60,127 +63,119 @@ def getMetadataAll(CreateNamespaceParameters params) {
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   if (isMetadataExist(namespace)) {
-    def jsonData = sh(
-      script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson}'",
-      returnStdout: true
-    ).trim()
-    println "Полученные данные ConfigMap: $jsonData"
+    def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     return jsonData
   }
 }
 
-  def getMetadataKey(CreateNamespaceParameters params, String key) {
-    println("Metadata getMetadataKey")
-    def configMapName = Constants.AWS_EKS_NS_METADATA
-    def namespace = params.namespaceName
-    // Выполняем команду и проверяем результат
-    if (!isMetadataExist(namespace)) {
-      println("Metadata Configmap does not exist")
-      return null
-    }
+def getMetadataKey(CreateNamespaceParameters params, String key) {
+  println("Metadata getMetadataKey")
+  def configMapName = Constants.AWS_EKS_NS_METADATA
+  def namespace = params.namespaceName
+  // check if metadata configmap exists
+  if (!isMetadataExist(namespace)) {
+    println("Metadata Configmap does not exist")
+    return null
+  }
+  def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
+
+  def jsonSlurper = new JsonSlurper()
+  def metadataObject = jsonSlurper.parseText(jsonData)
+  def value = metadataObject[key]
+  if (!value) {
+    println "Ключ '${key}' отсутствует в ConfigMap '${configMapName}' в namespace '${namespace}'."
+    return null
+  }
+  println "Запрошенный ключ $key = $value"
+  return value
+}
+
+
+void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
+  println("Metadata UpdateConfigMap")
+  def configMapName = Constants.AWS_EKS_NS_METADATA
+  def namespace = params.namespaceName
+  try {
+    // Шаг 1: Считываем текущую ConfigMap
     def jsonData = sh(
       script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson}'",
       returnStdout: true
     ).trim()
 
+    println "Existing ConfigMap JSON: $jsonData"
+
+    // Шаг 2: Парсим JSON в объект
     def jsonSlurper = new JsonSlurper()
-    def metadataObject = jsonSlurper.parseText(jsonData)
-    def value = metadataObject[key]
-    if (!value) {
-      println "Ключ '${key}' отсутствует в ConfigMap '${configMapName}' в namespace '${namespace}'."
-      return null
+    def configObject = jsonSlurper.parseText(jsonData)
+
+    // Шаг 3: Обновляем данные
+    updates.each { key, value ->
+      println "Updating key: ${key} with value: ${value}"
+      configObject[key] = value
     }
-    println "Запрошенный ключ $key = $value"
-    return value
+
+    // Шаг 4: Преобразуем обновлённый объект обратно в JSON
+    def updatedJson = JsonOutput.toJson(configObject)
+    println "Updated JSON: $updatedJson"
+
+    // Шаг 5: Записываем обновлённый JSON во временный файл
+    def tempFile = "updated_metadata.json"
+    writeFile(file: tempFile, text: updatedJson)
+
+    // Шаг 6: Обновляем ConfigMap через kubectl
+    sh "kubectl create configmap ${configMapName} -n ${namespace} --from-file=metadata.json=${tempFile} -o yaml --dry-run=client | kubectl apply -f -"
+
+    println "ConfigMap '${configMapName}' updated successfully in namespace '${namespace}'"
+
+    // Удаляем временный файл
+    sh "rm -f ${tempFile}"
+
+  } catch (Exception e) {
+    println "Error while updating ConfigMap: ${e.message}"
+    e.printStackTrace()
   }
-
-
-
-  void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
-    println("Metadata UpdateConfigMap")
-    def configMapName = Constants.AWS_EKS_NS_METADATA
-    def namespace = params.namespaceName
-    try {
-      // Шаг 1: Считываем текущую ConfigMap
-      def jsonData = sh(
-        script: "kubectl get configmap ${configMapName} -n ${namespace} -o jsonpath='{.data.metadataJson}'",
-        returnStdout: true
-      ).trim()
-
-      println "Existing ConfigMap JSON: $jsonData"
-
-      // Шаг 2: Парсим JSON в объект
-      def jsonSlurper = new JsonSlurper()
-      def configObject = jsonSlurper.parseText(jsonData)
-
-      // Шаг 3: Обновляем данные
-      updates.each { key, value ->
-        println "Updating key: ${key} with value: ${value}"
-        configObject[key] = value
-      }
-
-      // Шаг 4: Преобразуем обновлённый объект обратно в JSON
-      def updatedJson = JsonOutput.toJson(configObject)
-      println "Updated JSON: $updatedJson"
-
-      // Шаг 5: Записываем обновлённый JSON во временный файл
-      def tempFile = "updated_metadata.json"
-      writeFile(file: tempFile, text: updatedJson)
-
-      // Шаг 6: Обновляем ConfigMap через kubectl
-      sh "kubectl create configmap ${configMapName} -n ${namespace} --from-file=metadata.json=${tempFile} -o yaml --dry-run=client | kubectl apply -f -"
-
-      println "ConfigMap '${configMapName}' updated successfully in namespace '${namespace}'"
-
-      // Удаляем временный файл
-      sh "rm -f ${tempFile}"
-
-    } catch (Exception e) {
-      println "Error while updating ConfigMap: ${e.message}"
-      e.printStackTrace()
-    }
-  }
+}
 
 
 //temp method to print createNamespaceParameters
-  void printParams(CreateNamespaceParameters params) {
-    println "*******************METADATA******************"
-    params.properties.each { key, value ->
-      if (value instanceof String || value instanceof Boolean) {
-        println "$key: $value"
-      } else if (value instanceof List && value.every { it instanceof String }) {
-        println "$key: ${value.join(', ')}"
-      }
+void printParams(CreateNamespaceParameters params) {
+  println "*******************METADATA******************"
+  params.properties.each { key, value ->
+    if (value instanceof String || value instanceof Boolean) {
+      println "$key: $value"
+    } else if (value instanceof List && value.every { it instanceof String }) {
+      println "$key: ${value.join(', ')}"
     }
-    println "*****************************************"
   }
+  println "*****************************************"
+}
 
 
 //compare with existing metadata
-  void compare(CreateNamespaceParameters params) {
-    println("Metadata Compare")
-    def configMapName = Constants.AWS_EKS_NS_METADATA
-    def namespace = params.namespaceName
-    def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
+void compare(CreateNamespaceParameters params) {
+  println("Metadata Compare")
+  def configMapName = Constants.AWS_EKS_NS_METADATA
+  def namespace = params.namespaceName
+  def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
 
-    def configMapData = new groovy.json.JsonSlurper().parseText(configMapRawData)
+  def configMapData = new groovy.json.JsonSlurper().parseText(configMapRawData)
 
 // 2: compare
-    def changes = [:]
-    params.properties.each { key, value ->
+  def changes = [:]
+  params.properties.each { key, value ->
 
-      def configValue = configMapData[key]
-      def objectValue = value
+    def configValue = configMapData[key]
+    def objectValue = value
 
-      if (configValue != objectValue) {
-        changes[key] = [current: configValue, expected: objectValue]
-      }
-    }
-
-    if (changes) {
-      println("Found Differences in Existing Metadata and Desired Parameters:")
-      changes.each { key, diff ->
-        println("Key '${key}': Existing Value '${diff.current}', New Value  '${diff.expected}'")
-      }
+    if (configValue != objectValue) {
+      changes[key] = [current: configValue, expected: objectValue]
     }
   }
+
+  if (changes) {
+    println("Found Differences in Existing Metadata and Desired Parameters:")
+    changes.each { key, diff ->
+      println("Key '${key}': Existing Value '${diff.current}', New Value  '${diff.expected}'")
+    }
+  }
+}
