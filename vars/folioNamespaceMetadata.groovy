@@ -120,6 +120,9 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     def tempFile = "metadataJson"
     writeFile(file: tempFile, text: updatedJson)
 
+    def fileContent = readFile(file: tempFile)
+    println "File content to be used for ConfigMap: $fileContent"
+
     kubectl.recreateConfigMap(configMapName, namespace, tempFile)
 
     println "ConfigMap '${configMapName}' updated successfully in namespace '${namespace}'"
