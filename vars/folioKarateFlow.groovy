@@ -46,10 +46,16 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
           logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
-          if (args.reportPortalProjectId) {
-            sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig} -Drp.launch.uuid=${args.reportPortalProjectId}"
-          } else {
-            sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+          try {
+            if (args.reportPortalProjectId) {
+              sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig} -Drp.launch.uuid=${args.reportPortalProjectId}"
+            } else {
+              sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+            }
+          } catch (exception) {
+            logger.warning(exception)
+            currentBuild.currentResult = 'FAILURE'
+            currentBuild.result = 'FAILURE'
           }
         }
       }
