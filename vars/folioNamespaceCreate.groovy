@@ -51,13 +51,12 @@ void call(CreateNamespaceParameters args) {
     stage('Create metadata ConfigMap') {
       folioNamespaceMetadata.printParams(args)
       folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(
+          'Current !isMetadataExist' + !folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())
+        )
         if (!folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())) {
-          println(
-            'Current !isMetadataExist' + !folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())
-          )
           folioNamespaceMetadata.create(args)
         } else {
-          println("there is no metadata cm and it will be created")
           folioNamespaceMetadata.compare(args)
         }
         folioNamespaceMetadata.getMetadataAll(args)
