@@ -113,6 +113,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     }
 
     //convert updated object to json
+    println configObject
     def updatedJson = JsonOutput.toJson(configObject)
     println "Updated JSON: $updatedJson"
 
