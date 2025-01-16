@@ -35,13 +35,14 @@ void create(CreateNamespaceParameters params) {
 }
 
 boolean isMetadataExist(String namespace) {
-  println "Metadata isMetadataExist "
+  println "Checking if metadata ConfigMap exists"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   try {
-    kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-    return true
+    def result = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
+    println "Result from getConfigMap: '${result}'"
+    return result // Возвращает true, если result содержит данные, иначе false
   } catch (Exception e) {
-    println "The metadata configMap does not exits: ${e.message}"
+    println "Error during ConfigMap existence check: ${e.message}"
     e.printStackTrace()
     return false
   }
