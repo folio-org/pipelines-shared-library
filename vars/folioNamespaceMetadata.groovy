@@ -117,7 +117,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     println "Updated JSON: $updatedJson"
 
     // write json to file and save in configmap
-    def tempFile = "updated_metadata.json"
+    def tempFile = "metadataJson"
     writeFile(file: tempFile, text: updatedJson)
 
     kubectl.recreateConfigMap(configMapName, namespace, tempFile)
