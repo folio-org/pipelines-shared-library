@@ -11,7 +11,7 @@ void create(CreateNamespaceParameters params) {
   def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
   writeFile(file: tempFile, text: jsonString)
-
+  input message: "please proceed-0? "
   try {
     if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
@@ -107,10 +107,10 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     def configObject = jsonSlurper.parseText(jsonData)
 
     //update data
-    updates.each { key, value ->
-      println "Updating key: ${key} with value: ${value}"
-      configObject[key] = value
-    }
+//    updates.each { key, value ->
+//      println "Updating key: ${key} with value: ${value}"
+//      configObject[key] = value
+//    }
 
     //convert updated object to json
     println configObject
