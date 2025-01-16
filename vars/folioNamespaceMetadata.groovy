@@ -118,8 +118,9 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     println "Updated JSON: $updatedJson"
 
     // write json to file and save in configmap
+    input message: "please proceed-0? "
     sh "pwd && ls -la"
-    input message: "please proceed? "
+    input message: "please proceed-1? "
     def tempFile = "metadataJson"
     writeFile(file: tempFile, text: updatedJson)
     input message: "please proceed-2? "
