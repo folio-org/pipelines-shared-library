@@ -115,6 +115,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     //convert updated object to json
     println configObject
     def updatedJson = JsonOutput.toJson(configObject)
+    input message: "please proceed-a? "
     println "Updated JSON: $updatedJson"
 
     // write json to file and save in configmap
