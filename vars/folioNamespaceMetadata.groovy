@@ -117,8 +117,10 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     println "Updated JSON: $updatedJson"
 
     // write json to file and save in configmap
+    sh "ls -la"
     def tempFile = "metadataJson"
     writeFile(file: tempFile, text: updatedJson)
+
     sh "ls -la"
 
     def fileContent = readFile(file: tempFile)
