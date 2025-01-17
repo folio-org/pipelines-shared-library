@@ -1,4 +1,4 @@
-import groovy.json.JsonSlurper
+
 import org.folio.Constants
 import org.folio.models.parameters.CreateNamespaceParameters
 import groovy.json.JsonOutput
@@ -10,7 +10,7 @@ void create(CreateNamespaceParameters params) {
   def namespace = params.namespaceName
   //def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
-  writeJSON(file: tempFile, text: params)
+  writeJSON(file: tempFile, json: params)
   try {
     if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
@@ -53,7 +53,7 @@ void recreate(CreateNamespaceParameters params) {
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
-  writeJSON(file: tempFile, text: params)
+  writeJSON(file: tempFile, json: params)
 
   kubectl.recreateConfigMap(configMapName, namespace, tempFile)
 }
@@ -110,7 +110,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     sh "pwd && ls -la"
     input message: "please proceed-1? "
     def tempFile = "metadataJson"
-    writeJSON(file: tempFile, text: configObject)
+    writeJSON(file: tempFile, json: configObject)
     input message: "please proceed-2? "
     sh "ls -la"
 
