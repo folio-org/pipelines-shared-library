@@ -48,6 +48,22 @@ void call(CreateNamespaceParameters args) {
         ldpConfig.dbHost = kubectl.getSecretValue(namespace.getNamespaceName(), 'db-credentials', 'DB_HOST')
       }
     }
+    stage('Create metadata ConfigMap') {
+      folioNamespaceMetadata.printParams(args)
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        println(
+          'Current !isMetadataExist is: ' + !folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())
+        )
+        if (!folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())) {
+          folioNamespaceMetadata.create(args)
+        } else {
+          folioNamespaceMetadata.compare(args)
+        }
+        folioNamespaceMetadata.getMetadataAll(args)
+        folioNamespaceMetadata.getMetadataKey(args, 'clusterName')
+        //folioNamespaceMetadata.updateConfigMap(args, ["Arg":"true"])
+      }
+    }
 
     if (args.greenmail) {
       stage('[Helm] Deploy greenmail') {
