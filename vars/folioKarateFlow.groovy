@@ -54,7 +54,6 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
             }
           } catch (exception) {
             logger.warning(exception)
-            currentBuild.currentResult = 'FAILURE'
             currentBuild.result = 'FAILURE'
           }
         }
