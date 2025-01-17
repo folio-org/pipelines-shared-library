@@ -5,13 +5,12 @@ import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters params) {
-  println "************************Metadata Create"
+  println "************************Metadata Create*************************"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
-  def jsonString = JsonOutput.toJson(params)
+  //def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
-  writeFile(file: tempFile, text: jsonString)
-  input message: "please proceed-0? "
+  writeJSON(file: tempFile, text: params)
   try {
     if (isMetadataExist(namespace)) {
       println "ConfigMap ${configMapName} already exist in namespace ${namespace} and will be overwritten"
@@ -35,14 +34,14 @@ void create(CreateNamespaceParameters params) {
 }
 
 boolean isMetadataExist(String namespace) {
-  println "Checking if metadata ConfigMap exists"
   def configMapName = Constants.AWS_EKS_NS_METADATA
+  println "Checking if ${configMapName} ConfigMap exists"
   try {
     def result = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     println "Result from getConfigMap: '${result}'"
-    return result // Возвращает true, если result содержит данные, иначе false
+    return result != null && !result.isEmpty()  // Упрощённая проверка
   } catch (Exception e) {
-    println "Error during ConfigMap existence check: ${e.message}"
+    println "Error during ConfigMap check: ${e.message}"
     e.printStackTrace()
     return false
   }
@@ -54,7 +53,7 @@ void recreate(CreateNamespaceParameters params) {
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
-  writeFile(file: tempFile, text: jsonString)
+  writeJSON(file: tempFile, text: params)
 
   kubectl.recreateConfigMap(configMapName, namespace, tempFile)
 }
@@ -63,25 +62,16 @@ def getMetadataAll(CreateNamespaceParameters params) {
   println("Metadata getMetadataAll")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
-  if (isMetadataExist(namespace)) {
-    def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-    return jsonData
-  }
+  def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
+  return jsonData
 }
 
 def getMetadataKey(CreateNamespaceParameters params, String key) {
   println("Metadata getMetadataKey")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
-  // check if metadata configmap exists
-  if (!isMetadataExist(namespace)) {
-    println("Metadata Configmap does not exist")
-    return null
-  }
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-
-  def jsonSlurper = new JsonSlurper()
-  def metadataObject = jsonSlurper.parseText(jsonData)
+  def metadataObject = readJSON(text: jsonData)
   def value = metadataObject[key]
   if (!value) {
     println "Key '${key}' does not exist in ConfigMap '${configMapName}' в namespace '${namespace}'."
@@ -99,21 +89,18 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
   try {
     // read currents configmap
     def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
-
-    println "Existing ConfigMap JSON: $jsonData"
-
-    // parse json to object
-    def jsonSlurper = new JsonSlurper()
-    def configObject = jsonSlurper.parseText(jsonData)
+    println "Existing ConfigMap JSON:" + jsonData
+        // parse json to object
+    def configObject = readJSON(text: jsonData)
 
     //update data
-//    updates.each { key, value ->
-//      println "Updating key: ${key} with value: ${value}"
-//      configObject[key] = value
-//    }
+    updates.each { key, value ->
+      println "Updating key: ${key} with value: ${value}"
+      configObject[key] = value
+    }
 
     //convert updated object to json
-    println configObject
+    println "ConfigJSON object: " + configObject
     def updatedJson = JsonOutput.toJson(configObject)
     input message: "please proceed-a? "
     println "Updated JSON: $updatedJson"
@@ -123,7 +110,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     sh "pwd && ls -la"
     input message: "please proceed-1? "
     def tempFile = "metadataJson"
-    writeFile(file: tempFile, text: updatedJson)
+    writeJSON(file: tempFile, text: configObject)
     input message: "please proceed-2? "
     sh "ls -la"
 
@@ -162,15 +149,15 @@ void compare(CreateNamespaceParameters params) {
   println("Metadata Compare")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
-  def configMapRawData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
+  def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
 
-  def configMapData = new groovy.json.JsonSlurper().parseText(configMapRawData)
+  def configObject = readJSON(text: jsonData)
 
 // 2: compare
   def changes = [:]
   params.properties.each { key, value ->
     if (key in ['class', 'metaClass']) return
-    def configValue = configMapData[key]
+    def configValue = configObject[key]
     def objectValue = value
 
     if (configValue != objectValue) {
