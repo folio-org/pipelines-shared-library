@@ -203,7 +203,7 @@ class Eureka extends Base {
     consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
       .each { institutionalTenant ->
         Consortia.get(kong)
-          .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
+          .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant, true)
       }
 
     return this
