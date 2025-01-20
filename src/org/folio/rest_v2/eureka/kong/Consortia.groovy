@@ -207,14 +207,16 @@ class Consortia extends Kong {
 
     if (execute) {
 
-      sleep(30000) // wait for tenant to be ready in consortia
+      sleep(10000) // wait for tenant to be ready in consortia
 
       Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
       User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
 
-      logger.info("""Task: Add admin role to shadow admin user
+      logger.info("""
+                   Task: Add admin role to shadow admin user
                    user: ${user.username}
-                   tenant: ${tenant.tenantId}""")
+                   tenant: ${tenant.tenantId}
+                  """)
 
       Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
 
