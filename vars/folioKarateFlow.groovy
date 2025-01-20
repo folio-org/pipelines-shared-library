@@ -43,7 +43,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 
     stage('[Maven] Execute karate tests') {
       timeout(time: args.timeout, unit: 'HOURS') {
-        withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
+        withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings, mavenOpts: '-XX:MaxRAMPercentage=75') {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
           logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
           catchError(stageResult: 'FAILURE') {
