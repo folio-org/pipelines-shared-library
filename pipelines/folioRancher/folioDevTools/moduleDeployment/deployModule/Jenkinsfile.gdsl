@@ -1,10 +1,11 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModule
 
-import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.Constants
 
 // TODO: get back to RANCHER-1334 branch once development is done
 @Library('pipelines-shared-library@RANCHER-2026') _
+
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
 
 /** Job properties and parameters */
 properties([
@@ -12,7 +13,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.moduleName(),         // Folio Module name, MODULE_NAME
-    choice(name: 'IMAGE_REPO_NAME', choices: Constants.DOCKERHUB_REPO_NAMES_LIST, description: 'Docker Hub image repository name'), // Docker Hub image repository name, IMAGE_REPO_NAME
+    folioParameters.imageRepositoryName(), // Docker Hub image repository name, IMAGE_REPO_NAME
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
