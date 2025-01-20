@@ -5,7 +5,6 @@ import groovy.json.JsonOutput
 
 
 void create(CreateNamespaceParameters params) {
-  println "************************Metadata Create*************************"
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   //def jsonString = JsonOutput.toJson(params)
@@ -59,7 +58,7 @@ void recreate(CreateNamespaceParameters params) {
 }
 
 def getMetadataAll(CreateNamespaceParameters params) {
-  println("Metadata getMetadataAll")
+  println("*** Getting Metadata *** ")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
@@ -67,7 +66,7 @@ def getMetadataAll(CreateNamespaceParameters params) {
 }
 
 def getMetadataKey(CreateNamespaceParameters params, String key) {
-  println("Metadata getMetadataKey")
+  println("*** Getting Metadata key: $key ***")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
@@ -77,13 +76,13 @@ def getMetadataKey(CreateNamespaceParameters params, String key) {
     println "Key '${key}' does not exist in ConfigMap '${configMapName}' в namespace '${namespace}'."
     return null
   }
-  println "Requested key $key = $value"
+  println "Requested key: $key = $value"
   return value
 }
 
 
 void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
-  println("Metadata UpdateConfigMap")
+  println("*** Update Metadata  **")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   try {
@@ -102,17 +101,11 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
     //convert updated object to json
     println "ConfigJSON object: " + configObject
     def updatedJson = JsonOutput.toJson(configObject)
-    input message: "please proceed-a? "
     println "Updated JSON: $updatedJson"
 
     // write json to file and save in configmap
-    input message: "please proceed-0? "
-    sh "pwd && ls -la"
-    input message: "please proceed-1? "
     def tempFile = "metadataJson"
     writeJSON(file: tempFile, json: configObject)
-    input message: "please proceed-2? "
-    sh "ls -la"
 
     def fileContent = readFile(file: tempFile)
     println "File content to be used for ConfigMap: $fileContent"
@@ -130,20 +123,6 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
 }
 
 
-//temp method to print createNamespaceParameters
-void printParams(CreateNamespaceParameters params) {
-  println "*******************METADATA******************"
-  params.properties.each { key, value ->
-    if (value instanceof String || value instanceof Boolean) {
-      println "$key: $value"
-    } else if (value instanceof List && value.every { it instanceof String }) {
-      println "$key: ${value.join(', ')}"
-    }
-  }
-  println "*****************************************"
-}
-
-
 //compare with existing metadata
 void compare(CreateNamespaceParameters params) {
   println("Metadata Compare")
@@ -153,7 +132,6 @@ void compare(CreateNamespaceParameters params) {
 
   def configObject = readJSON(text: jsonData)
 
-// 2: compare
   def changes = [:]
   params.properties.each { key, value ->
     if (key in ['class', 'metaClass']) return
