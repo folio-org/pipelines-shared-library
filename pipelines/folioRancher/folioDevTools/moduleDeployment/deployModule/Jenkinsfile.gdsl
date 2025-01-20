@@ -1,0 +1,21 @@
+package folioRancher.folioDevTools.moduleDeployment.deployModule
+
+String agentLabel = 'jenkins-agent-java17'
+String imageRepoName = 'folioci'
+String moduleName = 'mod-data-export'
+String numOfTagsToShow = '100'
+String pickImageTagNames = 'jq -r \'.results[].name|select(. != \"latest\")\''
+
+GString getContainerImageTags = "curl -s -X GET \'https://hub.docker.com/v2/repositories/${imageRepoName}/${moduleName}/tags?page_size=${numOfTagsToShow}\' | ${pickImageTagNames}"
+
+pipeline {
+  agent {label agentLabel}
+
+  stages {
+    stage('Get Image Tags') {
+      steps {
+        sh label: "Get Container Image Tags for ${moduleName} module", returnStdout: false, script: getContainerImageTags
+      }
+    }
+  }
+}
