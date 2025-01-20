@@ -165,6 +165,7 @@ class Constants {
   static String ECR_FOLIO_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = 'aws-ecr-rw-credentials'
   static String DOCKER_K8S_CLIENT_IMAGE = 'alpine/k8s:1.22.15'
+  static List<String> DOCKERHUB_REPO_NAMES_LIST = ['folioci', 'folioorg']
 
   //Jenkins
   static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'dmytrmoroz', 'aatoyan', 'epam-avramenko', 'yaroslavishchenko', 'sergii-msn']

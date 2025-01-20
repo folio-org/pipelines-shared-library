@@ -1,6 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModule
 
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
 
 // TODO: get back to RANCHER-1334 branch once development is done
 @Library('pipelines-shared-library@RANCHER-2026') _
@@ -11,7 +12,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.moduleName(),         // Folio Module name, MODULE_NAME
-    choice(name: 'IMAGE_REPO_NAME', choices: ['folioci', 'folioorg'], description: 'Docker Hub image repository name'), // Docker Hub image repository name, IMAGE_REPO_NAME
+    choice(name: 'IMAGE_REPO_NAME', choices: DOCKERHUB_REPO_NAMES_LIST, description: 'Docker Hub image repository name'), // Docker Hub image repository name, IMAGE_REPO_NAME
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -23,7 +24,6 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-String moduleName = 'mod-data-export'
 String numOfTagsToShow = '100'
 String pickImageTagNames = 'jq -r \'.results[].name|select(. != \"latest\")\''
 
@@ -35,7 +35,7 @@ pipeline {
   stages {
     stage('Get Image Tags') {
       steps {
-        sh label: "Get Container Image Tags for ${moduleName} module", returnStdout: false, script: getContainerImageTags
+        sh label: "Get Container Image Tags for ${params.MODULE_NAME} module", returnStdout: false, script: getContainerImageTags
       }
     }
   }
