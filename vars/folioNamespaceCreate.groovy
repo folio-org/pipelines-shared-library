@@ -49,7 +49,6 @@ void call(CreateNamespaceParameters args) {
       }
     }
     stage('Create metadata ConfigMap') {
-      folioNamespaceMetadata.printParams(args)
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         println(
           'Current !isMetadataExist is: ' + !folioNamespaceMetadata.isMetadataExist(namespace.getNamespaceName())
@@ -61,7 +60,7 @@ void call(CreateNamespaceParameters args) {
         }
         folioNamespaceMetadata.getMetadataAll(args)
         folioNamespaceMetadata.getMetadataKey(args, 'clusterName')
-        folioNamespaceMetadata.updateConfigMap(args, ["Arg":"true"])
+        folioNamespaceMetadata.updateConfigMap(args, ["Arg":"false", "ARG2":"true"])
       }
     }
 

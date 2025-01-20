@@ -53,7 +53,7 @@ void recreate(CreateNamespaceParameters params) {
   def jsonString = JsonOutput.toJson(params)
   def tempFile = "metadataJson"
   writeJSON(file: tempFile, json: params)
-
+  compare (params)
   kubectl.recreateConfigMap(configMapName, namespace, tempFile)
 }
 
@@ -82,7 +82,7 @@ def getMetadataKey(CreateNamespaceParameters params, String key) {
 
 
 void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updates) {
-  println("*** Update Metadata  **")
+  println("*** Update Metadata  ***")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   try {
@@ -125,7 +125,7 @@ void updateConfigMap(CreateNamespaceParameters params, Map<String, Object> updat
 
 //compare with existing metadata
 void compare(CreateNamespaceParameters params) {
-  println("Metadata Compare")
+  println("*** Comparing with existing Metadata ***")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonData = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
