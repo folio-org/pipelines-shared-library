@@ -38,7 +38,7 @@ boolean isMetadataExist(String namespace) {
   try {
     def result = kubectl.getConfigMap(configMapName, namespace, 'metadataJson')
     println "Result from getConfigMap: '${result}'"
-    return result != null && !result.isEmpty()  // Упрощённая проверка
+    return result != null && !result.isEmpty()
   } catch (Exception e) {
     println "Error during ConfigMap check: ${e.message}"
     e.printStackTrace()
@@ -47,7 +47,7 @@ boolean isMetadataExist(String namespace) {
 }
 
 void recreate(CreateNamespaceParameters params) {
-  println("Metadata recreate")
+  println("*** Metadata recreate ***")
   def configMapName = Constants.AWS_EKS_NS_METADATA
   def namespace = params.namespaceName
   def jsonString = JsonOutput.toJson(params)
