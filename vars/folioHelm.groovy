@@ -293,6 +293,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     ]
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
+      case 'mod-consortia-keycloak':
+        println('https://folio-org.atlassian.net/browse/RANCHER-2035')
+        break
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
