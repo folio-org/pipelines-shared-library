@@ -137,7 +137,7 @@ void checkPodRunning(String ns, String podName) {
  * Use checkDeploymentsRunning functions instead
  */
 void checkAllPodsRunning(String ns) {
-  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+  timeout(time: 20, unit: 'MINUTES')  {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -229,7 +229,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
       // Check the timer
       if (timer >= maxTime) {
-        error("Timeout: Some deployments are still not updated after 10 minutes.")
+        error("Timeout: Some deployments are still not updated after 20 minutes.")
       }
     }
   } catch (Exception e) {
