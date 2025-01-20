@@ -12,7 +12,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.moduleName(),         // Folio Module name, MODULE_NAME
-    choice(name: 'IMAGE_REPO_NAME', choices: DOCKERHUB_REPO_NAMES_LIST, description: 'Docker Hub image repository name'), // Docker Hub image repository name, IMAGE_REPO_NAME
+    choice(name: 'IMAGE_REPO_NAME', choices: Constants.DOCKERHUB_REPO_NAMES_LIST, description: 'Docker Hub image repository name'), // Docker Hub image repository name, IMAGE_REPO_NAME
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
