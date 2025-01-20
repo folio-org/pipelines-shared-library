@@ -11,6 +11,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.moduleName(),         // Folio Module name, MODULE_NAME
+    string(name: 'IMAGE_REPO_NAME', defaultValue: 'folioci', description: 'Docker Hub image repository name'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -22,16 +23,14 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-String agentLabel = 'jenkins-agent-java17'
-String imageRepoName = 'folioci'
 String moduleName = 'mod-data-export'
 String numOfTagsToShow = '100'
 String pickImageTagNames = 'jq -r \'.results[].name|select(. != \"latest\")\''
 
-GString getContainerImageTags = "curl -s -X GET \'https://hub.docker.com/v2/repositories/${imageRepoName}/${params.MODULE_NAME}/tags?page_size=${numOfTagsToShow}\'| ${pickImageTagNames}"
+GString getContainerImageTags = "curl -s -X GET \'https://hub.docker.com/v2/repositories/${params.IMAGE_REPO_NAME}/${params.MODULE_NAME}/tags?page_size=${numOfTagsToShow}\'| ${pickImageTagNames}"
 
 pipeline {
-  agent {label agentLabel}
+  agent {label params.AGENT}
 
   stages {
     stage('Get Image Tags') {
