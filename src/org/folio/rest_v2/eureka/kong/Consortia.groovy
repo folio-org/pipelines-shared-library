@@ -185,11 +185,9 @@ class Consortia extends Kong {
     switch (response['setupStatus']) {
       case 'COMPLETED':
         logger.info("Tenant : ${tenant.tenantId} added successfully")
-        addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
         break
       case 'COMPLETED_WITH_ERRORS':
         logger.warning("Tenant : ${tenant.tenantId} added with errors!")
-        addRoleToShadowAdminUser(centralConsortiaTenant, tenant, true)
         break
       case 'FAILED':
         steps.currentBuild.result = 'ABORTED'
