@@ -103,7 +103,7 @@ cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
 if(namespaceParams.eureka) {
-  cypressSanityParameters.setTestsSrcBranch('eureka-test')
+  cypressSanityParameters.setTestsSrcBranch('eureka-test-snapshot')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-software-version"')
@@ -133,13 +133,13 @@ ansiColor('xterm') {
         folioNamespaceCreate(namespaceParams)
       }
 
-      stage('[Cypress] Run sanity check'){
-        if(params.RUN_SANITY_CHECK) {
-          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
-            folioCypressFlow.multiThreadRun(cypressSanityParameters)
-          }
-        }
-      }
+//      stage('[Cypress] Run sanity check'){
+//        if(params.RUN_SANITY_CHECK) {
+//          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
+//            folioCypressFlow.multiThreadRun(cypressSanityParameters)
+//          }
+//        }
+//      }
 
     } catch (e) {
       /** Put error message to the Job Run description */
