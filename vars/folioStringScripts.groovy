@@ -178,12 +178,10 @@ return result
 
 static String getContainerImageTags(String numOfTagsToShow = '100') {
   return """
-    String pickImageTagNames = "jq -r \'.results[].name|select(. != \"latest\")\'"
-    GString getContainerImageTags = "curl -s -X GET \'https://${Constants.DOCKERHUB_URL}/repositories/\${IMAGE_REPO_NAME}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}\' \\| ${pickImageTagNames}"
+    String pickImageTagNames = "jq -r '.results[].name|select(. != \"latest\")'"
+    GString getContainerImageTags = "curl -s -X GET 'https://${Constants.DOCKERHUB_URL}/repositories/\${IMAGE_REPO_NAME}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}' | \${pickImageTagNames}"
 
-    def result = []
-    result = sh label: "Get Container Image Tags for '\${IMAGE_REPO_NAME}/\${MODULE_NAME}' image", returnStdout: true, script: getContainerImageTags
-
-    return result
+    def proc = getContainerImageTags.execute()
+    return proc.text.readLines()
   """.stripIndent()
 }
