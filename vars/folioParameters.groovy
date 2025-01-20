@@ -175,3 +175,7 @@ def runSanityCheck(boolean value = true) {
 def imageRepositoryName() {
   return _paramChoice('IMAGE_REPO_NAME', Constants.DOCKERHUB_REPO_NAMES_LIST, 'Docker Hub image repository name')
 }
+
+def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
+  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub")
+}
