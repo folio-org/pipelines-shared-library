@@ -164,8 +164,6 @@ class Consortia extends Kong {
 
       logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
 
-    addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant)
-
     return this
   }
 
