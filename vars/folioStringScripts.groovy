@@ -179,9 +179,8 @@ return result
 static String getContainerImageTags(String numOfTagsToShow = '100') {
   return """
     String pickImageTagNames = "jq -r '.results[].name|select(. != \"latest\")'"
-    GString getContainerImageTags = "curl -s -X GET 'https://${Constants.DOCKERHUB_URL}/repositories/\${IMAGE_REPO_NAME}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}' | \${pickImageTagNames}"
-
+    GString getContainerImageTags = "curl -s -X GET '${Constants.DOCKERHUB_URL}/repositories/\${IMAGE_REPO_NAME}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}' | \${pickImageTagNames}"
     def proc = getContainerImageTags.execute()
     return proc.text.readLines()
-  """.stripIndent()
+  """.stripIndent().trim()
 }
