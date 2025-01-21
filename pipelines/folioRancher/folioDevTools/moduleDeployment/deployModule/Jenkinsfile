@@ -61,7 +61,7 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
         // Load Module Details and set Module Version
         module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
