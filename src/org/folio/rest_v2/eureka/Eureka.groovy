@@ -45,24 +45,24 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-//    kong.keycloak.defineTTL(tenant.tenantId, 3600)
-//
-//    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
-//      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
-//    }
-//
-//    Tenants.get(kong).enableApplicationsOnTenant(
-//      tenant
-//      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
-//    )
-//
-//    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
-//
-//    //create tenant admin user
-//    createUserFlow(tenant, tenant.adminUser
-//      , new Role(name: "adminRole", desc: "Admin role")
-//      , Permissions.get(kong).getCapabilitiesId(tenant)
-//      , Permissions.get(kong).getCapabilitySetsId(tenant))
+    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+
+    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+    }
+
+    Tenants.get(kong).enableApplicationsOnTenant(
+      tenant
+      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+    )
+
+    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+
+    //create tenant admin user
+    createUserFlow(tenant, tenant.adminUser
+      , new Role(name: "adminRole", desc: "Admin role")
+      , Permissions.get(kong).getCapabilitiesId(tenant)
+      , Permissions.get(kong).getCapabilitySetsId(tenant))
 
     configureTenant(tenant)
 
