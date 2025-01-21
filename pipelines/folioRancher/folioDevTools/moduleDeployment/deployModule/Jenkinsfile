@@ -69,7 +69,7 @@ ansiColor('xterm') {
 
         // Load Module Descriptor from Folio Descriptor Registry
         String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-        logger.debug("Module Descriptor URL: ${moduleDescriptorUrl}")
+        logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
         String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
         logger.debug("Module Descriptor: ${moduleDescriptor}")
         module.descriptor = [readJSON(text: moduleDescriptor)]
