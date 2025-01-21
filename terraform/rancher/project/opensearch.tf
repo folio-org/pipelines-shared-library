@@ -25,6 +25,10 @@ resource "helm_release" "opensearch-single-node" {
   chart      = "opensearch"
   version    = "2.16.0"
   values = [<<-EOF
+image:
+  tag: 2.11.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
+  pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
 singleNode: true
@@ -60,6 +64,10 @@ resource "helm_release" "opensearch-master" {
   chart      = "opensearch"
   version    = "2.16.0"
   values = [<<-EOF
+image:
+  tag: 2.11.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
+  pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
 nodeGroup: "master"
@@ -91,6 +99,10 @@ resource "helm_release" "opensearch-data" {
   chart      = "opensearch"
   version    = "2.16.0"
   values = [<<-EOF
+image:
+  tag: 2.11.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
+  pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
 nodeGroup: "data"
@@ -124,6 +136,10 @@ resource "helm_release" "opensearch-client" {
   chart      = "opensearch"
   version    = "2.16.0"
   values = [<<-EOF
+image:
+  tag: 2.11.0
+  pullPolicy: IfNotPresent
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
 service:
   type: NodePort
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -170,6 +186,10 @@ resource "helm_release" "opensearch-dashboards" {
   chart      = "opensearch-dashboards"
   version    = "2.14.0"
   values = [<<-EOF
+image:
+  tag: 2.11.0
+  repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards
+  pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
 masterService: "opensearch-${var.rancher_project_name}"
 replicas: 1

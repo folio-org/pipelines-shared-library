@@ -150,6 +150,11 @@ class Users extends Authorization {
       return
     }
 
+    if (user.getUsername() == 'diku_admin') {
+      logger.info("Shall wait a bit for kafka to catch up")
+      sleep(66666)
+    }
+
     user.checkUuid()
 
     String url = generateUrl("/service-points-users")

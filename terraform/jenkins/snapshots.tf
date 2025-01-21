@@ -46,6 +46,8 @@ resource "aws_iam_role_policy" "dlm_lifecycle" {
 }
 
 resource "aws_dlm_lifecycle_policy" "jenkins_master" {
+  depends_on = [aws_iam_role.dlm_lifecycle_role, aws_iam_role_policy.dlm_lifecycle]
+
   description        = "Folio Jenkins DLM lifecycle policy"
   execution_role_arn = aws_iam_role.dlm_lifecycle_role.arn
   state              = "ENABLED"

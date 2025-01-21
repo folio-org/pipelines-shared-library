@@ -83,11 +83,12 @@ YAML
 # Create a new rancher2 Project Registry
 resource "rancher2_registry" "folio-docker" {
   name        = "folio-docker"
-  description = "docker.dev.folio.org registry"
+  description = "docker hub registry"
   project_id  = rancher2_project.this.id
   registries {
-    address  = "docker.dev.folio.org"
+    address  = "index.docker.io"
     username = var.folio_docker_registry_username
     password = var.folio_docker_registry_password
   }
 }
+

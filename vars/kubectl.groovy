@@ -1,3 +1,4 @@
+import org.folio.Constants
 import org.folio.utilities.Logger
 
 def createConfigMap(String name, String namespace, files) {
@@ -163,7 +164,7 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
 
 void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
-    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --wait=${wait}"
+    sh "kubectl delete pod ${pod_name}  --ignore-not-found=true --wait=${wait} --namespace=${namespace}"
   } catch (Exception e) {
     currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
@@ -268,10 +269,21 @@ boolean checkNamespaceExistence(String namespace) {
   }
 }
 
-void portForwardPSQL(String namespace, Map ports = [5432:5432]){
+void portForwardPSQL(String namespace, Map ports = [5432: 5432]) {
   try {
-    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}" )
+    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}")
   } catch (Exception e) {
-    new Logger(this,'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
+    new Logger(this, 'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
+  }
+}
+
+void patchDefaultServiceAccount(String namespace) {
+  try {
+    withCredentials([usernamePassword(credentialsId: 'DockerHubIDJenkins', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
+      sh(script: """kubectl create secret docker-registry docker-hub --docker-server=https://index.docker.io/v1/ --docker-username=${env.dockerUser} --docker-password=${env.dockerPassword} --docker-email=${Constants.EMAIL_FROM} ---namespace ${namespace}""")
+      sh(script: """kubectl patch sa default -p '{"imagePullSecrets":[{"name": "docker-hub"}]} --namespace ${namespace}""")
+    }
+  } catch (Exception e) {
+    new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
   }
 }

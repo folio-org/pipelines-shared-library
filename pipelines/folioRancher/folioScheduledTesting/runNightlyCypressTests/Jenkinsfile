@@ -49,7 +49,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .mockServer(false)
   .pgType('built-in')
   .pgVersion('16.1')
-  .kafkaType('built-in')
+  .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
   .runSanityCheck(false)

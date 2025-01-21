@@ -24,6 +24,8 @@ resource "aws_security_group" "jenkins_master" {
 }
 
 resource "aws_instance" "jenkins_server" {
+  depends_on = [aws_ebs_volume.jenkins_home]
+
   ami = var.ami
 
   subnet_id = module.vpc.private_subnets[0]
@@ -56,6 +58,8 @@ resource "aws_ebs_volume" "jenkins_home" {
 }
 
 resource "aws_volume_attachment" "jenkins_home" {
+  depends_on = [aws_instance.jenkins_server]
+
   device_name = "/dev/sdb"
   volume_id   = aws_ebs_volume.jenkins_home.id
   instance_id = aws_instance.jenkins_server.id

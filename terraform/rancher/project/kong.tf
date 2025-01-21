@@ -121,6 +121,8 @@ kong:
     value: "600000"
   - name: KONG_UPSTREAM_READ_TIMEOUT
     value: "600000"
+  - name: KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE
+    value: "256m"
   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
     value: "error timeout http_500 http_502 http_503 http_504"
   - name: "KONG_PROXY_SEND_TIMEOUT"
@@ -164,7 +166,7 @@ kong:
   - name: KONG_LOG_LEVEL
     value: "info"
   - name: KONG_ADMIN_GUI_API_URL
-    value: "${local.kong_url}"
+    value: ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-admin-api"]), var.root_domain])}
   - name: KONG_NGINX_HTTPS_LARGE_CLIENT_HEADER_BUFFERS
     value: "4 16k"
   - name: KONG_PROXY_LISTEN
@@ -208,6 +210,27 @@ resource "kubernetes_service" "kong_admin_api" {
   }
 }
 
+resource "kubernetes_service" "kong_admin_api_external" {
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-admin-api-external-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/component" = "server"
+      "app.kubernetes.io/instance"  = "kong-${rancher2_namespace.this.id}"
+      "app.kubernetes.io/name"      = "kong"
+    }
+    port {
+      name        = "kong-admin-api-external"
+      port        = 80
+      target_port = 8001
+    }
+    type = "NodePort"
+  }
+}
+
 resource "kubernetes_service" "kong_admin_ui" {
   count = var.eureka ? 1 : 0
   metadata {
@@ -221,9 +244,61 @@ resource "kubernetes_service" "kong_admin_ui" {
       "app.kubernetes.io/name"      = "kong"
     }
     port {
+      name        = "kong-admin-ui"
       port        = 80
       target_port = 8002
     }
-    type = "ClusterIP"
+    type = "NodePort"
+  }
+}
+
+resource "kubernetes_ingress_v1" "kong-ui" {
+
+  count = var.eureka ? 1 : 0
+  metadata {
+    name      = "kong-ui-${rancher2_namespace.this.id}"
+    namespace = rancher2_namespace.this.id
+    annotations = {
+      "kubernetes.io/ingress.class"                = "alb"
+      "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
+      "alb.ingress.kubernetes.io/group.name"       = local.group_name
+      "alb.ingress.kubernetes.io/listen-ports"     = "[{\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/success-codes"    = "200-399"
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/"
+    }
+  }
+  spec {
+    rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-ui"]), var.root_domain])
+      http {
+        path {
+          path = "/*"
+          backend {
+            service {
+              name = "kong-admin-ui-${rancher2_namespace.this.id}"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+    rule {
+      host = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong-admin-api"]), var.root_domain])
+      http {
+        path {
+          path = "/*"
+          backend {
+            service {
+              name = "kong-admin-api-external-${rancher2_namespace.this.id}"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
