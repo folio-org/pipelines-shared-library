@@ -35,36 +35,36 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
 
-//    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
-//    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
-//      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
-//      currentBuild.result = 'ABORTED'
-//      return
-//    }
-//
-//    stage('[Terraform] Provision') {
-//      folioTerraformFlow.manageNamespace('apply', tfConfig)
-//    }
-//
-//    if (args.greenmail) {
-//      stage('[Helm] Deploy greenmail') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-//        }
-//      }
-//    }
-//
-//    if (args.mockServer) {
-//      stage('[Helm] Deploy mock-server') {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          folioHelmFlow.deployMockServer(namespace)
-//        }
-//      }
-//    }
-//
-//    if (args.namespaceOnly) {
-//      return
-//    }
+    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
+    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
+      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
+      currentBuild.result = 'ABORTED'
+      return
+    }
+
+    stage('[Terraform] Provision') {
+      folioTerraformFlow.manageNamespace('apply', tfConfig)
+    }
+
+    if (args.greenmail) {
+      stage('[Helm] Deploy greenmail') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+        }
+      }
+    }
+
+    if (args.mockServer) {
+      stage('[Helm] Deploy mock-server') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployMockServer(namespace)
+        }
+      }
+    }
+
+    if (args.namespaceOnly) {
+      return
+    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -173,47 +173,47 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-//      }
-//    }
-//
-//    stage('[Rest] Preinstall') {
-//      namespace.withApplications(
-//        eureka.registerApplicationsFlow(
-//          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-//          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
-//            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
-//          , namespace.getModules().getModuleVersionMap()
-//          , namespace.getTenants().values() as List<EurekaTenant>
-//        )
-//      )
-//
-//      eureka.registerModulesFlow(
-//        namespace.getModules()
-//        , namespace.getApplications()
-//      )
-//    }
-//
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        logger.info(namespace.getModules().getBackendModules())
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//      }
-//    }
-//
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioEdge.renderEphemeralPropertiesEureka(namespace)
-//        namespace.getModules().getEdgeModules().each { module ->
-//          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-//        }
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+      }
+    }
+
+    stage('[Rest] Preinstall') {
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
+          , namespace.getModules().getModuleVersionMap()
+          , namespace.getTenants().values() as List<EurekaTenant>
+        )
+      )
+
+      eureka.registerModulesFlow(
+        namespace.getModules()
+        , namespace.getApplications()
+      )
+    }
+
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        logger.info(namespace.getModules().getBackendModules())
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+      }
+    }
+
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioEdge.renderEphemeralPropertiesEureka(namespace)
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+        }
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+      }
+    }
 
     stage('[Rest] Initialize') {
       int counter = 0
