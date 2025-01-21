@@ -1,6 +1,7 @@
 package folioRancher.folioDevTools.moduleDeployment.deployModule
 
 import hudson.AbortException
+import org.folio.Constants
 import org.folio.models.module.EurekaModule
 import org.folio.utilities.Logger
 import org.folio.models.EurekaNamespace
@@ -66,12 +67,16 @@ ansiColor('xterm') {
         // Load Module Details and set Module Version
         module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
 
-        // Load Module Descriptor from Folio Registry
+        // Load Module Descriptor from Folio Descriptor Registry
         String moduleDescriptorUrl = "${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
         logger.debug("Module Descriptor URL: ${moduleDescriptorUrl}")
-        String moduleDescriptor = sh(label: "Get Eureka Module Descriptor", returnStdout: true, script: "curl -s ${moduleDescriptorUrl}").trim()
+        String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: "curl -s ${moduleDescriptorUrl}").trim()
         logger.debug("Module Descriptor: ${moduleDescriptor}")
         module.descriptor = [readJSON(text: moduleDescriptor)]
+
+        // Upload Module Descriptor to Eureka Descriptor Registry
+        String putModuleDescriptorToRegistry = "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+        sh(label: "Put Module Descriptor to Eureka Descriptor Registry", returnStdout: false, script: putModuleDescriptorToRegistry)
       }
 
       stage('Generate context') {
