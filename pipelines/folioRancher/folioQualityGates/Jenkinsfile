@@ -141,12 +141,12 @@ ansiColor('xterm') {
           karateTestsParams.prototypeTenant = 'consortium'
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
-          karateTestsParams.threadsCount = '4'
+          karateTestsParams.threadsCount = '2'
 //          karateTestsParams.reportPortalProjectName = 'junit5-integration'
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = true
           karateTestsParams.syncWithJira = true
-          karateTestsParams.timeout = '3'
+          karateTestsParams.timeout = '4'
           karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
         }
         parallel(branches)
