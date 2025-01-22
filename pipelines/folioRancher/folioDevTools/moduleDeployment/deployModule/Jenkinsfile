@@ -8,6 +8,7 @@ import org.folio.models.EurekaNamespace
 import org.folio.rest_v2.eureka.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
 
+// TODO: rollback to @RANCHER-1334 once code for this feature is tested
 @Library('pipelines-shared-library@RANCHER-2026') _
 
 /** Job properties and parameters */
