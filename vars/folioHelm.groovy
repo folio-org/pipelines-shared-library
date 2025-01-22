@@ -168,6 +168,8 @@ void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
 void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
   println('Starting deployment monitoring...')
 
+  kubectl.deleteEvictedPods(ns)
+
   boolean allDeploymentsUpdated = false
   int timer = 0
   int maxTime = 20 * 60 // 20 minutes in seconds
