@@ -16,6 +16,20 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
+    [
+      $class: 'CascadeChoiceParameter',
+      choiceType: 'PT_CHECKBOX',
+      description: 'Select multiple options',
+      name: 'MY_MULTI_SELECT',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+          // Return a list of possible choices
+          script: 'return ["Option1", "Option2", "Option3"]',
+          sandbox: true
+        ]
+      ]
+    ],
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.branch(),
