@@ -25,11 +25,10 @@ properties([
         $class: 'GroovyScript',
         script: [
           // Return a list of possible choices
-          script: 'return ["Option1", "Option2", "Option3"]',
+          script: 'return ["Option1:selected", "Option2", "Option3"]',
           sandbox: true
         ]
-      ],
-      defaultValue: ['Option1', 'Option2']
+      ]
     ],
     folioParameters.cluster(),
     folioParameters.namespace(),
