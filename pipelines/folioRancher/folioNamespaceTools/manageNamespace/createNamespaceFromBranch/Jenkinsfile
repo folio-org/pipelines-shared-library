@@ -21,6 +21,8 @@ properties([
       choiceType: 'PT_CHECKBOX',
       description: 'Select multiple options',
       name: 'MY_MULTI_SELECT',
+      filterLength        : 1,
+      filterable          : true,
       script: [
         $class: 'GroovyScript',
         script: [
