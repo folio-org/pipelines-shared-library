@@ -31,9 +31,9 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
+private def _paramExtendedSelect(String name, String reference, String script, String description, boolean multiSelect = false) {
   return [$class              : 'CascadeChoiceParameter',
-          choiceType          : 'PT_SINGLE_SELECT',
+          choiceType          : multiSelect ? 'PT_MULTI_SELECT' : 'PT_SINGLE_SELECT',
           description         : description,
           filterLength        : 1,
           filterable          : true,
@@ -46,6 +46,14 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                  script        : [classpath: [],
                                                   sandbox  : false,
                                                   script   : script]]]
+}
+
+private def _paramExtendedMultiSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, true)
+}
+
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, false)
 }
 
 def agent() {
@@ -65,7 +73,7 @@ def cluster() {
 }
 
 def namespace() {
-  return _paramExtendedSingleSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace for current job')
+  return _paramExtendedMultiSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace for current job')
 }
 
 def repository() {
