@@ -76,8 +76,10 @@ ansiColor('xterm') {
         module.descriptor = [readJSON(text: moduleDescriptor)]
 
         // Upload Module Descriptor to Eureka Descriptor Registry
-        String putModuleDescriptorToRegistry = "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
-        sh(label: "Put Module Descriptor to Eureka Descriptor Registry", returnStdout: false, script: putModuleDescriptorToRegistry)
+        sh( label: "Put Module Descriptor to Eureka Descriptor Registry",
+            returnStdout: false,
+            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+        )
       }
 
       stage('Generate context') {
