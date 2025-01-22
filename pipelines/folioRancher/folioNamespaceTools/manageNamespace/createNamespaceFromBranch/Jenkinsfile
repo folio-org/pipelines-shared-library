@@ -11,6 +11,13 @@ import org.jenkinsci.plugins.workflow.libs.Library
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1961-test') _
 
+def namespaceParameters = folioParameters.namespace()
+println("namespace parameters:")
+println(namespaceParameters)
+
+println("MY_MULTI_SELECT:")
+println(params.MY_MULTI_SELECT)
+
 //TODO add selector OKAPI/EUREKA instead EUREKA boolean flag
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
