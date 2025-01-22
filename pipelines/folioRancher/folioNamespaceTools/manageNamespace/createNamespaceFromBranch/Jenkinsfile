@@ -30,6 +30,14 @@ properties([
         ]
       ]
     ],
+    extendedChoice(
+      name: 'MY_MULTI_SELECT2',
+      type: 'PT_MULTI_SELECT',
+      multiSelectDelimiter: ',',
+      description: 'Select multiple options',
+      quoteValue: false,
+      value: 'Option1,Option2,Option3'
+    ),
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.branch(),
