@@ -50,7 +50,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
             sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig} -Drp.launch.uuid=${args.reportPortalProjectId}"
           } else {
             if (args.lsdi) {
-              sh "mvn test -pl data-import-large-scale-tests -am -DskipTests=false -DargLine=-Dkarate.env=etesting-lsdi"
+              sh "mvn test -pl data-import-large-scale-tests -am -DskipTests=false -DargLine=-Dkarate.env=etesting-lsdi -Drp.launch.uuid=${args.reportPortalProjectId}"
             } else {
               sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
             }
