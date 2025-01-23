@@ -95,18 +95,6 @@ ansiColor('xterm') {
         cleanWs()
       }
 
-      stage('[Job] Destroy environment (before)') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-        } else {
-          logger.warning("${namespaceParams.getNamespaceName()} namespace does not exists!")
-        }
-      }
-
       stage('[Job] Provision environment') {
         folioNamespaceCreateEureka(namespaceParams)
       }
