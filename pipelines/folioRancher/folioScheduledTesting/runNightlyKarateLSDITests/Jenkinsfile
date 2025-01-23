@@ -9,13 +9,13 @@ import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1284') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 /**
  * Job properties and parameters
  */
 properties([
-//  pipelineTriggers([cron('H 3 * * *')]),
+pipelineTriggers([cron('H 2 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
@@ -81,7 +81,7 @@ karateTestsParams.prototypeTenant = 'diku'
 karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.reportPortalProjectName = 'LSDI'
+karateTestsParams.reportPortalProjectName = 'lsdi'
 karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
