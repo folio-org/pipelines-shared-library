@@ -31,9 +31,9 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
+private def _paramExtendedSelect(String name, String reference, String script, String description, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
-          choiceType          : 'PT_SINGLE_SELECT',
+          choiceType          : choiceType,
           description         : description,
           filterLength        : 1,
           filterable          : true,
@@ -46,6 +46,18 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                  script        : [classpath: [],
                                                   sandbox  : false,
                                                   script   : script]]]
+}
+
+private def _paramExtendedMultiSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, "PT_MULTI_SELECT")
+}
+
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, "PT_SINGLE_SELECT")
+}
+
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, "PT_CHECKBOX")
 }
 
 def agent() {
