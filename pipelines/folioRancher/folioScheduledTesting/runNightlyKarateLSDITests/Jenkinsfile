@@ -95,6 +95,10 @@ ansiColor('xterm') {
         cleanWs()
       }
 
+      stage('Checkout') {
+        checkout scm
+      }
+
       stage('[Job] Provision environment') {
         folioNamespaceCreateEureka(namespaceParams)
       }
