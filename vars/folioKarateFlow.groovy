@@ -46,10 +46,14 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
           logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
-          if (args.reportPortalProjectId) {
+          if (args.reportPortalProjectId && !args.lsdi) {
             sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig} -Drp.launch.uuid=${args.reportPortalProjectId}"
           } else {
-            sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+            if (args.lsdi) {
+              sh "mvn test -pl data-import-large-scale-tests -am -DskipTests=false -DargLine=-Dkarate.env=etesting-lsdi"
+            } else {
+              sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+            }
           }
         }
       }
