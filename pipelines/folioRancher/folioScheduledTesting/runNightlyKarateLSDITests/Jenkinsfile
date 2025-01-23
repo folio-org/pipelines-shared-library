@@ -103,9 +103,7 @@ ansiColor('xterm') {
       }
 
       stage('[Job] Destroy environment (before)') {
-        if (kubectl.checkNamespaceExistence(namespaceParams.getNamespaceName())) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-        }
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
       }
 
       stage('[Job] Provision environment') {
