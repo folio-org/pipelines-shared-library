@@ -66,6 +66,9 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .uiBuild(true)
   .build()
 
+namespaceParams.folioExtensions.add('consortia-eureka')
+namespaceParams.folioExtensions.add('linked-data')
+
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 namespace.withSuperTenantAdminUser()
 
@@ -97,6 +100,12 @@ ansiColor('xterm') {
 
       stage('Checkout') {
         checkout scm
+      }
+
+      stage('[Job] Destroy environment (before)') {
+        if (kubectl.checkNamespaceExistence(namespaceParams.getNamespaceName())) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+        }
       }
 
       stage('[Job] Provision environment') {
