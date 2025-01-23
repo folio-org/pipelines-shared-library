@@ -31,9 +31,9 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSelect(String name, String reference, String script, String description, boolean multiSelect = false) {
+private def _paramExtendedSelect(String name, String reference, String script, String description, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
-          choiceType          : multiSelect ? 'PT_MULTI_SELECT' : 'PT_SINGLE_SELECT',
+          choiceType          : choiceType,
           description         : description,
           filterLength        : 1,
           filterable          : true,
@@ -49,11 +49,15 @@ private def _paramExtendedSelect(String name, String reference, String script, S
 }
 
 private def _paramExtendedMultiSelect(String name, String reference, String script, String description) {
-  _paramExtendedSelect(name, reference, script, description, true)
+  _paramExtendedSelect(name, reference, script, description, "PT_MULTI_SELECT")
 }
 
 private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
-  _paramExtendedSelect(name, reference, script, description, false)
+  _paramExtendedSelect(name, reference, script, description, "PT_SINGLE_SELECT")
+}
+
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description) {
+  _paramExtendedSelect(name, reference, script, description, "PT_CHECKBOX")
 }
 
 def agent() {
@@ -73,7 +77,7 @@ def cluster() {
 }
 
 def namespace() {
-  return _paramExtendedMultiSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace for current job')
+  return _paramExtendedSingleSelect('NAMESPACE', 'CLUSTER', folioStringScripts.getNamespaces(), '(Required) Select cluster namespace for current job')
 }
 
 def repository() {

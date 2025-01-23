@@ -57,10 +57,10 @@ class Configurations extends Kong {
 
     logger.info("Set RMAPI eHolding configuration on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant, true)
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
     String url = generateUrl("/eholdings/kb-credentials/${KB_CREDENTIALS_ID}")
 
-    headers["Content-Type"] = "application/vnd.api+json"
+//    headers["Content-Type"] = "application/vnd.api+json"
     Map body = [data: [type      : "kbCredentials",
                        attributes: [name      : "Knowledge Base",
                                     apiKey    : tenant.okapiConfig.kbApiKey,
