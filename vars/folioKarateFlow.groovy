@@ -46,15 +46,13 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
           logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
-          if (args.reportPortalProjectId && !args.lsdi) {
-            sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig} -Drp.launch.uuid=${args.reportPortalProjectId}"
-          } else {
-            if (args.lsdi) {
-              sh "mvn test -pl data-import-large-scale-tests -am -DskipTests=false -DargLine=-Dkarate.env=etesting-lsdi -Drp.launch.uuid=${args.reportPortalProjectId}"
-            } else {
-              sh "mvn test -T ${args.threadsCount} ${modules} -DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
-            }
-          }
+          String execParams = "-DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+
+          execParams = args.lsdi ? "$execParams -pl data-import-large-scale-tests -am -DskipTests=false" : "$execParams -T ${args.threadsCount} ${modules}"
+
+          execParams = args.reportPortalProjectId ? "$execParams -Drp.launch.uuid=${args.reportPortalProjectId}" : execParams
+
+          sh "mvn test $execParams"
         }
       }
     }

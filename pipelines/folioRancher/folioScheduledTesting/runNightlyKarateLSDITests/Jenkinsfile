@@ -86,6 +86,7 @@ karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
 karateTestsParams.lsdi = true
+karateTestsParams.karateConfig = "etesting-lsdi"
 
 /**
  * Pipeline
