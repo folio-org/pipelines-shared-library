@@ -64,6 +64,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type('built-in')
   .members('folijet')
   .uiBuild(true)
+  .worker('rancher')
   .build()
 
 namespaceParams.folioExtensions.add('consortia-eureka')
