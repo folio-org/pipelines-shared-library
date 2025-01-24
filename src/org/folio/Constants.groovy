@@ -150,9 +150,12 @@ class Constants {
 
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
+        if(context)
+          println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name}")
+
         cluster.platform.each { platform ->
           if(context)
-            println("Constants.AWS_EKS_PLATFORM_CLUSTERS: ${platform.name()} -> ${cluster.name}")
+            println("Constants.AWS_EKS_PLATFORM_CLUSTERS platform: ${platform.name()} -> ${cluster.name}")
 
           platformClusters[platform.name()] << cluster.name
         }
