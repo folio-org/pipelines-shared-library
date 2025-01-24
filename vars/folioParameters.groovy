@@ -177,19 +177,7 @@ def imageRepositoryName() {
 }
 
 def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
-  // Local variable to hold List of container image tags as a string
-  String imageTagsList = 'return ["N/A"]'
-
-  // Check if Docker Hub is selected as a module source
-  List<String> referencedParamsList = referencedParams.split(',').collect { it.trim() }
-  boolean containerImageTagFlag = referencedParamsList.any {paramId -> params[paramId].contains('dockerhub/')}
-
-  if (containerImageTagFlag) {
-    env.IMAGE_REPO_NAME = 'folioci'
-    imageTagsList = folioStringScripts.getContainerImageTags()
-  }
-
-  return _paramExtendedSingleSelect(paramName, referencedParams, imageTagsList, "(Required) Get Container Image Tags from Docker Hub", true)
+  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true)
 }
 
 def moduleSource() {
