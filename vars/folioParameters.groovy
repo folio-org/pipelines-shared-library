@@ -1,7 +1,9 @@
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.rest.model.OkapiUser
+import org.folio.rest_v2.PlatformType
 import org.folio.testing.cypress.CypressConstants
+import org.folio.rest_v2.Constants as RestConstants
 
 static List repositoriesList() {
   return ['platform-complete',
@@ -68,12 +70,24 @@ def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
+def platform() {
+  return _paramChoice('PLATFORM', PlatformType.values()*.name(), 'Select FOLIO platform')
+}
+
+def applicationSet() {
+  return _paramChoice('APPLICATION_SET', RestConstants.APPLICATION_SETS_LIST, 'Select Eureka application set')
+}
+
+def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
+  return _paramExtendedMultiSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
+}
+
 def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
 
-def cluster() {
-  return _paramChoice('CLUSTER', Constants.AWS_EKS_CLUSTERS, '(Required) Select cluster for current job')
+def cluster(String reference = null, String paramName = 'CLUSTER') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference), '(Required) Select cluster for current job')
 }
 
 def namespace() {
