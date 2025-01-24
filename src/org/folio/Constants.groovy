@@ -145,12 +145,15 @@ class Constants {
     AWS_EKS_CLUSTERS.findAll{ cluster -> !(cluster.disabled) }
       .collectEntries { cluster -> [cluster.name, cluster.namespaces] }
 
-  static Map AWS_EKS_PLATFORM_CLUSTERS() {
+  static Map AWS_EKS_PLATFORM_CLUSTERS(def context = null) {
     Map platformClusters = [:].withDefault { [] }
 
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
         cluster.platform.each { platform ->
+          if(context)
+            println("Constants.AWS_EKS_PLATFORM_CLUSTERS: ${platform.name()} -> ${cluster.name}")
+
           platformClusters[platform.name()] << cluster.name
         }
       }
