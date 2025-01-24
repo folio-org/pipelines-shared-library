@@ -154,7 +154,7 @@ class Constants {
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
         if(context)
-          context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name}")
+          context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name} ${platformClusters.inspect()}")
 
         cluster.platform.each { platform ->
           if(context)
