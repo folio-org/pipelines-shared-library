@@ -148,6 +148,9 @@ class Constants {
   static Map AWS_EKS_PLATFORM_CLUSTERS(def context = null) {
     Map platformClusters = [:].withDefault { [] }
 
+    if(context)
+      println("Constants.AWS_EKS_PLATFORM_CLUSTERS begin")
+
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
         if(context)
