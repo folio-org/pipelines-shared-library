@@ -108,12 +108,6 @@ class Constants {
       , disabled: false
     ],
     [
-      name: 'folio-tmp'
-      , platform: [ PlatformType.OKAPI, PlatformType.EUREKA ]
-      , namespaces: AWS_EKS_TMP_NAMESPACES
-      , disabled: false
-    ],
-    [
       name: 'folio-etesting'
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_TESTING_NAMESPACES
@@ -136,6 +130,12 @@ class Constants {
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_TMP_NAMESPACES
       , disabled: true
+    ],
+    [
+      name: 'folio-tmp'
+      , platform: [ PlatformType.OKAPI, PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_TMP_NAMESPACES
+      , disabled: false
     ]
   ]
 
