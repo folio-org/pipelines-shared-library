@@ -1,10 +1,25 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.Constants as RestConstants
+
+static String getClusters(String platform) {
+  return """
+return ${platform} && ${PlatformType.values()*.name().inspect()}.contains(${platform}.trim()) ?
+${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platform}.trim()] :
+${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
+"""
+}
 
 static String getNamespaces() {
-  return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
+  return """
+def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
 """
+}
+
+static String getApplications(String applicationSet) {
+  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet.trim()}]"
 }
 
 static String getRepositoryBranches(String repository) {
