@@ -149,16 +149,16 @@ class Constants {
     Map platformClusters = [:].withDefault { [] }
 
     if(context)
-      println("Constants.AWS_EKS_PLATFORM_CLUSTERS begin")
+      context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS begin")
 
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
         if(context)
-          println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name}")
+          context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name}")
 
         cluster.platform.each { platform ->
           if(context)
-            println("Constants.AWS_EKS_PLATFORM_CLUSTERS platform: ${platform.name()} -> ${cluster.name}")
+            context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS platform: ${platform.name()} -> ${cluster.name}")
 
           platformClusters[platform.name()] << cluster.name
         }
