@@ -5,7 +5,9 @@ import org.folio.rest_v2.Constants as RestConstants
 
 static String getClusters(String platform) {
   return """
-return [${platform}]
+return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
+[${platform} + '1'] :
+[${platform} + '2']
 """
 }
 
