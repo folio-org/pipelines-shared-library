@@ -178,10 +178,9 @@ def imageRepositoryName() {
 
 def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
   // Local variable to hold List of container image tags as a string
-  String imageTagsList = "N/A"
+  String imageTagsList = '["N/A"]'
 
   if (params.containsKey("${referencedParams}")) {
-    println("Referenced MODULE_SOURCE parameters exists")
     if (params["${referencedParams}"].contains('dockerhub')) {  // Check if Docker Hub is selected as a module source
       imageTagsList = folioStringScripts.getContainerImageTags()
     }
