@@ -180,10 +180,10 @@ def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String reference
   // Local variable to hold List of container image tags as a string
   String imageTagsList = '["N/A"]'
 
-  if (params.containsKey("${referencedParams}")) {
-    if (params["${referencedParams}"].contains('dockerhub')) {  // Check if Docker Hub is selected as a module source
-      imageTagsList = folioStringScripts.getContainerImageTags()
-    }
+  echo "Referenced Params: ${params["${referencedParams}"]}"
+
+  if (params["${referencedParams}"].contains('dockerhub')) {  // Check if Docker Hub is selected as a module source
+    imageTagsList = folioStringScripts.getContainerImageTags()
   }
 
   return _paramExtendedSingleSelect(paramName, referencedParams, imageTagsList, "(Required) Get Container Image Tags from Docker Hub", true)
