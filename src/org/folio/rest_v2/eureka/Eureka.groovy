@@ -9,6 +9,7 @@ import org.folio.utilities.RequestException
 
 class Eureka extends Base {
 
+  @Deprecated
   static Map<String, String> CURRENT_APPLICATIONS = [
     "app-platform-full"      : "snapshot"
     , "app-consortia"        : "snapshot"
@@ -16,6 +17,7 @@ class Eureka extends Base {
     , "app-linked-data"      : "snapshot"
   ]
 
+  @Deprecated
   static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
     "app-platform-full": "snapshot"
     , "app-linked-data": "snapshot"
