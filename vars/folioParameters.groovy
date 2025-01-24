@@ -71,7 +71,7 @@ def cypressAgent() {
 }
 
 def platform() {
-  return _paramChoice('PLATFORM', PlatformType.values()*.name(), 'Select FOLIO platform')
+  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() }, 'Select FOLIO platform')
 }
 
 def applicationSet() {
