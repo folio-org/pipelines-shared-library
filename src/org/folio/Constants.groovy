@@ -145,22 +145,16 @@ class Constants {
     AWS_EKS_CLUSTERS.findAll{ cluster -> !(cluster.disabled) }
       .collectEntries { cluster -> [cluster.name, cluster.namespaces] }
 
-  static Map AWS_EKS_PLATFORM_CLUSTERS(def context = null) {
-    Map platformClusters = [:].withDefault { [] }
-
-    if(context)
-      context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS begin")
+  static Map AWS_EKS_PLATFORM_CLUSTERS() {
+    Map platformClusters = [:]
 
     AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
       .each { cluster ->
-        if(context)
-          context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS start: ${cluster.name} ${platformClusters.inspect()}")
-
         cluster.platform.each { platform ->
-          if(context)
-            context.println("Constants.AWS_EKS_PLATFORM_CLUSTERS platform: ${platform.name()} -> ${cluster.name}")
+          if (!platformClusters.containsKey(platform.name()))
+            platformClusters.put(platform.name(), [])
 
-          platformClusters[platform.name()] << cluster.name
+          platformClusters[platform.name()].add(cluster.name)
         }
       }
 
