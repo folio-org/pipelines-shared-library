@@ -3568,9 +3568,9 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
     requests:
-      memory: 896Mi
+      memory: 1536Mi
   autoscaling:
     enabled: true
     minReplicas: 1
