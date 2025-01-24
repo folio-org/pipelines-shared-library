@@ -78,23 +78,26 @@ ansiColor('xterm') {
     try {
       stage('Ini') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
-        // Load Module Details and set Module Version
-        module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
+        // Run extra init steps for non-Github module sources
+        if (!params.MODULE_SOURCE.contains('github')) {
+          // Load Module Details and set Module Version
+          module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
 
-        // Load Module Descriptor from Folio Descriptor Registry
-        String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-        logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
-        String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
-        logger.debug("Module Descriptor: ${moduleDescriptor}")
-        module.descriptor = [readJSON(text: moduleDescriptor)]
+          // Load Module Descriptor from Folio Descriptor Registry
+          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
+          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
+          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
+          logger.debug("Module Descriptor: ${moduleDescriptor}")
+          module.descriptor = [readJSON(text: moduleDescriptor)]
 
-        // Upload Module Descriptor to Eureka Descriptor Registry
-        sh( label: "Put Module Descriptor to Eureka Descriptor Registry",
+          // Upload Module Descriptor to Eureka Descriptor Registry
+          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
             returnStdout: false,
             script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
-        )
+          )
+        }
       }
 
       stage('[Git] Checkout module source') {
@@ -221,9 +224,9 @@ ansiColor('xterm') {
           }
 
           // Upload Module Descriptor to Eureka Module Registry
-          sh(
-            label: "Upload Module Descriptor to Eureka Module Registry",
-            script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+          sh( label: "Upload Module Descriptor to Eureka Module Registry",
+              returnStdout: false,
+              script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
           )
 
           // Save Module Descriptor to Module instance for further usage
