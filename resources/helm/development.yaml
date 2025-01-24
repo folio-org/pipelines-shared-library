@@ -3012,9 +3012,9 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: 1067Mi
+      memory: 1250Mi
     requests:
-      memory: 927Mi
+      memory: 1024Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
