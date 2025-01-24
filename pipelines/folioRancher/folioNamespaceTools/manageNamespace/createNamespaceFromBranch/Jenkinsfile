@@ -9,18 +9,21 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-2024-test') _
 
 //TODO add selector OKAPI/EUREKA instead EUREKA boolean flag
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
+    folioParameters.platform(),
+    folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     folioParameters.branch(),
     folioParameters.okapiVersion(),
     folioParameters.configType(),
+    folioParameters.applicationSet(),
+    folioParameters.applications(),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
