@@ -185,6 +185,7 @@ def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String reference
   boolean containerImageTagFlag = referencedParamsList.any {paramId -> params[paramId].contains('dockerhub/')}
 
   if (containerImageTagFlag) {
+    env.IMAGE_REPO_NAME = 'folioci'
     imageTagsList = folioStringScripts.getContainerImageTags()
   }
 
