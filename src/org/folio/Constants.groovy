@@ -135,6 +135,7 @@ class Constants {
 
   //Eureka base constants
   static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
+  static List<String> EUREKA_MODULE_SOURCES = ['github/folio-org', 'dockerhub/folioci', 'dockerhub/folioorg']
 
   static String RANCHER_API_URL = 'https://rancher.ci.folio.org/v3'
 

@@ -177,5 +177,18 @@ def imageRepositoryName() {
 }
 
 def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
-  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true)
+  // Local variable to hold List of container image tags as a string
+  String imageTagsList = "N/A"
+
+  if (params.containsKey(referencedParams)) {
+    if (params["${referencedParams}"].contains('dockerhub')) {  // Check if Docker Hub is selected as a module source
+      imageTagsList = folioStringScripts.getContainerImageTags()
+    }
+  }
+
+  return _paramExtendedSingleSelect(paramName, referencedParams, imageTagsList, "(Required) Get Container Image Tags from Docker Hub", true)
+}
+
+def moduleSource() {
+  return _paramChoice('MODULE_SOURCE', Constants.EUREKA_MODULE_SOURCES, 'Select Eureka module source')
 }
