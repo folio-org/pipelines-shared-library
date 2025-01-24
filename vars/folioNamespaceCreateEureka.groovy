@@ -201,6 +201,7 @@ void call(CreateNamespaceParameters args) {
         logger.info(namespace.getModules().getBackendModules())
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
       }
     }
 
@@ -212,6 +213,8 @@ void call(CreateNamespaceParameters args) {
         }
 
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+
       }
     }
 
