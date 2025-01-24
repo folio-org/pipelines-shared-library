@@ -6,8 +6,8 @@ import org.folio.rest_v2.Constants as RestConstants
 static String getClusters(String platform) {
   return """
 return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
-${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platform}.trim()] :
-${platform}
+${Constants.AWS_EKS_CLUSTERS_LIST.inspect()} :
+${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
 """
 }
 
