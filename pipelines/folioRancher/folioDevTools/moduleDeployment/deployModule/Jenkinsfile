@@ -8,6 +8,8 @@ import org.folio.utilities.Logger
 import org.folio.models.EurekaNamespace
 import org.folio.rest_v2.eureka.Eureka
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+
 
 // TODO: rollback to @RANCHER-1334 once code for this feature is tested
 @Library('pipelines-shared-library@RANCHER-2026') _
@@ -98,135 +100,135 @@ ansiColor('xterm') {
       stage('[Git] Checkout module source') {
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Git checkout stage for non-Github module source")
-          return
+          logger.info("Skip Git checkout stage for non-Github module source: ${params.MODULE_SOURCE}")
+          Utils.markStageSkippedForConditional('[Git] Checkout module source')
+        } else {
+          checkout([
+            $class           : 'GitSCM',
+            branches         : [[name: "*/${featureBranch}"]],
+            extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+                                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                [$class: 'AuthorInChangelog'],
+                                [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+            userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
+          ])
         }
-
-        checkout([
-          $class           : 'GitSCM',
-          branches         : [[name: "*/${featureBranch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
-                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                              [$class: 'AuthorInChangelog'],
-                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
-        ])
       }
 
       stage('[Maven/Gradle] Compile') {
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Maven/Gradle build stage for non-Github module source")
-          return
-        }
+          logger.info("Skip Maven/Gradle build stage for non-Github module source: ${params.MODULE_SOURCE}")
+          Utils.markStageSkippedForConditional('[Maven/Gradle] Compile')
+        } else {
+          // Check if Maven or Gradle build tool is used
+          module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
 
-        // Check if Maven or Gradle build tool is used
-        module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
+          switch (module.buildTool) {
+            case 'maven':
+              logger.info("Maven build tool is used")
+              module.buildDir = "${env.WORKSPACE}/${module.name}"
 
-        switch (module.buildTool) {
-          case 'maven':
-            logger.info("Maven build tool is used")
-            module.buildDir = "${env.WORKSPACE}/${module.name}"
+              dir(module.buildDir) {
+                // Read module version from pom.xml
+                String moduleVersion = readMavenPom(file: 'pom.xml').version
 
-            dir(module.buildDir) {
-              // Read module version from pom.xml
-              String moduleVersion = readMavenPom(file: 'pom.xml').version
+                // Load Module Details for Maven builds
+                module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
-              // Load Module Details for Maven builds
-              module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
-
-              // Build Module as Maven Project
-              withMaven(
-                jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-                maven: Constants.MAVEN_TOOL_NAME,
-                traceability: false,
-                options: [artifactsPublisher(disabled: true)])
-                {
-                  sh """
+                // Build Module as Maven Project
+                withMaven(
+                  jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+                  maven: Constants.MAVEN_TOOL_NAME,
+                  traceability: false,
+                  options: [artifactsPublisher(disabled: true)])
+                  {
+                    sh """
                     mvn versions:set -DnewVersion=${module.getVersion()}
                     mvn package ${mavenArguments}
                   """.stripIndent().trim()
-                }
-            }
-            break
+                  }
+              }
+              break
 
-          case 'gradle':
-            logger.info("Gradle build tool is used")
-            module.buildDir = "${env.WORKSPACE}/${module.name}/service"
+            case 'gradle':
+              logger.info("Gradle build tool is used")
+              module.buildDir = "${env.WORKSPACE}/${module.name}/service"
 
-            dir(module.buildDir) {
-              // Read module version from gradle.properties
-              String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
+              dir(module.buildDir) {
+                // Read module version from gradle.properties
+                String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
 
-              // Load Module Details for Gradle builds
-              module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
+                // Load Module Details for Gradle builds
+                module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
-              // Build Module as Gradle Project
-              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble"
-            }
-            break
+                // Build Module as Gradle Project
+                sh "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble"
+              }
+              break
 
-          default:
-            throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+            default:
+              throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+          }
         }
       }
 
       stage('[Docker] Build and push') {
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Docker build stage for non-Github module source")
-          return
-        }
+          logger.info("Skip Docker build stage for non-Github module source: ${params.MODULE_SOURCE}")
+          Utils.markStageSkippedForConditional('[Docker] Build and push')
+        } else {
+          // Put Container Image to Amazon ECR
+          docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+            // Check if ECR Repository exists, if not create it
+            common.checkEcrRepoExistence(module.name)
 
-        // Put Container Image to Amazon ECR
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          // Check if ECR Repository exists, if not create it
-          common.checkEcrRepoExistence(module.name)
+            dir(module.buildDir) {
+              switch (module.buildTool) {
+                case 'maven':
+                  module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
 
-          dir(module.buildDir) {
-            switch (module.buildTool) {
-              case 'maven':
-                module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
+                  // Build and Push Container Image
+                  docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
+                  break
 
-                // Build and Push Container Image
-                docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
-                break
+                case 'gradle':
+                  module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
 
-              case 'gradle':
-                module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
+                  // Build Container Image
+                  String shellCmd = """
+                    echo '[INFO] Build Container Image'
+                    ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
-                // Build Container Image
-                String shellCmd = """
-                  echo '[INFO] Build Container Image'
-                  ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+                    echo '[INFO] Rename Local Container Image'
+                    docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
 
-                  echo '[INFO] Rename Local Container Image'
-                  docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+                    echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
+                    [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
+                  """.stripIndent().trim()
 
-                  echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
-                  [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
-                """.stripIndent().trim()
+                  sh(label: 'Build Container Image', script: shellCmd)
 
-                sh (label: 'Build Container Image', script: shellCmd)
+                  // Push Container Image to Amazon ECR
+                  docker.image("${module.name}:${module.version}").push()
+                  break
 
-                // Push Container Image to Amazon ECR
-                docker.image("${module.name}:${module.version}").push()
-                break
-
-              default:
-                throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+                default:
+                  throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+              }
             }
           }
+
+          // Upload Module Descriptor to Eureka Module Registry
+          sh(
+            label: "Upload Module Descriptor to Eureka Module Registry",
+            script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+          )
+
+          // Save Module Descriptor to Module instance for further usage
+          module.descriptor = [readJSON(file: module.modDescriptorPath)]
         }
-
-        // Upload Module Descriptor to Eureka Module Registry
-        sh(
-          label: "Upload Module Descriptor to Eureka Module Registry",
-          script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
-        )
-
-        // Save Module Descriptor to Module instance for further usage
-        module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
 
       stage('Generate context') {
