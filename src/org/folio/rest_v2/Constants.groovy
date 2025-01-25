@@ -164,7 +164,7 @@ class Constants {
       , branch: "master"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
     ]
   ]
