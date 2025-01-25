@@ -18,7 +18,7 @@ properties([
 //  disableConcurrentBuilds(),
   parameters([
     folioParameters.platform(),
-//    folioParameters.cluster('PLATFORM'),
+    folioParameters.cluster('PLATFORM'),
 //    folioParameters.namespace(),
 //    folioParameters.branch(),
 //    folioParameters.okapiVersion(),
