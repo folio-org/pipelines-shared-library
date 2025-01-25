@@ -79,7 +79,7 @@ def applicationSet() {
 }
 
 def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
-  return _paramExtendedMultiSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
 }
 
 def refreshParameters() {
