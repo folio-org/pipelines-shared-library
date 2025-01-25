@@ -33,12 +33,12 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSelect(String name, String reference, String script, String description, String choiceType = "PT_SINGLE_SELECT") {
+private def _paramExtendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
           description         : description,
           filterLength        : 1,
-          filterable          : true,
+          filterable          : filterable,
           name                : name,
           referencedParameters: reference,
           script              : [$class        : 'GroovyScript',
@@ -50,16 +50,16 @@ private def _paramExtendedSelect(String name, String reference, String script, S
                                                   script   : script]]]
 }
 
-private def _paramExtendedMultiSelect(String name, String reference, String script, String description) {
-  _paramExtendedSelect(name, reference, script, description, "PT_MULTI_SELECT")
+private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true) {
+  _paramExtendedSelect(name, reference, script, description, filterable, "PT_MULTI_SELECT")
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
-  _paramExtendedSelect(name, reference, script, description, "PT_SINGLE_SELECT")
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true) {
+  _paramExtendedSelect(name, reference, script, description, filterable,"PT_SINGLE_SELECT")
 }
 
-private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description) {
-  _paramExtendedSelect(name, reference, script, description, "PT_CHECKBOX")
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = true) {
+  _paramExtendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
 }
 
 def agent() {
@@ -79,7 +79,7 @@ def applicationSet() {
 }
 
 def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
-  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
 }
 
 def refreshParameters() {
