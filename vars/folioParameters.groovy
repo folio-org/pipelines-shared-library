@@ -33,7 +33,7 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
+private def _extendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
           description         : description,
@@ -50,20 +50,38 @@ private def _paramExtendedSelect(String name, String reference, String script, S
                                                   script   : script]]]
 }
 
+private def _extendedDynamicParam(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "ET_FORMATTED_HTML") {
+  return [$class              : 'DynamicReferenceParameter',
+          choiceType          : choiceType,
+          description         : description,
+          filterLength        : 1,
+          filterable          : filterable,
+          name                : name,
+          referencedParameters: reference,
+          omitValueField      : false,
+          script              : [$class        : 'GroovyScript',
+                                 fallbackScript: [classpath: [],
+                                                  sandbox  : false,
+                                                  script   : 'return ["error"]'],
+                                 script        : [classpath: [],
+                                                  sandbox  : false,
+                                                  script   : script]]]
+}
+
 private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _paramExtendedSelect(name, reference, script, description, filterable, "PT_MULTI_SELECT")
+  _extendedSelect(name, reference, script, description, filterable, "PT_MULTI_SELECT")
 }
 
 private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _paramExtendedSelect(name, reference, script, description, filterable,"PT_SINGLE_SELECT")
+  _extendedSelect(name, reference, script, description, filterable,"PT_SINGLE_SELECT")
 }
 
 private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = false) {
-  _paramExtendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
+  _extendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
 }
 
-private def _paramExtendedTextArea(String script, String reference, String name = "", String description = "", boolean filterable = false) {
-  _paramExtendedSelect(name, reference, script, description, filterable,"PT_TEXTAREA")
+private def _paramHiddenHTML(String script, String reference, String name = "", String description = "", boolean filterable = false) {
+  _extendedDynamicParam(name, reference, script, description, filterable,"ET_FORMATTED_HIDDEN_HTML")
 }
 
 def agent() {
@@ -203,5 +221,5 @@ def runSanityCheck(boolean value = true) {
 }
 
 def hideParameters(Map valueParams, String reference) {
-  return _paramExtendedTextArea(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
 }
