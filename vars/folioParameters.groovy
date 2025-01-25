@@ -36,10 +36,10 @@ private def _paramPassword(String name, String value, String description) {
 private def _paramExtendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
-//          description         : description,
+          description         : description,
           filterLength        : 1,
           filterable          : filterable,
-//          name                : name,
+          name                : name,
           referencedParameters: reference,
           script              : [$class        : 'GroovyScript',
                                  fallbackScript: [classpath: [],
@@ -62,7 +62,7 @@ private def _paramExtendedCheckboxSelect(String name, String reference, String s
   _paramExtendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
 }
 
-private def _paramExtendedTextArea(String script, String reference, String name = null, String description = null, boolean filterable = false) {
+private def _paramExtendedTextArea(String script, String reference, String name = "", String description = "", boolean filterable = false) {
   _paramExtendedSelect(name, reference, script, description, filterable,"PT_TEXTAREA")
 }
 

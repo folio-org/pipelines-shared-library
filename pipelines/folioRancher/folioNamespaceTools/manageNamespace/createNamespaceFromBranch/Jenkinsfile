@@ -17,7 +17,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
-    folioParameters.platform(),
+//    folioParameters.platform(),
 //    folioParameters.cluster('PLATFORM'),
 //    folioParameters.namespace(),
 //    folioParameters.branch(),
