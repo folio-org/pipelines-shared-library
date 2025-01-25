@@ -193,7 +193,7 @@ return result
 
 static String getHideHTMLScript(Map hideMap, String reference) {
   return """
-def selectors = $hideMap[$reference]?.collect { "div.jenkins-form-item:has(input[value='\$it'])" }?.join(", \\n")
+def selectors = ${hideMap.inspect()}[${reference}]?.collect { "div.jenkins-form-item:has(input[value='\$it'])" }?.join(", \\n")
 
 return selectors ? \"\"\"
   <style>
