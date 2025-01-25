@@ -46,7 +46,8 @@ properties([
 //    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
 //    folioParameters.agent(),
 //    folioParameters.refreshParameters()
-    , folioParameters.hideParameters([:], "")
+//    ,
+    folioParameters.hideParameters([:], "")
   ])
 ])
 
