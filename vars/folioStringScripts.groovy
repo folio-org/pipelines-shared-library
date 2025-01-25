@@ -194,7 +194,6 @@ return result
 static String getHideHTMLScript(Map value, String reference) {
   return """return
     <style>
-    /* Example CSS: if you can identify the correct selector for the OKAPI_VERSION item */
     div.jenkins-form-item:has(input[value="OKAPI_VERSION"]) {
     display: none !important;
   }
