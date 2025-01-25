@@ -191,13 +191,16 @@ return result
 """
 }
 
-static String getHideHTMLScript(Map value, String reference) {
-  return """return \"\"\"
+static String getHideHTMLScript(Map hideMap, String reference) {
+  return """
+def selectors = $hideMap[$reference]?.collect { "div.jenkins-form-item:has(input[value='\$it'])" }?.join(", \\n")
+
+return selectors ? \"\"\"
   <style>
-    div.jenkins-form-item:has(input[value="OKAPI_VERSION"]) {
+    \$selectors {
       display: none !important;
     }
   </style>
-  \"\"\"
+  \"\"\" : ""
 """
 }
