@@ -57,8 +57,8 @@ private def _extendedDynamicParam(String name, String reference, String script, 
 
   return [$class              : 'DynamicReferenceParameter',
           choiceType          : choiceType,
-          description         : description,
-          name                : "HIDE_OKAPI",
+//          description         : description,
+//          name                : name,
           referencedParameters: reference,
           omitValueField      : omitValueField,
           script              : [$class        : 'GroovyScript',
@@ -83,7 +83,7 @@ private def _paramExtendedCheckboxSelect(String name, String reference, String s
 }
 
 private def _paramHiddenHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
-  _extendedDynamicParam(name, reference, script, description, false, "ET_FORMATTED_HIDDEN_HTML")
+  _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HIDDEN_HTML")
 }
 
 def agent() {
