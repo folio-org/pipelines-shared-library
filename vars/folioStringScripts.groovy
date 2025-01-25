@@ -20,7 +20,7 @@ return namespacesList[CLUSTER]
 
 static String getApplications(String applicationSet) {
   return """def list = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
-return list['OKAPI']
+return list['folio-dev']
 """
 }
 
