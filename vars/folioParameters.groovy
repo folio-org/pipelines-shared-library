@@ -50,12 +50,10 @@ private def _extendedSelect(String name, String reference, String script, String
                                                   script   : script]]]
 }
 
-private def _extendedDynamicParam(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "ET_FORMATTED_HTML") {
+private def _extendedDynamicParam(String name, String reference, String script, String description, String choiceType = "ET_FORMATTED_HTML") {
   return [$class              : 'DynamicReferenceParameter',
           choiceType          : choiceType,
           description         : description,
-          filterLength        : 1,
-          filterable          : filterable,
           name                : name,
           referencedParameters: reference,
           omitValueField      : false,
@@ -80,8 +78,8 @@ private def _paramExtendedCheckboxSelect(String name, String reference, String s
   _extendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
 }
 
-private def _paramHiddenHTML(String script, String reference, String name = "", String description = "", boolean filterable = false) {
-  _extendedDynamicParam(name, reference, script, description, filterable,"ET_FORMATTED_HIDDEN_HTML")
+private def _paramHiddenHTML(String script, String reference, String name = "", String description = "") {
+  _extendedDynamicParam(name, reference, script, description,"ET_FORMATTED_HIDDEN_HTML")
 }
 
 def agent() {
