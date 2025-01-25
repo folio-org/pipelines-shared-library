@@ -19,8 +19,8 @@ return namespacesList[CLUSTER]
 }
 
 static String getApplications(String applicationSet) {
-  return """def list = ${RestConstants.APPLICATION_SETS_LIST.inspect()}
-return list
+  return """def list = ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}
+return list['Complete']
 """
 }
 

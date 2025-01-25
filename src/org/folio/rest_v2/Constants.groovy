@@ -178,6 +178,6 @@ class Constants {
 
   static final Map APPLICATION_SETS_APPLICATIONS =
     APPLICATION_SETS.collectEntries { appSet, appList ->
-      [ appSet, appList.collect { app -> "${app.name}" } ]
+      [ appSet, ["app-requests-mediated-ui", "app-requests-mediated"] ]
     }
 }
