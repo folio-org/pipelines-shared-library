@@ -192,11 +192,12 @@ return result
 }
 
 static String getHideHTMLScript(Map value, String reference) {
-  return """return
-    <style>
+  return """return \"\"\"
+  <style>
     div.jenkins-form-item:has(input[value="OKAPI_VERSION"]) {
-    display: none !important;
-  }
-    </style>
+      display: none !important;
+    }
+  </style>
+  \"\"\"
 """
 }

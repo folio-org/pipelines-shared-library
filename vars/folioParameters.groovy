@@ -33,7 +33,9 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _extendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
+private def _extendedSelect(String name, String reference, String script, String description
+                            , boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
+
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
           description         : description,
@@ -50,13 +52,15 @@ private def _extendedSelect(String name, String reference, String script, String
                                                   script   : script]]]
 }
 
-private def _extendedDynamicParam(String name, String reference, String script, String description, String choiceType = "ET_FORMATTED_HTML") {
+private def _extendedDynamicParam(String name, String reference, String script, String description
+                                  , boolean omitValueField = false, String choiceType = "ET_FORMATTED_HTML") {
+
   return [$class              : 'DynamicReferenceParameter',
           choiceType          : choiceType,
           description         : description,
           name                : name,
           referencedParameters: reference,
-          omitValueField      : false,
+          omitValueField      : omitValueField,
           script              : [$class        : 'GroovyScript',
                                  fallbackScript: [classpath: [],
                                                   sandbox  : false,
@@ -78,8 +82,8 @@ private def _paramExtendedCheckboxSelect(String name, String reference, String s
   _extendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
 }
 
-private def _paramHiddenHTML(String script, String reference, String name = "", String description = "") {
-  _extendedDynamicParam(name, reference, script, description,"ET_FORMATTED_HIDDEN_HTML")
+private def _paramHiddenHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
+  _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HIDDEN_HTML")
 }
 
 def agent() {
