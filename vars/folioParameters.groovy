@@ -33,7 +33,7 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSelect(String name, String reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
+private def _paramExtendedSelect(String name, List reference, String script, String description, boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
           description         : description,
@@ -51,15 +51,19 @@ private def _paramExtendedSelect(String name, String reference, String script, S
 }
 
 private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _paramExtendedSelect(name, reference, script, description, filterable, "PT_MULTI_SELECT")
+  _paramExtendedSelect(name, [ reference ], script, description, filterable, "PT_MULTI_SELECT")
 }
 
 private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _paramExtendedSelect(name, reference, script, description, filterable,"PT_SINGLE_SELECT")
+  _paramExtendedSelect(name, [ reference ], script, description, filterable,"PT_SINGLE_SELECT")
 }
 
-private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _paramExtendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = false) {
+  _paramExtendedSelect(name, [ reference ], script, description, filterable,"PT_CHECKBOX")
+}
+
+private def _paramExtendedTextArea(String script, String reference, String name = null, String description = null, boolean filterable = false) {
+  _paramExtendedSelect(name, [ reference ], script, description, filterable,"PT_TEXTAREA")
 }
 
 def agent() {
@@ -196,4 +200,8 @@ def eurekaModules() {
 
 def runSanityCheck(boolean value = true) {
   return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
+}
+
+def hideParameters(Map valueParams, String reference) {
+  return _paramExtendedTextArea(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
 }

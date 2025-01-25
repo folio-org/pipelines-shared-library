@@ -19,9 +19,7 @@ return namespacesList[CLUSTER]
 }
 
 static String getApplications(String applicationSet) {
-  return """def list = ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}
-return list[${applicationSet}.trim()]
-"""
+  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
 static String getRepositoryBranches(String repository) {
@@ -190,5 +188,10 @@ result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
         .reverse()
 
 return result
+"""
+}
+
+static String getHideHTMLScript(Map value, String reference) {
+  return """import groovy.json.JsonSlurperClassic
 """
 }
