@@ -79,7 +79,7 @@ def applicationSet() {
 }
 
 def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
+  return _paramExtendedMultiSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications')
 }
 
 def refreshParameters() {
