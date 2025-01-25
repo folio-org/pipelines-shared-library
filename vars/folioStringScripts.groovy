@@ -19,7 +19,7 @@ return namespacesList[CLUSTER]
 }
 
 static String getApplications(String applicationSet) {
-  return "return [${applicationSet.trim()}]"
+  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet.trim()}]"
 }
 
 static String getRepositoryBranches(String repository) {
