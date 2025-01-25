@@ -178,6 +178,6 @@ class Constants {
 
   static final Map APPLICATION_SETS_APPLICATIONS =
     APPLICATION_SETS.collectEntries { appSet, appList ->
-      [ appSet, appList*.name ]
+      [ appSet, appList.collect { it.name } ]
     }
 }
