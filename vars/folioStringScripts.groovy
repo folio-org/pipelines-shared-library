@@ -235,7 +235,7 @@ return \"\"\"
     background-color: #ccc;
   }
 
-  div:has(#toggleHeader1362465846.closed) #hiddenPanel${id} {
+  div:has(#toggleHeader${id}.closed) #hiddenPanel${id} {
     display: none !important;
   }
 
