@@ -204,3 +204,70 @@ return selectors ? \"\"\"
   \"\"\" : ""
 """
 }
+
+static String getGroupHTMLScript(String title, List params) {
+  int id = Math.abs(title.hashCode())
+
+  return """
+return \"\"\"
+<style>
+  #toggleHeader${id} {
+    background-color: #ddd;
+    padding: 0.5em;
+    margin: 1em 0;
+    cursor: pointer;
+    font-weight: var(--form-label-font-weight);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  #toggleHeader${id}::after{
+    content: "- ";
+  }
+
+  #toggleHeader${id}.closed::after{
+    content: "+ ";
+  }
+
+  #toggleHeader${id}.closed {
+    background-color: #ccc;
+  }
+
+  #toggleHeader${id}.closed ~ #hiddenPanel${id} {
+    display: none !important;
+  }
+
+  #hiddenPanel${id} {
+    display: block;
+    border: 1px solid #ccc;
+    padding: 1em;
+    background: #f9f9f9;
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hiddenPanel = document.getElementById('hiddenPanel${id}');
+    const paramNames = ${params.inspect()};
+
+    // Move each named parameter's DOM node into the hiddenPanel <div>
+    paramNames.forEach(name => {
+      const input = document.querySelector('div.jenkins-form-item input[value="' + name + '"]');
+
+      if (input) {
+        const paramDiv = input.closest('div.jenkins-form-item');
+        hiddenPanel.appendChild(paramDiv);
+      }
+    });
+  });
+  </script>
+
+<div id="toggleHeader${id}" class="closed" onclick="this.classList.toggle('closed');">
+  ${title}
+</div>
+
+<div id="hiddenPanel${id}"></div>
+\"\"\"
+"""
+}

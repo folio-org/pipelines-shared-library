@@ -225,3 +225,7 @@ def runSanityCheck(boolean value = true) {
 def hideParameters(Map valueParams, String reference) {
   return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
 }
+
+def groupParameters(String title, List groupedParams, String reference = "") {
+  return _paramHiddenHTML(folioStringScripts.getGroupHTMLScript(title, groupedParams), reference)
+}
