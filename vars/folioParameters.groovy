@@ -86,6 +86,10 @@ private def _paramHiddenHTML(String script, String reference, boolean omitValue 
   _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HIDDEN_HTML")
 }
 
+private def _paramFormattedHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
+  _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HTML")
+}
+
 def agent() {
   return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
@@ -227,5 +231,5 @@ def hideParameters(Map valueParams, String reference) {
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {
-  return _paramHiddenHTML(folioStringScripts.getGroupHTMLScript(title, groupedParams), reference)
+  return _paramFormattedHTML(folioStringScripts.getGroupHTMLScript(title, groupedParams), reference)
 }
