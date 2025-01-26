@@ -251,10 +251,14 @@ return \"\"\"
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const hiddenPanel = document.getElementById('hiddenPanel${id}');
-    const paramNames = ${params.inspect()};
+    const hiddenPanelParent = hiddenPanel.closest('div.jenkins-form-item');
+
+    if (hiddenPanelParent && hiddenPanel) {
+      hiddenPanelParent.parentNode.insertBefore(hiddenPanel, hiddenPanelParent.nextSibling);
+    }
 
     // Move each named parameter's DOM node into the hiddenPanel <div>
-    paramNames.forEach(name => {
+    ${params.inspect()}.forEach(name => {
       const input = document.querySelector('div.jenkins-form-item input[value="' + name + '"]');
 
       if (input) {
