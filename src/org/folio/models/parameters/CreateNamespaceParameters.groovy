@@ -43,6 +43,14 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean uiBuild
 
+  //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
+  // as a select-simplicity approach. Don't use it, and do not include it in the underlying
+  // base pipeline or step-separated pipelines.
+  @Deprecated
+  String applicationSet = 'Complete'
+
+  Map<String,String> applications = [:]
+
   List<String> folioExtensions = []
 
   String pgType
@@ -270,6 +278,27 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder rtr(boolean rtr) {
       parameters.rtr = rtr
+      return this
+    }
+
+    /**
+     * Specifies the application list for Eureka platform
+     * @param list The list of application-branch map to entitle.
+     * @return Builder instance for method chaining.
+     */
+    Builder applications(Map map) {
+      parameters.applications = map
+      return this
+    }
+
+    /**
+     * Specifies the application set for Eureka platform
+     * @param set The name of application set.
+     * @return Builder instance for method chaining.
+     */
+    @Deprecated
+    Builder applicationSet(String set) {
+      parameters.applicationSet = set
       return this
     }
 

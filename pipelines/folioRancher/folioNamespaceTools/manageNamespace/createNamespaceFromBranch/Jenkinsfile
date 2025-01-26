@@ -6,6 +6,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
+import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -85,6 +86,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
+  .applicationSet(params.APPLICATION_SET)
+  .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET, params.APPLICATIONS.join(',')))
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)

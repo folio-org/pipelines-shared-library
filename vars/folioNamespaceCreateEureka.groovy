@@ -184,8 +184,12 @@ void call(CreateNamespaceParameters args) {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
           //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
-            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
+          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+          args.applications -
+                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "master"])
           , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )

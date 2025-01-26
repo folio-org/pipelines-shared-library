@@ -9,6 +9,7 @@ import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest_v2.Constants as RestConstants
 
 @Library('pipelines-shared-library@RANCHER-1334') _
 
@@ -58,6 +59,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
+  .applicationSet('Complete')
+  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .pgType('built-in')
   .pgVersion('16.1')
   .kafkaType('built-in')

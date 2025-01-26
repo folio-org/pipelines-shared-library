@@ -180,4 +180,10 @@ class Constants {
     APPLICATION_SETS.collectEntries { appSet, appList ->
       [ appSet, appList.collect { it.name + (it.byDefault ? ":selected" : "") } ]
     }
+
+  static final Map APPLICATION_BRANCH(String set, List appFilter = null) {
+    return APPLICATION_SETS_APPLICATIONS.get(set)
+      .findAll{app -> (!appFilter && app.byDefault) || appFilter.contains(app.name)}
+      .collectEntries { app -> [ app.name, app.branch ] }
+  }
 }
