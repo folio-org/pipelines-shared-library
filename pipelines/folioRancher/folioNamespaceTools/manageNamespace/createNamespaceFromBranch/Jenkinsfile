@@ -58,8 +58,6 @@ properties([
   ])
 ])
 
-println(params.APPLICATIONS.split(',').size())
-
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
