@@ -249,6 +249,7 @@ return \"\"\"
     padding: 1em;
     background: #f9f9f9;
     border-radius: 4px;
+    margin-bottom: var(--section-padding);
   }
 </style>
 
