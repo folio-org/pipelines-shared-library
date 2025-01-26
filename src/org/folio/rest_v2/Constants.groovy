@@ -182,7 +182,7 @@ class Constants {
     }
 
   static final Map APPLICATION_BRANCH(String set, List appFilter = null) {
-    return APPLICATION_SETS_APPLICATIONS.get(set)
+    return APPLICATION_SETS[set]
       .findAll{app -> (!appFilter && app.byDefault) || appFilter.contains(app.name)}
       .collectEntries { app -> [ app.name, app.branch ] }
   }
