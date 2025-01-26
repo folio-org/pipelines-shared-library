@@ -85,7 +85,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
   .applicationSet(params.APPLICATION_SET)
-  .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET, params.APPLICATIONS.join(',')))
+  .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
+    , (params.APPLICATIONS as String).split(',') as List))
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)
