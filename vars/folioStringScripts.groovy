@@ -239,6 +239,10 @@ return \"\"\"
     display: none !important;
   }
 
+  div.jenkins-form-item:has(#toggleHeader${id}) {
+    margin-bottom: 0;
+  }
+
   #hiddenPanel${id} {
     display: block;
     border: 1px solid #ccc;
