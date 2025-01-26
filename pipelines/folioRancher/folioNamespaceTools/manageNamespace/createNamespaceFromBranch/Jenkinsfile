@@ -57,6 +57,8 @@ properties([
   ])
 ])
 
+println(params.APPLICATIONS)
+
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
