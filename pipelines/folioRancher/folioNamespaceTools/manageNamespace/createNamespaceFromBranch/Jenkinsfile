@@ -6,17 +6,18 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
+import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-1334') _
 
-//TODO add selector OKAPI/EUREKA instead EUREKA boolean flag
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(),
+    folioParameters.platform(),
+    folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     folioParameters.branch(),
     folioParameters.okapiVersion(),
@@ -32,7 +33,6 @@ properties([
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
-    booleanParam(name: 'EUREKA', defaultValue: true, description: '(Optional) Set true to enable EUREKA'),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -55,6 +55,7 @@ if (params.CLUSTER == 'folio-testing') {
 }
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.valueOf(params.PLATFORM))
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
   .folioBranch(params.FOLIO_BRANCH)
@@ -63,7 +64,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
-  .eureka(params.EUREKA)
   .splitFiles(params.SPLIT_FILES)
   .ecsCCL(params.ECS_CCL)
   .rwSplit(params.RW_SPLIT)
@@ -81,7 +81,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 if (params.CONSORTIA) {
-  if (namespaceParams.eureka)
+  if (namespaceParams.platform == PlatformType.EUREKA)
     namespaceParams.folioExtensions.add('consortia-eureka')
   else
     namespaceParams.folioExtensions.add('consortia')
@@ -102,7 +102,7 @@ cypressSanityParameters.setWorkerLabel('cypress-static') // Switch back to cypre
 cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
-if(namespaceParams.eureka) {
+if(namespaceParams.platform == PlatformType.EUREKA) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test-snapshot')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
@@ -127,7 +127,7 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      if (namespaceParams.eureka) {
+      if (namespaceParams.platform == PlatformType.EUREKA) {
         folioNamespaceCreateEureka(namespaceParams)
       } else {
         folioNamespaceCreate(namespaceParams)
