@@ -129,7 +129,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
