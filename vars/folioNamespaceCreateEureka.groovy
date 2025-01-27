@@ -181,24 +181,19 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Preinstall') {
-      retry(3) {
-
-        input message: "Let's wait"
-
-        namespace.withApplications(
-          eureka.registerApplicationsFlow(
-            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-            args.applications -
-                    (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-                    (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-                    (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-                    (args.linkedData ? [:] : ["app-linked-data": "master"])
-            , namespace.getModules().getModuleVersionMap()
-            , namespace.getTenants().values() as List<EurekaTenant>
-          )
+      namespace.withApplications(
+        eureka.registerApplicationsFlow(
+          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+          args.applications -
+                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "master"])
+          , namespace.getModules().getModuleVersionMap()
+          , namespace.getTenants().values() as List<EurekaTenant>
         )
-      }
+      )
 
       eureka.registerModulesFlow(
         namespace.getModules()
