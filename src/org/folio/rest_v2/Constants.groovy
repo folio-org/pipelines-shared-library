@@ -153,7 +153,7 @@ class Constants {
     ],
     [
       name: "app-requests-mediated"
-      , branch: "master"
+      , branch: "master-downgrade-dependency-version"
       , consortia: false
       , core: false
       , byDefault: true
