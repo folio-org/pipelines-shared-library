@@ -145,7 +145,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), true)
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
       .defineKeycloakTTL()
 
     // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
