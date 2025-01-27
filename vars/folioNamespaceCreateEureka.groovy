@@ -16,8 +16,6 @@ void call(CreateNamespaceParameters args) {
 
     logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
-    input(message: "Let's wait")
-
     EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
     //Set terraform configuration
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
