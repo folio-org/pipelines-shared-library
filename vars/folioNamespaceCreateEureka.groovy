@@ -183,7 +183,7 @@ void call(CreateNamespaceParameters args) {
     stage('[Rest] Preinstall') {
       retry(3) {
 
-//        input message: "Let's wait"
+        input message: "Let's wait"
 
         namespace.withApplications(
           eureka.registerApplicationsFlow(
