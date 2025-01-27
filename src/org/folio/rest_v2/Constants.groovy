@@ -113,7 +113,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "master"
+      , branch: "switch-app-generator-0.0.2"
       , consortia: false
       , core     : false
       , byDefault: true
