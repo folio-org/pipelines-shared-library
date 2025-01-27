@@ -2,6 +2,7 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
@@ -33,7 +34,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
-    tfConfig.addVar('eureka', args.eureka)
+    tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
     if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
@@ -244,7 +245,7 @@ void call(CreateNamespaceParameters args) {
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
             branches[tenantId] = {
-              folioUI.buildAndDeploy(namespace, tenant, args.eureka, namespace.getDomains()['kong'] as String
+              folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
                 , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
             }
           }
