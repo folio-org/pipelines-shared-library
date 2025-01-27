@@ -182,6 +182,8 @@ void call(CreateNamespaceParameters args) {
 
     stage('[Rest] Preinstall') {
       retry(3) {
+        input message: "What's you gonna do?"
+
         namespace.withApplications(
           eureka.registerApplicationsFlow(
             //TODO: Refactoring is needed!!! Utilization of extension should be applied.
