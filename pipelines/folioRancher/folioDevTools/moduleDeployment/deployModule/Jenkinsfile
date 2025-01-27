@@ -162,6 +162,11 @@ ansiColor('xterm') {
                 // Read module version from gradle.properties
                 String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
 
+                // Append -SNAPSHOT to the version if it's not a snapshot version
+                if(!moduleVersion.contains("-SNAPSHOT")) {
+                  moduleVersion += "-SNAPSHOT"
+                }
+
                 // Load Module Details for Gradle builds
                 module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
