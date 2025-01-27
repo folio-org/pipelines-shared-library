@@ -3,6 +3,7 @@ package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEure
 
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.models.parameters.CreateNamespaceParameters
 
@@ -27,6 +28,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
   .folioBranch('snapshot')
@@ -36,7 +38,6 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .loadSample(true)
   .consortia(true)
   .linkedData(true)
-  .eureka(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)
@@ -55,6 +56,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .build()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('snapshot2')
   .folioBranch('snapshot')
@@ -64,7 +66,6 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .loadSample(true)
   .consortia(true)
   .linkedData(true)
-  .eureka(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)

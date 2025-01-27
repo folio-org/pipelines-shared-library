@@ -8,6 +8,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
+import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -43,6 +44,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 final String platformCompleteBranch = 'snapshot'
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('cypress')
   .rwSplit(false)
@@ -64,7 +66,6 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .eureka(true)
   .rtr(false)
   .uiBuild(true)
   .build()
