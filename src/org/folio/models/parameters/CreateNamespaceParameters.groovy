@@ -1,12 +1,15 @@
 package org.folio.models.parameters
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.rest_v2.PlatformType
 
 /**
  * Represents parameters for creating a namespace in a Kubernetes cluster with options for configuring
  * various services and features within the FOLIO ecosystem.
  */
 class CreateNamespaceParameters implements Cloneable {
+
+  PlatformType platform = PlatformType.OKAPI
 
   String clusterName
 
@@ -25,8 +28,6 @@ class CreateNamespaceParameters implements Cloneable {
   boolean consortia
 
   boolean linkedData
-
-  boolean eureka
 
   boolean splitFiles
 
@@ -97,6 +98,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder(CreateNamespaceParameters existingParameters) {
       this.parameters = existingParameters.clone()
+    }
+
+    /**
+     * Define platform type within the namespace.
+     * @param platformType. The type of platform to use, e.g., OKAPI or EUREKA.
+     * @return Builder instance for method chaining.
+     */
+    Builder platform(PlatformType platformType) {
+      parameters.platform = platformType
+      return this
     }
 
     /**
@@ -183,17 +194,6 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder consortia(boolean consortia) {
       parameters.consortia = consortia
-      return this
-    }
-
-    /**
-     * Enables or disables Eureka IDP within the namespace.
-     * Eureka is a successor of Okapi
-     * @param eureka `true` to enable Eureka features; `false` to disable.
-     * @return Builder instance for method chaining.
-     */
-    public Builder eureka(boolean eureka) {
-      parameters.eureka = eureka
       return this
     }
 
