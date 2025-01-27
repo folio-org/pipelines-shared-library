@@ -18,6 +18,10 @@ return namespacesList[CLUSTER]
 """
 }
 
+static String getApplications(String applicationSet) {
+  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
+}
+
 static String getRepositoryBranches(String repository) {
   return """import groovy.json.JsonSlurperClassic
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
