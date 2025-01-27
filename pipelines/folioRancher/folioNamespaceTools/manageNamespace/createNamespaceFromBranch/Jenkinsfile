@@ -22,6 +22,8 @@ properties([
     folioParameters.branch(),
     folioParameters.okapiVersion(),
     folioParameters.configType(),
+    folioParameters.groupParameters("Environment features"
+      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
@@ -33,6 +35,8 @@ properties([
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+    folioParameters.groupParameters("Integrations"
+      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
