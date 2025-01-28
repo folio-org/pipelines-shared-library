@@ -6,6 +6,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
+import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -21,6 +22,8 @@ properties([
     folioParameters.namespace(),
     folioParameters.branch(),
     folioParameters.okapiVersion(),
+    folioParameters.applicationSet(),
+    folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
       , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
@@ -46,6 +49,12 @@ properties([
     string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
+    ,folioParameters.hideParameters(
+    [
+      'EUREKA':['OKAPI_VERSION'],
+      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
+    ]
+    , "PLATFORM")
   ])
 ])
 
@@ -75,6 +84,9 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
+  .applicationSet(params.APPLICATION_SET)
+  .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
+    , (params.APPLICATIONS as String).split(',') as List))
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)
