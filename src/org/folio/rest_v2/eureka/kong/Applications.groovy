@@ -62,7 +62,12 @@ class Applications extends Kong{
   }
 
   def getRegisteredApplication(String appId, boolean fullInfo = false){
-    return getRegisteredApplications("id==$appId", fullInfo)[0]
+    List apps = getRegisteredApplications("id==$appId", fullInfo)
+
+    if (apps.size() == 0)
+      throw new Exception("Application is not registered")
+
+    return apps[0]
   }
 
   boolean isApplicationRegistered(String appId) {
@@ -84,7 +89,8 @@ class Applications extends Kong{
     } else {
       logger.debug("By the url ${url} registered application(s) not found")
       logger.debug("HTTP response is: ${response}")
-      throw new Exception("Application(s) is(are) not registered")
+
+      return []
     }
   }
 
