@@ -30,7 +30,7 @@ resource "helm_release" "keycloak" {
 image:
   registry: folioci
   repository: folio-keycloak
-  tag: latest
+  tag: 25.1.0-SNAPSHOT.34
   pullPolicy: Always
   debug: false
 
