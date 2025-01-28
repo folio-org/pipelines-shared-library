@@ -174,7 +174,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
   boolean allDeploymentsUpdated = false
   int timer = 0
-  int maxTime = 10 * 60 // 10 minutes in seconds
+  int maxTime = 20 * 60 // 20 minutes in seconds
 
   try {
     while (!allDeploymentsUpdated) {
@@ -293,6 +293,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     ]
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
+      case 'mod-consortia-keycloak':
+        println('https://folio-org.atlassian.net/browse/RANCHER-2035')
+        break
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',

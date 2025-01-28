@@ -4405,6 +4405,8 @@ mod-z3950:
     maxUnavailable: 1
 mgr-applications:
   extraEnvVars:
+    - name: ROUTEMANAGEMENT_ENABLE
+      value: "true"
     - name: MODULE_URL
       value: "http://mgr-applications"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
@@ -4465,6 +4467,8 @@ mgr-tenant-entitlements:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
+    - name: ROUTEMANAGEMENT_ENABLE
+      value: "false"
     - name: MODULE_URL
       value: "http://mgr-tenant-entitlements"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT

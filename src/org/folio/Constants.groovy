@@ -38,7 +38,7 @@ class Constants {
   //tmp excluded: 'folio-eperf', 'folio-etmp
   // TODO: remove 'yari' namespace from AWS_EKS_TMP_NAMESPACES once testing is done
   static List AWS_EKS_TMP_NAMESPACES = ['yari', 'test', 'test-1', 'test-2', 'tdspora']
-  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration']
+  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
@@ -135,7 +135,6 @@ class Constants {
 
   //Eureka base constants
   static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
-  static List<String> EUREKA_MODULE_SOURCES = ['dockerhub/folioci', 'dockerhub/folioorg', 'github/folio-org']
 
   static String RANCHER_API_URL = 'https://rancher.ci.folio.org/v3'
 
@@ -167,7 +166,6 @@ class Constants {
   static String ECR_FOLIO_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = 'aws-ecr-rw-credentials'
   static String DOCKER_K8S_CLIENT_IMAGE = 'alpine/k8s:1.22.15'
-  static List<String> DOCKERHUB_REPO_NAMES_LIST = ['folioci', 'folioorg']
 
   //Jenkins
   static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'dmytrmoroz', 'aatoyan', 'epam-avramenko', 'yaroslavishchenko', 'sergii-msn']
