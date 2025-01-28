@@ -305,6 +305,8 @@ ansiColor('xterm') {
             folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
             echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
             kubectl.checkDeploymentStatus(module.name, namespace.namespaceName, "300")
+            echo "Waiting another 2 minutes to get module initialized..."
+            sleep time: 2, unit: 'MINUTES'
           }
         } catch (e) {
           logger.warning("Failed to deploy new module version via Helm: ${e}")
