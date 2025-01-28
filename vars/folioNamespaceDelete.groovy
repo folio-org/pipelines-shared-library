@@ -32,6 +32,9 @@ void call(CreateNamespaceParameters args) {
 
   folioHelm.withKubeConfig(args.clusterName) {
     retry(2) {
+      stage('[Helm uninstall] All') {
+        folioHelm.deleteFolioModulesParallel(args.namespaceName)
+      }
       if (args.opensearchType != 'built-in') {
         stage('[Kubectl] Cleanup opensearch indices') {
           folioTools.deleteOpenSearchIndices(args.clusterName, args.namespaceName)
@@ -42,9 +45,6 @@ void call(CreateNamespaceParameters args) {
           folioTools.deleteKafkaTopics(args.clusterName, args.namespaceName)
         }
       }
-    }
-    stage('[Helm uninstall] All') {
-      folioHelm.deleteFolioModulesParallel(args.namespaceName)
     }
   }
 
