@@ -4,6 +4,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 
@@ -177,7 +178,15 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-        sleep time: 2, unit: "MINUTES"
+
+        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+        int counter = 0
+        retry(10) {
+          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+          counter++
+
+          Applications.get(eureka.kong).getRegisteredApplications()
+        }
       }
     }
 
