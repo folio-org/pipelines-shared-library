@@ -33,6 +33,9 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'GREENMAIL', value: namespaceParams.getGreenmail()),
       booleanParam(name: 'MOCK_SERVER', value: namespaceParams.getMockServer()),
       booleanParam(name: 'RTR', value: namespaceParams.getRtr()),
+      //TODO: Remove in the future release with getApplicationSet() method
+      string(name: 'APPLICATION_SET', value: namespaceParams.getApplicationSet()),
+      string(name: 'APPLICATIONS', value: namespaceParams.getApplications().keySet().join(',')),
       string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
       string(name: 'DB_VERSION', value: namespaceParams.getPgVersion()),
       string(name: 'KAFKA', value: namespaceParams.getKafkaType()),
