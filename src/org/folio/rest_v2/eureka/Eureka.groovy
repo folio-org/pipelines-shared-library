@@ -9,18 +9,6 @@ import org.folio.utilities.RequestException
 
 class Eureka extends Base {
 
-  static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full"      : "snapshot"
-    , "app-consortia"        : "snapshot"
-    , "app-consortia-manager": "master"
-    , "app-linked-data"      : "snapshot"
-  ]
-
-  static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
-    "app-platform-full": "snapshot"
-    , "app-linked-data": "snapshot"
-  ]
-
   private Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
