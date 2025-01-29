@@ -34,6 +34,8 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.eureka)
+    tfConfig.addVar('kong_version', args.kongVersion)
+    tfConfig.addVar('keycloak_version', args.keycloakVersion)
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
     if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {

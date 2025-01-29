@@ -78,6 +78,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .members(params.MEMBERS)
   .uiBuild(params.BUILD_UI)
+  .kongVersion('latest')
+  .keycloakVersion('25.1.0-SNAPSHOT.34')
   .build()
 
 if (params.CONSORTIA) {
