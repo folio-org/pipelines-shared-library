@@ -34,7 +34,7 @@ resource "helm_release" "kong" {
 image:
   registry: folioci
   repository: folio-kong
-  tag: latest
+  tag: ${var.kong_version}
   pullPolicy: Always
 useDaemonset: false
 replicaCount: 1

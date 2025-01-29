@@ -248,3 +248,15 @@ variable "secure_store_type" {
   default     = "AWS_SSM"
   description = "Secure store type"
 }
+
+variable "keycloak_version" {
+  type        = string
+  default     = "25.1.0-SNAPSHOT.34"
+  description = "Keycloak version"
+}
+
+variable "kong_version" {
+  type        = string
+  default     = "latest"
+  description = "Kong version"
+}
