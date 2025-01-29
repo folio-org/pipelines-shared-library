@@ -11,8 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 
-// TODO: rollback to @RANCHER-1334 once code for this feature is tested
-@Library('pipelines-shared-library@RANCHER-2026') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 /** Job properties and parameters */
 properties([
