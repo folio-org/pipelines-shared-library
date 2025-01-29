@@ -78,6 +78,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .members(params.MEMBERS)
   .uiBuild(params.BUILD_UI)
+  .kongVersion('latest')
+  .keycloakVersion('25.1.0-SNAPSHOT.34')
   .build()
 
 if (params.CONSORTIA) {
@@ -133,13 +135,13 @@ ansiColor('xterm') {
         folioNamespaceCreate(namespaceParams)
       }
 
-//      stage('[Cypress] Run sanity check'){
-//        if(params.RUN_SANITY_CHECK) {
-//          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
-//            folioCypressFlow.multiThreadRun(cypressSanityParameters)
-//          }
-//        }
-//      }
+      stage('[Cypress] Run sanity check'){
+        if(params.RUN_SANITY_CHECK) {
+          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
+            folioCypressFlow.multiThreadRun(cypressSanityParameters)
+          }
+        }
+      }
 
     } catch (e) {
       /** Put error message to the Job Run description */
