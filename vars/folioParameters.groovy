@@ -31,7 +31,7 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description) {
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean useSandBoxFlag = false) {
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : 'PT_SINGLE_SELECT',
           description         : description,
@@ -41,10 +41,10 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
           referencedParameters: reference,
           script              : [$class        : 'GroovyScript',
                                  fallbackScript: [classpath: [],
-                                                  sandbox  : false,
+                                                  sandbox  : useSandBoxFlag,
                                                   script   : 'return ["error"]'],
                                  script        : [classpath: [],
-                                                  sandbox  : false,
+                                                  sandbox  : useSandBoxFlag,
                                                   script   : script]]]
 }
 
@@ -170,4 +170,16 @@ def eurekaModules() {
 
 def runSanityCheck(boolean value = true) {
   return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
+}
+
+def imageRepositoryName() {
+  return _paramChoice('IMAGE_REPO_NAME', Constants.DOCKERHUB_REPO_NAMES_LIST, 'Docker Hub image repository name')
+}
+
+def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
+  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true)
+}
+
+def moduleSource() {
+  return _paramChoice('MODULE_SOURCE', Constants.EUREKA_MODULE_SOURCES, 'Select Eureka module source')
 }
