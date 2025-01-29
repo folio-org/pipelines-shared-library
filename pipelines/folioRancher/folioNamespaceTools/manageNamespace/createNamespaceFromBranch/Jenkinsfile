@@ -79,7 +79,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .members(params.MEMBERS)
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
-  .keycloakVersion('25.1.0-SNAPSHOT.34')
+  .keycloakVersion('latest')
   .build()
 
 if (params.CONSORTIA) {
