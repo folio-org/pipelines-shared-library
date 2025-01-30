@@ -62,6 +62,11 @@ resource "kubernetes_role" "port_forward_role" {
     resources  = ["pods/portforward"]
     verbs      = ["create"]
   }
+  rule {
+    api_groups = [""]
+    resources  = ["configmaps"]
+    verbs      = ["update", "get"]
+  }
 }
 
 resource "kubernetes_role_binding" "port_forward_binding" {

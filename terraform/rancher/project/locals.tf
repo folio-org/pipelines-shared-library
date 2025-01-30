@@ -14,7 +14,7 @@ locals {
 
   system_user_modules = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists",
-    "mod-linked-data", "mod-tlr", "mod-marc-migrations", "mod-requests-mediated", "mod-circulation-bff",
+    "mod-linked-data", "mod-tlr", "mod-marc-migrations", "mod-requests-mediated", "mod-circulation-bff", "mod-bulk-operations",
     "mod-consortia-keycloak", "mod-scheduler", "mod-users-keycloak", "mod-roles-keycloak"
   ]
 
