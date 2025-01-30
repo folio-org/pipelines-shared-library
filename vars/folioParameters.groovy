@@ -33,7 +33,7 @@ private def _paramPassword(String name, String value, String description) {
 }
 
 private def _extendedSelect(String name, String reference, String script, String description
-                            , boolean filterable = true, String choiceType = "PT_SINGLE_SELECT") {
+                            , boolean filterable = true, boolean useSandBoxFlag = false, String choiceType = "PT_SINGLE_SELECT") {
 
   return [$class              : 'CascadeChoiceParameter',
           choiceType          : choiceType,
@@ -44,10 +44,10 @@ private def _extendedSelect(String name, String reference, String script, String
           referencedParameters: reference,
           script              : [$class        : 'GroovyScript',
                                  fallbackScript: [classpath: [],
-                                                  sandbox  : false,
+                                                  sandbox  : useSandBoxFlag,
                                                   script   : 'return ["error"]'],
                                  script        : [classpath: [],
-                                                  sandbox  : false,
+                                                  sandbox  : useSandBoxFlag,
                                                   script   : script]]]
 }
 
@@ -69,16 +69,16 @@ private def _extendedDynamicParam(String name, String reference, String script, 
                                                   script   : script]]]
 }
 
-private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _extendedSelect(name, reference, script, description, filterable, "PT_MULTI_SELECT")
+private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_MULTI_SELECT")
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true) {
-  _extendedSelect(name, reference, script, description, filterable,"PT_SINGLE_SELECT")
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_SINGLE_SELECT")
 }
 
-private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = false) {
-  _extendedSelect(name, reference, script, description, filterable,"PT_CHECKBOX")
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = false, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_CHECKBOX")
 }
 
 private def _paramHiddenHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
@@ -223,4 +223,16 @@ def hideParameters(Map valueParams, String reference) {
 
 def groupParameters(String title, List groupedParams, String reference = "") {
   return _paramFormattedHTML(folioStringScripts.getGroupHTMLScript(title, groupedParams), reference)
+}
+
+def imageRepositoryName() {
+  return _paramChoice('IMAGE_REPO_NAME', Constants.DOCKERHUB_REPO_NAMES_LIST, 'Docker Hub image repository name')
+}
+
+def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
+  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true, true)
+}
+
+def moduleSource() {
+  return _paramChoice('MODULE_SOURCE', Constants.EUREKA_MODULE_SOURCES, 'Select Eureka module source')
 }

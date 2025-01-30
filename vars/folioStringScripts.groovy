@@ -278,3 +278,15 @@ return \"\"\"
 \"\"\"
 """
 }
+
+static String getContainerImageTags(String numOfTagsToShow = '100') {
+  return """
+    if (MODULE_SOURCE.contains('dockerhub/')) {
+      def getContainerImageTags = "curl -s -X GET '${Constants.DOCKERHUB_URL}/repositories/\${MODULE_SOURCE.split('/')[1]}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}' | jq -r '.results[].name'"
+      def process = ['sh', '-c', getContainerImageTags].execute()
+      return process.text.readLines().sort().reverse()
+    } else {
+      return ["N/A"]
+    }
+  """.stripIndent().trim()
+}

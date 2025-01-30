@@ -31,6 +31,9 @@ void call(CreateNamespaceParameters args) {
   tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
 
   folioHelm.withKubeConfig(args.clusterName) {
+    stage('[Helm uninstall] All') {
+      folioHelm.deleteFolioModulesParallel(args.namespaceName)
+    }
     retry(2) {
       if (args.opensearchType != 'built-in') {
         stage('[Kubectl] Cleanup opensearch indices') {
@@ -42,9 +45,6 @@ void call(CreateNamespaceParameters args) {
           folioTools.deleteKafkaTopics(args.clusterName, args.namespaceName)
         }
       }
-    }
-    stage('[Helm uninstall] All') {
-      folioHelm.deleteFolioModulesParallel(args.namespaceName)
     }
   }
 

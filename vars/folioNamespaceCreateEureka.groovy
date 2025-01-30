@@ -35,6 +35,8 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
     tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
+    tfConfig.addVar('kong_version', args.kongVersion)
+    tfConfig.addVar('keycloak_version', args.keycloakVersion)
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
     if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
@@ -79,6 +81,7 @@ void call(CreateNamespaceParameters args) {
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+    installJson.removeAll { module -> module.id == 'okapi' }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
