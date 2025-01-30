@@ -75,6 +75,7 @@ void call(CreateNamespaceParameters args) {
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
     List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    installJson.removeAll { module -> module.id == 'okapi' }
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
     InstallRequestParams installRequestParams = new InstallRequestParams()

@@ -680,6 +680,9 @@ mod-bulk-operations:
   - name: MAX_UPLOADING_RETRIES
     value: '50'
   integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
     db:
       enabled: true
       existingSecret: db-credentials
@@ -689,6 +692,9 @@ mod-bulk-operations:
     s3:
       enabled: true
       existingSecret: s3-mod-bulk-operations-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-bulk-operations-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -3054,9 +3060,9 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      memory: 1067Mi
+      memory: 1250Mi
     requests:
-      memory: 927Mi
+      memory: 1024Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:

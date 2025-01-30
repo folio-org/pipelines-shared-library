@@ -71,6 +71,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+newInstallJson.removeAll { module -> module.id == 'okapi' }
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
