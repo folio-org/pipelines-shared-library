@@ -152,6 +152,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-inn-reach"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
       name: "app-requests-ecs"
       , branch: "master"
       , consortia: false
