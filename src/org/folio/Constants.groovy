@@ -94,6 +94,9 @@ class Constants {
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing']
+
+  static String AWS_EKS_NS_METADATA = 'metadata'
+
   //IMPORTANT! Do not change order without need
   static List AWS_INTEGRATED_SERVICE_TYPE = ['built-in', 'aws']
 
