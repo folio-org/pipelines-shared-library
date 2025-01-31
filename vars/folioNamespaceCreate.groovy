@@ -141,7 +141,6 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
       main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 
@@ -164,7 +163,7 @@ void call(CreateNamespaceParameters args) {
       namespace.getTenants().each { tenantId, tenant ->
         if (tenant.getTenantUi()) {
           branches[tenantId] = {
-            logger.debug(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(tenant.getTenantUi())))
+            logger.debug(prettyPrint(toJson(tenant.getTenantUi())))
             folioUI.buildAndDeploy(namespace, tenant)
           }
         }
