@@ -92,13 +92,13 @@ class OkapiTenantConsortia extends OkapiTenant {
    * and adds them to the tenant's installed modules. Additionally, it removes the
    * 'folio_consortia-settings' module if this tenant is not the central consortia tenant.
    *
-   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param steps The Jenkins script context for accessing pipeline steps.
    * @param extensions List of extension IDs to enable.
    * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
    */
   @Override
-  OkapiTenantConsortia enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
-    super.enableFolioExtensions(script, extensions, isRelease)
+  OkapiTenantConsortia enableFolioExtensions(Object steps, List<String> extensions, boolean isRelease = false) {
+    super.enableFolioExtensions(steps, extensions, isRelease)
     // Remove the 'folio_consortia-settings, folio_ld-folio-wrapper, and mod-linked-data' module if this tenant is not
     // the central consortia tenant
     if (!this.isCentralConsortiaTenant) {
