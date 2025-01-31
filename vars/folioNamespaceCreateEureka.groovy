@@ -2,7 +2,9 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 
@@ -33,7 +35,7 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
     tfConfig.addVar('pg_version', args.pgVersion)
-    tfConfig.addVar('eureka', args.eureka)
+    tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
     tfConfig.addVar('kong_version', args.kongVersion)
     tfConfig.addVar('keycloak_version', args.keycloakVersion)
 
@@ -79,7 +81,7 @@ void call(CreateNamespaceParameters args) {
     installJson.addAll(eurekaPlatform)
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
-    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
     installJson.removeAll { module -> module.id == 'okapi' }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
@@ -179,6 +181,15 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+
+        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+        int counter = 0
+        retry(10) {
+          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+          counter++
+
+          Applications.get(eureka.kong).getRegisteredApplications()
+        }
       }
     }
 
@@ -186,8 +197,12 @@ void call(CreateNamespaceParameters args) {
       namespace.withApplications(
         eureka.registerApplicationsFlow(
           //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-          (args.consortia ? eureka.CURRENT_APPLICATIONS : eureka.CURRENT_APPLICATIONS_WO_CONSORTIA) -
-            (args.linkedData ? [:] : ["app-linked-data": "snapshot"])
+          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+          args.applications -
+                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+                  (args.linkedData ? [:] : ["app-linked-data": "master"])
           , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )
@@ -247,7 +262,7 @@ void call(CreateNamespaceParameters args) {
         namespace.getTenants().each { tenantId, tenant ->
           if (tenant.getTenantUi()) {
             branches[tenantId] = {
-              folioUI.buildAndDeploy(namespace, tenant, args.eureka, namespace.getDomains()['kong'] as String
+              folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
                 , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
             }
           }

@@ -1,7 +1,9 @@
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.rest.model.OkapiUser
+import org.folio.rest_v2.PlatformType
 import org.folio.testing.cypress.CypressConstants
+import org.folio.rest_v2.Constants as RestConstants
 
 static List repositoriesList() {
   return ['platform-complete',
@@ -31,12 +33,14 @@ private def _paramPassword(String name, String value, String description) {
   return password(name: name, defaultValueAsSecret: new Secret(value), description: description)
 }
 
-private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean useSandBoxFlag = false) {
+private def _extendedSelect(String name, String reference, String script, String description
+                            , boolean filterable = true, boolean useSandBoxFlag = false, String choiceType = "PT_SINGLE_SELECT") {
+
   return [$class              : 'CascadeChoiceParameter',
-          choiceType          : 'PT_SINGLE_SELECT',
+          choiceType          : choiceType,
           description         : description,
           filterLength        : 1,
-          filterable          : true,
+          filterable          : filterable,
           name                : name,
           referencedParameters: reference,
           script              : [$class        : 'GroovyScript',
@@ -48,6 +52,44 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                                   script   : script]]]
 }
 
+private def _extendedDynamicParam(String name, String reference, String script, String description
+                                  , boolean omitValueField = false, String choiceType = "ET_FORMATTED_HTML") {
+
+  return [$class              : 'DynamicReferenceParameter',
+          choiceType          : choiceType,
+          description         : description,
+          name                : name,
+          referencedParameters: reference,
+          omitValueField      : omitValueField,
+          script              : [$class        : 'GroovyScript',
+                                 fallbackScript: [classpath: [],
+                                                  sandbox  : false,
+                                                  script   : 'return ["error"]'],
+                                 script        : [classpath: [],
+                                                  sandbox  : false,
+                                                  script   : script]]]
+}
+
+private def _paramExtendedMultiSelect(String name, String reference, String script, String description, boolean filterable = true, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_MULTI_SELECT")
+}
+
+private def _paramExtendedSingleSelect(String name, String reference, String script, String description, boolean filterable = true, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_SINGLE_SELECT")
+}
+
+private def _paramExtendedCheckboxSelect(String name, String reference, String script, String description, boolean filterable = false, boolean useSandBoxFlag = false) {
+  _extendedSelect(name, reference, script, description, filterable, useSandBoxFlag, "PT_CHECKBOX")
+}
+
+private def _paramHiddenHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
+  _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HIDDEN_HTML")
+}
+
+private def _paramFormattedHTML(String script, String reference, boolean omitValue = true, String name = "", String description = "") {
+  _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HTML")
+}
+
 def agent() {
   return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
 }
@@ -56,12 +98,24 @@ def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
+def platform() {
+  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() }, 'Select FOLIO platform')
+}
+
+def applicationSet() {
+  return _paramChoice('APPLICATION_SET', RestConstants.APPLICATION_SETS_LIST, 'Select Eureka application set')
+}
+
+def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
+}
+
 def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
 
-def cluster() {
-  return _paramChoice('CLUSTER', Constants.AWS_EKS_CLUSTERS, '(Required) Select cluster for current job')
+def cluster(String reference = null, String paramName = 'CLUSTER') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference), '(Required) Select cluster for current job')
 }
 
 def namespace() {
@@ -172,12 +226,20 @@ def runSanityCheck(boolean value = true) {
   return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
 }
 
+def hideParameters(Map valueParams, String reference) {
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+}
+
+def groupParameters(String title, List groupedParams, String reference = "") {
+  return _paramFormattedHTML(folioStringScripts.getGroupHTMLScript(title, groupedParams), reference)
+}
+
 def imageRepositoryName() {
   return _paramChoice('IMAGE_REPO_NAME', Constants.DOCKERHUB_REPO_NAMES_LIST, 'Docker Hub image repository name')
 }
 
 def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String referencedParams) {
-  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true)
+  return _paramExtendedSingleSelect(paramName, referencedParams, folioStringScripts.getContainerImageTags(), "(Required) Get Container Image Tags from Docker Hub", true, true)
 }
 
 def moduleSource() {

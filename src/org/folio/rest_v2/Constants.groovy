@@ -42,4 +42,164 @@ class Constants {
     enabled               : true,
     authentication        : "100473910/PAOLF"
   ]
+
+  public static final List<Map<String, ?>> APPLICATION_FULL = [
+    [
+      name       : "app-platform-full"
+      , branch   : "snapshot"
+      , consortia: false
+      , core     : true
+      , byDefault: true
+      , dependsOn: []
+    ],
+    [
+      name       : "app-consortia"
+      , branch   : "snapshot"
+      , consortia: true
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-consortia-manager", "app-platform-full"]
+    ],
+    [
+      name       : "app-consortia-manager"
+      , branch   : "master"
+      , consortia: true
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-consortia", "app-platform-full"]
+    ],
+    [
+      name       : "app-linked-data"
+      , branch   : "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-full"]
+    ]
+  ]
+
+  public static final List<Map<String, ?>> APPLICATION_COMPLETE = [
+    [
+      name: "app-platform-minimal"
+      , branch: "master"
+      , consortia: false
+      , core     : true
+      , byDefault: true
+      , dependsOn: []
+    ],
+    [
+      name: "app-platform-complete"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-consortia"
+      , branch: "master"
+      , consortia: true
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia-manager"]
+    ],
+    [
+      name: "app-consortia-manager"
+      , branch: "master"
+      , consortia: true
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia"]
+    ],
+    [
+      name: "app-linked-data"
+      , branch: "master"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-dcb"
+      , branch: "master"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-edge-complete"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-reading-room"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-erm-usage"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-inn-reach"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-requests-ecs"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-dcb"]
+    ],
+    [
+      name: "app-requests-mediated"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated-ui"]
+    ],
+    [
+      name: "app-requests-mediated-ui"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
+    ]
+  ]
+
+  public static final Map<String, List<Map<String, ?>>> APPLICATION_SETS = [
+    'Complete': APPLICATION_COMPLETE
+    , 'Full': APPLICATION_FULL
+  ]
+
+  static List APPLICATION_SETS_LIST = APPLICATION_SETS*.getKey()
+
+  static final Map APPLICATION_SETS_APPLICATIONS =
+    APPLICATION_SETS.collectEntries { appSet, appList ->
+      [ appSet, appList.collect { it.name + (it.byDefault ? ":selected" : "") } ]
+    }
+
+  static final Map APPLICATION_BRANCH(String set, List appFilter = null) {
+    return APPLICATION_SETS[set]
+      .findAll{app -> (!appFilter && app.byDefault) || appFilter.contains(app.name)}
+      .collectEntries { app -> [ app.name, app.branch ] }
+  }
 }

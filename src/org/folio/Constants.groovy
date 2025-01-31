@@ -1,5 +1,7 @@
 package org.folio
 
+import org.folio.rest_v2.PlatformType
+
 import java.util.regex.Pattern
 
 class Constants {
@@ -34,8 +36,7 @@ class Constants {
   static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
-  static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-etesting', 'folio-edev']
-  //tmp excluded: 'folio-eperf', 'folio-etmp
+
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
@@ -82,18 +83,84 @@ class Constants {
                                         'volaris',
                                         'volaris-2nd',
                                         'rtr']
-  static Map AWS_EKS_NAMESPACE_MAPPING = ['folio-dev'     : AWS_EKS_DEV_NAMESPACES,
-                                          'folio-testing' : AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-perf'    : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
-                                          'folio-tmp'     : AWS_EKS_TMP_NAMESPACES,
-                                          'folio-edev'    : AWS_EKS_DEV_NAMESPACES,
-                                          'folio-etesting': AWS_EKS_TESTING_NAMESPACES,
-                                          'folio-eperf'   : AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES,
-                                          'folio-etmp'    : AWS_EKS_TMP_NAMESPACES]
 
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing']
+
+  static List AWS_EKS_CLUSTERS = [
+    [
+      name: 'folio-testing'
+      , platform: [ PlatformType.OKAPI ]
+      , namespaces: AWS_EKS_TESTING_NAMESPACES
+      , disabled: false
+    ],
+    [
+      name: 'folio-dev'
+      , platform: [ PlatformType.OKAPI ]
+      , namespaces: AWS_EKS_DEV_NAMESPACES
+      , disabled: false
+    ],
+    [
+      name: 'folio-perf'
+      , platform: [ PlatformType.OKAPI ]
+      , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
+      , disabled: false
+    ],
+    [
+      name: 'folio-etesting'
+      , platform: [ PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_TESTING_NAMESPACES
+      , disabled: false
+    ],
+    [
+      name: 'folio-edev'
+      , platform: [ PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_DEV_NAMESPACES
+      , disabled: false
+    ],
+    [
+      name: 'folio-eperf'
+      , platform: [ PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
+      , disabled: true
+    ],
+    [
+      name: 'folio-etmp'
+      , platform: [ PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_TMP_NAMESPACES
+      , disabled: true
+    ],
+    [
+      name: 'folio-tmp'
+      , platform: [ PlatformType.OKAPI, PlatformType.EUREKA ]
+      , namespaces: AWS_EKS_TMP_NAMESPACES
+      , disabled: false
+    ]
+  ]
+
+  static List AWS_EKS_CLUSTERS_LIST = AWS_EKS_CLUSTERS*.name
+
+  static Map AWS_EKS_NAMESPACE_MAPPING =
+    AWS_EKS_CLUSTERS.findAll{ cluster -> !(cluster.disabled) }
+      .collectEntries { cluster -> [cluster.name, cluster.namespaces] }
+
+  static Map AWS_EKS_PLATFORM_CLUSTERS() {
+    Map platformClusters = [:]
+
+    AWS_EKS_CLUSTERS.findAll{!(it.disabled) }
+      .each { cluster ->
+        cluster.platform.each { platform ->
+          if (!platformClusters.containsKey(platform.name()))
+            platformClusters.put(platform.name(), [])
+
+          platformClusters[platform.name()].add(cluster.name)
+        }
+      }
+
+    return platformClusters
+  }
+
 
   static String AWS_EKS_NS_METADATA = 'metadata'
 

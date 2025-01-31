@@ -6,8 +6,10 @@ import org.folio.Constants
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
+import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.rest_v2.Constants as RestConstants
 
 @Library('pipelines-shared-library@RANCHER-1334') _
 
@@ -41,6 +43,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('lsdi')
   .folioBranch('snapshot')
@@ -49,7 +52,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .eureka(true)
   .splitFiles(true)
   .ecsCCL(true)
   .rwSplit(true)
@@ -57,6 +59,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
+  .applicationSet('Complete')
+  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .pgType('built-in')
   .pgVersion('16.1')
   .kafkaType('built-in')

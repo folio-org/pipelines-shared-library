@@ -1,10 +1,25 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.Constants as RestConstants
+
+static String getClusters(String platform) {
+  return """
+return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
+${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platform}.trim()] :
+${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
+"""
+}
 
 static String getNamespaces() {
-  return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
+  return """
+def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
 """
+}
+
+static String getApplications(String applicationSet) {
+  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
 static String getRepositoryBranches(String repository) {
@@ -173,6 +188,98 @@ result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
         .reverse()
 
 return result
+"""
+}
+
+static String getHideHTMLScript(Map hideMap, String reference) {
+  return """
+def selectors = ${hideMap.inspect()}[${reference}]?.collect {
+    "div.jenkins-form-item:has(input[value='\$it']):not(:has([id^=hiddenPanel]))"
+  }?.join(", \\n")
+
+return selectors ? \"\"\"
+  <style>
+    \$selectors {
+      display: none !important;
+    }
+  </style>
+  \"\"\" : ""
+"""
+}
+
+static String getGroupHTMLScript(String title, List params) {
+  int id = Math.abs(title.hashCode())
+
+  return """
+return \"\"\"
+<style>
+  #toggleHeader${id} {
+    background-color: #ddd;
+    padding: 0.5em;
+    margin: 1em 0;
+    cursor: pointer;
+    font-weight: var(--form-label-font-weight);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  #toggleHeader${id}::after{
+    content: "- ";
+  }
+
+  #toggleHeader${id}.closed::after{
+    content: "+ ";
+  }
+
+  #toggleHeader${id}.closed {
+    background-color: #ccc;
+  }
+
+  div:has(#toggleHeader${id}.closed) #hiddenPanel${id} {
+    display: none !important;
+  }
+
+  div.jenkins-form-item:has(#toggleHeader${id}) {
+    margin-bottom: 0;
+  }
+
+  #hiddenPanel${id} {
+    display: block;
+    border: 1px solid #ccc;
+    padding: 1em;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: var(--section-padding);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hiddenPanel = document.getElementById('hiddenPanel${id}');
+    const hiddenPanelParent = hiddenPanel.closest('div.jenkins-form-item');
+
+    if (hiddenPanelParent && hiddenPanel) {
+      hiddenPanelParent.parentNode.insertBefore(hiddenPanel, hiddenPanelParent.nextSibling);
+    }
+
+    // Move each named parameter's DOM node into the hiddenPanel <div>
+    ${params.inspect()}.forEach(name => {
+      const input = document.querySelector('div.jenkins-form-item input[value="' + name + '"]');
+
+      if (input) {
+        const paramDiv = input.closest('div.jenkins-form-item');
+        hiddenPanel.appendChild(paramDiv);
+      }
+    });
+  });
+  </script>
+
+<div id="toggleHeader${id}" class="closed" onclick="this.classList.toggle('closed');">
+  ${title}
+</div>
+
+<div id="hiddenPanel${id}"></div>
+\"\"\"
 """
 }
 
