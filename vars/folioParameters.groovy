@@ -3,6 +3,7 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiUser
 import org.folio.rest_v2.PlatformType
 import org.folio.testing.cypress.CypressConstants
+import org.folio.rest_v2.Constants as RestConstants
 
 static List repositoriesList() {
   return ['platform-complete',
@@ -99,6 +100,14 @@ def cypressAgent() {
 
 def platform() {
   return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() }, 'Select FOLIO platform')
+}
+
+def applicationSet() {
+  return _paramChoice('APPLICATION_SET', RestConstants.APPLICATION_SETS_LIST, 'Select Eureka application set')
+}
+
+def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
 }
 
 def refreshParameters() {

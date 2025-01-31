@@ -67,6 +67,8 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .loadSample(true)
   .consortia(true)
   .rtr(false)
+  .applicationSet('Complete')
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .uiBuild(true)
   .build()
 
