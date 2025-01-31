@@ -20,8 +20,16 @@ resource "helm_release" "kafka" {
   values = [<<-EOF
 image:
   tag: 3.5
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kafka
+  pullPolicy: IfNotPresent
 metrics:
   kafka:
+    image:
+      tag: 1.6.0-debian-11-r73
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: kafka-exporter
+      pullPolicy: IfNotPresent
     enabled: true
     resources:
       limits:
@@ -30,6 +38,11 @@ metrics:
         memory: 256Mi
     ${indent(4, local.schedule_value)}
   jmx:
+    image:
+      tag: 0.18.0-debian-11-r5
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: jmx-exporter
+      pullPolicy: IfNotPresent
     enabled: true
     resources:
       limits:
@@ -53,6 +66,9 @@ resources:
 zookeeper:
   image:
     tag: 3.7
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: zookeeper
+    pullPolicy: IfNotPresent
   enabled: true
   persistence:
     size: 5Gi
@@ -85,6 +101,11 @@ resource "helm_release" "kafka-ui" {
   chart      = "kafka-ui"
   version    = "0.7.1"
   values = [<<-EOF
+image:
+  tag: v0.7.0
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kafka-ui
+  pullPolicy: IfNotPresent
 service:
   type: NodePort
 ingress:

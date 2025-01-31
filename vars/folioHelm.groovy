@@ -104,6 +104,10 @@ void deleteFolioModulesParallel(String ns) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkPodRunning(String ns, String podName) {
   timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
@@ -130,8 +134,12 @@ void checkPodRunning(String ns, String podName) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkAllPodsRunning(String ns) {
-  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+  timeout(time: 20, unit: 'MINUTES')  {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -154,6 +162,89 @@ void checkAllPodsRunning(String ns) {
     }
   }
 }
+
+void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
+  checkDeploymentsRunning(ns, [deploymentModule])
+}
+
+void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
+  println('Starting deployment monitoring...')
+
+  kubectl.deleteEvictedPods(ns)
+
+  boolean allDeploymentsUpdated = false
+  int timer = 0
+  int maxTime = 20 * 60 // 20 minutes in seconds
+
+  try {
+    while (!allDeploymentsUpdated) {
+      def jsonOutput
+      try {
+        // Execute the kubectl command
+        jsonOutput = sh(
+          script: "kubectl get deployments -n ${ns} -o json",
+          returnStdout: true
+        ).trim()
+      } catch (Exception e) {
+        error("Failed to execute kubectl command: ${e.message}")
+      }
+
+      def deploymentsJson
+      try {
+        // Parse the JSON output
+        deploymentsJson = readJSON text: jsonOutput
+      } catch (Exception e) {
+        error("Failed to parse JSON output: ${e.message}")
+      }
+
+      // Check if there are any deployments in the namespace
+      if (!deploymentsJson.items || deploymentsJson.items.isEmpty()) {
+        error("No deployments found in namespace '${ns}'. Please check the namespace or deployment configuration.")
+      }
+
+      def unfinishedDeployments = []
+
+      // Check each deployment from the list
+      deploymentsList.each { folioModule ->
+        def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
+        if (deployment) {
+          def status = deployment.status
+          def specReplicas = deployment.spec.replicas
+          if (status.updatedReplicas != specReplicas ||
+              status.readyReplicas != specReplicas ||
+              status.unavailableReplicas > 0 ||
+              status.conditions.any { it.type == "Available" && it.status == "False" }) {
+            unfinishedDeployments << folioModule.name
+          }
+        } else {
+          println("Warning: Deployment '${folioModule.name}' not found in namespace '${ns}'")
+        }
+      }
+
+      if (unfinishedDeployments) {
+        println("Unfinished deployments: ${unfinishedDeployments}")
+        println("Rechecking in 30 seconds...")
+        sleep(time: 30, unit: 'SECONDS')
+        timer += 30
+      } else {
+        println("All deployments are successfully updated!")
+        allDeploymentsUpdated = true
+      }
+
+      // Check the timer
+      if (timer >= maxTime) {
+        error("Timeout: Some deployments are still not updated after 20 minutes.")
+      }
+    }
+  } catch (Exception e) {
+    // Handle general errors
+    println("Error occurred during deployment monitoring: ${e.message}")
+    throw e // Rethrow the error to mark the Jenkins build as failed
+  }
+}
+
+
+
 
 static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''

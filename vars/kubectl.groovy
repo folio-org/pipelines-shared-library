@@ -139,17 +139,29 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
     return sh(script: "set +x && kubectl exec --namespace=${namespace} ${pod_name} -- ${command}",
       returnStdout: true).trim()
   } catch (Exception e) {
-    currentBuild.result = 'UNSTABLE'
-    println(e.getMessage())
+//    currentBuild.result = 'UNSTABLE'
+    println("Requested command: ${command} failed\nError: " + e.getMessage())
   }
 }
 
 void deletePod(String namespace = 'default', String pod_name) {
   try {
-    sh "kubectl delete pod --namespace=${namespace} ${pod_name}"
+    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --force --grace-period=0"
   } catch (Exception e) {
-    currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
+  }
+}
+
+void deleteEvictedPods(String namespace = 'default') {
+  try {
+    def pods = sh(script: "kubectl get pod --no-headers --namespace ${namespace}", returnStdout: true).trim()
+    pods.toString().eachLine { pod ->
+      if (pod.contains('Evicted')) {
+      deletePod(namespace, pod.split()[0].toString().trim())
+      }
+    }
+  } catch (Exception e) {
+    println("Unable to delete evicted pods!\nError: " + e.getMessage())
   }
 }
 

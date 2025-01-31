@@ -7,8 +7,32 @@ resource "helm_release" "traffic-manager" {
   values = [
     <<-EOF
 image:
-  registry: ghcr.io/telepresenceio
-  tag: 2.20.1
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: tel2
+  tag: 2.21.1
+  pullPolicy: IfNotPresent
+resources:
+  limits:
+    cpu: 256m
+    memory: 512Mi
+  requests:
+    cpu: 128m
+    memory: 128Mi
+agent:
+  resources:
+    requests:
+      cpu: 128m
+      memory: 256Mi
+    limits:
+      cpu: 256m
+      memory: 512Mi
+hooks:
+  curl:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    image: "curl"
+    tag: 7.88.1
+    imagePullSecrets: []
+    pullPolicy: IfNotPresent
 managerRbac:
   create: true
   namespaced: true
