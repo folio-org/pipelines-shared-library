@@ -101,6 +101,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .applicationSet(params.APPLICATION_SET)
   .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
     , (params.APPLICATIONS as String).split(',') as List))
+  .hasSecureTenant(params.HAS_SECURE_TENANT)
+  .secureTenantId(params.SECURE_TENANT)
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)

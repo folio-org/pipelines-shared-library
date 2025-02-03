@@ -14,6 +14,10 @@ class EurekaNamespace extends RancherNamespace {
 
   boolean enableECS_CCL = false
 
+  boolean hasSecureTenant = false
+
+  EurekaTenant secureTenant
+
   EurekaNamespace(String clusterName, String namespaceName) {
     super(clusterName, namespaceName)
   }
@@ -31,6 +35,10 @@ class EurekaNamespace extends RancherNamespace {
   @Override
   void addTenant(OkapiTenant tenant) {
     super.addTenant(tenant)
+
+    hasSecureTenant = (tenant as EurekaTenant).isSecureTenant
+    if (hasSecureTenant)
+      secureTenant = tenant as EurekaTenant
 
     applications.putAll((tenant as EurekaTenant).applications)
   }

@@ -33,6 +33,8 @@ class EurekaTenant extends OkapiTenant {
 
   Map<String, String> applications = [:]
 
+  boolean isSecureTenant = false
+
   EurekaTenant(){}
 
   /**
@@ -69,6 +71,16 @@ class EurekaTenant extends OkapiTenant {
   }
 
   /**
+   * Chainable setter for consortia secure flag.
+   * @param isSecureTenant Flag indicating if the tenant is secure.
+   * @return The EurekaTenant object.
+   */
+  EurekaTenant withSecureTenant(boolean isSecureTenant) {
+    this.isSecureTenant = isSecureTenant
+    return this
+  }
+
+  /**
    * Chainable setter for install JSON.
    * This method sets the installation JSON object while ensuring that specific
    * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
@@ -89,7 +101,8 @@ class EurekaTenant extends OkapiTenant {
   Map toMap(){
     Map ret = [
       name: tenantId,
-      description: tenantDescription
+      description: tenantDescription,
+      secure: isSecureTenant
     ]
 
     if(tenantId.trim())
@@ -113,6 +126,7 @@ class EurekaTenant extends OkapiTenant {
       "tenantId": "$tenantId",
       "tenantName": "$tenantName",
       "tenantDescription": "$tenantDescription",
+      "isSecureTenant": "$isSecureTenant",
       "applications": "$applications",
       "modules": $modules,
       "indexes": $indexes
