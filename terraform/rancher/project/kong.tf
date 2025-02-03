@@ -21,8 +21,6 @@ resource "helm_release" "kong" {
     rancher2_secret.db-credentials,
     helm_release.postgresql,
     helm_release.pgadmin,
-    postgresql_database.kong,
-    postgresql_role.kong,
     rancher2_secret.kong-credentials
   ]
   name       = "kong-${var.rancher_project_name}"
