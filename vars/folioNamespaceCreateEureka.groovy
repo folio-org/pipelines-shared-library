@@ -77,6 +77,7 @@ void call(CreateNamespaceParameters args) {
 
     String defaultTenantId
     List installJson
+    List eurekaPlatform
 
     //Set install configuration
     if (args.dataset) {
@@ -89,11 +90,13 @@ void call(CreateNamespaceParameters args) {
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
     if (args.dataset) {
       installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
+      eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, 'snapshot')
+      installJson.addAll(eurekaPlatform)
     } else {
       installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+      eurekaPlatform = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+      installJson.addAll(eurekaPlatform)
     }
-    def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
-    installJson.addAll(eurekaPlatform)
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
