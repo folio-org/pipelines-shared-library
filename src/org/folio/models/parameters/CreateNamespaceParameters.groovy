@@ -289,7 +289,7 @@ class CreateNamespaceParameters implements Cloneable {
 
     /**
      * Defines the type of environment to be used.
-     * @param sprint
+     * @param dataset `true` to enable BF like dataset; `false` to disable.
      * @return
      */
 
